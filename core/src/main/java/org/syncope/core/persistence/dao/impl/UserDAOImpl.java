@@ -22,10 +22,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
@@ -42,8 +42,8 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
@@ -66,56 +66,54 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser find(final Long id) {
-        Query query = entityManager.createQuery(
+        TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.id = :id");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+                + "WHERE e.id = :id", SyncopeUser.class);
         query.setParameter("id", id);
 
+        SyncopeUser result = null;
         try {
-            return (SyncopeUser) query.getSingleResult();
+            return query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
         }
+
+        return result;
     }
 
     @Override
     public SyncopeUser find(final String username) {
-        Query query = entityManager.createQuery(
+        TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.username = :username");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+                + "WHERE e.username = :username", SyncopeUser.class);
         query.setParameter("username", username);
 
+        SyncopeUser result = null;
         try {
-            return (SyncopeUser) query.getSingleResult();
+            return query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
         }
+
+        return result;
     }
 
     @Override
     public SyncopeUser findByWorkflowId(final String workflowId) {
-        Query query = entityManager.createQuery(
+        TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.workflowId = :workflowId");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+                + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
         query.setParameter("workflowId", workflowId);
 
-        return (SyncopeUser) query.getSingleResult();
+        return query.getSingleResult();
     }
 
     /**
-     * Find users by derived attribute value.
-     * This method could fail if one or more string literals contained into the
-     * derived attribute value provided derive from identifier (schema name)
-     * replacement. When you are going to specify a derived attribute expression
-     * you must be quite sure that string literals used to build the expression
-     * cannot be found into the attribute values used to replace attribute
-     * schema names used as identifiers.
+     * Find users by derived attribute value. This method could fail if one or
+     * more string literals contained into the derived attribute value provided
+     * derive from identifier (schema name) replacement. When you are going to
+     * specify a derived attribute expression you must be quite sure that string
+     * literals used to build the expression cannot be found into the attribute
+     * values used to replace attribute schema names used as identifiers.
+     *
      * @param schemaName derived schema name.
      * @param value derived attribute value.
      * @return list of users.
@@ -385,6 +383,7 @@ public class UserDAOImpl extends AbstractDAOImpl
     /**
      * Generate one where clause for each different attribute schema into the
      * derived schema expression provided.
+     *
      * @param expression derived schema expression.
      * @param value derived attribute value.
      * @return where clauses to use to build the query.
@@ -533,6 +532,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     /**
      * Split an attribute value recurring on provided literals/tokens.
+     *
      * @param attrValue value to be splitted.
      * @param literals literals/tokens.
      * @return

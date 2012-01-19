@@ -82,7 +82,8 @@
 
         <commons-jexl.version>2.1.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-httpclient.version>3.1</commons-httpclient.version>
+        
+        <httpcomponents.version>4.1.2</httpcomponents.version>
 
         <javamail-specs.version>1.6</javamail-specs.version>
         <javamail-provider.version>1.8.2</javamail-provider.version>
@@ -197,9 +198,9 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>${commons-httpclient.version}</version>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents.version}</version>
             </dependency>
 
             <dependency>
@@ -556,6 +557,8 @@
                     <configuration>
                         <source>${targetJdk}</source>
                         <target>${targetJdk}</target>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
                     </configuration>
                 </plugin>
                 <plugin>

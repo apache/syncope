@@ -54,8 +54,8 @@ import org.syncope.types.PropagationOperation;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the correspondant
- * connector instance has been configured to allow every single operation:
- * if not, simply do nothig.
+ * connector instance has been configured to allow every single operation: if
+ * not, simply do nothig.
  */
 public class ConnectorFacadeProxy {
 
@@ -72,13 +72,14 @@ public class ConnectorFacadeProxy {
 
     /**
      * Set of configure connecto instance capabilities.
+     *
      * @see org.syncope.core.persistence.beans.ConnInstance
      */
     private final Set<ConnectorCapability> capabitilies;
 
     /**
-     * Use the passed connector instance to build a ConnectorFacade that will
-     * be used to make all wrapped calls.
+     * Use the passed connector instance to build a ConnectorFacade that will be
+     * used to make all wrapped calls.
      *
      * @param connInstance the connector instance configuration
      * @param connBundleManager connector bundle loader
@@ -174,31 +175,36 @@ public class ConnectorFacadeProxy {
                     } else if (Integer.class.equals(propertySchemaClass)
                             || int.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Integer.parseInt(
+                        propertyValue =
+                                Integer.parseInt(
                                 property.getValues().iterator().next().toString());
 
                     } else if (Long.class.equals(propertySchemaClass)
                             || long.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Long.parseLong(
+                        propertyValue =
+                                Long.parseLong(
                                 property.getValues().iterator().next().toString());
 
                     } else if (Float.class.equals(propertySchemaClass)
                             || float.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Float.parseFloat(
+                        propertyValue =
+                                Float.parseFloat(
                                 property.getValues().iterator().next().toString());
 
                     } else if (Double.class.equals(propertySchemaClass)
                             || double.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Double.parseDouble(
+                        propertyValue =
+                                Double.parseDouble(
                                 property.getValues().iterator().next().toString());
 
                     } else if (Boolean.class.equals(propertySchemaClass)
                             || boolean.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Boolean.parseBoolean(
+                        propertyValue =
+                                Boolean.parseBoolean(
                                 property.getValues().iterator().next().toString());
 
                     } else if (URI.class.equals(propertySchemaClass)) {
@@ -438,8 +444,8 @@ public class ConnectorFacadeProxy {
     }
 
     /**
-     * Get remote object used by the propagation manager in order to choose
-     * for a create (object doesn't exist) or an update (object exists).
+     * Get remote object used by the propagation manager in order to choose for
+     * a create (object doesn't exist) or an update (object exists).
      *
      * @param propagationMode propagation mode
      * @param operationType resource operation type
@@ -530,7 +536,7 @@ public class ConnectorFacadeProxy {
     }
 
     /**
-     * 
+     *
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
      * @param options ConnId's OperationOptions
@@ -562,6 +568,7 @@ public class ConnectorFacadeProxy {
 
     /**
      * Return resource schema names.
+     *
      * @param showall return __NAME__ and __PASSWORD__ attribute if true.
      * @return a list of schema names.
      */
@@ -575,6 +582,7 @@ public class ConnectorFacadeProxy {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
                     if (showall || (!"__NAME__".equals(attrInfo.getName())
                             && !"__PASSWORD__".equals(attrInfo.getName()))) {
+
                         resourceSchemaNames.add(attrInfo.getName());
                     }
                 }

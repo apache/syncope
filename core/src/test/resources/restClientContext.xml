@@ -17,15 +17,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="httpClientParams" class="org.apache.commons.httpclient.params.HttpClientParams">
-        <property name="authenticationPreemptive" value="true"/>
-        <property name="connectionManagerClass"
-                  value="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
-    </bean>
-    <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
+    <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
+    <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
+    <bean id="httpClient" class="org.apache.http.impl.client.ContentEncodingHttpClient">
+        <constructor-arg ref="httpClientConnManager"/>
         <constructor-arg ref="httpClientParams"/>
     </bean>
-    <bean id="httpClientFactory" class="org.springframework.http.client.CommonsClientHttpRequestFactory">
+    <bean id="httpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
         <constructor-arg ref="httpClient"/>
     </bean>
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
@@ -33,7 +31,7 @@
 
         <property name="errorHandler">
             <bean id="syncopeClientErrorHandler"
-            class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+                  class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
         </property>
     </bean>
 

@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -37,7 +36,7 @@ public class SchemaTest extends AbstractTest {
     private SchemaDAO schemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<USchema> userList = schemaDAO.findAll(USchema.class);
         assertEquals(11, userList.size());
 
@@ -46,7 +45,7 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void findByName() {
+    public void findByName() {
         USchema attributeSchema =
                 schemaDAO.find("fullname", USchema.class);
         assertNotNull("did not find expected attribute schema",
@@ -54,7 +53,7 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void getAttributes() {
+    public void getAttributes() {
         List<RSchema> schemas = schemaDAO.findAll(RSchema.class);
         assertNotNull(schemas);
         assertFalse(schemas.isEmpty());
@@ -68,7 +67,7 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
         attributeSchema.setType(SchemaType.String);
@@ -84,9 +83,8 @@ public class SchemaTest extends AbstractTest {
         assertEquals(attributeSchema, actual);
     }
 
-    @Test
-    @ExpectedException(InvalidEntityException.class)
-    public final void saveNonValid() {
+    @Test(expected = InvalidEntityException.class)
+    public void saveNonValid() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
         attributeSchema.setType(SchemaType.String);
@@ -100,7 +98,7 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void checkForEnumType() {
+    public void checkForEnumType() {
         RSchema schema = new RSchema();
         schema.setType(SchemaType.Enum);
         schema.setName("color");
@@ -122,16 +120,15 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(actual);
     }
 
-    @Test
-    @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidSchema() {
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidSchema() {
         USchema schema = new USchema();
         schema.setName("username");
         schemaDAO.save(schema);
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         USchema schema = schemaDAO.find("fullname", USchema.class);
 
         schemaDAO.delete(schema.getName(), AttributableUtil.USER);

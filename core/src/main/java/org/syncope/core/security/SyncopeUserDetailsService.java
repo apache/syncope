@@ -19,7 +19,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -57,12 +57,12 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username)
             throws UsernameNotFoundException, DataAccessException {
 
-        Set<GrantedAuthorityImpl> authorities =
-                new HashSet<GrantedAuthorityImpl>();
+        Set<SimpleGrantedAuthority> authorities =
+                new HashSet<SimpleGrantedAuthority>();
         if (adminUser.equals(username)) {
             for (Entitlement entitlement : entitlementDAO.findAll()) {
                 authorities.add(
-                        new GrantedAuthorityImpl(entitlement.getName()));
+                        new SimpleGrantedAuthority(entitlement.getName()));
             }
         } else {
             final SyncopeUser user = userDAO.find(username);
@@ -84,8 +84,8 @@ public class SyncopeUserDetailsService implements UserDetailsService {
             }
             for (SyncopeRole role : roles) {
                 for (Entitlement entitlement : role.getEntitlements()) {
-                    authorities.add(new GrantedAuthorityImpl(
-                            entitlement.getName()));
+                    authorities.add(
+                            new SimpleGrantedAuthority(entitlement.getName()));
                 }
             }
         }

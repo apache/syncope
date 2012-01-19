@@ -32,7 +32,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -76,6 +76,7 @@ import org.syncope.types.TraceLevel;
 
 /**
  * Job for executing synchronization tasks.
+ *
  * @see org.syncope.core.scheduling.Job
  * @see SyncTask
  */
@@ -145,8 +146,8 @@ public class SyncJob extends AbstractJob {
     }
 
     /**
-     * Extract password value from passed value (if instance of GuardedString
-     * or GuardedByteArray).
+     * Extract password value from passed value (if instance of GuardedString or
+     * GuardedByteArray).
      *
      * @param pwd received from the underlying connector
      * @return password value
@@ -775,6 +776,7 @@ public class SyncJob extends AbstractJob {
 
     /**
      * Create a textual report of the synchronization, based on the trace level.
+     *
      * @param syncResults Sync results
      * @param syncTraceLevel Sync trace level
      * @param dryRun dry run?
@@ -900,7 +902,7 @@ public class SyncJob extends AbstractJob {
                 new ArrayList<GrantedAuthority>();
 
         for (Entitlement entitlement : entitlementDAO.findAll()) {
-            authorities.add(new GrantedAuthorityImpl(entitlement.getName()));
+            authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
         }
 
         final UserDetails userDetails = new User(

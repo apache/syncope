@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
@@ -37,8 +36,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 
 public class ResourceTestITCase extends AbstractTest {
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createExistingResource() {
         final String resourceName = "ws-target-resource-1";
         ResourceTO resourceTO = new ResourceTO();
@@ -212,9 +210,8 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(t);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithoutExtAttr() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithoutExtAttr() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
 

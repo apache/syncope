@@ -15,8 +15,6 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-import javax.persistence.CacheRetrieveMode;
-import javax.persistence.CacheStoreMode;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -40,12 +38,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<Entitlement> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM Entitlement e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
-        query.setHint("javax.persistence.cache.storeMode",
-                CacheStoreMode.REFRESH);
+        Query query = entityManager.createQuery("SELECT e FROM Entitlement e");
 
         return query.getResultList();
     }

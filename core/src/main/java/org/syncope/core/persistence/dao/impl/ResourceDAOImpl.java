@@ -15,18 +15,16 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
 import javassist.NotFoundException;
-
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -47,18 +45,19 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public ExternalResource find(final String name) {
-        Query query = entityManager.createQuery("SELECT e "
+        TypedQuery<ExternalResource> query =
+                entityManager.createQuery("SELECT e "
                 + "FROM " + ExternalResource.class.getSimpleName() + " e "
-                + "WHERE e.name = :name");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+                + "WHERE e.name = :name", ExternalResource.class);
         query.setParameter("name", name);
 
+        ExternalResource result = null;
         try {
-            return (ExternalResource) query.getSingleResult();
+            result = query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
         }
+
+        return result;
     }
 
     @Override
@@ -77,12 +76,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     /**
-     * This method has an explicit @Transactional annotation because it is 
+     * This method has an explicit @Transactional annotation because it is
      * called by SyncJob.
-     * 
+     *
      * @see org.syncope.core.scheduling.SyncJob
      *
-     * @param resource  entity to be merged
+     * @param resource entity to be merged
      * @return the same entity, updated
      */
     @Override
@@ -101,8 +100,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public List<SchemaMapping> findAllMappings() {
         Query query = entityManager.createQuery("SELECT e FROM "
                 + SchemaMapping.class.getSimpleName() + " e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
 
         return query.getResultList();
     }

@@ -14,14 +14,13 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.Date;
 import static org.junit.Assert.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.AbstractTest;
@@ -85,15 +84,13 @@ public class UserTest extends AbstractTest {
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
-    @Test
-    @ExpectedException(value = InvalidSearchConditionException.class)
+    @Test(expected = InvalidSearchConditionException.class)
     public void findByInvalidDerAttrValue()
             throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
     }
 
-    @Test
-    @ExpectedException(value = InvalidSearchConditionException.class)
+    @Test(expected = InvalidSearchConditionException.class)
     public void findByInvalidDerAttrExpression()
             throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("noschema", "Antonio, Maria");

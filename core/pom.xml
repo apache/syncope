@@ -64,6 +64,11 @@
             <groupId>org.apache.geronimo.javamail</groupId>
             <artifactId>geronimo-javamail_1.4_provider</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.syncope</groupId>
@@ -264,8 +269,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

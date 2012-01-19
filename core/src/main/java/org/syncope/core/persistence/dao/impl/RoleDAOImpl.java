@@ -16,9 +16,9 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
@@ -36,25 +36,24 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
     @Override
     public SyncopeRole find(final Long id) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeRole e WHERE e.id = :id");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(
+                "SELECT e FROM SyncopeRole e WHERE e.id = :id",
+                SyncopeRole.class);
         query.setParameter("id", id);
 
+        SyncopeRole result = null;
         try {
-            return (SyncopeRole) query.getSingleResult();
+            result = query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
         }
+
+        return result;
     }
 
     @Override
     public List<SyncopeRole> find(final String name) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM SyncopeRole e WHERE e.name = :name");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
         query.setParameter("name", name);
 
         return query.getResultList();

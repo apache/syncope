@@ -67,7 +67,7 @@ public class ResourceTest extends AbstractTest {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public final void createWithPasswordPolicy() {
+    public void createWithPasswordPolicy() {
         final String resourceName = "resourceWithPasswordPolicy";
 
         PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
@@ -92,7 +92,7 @@ public class ResourceTest extends AbstractTest {
      * @see http://code.google.com/p/syncope/issues/detail?id=42
      */
     @Test
-    public final void issue42() {
+    public void issue42() {
         USchema userId = schemaDAO.find("userId", USchema.class);
 
         Set<SchemaMapping> beforeUserIdMappings = new HashSet<SchemaMapping>();
@@ -150,7 +150,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-save");
 
@@ -235,7 +235,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull("find to delete did not work", resource);
 

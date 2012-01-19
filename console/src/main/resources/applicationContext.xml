@@ -47,30 +47,22 @@
         <property name="objectMapper" ref="jacksonObjectMapper"/>
     </bean>
 
-    <bean id="httpClientParams" class="org.apache.commons.httpclient.params.HttpClientParams" scope="prototype">
-        <property name="authenticationPreemptive" value="true"/>
-        <property name="connectionManagerClass"
-                  value="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
-    </bean>
-
-    <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient" scope="prototype">
+    <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
+    <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
+    <bean id="httpClient" class="org.apache.http.impl.client.ContentEncodingHttpClient">
+        <constructor-arg ref="httpClientConnManager"/>
         <constructor-arg ref="httpClientParams"/>
     </bean>
-
-    <bean id="httpClientFactory" class="org.springframework.http.client.CommonsClientHttpRequestFactory" scope="prototype">
+    <bean id="httpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
         <constructor-arg ref="httpClient"/>
     </bean>
-
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" scope="session">
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <constructor-arg ref="httpClientFactory"/>
 
-        <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
         <property name="errorHandler">
             <bean id="syncopeClientErrorHandler"
-            class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+                  class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
         </property>
-
-        <aop:scoped-proxy/>
     </bean>
 
     <bean id="preferenceManager" class="org.syncope.console.commons.PreferenceManager"/>

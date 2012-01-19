@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -51,8 +50,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
 
         return query.getResultList();
     }

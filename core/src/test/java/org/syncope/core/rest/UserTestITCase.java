@@ -25,14 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.CommonsClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
@@ -115,7 +115,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createUserWithNoPropagation() {
+    public void createUserWithNoPropagation() {
         // get task list
         List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -190,13 +190,14 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    /* This test has been introduced to verify and solve the following issue:
-     * http://code.google.com/p/syncope/issues/detail?id=172.
-     * Creations of a new user without having a global password policy stored
-     * into the local repository used to fail with a null pointer exception.
-     * This bug has been fixed introducing a simple control.
+    /*
+     * This test has been introduced to verify and solve the following issue:
+     * http://code.google.com/p/syncope/issues/detail?id=172. Creations of a new
+     * user without having a global password policy stored into the local
+     * repository used to fail with a null pointer exception. This bug has been
+     * fixed introducing a simple control.
      */
-    public final void issue172() {
+    public void issue172() {
         PolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
 
@@ -239,7 +240,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void issue186() {
+    public void issue186() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
         userTO.setUsername("issue186@syncope-idm.org");
@@ -316,7 +317,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void issue147() {
+    public void issue147() {
         // 1. create an user wihtout role nor resources
         UserTO userTO = getSampleTO("issue147@syncope-idm.org");
 
@@ -349,7 +350,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createUserWithDbPropagation() {
+    public void createUserWithDbPropagation() {
         UserTO userTO = new UserTO();
         userTO.setPassword("password");
         userTO.setUsername("yyy@yyy.yyy");
@@ -384,9 +385,8 @@ public class UserTestITCase extends AbstractTest {
                 userTO.getPropagationStatusMap().get("resource-testdb"));
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidPassword() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithInvalidPassword() {
         UserTO userTO = getSampleTO("invalidpasswd@syncope-idm.org");
         userTO.setPassword("pass");
 
@@ -394,9 +394,8 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidUsername() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithInvalidUsername() {
         UserTO userTO = getSampleTO("invalidusername@syncope-idm.org");
         userTO.setUsername("us");
 
@@ -409,9 +408,8 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidPasswordByRes() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithInvalidPasswordByRes() {
         UserTO userTO = getSampleTO("invalidPwdByRes@passwd.com");
 
         // configured to be minLength=16
@@ -424,9 +422,8 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidPasswordByRole() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithInvalidPasswordByRole() {
         UserTO userTO = getSampleTO("invalidPwdByRole@passwd.com");
 
         // configured to be minLength=16
@@ -441,9 +438,8 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithException() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
         attributeTO.addValue("userId@nowhere.org");
@@ -456,7 +452,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void create() {
+    public void create() {
         // get task list
         List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -589,7 +585,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithRequiredValueMissing() {
+    public void createWithRequiredValueMissing() {
         UserTO userTO = getSampleTO("a.b@c.it");
 
         AttributeTO type = null;
@@ -645,7 +641,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithReject() {
+    public void createWithReject() {
         UserTO userTO = getSampleTO("createWithReject@syncope-idm.org");
 
         // User with role 9 are defined in workflow as subject to approval
@@ -671,10 +667,12 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. claim task from user1, not in role 7 (designated for 
         // approval in workflow definition): fail
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(
-                "user1", "password"));
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("user1", "password"));
 
         SyncopeClientException sce = null;
         try {
@@ -687,10 +685,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(sce);
 
         // 4. claim task from user4, in to role 7
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(
-                "user4", "password"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("user4", "password"));
 
         form = restTemplate.getForObject(
                 BASE_URL + "user/workflow/form/claim/{taskId}",
@@ -715,7 +712,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithApproval() {
+    public void createWithApproval() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         UserTO userTO = getSampleTO("createWithApproval@syncope-idm.org");
@@ -794,7 +791,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         try {
             restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
         } catch (HttpStatusCodeException e) {
@@ -816,7 +813,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void count() {
+    public void count() {
         Integer count = restTemplate.getForObject(
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(count);
@@ -824,7 +821,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void searchCount() {
+    public void searchCount() {
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
         isNullCond.setSchema("loginDate");
         NodeCond searchCond = NodeCond.getLeafCond(isNullCond);
@@ -836,7 +833,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void list() {
+    public void list() {
         List<UserTO> users = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "user/list.json", UserTO[].class));
@@ -848,7 +845,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void paginatedList() {
+    public void paginatedList() {
         List<UserTO> users = Arrays.asList(restTemplate.getForObject(
                 BASE_URL + "user/list/{page}/{size}.json",
                 UserTO[].class, 1, 2));
@@ -878,7 +875,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void read() {
+    public void read() {
         UserTO userTO = restTemplate.getForObject(
                 BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
 
@@ -888,7 +885,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void search() {
+    public void search() {
         // LIKE
         AttributeCond fullnameLeafCond1 =
                 new AttributeCond(AttributeCond.Type.LIKE);
@@ -935,7 +932,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void searchByUsernameAndId() {
+    public void searchByUsernameAndId() {
         final SyncopeUserCond usernameLeafCond =
                 new SyncopeUserCond(SyncopeUserCond.Type.EQ);
         usernameLeafCond.setSchema("username");
@@ -964,7 +961,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void searchUserByResourceName() {
+    public void searchUserByResourceName() {
         ResourceCond ws2 = new ResourceCond();
         ws2.setResourceName("ws-target-resource2");
 
@@ -994,7 +991,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void paginatedSearch() {
+    public void paginatedSearch() {
         // LIKE
         AttributeCond fullnameLeafCond1 =
                 new AttributeCond(AttributeCond.Type.LIKE);
@@ -1041,7 +1038,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void updateWithouPassword() {
+    public void updateWithouPassword() {
         UserTO userTO = getSampleTO("updatewithout@password.com");
 
         userTO = restTemplate.postForObject(
@@ -1061,9 +1058,8 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void updateInvalidPassword() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void updateInvalidPassword() {
         UserTO userTO = getSampleTO("updateinvalid@password.com");
 
         userTO = restTemplate.postForObject(
@@ -1078,9 +1074,8 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/update", userMod, UserTO.class);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void updateSamePassword() {
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void updateSamePassword() {
         UserTO userTO = getSampleTO("updatesame@password.com");
 
         userTO = restTemplate.postForObject(
@@ -1096,7 +1091,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void update() {
+    public void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1218,7 +1213,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void verifyTaskRegistration() {
+    public void verifyTaskRegistration() {
         // get task list
         List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -1333,7 +1328,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void suspendReactivate() {
+    public void suspendReactivate() {
         UserTO userTO = getSampleTO("suspendReactivate@syncope-idm.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1359,8 +1354,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
     }
 
-    @ExpectedException(EmptyResultDataAccessException.class)
-    @Test
+    @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
         UserTO userTO = getSampleTO("issue213@syncope-idm.org");
         userTO.addResource("resource-testdb");
@@ -1406,7 +1400,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void issue270() {
+    public void issue270() {
         // 1. create a new user without virtual attributes
         UserTO original = getSampleTO("issue270@syncope-idm.org");
         // be sure to remove all virtual attributes

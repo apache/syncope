@@ -14,7 +14,9 @@
 package org.syncope.buildtools;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -22,15 +24,13 @@ import javax.sql.DataSource;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.test.jdbc.SimpleJdbcTestUtils;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Utility serlvet context listener managing H2 test server instance
- * (to be used as external resource).
+ * Utility serlvet context listener managing H2 test server instance (to be used
+ * as external resource).
  */
 public class H2StartStopListener implements ServletContextListener {
 
@@ -65,8 +65,29 @@ public class H2StartStopListener implements ServletContextListener {
                 WebApplicationContextUtils.getWebApplicationContext(context);
         DataSource datasource = ctx.getBean(DataSource.class);
 
-        SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(datasource),
-                new ClassPathResource("/testdb.sql"), false);
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = DataSourceUtils.getConnection(datasource);
+            stmt = conn.createStatement();
+            stmt.executeUpdate("RUNSCRIPT FROM 'classpath:/testdb.sql'");
+        } catch (Exception e) {
+            LOG.error("While loading data into testdb", e);
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+            DataSourceUtils.releaseConnection(conn, datasource);
+        }
     }
 
     @Override
