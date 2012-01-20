@@ -18,14 +18,13 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.NodeCond;
@@ -40,11 +39,12 @@ public class UserRequestTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user1", "password"));
 
         try {
@@ -90,34 +90,15 @@ public class UserRequestTestITCase extends AbstractTest {
                 configurationTO, ConfigurationTO.class);
         assertNotNull(configurationTO);
 
-        // 4. be anonymous
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
-                new Credentials() {
-
-                    @Override
-                    public Principal getUserPrincipal() {
-                        return null;
-                    }
-
-                    @Override
-                    public String getPassword() {
-                        return null;
-                    }
-                });
-
-        // 5. now request user create works
-        UserRequestTO request = restTemplate.postForObject(
+        // 4. as anonymous, request user create works
+        UserRequestTO request = anonymousRestTemplate().postForObject(
                 BASE_URL + "user/request/create", userTO, UserRequestTO.class);
         assertNotNull(request);
 
-        // 6. switch back to admin
+        // 5. switch back to admin
         super.setupRestTemplate();
 
-        // 7. try to find user
+        // 6. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
         attrCond.setSchema("userId");
         attrCond.setExpression("selfcreate@syncope-idm.org");
@@ -127,7 +108,7 @@ public class UserRequestTestITCase extends AbstractTest {
                 NodeCond.getLeafCond(attrCond), UserTO[].class));
         assertTrue(matchingUsers.isEmpty());
 
-        // 8. actually create user
+        // 7. actually create user
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/create", request.getUserTO(), UserTO.class);
         assertNotNull(userTO);
@@ -157,11 +138,12 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(userTO.getUsername(),
                 initialPassword));
 
@@ -226,11 +208,12 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(userTO.getUsername(),
                 initialPassword));
 
@@ -254,8 +237,7 @@ public class UserRequestTestITCase extends AbstractTest {
 
         // 8. user does not exist any more
         try {
-            actual = restTemplate.getForObject(BASE_URL
-                    + "user/read/{userId}.json",
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
                     UserTO.class, userTO.getId());
             fail();
         } catch (HttpStatusCodeException e) {

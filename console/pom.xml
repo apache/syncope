@@ -36,6 +36,23 @@
             <version>${project.version}</version>
         </dependency>
         
+        <!-- Only needed for running core alongside -->
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-all</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -254,6 +271,21 @@
                             <dependency>
                                 <groupId>com.h2database</groupId>
                                 <artifactId>h2</artifactId>
+                            </dependency>
+                            
+                            <dependency>
+                                <groupId>org.apache.openjpa</groupId>
+                                <artifactId>openjpa-all</artifactId>
+                            </dependency>
+
+                            <dependency>
+                                <groupId>net.sf.ehcache</groupId>
+                                <artifactId>ehcache-core</artifactId>
+                            </dependency>
+
+                            <dependency>
+                                <groupId>org.codehaus.groovy</groupId>
+                                <artifactId>groovy-all</artifactId>
                             </dependency>
                         </dependencies>
                     </container>

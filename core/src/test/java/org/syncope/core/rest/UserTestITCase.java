@@ -25,15 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
@@ -667,11 +666,12 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. claim task from user1, not in role 7 (designated for 
         // approval in workflow definition): fail
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user1", "password"));
 
         SyncopeClientException sce = null;
@@ -686,7 +686,8 @@ public class UserTestITCase extends AbstractTest {
 
         // 4. claim task from user4, in to role 7
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user4", "password"));
 
         form = restTemplate.getForObject(

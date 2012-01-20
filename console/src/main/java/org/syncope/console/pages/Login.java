@@ -19,9 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -48,8 +46,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
@@ -74,9 +72,6 @@ public class Login extends WebPage {
 
     @SpringBean
     private RestTemplate restTemplate;
-
-    @SpringBean
-    private HttpClient httpClient;
 
     @SpringBean(name = "baseURL")
     private String baseURL;
@@ -115,13 +110,10 @@ public class Login extends WebPage {
             @Override
             public void onSubmit() {
                 String[] entitlements = authenticate(
-                        userIdField.getRawInput(),
-                        passwordField.getRawInput());
+                        userIdField.getRawInput(), passwordField.getRawInput());
 
-                SyncopeSession.get().setUserId(
-                        userIdField.getRawInput());
-                SyncopeSession.get().setEntitlements(
-                        entitlements);
+                SyncopeSession.get().setUserId(userIdField.getRawInput());
+                SyncopeSession.get().setEntitlements(entitlements);
                 SyncopeSession.get().setCoreVersion(getCoreVersion());
 
                 setResponsePage(WelcomePage.class, parameters);
@@ -144,37 +136,38 @@ public class Login extends WebPage {
         add(editProfileModalWin);
 
         Fragment selfRegFrag;
-        if (restTemplate.getForObject(
-                baseURL + "user/request/create/allowed",
+        if (restTemplate.getForObject(baseURL + "user/request/create/allowed",
                 Boolean.class)) {
 
             selfRegFrag =
                     new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            AjaxLink selfRegLink =
-                    new IndicatingAjaxLink("link") {
+            AjaxLink selfRegLink = new IndicatingAjaxLink("link") {
 
-                        private static final long serialVersionUID =
-                                -7978723352517770644L;
+                private static final long serialVersionUID =
+                        -7978723352517770644L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target) {
-                            editProfileModalWin.setPageCreator(
-                                    new ModalWindow.PageCreator() {
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    editProfileModalWin.setPageCreator(
+                            new ModalWindow.PageCreator() {
 
-                                        @Override
-                                        public Page createPage() {
-                                            return new UserModalPage(
-                                                    Login.this.getPageReference(),
-                                                    editProfileModalWin,
-                                                    new UserTO(),
-                                                    UserModalPage.Mode.SELF);
-                                        }
-                                    });
+                                private static final long serialVersionUID =
+                                        -7834632442532690940L;
 
-                            editProfileModalWin.show(target);
-                        }
-                    };
+                                @Override
+                                public Page createPage() {
+                                    return new UserModalPage(
+                                            Login.this.getPageReference(),
+                                            editProfileModalWin,
+                                            new UserTO(),
+                                            UserModalPage.Mode.SELF);
+                                }
+                            });
+
+                    editProfileModalWin.show(target);
+                }
+            };
             selfRegLink.add(
                     new Label("linkTitle", getString("selfRegistration")));
 
@@ -190,14 +183,16 @@ public class Login extends WebPage {
     }
 
     private String[] authenticate(final String userId, final String password) {
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        // 1. Set provided credentials to check
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(userId, password));
 
-        //2.Search authorizations for user specified by credentials
+        // 2. Search authorizations for user specified by credentials
         String[] entitlements = null;
         try {
             entitlements = restTemplate.getForObject(
@@ -211,10 +206,14 @@ public class Login extends WebPage {
     }
 
     private String getCoreVersion() {
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
+
         String version = "";
         try {
             HttpGet get = new HttpGet(baseURL + "../version.jsp");
-            HttpResponse response = httpClient.execute(get);
+            HttpResponse response = requestFactory.getHttpClient().execute(get);
             version = EntityUtils.toString(response.getEntity()).trim();
         } catch (IOException e) {
             LOG.error("While fetching core version", e);

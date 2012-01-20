@@ -19,25 +19,14 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.8-SNAPSHOT</version>
+        <version>0.8-ASL-SNAPSHOT</version>
     </parent>
 
     <name>Syncope Hibernate enhancer</name>
-    <description>Syncope Hibernate enhancer</description>
+    <description>When using Hibernate as JPA provider, enhance entities.</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-hibernate-enhancer</artifactId>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.javassist</groupId>
@@ -56,7 +45,6 @@
             <artifactId>geronimo-jpa_2.0_spec</artifactId> 
             <scope>provided</scope>
         </dependency>
-        
     </dependencies>
 
     <reporting>
