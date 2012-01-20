@@ -255,7 +255,7 @@ public class ResourceController extends AbstractController {
         return roleMappings;
     }
 
-    @PreAuthorize("hasRole('RESOURCE_READ')")
+    @PreAuthorize("hasRole('RESOURCE_GETOBJECT')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/{resourceName}/read/{objectId}")
