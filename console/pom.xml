@@ -20,10 +20,12 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope console</name>
-    <description>Syncope console</description>
+    <name>Syncope Console</name>
+    <description>Syncope Console</description>
+    
     <groupId>org.syncope</groupId>
     <artifactId>syncope-console</artifactId>
     <packaging>war</packaging>
@@ -125,6 +127,13 @@
         </dependency>
         
         <!-- TEST -->
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-build-tools</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

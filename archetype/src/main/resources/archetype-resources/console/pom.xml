@@ -102,7 +102,7 @@
     </dependencies>
 
     <build>
-        <finalName>syncope-console-${project.parent.version}</finalName>
+        <finalName>syncope-console</finalName>
 
         <plugins>
 
@@ -131,7 +131,7 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
-                                <unzip src="${basedir}/../core/target/syncope-${project.parent.version}.war" dest="${cargo.run.dir}">
+                                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />

@@ -20,23 +20,24 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope archetype</name>
-    <description>Syncope archetype</description>
+    <name>Syncope Archetype</name>
+    <description>Syncope Archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
     <version>0.8-ASL-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <properties>
-      <SVNRepoURL>http://syncope.googlecode.com/svn/trunk</SVNRepoURL>
+        <SVNRepoURL>http://syncope.googlecode.com/svn/branches/0_8_X_ASL</SVNRepoURL>
     </properties>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/archetype</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/archetype</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk/archetype</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</developerConnection>
+        <url>http://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</url>
     </scm>
 
     <build>
@@ -69,56 +70,56 @@
                         <phase>validate</phase>
                         <configuration>
                             <target>
-			        <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                                 <if>
-				    <available file="${basedir}/../core/pom.xml" />
+                                    <available file="${basedir}/../core/pom.xml" />
                                     <then>
-				      <copy file="${basedir}/../core/src/test/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/test/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
                                       
-				      <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-				      <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
                                       
-				      <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
-				      <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
+                                        <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
                                     </then>
                                     <else>
-				      <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
-				      <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
-				      <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
-				      <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
-				      <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
+                                        <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
+                                        <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
+                                        <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
+                                        <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
+                                        <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
                                       
-				      <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
-				      <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
-				      <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
-				      <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
-				      <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
+                                        <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
+                                        <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
+                                        <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
+                                        <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
+                                        <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
                                       
-				      <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
-				      <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
+                                        <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
+                                        <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
                                     </else>
-				  </if>
-				</target>    
-			</configuration>
+                                </if>
+                            </target>    
+                        </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
-		<dependencies>
-		  <dependency>
-		    <groupId>ant-contrib</groupId>
-		    <artifactId>ant-contrib</artifactId>
-		    <version>20020829</version>
-		  </dependency>
-		</dependencies>
+                <dependencies>
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>20020829</version>
+                    </dependency>
+                </dependencies>
             </plugin>    
 
             <plugin>

@@ -20,9 +20,10 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope quality</name>
+    <name>Syncope Quality</name>
     <description>Configuration for widely used quality enforcement plugins: pmd, checkstyle, findbugs...</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-quality</artifactId>

@@ -1,7 +1,0 @@
-=global=
-
-* POM refactoring: create release subproject (like as Cocoon 3 and Hippo CMS)
-
-=console=
-
-* check Selenium

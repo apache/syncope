@@ -6,416 +6,67 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.syncope</groupId>
+        <artifactId>syncope</artifactId>
+        <version>0.8-ASL-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <syncope.version>0.8-ASL-SNAPSHOT</syncope.version>
+    </properties>
+
     <name>Syncope sample project</name>
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <syncope.version>0.8-ASL-SNAPSHOT</syncope.version>
-
-        <connid.soap.version>1.1</connid.soap.version>
-        <connid.db.table.version>2.1</connid.db.table.version>
-        <connid.csvdir.version>0.1</connid.csvdir.version>
-        <connid.ldap.version>1.3</connid.ldap.version>
-
-        <h2.version>1.3.163</h2.version>
-
-        <servlet-api.version>2.5</servlet-api.version>
-        <jsp-api.version>2.1</jsp-api.version>
-        <jstl.version>1.2</jstl.version>
-        
-        <spring>3.1.0.RELEASE</spring>
-
-        <wicket.version>1.5.3</wicket.version>
-
-        <commons-lang.version>2.6</commons-lang.version>
-        <commons-httpclient.version>3.1</commons-httpclient.version>
-
-        <cxf.version>2.4.4</cxf.version>
-
-        <logback.version>1.0.0</logback.version>
-        <slf4j.version>1.6.4</slf4j.version>
-
-        <junit.version>4.10</junit.version>
-
-        <tomcat.version>7.0.23</tomcat.version>
-
-        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-        <log.directory>${project.build.directory}/log</log.directory>
-
-        <cargo.servlet.port>9080</cargo.servlet.port>
-        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
-        <cargo.log>${log.directory}/cargo.log</cargo.log>
-        <cargo.output>${log.directory}/cargo-output.log</cargo.output>
-
-        <testds.port>1389</testds.port>
-        <testdb.webport>9082</testdb.webport>
-
-        <testdb.driver>org.h2.Driver</testdb.driver>
-        <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
-        <testdb.username>sa</testdb.username>
-        <testdb.password>sa</testdb.password>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencyManagement>
-
         <dependencies>
-
             <dependency>
                 <groupId>org.syncope</groupId>
                 <artifactId>syncope-client</artifactId>
                 <version>${syncope.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.syncope</groupId>
-                <artifactId>syncope-core</artifactId>
-                <version>${syncope.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.syncope</groupId>
-                <artifactId>syncope-core</artifactId>
-                <classifier>classes</classifier>
-                <version>${syncope.version}</version>
-                <scope>provided</scope>
-            </dependency>
+            </dependency> 
 
-            <dependency>
-                <groupId>org.syncope</groupId>
-                <artifactId>syncope-console</artifactId>
-                <version>${syncope.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.syncope</groupId>
-                <artifactId>syncope-console</artifactId>
-                <classifier>classes</classifier>
-                <version>${syncope.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${servlet-api.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>${jsp-api.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jstl</artifactId>
-                <version>${jstl.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>${commons-httpclient.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webmvc</artifactId>
-                <version>${spring}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket</artifactId>
-                <version>${wicket.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-extensions</artifactId>
-                <version>${wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-spring</artifactId>
-                <version>${wicket.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-auth-roles</artifactId>
-                <version>${wicket.version}</version>
-            </dependency>
-
-            <!-- CXF Dependencies -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring}</version>
-                <scope>test</scope>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.connid.bundles.soap</groupId>
-                <artifactId>org.connid.bundles.soap</artifactId>
-                <version>${connid.soap.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.connid.bundles.soap</groupId>
-                <artifactId>wssample</artifactId>
-                <type>war</type>
-                <version>${connid.soap.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.connid.bundles.db</groupId>
-                <artifactId>org.connid.bundles.db.table</artifactId>
-                <version>${connid.db.table.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.connid.bundles</groupId>
-                <artifactId>org.connid.bundles.csvdir</artifactId>
-                <version>${connid.csvdir.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.connid.bundles</groupId>
-                <artifactId>org.connid.bundles.ldap</artifactId>
-                <version>${connid.ldap.version}</version>
-                <scope>test</scope>
-            </dependency>
-            
             <dependency>
                 <groupId>org.syncope</groupId>
                 <artifactId>syncope-build-tools</artifactId>
                 <version>${syncope.version}</version>
                 <type>war</type>
-                <scope>test</scope>
-            </dependency>
+            </dependency> 
             
+            <dependency>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-core</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+            </dependency> 
+            <dependency>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-core</artifactId>
+                <version>${syncope.version}</version>
+                <classifier>classes</classifier>
+                <scope>provided</scope>
+            </dependency> 
+
+            <dependency>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-console</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+            </dependency> 
+            <dependency>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-console</artifactId>
+                <version>${syncope.version}</version>
+                <classifier>classes</classifier>
+                <scope>provided</scope>
+            </dependency> 
         </dependencies>
-
     </dependencyManagement>
-
-    <repositories>
-
-        <repository>
-            <id>main</id>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-
-        <repository>
-            <id>sonatype-public</id>
-            <name>Sonatype public repository</name>
-            <url>http://oss.sonatype.org/content/groups/public</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
-            <id>atalassian</id>
-            <url>https://maven.atlassian.com/3rdparty/</url>
-        </repository>
-
-    </repositories>
     
-    <pluginRepositories>
-
-        <pluginRepository>
-            <id>main</id>
-            <url>http://repo1.maven.org/maven2/</url>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>sonatype-public</id>
-            <name>Sonatype public repository</name>
-            <url>http://oss.sonatype.org/content/groups/public</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-
-    </pluginRepositories>
-
-    <build>
-        <defaultGoal>package</defaultGoal>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <inherited>true</inherited>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.syncope</groupId>
-                    <artifactId>syncope-build-tools</artifactId>
-                    <version>${syncope.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.3</version>
-                    <configuration>
-                        <artifactItems>
-                            <artifactItem>
-                                <groupId>org.connid.bundles.soap</groupId>
-                                <artifactId>org.connid.bundles.soap</artifactId>
-                                <version>${connid.soap.version}</version>
-                                <outputDirectory>${bundles.directory}</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                                <groupId>org.connid.bundles.db</groupId>
-                                <artifactId>org.connid.bundles.db.table</artifactId>
-                                <version>${connid.db.table.version}</version>
-                                <outputDirectory>${bundles.directory}</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                                <groupId>org.connid.bundles</groupId>
-                                <artifactId>org.connid.bundles.csvdir</artifactId>
-                                <version>${connid.csvdir.version}</version>
-                                <outputDirectory>${bundles.directory}</outputDirectory>
-                            </artifactItem>
-                            <artifactItem>
-                                <groupId>org.connid.bundles</groupId>
-                                <artifactId>org.connid.bundles.ldap</artifactId>
-                                <version>${connid.ldap.version}</version>
-                                <outputDirectory>${bundles.directory}</outputDirectory>
-                            </artifactItem>
-                        </artifactItems>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.11</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>2.1.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.1.4</version>
-                    <configuration>
-                        <container>
-                            <containerId>tomcat7x</containerId>
-                            <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
-                            <zipUrlInstaller>
-                                <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
-                                <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
-                                <extractDir>${java.io.tmpdir}</extractDir>
-                            </zipUrlInstaller>
-                            <log>${cargo.log}</log>
-                            <output>${cargo.output}</output>    
-                        </container>    
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <modules>
         <module>core</module>
         <module>console</module>

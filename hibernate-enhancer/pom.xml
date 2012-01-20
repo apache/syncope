@@ -20,6 +20,7 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
     <name>Syncope Hibernate enhancer</name>

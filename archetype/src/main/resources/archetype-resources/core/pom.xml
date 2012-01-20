@@ -54,8 +54,18 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
         </dependency>
 
         <!-- TEST -->
@@ -112,7 +122,7 @@
     </dependencies>
 
     <build>
-        <finalName>syncope-${project.parent.version}</finalName>
+        <finalName>syncope</finalName>
 
         <plugins>
 
@@ -257,17 +267,35 @@
             </plugin>
             
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>org.syncope.core.util.SchemaExporter</argument>
-                        <argument>H2</argument>
-                    </arguments>
+                    <includes>org/syncope/core/persistence/beans/**/*.class</includes>
+                    <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
+                    <connectionProperties>
+                        driverClassName=org.h2.Driver,
+                        url=jdbc:h2:mem:syncopedb
+                        username=sa,
+                        password=
+                    </connectionProperties>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>enhancer</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

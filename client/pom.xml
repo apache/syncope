@@ -20,10 +20,11 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope client</name>
-    <description>Syncope client</description>
+    <name>Syncope Client</name>
+    <description>Syncope Client</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-client</artifactId>
     <packaging>jar</packaging>

@@ -1,0 +1,944 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>Syncope Parent</name>
+    <description>Syncope parent POM</description>
+
+    <groupId>org.syncope</groupId>
+    <artifactId>syncope</artifactId>
+    <version>0.8-ASL-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <!-- maven repository on sonatype -->
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+        <relativePath/>
+    </parent>
+
+    <url>http://www.syncope-idm.org/</url>
+
+    <inceptionYear>2010</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_8_X_ASL</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_8_X_ASL</developerConnection>
+        <url>http://syncope.googlecode.com/svn/branches/0_8_X_ASL</url>
+    </scm>
+
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/syncope/issues/</url>
+    </issueManagement>
+    
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>http://jenkins.syncope-idm.org/</url>
+    </ciManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>syncope-dev</name>
+            <post>syncope-dev@googlegroups.com</post>
+            <archive>http://groups.google.com/group/syncope-dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>syncope-users</name>
+            <post>syncope-users@googlegroups.com</post>
+            <archive>http://groups.google.com/group/syncope-users</archive>
+        </mailingList>
+    </mailingLists>
+    
+    <developers>
+        <developer>
+            <id>chicchiricco</id>
+            <name>Francesco Chicchiriccò</name>
+            <organization>Tirasa</organization>
+            <organizationUrl>http://www.tirasa.net/</organizationUrl>
+            <roles>
+                <role>Owner</role>
+            </roles>
+            <url>https://people.apache.org/~ilgrosso/</url>
+        </developer>
+        <developer>
+            <id>fabio.martelli</id>
+            <name>Fabio Martelli</name>
+            <organization>Tirasa</organization>
+            <organizationUrl>http://www.tirasa.net/</organizationUrl>
+            <roles>
+                <role>Owner</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mdisabatinodidiodoro</id>
+            <name>Marco Di Sabatino Di Diodoro</name>
+            <organization>Tirasa</organization>
+            <organizationUrl>http://www.tirasa.net/</organizationUrl>
+            <roles>
+                <role>Committer</role>
+            </roles>
+        </developer>        
+    </developers>
+    
+    <contributors>
+        <contributor>
+            <name>Massimiliano Perrone</name>            
+            <organization>Tirasa</organization>
+            <organizationUrl>http://www.tirasa.net/</organizationUrl>
+        </contributor>
+        <contributor>
+            <name>Geert Van der Ploeg</name>
+        </contributor>
+        <contributor>
+            <name>Simone Tripodi</name>
+        </contributor>
+    </contributors>
+
+    <prerequisites>
+        <maven>[3.0.3,)</maven>
+    </prerequisites>
+    
+    <properties>
+        <targetJdk>1.6</targetJdk>
+        
+        <servlet-api.version>2.5</servlet-api.version>
+        <jsp-api.version>2.2</jsp-api.version>
+        <jstl.version>1.2</jstl.version>
+        
+        <connid.version>1.3.1</connid.version>
+        <connid.soap.version>1.2</connid.soap.version>
+        <connid.db.table.version>2.1</connid.db.table.version>
+        <connid.csvdir.version>0.1</connid.csvdir.version>
+        <connid.ldap.version>1.3</connid.ldap.version>
+
+        <commons-jexl.version>2.1.1</commons-jexl.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        
+        <httpcomponents.version>4.1.2</httpcomponents.version>
+
+        <javamail-specs.version>1.6</javamail-specs.version>
+        <javamail-provider.version>1.8.2</javamail-provider.version>
+
+        <activiti.version>5.8</activiti.version>
+
+        <spring.version>3.1.0.RELEASE</spring.version>
+        <aspectj.version>1.6.12</aspectj.version>
+        <jackson.version>1.9.3</jackson.version>
+        <xstream.version>1.4.2</xstream.version>
+        <velocity.version>1.7</velocity.version>
+        <quartz.version>1.8.5</quartz.version>
+
+        <openjpa.version>2.2.0-SNAPSHOT</openjpa.version>
+        <ehcache.version>2.5.0</ehcache.version>
+
+        <wicket.version>1.5-SNAPSHOT</wicket.version>
+
+        <groovy.version>1.8.4</groovy.version>
+
+        <h2.version>1.3.163</h2.version>
+
+        <reflections.version>0.9.5</reflections.version>
+
+        <logback.version>1.0.0</logback.version>
+        <slf4j.version>1.6.4</slf4j.version>
+
+        <junit.version>4.10</junit.version>
+        <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
+
+        <apacheds.version>1.5.7</apacheds.version>
+
+        <tomcat.version>7.0.23</tomcat.version>
+ 
+        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+        <log.directory>${project.build.directory}/log</log.directory>
+                
+        <cargo.servlet.port>9080</cargo.servlet.port>
+        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
+        <cargo.log>${log.directory}/cargo.log</cargo.log>
+        <cargo.output>${log.directory}/cargo-output.log</cargo.output>
+
+        <testds.port>1389</testds.port>
+        <testdb.webport>9082</testdb.webport>
+
+        <testdb.driver>org.h2.Driver</testdb.driver>
+        <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
+        <testdb.username>sa</testdb.username>
+        <testdb.password>sa</testdb.password>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+
+        <dependencies>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${servlet-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>${jsp-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>${jstl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId> 
+                <artifactId>geronimo-jpa_2.0_spec</artifactId> 
+                <version>1.1</version> 
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                <version>${javamail-specs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.javamail</groupId>
+                <artifactId>geronimo-javamail_1.4_provider</artifactId>
+                <version>${javamail-provider.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.15.0-GA</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl</artifactId>
+                <version>${commons-jexl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.connid</groupId>
+                <artifactId>framework</artifactId>
+                <version>${connid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.connid</groupId>
+                <artifactId>framework-internal</artifactId>
+                <version>${connid.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-engine</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-spring</artifactId>            
+                <version>${activiti.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-all</artifactId>
+                <version>${openjpa.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+            </dependency>
+
+            <!-- Spring -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-asm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-oxm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- /Spring -->
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>2.2.2</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-oracle</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+
+            <!-- Wicket -->
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket</artifactId>
+                <version>${wicket.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-extensions</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-datetime</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-spring</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-auth-roles</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+            <!-- /Wicket -->
+
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-all</artifactId>
+                <version>${apacheds.version}</version>
+                <exclusions>
+                    <!-- shared-ldap-schema module needs to be excluded to avoid
+                         multiple schema resources on the classpath-->
+                    <exclusion>
+                        <groupId>org.apache.directory.shared</groupId>
+                        <artifactId>shared-ldap-schema</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+        
+            <!-- TEST -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.seleniumhq.selenium.client-drivers</groupId>
+                <artifactId>selenium-java-client-driver</artifactId>
+                <version>${selenium-java-client-driver.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>org.connid.bundles.soap</artifactId>
+                <version>${connid.soap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>wssample</artifactId>
+                <version>${connid.soap.version}</version>
+                <type>war</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles</groupId>
+                <artifactId>org.connid.bundles.csvdir</artifactId>
+                <version>${connid.csvdir.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles</groupId>
+                <artifactId>org.connid.bundles.ldap</artifactId>
+                <version>${connid.ldap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- /TEST -->
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <repositories>
+
+        <repository>
+            <id>main</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>activiti</id>
+            <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
+        </repository>
+
+    </repositories>
+    
+    <pluginRepositories>
+
+        <pluginRepository>
+            <id>main</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>sonatype-public</id>
+            <name>Sonatype public repository</name>
+            <url>http://oss.sonatype.org/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+
+    </pluginRepositories>
+
+    <build>
+        <defaultGoal>package</defaultGoal>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${targetJdk}</source>
+                        <target>${targetJdk}</target>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.groovy.maven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-maven-plugin</artifactId>
+                    <version>${openjpa.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-api</artifactId>
+                            <version>${slf4j.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>ch.qos.logback</groupId>
+                            <artifactId>logback-core</artifactId>
+                            <version>${logback.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>ch.qos.logback</groupId>
+                            <artifactId>logback-classic</artifactId>
+                            <version>${logback.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>jcl-over-slf4j</artifactId>
+                            <version>${slf4j.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.11</version>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.1.1</version>
+                    <configuration>
+                        <attachClasses>true</attachClasses>
+                        <webResources>
+                            <resource>
+                                <directory>src/main/webapp</directory>
+                                <includes>
+                                    <include>**/*.jsp</include>
+                                </includes>
+                                <filtering>true</filtering>
+                            </resource>
+                        </webResources>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>selenium-maven-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.11</version>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <encoding>utf-8</encoding>
+                        <runOrder>alphabetical</runOrder>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.3</version>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.soap</groupId>
+                                <artifactId>org.connid.bundles.soap</artifactId>
+                                <version>${connid.soap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.db</groupId>
+                                <artifactId>org.connid.bundles.db.table</artifactId>
+                                <version>${connid.db.table.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.csvdir</artifactId>
+                                <version>${connid.csvdir.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.ldap</artifactId>
+                                <version>${connid.ldap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven2-plugin</artifactId>
+                    <version>1.1.4</version>
+                    <configuration>
+                        <container>
+                            <containerId>tomcat7x</containerId>
+                            <zipUrlInstaller>
+                                <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+                                <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                                <extractDir>${java.io.tmpdir}</extractDir>
+                            </zipUrlInstaller>
+                            <log>${cargo.log}</log>
+                            <output>${cargo.output}</output>    
+                        </container>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.1.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[1.6.0-26,)</version>
+                                </requireJavaVersion>
+                            </rules>    
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.8</version>
+                <dependencies>    
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-quality</artifactId>
+                        <version>${project.version}</version>
+                        <classifier>classes</classifier>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.6</version>
+                <dependencies>    
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-quality</artifactId>
+                        <version>${project.version}</version>
+                        <classifier>classes</classifier>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <locales>en,it</locales>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-checkstyle-plugin</artifactId>
+                            <version>2.8</version>
+                            <configuration>
+                                <configLocation>org/syncope/checkstyle.xml</configLocation>
+                                <targetJdk>${targetJdk}</targetJdk>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jxr-plugin</artifactId>
+                            <version>2.3</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>2.8</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-pmd-plugin</artifactId>
+                            <version>2.6</version>
+                            <configuration>
+                                <targetJdk>${targetJdk}</targetJdk>
+                                <rulesets>
+                                    <ruleset>org/syncope/pmd.xml</ruleset>
+                                </rulesets>
+                                <format>xml</format>
+                                <linkXref>true</linkXref>
+                                <sourceEncoding>utf-8</sourceEncoding>
+                                <minimumTokens>100</minimumTokens>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>findbugs-maven-plugin</artifactId>
+                            <version>2.3.2</version>
+                            <configuration>
+                                <findbugsXmlOutput>true</findbugsXmlOutput>
+                                <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                                <xmlOutput>true</xmlOutput>
+                                <targetJdk>${targetJdk}</targetJdk>
+                            </configuration>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
+            </plugin>    
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>../quality</module>
+                <module>../build-tools</module>
+                <module>../archetype</module>
+                <module>../hibernate-enhancer</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

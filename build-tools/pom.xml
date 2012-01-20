@@ -20,10 +20,11 @@
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
         <version>0.8-ASL-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope build tools</name>
-    <description>Syncope build tools</description>
+    <name>Syncope Build Tools</name>
+    <description>Syncope Build Tools</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-build-tools</artifactId>
     <packaging>war</packaging>
