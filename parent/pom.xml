@@ -822,7 +822,6 @@
                         <groupId>org.syncope</groupId>
                         <artifactId>syncope-quality</artifactId>
                         <version>${project.version}</version>
-                        <classifier>classes</classifier>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -835,7 +834,6 @@
                         <groupId>org.syncope</groupId>
                         <artifactId>syncope-quality</artifactId>
                         <version>${project.version}</version>
-                        <classifier>classes</classifier>
                     </dependency>
                 </dependencies>
             </plugin>
