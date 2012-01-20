@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.8-ASL-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -27,17 +27,17 @@
     <description>Syncope Archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.8-ASL-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <properties>
-        <SVNRepoURL>http://syncope.googlecode.com/svn/branches/0_8_X_ASL</SVNRepoURL>
+        <SVNRepoURL>http://syncope.googlecode.com/svn/trunk</SVNRepoURL>
     </properties>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</developerConnection>
-        <url>http://syncope.googlecode.com/svn/branches/0_8_X_ASL/archetype</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/archetype</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/archetype</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk/archetype</url>
     </scm>
 
     <build>
