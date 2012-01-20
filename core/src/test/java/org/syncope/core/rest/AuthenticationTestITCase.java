@@ -25,8 +25,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.AttributeTO;
@@ -37,6 +37,24 @@ import org.syncope.client.to.UserTO;
 import org.syncope.types.SchemaType;
 
 public class AuthenticationTestITCase extends AbstractTest {
+
+    @Test
+    public void testAdminEntitlements() {
+        // 1. as anonymous, read all available entitlements
+        Set<String> allEntitlements = new HashSet<String>(
+                Arrays.asList(anonymousRestTemplate().getForObject(
+                BASE_URL + "auth/allentitlements.json", String[].class)));
+        assertNotNull(allEntitlements);
+        assertFalse(allEntitlements.isEmpty());
+
+        // 2. as admin, read own entitlements
+        super.setupRestTemplate();
+        Set<String> adminEntitlements = new HashSet<String>(
+                Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "auth/entitlements.json", String[].class)));
+
+        assertEquals(allEntitlements, adminEntitlements);
+    }
 
     @Test
     public void testUserSchemaAuthorization() {
@@ -81,11 +99,12 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -112,7 +131,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertNotNull(userTO.getLastLoginDate());
-        assertEquals(new Integer(0), userTO.getFailedLogins());
+        assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
     }
 
     @Test
@@ -131,11 +150,12 @@ public class AuthenticationTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -144,7 +164,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(readUserTO);
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user2", "password"));
 
         HttpClientErrorException exception = null;
@@ -177,11 +198,12 @@ public class AuthenticationTestITCase extends AbstractTest {
                 userTO, UserTO.class);
         assertNotNull(userTO);
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -202,7 +224,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertTrue(userIds.contains(1L));
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user2", "password"));
 
         matchedUsers = Arrays.asList(
@@ -236,11 +259,12 @@ public class AuthenticationTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -250,12 +274,13 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(new Integer(0), readUserTO.getFailedLogins());
+        assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
 
         // authentications failed ...
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "wrongpwd1"));
 
@@ -290,10 +315,11 @@ public class AuthenticationTestITCase extends AbstractTest {
                 UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(new Integer(2), readUserTO.getFailedLogins());
+        assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -302,7 +328,7 @@ public class AuthenticationTestITCase extends AbstractTest {
                 UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(new Integer(0), readUserTO.getFailedLogins());
+        assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
     }
 
     @Test
@@ -322,11 +348,12 @@ public class AuthenticationTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -341,7 +368,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         // authentications failed ...
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "wrongpwd1"));
 
@@ -393,7 +421,8 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // last authentication before suspension
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "wrongpwd1"));
 
@@ -423,7 +452,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         // check for authentication
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 
@@ -449,7 +479,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials(
                 userTO.getUsername(), "password123"));
 

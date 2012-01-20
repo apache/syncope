@@ -15,7 +15,6 @@
 package org.syncope.core.rest;
 
 import javax.sql.DataSource;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
@@ -23,10 +22,10 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -50,13 +49,18 @@ public abstract class AbstractTest {
     @Autowired
     protected DataSource testDataSource;
 
+    protected RestTemplate anonymousRestTemplate() {
+        return new RestTemplate();
+    }
+
     @Before
     public void setupRestTemplate() {
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("admin", "password"));
     }
 }

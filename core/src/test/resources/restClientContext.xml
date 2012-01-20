@@ -19,12 +19,12 @@
 
     <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
     <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
-    <bean id="httpClient" class="org.apache.http.impl.client.ContentEncodingHttpClient">
+    <bean id="httpClientFactory" class="org.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+        <constructor-arg value="localhost"/>
+        <constructor-arg value="9080"/>
+        <constructor-arg value="http"/>
         <constructor-arg ref="httpClientConnManager"/>
         <constructor-arg ref="httpClientParams"/>
-    </bean>
-    <bean id="httpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
-        <constructor-arg ref="httpClient"/>
     </bean>
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <constructor-arg ref="httpClientFactory"/>
