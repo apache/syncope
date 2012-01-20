@@ -633,7 +633,8 @@ public class SyncJob extends AbstractJob {
                 List<PropagationTask> tasks =
                         propagationManager.getCreateTaskIds(
                         created, userTO.getPassword(), null,
-                        ((SyncTask) this.task).getResource().getName());
+                        Collections.singleton(
+                        ((SyncTask) this.task).getResource().getName()));
                 propagationManager.execute(tasks);
 
                 userTO = userDataBinder.getUserTO(
@@ -695,7 +696,8 @@ public class SyncJob extends AbstractJob {
                                 updated,
                                 userMod.getPassword(),
                                 null, null, null,
-                                ((SyncTask) this.task).getResource().getName());
+                                Collections.singleton(
+                                ((SyncTask) this.task).getResource().getName()));
 
                         propagationManager.execute(tasks);
 

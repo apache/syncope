@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -42,9 +43,11 @@ import org.syncope.client.search.SyncopeUserCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
+import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.PropagationTaskTO;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowFormPropertyTO;
 import org.syncope.client.to.WorkflowFormTO;
@@ -1355,6 +1358,100 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
     }
 
+    @Test
+    public void suspendReactivateOnResource() {
+        UserTO userTO = getSampleTO("suspreactonresource@syncope-idm.org");
+
+        userTO.getMemberships().clear();
+        userTO.getResources().clear();
+
+        ResourceTO dbTable = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "resource-testdb");
+
+        assertNotNull(dbTable);
+        userTO.addResource(dbTable.getName());
+
+        ResourceTO ldap = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "resource-ldap");
+
+        assertNotNull(ldap);
+        userTO.addResource(ldap.getName());
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        String query = "?resourceNames=" + dbTable.getName()
+                + "&resourceNames=" + ldap.getName()
+                + "&performLocal=true"; // check also performLocal
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/suspend/" + userTO.getId() + query,
+                UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("suspended", userTO.getStatus());
+
+        String dbTableUID = String.valueOf(userTO.getId());
+        assertNotNull(dbTableUID);
+
+        ConnObjectTO connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, dbTable.getName(), dbTableUID);
+
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().
+                get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
+
+        String ldapUID = userTO.getUsername();
+        assertNotNull(ldapUID);
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, ldap.getName(), ldapUID);
+
+        assertNotNull(connObjectTO);
+
+        query = "?resourceNames=" + ldap.getName()
+                + "&performLocal=false"; // check also performLocal
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/reactivate/" + userTO.getId() + query,
+                UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("suspended", userTO.getStatus());
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, dbTable.getName(), dbTableUID);
+
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().
+                get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
+
+        query = "?resourceNames=" + dbTable.getName()
+                + "&performLocal=true"; // check also performLocal
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/reactivate/" + userTO.getId() + query,
+                UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, dbTable.getName(), dbTableUID);
+
+        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().
+                get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
+
+
+    }
+
     @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
         UserTO userTO = getSampleTO("issue213@syncope-idm.org");
@@ -1365,16 +1462,21 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
         int id = jdbcTemplate.queryForInt(
                 "SELECT id FROM test WHERE id=?", userTO.getId());
+
         assertEquals(userTO.getId(), id);
 
         UserMod userMod = new UserMod();
+
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeRemoved("resource-testdb");
+        userMod.addResourceToBeRemoved(
+                "resource-testdb");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
+
         assertTrue(userTO.getResources().isEmpty());
 
         jdbcTemplate.queryForInt(
@@ -1391,13 +1493,18 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
+
         userMod.setId(userTO.getId());
-        userMod.setUsername("1" + userTO.getUsername());
+        userMod.setUsername(
+                "1" + userTO.getUsername());
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
+
         assertNotNull(userTO);
-        assertEquals("1issue234@syncope-idm.org", userTO.getUsername());
+
+        assertEquals(
+                "1issue234@syncope-idm.org", userTO.getUsername());
     }
 
     @Test
@@ -1411,6 +1518,7 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", original, UserTO.class);
 
         assertNotNull(original);
+
         assertTrue(original.getVirtualAttributes().isEmpty());
 
         UserTO toBeUpdated = restTemplate.getForObject(
@@ -1418,8 +1526,11 @@ public class UserTestITCase extends AbstractTest {
                 UserTO.class, original.getId());
 
         AttributeTO virtual = new AttributeTO();
-        virtual.setSchema("virtualdata");
-        virtual.addValue("virtualvalue");
+
+        virtual.setSchema(
+                "virtualdata");
+        virtual.addValue(
+                "virtualvalue");
 
         toBeUpdated.addVirtualAttribute(virtual);
 
@@ -1432,6 +1543,7 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/update", userMod, UserTO.class);
 
         assertNotNull(toBeUpdated);
+
         assertFalse(toBeUpdated.getVirtualAttributes().isEmpty());
         assertNotNull(toBeUpdated.getVirtualAttributes().get(0));
 

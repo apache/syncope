@@ -169,18 +169,19 @@ public class PropagationManager {
      * Create the user on every associated resource.
      *
      * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow
-     * @param password to be set
-     * @param vAttrs virtual attributes to be set
-     * @param syncResourceName name of external resource performing sync, hence
-     * not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if userId is not found
+     * result from workflow.
+     * @param password to be set.
+     * @param vAttrs virtual attributes to be set.
+     * @param syncResourceNames external resources performing sync, hence
+     * not to be considered for propagation.
+     * @return list of propagation tasks.
+     * @throws NotFoundException if userId is not found.
      */
     public List<PropagationTask> getCreateTaskIds(
             final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs,
-            final String syncResourceName)
+            final String password,
+            final List<AttributeTO> vAttrs,
+            final Set<String> syncResourceNames)
             throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
@@ -193,28 +194,59 @@ public class PropagationManager {
             return Collections.EMPTY_LIST;
         }
 
-        if (syncResourceName != null) {
-            propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
+        if (syncResourceNames != null) {
+            propByRes.get(PropagationOperation.CREATE).
+                    removeAll(syncResourceNames);
         }
 
-        return provision(user, password,
-                wfResult.getResult().getValue(), propByRes);
+        return provision(
+                user, password, wfResult.getResult().getValue(), propByRes);
+    }
+
+    /**
+     * Performs update on each resource associated to the user excluding the 
+     * specified into 'resourceNames' parameter.
+     *
+     * @param user to be propagated.
+     * @param enable wether user must be enabled or not.
+     * @param syncResourceNames external resource names not to be considered 
+     * for propagation. Use this during sync and disable/enable actions limited
+     * to the external resources only.
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
+     */
+    public List<PropagationTask> getUpdateTaskIds(
+            final SyncopeUser user,
+            final Boolean enable,
+            final Set<String> syncResourceNames)
+            throws NotFoundException {
+
+        return getUpdateTaskIds(
+                user, // SyncopeUser to be updated on external resources
+                null, // no propagation by resources
+                null, // no password
+                null, // no virtual attributes to be managed
+                null, // no virtual attributes to be managed
+                enable, // status to be propagated
+                syncResourceNames);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
      * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow
-     * @param enable wether user must be enabled or not
+     * result from workflow.
+     * @param enable wether user must be enabled or not.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
     public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Long> wfResult, final Boolean enable)
+            final WorkflowResult<Long> wfResult,
+            final Boolean enable)
             throws NotFoundException {
 
-        return getUpdateTaskIds(wfResult, null, null, null, enable, null);
+        return getUpdateTaskIds(
+                wfResult, null, null, null, enable, null);
     }
 
     /**
@@ -231,8 +263,10 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUpdateTaskIds(
             final WorkflowResult<Long> wfResult,
-            final String password, final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable)
+            final String password,
+            final Set<String> vAttrsToBeRemoved,
+            final Set<AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable)
             throws NotFoundException {
 
         return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved,
@@ -248,42 +282,65 @@ public class PropagationManager {
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
-     * @param syncResourceName name of external resource performing sync, hence
-     * not to be considered for propagation
+     * @param syncResourceNames external resource names not to be considered 
+     * for propagation. Use this during sync and disable/enable actions limited
+     * to the external resources only.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
     public List<PropagationTask> getUpdateTaskIds(
             final WorkflowResult<Long> wfResult,
-            final String password, final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable,
-            final String syncResourceName)
+            final String password,
+            final Set<String> vAttrsToBeRemoved,
+            final Set<AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable,
+            final Set<String> syncResourceNames)
             throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult());
 
-        PropagationByResource localPropByRes = userDataBinder.fillVirtual(user,
+        return getUpdateTaskIds(
+                user,
+                wfResult.getPropByRes(),
+                password,
+                vAttrsToBeRemoved,
+                vAttrsToBeUpdated,
+                enable,
+                syncResourceNames);
+    }
+
+    private List<PropagationTask> getUpdateTaskIds(
+            final SyncopeUser user,
+            final PropagationByResource propByRes,
+            final String password,
+            final Set<String> vAttrsToBeRemoved,
+            final Set<AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable,
+            final Set<String> syncResourceNames)
+            throws NotFoundException {
+
+        PropagationByResource localPropByRes = userDataBinder.fillVirtual(
+                user,
                 vAttrsToBeRemoved == null
                 ? Collections.EMPTY_SET : vAttrsToBeRemoved,
                 vAttrsToBeUpdated == null
                 ? Collections.EMPTY_SET : vAttrsToBeUpdated,
                 AttributableUtil.USER);
 
-        if (wfResult.getPropByRes() != null
-                && !wfResult.getPropByRes().isEmpty()) {
-
-            localPropByRes.merge(wfResult.getPropByRes());
+        if (propByRes != null && !propByRes.isEmpty()) {
+            localPropByRes.merge(propByRes);
         } else {
-            localPropByRes.addAll(PropagationOperation.UPDATE,
-                    user.getResourceNames());
+            localPropByRes.addAll(
+                    PropagationOperation.UPDATE, user.getResourceNames());
         }
-        if (syncResourceName != null) {
-            localPropByRes.get(PropagationOperation.CREATE).
-                    remove(syncResourceName);
-            localPropByRes.get(PropagationOperation.UPDATE).
-                    remove(syncResourceName);
-            localPropByRes.get(PropagationOperation.DELETE).
-                    remove(syncResourceName);
+
+        if (syncResourceNames != null) {
+            localPropByRes.get(
+                    PropagationOperation.CREATE).removeAll(syncResourceNames);
+            localPropByRes.get(
+                    PropagationOperation.UPDATE).removeAll(syncResourceNames);
+            localPropByRes.get(
+                    PropagationOperation.DELETE).removeAll(syncResourceNames);
         }
 
         return provision(user, password, enable, localPropByRes);
@@ -326,8 +383,7 @@ public class PropagationManager {
         SyncopeUser user = getSyncopeUser(userId);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.DELETE,
-                user.getResourceNames());
+        propByRes.set(PropagationOperation.DELETE, user.getResourceNames());
         if (syncResourceName != null) {
             propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }
@@ -622,8 +678,10 @@ public class PropagationManager {
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> provision(final SyncopeUser user,
-            final String password, final Boolean enable,
+    protected List<PropagationTask> provision(
+            final SyncopeUser user,
+            final String password,
+            final Boolean enable,
             final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning with user {}:\n{}", user, propByRes);

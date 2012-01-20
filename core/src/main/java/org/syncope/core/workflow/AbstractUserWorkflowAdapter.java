@@ -75,7 +75,7 @@ public abstract class AbstractUserWorkflowAdapter
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
-        return doSuspend(dataBinder.getUserFromId(userId));
+        return suspend(dataBinder.getUserFromId(userId));
     }
 
     @Override

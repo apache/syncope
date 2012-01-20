@@ -24,19 +24,29 @@ import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -52,6 +62,9 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDataBinder binder;
+
+    @Autowired
+    private ConnInstanceLoader connLoader;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -240,5 +253,58 @@ public class ResourceController extends AbstractController {
         LOG.debug("Mappings found: {} ", roleMappings);
 
         return roleMappings;
+    }
+
+    @PreAuthorize("hasRole('RESOURCE_GETOBJECT')")
+    @Transactional(readOnly = true)
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{resourceName}/read/{objectId}")
+    public ConnObjectTO getObject(final HttpServletResponse response,
+            @PathVariable("resourceName") String resourceName,
+            @PathVariable("objectId") final String objectId)
+            throws NotFoundException {
+
+        ExternalResource resource = resourceDAO.find(resourceName);
+        if (resource == null) {
+            LOG.error("Could not find resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + "'");
+        }
+
+        final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
+
+        final ConnectorObject connectorObject =
+                connector.getObject(ObjectClass.ACCOUNT, new Uid(objectId), null);
+
+        if (connectorObject == null) {
+            throw new NotFoundException(
+                    "Object " + objectId + " not found on resource " + resourceName);
+        }
+
+        final Set<Attribute> attributes = connectorObject.getAttributes();
+
+        if (AttributeUtil.find(Uid.NAME, attributes) == null) {
+            attributes.add(connectorObject.getUid());
+        }
+
+        if (AttributeUtil.find(Name.NAME, attributes) == null) {
+            attributes.add(connectorObject.getName());
+        }
+
+        final ConnObjectTO connObjectTO = new ConnObjectTO();
+
+        for (Attribute attr : attributes) {
+            AttributeTO attrTO = new AttributeTO();
+            attrTO.setSchema(attr.getName());
+
+            if (attr.getValue() != null) {
+                for (Object value : attr.getValue()) {
+                    attrTO.addValue(value.toString());
+                }
+            }
+
+            connObjectTO.addAttribute(attrTO);
+        }
+
+        return connObjectTO;
     }
 }
