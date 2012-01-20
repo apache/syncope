@@ -1,7 +1,6 @@
 =global=
 
 * POM refactoring: create release subproject (like as Cocoon 3 and Hippo CMS)
-* POM refactoring: slim down core WAR size by removing dependencies from WAR itself and putting into cargo classpath
 
 =console=
 
