@@ -43,9 +43,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_8_X</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_8_X</developerConnection>
+        <url>http://syncope.googlecode.com/svn/branches/0_8_X</url>
     </scm>
 
     <issueManagement>
