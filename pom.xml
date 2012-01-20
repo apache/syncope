@@ -605,6 +605,15 @@
         </repository>
 
         <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        <repository>
             <id>activiti</id>
             <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
         </repository>
