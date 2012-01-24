@@ -153,7 +153,6 @@
         <quartz.version>1.8.5</quartz.version>
 
         <openjpa.version>2.2.0-SNAPSHOT</openjpa.version>
-        <ehcache.version>2.5.0</ehcache.version>
 
         <wicket.version>1.5.4</wicket.version>
 
@@ -282,12 +281,6 @@
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-all</artifactId>
                 <version>${openjpa.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-core</artifactId>
-                <version>${ehcache.version}</version>
             </dependency>
 
             <dependency>

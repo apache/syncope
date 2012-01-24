@@ -191,12 +191,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <scope>provided</scope>
@@ -442,7 +436,6 @@
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
-                                        <exclude name="**/ehcache.xml" />
                                         <exclude name="**/persistence.properties" />
                                         <exclude name="**/security.properties" />
                                         <exclude name="**/workflow.properties" />
@@ -496,11 +489,6 @@
                             <dependency>
                                 <groupId>org.apache.openjpa</groupId>
                                 <artifactId>openjpa-all</artifactId>
-                            </dependency>
-
-                            <dependency>
-                                <groupId>net.sf.ehcache</groupId>
-                                <artifactId>ehcache-core</artifactId>
                             </dependency>
 
                             <dependency>
@@ -686,7 +674,6 @@
                                     <resource>
                                         <excludes>
                                             <exclude>content.xml</exclude>
-                                            <exclude>ehcache.xml</exclude>
                                             <exclude>persistence.properties</exclude>
                                             <exclude>security.properties</exclude>
                                             <exclude>workflow.properties</exclude>

@@ -59,11 +59,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
         </dependency>
@@ -173,7 +168,6 @@
                                        dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml"/>
-                                        <exclude name="**/ehcache.xml"/>
                                         <exclude name="**/persistence.properties"/>
                                         <exclude name="**/security.properties"/>
                                         <exclude name="**/workflow.properties" />

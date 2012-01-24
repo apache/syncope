@@ -134,7 +134,6 @@
                                 <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
-                                        <exclude name="**/ehcache.xml" />
                                         <exclude name="**/persistence.properties" />
                                         <exclude name="**/security.properties" />
                                         <exclude name="**/workflow.properties" />

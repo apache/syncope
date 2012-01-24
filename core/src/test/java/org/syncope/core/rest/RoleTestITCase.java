@@ -14,10 +14,10 @@
  */
 package org.syncope.core.rest;
 
-import java.util.Arrays;
-import java.util.List;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;

@@ -10,6 +10,9 @@
 <%@page import="org.apache.openjpa.persistence.OpenJPAEntityManagerFactory"%>
 <%@page import="org.syncope.core.util.ApplicationContextManager"%>
 <%@page import="org.springframework.context.ConfigurableApplicationContext"%>
+<%@page import="org.apache.openjpa.datacache.QueryKey"%>
+<%@page import="org.apache.openjpa.kernel.QueryStatistics"%>
+<%@page import="org.apache.openjpa.persistence.QueryResultCacheImpl"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
@@ -57,6 +60,11 @@
             EntityManagerFactory emf = context.getBean(
                     EntityManagerFactory.class);
             OpenJPAEntityManagerFactory oemf = OpenJPAPersistence.cast(emf);
+
+            QueryStatistics<QueryKey> queryStatistics =
+                    ((QueryResultCacheImpl) oemf.getQueryResultCache()).
+                    getDelegate().getStatistics();
+            
             CacheStatisticsImpl statistics = (CacheStatisticsImpl) oemf.
                     getStoreCache().getStatistics();
 
@@ -74,6 +82,7 @@
                 statistics.disable();
                 info.append("Statistics disabled\n");
             } else if ("clear".equals(action)) {
+                queryStatistics.reset();
                 statistics.reset();
                 info.append("Statistics cleared\n");
             }
@@ -89,8 +98,8 @@
         <p/>
         <a href="?">Reload</a>
         <p/>
-           <a href="?do=<%=(statistics.isEnabled()
-                   ? "deactivate" : "activate")%>">
+        <a href="?do=<%=(statistics.isEnabled()
+                ? "deactivate" : "activate")%>">
             <%=(statistics.isEnabled()
                     ? "DEACTIVATE" : "ACTIVATE")%></a>
         <a href="?do=clear">CLEAR</a>
@@ -105,12 +114,46 @@
             </tr>
             <tr>
                 <th class="c bd1 bg1">Reads</th>
-                <td><%=statistics.getHitCount()%></td>
+                <td><%=statistics.getReadCount()%></td>
             </tr>
             <tr>
                 <th class="c bd1 bg1">Writes</th>
                 <td><%=statistics.getWriteCount()%></td>
             </tr>
+            <tr>
+                <th class="c bd1 bg1">Query Hits</th>
+                <td><%=queryStatistics.getHitCount()%></td>
+            </tr>
+            <tr>
+                <th class="c bd1 bg1">Query Executions</th>
+                <td><%=queryStatistics.getExecutionCount()%></td>
+            </tr>
+            <tr>
+                <th class="c bd1 bg1">Query Evictions</th>
+                <td><%=queryStatistics.getEvictionCount()%></td>
+            </tr>
+        </table>
+        <p/>
+        <table width="100%">
+            <tr><th colspan="3" class="c bd1 bg2">Query statistics</th></tr>
+            <tr>
+                <th class="c bd1 bg1">Query</th>
+                <th class="c bd1 bg1">Hits</th>
+                <th class="c bd1 bg1">Executions</th>
+            </tr>
+            <%
+                boolean odd = true;
+                for (QueryKey key : queryStatistics.keys()) {
+            %>
+            <tr class="<%=(odd ? "odd" : "even")%>">
+                <td><%=key%></td>
+                <td><%=queryStatistics.getHitCount(key)%></td>
+                <td><%=queryStatistics.getExecutionCount(key)%></td>
+            </tr>
+            <%
+                    odd = !odd;
+                }
+            %>
         </table>
         <p/>
         <table width="100%">
@@ -122,13 +165,13 @@
                 <th class="c bd1 bg1">Writes</th>
             </tr>
             <%
-                boolean odd = true;
+                odd = true;
                 for (String className : statistics.classNames()) {
             %>
             <tr class="<%=(odd ? "odd" : "even")%>">
                 <td><%=className%></td>
                 <td><%=statistics.getHitCount(className)%></td>
-                <td><%=statistics.getHitCount(className)%></td>
+                <td><%=statistics.getReadCount(className)%></td>
                 <td><%=statistics.getWriteCount(className)%></td>
             </tr>
             <%
