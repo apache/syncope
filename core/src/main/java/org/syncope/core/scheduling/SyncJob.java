@@ -701,8 +701,7 @@ public class SyncJob extends AbstractJob {
 
                         propagationManager.execute(tasks);
 
-                        userTO = userDataBinder.getUserTO(
-                                updated.getResult());
+                        userTO = userDataBinder.getUserTO(updated.getResult());
                     }
                 } catch (PropagationException e) {
                     LOG.error("Could not propagate user "

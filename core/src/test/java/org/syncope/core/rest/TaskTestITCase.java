@@ -287,26 +287,33 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(TestSyncJobActions.class.getName(),
                 actual.getJobActionsClassName());
 
+        // read executions before sync (dryrun test could be executed before)
+        List<TaskExecTO> executions = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/sync/execution/list",
+                TaskExecTO[].class));
+
+        assertNotNull(executions);
+
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 4);
         assertEquals("JOB_FIRED", execution.getStatus());
 
-        List<TaskExecTO> executions = Arrays.asList(
-                restTemplate.getForObject(
-                BASE_URL + "task/sync/execution/list",
-                TaskExecTO[].class));
-        assertNotNull(executions);
-        assertTrue(executions.isEmpty());
-        while (executions.isEmpty()) {
+        int execSize = executions.size();
+        
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
             executions = Arrays.asList(restTemplate.getForObject(
                     BASE_URL + "task/sync/execution/list",
                     TaskExecTO[].class));
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        } while (executions.size() == execSize);
 
         // check for sync policy
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
