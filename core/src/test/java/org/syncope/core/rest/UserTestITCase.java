@@ -1448,8 +1448,6 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().
                 get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
-
-
     }
 
     @Test(expected = EmptyResultDataAccessException.class)

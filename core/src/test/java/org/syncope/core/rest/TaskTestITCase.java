@@ -287,21 +287,20 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(TestSyncJobActions.class.getName(),
                 actual.getJobActionsClassName());
 
-        // read executions before sync (dryrun test could be executed before)
-        List<TaskExecTO> executions = Arrays.asList(
-                restTemplate.getForObject(
-                BASE_URL + "task/sync/execution/list",
-                TaskExecTO[].class));
+        SyncTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
 
-        assertNotNull(executions);
+        assertNotNull(taskTO);
+        assertNotNull(taskTO.getExecutions());
+
+        // read executions before sync (dryrun test could be executed before)        
+        int preSyncSize = taskTO.getExecutions().size();
 
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null,
-                TaskExecTO.class, 4);
+                TaskExecTO.class, taskTO.getId());
         assertEquals("JOB_FIRED", execution.getStatus());
 
-        int execSize = executions.size();
-        
         // wait for sync completion (executions incremented)
         do {
             try {
@@ -309,11 +308,14 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            executions = Arrays.asList(restTemplate.getForObject(
-                    BASE_URL + "task/sync/execution/list",
-                    TaskExecTO[].class));
+            taskTO = restTemplate.getForObject(
+                    BASE_URL + "task/read/{taskId}",
+                    SyncTaskTO.class, taskTO.getId());
 
-        } while (executions.size() == execSize);
+            assertNotNull(taskTO);
+            assertNotNull(taskTO.getExecutions());
+
+        } while (preSyncSize == taskTO.getExecutions().size());
 
         // check for sync policy
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
@@ -368,10 +370,35 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void dryRun() {
+        SyncTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
+
+        assertNotNull(taskTO);
+        assertNotNull(taskTO.getExecutions());
+
+        int preDryRunSize = taskTO.getExecutions().size();
+
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}?dryRun=true", null,
                 TaskExecTO.class, 4);
         assertNotNull(execution);
-        assertEquals("JOB_FIRED", execution.getStatus());
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            taskTO = restTemplate.getForObject(
+                    BASE_URL + "task/read/{taskId}",
+                    SyncTaskTO.class, taskTO.getId());
+
+            assertNotNull(taskTO);
+            assertNotNull(taskTO.getExecutions());
+
+        } while (preDryRunSize == taskTO.getExecutions().size());
+
+        assertEquals("SUCCESS", taskTO.getExecutions().get(0).getStatus());
     }
 }
