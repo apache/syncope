@@ -16,7 +16,6 @@ package org.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -34,6 +33,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all connectors.
+     *
      * @return ConnectorInstanceTOs
      */
     public List<ConnInstanceTO> getAllConnectors() {
@@ -44,6 +44,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
     /**
      * Create new connector.
+     *
      * @param schemaTO
      */
     public void create(final ConnInstanceTO connectorTO) {
@@ -54,6 +55,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
     /**
      * Load an already existent connector by its name.
+     *
      * @param connectorInstanceId the id
      * @return ConnInstanceTO
      */
@@ -97,25 +99,9 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return bundles;
     }
 
-    public List<String> getSchemaNames(final String resourceName) {
-        List<String> schemaNames = null;
-
-        try {
-            schemaNames = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "connector/schema/{resourceName}/list",
-                    String[].class, resourceName));
-
-            // re-order schema names list
-            Collections.sort(schemaNames);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While getting resource schema names", e);
-        }
-
-        return schemaNames;
-    }
-
     /**
      * Get all configuration properties for the given connector instance.
+     *
      * @param connectorId the connector id
      * @return List of ConnConfProperty, or an empty list in case none found
      */

@@ -15,11 +15,7 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
@@ -30,10 +26,18 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
@@ -41,8 +45,8 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
@@ -58,7 +62,7 @@ public class ResourceController extends AbstractController {
     private ResourceDAO resourceDAO;
 
     @Autowired
-    private RoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Autowired
     private ResourceDataBinder binder;
@@ -203,15 +207,79 @@ public class ResourceController extends AbstractController {
 
     @PreAuthorize("hasRole('RESOURCE_READ')")
     @RequestMapping(method = RequestMethod.GET,
+    value = "/schema/{resourceName}/list")
+    @Transactional(readOnly = true)
+    public List<String> getSchemaNames(
+            @PathVariable("resourceName") final String resourceName,
+            @RequestParam(required = false,
+            value = "showall", defaultValue = "false") final boolean showall)
+            throws NotFoundException {
+
+        ExternalResource resource = resourceDAO.find(resourceName);
+        if (resource == null) {
+            LOG.error("Could not find resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + "'");
+        }
+
+        // We cannot use Spring bean because this method could be used during
+        // resource definition or modification: bean couldn't exist or bean
+        // couldn't be updated.
+        // This is the reason why we should take a "not mature" connector
+        // facade proxy to ask for schema names.
+
+        List<String> result = new ArrayList<String>(
+                connLoader.createConnectorBean(resource).getSchema(showall));
+        Collections.sort(result);
+
+        return result;
+    }
+
+    @PreAuthorize("hasRole('RESOURCE_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/check/{resourceName}")
+    @Transactional(readOnly = true)
+    public ModelAndView check(
+            @PathVariable("resourceName") final String resourceName)
+            throws NotFoundException {
+
+        final ExternalResource resource = resourceDAO.find(resourceName);
+        if (resource == null) {
+            LOG.error("Missing resource: {}", resourceName);
+            throw new NotFoundException("Resource '" + resourceName + "'");
+        }
+
+        ConnectorFacadeProxy connector;
+        try {
+            connector = connLoader.getConnector(resource);
+        } catch (BeansException e) {
+            throw new NotFoundException(
+                    "Connector " + resource.getConnector().getId(), e);
+        }
+
+        Boolean verify = Boolean.FALSE;
+        try {
+            if (connector != null) {
+                connector.validate();
+                verify = Boolean.TRUE;
+            }
+        } catch (RuntimeException ignore) {
+            LOG.warn("Connector validation failed", ignore);
+        }
+
+        return new ModelAndView().addObject(verify);
+    }
+
+    @PreAuthorize("hasRole('RESOURCE_READ')")
+    @RequestMapping(method = RequestMethod.GET,
     value = "/{roleName}/mappings")
     public List<SchemaMappingTO> getRoleResourcesMapping(
-            HttpServletResponse response,
-            @PathVariable("roleName") Long roleId)
+            final HttpServletResponse response,
+            @PathVariable("roleName") final Long roleId)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeRole role = null;
         if (roleId != null) {
-            role = syncopeRoleDAO.find(roleId);
+            role = roleDAO.find(roleId);
         }
 
         if (role == null) {
@@ -277,7 +345,8 @@ public class ResourceController extends AbstractController {
 
         if (connectorObject == null) {
             throw new NotFoundException(
-                    "Object " + objectId + " not found on resource " + resourceName);
+                    "Object " + objectId + " not found on resource "
+                    + resourceName);
         }
 
         final Set<Attribute> attributes = connectorObject.getAttributes();

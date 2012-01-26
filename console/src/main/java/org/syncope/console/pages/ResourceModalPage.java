@@ -591,7 +591,7 @@ public class ResourceModalPage extends BaseModalPage {
         mappingContainer.add(addSchemaMappingBtn);
 
         /*
-         * the list of overridable connector properties 
+         * the list of overridable connector properties
          */
         connectorPropertiesContainer.add(new ListView<ConnConfProperty>(
                 "connectorProperties", connectorPropertiesModel) {
@@ -808,9 +808,8 @@ public class ResourceModalPage extends BaseModalPage {
     }
 
     /**
-     * Extension class of DropDownChoice.
-     * It's purposed for storing values in the
-     * corresponding property model after pressing 'Add' button.
+     * Extension class of DropDownChoice. It's purposed for storing values in
+     * the corresponding property model after pressing 'Add' button.
      */
     private class IntMappingTypesDropDownChoice
             extends AjaxDropDownChoicePanel {
@@ -871,7 +870,7 @@ public class ResourceModalPage extends BaseModalPage {
         try {
             resourceSchemaNames =
                     (resourceTO != null && resourceTO.getConnectorId() != null)
-                    ? connectorRestClient.getSchemaNames(resourceTO.getName())
+                    ? restClient.getSchemaNames(resourceTO.getName())
                     : Collections.EMPTY_LIST;
 
         } catch (Exception e) {

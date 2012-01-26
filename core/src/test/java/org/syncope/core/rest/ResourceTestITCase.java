@@ -401,4 +401,34 @@ public class ResourceTestITCase extends AbstractTest {
 
         assertNotNull(actual);
     }
+
+    @Test
+    public void check() {
+        Boolean verify = restTemplate.getForObject(
+                BASE_URL + "resource/check/{resourceName}.json",
+                Boolean.class, "ws-target-resource-1");
+
+        assertTrue(verify);
+    }
+
+    @Test
+    public void getSchemaNames() {
+        List<String> schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/schema/{resourceName}/list?showAll=true",
+                String[].class, "ws-target-resource-1"));
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
+
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/schema/{resourceName}/list",
+                String[].class, "resource-testdb"));
+        assertNotNull(schemaNames);
+        assertEquals(1, schemaNames.size());
+
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/schema/{resourceName}/list?showAll=true",
+                String[].class, "resource-csv"));
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
+    }
 }
