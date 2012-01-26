@@ -57,7 +57,7 @@ public class RoleTest extends AbstractTest {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public final void createWithPasswordPolicy() {
+    public void createWithPasswordPolicy() {
         final String ROLE_NAME = "roleWithPasswordPolicy";
 
         PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
@@ -79,7 +79,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         roleDAO.delete(2L);
 
         roleDAO.flush();

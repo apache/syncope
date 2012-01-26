@@ -38,19 +38,19 @@ public class MembershipTest extends AbstractTest {
     private RoleDAO roleDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<Membership> list = membershipDAO.findAll();
         assertEquals(6, list.size());
     }
 
     @Test
-    public final void find() {
+    public void find() {
         Membership membership = membershipDAO.find(1L);
         assertNotNull("did not find expected membership", membership);
     }
 
     @Test
-    public final void save() {
+    public void save() {
         SyncopeUser user = userDAO.find(4L);
         SyncopeRole role = roleDAO.find(1L);
 
@@ -65,7 +65,7 @@ public class MembershipTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         Membership membership = membershipDAO.find(4L);
         membershipDAO.delete(membership.getId());
 

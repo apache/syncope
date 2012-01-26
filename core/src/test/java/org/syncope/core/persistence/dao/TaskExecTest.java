@@ -37,7 +37,7 @@ public class TaskExecTest extends AbstractTest {
     private TaskDAO taskDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<TaskExec> list = taskExecDAO.findAll(PropagationTask.class);
         assertEquals(1, list.size());
 
@@ -52,7 +52,7 @@ public class TaskExecTest extends AbstractTest {
     }
 
     @Test
-    public final void findLatestStarted() {
+    public void findLatestStarted() {
         PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 

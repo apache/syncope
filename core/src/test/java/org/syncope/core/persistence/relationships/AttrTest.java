@@ -64,7 +64,7 @@ public class AttrTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public final void deleteAttribute() {
+    public void deleteAttribute() {
         attrDAO.delete(550L, UAttr.class);
 
         attrDAO.flush();
@@ -74,7 +74,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void deleteAttributeValue() {
+    public void deleteAttributeValue() {
         UAttrValue value =
                 attrValueDAO.find(20L, UAttrValue.class);
         int attributeValueNumber =
@@ -92,7 +92,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void checkForEnumType() {
+    public void checkForEnumType() {
         MSchema schema = new MSchema();
         schema.setType(SchemaType.Enum);
         schema.setName("color");

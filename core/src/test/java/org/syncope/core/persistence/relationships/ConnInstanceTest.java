@@ -37,7 +37,7 @@ public class ConnInstanceTest extends AbstractTest {
     private ConnInstanceDAO connInstanceDAO;
 
     @Test
-    public final void deleteCascade() {
+    public void deleteCascade() {
         ConnInstance connInstance = connInstanceDAO.find(103L);
         assertNotNull(connInstance);
 

@@ -32,7 +32,7 @@ public class EntitlementTest extends AbstractTest {
     private EntitlementDAO entitlementDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
         // 59 real entitlements + 9 role entitlements
         assertEquals("did not get expected number of entitlements ",
@@ -40,14 +40,14 @@ public class EntitlementTest extends AbstractTest {
     }
 
     @Test
-    public final void findByName() {
+    public void findByName() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
                 entitlement);
     }
 
     @Test
-    public final void save() {
+    public void save() {
         Entitlement entitlement = new Entitlement();
         entitlement.setName("another");
 
@@ -59,7 +59,7 @@ public class EntitlementTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
                 entitlement);

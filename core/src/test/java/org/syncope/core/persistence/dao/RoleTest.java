@@ -35,18 +35,18 @@ public class RoleTest extends AbstractTest {
     private PolicyDAO policyDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<SyncopeRole> list = roleDAO.findAll();
         assertEquals("did not get expected number of roles ", 9, list.size());
     }
 
     @Test
-    public final void findChildren() {
+    public void findChildren() {
         assertEquals(2, roleDAO.findChildren(4L).size());
     }
 
     @Test
-    public final void find() {
+    public void find() {
         SyncopeRole role = roleDAO.find("root", null);
         assertNotNull("did not find expected role", role);
         role = roleDAO.find(null, null);
@@ -54,28 +54,28 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public final void inheritedAttributes() {
+    public void inheritedAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
         assertEquals(1, director.findInheritedAttributes().size());
     }
 
     @Test
-    public final void inheritedDerivedAttributes() {
+    public void inheritedDerivedAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
         assertEquals(1, director.findInheritedDerivedAttributes().size());
     }
 
     @Test
-    public final void inheritedVirtualAttributes() {
+    public void inheritedVirtualAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
         assertEquals(1, director.findInheritedVirtualAttributes().size());
     }
 
     @Test
-    public final void inheritedPolicy() {
+    public void inheritedPolicy() {
         SyncopeRole role = roleDAO.find(7L);
 
         assertNotNull(role);
@@ -83,7 +83,7 @@ public class RoleTest extends AbstractTest {
         assertNotNull(role.getAccountPolicy());
         assertNotNull(role.getPasswordPolicy());
 
-        assertEquals(4L, (long) role.getPasswordPolicy().getId());
+        assertEquals(Long.valueOf(4), role.getPasswordPolicy().getId());
 
         role = roleDAO.find(5L);
 
@@ -94,7 +94,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         SyncopeRole role = new SyncopeRole();
         role.setName("secondChild");
 
@@ -117,11 +117,11 @@ public class RoleTest extends AbstractTest {
 
         assertNull(role.getPasswordPolicy());
         assertNotNull(role.getAccountPolicy());
-        assertEquals(6L, (long) role.getAccountPolicy().getId());
+        assertEquals(Long.valueOf(6), role.getAccountPolicy().getId());
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         SyncopeRole role = roleDAO.find(4L);
         roleDAO.delete(role.getId());
 
@@ -130,6 +130,5 @@ public class RoleTest extends AbstractTest {
 
         SyncopeRole children = roleDAO.find(7L);
         assertNull("delete of successors did not work", children);
-
     }
 }

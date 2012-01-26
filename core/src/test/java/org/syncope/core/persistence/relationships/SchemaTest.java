@@ -52,7 +52,7 @@ public class SchemaTest extends AbstractTest {
     private ResourceDAO resourceDAO;
 
     @Test
-    public final void test1() {
+    public void test1() {
         // search for user schema fullname
         USchema schema = schemaDAO.find("fullname", USchema.class);
 

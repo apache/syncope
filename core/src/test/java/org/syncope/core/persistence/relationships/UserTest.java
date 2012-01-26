@@ -50,7 +50,7 @@ public class UserTest extends AbstractTest {
     private AttrValueDAO attrValueDAO;
 
     @Test
-    public final void test() {
+    public void test() {
         userDAO.delete(4L);
 
         userDAO.flush();

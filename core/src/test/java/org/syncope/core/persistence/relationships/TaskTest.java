@@ -54,7 +54,7 @@ public class TaskTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public final void read() {
+    public void read() {
         PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
@@ -64,7 +64,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
@@ -99,7 +99,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void addPropagationTaskExecution() {
+    public void addPropagationTaskExecution() {
         PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
@@ -122,7 +122,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void addSyncTaskExecution() {
+    public void addSyncTaskExecution() {
         SyncTask task = taskDAO.find(4L);
         assertNotNull(task);
 
@@ -145,7 +145,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void deleteTask() {
+    public void deleteTask() {
         taskDAO.delete(1L);
 
         taskDAO.flush();
@@ -155,7 +155,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void deleteTaskExecution() {
+    public void deleteTaskExecution() {
         TaskExec execution = taskExecDAO.find(1L);
         int executionNumber = execution.getTask().getExecs().size();
 

@@ -25,7 +25,7 @@ import org.syncope.client.to.LoggerTO;
 public class LogTestITCase extends AbstractTest {
 
     @Test
-    public final void list() {
+    public void list() {
         List<LoggerTO> loggers = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "log/controller/list", LoggerTO[].class));
@@ -36,7 +36,7 @@ public class LogTestITCase extends AbstractTest {
         }
     }
 
-    public final void setLoggerLevel() {
+    public void setLoggerLevel() {
         LoggerTO logger = restTemplate.postForObject(
                 BASE_URL + "log/controller/{name}/{level}",
                 null, LoggerTO.class, "org.syncope.core.monitor", "INFO");

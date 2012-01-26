@@ -53,7 +53,7 @@ public class UserSearchTest {
     private EntitlementDAO entitlementDAO;
 
     @Test
-    public final void matches() {
+    public void matches() {
         SyncopeUser user = userDAO.find(1L);
         assertNotNull(user);
 
@@ -70,7 +70,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void searchWithLikeCondition() {
+    public void searchWithLikeCondition() {
         AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
@@ -101,7 +101,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void searchWithNotCondition() {
+    public void searchWithNotCondition() {
         final AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
@@ -123,7 +123,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void searchByBoolean() {
+    public void searchByBoolean() {
         final AttributeCond coolLeafCond =
                 new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
@@ -141,7 +141,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void searchByPageAndSize() {
+    public void searchByPageAndSize() {
         AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
@@ -179,7 +179,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void searchByMembership() {
+    public void searchByMembership() {
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(1L);
 
@@ -330,7 +330,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void issue202() {
+    public void issue202() {
         final ResourceCond ws2 = new ResourceCond();
         ws2.setResourceName("ws-target-resource-2");
 
@@ -351,7 +351,7 @@ public class UserSearchTest {
     }
 
     @Test
-    public final void issue242() {
+    public void issue242() {
         final SyncopeUserCond cond =
                 new SyncopeUserCond(AttributeCond.Type.LIKE);
         cond.setSchema("id");

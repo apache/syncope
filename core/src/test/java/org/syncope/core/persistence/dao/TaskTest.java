@@ -49,7 +49,7 @@ public class TaskTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public final void findWithoutExecs() {
+    public void findWithoutExecs() {
         List<PropagationTask> tasks =
                 taskDAO.findWithoutExecs(PropagationTask.class);
         assertNotNull(tasks);
@@ -57,7 +57,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<PropagationTask> plist = taskDAO.findAll(PropagationTask.class);
         assertEquals(4, plist.size());
 
@@ -78,7 +78,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void savePropagationTask() {
+    public void savePropagationTask() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
@@ -107,7 +107,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void saveSyncTask() {
+    public void saveSyncTask() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
@@ -157,7 +157,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 

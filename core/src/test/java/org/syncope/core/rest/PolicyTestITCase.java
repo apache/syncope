@@ -32,7 +32,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class PolicyTestITCase extends AbstractTest {
 
     @Test
-    public final void listByType() {
+    public void listByType() {
         List<SyncPolicyTO> policyTOs = Arrays.asList(restTemplate.getForObject(
                 BASE_URL + "policy/{kind}/list",
                 SyncPolicyTO[].class, PolicyType.SYNC.toString()));
@@ -42,7 +42,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void read() {
+    public void read() {
         SyncPolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 1L);
 
@@ -50,7 +50,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void getGlobalPasswordPolicy() {
+    public void getGlobalPasswordPolicy() {
         PasswordPolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/password/global/read",
                 PasswordPolicyTO.class);
@@ -62,7 +62,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void getGlobalAccountPolicy() {
+    public void getGlobalAccountPolicy() {
         AccountPolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/account/global/read", AccountPolicyTO.class);
 
@@ -71,7 +71,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithException() {
+    public void createWithException() {
         PasswordPolicyTO policy = new PasswordPolicyTO(true);
         policy.setSpecification(new PasswordPolicySpec());
         policy.setDescription("global password policy");
@@ -90,7 +90,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createMissingDescription() {
+    public void createMissingDescription() {
         SyncPolicyTO policy = new SyncPolicyTO();
         policy.setSpecification(new SyncPolicySpec());
 
@@ -108,7 +108,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void create() {
+    public void create() {
         SyncPolicyTO policy = new SyncPolicyTO();
         policy.setSpecification(new SyncPolicySpec());
         policy.setDescription("Sync policy");
@@ -121,7 +121,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void update() {
+    public void update() {
         // get global password
         PasswordPolicyTO globalPolicy = restTemplate.getForObject(
                 BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
@@ -160,7 +160,7 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         final PolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
 

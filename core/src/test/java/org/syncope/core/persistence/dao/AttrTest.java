@@ -43,14 +43,14 @@ public class AttrTest extends AbstractTest {
     private SchemaDAO userSchemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<UAttr> list = attrDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
                 9, list.size());
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         UAttr attribute = attrDAO.find(100L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
@@ -60,7 +60,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void read() {
+    public void read() {
         UAttr attribute = attrDAO.find(100L, UAttr.class);
         assertNotNull(attribute);
 
@@ -69,7 +69,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void save()
+    public void save()
             throws ClassNotFoundException {
 
         SyncopeUser user = userDAO.find(1L);
@@ -113,7 +113,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void checkForEnumType()
+    public void checkForEnumType()
             throws ClassNotFoundException {
 
         SyncopeUser user = userDAO.find(1L);
@@ -155,7 +155,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void validateAndSave() {
+    public void validateAndSave() {
         final USchema emailSchema =
                 userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
@@ -188,7 +188,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         UAttr attribute = attrDAO.find(200L, UAttr.class);
         String attrSchemaName = attribute.getSchema().getName();
 

@@ -50,7 +50,7 @@ public class VirAttrTest extends AbstractTest {
     private VirSchemaDAO virSchemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<UVirAttr> list = virAttrDAO.findAll(UVirAttr.class);
         assertEquals(
                 "did not get expected number of derived attributes ",
@@ -58,7 +58,7 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         UVirAttr attribute = virAttrDAO.find(100L, UVirAttr.class);
         assertNotNull(
                 "did not find expected attribute schema",
@@ -66,7 +66,7 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveUVirAttribute()
+    public void saveUVirAttribute()
             throws ClassNotFoundException {
         UVirSchema virtualSchema =
                 virSchemaDAO.find("virtualdata", UVirSchema.class);
@@ -88,7 +88,7 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveMVirAttribute()
+    public void saveMVirAttribute()
             throws ClassNotFoundException {
 
         MVirSchema virtualSchema = new MVirSchema();
@@ -110,7 +110,7 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveRVirAttribute()
+    public void saveRVirAttribute()
             throws ClassNotFoundException {
 
         RVirSchema virtualSchema = new RVirSchema();
@@ -132,7 +132,7 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         UVirAttr attribute = virAttrDAO.find(100L, UVirAttr.class);
         String attributeSchemaName = attribute.getVirtualSchema().getName();
 

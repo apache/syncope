@@ -40,7 +40,7 @@ public class DerSchemaTest extends AbstractTest {
     private DerAttrDAO derAttrDAO;
 
     @Test
-    public final void test() {
+    public void test() {
         UDerSchema schema = derSchemaDAO.find("cn", UDerSchema.class);
 
         derSchemaDAO.delete(schema.getName(), AttributableUtil.USER);

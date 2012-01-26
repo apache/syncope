@@ -34,14 +34,14 @@ public class DerSchemaTest extends AbstractTest {
     private SchemaDAO schemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<UDerSchema> list =
                 derSchemaDAO.findAll(UDerSchema.class);
         assertEquals(3, list.size());
     }
 
     @Test
-    public final void findByName() {
+    public void findByName() {
         UDerSchema attributeSchema =
                 derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull("did not find expected derived attribute schema",
@@ -49,7 +49,7 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         UDerSchema derivedAttributeSchema =
                 new UDerSchema();
         derivedAttributeSchema.setName("cn2");
@@ -64,7 +64,7 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         UDerSchema attributeSchema =
                 derSchemaDAO.find("cn", UDerSchema.class);
 

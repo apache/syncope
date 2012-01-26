@@ -36,14 +36,14 @@ public class ConnInstanceTest extends AbstractTest {
     private ConnInstanceDAO connInstanceDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<ConnInstance> connectors = connInstanceDAO.findAll();
         assertNotNull(connectors);
         assertFalse(connectors.isEmpty());
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         ConnInstance connectorInstance = connInstanceDAO.find(100L);
 
         assertNotNull("findById did not work", connectorInstance);
@@ -60,7 +60,7 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public final void save()
+    public void save()
             throws ClassNotFoundException {
 
         ConnInstance connectorInstance = new ConnInstance();
@@ -131,7 +131,7 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         ConnInstance connectorInstance = connInstanceDAO.find(100L);
         assertNotNull("find to delete did not work", connectorInstance);
 

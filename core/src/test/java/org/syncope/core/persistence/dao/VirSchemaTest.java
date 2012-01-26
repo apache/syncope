@@ -34,14 +34,14 @@ public class VirSchemaTest extends AbstractTest {
     private SchemaDAO schemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<UVirSchema> list =
                 virSchemaDAO.findAll(UVirSchema.class);
         assertEquals(1, list.size());
     }
 
     @Test
-    public final void findByName() {
+    public void findByName() {
         UVirSchema attributeSchema =
                 virSchemaDAO.find("virtualdata", UVirSchema.class);
         assertNotNull("did not find expected virtual attribute schema",
@@ -49,7 +49,7 @@ public class VirSchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         UVirSchema virtualAttributeSchema =
                 new UVirSchema();
         virtualAttributeSchema.setName("virtual");
@@ -63,7 +63,7 @@ public class VirSchemaTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         UVirSchema attributeSchema =
                 virSchemaDAO.find("virtualdata", UVirSchema.class);
 

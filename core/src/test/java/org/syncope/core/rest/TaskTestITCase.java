@@ -35,7 +35,7 @@ import org.syncope.core.scheduling.TestSyncJobActions;
 public class TaskTestITCase extends AbstractTest {
 
     @Test
-    public final void create() {
+    public void create() {
         SyncTaskTO task = new SyncTaskTO();
         task.setResource("ws-target-resource-2");
 
@@ -60,7 +60,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void update() {
+    public void update() {
         SchedTaskTO task = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", SchedTaskTO.class,
                 5);
@@ -79,7 +79,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void count() {
+    public void count() {
         Integer count = restTemplate.getForObject(
                 BASE_URL + "task/propagation/count.json", Integer.class);
         assertNotNull(count);
@@ -87,7 +87,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void list() {
+    public void list() {
         List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
@@ -99,7 +99,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void paginatedList() {
+    public void paginatedList() {
         List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(
                 BASE_URL + "task/propagation/list/{page}/{size}.json",
                 PropagationTaskTO[].class, 1, 2));
@@ -132,7 +132,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void listExecutions() {
+    public void listExecutions() {
         List<TaskExecTO> executions = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "task/propagation/execution/list",
@@ -145,7 +145,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void read() {
+    public void read() {
         PropagationTaskTO taskTO = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, 3);
 
@@ -155,7 +155,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void readExecution() {
+    public void readExecution() {
         TaskExecTO taskTO = restTemplate.getForObject(
                 BASE_URL + "task/execution/read/{taskId}",
                 TaskExecTO.class, 1);
@@ -163,7 +163,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void deal() {
+    public void deal() {
         try {
             restTemplate.delete(BASE_URL + "task/delete/{taskId}", 0);
         } catch (HttpStatusCodeException e) {

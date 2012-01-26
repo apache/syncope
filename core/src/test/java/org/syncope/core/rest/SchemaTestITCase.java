@@ -51,7 +51,7 @@ public class SchemaTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithNotPermittedName() {
+    public void createWithNotPermittedName() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("failedLogins");
         schemaTO.setType(SchemaType.String);
@@ -72,7 +72,7 @@ public class SchemaTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createREnumWithoutEnumeration() {
+    public void createREnumWithoutEnumeration() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("enumcheck");
         schemaTO.setType(SchemaType.Enum);
@@ -94,7 +94,7 @@ public class SchemaTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createUEnumWithoutEnumeration() {
+    public void createUEnumWithoutEnumeration() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("enumcheck");
         schemaTO.setType(SchemaType.Enum);

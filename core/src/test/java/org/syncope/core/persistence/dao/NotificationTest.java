@@ -48,7 +48,7 @@ public class NotificationTest extends AbstractTest {
     }
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<Notification> notifications = notificationDAO.findAll();
         assertNotNull(notifications);
         assertFalse(notifications.isEmpty());

@@ -36,7 +36,7 @@ public class MembershipTest extends AbstractTest {
     private RoleDAO syncopeRoleDAO;
 
     @Test
-    public final void delete() {
+    public void delete() {
         Membership membership = membershipDAO.find(4L);
         SyncopeUser user = membership.getSyncopeUser();
         SyncopeRole role = membership.getSyncopeRole();
@@ -54,7 +54,7 @@ public class MembershipTest extends AbstractTest {
     }
 
     @Test
-    public final void deleteAndCreate() {
+    public void deleteAndCreate() {
         Membership membership = membershipDAO.find(3L);
         SyncopeUser user = membership.getSyncopeUser();
         SyncopeRole role = membership.getSyncopeRole();

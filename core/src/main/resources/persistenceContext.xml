@@ -47,12 +47,12 @@
         <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
         <property name="defaultObject" ref="localDataSource"/>
     </bean>
-    <bean id="localDataSource"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="localDataSource" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName" value="${jpa.driverClassName}"/>
         <property name="url" value="${jpa.url}"/>
         <property name="username" value="${jpa.username}"/>
         <property name="password" value="${jpa.password}"/>
+        <property name="initialSize" value="10"/>
     </bean>
 
     <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">

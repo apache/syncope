@@ -53,7 +53,7 @@ public class DerAttrTest extends AbstractTest {
     private DerSchemaDAO derSchemaDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<UDerAttr> list = derAttrDAO.findAll(
                 UDerAttr.class);
         assertEquals("did not get expected number of derived attributes ",
@@ -61,7 +61,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         UDerAttr attribute = derAttrDAO.find(100L,
                 UDerAttr.class);
         assertNotNull("did not find expected attribute schema",
@@ -69,7 +69,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveUDerAttribute()
+    public void saveUDerAttribute()
             throws ClassNotFoundException {
         UDerSchema cnSchema =
                 derSchemaDAO.find("cn", UDerSchema.class);
@@ -102,7 +102,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveMDerAttribute()
+    public void saveMDerAttribute()
             throws ClassNotFoundException {
         MDerSchema deriveddata =
                 derSchemaDAO.find("mderiveddata", MDerSchema.class);
@@ -134,7 +134,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void saveRDerAttribute()
+    public void saveRDerAttribute()
             throws ClassNotFoundException {
         RDerSchema deriveddata =
                 derSchemaDAO.find("rderiveddata", RDerSchema.class);
@@ -166,7 +166,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         UDerAttr attribute = derAttrDAO.find(100L,
                 UDerAttr.class);
         String attributeSchemaName =
