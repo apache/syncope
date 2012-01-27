@@ -16,7 +16,7 @@
  */
 package org.syncope.console.pages;
 
-import com.sun.tools.javac.util.Pair;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -207,11 +207,12 @@ public class StatusModalPage extends BaseModalPage {
 
         for (String res : userTO.getResources()) {
             ResourceTO resourceTO = resourceRestClient.read(res);
-            Pair<IntMappingType, String> accountId = getAccountId(resourceTO);
+            Map.Entry<IntMappingType, String> accountId = getAccountId(
+                    resourceTO);
 
             String objectId = null;
 
-            switch (accountId != null ? accountId.fst : IntMappingType.SyncopeUserId) {
+            switch (accountId != null ? accountId.getKey() : IntMappingType.SyncopeUserId) {
                 case SyncopeUserId:
                     objectId = String.valueOf(userTO.getId());
                     break;
@@ -221,7 +222,7 @@ public class StatusModalPage extends BaseModalPage {
                 case UserSchema:
                     AttributeTO attributeTO = null;
                     attributeTO =
-                            userTO.getAttributeMap().get(accountId.snd);
+                            userTO.getAttributeMap().get(accountId.getValue());
                     objectId =
                             attributeTO != null
                             && attributeTO.getValues() != null
@@ -229,8 +230,8 @@ public class StatusModalPage extends BaseModalPage {
                             ? attributeTO.getValues().get(0) : null;
                     break;
                 case UserDerivedSchema:
-                    attributeTO =
-                            userTO.getDerivedAttributeMap().get(accountId.snd);
+                    attributeTO = userTO.getDerivedAttributeMap().
+                            get(accountId.getValue());
                     objectId =
                             attributeTO != null
                             && attributeTO.getValues() != null
@@ -238,8 +239,8 @@ public class StatusModalPage extends BaseModalPage {
                             ? attributeTO.getValues().get(0) : null;
                     break;
                 case UserVirtualSchema:
-                    attributeTO =
-                            userTO.getVirtualAttributeMap().get(accountId.snd);
+                    attributeTO = userTO.getVirtualAttributeMap().
+                            get(accountId.getValue());
                     objectId =
                             attributeTO != null
                             && attributeTO.getValues() != null
@@ -285,12 +286,13 @@ public class StatusModalPage extends BaseModalPage {
                 ? Boolean.parseBoolean(status.getValues().get(0)) : null;
     }
 
-    private Pair<IntMappingType, String> getAccountId(final ResourceTO resourceTO) {
-        Pair<IntMappingType, String> accountId = null;
+    private Map.Entry<IntMappingType, String> getAccountId(
+            final ResourceTO resourceTO) {
+        Map.Entry<IntMappingType, String> accountId = null;
 
         for (SchemaMappingTO mapping : resourceTO.getMappings()) {
             if (mapping.isAccountid()) {
-                accountId = new Pair<IntMappingType, String>(
+                accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
                         mapping.getIntMappingType(),
                         mapping.getIntAttrName());
             }
