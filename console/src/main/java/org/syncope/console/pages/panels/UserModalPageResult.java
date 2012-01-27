@@ -87,10 +87,13 @@ public class UserModalPageResult extends Panel {
 
                             item.add(new Label("resourceName", resourceItem));
                             item.add(new Label("propagation",
-                                    propagationMap.get(resourceItem).name()));
+                                    propagationMap.get(resourceItem) != null
+                                    ? propagationMap.get(resourceItem).name()
+                                    : "UNDEFINED"));
 
                             item.add(new Image("status",
-                                    propagationMap.get(resourceItem).
+                                    propagationMap.get(resourceItem) != null
+                                    && propagationMap.get(resourceItem).
                                     isSuccessful()
                                     ? new ContextRelativeResource(
                                     "img/success.png")

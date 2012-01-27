@@ -1443,4 +1443,39 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(virtual.getSchema(),
                 toBeUpdated.getVirtualAttributes().get(0).getSchema());
     }
+
+    @Test
+    public final void issue280() {
+        UserTO userTO = getSampleTO("issue280@syncope-idm.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("123password");
+        userMod.addResourceToBeAdded("resource-testdb");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+
+        final Map<String, PropagationTaskExecStatus> propStatusMap =
+                userTO.getPropagationStatusMap();
+
+        assertNotNull(propStatusMap);
+        assertEquals(1, propStatusMap.size());
+        assertEquals(1, propStatusMap.size());
+
+        final PropagationTaskExecStatus exec =
+                propStatusMap.values().iterator().next();
+
+        assertNotNull(exec);
+        assertEquals("resource-testdb", propStatusMap.keySet().iterator().next());
+        assertTrue(exec.isSuccessful());
+    }
 }
