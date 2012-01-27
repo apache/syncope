@@ -74,12 +74,8 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
             // Give entitlements based on roles owned by user,
             // considering role inheritance as well
-            Set<SyncopeRole> roles = user.getRoles();
-            Set<Long> roleIds = new HashSet<Long>(roles.size());
-            for (SyncopeRole role : roles) {
-                roleIds.add(role.getId());
-            }
-            for (Long roleId : roleIds) {
+            Set<SyncopeRole> roles = new HashSet<SyncopeRole>(user.getRoles());
+            for (Long roleId : user.getRoleIds()) {
                 roles.addAll(roleDAO.findChildren(roleId));
             }
             for (SyncopeRole role : roles) {

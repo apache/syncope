@@ -536,22 +536,22 @@
     <Entitlement name="ROLE_8"/>
     <Entitlement name="ROLE_9"/>
 
-    <SyncopeRole_Entitlement entitlements_name="base" roles_id="1"/>
-    <SyncopeRole_Entitlement entitlements_name="advanced" roles_id="1"/>
-    <SyncopeRole_Entitlement entitlements_name="base" roles_id="2"/>
-    <SyncopeRole_Entitlement entitlements_name="USER_READ" roles_id="2"/>
-    <SyncopeRole_Entitlement entitlements_name="USER_LIST" roles_id="2"/>
-    <SyncopeRole_Entitlement entitlements_name="USER_READ" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="USER_LIST" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_8" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_9" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_7" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_1" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_CLAIM" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_SUBMIT" roles_id="7"/>
-    <SyncopeRole_Entitlement entitlements_name="SCHEMA_READ" roles_id="8"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_READ" roles_id="8"/>
-    <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_CLAIM" roles_id="8"/>
+    <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
+    <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>
+    <SyncopeRole_Entitlement entitlement_name="base" role_id="2"/>
+    <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="2"/>
+    <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="2"/>
+    <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="ROLE_8" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="ROLE_9" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="ROLE_7" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="ROLE_1" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_SUBMIT" role_id="7"/>
+    <SyncopeRole_Entitlement entitlement_name="SCHEMA_READ" role_id="8"/>
+    <SyncopeRole_Entitlement entitlement_name="ROLE_READ" role_id="8"/>
+    <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="8"/>
     
     <Notification id="100" sender="test@syncope-idm.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
                   xmlAbout="%3Corg.syncope.client.search.NodeCond%3E%0A++%3Ctype%3EAND%3C%2Ftype%3E%0A++%3CleftNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25o%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FleftNodeCond%3E%0A++%3CrightNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25i%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FrightNodeCond%3E%0A%3C%2Forg.syncope.client.search.NodeCond%3E"

@@ -222,16 +222,13 @@ public abstract class AbstractAttributableDataBinder {
             final String intAttrName,
             final AttributableUtil attributableUtil) {
 
-        Set<SchemaMapping> mappings = resource.getMappings(intAttrName,
-                attributableUtil.intMappingType());
-
         boolean result = false;
 
-        SchemaMapping mapping;
-        for (Iterator<SchemaMapping> itor = mappings.iterator();
+        for (Iterator<SchemaMapping> itor = resource.getMappings(intAttrName,
+                attributableUtil.intMappingType()).iterator();
                 itor.hasNext() && !result;) {
 
-            mapping = itor.next();
+            SchemaMapping mapping = itor.next();
             result |= evaluateMandatoryCondition(
                     mapping.getMandatoryCondition(),
                     attributes);
@@ -241,7 +238,7 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(
-            final Set<ExternalResource> resources,
+            final List<ExternalResource> resources,
             final List<? extends AbstractAttr> attributes,
             final String intAttrName,
             final AttributableUtil attributableUtil) {

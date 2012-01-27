@@ -79,8 +79,8 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
-        return Collections.EMPTY_SET;
+    protected List<ExternalResource> resources() {
+        return Collections.EMPTY_LIST;
     }
 
     public SyncopeRole getSyncopeRole() {
@@ -185,8 +185,8 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public Set<ExternalResource> getResources() {
-        return Collections.EMPTY_SET;
+    public List<ExternalResource> getResources() {
+        return Collections.EMPTY_LIST;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setResources(final Set<ExternalResource> resources) {
+    public void setResources(final List<ExternalResource> resources) {
     }
 
     @Override

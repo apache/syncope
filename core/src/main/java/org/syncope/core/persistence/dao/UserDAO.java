@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import java.util.Set;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -36,6 +37,8 @@ public interface UserDAO extends DAO {
 
     SyncopeUser findByAttrUniqueValue(String schemaName,
             UAttrValue attrUniqueValue);
+
+    List<SyncopeUser> findByResource(ExternalResource resource);
 
     List<SyncopeUser> findAll(Set<Long> adminRoles);
 

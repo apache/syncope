@@ -203,7 +203,6 @@ public class ResourceTest extends AbstractTest {
         SyncopeUser user = userDAO.find(1L);
         assertNotNull("user not found", user);
 
-        actual.addUser(user);
         user.addResource(actual);
 
         resourceDAO.flush();
@@ -223,7 +222,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        Set<SchemaMapping> schemaMappings = resource.getMappings();
+        List<SchemaMapping> schemaMappings = resource.getMappings();
         assertNotNull(schemaMappings);
         assertEquals(5, schemaMappings.size());
 
@@ -251,7 +250,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
         // Get originally associated users
         // -------------------------------------
-        Set<SyncopeUser> users = resource.getUsers();
+        List<SyncopeUser> users = userDAO.findByResource(resource);
         assertNotNull(users);
 
         Set<Long> userIds = new HashSet<Long>();

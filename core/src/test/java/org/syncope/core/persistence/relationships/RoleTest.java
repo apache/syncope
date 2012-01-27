@@ -85,7 +85,8 @@ public class RoleTest extends AbstractTest {
         roleDAO.flush();
 
         assertNull(roleDAO.find(2L));
-        assertEquals(1, entitlementDAO.find("base").getRoles().size());
+        assertEquals(1, roleDAO.findByEntitlement(
+                entitlementDAO.find("base")).size());
         assertEquals(userDAO.find(2L).getRoles().size(), 2);
         assertNull(attrDAO.find(700L, RAttr.class));
         assertNull(attrValueDAO.find(41L, RAttrValue.class));

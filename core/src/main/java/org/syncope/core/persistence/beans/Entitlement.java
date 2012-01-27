@@ -14,15 +14,10 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Cacheable;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import org.syncope.core.persistence.validation.entity.EntitlementCheck;
 
 @Entity
@@ -38,14 +33,11 @@ public class Entitlement extends AbstractBaseBean {
     @Column(nullable = true)
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "entitlements")
-    private Set<SyncopeRole> roles;
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -53,32 +45,7 @@ public class Entitlement extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
-    }
-
-    public boolean addRole(SyncopeRole role) {
-        if (this.roles == null) {
-            this.roles = new HashSet<SyncopeRole>();
-        }
-        return this.roles.add(role);
-    }
-
-    public boolean removeRole(SyncopeRole role) {
-        if (this.roles == null) {
-            return true;
-        }
-        return this.roles.remove(role);
-    }
-
-    public Set<SyncopeRole> getRoles() {
-        if (this.roles == null) {
-            this.roles = new HashSet<SyncopeRole>();
-        }
-        return this.roles;
-    }
-
-    public void setRoles(Set<SyncopeRole> roles) {
-        this.roles = roles;
     }
 }

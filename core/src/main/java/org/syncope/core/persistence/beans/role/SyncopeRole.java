@@ -17,10 +17,8 @@ package org.syncope.core.persistence.beans.role;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -38,8 +36,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -70,8 +68,12 @@ public class SyncopeRole extends AbstractAttributable {
     @ManyToOne(optional = true)
     private SyncopeRole parent;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Entitlement> entitlements;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+    @JoinColumn(name = "role_id"),
+    inverseJoinColumns =
+    @JoinColumn(name = "entitlement_name"))
+    private List<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
@@ -125,12 +127,12 @@ public class SyncopeRole extends AbstractAttributable {
     inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
     @Valid
-    private Set<ExternalResource> resources;
+    private List<ExternalResource> resources;
 
     public SyncopeRole() {
         super();
 
-        entitlements = new HashSet<Entitlement>();
+        entitlements = new ArrayList<Entitlement>();
         attributes = new ArrayList<RAttr>();
         derivedAttributes = new ArrayList<RDerAttr>();
         virtualAttributes = new ArrayList<RVirAttr>();
@@ -139,7 +141,7 @@ public class SyncopeRole extends AbstractAttributable {
         inheritVirtualAttributes = getBooleanAsInteger(false);
         inheritPasswordPolicy = getBooleanAsInteger(false);
         inheritAccountPolicy = getBooleanAsInteger(false);
-        resources = new HashSet<ExternalResource>();
+        resources = new ArrayList<ExternalResource>();
     }
 
     @Override
@@ -148,7 +150,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
+    protected List<ExternalResource> resources() {
         return resources;
     }
 
@@ -168,20 +170,24 @@ public class SyncopeRole extends AbstractAttributable {
         this.parent = parent;
     }
 
-    public boolean addEntitlement(Entitlement entitlement) {
-        return entitlements.add(entitlement);
+    public boolean addEntitlement(final Entitlement entitlement) {
+        return entitlements.contains(entitlement)
+                || entitlements.add(entitlement);
     }
 
-    public boolean removeEntitlement(Entitlement entitlement) {
+    public boolean removeEntitlement(final Entitlement entitlement) {
         return entitlements.remove(entitlement);
     }
 
-    public Set<Entitlement> getEntitlements() {
+    public List<Entitlement> getEntitlements() {
         return entitlements;
     }
 
-    public void setEntitlements(Set<Entitlement> entitlements) {
-        this.entitlements = entitlements;
+    public void setEntitlements(final List<Entitlement> entitlements) {
+        this.entitlements.clear();
+        if (entitlements != null && !entitlements.isEmpty()) {
+            this.entitlements.addAll(entitlements);
+        }
     }
 
     @Override
@@ -267,6 +273,7 @@ public class SyncopeRole extends AbstractAttributable {
 
     /**
      * Get all inherited attributes from the ancestors.
+     *
      * @return a list of inherited and only inherited attributes.
      */
     public List<RAttr> findInheritedAttributes() {
@@ -306,6 +313,7 @@ public class SyncopeRole extends AbstractAttributable {
 
     /**
      * Get all inherited derived attributes from the ancestors.
+     *
      * @return a list of inherited and only inherited attributes.
      */
     public List<RDerAttr> findInheritedDerivedAttributes() {
@@ -349,6 +357,7 @@ public class SyncopeRole extends AbstractAttributable {
 
     /**
      * Get all inherited virtual attributes from the ancestors.
+     *
      * @return a list of inherited and only inherited attributes.
      */
     public List<RVirAttr> findInheritedVirtualAttributes() {
@@ -382,6 +391,7 @@ public class SyncopeRole extends AbstractAttributable {
 
     /**
      * Get first valid password policy.
+     *
      * @return parent password policy if isInheritPasswordPolicy is 'true' and
      * parent is not null. Return local passowrd policy otherwise.
      */
@@ -404,7 +414,8 @@ public class SyncopeRole extends AbstractAttributable {
 
     /**
      * Get first valid account policy.
-     * @return parent account policy if isInheritAccountPolicy is 'true' and 
+     *
+     * @return parent account policy if isInheritAccountPolicy is 'true' and
      * parent is not null. Return local account policy otherwise.
      */
     public AccountPolicy getAccountPolicy() {

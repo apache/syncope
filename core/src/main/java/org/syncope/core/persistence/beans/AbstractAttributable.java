@@ -153,22 +153,22 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public abstract void setVirtualAttributes(
             List<? extends AbstractVirAttr> virtualAttributes);
 
-    protected abstract Set<ExternalResource> resources();
+    protected abstract List<ExternalResource> resources();
 
     public boolean addResource(final ExternalResource resource) {
-        return resources().add(resource);
+        return resources().contains(resource) || resources().add(resource);
     }
 
     public boolean removeResource(final ExternalResource resource) {
         return resources().remove(resource);
     }
 
-    public Set<ExternalResource> getResources() {
+    public List<ExternalResource> getResources() {
         return resources();
     }
 
     public Set<String> getResourceNames() {
-        Set<ExternalResource> ownResources = getResources();
+        List<ExternalResource> ownResources = getResources();
 
         Set<String> result = new HashSet<String>(ownResources.size());
         for (ExternalResource resource : ownResources) {
@@ -178,7 +178,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public void setResources(final Set<ExternalResource> resources) {
+    public void setResources(final List<ExternalResource> resources) {
         resources().clear();
         if (resources != null) {
             resources().addAll(resources);

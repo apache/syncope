@@ -48,7 +48,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
         return id;
     }
 
-    public void setValues(List<String> values) {
+    public void setValues(final List<String> values) {
         this.values = values;
     }
 

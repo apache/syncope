@@ -14,11 +14,11 @@
  */
 package org.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -41,11 +41,12 @@ public class ConfigurationTestITCase extends AbstractTest {
     @Test
     public void delete()
             throws UnsupportedEncodingException {
+
         try {
             restTemplate.delete(BASE_URL + "configuration/delete/{key}.json",
                     "nonExistent");
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
         ConfigurationTO tokenLengthTO = restTemplate.getForObject(

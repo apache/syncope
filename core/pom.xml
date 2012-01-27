@@ -189,7 +189,7 @@
             <artifactId>openjpa-all</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
@@ -920,6 +920,60 @@
                         <filtering>true</filtering>
                     </testResource>
                 </testResources>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>glassfish-it</id>
+            
+            <dependencies>                                   
+                <dependency>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-all</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-all</artifactId>
+                </dependency>
+                
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                </dependency>
+            </dependencies>
+            
+            <build>
+                <defaultGoal>clean verify</defaultGoal>
+
+                <plugins>       
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <container>
+                                <containerId>glassfish3x</containerId>
+                                <zipUrlInstaller>
+                                    <url>http://download.java.net/glassfish/${glassfish.version}/release/glassfish-${glassfish.version}.zip</url>
+                                    <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                                    <extractDir>${java.io.tmpdir}</extractDir>
+                                </zipUrlInstaller>
+                                <log>${cargo.log}</log>
+                                <output>${cargo.output}</output>
+                            </container>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
     </profiles>

@@ -46,7 +46,6 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ExternalResource;
-import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
@@ -301,21 +300,9 @@ public class ResourceController extends AbstractController {
 
         List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
 
-        Set<ExternalResource> resources = role.getResources();
-
-        List<SchemaMappingTO> resourceMappings;
-        for (ExternalResource resource : resources) {
-            LOG.debug("Ask for the mappings of {}", resource);
-
-            Set<SchemaMapping> schemaMappings = resource.getMappings();
-            LOG.debug("The mappings of {} are {}",
-                    resource, schemaMappings);
-
-            resourceMappings = binder.getSchemaMappingTOs(schemaMappings);
-            LOG.debug("The mappings TO of {} are {}",
-                    resource, resourceMappings);
-
-            roleMappings.addAll(resourceMappings);
+        for (ExternalResource resource : role.getResources()) {
+            roleMappings.addAll(
+                    binder.getSchemaMappingTOs(resource.getMappings()));
         }
 
         LOG.debug("Mappings found: {} ", roleMappings);

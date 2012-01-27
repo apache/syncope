@@ -16,11 +16,8 @@ package org.syncope.core.persistence.beans.user;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
@@ -55,8 +55,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.security.crypto.codec.Base64;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -173,7 +173,7 @@ public class SyncopeUser extends AbstractAttributable {
     @JoinColumn(name = "user_id"),
     inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
-    private Set<ExternalResource> resources;
+    private List<ExternalResource> resources;
 
     public SyncopeUser() {
         super();
@@ -185,7 +185,7 @@ public class SyncopeUser extends AbstractAttributable {
         passwordHistory = new ArrayList<String>();
         failedLogins = 0;
         suspended = getBooleanAsInteger(Boolean.FALSE);
-        resources = new HashSet<ExternalResource>();
+        resources = new ArrayList<ExternalResource>();
     }
 
     @Override
@@ -194,7 +194,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
+    protected List<ExternalResource> resources() {
         return resources;
     }
 
@@ -234,8 +234,8 @@ public class SyncopeUser extends AbstractAttributable {
         }
     }
 
-    public Set<SyncopeRole> getRoles() {
-        Set<SyncopeRole> result = new HashSet<SyncopeRole>();
+    public List<SyncopeRole> getRoles() {
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
 
         for (Membership membership : memberships) {
             if (membership.getSyncopeRole() != null) {
@@ -247,7 +247,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Set<Long> getRoleIds() {
-        Set<SyncopeRole> roles = getRoles();
+        List<SyncopeRole> roles = getRoles();
 
         Set<Long> result = new HashSet<Long>(roles.size());
         for (SyncopeRole role : roles) {
@@ -258,8 +258,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public Set<ExternalResource> getResources() {
-        Set<ExternalResource> result = new HashSet<ExternalResource>();
+    public List<ExternalResource> getResources() {
+        List<ExternalResource> result = new ArrayList<ExternalResource>();
         result.addAll(super.getResources());
         for (SyncopeRole role : getRoles()) {
             result.addAll(role.getResources());

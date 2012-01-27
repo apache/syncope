@@ -247,7 +247,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json", "0");
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
 

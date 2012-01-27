@@ -48,7 +48,7 @@ public class EntitlementUtil {
         return result;
     }
 
-    public static String getEntitlementName(final Long roleId) {
+    public static String getEntitlementNameFromRoleId(final Long roleId) {
         return "ROLE_" + roleId;
     }
 

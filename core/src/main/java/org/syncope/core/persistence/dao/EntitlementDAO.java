@@ -28,7 +28,7 @@ public interface EntitlementDAO extends DAO {
     Entitlement save(Entitlement entitlement)
             throws InvalidEntityException;
 
-    Entitlement save(SyncopeRole role);
+    Entitlement saveEntitlementRole(SyncopeRole role);
 
     void delete(String name);
 

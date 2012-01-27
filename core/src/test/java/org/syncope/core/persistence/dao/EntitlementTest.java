@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +29,9 @@ public class EntitlementTest extends AbstractTest {
 
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Test
     public void findAll() {
@@ -64,12 +66,12 @@ public class EntitlementTest extends AbstractTest {
         assertNotNull("did not find expected entitlement",
                 entitlement);
 
-        Set<SyncopeRole> roles = entitlement.getRoles();
+        List<SyncopeRole> roles = roleDAO.findByEntitlement(entitlement);
         assertEquals("expected two roles", 2, roles.size());
 
         entitlementDAO.delete("base");
-        for (SyncopeRole role : roles) {
-            assertFalse(role.getEntitlements().contains(entitlement));
-        }
+
+        roles = roleDAO.findByEntitlement(entitlement);
+        assertTrue(roles.isEmpty());
     }
 }

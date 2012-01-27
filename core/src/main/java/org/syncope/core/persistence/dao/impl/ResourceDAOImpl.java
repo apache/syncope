@@ -30,7 +30,9 @@ import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.types.IntMappingType;
 
 @Repository
@@ -39,6 +41,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private TaskDAO taskDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private ConnInstanceLoader connInstanceLoader;
@@ -153,15 +161,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         taskDAO.deleteAll(resource, PropagationTask.class);
         taskDAO.deleteAll(resource, SyncTask.class);
 
-        for (SyncopeUser user : resource.getUsers()) {
+        for (SyncopeUser user : userDAO.findByResource(resource)) {
             user.removeResource(resource);
         }
-        resource.getUsers().clear();
-
-        for (SyncopeRole role : resource.getRoles()) {
+        for (SyncopeRole role : roleDAO.findByResource(resource)) {
             role.removeResource(resource);
         }
-        resource.getRoles().clear();
 
         if (resource.getConnector() != null
                 && resource.getConnector().getResources() != null

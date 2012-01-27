@@ -14,7 +14,6 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -22,6 +21,7 @@ import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
@@ -79,6 +79,26 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
+    public List<SyncopeRole> findByEntitlement(final Entitlement entitlement) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
+                + "WHERE :entitlement MEMBER OF e.entitlements");
+        query.setParameter("entitlement", entitlement);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<SyncopeRole> findByResource(final ExternalResource resource) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
+                + "WHERE :resource MEMBER OF e.resources");
+        query.setParameter("resource", resource);
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<SyncopeRole> findChildren(final Long roleId) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
@@ -116,7 +136,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         }
 
         final SyncopeRole savedRole = entityManager.merge(role);
-        entitlementDAO.save(savedRole);
+        entitlementDAO.saveEntitlementRole(savedRole);
 
         return savedRole;
     }
@@ -144,14 +164,11 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
             entityManager.remove(membership);
         }
 
-        for (Entitlement entitlement : role.getEntitlements()) {
-            entitlement.removeRole(role);
-        }
-        role.setEntitlements(Collections.EMPTY_SET);
+        role.getEntitlements().clear();
 
         role.setParent(null);
         entityManager.remove(role);
 
-        entitlementDAO.delete(EntitlementUtil.getEntitlementName(id));
+        entitlementDAO.delete(EntitlementUtil.getEntitlementNameFromRoleId(id));
     }
 }

@@ -34,6 +34,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -240,6 +241,16 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         List<SyncopeUser> result = findByAttrValue(schemaName, attrUniqueValue);
         return result.isEmpty() ? null : result.iterator().next();
+    }
+
+    @Override
+    public List<SyncopeUser> findByResource(final ExternalResource resource) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
+                + "WHERE :resource MEMBER OF e.resources");
+        query.setParameter("resource", resource);
+
+        return query.getResultList();
     }
 
     private StringBuilder getFindAllQuery(final Set<Long> adminRoles) {

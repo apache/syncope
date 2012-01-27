@@ -15,6 +15,8 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -27,6 +29,10 @@ public interface RoleDAO extends DAO {
 
     SyncopeRole find(String name, Long parent);
 
+    List<SyncopeRole> findByEntitlement(final Entitlement entitlement);
+
+    List<SyncopeRole> findByResource(ExternalResource resource);
+    
     List<SyncopeRole> findChildren(Long roleId);
 
     List<SyncopeRole> findAll();

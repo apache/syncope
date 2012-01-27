@@ -49,9 +49,10 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public Entitlement save(final SyncopeRole role) {
+    public Entitlement saveEntitlementRole(final SyncopeRole role) {
         Entitlement roleEnt = new Entitlement();
-        roleEnt.setName(EntitlementUtil.getEntitlementName(role.getId()));
+        roleEnt.setName(EntitlementUtil.getEntitlementNameFromRoleId(
+                role.getId()));
         roleEnt.setDescription("Entitlement for managing role " + role.getId());
 
         return save(roleEnt);
@@ -69,7 +70,11 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
 
     @Override
     public void delete(final Entitlement entitlement) {
-        for (SyncopeRole role : entitlement.getRoles()) {
+        if (entitlement == null) {
+            return;
+        }
+
+        for (SyncopeRole role : roleDAO.findByEntitlement(entitlement)) {
             role.removeEntitlement(entitlement);
             roleDAO.save(role);
         }

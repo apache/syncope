@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD 
+GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
 <!--
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -12,16 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-             http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             version="2.0">
-    <persistence-unit name="syncopePersistenceUnit">
-        <validation-mode>NONE</validation-mode>
-        
-        <properties>
-            <property name="eclipselink.weaving" value="false"/>
-        </properties>
-    </persistence-unit>
-</persistence>
+<glassfish-web-app>
+    <class-loader delegate="false"/>
+</glassfish-web-app>

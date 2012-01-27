@@ -14,8 +14,10 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
@@ -27,7 +29,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.Valid;
@@ -36,8 +37,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.framework.common.objects.SyncToken;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
@@ -78,27 +77,12 @@ public class ExternalResource extends AbstractBaseBean {
     private ConnInstance connector;
 
     /**
-     * Users associated to this resource.
-     */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "resources")
-    private Set<SyncopeUser> users;
-
-    /**
-     * Roles associated to this resource.
-     */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "resources")
-    private Set<SyncopeRole> roles;
-
-    /**
      * Attribute mappings.
-     * 
-     * List type cannot be used. Please, take a look at 
-     * https://hibernate.onjira.com/browse/HHH-1718
      */
-    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true,
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
     fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
-    private Set<SchemaMapping> mappings;
+    private List<SchemaMapping> mappings;
 
     /**
      * A JEXL expression for determining how to link user account id in Syncope
@@ -169,9 +153,7 @@ public class ExternalResource extends AbstractBaseBean {
         super();
 
         forceMandatoryConstraint = getBooleanAsInteger(false);
-        users = new HashSet<SyncopeUser>();
-        roles = new HashSet<SyncopeRole>();
-        mappings = new HashSet<SchemaMapping>();
+        mappings = new ArrayList<SchemaMapping>();
         propagationPrimary = 0;
         propagationPriority = 0;
         propagationMode = PropagationMode.TWO_PHASES;
@@ -225,14 +207,14 @@ public class ExternalResource extends AbstractBaseBean {
         this.propagationMode = propagationMode;
     }
 
-    public Set<SchemaMapping> getMappings() {
+    public List<SchemaMapping> getMappings() {
         return mappings;
     }
 
-    public Set<SchemaMapping> getMappings(final String intAttrName,
+    public List<SchemaMapping> getMappings(final String intAttrName,
             final IntMappingType intMappingType) {
 
-        Set<SchemaMapping> result = new HashSet<SchemaMapping>();
+        List<SchemaMapping> result = new ArrayList<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
             if (intAttrName.equals(mapping.getIntAttrName())
                     && mapping.getIntMappingType() == intMappingType) {
@@ -260,11 +242,11 @@ public class ExternalResource extends AbstractBaseBean {
         return mappings.remove(mapping);
     }
 
-    public boolean addMapping(SchemaMapping mapping) {
+    public boolean addMapping(final SchemaMapping mapping) {
         return mappings.contains(mapping) || mappings.add(mapping);
     }
 
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(final Set<SchemaMapping> mappings) {
         for (SchemaMapping mapping : this.mappings) {
             mapping.setResource(null);
         }
@@ -289,44 +271,6 @@ public class ExternalResource extends AbstractBaseBean {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean addRole(SyncopeRole role) {
-        return roles.add(role);
-    }
-
-    public boolean removeRole(SyncopeRole role) {
-        return roles.remove(role);
-    }
-
-    public Set<SyncopeRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<SyncopeRole> roles) {
-        this.roles.clear();
-        if (roles != null && !roles.isEmpty()) {
-            this.roles.addAll(roles);
-        }
-    }
-
-    public boolean addUser(SyncopeUser user) {
-        return users.add(user);
-    }
-
-    public boolean removeUser(SyncopeUser user) {
-        return users.remove(user);
-    }
-
-    public Set<SyncopeUser> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<SyncopeUser> users) {
-        this.users.clear();
-        if (users != null && !users.isEmpty()) {
-            this.users.addAll(users);
-        }
     }
 
     public TraceLevel getCreateTraceLevel() {

@@ -111,7 +111,7 @@ public class RoleTestITCase extends AbstractTest {
         try {
             restTemplate.delete(BASE_URL + "role/delete/{roleId}", 0);
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
         restTemplate.delete(BASE_URL + "role/delete/{roleId}", 5);
@@ -119,7 +119,7 @@ public class RoleTestITCase extends AbstractTest {
             restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json",
                     RoleTO.class, 2);
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -180,10 +180,10 @@ public class RoleTestITCase extends AbstractTest {
         assertEquals(1, roleTO.getAttributes().size());
 
         assertNotNull(roleTO.getAccountPolicy());
-        assertEquals(6L, (long) roleTO.getAccountPolicy());
+        assertEquals(Long.valueOf(6), roleTO.getAccountPolicy());
 
         assertNotNull(roleTO.getPasswordPolicy());
-        assertEquals(4L, (long) roleTO.getPasswordPolicy());
+        assertEquals(Long.valueOf(4), roleTO.getPasswordPolicy());
 
         AttributeMod attributeMod = new AttributeMod();
         attributeMod.setSchema("show");
