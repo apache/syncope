@@ -22,9 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -54,11 +51,10 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.TaskRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -132,9 +128,14 @@ public abstract class TaskModalPage extends BaseModalPage {
                 new ResourceModel("status"), "status", "status"));
 
         columns.add(new AbstractColumn<TaskExecTO>(
-                new ResourceModel("message")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -142,10 +143,14 @@ public abstract class TaskModalPage extends BaseModalPage {
                     final String componentId,
                     final IModel<TaskExecTO> model) {
 
-                AjaxLink messageLink = new IndicatingAjaxLink("link") {
+                final TaskExecTO taskExecutionTO = model.getObject();
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -163,40 +168,12 @@ public abstract class TaskModalPage extends BaseModalPage {
                                 });
                         taskExecMessageWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Tasks", "read",
+                        StringUtils.hasText(model.getObject().getMessage()));
 
-                messageLink.add(new Label("linkTitle",
-                        getString("showMessage")));
+                panel.add(new ActionLink() {
 
-                LinkPanel panel = new LinkPanel(componentId);
-                panel.add(messageLink);
-
-                cellItem.add(panel);
-
-                if (!StringUtils.hasText(model.getObject().getMessage())) {
-                    messageLink.setEnabled(false);
-                }
-            }
-        });
-
-        columns.add(new AbstractColumn<TaskExecTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskExecTO>> cellItem,
-                    final String componentId,
-                    final IModel<TaskExecTO> model) {
-
-                final TaskExecTO taskExecutionTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -214,13 +191,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                         target.add(executions);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
+                }, ActionLink.ActionType.EDIT, "Tasks", "delete");
 
                 cellItem.add(panel);
             }

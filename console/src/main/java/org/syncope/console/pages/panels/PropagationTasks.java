@@ -20,9 +20,6 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -30,7 +27,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -49,10 +45,8 @@ import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.PropagationTaskModalPage;
 import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
-import org.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Tasks page.
@@ -114,9 +108,14 @@ public class PropagationTasks extends Panel {
                 new ResourceModel("latestExecStatus"),
                 "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("detail")) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -126,10 +125,12 @@ public class PropagationTasks extends Panel {
 
                 final TaskTO taskTO = model.getObject();
 
-                AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -147,34 +148,11 @@ public class PropagationTasks extends Panel {
 
                         window.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Tasks", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(viewLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("execute")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<TaskTO> model) {
-
-                final TaskTO taskTO = model.getObject();
-
-                AjaxLink executeLink = new IndicatingAjaxLink("link") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -188,37 +166,11 @@ public class PropagationTasks extends Panel {
                         target.add(getPage().get("feedback"));
                         target.add(container);
                     }
-                };
+                }, ActionLink.ActionType.EXECUTE, "Tasks", "execute");
 
-                executeLink.add(new Label("linkTitle", getString("execute")));
+                panel.add(new ActionLink() {
 
-                LinkPanel panel = new LinkPanel(componentId);
-                panel.add(executeLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "execute"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<TaskTO> model) {
-
-                final TaskTO taskTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -231,13 +183,7 @@ public class PropagationTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
+                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
 
                 cellItem.add(panel);
             }

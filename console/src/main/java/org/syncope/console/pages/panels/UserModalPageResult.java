@@ -32,6 +32,8 @@ import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.resource.ContextRelativeResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.types.PropagationTaskExecStatus;
@@ -39,6 +41,12 @@ import org.syncope.types.PropagationTaskExecStatus;
 public class UserModalPageResult extends Panel {
 
     private static final long serialVersionUID = 2646115294319713723L;
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG =
+            LoggerFactory.getLogger(UserModalPageResult.class);
 
     private static final int PROPAGATION_RESULT_PAGINATOR_ROWS = 7;
 
@@ -74,7 +82,8 @@ public class UserModalPageResult extends Panel {
 
             final PageableListView<String> propagationStatus =
                     new PageableListView<String>(
-                    "propagationResults", resourceListKey,
+                    "propagationResults",
+                    resourceListKey,
                     PROPAGATION_RESULT_PAGINATOR_ROWS) {
 
                         private static final long serialVersionUID =
@@ -86,11 +95,15 @@ public class UserModalPageResult extends Panel {
                                     (String) item.getDefaultModelObject();
 
                             item.add(new Label("resourceName", resourceItem));
+
                             item.add(new Label("propagation",
-                                    propagationMap.get(resourceItem).name()));
+                                    propagationMap.get(resourceItem) != null
+                                    ? propagationMap.get(resourceItem).name()
+                                    : "UNDEFINED"));
 
                             item.add(new Image("status",
-                                    propagationMap.get(resourceItem).
+                                    propagationMap.get(resourceItem) != null
+                                    && propagationMap.get(resourceItem).
                                     isSuccessful()
                                     ? new ContextRelativeResource(
                                     "img/success.png")

@@ -316,7 +316,9 @@ public class UserController {
             @RequestBody final UserTO userTO,
             @RequestParam(required = false) final Set<String> resourceNames,
             @RequestParam(required = false, defaultValue = "true")
-            final Boolean performLocal)
+            final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performRemotely)
             throws WorkflowException, NotFoundException,
             UnauthorizedRoleException, PropagationException {
 
@@ -328,7 +330,13 @@ public class UserController {
             throw new NotFoundException("User " + userTO.getId());
         }
 
-        return setStatus(user, resourceNames, performLocal, true, "activate");
+        return setStatus(
+                user,
+                resourceNames,
+                performLocally,
+                performRemotely,
+                true,
+                "activate");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -339,7 +347,9 @@ public class UserController {
             @PathVariable("userId") final Long userId,
             @RequestParam(required = false) final Set<String> resourceNames,
             @RequestParam(required = false, defaultValue = "true")
-            final Boolean performLocal)
+            final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performRemotely)
             throws NotFoundException, WorkflowException,
             UnauthorizedRoleException, PropagationException {
 
@@ -351,7 +361,13 @@ public class UserController {
             throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, resourceNames, performLocal, false, "suspend");
+        return setStatus(
+                user,
+                resourceNames,
+                performLocally,
+                performRemotely,
+                false,
+                "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -361,7 +377,9 @@ public class UserController {
     public UserTO reactivate(final @PathVariable("userId") Long userId,
             @RequestParam(required = false) final Set<String> resourceNames,
             @RequestParam(required = false, defaultValue = "true")
-            final Boolean performLocal)
+            final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performRemotely)
             throws NotFoundException, WorkflowException,
             UnauthorizedRoleException, PropagationException {
 
@@ -372,7 +390,13 @@ public class UserController {
             throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, resourceNames, performLocal, true, "reactivate");
+        return setStatus(
+                user,
+                resourceNames,
+                performLocally,
+                performRemotely,
+                true,
+                "reactivate");
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
@@ -492,7 +516,8 @@ public class UserController {
     private UserTO setStatus(
             final SyncopeUser user,
             final Set<String> resourceNames,
-            final boolean performLocal,
+            final boolean performLocally,
+            final boolean performRemotely,
             final boolean status,
             final String performedTask)
             throws NotFoundException, WorkflowException,
@@ -503,7 +528,7 @@ public class UserController {
         List<PropagationTask> tasks = null;
         WorkflowResult<Long> updated = null;
 
-        if (performLocal) {
+        if (performLocally) {
             // perform local changes
 
             if ("suspend".equals(performedTask)) {
@@ -520,9 +545,13 @@ public class UserController {
 
         // Resources to exclude from propagation.
         Set<String> resources = new HashSet<String>();
-        if (resourceNames != null) {
+        if (!performRemotely) {
             resources.addAll(user.getResourceNames());
-            resources.removeAll(resourceNames);
+        } else {
+            if (resourceNames != null) {
+                resources.addAll(user.getResourceNames());
+                resources.removeAll(resourceNames);
+            }
         }
 
         tasks = propagationManager.getUpdateTaskIds(user, status, resources);

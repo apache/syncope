@@ -18,115 +18,73 @@ import org.junit.Test;
 public class ResourceTestITCase extends AbstractTest {
 
     @Test
-    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseCreateModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[3]/div/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                "30000");
 
         selenium.click("css=a.w_close");
     }
 
     @Test
-    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseEditModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//td[4]/span/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//td[4]/span/span[7]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                "30000");
 
         selenium.click("//li[2]/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent("//tbody/tr")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//tbody/tr\");",
+                "30000");
+
         selenium.click("//tbody/tr[2]/td/input");
+        
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
+
         selenium.click("name=apply");
     }
 
     @Test
     public void delete() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[3]/td[5]/span/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//tr[3]/td[4]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
     }
 
     @Test
-    @SuppressWarnings("SleepWhileHoldingLock")
     public void checkSecurityTab() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//td[4]/span/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//td[4]/span/span[7]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                "30000");
 
         selenium.click("//li[4]/a");
 
@@ -135,7 +93,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//li[1]/a");
         selenium.click("//li[2]/a");
         selenium.click("//li[3]/a");
-        
+
         selenium.click("css=a.w_close");
     }
 }

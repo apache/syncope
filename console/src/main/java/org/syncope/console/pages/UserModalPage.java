@@ -33,7 +33,6 @@ import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.util.AttributableOperations;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.pages.panels.AttributesPanel;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
@@ -252,20 +251,17 @@ public class UserModalPage extends BaseModalPage {
                                 requestRestClient.requestCreate(updatedUserTO);
                                 break;
 
-                            case ADMIN:
+                            case TEMPLATE:
+                                syncTaskTO.setUserTemplate(updatedUserTO);
+                                taskRestClient.updateSyncTask(syncTaskTO);
+                                break;
+
                             default:
                                 userTO = userRestClient.create(updatedUserTO);
                                 if (userRequestTO != null) {
                                     requestRestClient.delete(
                                             userRequestTO.getId());
                                 }
-                                break;
-
-                            case TEMPLATE:
-                                syncTaskTO.setUserTemplate(updatedUserTO);
-                                taskRestClient.updateSyncTask(syncTaskTO);
-                                break;
-
                         }
                     } else {
                         UserMod userMod = AttributableOperations.diff(
@@ -302,7 +298,7 @@ public class UserModalPage extends BaseModalPage {
                         default:
                             window.close(target);
                     }
-                } catch (SyncopeClientCompositeErrorException e) {
+                } catch (Exception e) {
                     LOG.error("While creating or updating user", e);
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);

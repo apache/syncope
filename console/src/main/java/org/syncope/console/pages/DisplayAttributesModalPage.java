@@ -73,6 +73,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     final private IModel<List<String>> dnames =
             new LoadableDetachableModel<List<String>>() {
 
+                private static final long serialVersionUID = 5275935387613157437L;
+
                 @Override
                 protected List<String> load() {
 
@@ -191,6 +193,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         final ListView<String> details =
                 new ListView<String>("details", dnames) {
 
+                    private static final long serialVersionUID = 9101744072914090143L;
+
                     @Override
                     protected void populateItem(ListItem<String> item) {
                         item.add(new Check("dcheck", item.getModel()));
@@ -212,6 +216,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             final ListView<String> schemas =
                     new ListView<String>("schemas", names) {
+
+                        private static final long serialVersionUID = 9101744072914090143L;
 
                         @Override
                         protected void populateItem(ListItem<String> item) {
@@ -243,6 +249,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             final ListView<String> virSchemas =
                     new ListView<String>("virSchemas", vsnames) {
 
+                        private static final long serialVersionUID = 9101744072914090143L;
+
                         @Override
                         protected void populateItem(ListItem<String> item) {
                             item.add(new Check("vscheck", item.getModel()));
@@ -272,6 +280,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             final ListView<String> derSchemas =
                     new ListView<String>("derSchemas", dsnames) {
+
+                        private static final long serialVersionUID = 9101744072914090143L;
 
                         @Override
                         protected void populateItem(ListItem<String> item) {
@@ -323,7 +333,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 
-                    ((Users) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 }

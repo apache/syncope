@@ -52,21 +52,22 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.SchemaRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Schema WebPage.
  */
 public class Schema extends BasePage {
 
+    private static final long serialVersionUID = 8091922398776299403L;
+
     private enum SchemaType {
 
         RoleSchema,
         UserSchema,
         MembershipSchema
-
     };
 
     private enum SchemaDerivedType {
@@ -74,7 +75,6 @@ public class Schema extends BasePage {
         RoleDerivedSchema,
         UserDerivedSchema,
         MembershipDerivedSchema
-
     };
 
     private enum SchemaVirtualType {
@@ -82,7 +82,6 @@ public class Schema extends BasePage {
         RoleVirtualSchema,
         UserVirtualSchema,
         MembershipVirtualSchema
-
     };
 
     private static final int WIN_WIDTH = 550;
@@ -923,10 +922,16 @@ public class Schema extends BasePage {
                     field));
         }
 
+
         columns.add(new AbstractColumn<AbstractBaseBean>(
-                new ResourceModel("edit")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -936,14 +941,15 @@ public class Schema extends BasePage {
 
                 final AbstractBaseBean schemaTO = model.getObject();
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
-
+                    public void onClick(AjaxRequestTarget target) {
                         modalWindow.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
@@ -969,37 +975,11 @@ public class Schema extends BasePage {
 
                         modalWindow.show(target);
                     }
-                };
+                }, ActionType.EDIT, readPermissions);
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, ENABLE, readPermissions);
-
-                panel.add(editLink);
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<AbstractBaseBean>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<AbstractBaseBean>> cellItem,
-                    final String componentId,
-                    final IModel<AbstractBaseBean> model) {
-
-                final AbstractBaseBean schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -1027,14 +1007,7 @@ public class Schema extends BasePage {
 
                         target.add(webContainer);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, ENABLE, deletePermissions);
-
-                panel.add(deleteLink);
+                }, ActionType.DELETE, deletePermissions);
 
                 cellItem.add(panel);
             }

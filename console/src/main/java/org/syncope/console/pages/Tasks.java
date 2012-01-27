@@ -96,6 +96,7 @@ public class Tasks extends BasePage {
                 final TaskExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<TaskExecTO>() {
+                private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override
                 public TaskExecTO getObject() {
@@ -111,6 +112,8 @@ public class Tasks extends BasePage {
 
     public static class TasksProvider<T extends TaskTO>
             extends SortableDataProvider<T> {
+
+        private static final long serialVersionUID = -20112718133295756L;
 
         private SortableDataProviderComparator<T> comparator;
 

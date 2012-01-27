@@ -19,6 +19,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
@@ -70,7 +71,7 @@ public class UserRestClient extends AbstractBaseRestClient {
     }
 
     public void delete(Long id) {
-         restTemplate.delete(baseURL + "user/delete/{userId}", id);
+        restTemplate.delete(baseURL + "user/delete/{userId}", id);
     }
 
     public UserTO read(Long id) {
@@ -110,5 +111,55 @@ public class UserRestClient extends AbstractBaseRestClient {
         return Arrays.asList(restTemplate.postForObject(
                 baseURL + "user/search/{page}/{size}",
                 searchCond, UserTO[].class, page, size));
+    }
+
+    public ConnObjectTO getRemoteObject(
+            final String resourceName, final String objectId)
+            throws SyncopeClientCompositeErrorException {
+        return restTemplate.getForObject(
+                baseURL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, resourceName, objectId);
+    }
+
+    public UserTO reactivate(long userId, List<String> resources)
+            throws SyncopeClientCompositeErrorException {
+
+        return enable(userId, resources, true);
+    }
+
+    public UserTO suspend(long userId, List<String> resources)
+            throws SyncopeClientCompositeErrorException {
+
+        return enable(userId, resources, false);
+    }
+
+    private UserTO enable(
+            final long userId,
+            final List<String> resources,
+            final boolean enable)
+            throws SyncopeClientCompositeErrorException {
+
+        boolean performLoacal = false;
+        if (resources.contains("Syncope")) {
+            resources.remove("Syncope");
+            performLoacal = true;
+        }
+
+        final StringBuilder query = new StringBuilder();
+        query.append(baseURL).append("user/").append(
+                enable ? "reactivate/" : "suspend/").append(userId).
+                append("?").
+                // perform on syncope if and only if it has been requested
+                append("performLocally=").append(performLoacal).
+                append("&").
+                // perform on resource if and only if resources have been speciofied
+                append("performRemotely=").append(!resources.isEmpty()).
+                append("&");
+
+        for (String resource : resources) {
+            query.append("resourceNames=").append(resource).append("&");
+        }
+
+        return restTemplate.getForObject(query.toString(), UserTO.class);
     }
 }

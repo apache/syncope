@@ -59,14 +59,14 @@ import org.syncope.console.commons.UserDataProvider;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.DisplayAttributesModalPage;
+import org.syncope.console.pages.StatusModalPage;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.UserAttrColumn;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 public class ResultSetPanel extends Panel implements IEventSource {
 
@@ -97,6 +97,16 @@ public class ResultSetPanel extends Panel implements IEventSource {
      * Schemas to be shown modal window width.
      */
     private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 550;
+
+    /**
+     * Schemas to be shown modal window height.
+     */
+    private final static int STATUS_MODAL_WIN_HEIGHT = 400;
+
+    /**
+     * Schemas to be shown modal window width.
+     */
+    private final static int STATUS_MODAL_WIN_WIDTH = 400;
 
     /**
      * User rest client.
@@ -154,10 +164,20 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private UserDataProvider dataProvider;
 
     /**
-     * Modal window used for user profile editing.
+     * Modal window to be used for user profile editing.
      * Global visibility is required ...
      */
     private final ModalWindow editmodal = new ModalWindow("editModal");
+
+    /**
+     * Modal window to be used for attributes choosing to display in tables.
+     */
+    final ModalWindow displaymodal = new ModalWindow("displayModal");
+
+    /**
+     * Modal window to be used for user status management.
+     */
+    final ModalWindow statusmodal = new ModalWindow("statusModal");
 
     /**
      * Owner page.
@@ -185,13 +205,17 @@ public class ResultSetPanel extends Panel implements IEventSource {
         editmodal.setCookieName("edit-modal");
         add(editmodal);
 
-        // Modal window for choosing which attributes to display in tables
-        final ModalWindow displaymodal = new ModalWindow("displayModal");
         displaymodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         displaymodal.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
         displaymodal.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
         displaymodal.setCookieName("display-modal");
         add(displaymodal);
+
+        statusmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        statusmodal.setInitialHeight(STATUS_MODAL_WIN_HEIGHT);
+        statusmodal.setInitialWidth(STATUS_MODAL_WIN_WIDTH);
+        statusmodal.setCookieName("status-modal");
+        add(statusmodal);
 
         // Container for user search result
         container = new WebMarkupContainer("container");
@@ -289,6 +313,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         paginatorForm.add(rowsChooser);
         // ---------------------------
 
+        setWindowClosedReloadCallback(statusmodal);
         setWindowClosedReloadCallback(editmodal);
         setWindowClosedReloadCallback(displaymodal);
     }
@@ -385,7 +410,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                     new ResourceModel("status", "status"), "status", "status"));
         }
 
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("edit")) {
+        columns.add(new AbstractColumn<UserTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -400,11 +425,36 @@ public class ResultSetPanel extends Panel implements IEventSource {
                     final String componentId,
                     final IModel<UserTO> model) {
 
-                Panel panel = new EditLinkPanel(componentId, model);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Users", "read"));
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                panel.add(new IndicatingAjaxLink("editLink") {
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        statusmodal.setPageCreator(
+                                new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
+
+                                    @Override
+                                    public Page createPage() {
+                                        return new StatusModalPage(
+                                                page.getPageReference(),
+                                                statusmodal,
+                                                model.getObject());
+                                    }
+                                });
+
+                        statusmodal.show(target);
+                    }
+                }, ActionLink.ActionType.SEARCH, "Users", "read");
+
+                panel.add(new ActionLink() {
 
                     private static final long serialVersionUID =
                             -7978723352517770644L;
@@ -429,30 +479,9 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                         editmodal.show(target);
                     }
-                });
-                cellItem.add(panel);
-            }
-        });
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("delete")) {
+                }, ActionLink.ActionType.EDIT, "Users", "read");
 
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserTO>> cellItem,
-                    final String componentId,
-                    final IModel<UserTO> model) {
-
-                Panel panel = new DeleteLinkPanel(componentId, model);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Users", "delete"));
-
-                panel.add(new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
+                panel.add(new ActionLink() {
 
                     private static final long serialVersionUID =
                             -7978723352517770644L;
@@ -472,7 +501,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                         send(getPage(), Broadcast.BREADTH, data);
                     }
-                });
+                }, ActionLink.ActionType.DELETE, "Users", "delete");
+
                 cellItem.add(panel);
             }
         });

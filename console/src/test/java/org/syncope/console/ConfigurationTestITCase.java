@@ -19,95 +19,136 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void browseCreateModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//a[contains(text(),'Create new configuration')]");
-        assertTrue(selenium.isElementPresent("//input[@name='key:textField']"));
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='key:textField']\");",
+                "30000");
+
         selenium.type("name=key:textField", "test1");
         selenium.type("name=value:textField", "value1");
         selenium.click("name=apply");
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"Operation executed successfully\");",
+                "30000");
     }
 
     @Test
     public void browseEditModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//td[3]/span/a");
-        assertTrue(selenium.isElementPresent("//input[@name='key:textField']"));
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//tr/td[3]/span/span[7]/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='key:textField']\");",
+                "30000");
+
         assertEquals("connid.bundles.directory",
                 selenium.getAttribute("//input[@name='key:textField']@value"));
+
         selenium.click("css=a.w_close");
 
     }
 
     @Test
     public void browsePasswordPolicy() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//div[3]/div[2]/span/div/a");
 
-        assertTrue(selenium.isElementPresent("//input[@name='id:textField']"));
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='id:textField']\");",
+                "30000");
+
         selenium.type("name=description:textField", "new description");
         selenium.click("//div[2]/form/div[3]/input");
-        assertTrue(selenium.isTextPresent("new description"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"new description\");",
+                "30000");
     }
 
     @Test
     public void browseAccountPolicy() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[3]/ul/li[3]/a");
         selenium.click("//div[3]/div[3]/span/div/a");
 
-        assertTrue(selenium.isElementPresent("//input[@name='id:textField']"));
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='id:textField']\");",
+                "30000");
+
         selenium.type("name=description:textField", "new description");
         selenium.click("//div[2]/form/div[3]/input");
-        assertTrue(selenium.isTextPresent("new description"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"new description\");",
+                "30000");
     }
 
     @Test
     public void browseWorkflowDef() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
-        assertTrue(selenium.isElementPresent("//*[@id=\"workflowDefArea\"]"));
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//*[@id='workflowDefArea']\");",
+                "30000");
     }
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[7]/td[4]/span/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//tr[7]/td[3]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
+
+        selenium.waitForCondition("selenium.isTextPresent("
+                + "\"Operation executed successfully\");",
+                "30000");
     }
 
     @Test
     public void setLogLevel() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[7]/a/span");
+
         selenium.select(
-                "//div[3]/div[7]/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
+                "//div[3]/div[7]/div/span/table/tbody/tr/td[2]/select",
+                "label=ERROR");
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"Operation executed successfully\");",
+                "30000");
     }
 }

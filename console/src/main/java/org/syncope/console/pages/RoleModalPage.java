@@ -47,11 +47,13 @@ public class RoleModalPage extends BaseModalPage {
 
     private RoleTO originalRoleTO;
 
-    public RoleModalPage(final PageReference callerPageRef,
-            final ModalWindow window, final RoleTO roleTO) {
+    public RoleModalPage(
+            final PageReference callerPageRef,
+            final ModalWindow window, 
+            final RoleTO roleTO) {
 
         super();
-
+        
         final boolean createFlag = roleTO.getId() == 0;
         if (!createFlag) {
             originalRoleTO = AttributableOperations.clone(roleTO);

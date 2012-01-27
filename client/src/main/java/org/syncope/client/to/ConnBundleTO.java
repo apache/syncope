@@ -84,4 +84,26 @@ public class ConnBundleTO extends AbstractBaseBean {
     public void setVersion(String version) {
         this.version = version;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        // needed into the administration console
+        if (obj instanceof ConnBundleTO) {
+            return toString().equals(obj.toString());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        // needed into the administration console
+        return toString().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        // needed into the administration console
+        return bundleName + "#" + version;
+    }
 }

@@ -19,54 +19,45 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void execute() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Tasks\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a");
-        selenium.click("//div[3]/div[4]/span/div/span/"
-                + "table/tbody/tr/td[7]/span/a");
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-        }
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
-        selenium.click("//div[3]/div[4]/span/div/span/"
-                + "table/tbody/tr/td[6]/span/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent("//form/div[2]/div/div/span/"
-                        + "div/div/div[2]/span/input")) {
 
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[4]/a");
+        selenium.click("//table/tbody/tr/td[7]/span/span[3]/a");
+
+        selenium.waitForCondition("selenium.isTextPresent("
+                + "\"Operation executed successfully\");",
+                "30000");
+
+        selenium.click("//table/tbody/tr/td[7]/span/span[7]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//form/div[2]/div/div/span/div/div/div[2]/span/input\");",
+                "30000");
 
         assertTrue(selenium.isElementPresent(
-                "//form/div[2]/div[3]/span/table/tbody/tr/td"));
+                "//form/div[2]/div[2]/span/table/tbody/tr/td"));
+
         selenium.click("css=a.w_close");
     }
 
     @Test
     public void delete() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Tasks\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[3]/div[3]/span/div/span/"
-                + "table/tbody/tr/td[10]/span/a");
+        selenium.click("//table/tbody/tr[4]/td[7]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"Operation executed successfully\");",
+                "30000");
     }
 }

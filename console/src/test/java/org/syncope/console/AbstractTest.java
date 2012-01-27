@@ -52,7 +52,10 @@ public abstract class AbstractTest extends SeleneseTestCase {
         selenium.type("name=userId", ADMIN);
         selenium.type("name=password", PASSWORD);
         selenium.click("name=:submit");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//img[@alt='Logout']\");",
+                "60000");
     }
 
     @Override

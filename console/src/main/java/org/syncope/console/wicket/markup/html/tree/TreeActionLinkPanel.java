@@ -80,8 +80,8 @@ public class TreeActionLinkPanel extends Panel {
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
-                        RoleModalPage form = new RoleModalPage(callerPageRef,
-                                window, roleTO);
+                        RoleModalPage form =
+                                new RoleModalPage(callerPageRef, window, roleTO);
                         return form;
                     }
                 });

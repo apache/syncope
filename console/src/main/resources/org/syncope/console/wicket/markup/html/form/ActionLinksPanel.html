@@ -1,0 +1,67 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:head>
+    <style>
+        span#action{
+            margin-left: 1px;
+            margin-right: 1px;
+        }
+    </style>
+</wicket:head>
+<wicket:panel>
+    <span id="action" wicket:id="panelClaim">[plus]</span>
+    <span id="action" wicket:id="panelDryRun">[plus]</span>
+    <span id="action" wicket:id="panelExecute">[plus]</span>
+    <span id="action" wicket:id="panelSearch">[plus]</span>
+    <span id="action" wicket:id="panelCreate">[plus]</span>
+    <span id="action" wicket:id="panelTemplate">[plus]</span>
+    <span id="action" wicket:id="panelEdit">[plus]</span>
+    <span id="action" wicket:id="panelDelete">[plus]</span>
+
+    <wicket:fragment wicket:id="fragmentClaim">
+        <a href="#" wicket:id="claimLink"><img src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentCreate">
+        <a href="#" wicket:id="createLink"><img src="img/actions/create.png" alt="create icon"  title="Create"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentSearch">
+        <a href="#" wicket:id="searchLink"><img src="img/actions/search.png" alt="search icon"  title="Search and modify" /></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentEdit">
+        <a href="#" wicket:id="editLink"><img src="img/actions/edit.png" alt="edit icon"  title="Edit"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentTemplate">
+        <a href="#" wicket:id="templateLink"><img src="img/actions/template.png" alt="template icon"  title="Specify template"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentDelete">
+        <a href="#" wicket:id="deleteLink"><img src="img/actions/delete.png" alt="delete icon"  title="Delete"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentDryRun">
+        <a href="#" wicket:id="dryRunLink"><img src="img/actions/dryrun.png" alt="dryrun icon"  title="DryRun"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExecute">
+        <a href="#" wicket:id="executeLink"><img src="img/actions/execute.png" alt="execute icon"  title="Execute"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+</wicket:panel>

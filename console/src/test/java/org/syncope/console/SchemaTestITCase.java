@@ -19,58 +19,42 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Schema\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[3]/div/div/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//*[@id=\"_wicket_window_0\"]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
 
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent("//*[@name=\"name:textField\"]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//*[@id='_wicket_window_0']\");",
+                "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//*[@name='name:textField']\");",
+                "30000");
 
         selenium.select("name=type:dropDownChoiceField", "value=0");
         selenium.type("name=name:textField", "newschema");
         selenium.click("name=apply");
-        assertTrue(selenium.isTextPresent("newschema"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"newschema\");", "30000");
     }
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Schema\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='membership']/ul/li[3]/a/span");
-        selenium.click("//div[3]/div[3]/div/span/table/tbody/tr/td[3]/span/a");
+
+        selenium.click("//table/tbody/tr/td[3]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
     }

@@ -45,6 +45,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ClassUtils;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -110,6 +111,18 @@ public class ConnectorModalPage extends BaseModalPage {
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connectorTO.getCapabilities());
 
+        final IModel<List<ConnBundleTO>> bundles =
+                new LoadableDetachableModel<List<ConnBundleTO>>() {
+
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
+                    @Override
+                    protected List<ConnBundleTO> load() {
+                        return restClient.getAllBundles();
+                    }
+                };
+
         IModel<List<ConnConfProperty>> selectedBundleProperties =
                 new LoadableDetachableModel<List<ConnConfProperty>>() {
 
@@ -138,10 +151,10 @@ public class ConnectorModalPage extends BaseModalPage {
                                 result.add(propertyTO);
                             }
                         } else {
-                            selectedBundleTO.setBundleName(
-                                    connectorTO.getBundleName());
-                            selectedBundleTO.setVersion(
-                                    connectorTO.getVersion());
+                            BeanUtils.copyProperties(
+                                    connectorTO, selectedBundleTO, new String[]{
+                                        "id", "configuration", "capabilities"});
+
                             result = new ArrayList<ConnConfProperty>(
                                     connectorTO.getConfiguration());
                         }
@@ -181,18 +194,6 @@ public class ConnectorModalPage extends BaseModalPage {
         displayName.setOutputMarkupId(true);
         version.setEnabled(false);
 
-        final IModel<List<ConnBundleTO>> bundles =
-                new LoadableDetachableModel<List<ConnBundleTO>>() {
-
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
-
-                    @Override
-                    protected List<ConnBundleTO> load() {
-                        return restClient.getAllBundles();
-                    }
-                };
-
         final AjaxDropDownChoicePanel<ConnBundleTO> bundle =
                 new AjaxDropDownChoicePanel<ConnBundleTO>(
                 "bundle", "bundle", new Model(null), false);
@@ -208,14 +209,12 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             public Object getDisplayValue(final ConnBundleTO object) {
-                return object.getBundleName() + " "
-                        + object.getVersion();
+                return object.getBundleName() + " " + object.getVersion();
             }
 
             @Override
             public String getIdValue(final ConnBundleTO object,
                     final int index) {
-
                 // idValue must include version as well in order to cope
                 //with multiple version of the same bundle.
                 return object.getBundleName() + "#" + object.getVersion();
@@ -356,7 +355,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 }
 
                 field.setTitle(property.getSchema().getHelpMessage());
-                
+
                 if (isArray) {
                     field.removeRequiredLabel();
 

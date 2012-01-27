@@ -50,9 +50,8 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Resources WebPage.
@@ -110,7 +109,7 @@ public class Resources extends BasePage {
         setupConnectors();
     }
 
-    private final void setupResources() {
+    private void setupResources() {
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(
@@ -122,9 +121,15 @@ public class Resources extends BasePage {
                 new ResourceModel("propagationPriority"),
                 "propagationPriority", "propagationPriority"));
 
-        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("edit")) {
+        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("actions",
+                "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -133,10 +138,12 @@ public class Resources extends BasePage {
                     final IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -157,36 +164,11 @@ public class Resources extends BasePage {
 
                         editResourceWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Resources", "read");
 
-                final EditLinkPanel panel =
-                        new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Resources", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ResourceTO>> cellItem,
-                    final String componentId,
-                    final IModel<ResourceTO> model) {
-                final ResourceTO resourceTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -205,20 +187,11 @@ public class Resources extends BasePage {
                         target.add(feedbackPanel);
                         target.add(resourceContainer);
                     }
-                };
-
-                final DeleteLinkPanel panel =
-                        new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Resources", "delete"));
+                }, ActionLink.ActionType.DELETE, "Resources", "delete");
 
                 cellItem.add(panel);
             }
         });
-
 
         final AjaxFallbackDefaultDataTable table =
                 new AjaxFallbackDefaultDataTable("resourceDatatable", columns,
@@ -313,9 +286,14 @@ public class Resources extends BasePage {
                 "bundleName", "bundleName"));
 
         columns.add(new AbstractColumn<ConnInstanceTO>(
-                new ResourceModel("edit")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -325,10 +303,12 @@ public class Resources extends BasePage {
 
                 final ConnInstanceTO connectorTO = model.getObject();
 
-                final AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -350,37 +330,11 @@ public class Resources extends BasePage {
 
                         editConnectorWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Connectors", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Connectors", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<ConnInstanceTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ConnInstanceTO>> cellItem,
-                    final String componentId,
-                    final IModel<ConnInstanceTO> model) {
-
-                final ConnInstanceTO connectorTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -397,14 +351,7 @@ public class Resources extends BasePage {
                         target.add(connectorContainer);
                         target.add(feedbackPanel);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Connectors", "delete"));
+                }, ActionLink.ActionType.DELETE, "Connectors", "delete");
 
                 cellItem.add(panel);
             }
@@ -522,6 +469,8 @@ public class Resources extends BasePage {
         @Override
         public IModel<ResourceTO> model(final ResourceTO resource) {
             return new AbstractReadOnlyModel<ResourceTO>() {
+
+                private static final long serialVersionUID = 8952474152465381634L;
 
                 @Override
                 public ResourceTO getObject() {

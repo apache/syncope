@@ -34,22 +34,9 @@ public class EditProfileTestITCase extends AbstractTest {
 
         selenium.click("//div/span/span/a");
 
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//span[contains(text(),'Attributes')]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//span[contains(text(),'Attributes')]\");",
+                "30000");
 
         selenium.click("css=a.w_close");
 
@@ -57,6 +44,7 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.type("name=userId", "user1");
         selenium.type("name=password", "password");
         selenium.click("name=:submit");
+
         selenium.waitForPageToLoad("30000");
     }
 
@@ -76,22 +64,9 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.click("id=username");
         selenium.click("//span[@id='editProfile']/a");
 
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//span[contains(text(),'Attributes')]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//span[contains(text(),'Attributes')]\");",
+                "30000");
 
         assertTrue(selenium.isElementPresent("//input[@value='user1']"));
 

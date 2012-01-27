@@ -1387,7 +1387,7 @@ public class UserTestITCase extends AbstractTest {
 
         String query = "?resourceNames=" + dbTable.getName()
                 + "&resourceNames=" + ldap.getName()
-                + "&performLocal=true"; // check also performLocal
+                + "&performLocally=true"; // check also performLocally
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/suspend/" + userTO.getId() + query,
@@ -1416,7 +1416,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(connObjectTO);
 
         query = "?resourceNames=" + ldap.getName()
-                + "&performLocal=false"; // check also performLocal
+                + "&performLocally=false"; // check also performLocally
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/reactivate/" + userTO.getId() + query,
@@ -1433,7 +1433,7 @@ public class UserTestITCase extends AbstractTest {
                 get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
 
         query = "?resourceNames=" + dbTable.getName()
-                + "&performLocal=true"; // check also performLocal
+                + "&performLocally=true"; // check also performLocally
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/reactivate/" + userTO.getId() + query,

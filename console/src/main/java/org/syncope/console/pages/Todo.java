@@ -21,9 +21,6 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -36,8 +33,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -55,10 +50,9 @@ import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ApprovalRestClient;
 import org.syncope.console.rest.UserRequestRestClient;
 import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.syncope.types.UserRequestType;
 
 public class Todo extends BasePage {
@@ -127,9 +121,14 @@ public class Todo extends BasePage {
         columns.add(new PropertyColumn(new ResourceModel("owner"),
                 "owner", "owner"));
         columns.add(new AbstractColumn<WorkflowFormTO>(
-                new ResourceModel("claim")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -138,10 +137,13 @@ public class Todo extends BasePage {
                     final IModel<WorkflowFormTO> model) {
 
                 final WorkflowFormTO formTO = model.getObject();
-                AjaxLink claimLink = new IndicatingAjaxLink("link") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -154,68 +156,33 @@ public class Todo extends BasePage {
                         target.add(feedbackPanel);
                         target.add(approvalContainer);
                     }
-                };
+                }, ActionLink.ActionType.CLAIM, "Approval", "claim");
 
-                claimLink.add(new Label("linkTitle", getString("claim")));
+                panel.add(new ActionLink() {
 
-                Panel panel = new LinkPanel(componentId);
-                panel.add(claimLink);
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Approval", "claim"));
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        editApprovalWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                cellItem.add(panel);
-            }
-        });
-        columns.add(new AbstractColumn<WorkflowFormTO>(
-                new ResourceModel("manage")) {
+                                    private static final long serialVersionUID = -7834632442532690940L;
 
-            private static final long serialVersionUID = 2054811145491901166L;
+                                    @Override
+                                    public Page createPage() {
+                                        return new ApprovalModalPage(
+                                                Todo.this.getPageReference(),
+                                                editApprovalWin, formTO);
+                                    }
+                                });
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<WorkflowFormTO>> cellItem,
-                    final String componentId,
-                    final IModel<WorkflowFormTO> model) {
+                        editApprovalWin.show(target);
+                    }
+                }, ActionLink.ActionType.EDIT, "Approval", "read",
+                        SyncopeSession.get().getUserId().equals(
+                        formTO.getOwner()));
 
-                final WorkflowFormTO formTO = model.getObject();
-                Panel panel;
-                if (SyncopeSession.get().getUserId().equals(
-                        formTO.getOwner())) {
-
-                    AjaxLink manageLink = new IndicatingAjaxLink("link") {
-
-                        private static final long serialVersionUID =
-                                -7978723352517770644L;
-
-                        @Override
-                        public void onClick(final AjaxRequestTarget target) {
-                            editApprovalWin.setPageCreator(
-                                    new ModalWindow.PageCreator() {
-
-                                        @Override
-                                        public Page createPage() {
-                                            return new ApprovalModalPage(
-                                                    Todo.this.getPageReference(),
-                                                    editApprovalWin, formTO);
-                                        }
-                                    });
-
-                            editApprovalWin.show(target);
-                        }
-                    };
-                    manageLink.add(new Label("linkTitle", getString("manage")));
-
-                    panel = new LinkPanel(componentId);
-                    panel.add(manageLink);
-
-                    MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                            xmlRolesReader.getAllAllowedRoles(
-                            "Approval", "read"));
-
-                } else {
-                    panel = new EmptyPanel(componentId);
-                }
                 cellItem.add(panel);
             }
         });
@@ -275,9 +242,14 @@ public class Todo extends BasePage {
                 "type", "type"));
         columns.add(new UserRequestColumn("user"));
         columns.add(new AbstractColumn<UserRequestTO>(
-                new ResourceModel("manage")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -285,15 +257,21 @@ public class Todo extends BasePage {
                     final String componentId,
                     final IModel<UserRequestTO> model) {
 
-                AjaxLink manageLink = new IndicatingAjaxLink("link") {
+                final UserRequestTO request = model.getObject();
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         editUserRequestWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID = -7834632442532690940L;
 
                                     @Override
                                     public Page createPage() {
@@ -306,13 +284,12 @@ public class Todo extends BasePage {
 
                         editUserRequestWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "UserRequest", "read",
+                        model.getObject().getType() != UserRequestType.DELETE);
 
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "link") {
+                panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -332,42 +309,12 @@ public class Todo extends BasePage {
 
                         target.add(userRequestContainer);
                     }
-                };
-                MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Users", "delete"));
+                }, ActionLink.ActionType.DELETE, "Users", "delete",
+                        model.getObject().getType() == UserRequestType.DELETE);
 
-                AjaxLink link = model.getObject().getType()
-                        == UserRequestType.DELETE ? deleteLink : manageLink;
-                link.add(new Label("linkTitle", getString("manage")));
+                panel.add(new ActionLink() {
 
-                Panel panel = new LinkPanel(componentId);
-                panel.add(link);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "UserRequest", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-        columns.add(new AbstractColumn<UserRequestTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserRequestTO>> cellItem,
-                    final String componentId,
-                    final IModel<UserRequestTO> model) {
-
-                final UserRequestTO request = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -384,14 +331,7 @@ public class Todo extends BasePage {
 
                         target.add(userRequestContainer);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "UserRequest", "delete"));
+                }, ActionLink.ActionType.DELETE, "UserRequest", "delete");
 
                 cellItem.add(panel);
             }

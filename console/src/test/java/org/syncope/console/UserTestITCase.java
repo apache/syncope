@@ -20,27 +20,16 @@ public class UserTestITCase extends AbstractTest {
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
     public void browseCreateModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Users\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//a[contains(text(),'Create new user')]");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//span[contains(text(),'Attributes')]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//span[contains(text(),'Attributes')]\");",
+                "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
@@ -53,32 +42,22 @@ public class UserTestITCase extends AbstractTest {
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
     public void browseEditModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Users\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         //Edit user3
-        selenium.click("//*[@id=\"users-contain\"]//*[span=3]/../td[4]/span/a");
+        selenium.click(
+                "//*[@id=\"users-contain\"]//*[span=3]/../td[4]/span/span[7]/a");
 
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//span[contains(text(),'Attributes')]")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@value='testUsername']\");",
+                "30000");
 
-        assertTrue(selenium.isElementPresent("//input[@value='testUsername']"));
-        assertTrue(selenium.isElementPresent("//input[@value='Doe']"));
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@value='Doe']\");",
+                "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
@@ -91,35 +70,43 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void search() {
         selenium.click("css=img[alt=\"Users\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("link=Search");
         selenium.select("//td[3]/select", "label=MEMBERSHIP");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//td[4]/select[option='8 otherchild']\");",
+                "30000");
+
         selenium.select("//td[4]/select", "label=8 otherchild");
         selenium.click("name=search");
-        assertEquals("2", selenium.getText(
-                "//*[@id=\"users-contain\"]//*[span=2]"));
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//*[@id='users-contain']//*[span=2]\");",
+                "30000");
     }
-    
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Users\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//*[@id=\"users-contain\"]//*[span=1]/../td[5]/span/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click(
+                "//*[@id=\"users-contain\"]//*[span=1]/../td[4]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-        }
 
         // it depends on the execution order of tests: resources
         // 'ws-target-resource-delete' could have been deleted from
         // ResourceTestITCase#delete
-        assertTrue(selenium.isTextPresent("Operation executed successfully"));
+        selenium.waitForCondition("selenium.isTextPresent("
+                + "\"Operation executed successfully\");",
+                "30000");
     }
 }

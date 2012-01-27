@@ -25,7 +25,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -54,9 +53,6 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ConfigurationRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -75,6 +71,8 @@ import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.NotificationRestClient;
 import org.syncope.console.rest.WorkflowRestClient;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Configurations WebPage.
@@ -212,7 +210,7 @@ public class Configuration extends BasePage {
         add(consoleLoggerContainer);
     }
 
-    private final void setupSyncopeConf() {
+    private void setupSyncopeConf() {
         confPaginatorRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_CONFIGURATION_PAGINATOR_ROWS);
 
@@ -225,9 +223,14 @@ public class Configuration extends BasePage {
                 "value", "value"));
 
         confColumns.add(new AbstractColumn<ConfigurationTO>(
-                new ResourceModel("edit")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -236,10 +239,13 @@ public class Configuration extends BasePage {
                     final IModel<ConfigurationTO> model) {
 
                 final ConfigurationTO configurationTO = model.getObject();
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -262,37 +268,11 @@ public class Configuration extends BasePage {
 
                         editConfigWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Configuration", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Configuration", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        confColumns.add(new AbstractColumn<ConfigurationTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    final String componentId,
-                    final IModel<ConfigurationTO> model) {
-
-                final ConfigurationTO configurationTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -310,14 +290,7 @@ public class Configuration extends BasePage {
 
                         target.add(confContainer);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Configuration", "delete"));
+                }, ActionLink.ActionType.DELETE, "Configuration", "delete");
 
                 cellItem.add(panel);
             }
@@ -423,7 +396,7 @@ public class Configuration extends BasePage {
         add(confPaginatorForm);
     }
 
-    private final void setupNotification() {
+    private void setupNotification() {
         notificationPaginatorRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
 
@@ -440,9 +413,14 @@ public class Configuration extends BasePage {
                 "traceLevel", "traceLevel"));
 
         notificationCols.add(new AbstractColumn<NotificationTO>(
-                new ResourceModel("edit")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -451,10 +429,13 @@ public class Configuration extends BasePage {
                     final IModel<NotificationTO> model) {
 
                 final NotificationTO notificationTO = model.getObject();
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -477,37 +458,11 @@ public class Configuration extends BasePage {
 
                         editNotificationWin.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Notification", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Notification", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        notificationCols.add(new AbstractColumn<NotificationTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<NotificationTO>> cellItem,
-                    final String componentId,
-                    final IModel<NotificationTO> model) {
-
-                final NotificationTO notificationTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -525,14 +480,7 @@ public class Configuration extends BasePage {
 
                         target.add(notificationContainer);
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles(
-                        "Notification", "delete"));
+                }, ActionLink.ActionType.DELETE, "Notification", "delete");
 
                 cellItem.add(panel);
             }
@@ -562,32 +510,33 @@ public class Configuration extends BasePage {
         setWindowClosedCallback(createNotificationWin, notificationContainer);
         setWindowClosedCallback(editNotificationWin, notificationContainer);
 
-        AjaxLink createNotificationLink = new AjaxLink(
-                "createNotificationLink") {
+        AjaxLink createNotificationLink =
+                new AjaxLink("createNotificationLink") {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                createNotificationWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
+                        createNotificationWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
 
-                            @Override
-                            public Page createPage() {
-                                return new NotificationModalPage(
-                                        Configuration.this.getPageReference(),
-                                        createNotificationWin,
-                                        new NotificationTO(), true);
-                            }
-                        });
+                                    @Override
+                                    public Page createPage() {
+                                        return new NotificationModalPage(
+                                                Configuration.this.
+                                                getPageReference(),
+                                                createNotificationWin,
+                                                new NotificationTO(), true);
+                                    }
+                                });
 
-                createNotificationWin.show(target);
-            }
-        };
+                        createNotificationWin.show(target);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(
                 createNotificationLink, ENABLE,
@@ -724,7 +673,6 @@ public class Configuration extends BasePage {
         DEBUG,
         TRACE,
         ALL
-
     }
 
     private class LoggerPropertyList extends PropertyListView<LoggerTO> {

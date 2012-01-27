@@ -30,7 +30,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -50,11 +49,9 @@ import org.syncope.console.pages.Tasks;
 import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.rest.TaskRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
-import org.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 public class SyncTasks extends Panel {
 
@@ -120,9 +117,14 @@ public class SyncTasks extends Panel {
                 "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("detail")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -132,10 +134,12 @@ public class SyncTasks extends Panel {
 
                 final SyncTaskTO taskTO = model.getObject();
 
-                AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -154,35 +158,11 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Tasks", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(viewLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("userTemplate")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<SyncTaskTO> model) {
-
-                final SyncTaskTO taskTO = model.getObject();
-
-                AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -201,35 +181,11 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                };
+                }, ActionLink.ActionType.TEMPLATE, "Tasks", "read");
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(viewLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("execute")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<SyncTaskTO> model) {
-
-                final SyncTaskTO taskTO = model.getObject();
-
-                AjaxLink executeLink = new IndicatingAjaxLink("link") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -243,37 +199,11 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                };
+                }, ActionLink.ActionType.EXECUTE, "Tasks", "execute");
 
-                executeLink.add(new Label("linkTitle", getString("execute")));
+                panel.add(new ActionLink() {
 
-                LinkPanel panel = new LinkPanel(componentId);
-                panel.add(executeLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "execute"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("executeDryRun")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<SyncTaskTO> model) {
-
-                final SyncTaskTO taskTO = model.getObject();
-
-                AjaxLink executeLink = new IndicatingAjaxLink("link") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -287,39 +217,11 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                };
+                }, ActionLink.ActionType.DRYRUN, "Tasks", "execute");
 
-                executeLink.add(new Label("linkTitle",
-                        getString("executeDryRun")));
+                panel.add(new ActionLink() {
 
-                LinkPanel panel = new LinkPanel(componentId);
-                panel.add(executeLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "execute"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
-                    final String componentId,
-                    final IModel<SyncTaskTO> model) {
-
-                final SyncTaskTO taskTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -332,13 +234,7 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
+                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
 
                 cellItem.add(panel);
             }

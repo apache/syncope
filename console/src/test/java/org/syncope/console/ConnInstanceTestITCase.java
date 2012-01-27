@@ -19,65 +19,49 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void browseCreateModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[3]/div[2]/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//input[@name='version:textField']")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='version:textField']\");",
+                "30000");
 
         selenium.select("//select[@name='bundle:dropDownChoiceField']",
-                "label=org.connid.bundles.soap 1.1");
+                "label=org.connid.bundles.soap 1.2");
+
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//form/div[@id='tabs']/ul/li[1]/a/span");
+
         assertTrue(selenium.isElementPresent(
                 "//form/div[2]/div/div/div[4]/div[2]"));
+
         selenium.click("css=a.w_close");
     }
 
     @Test
     public void browseEditModal() {
-        selenium.setSpeed("1000");
-
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[4]/td[6]/span/a");
-        for (int second = 0;; second++) {
-            if (second >= 60) {
-                fail("timeout");
-            }
-            try {
-                if (selenium.isElementPresent(
-                        "//input[@name='version:textField']")) {
-                    break;
-                }
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[3]/ul/li[2]/a");
+        selenium.click("//tr[4]/td[6]/span/span[7]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='version:textField']\");",
+                "30000");
 
         assertEquals("ConnInstance103", selenium.getAttribute(
                 "//input[@name='displayName:textField']/@value"));
-        assertEquals("org.connid.bundles.soap#1.1", selenium.getSelectedValue(
+
+        assertEquals("org.connid.bundles.soap#1.2", selenium.getSelectedValue(
                 "//select[@name='bundle:dropDownChoiceField']"));
+
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
     }
@@ -85,18 +69,19 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
         selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//tr[4]/td[7]/span/a");
+        selenium.click("//tr[4]/td[6]/span/span[8]/a");
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-        
-        assertTrue(selenium.isTextPresent(
-                "Operation forbidden:the connector you're trying to delete is"
-                + " connected to a Resource"));
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent("
+                + "\"Error occurred during the requested operation\");",
+                "10000");
     }
 }

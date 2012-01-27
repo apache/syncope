@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -58,9 +57,8 @@ import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.PolicyModalPage;
 import org.syncope.console.rest.PolicyRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
+import org.syncope.console.wicket.markup.html.form.ActionLink;
+import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.syncope.types.PolicyType;
 
 public class PoliciesPanel extends Panel {
@@ -122,8 +120,7 @@ public class PoliciesPanel extends Panel {
         columns.add(new PropertyColumn(
                 new ResourceModel("description"), "description", "description"));
 
-        columns.add(new AbstractColumn<PolicyTO>(
-                new ResourceModel("type")) {
+        columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("type")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
@@ -139,9 +136,14 @@ public class PoliciesPanel extends Panel {
         });
 
         columns.add(new AbstractColumn<PolicyTO>(
-                new ResourceModel("edit")) {
+                new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -151,10 +153,12 @@ public class PoliciesPanel extends Panel {
 
                 final PolicyTO accountPolicyTO = model.getObject();
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model);
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -175,37 +179,11 @@ public class PoliciesPanel extends Panel {
 
                         mwindow.show(target);
                     }
-                };
+                }, ActionLink.ActionType.EDIT, "Policies", "read");
 
-                final EditLinkPanel panel =
-                        new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                panel.add(new ActionLink() {
 
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                        "Policies", "read"));
-
-                cellItem.add(panel);
-            }
-        });
-
-        columns.add(new AbstractColumn<PolicyTO>(
-                new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<PolicyTO>> cellItem,
-                    final String componentId,
-                    final IModel<PolicyTO> model) {
-                final PolicyTO accountPolicyTO = model.getObject();
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -227,15 +205,7 @@ public class PoliciesPanel extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                };
-
-                final DeleteLinkPanel panel =
-                        new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                        "Policies", "delete"));
+                }, ActionLink.ActionType.DELETE, "Policies", "delete");
 
                 cellItem.add(panel);
             }
