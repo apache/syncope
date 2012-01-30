@@ -26,8 +26,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -79,8 +79,8 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    protected List<ExternalResource> resources() {
-        return Collections.EMPTY_LIST;
+    protected Set<ExternalResource> resources() {
+        return Collections.EMPTY_SET;
     }
 
     public SyncopeRole getSyncopeRole() {
@@ -185,8 +185,8 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public List<ExternalResource> getResources() {
-        return Collections.EMPTY_LIST;
+    public Set<ExternalResource> getResources() {
+        return Collections.EMPTY_SET;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setResources(final List<ExternalResource> resources) {
+    public void setResources(final Set<ExternalResource> resources) {
     }
 
     @Override

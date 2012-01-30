@@ -14,7 +14,6 @@
  */
 package org.syncope.core.rest.data;
 
-import org.syncope.core.util.AttributableUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,12 +51,13 @@ import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.VirAttrDAO;
 import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.propagation.PropagationByResource;
+import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -238,7 +238,7 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(
-            final List<ExternalResource> resources,
+            final Collection<ExternalResource> resources,
             final List<? extends AbstractAttr> attributes,
             final String intAttrName,
             final AttributableUtil attributableUtil) {

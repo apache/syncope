@@ -14,10 +14,8 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
@@ -78,11 +76,14 @@ public class ExternalResource extends AbstractBaseBean {
 
     /**
      * Attribute mappings.
+     *
+     * List type cannot be used. Please, take a look at
+     * https://hibernate.onjira.com/browse/HHH-1718
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
     fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
-    private List<SchemaMapping> mappings;
+    private Set<SchemaMapping> mappings;
 
     /**
      * A JEXL expression for determining how to link user account id in Syncope
@@ -153,7 +154,7 @@ public class ExternalResource extends AbstractBaseBean {
         super();
 
         forceMandatoryConstraint = getBooleanAsInteger(false);
-        mappings = new ArrayList<SchemaMapping>();
+        mappings = new HashSet<SchemaMapping>();
         propagationPrimary = 0;
         propagationPriority = 0;
         propagationMode = PropagationMode.TWO_PHASES;
@@ -207,14 +208,14 @@ public class ExternalResource extends AbstractBaseBean {
         this.propagationMode = propagationMode;
     }
 
-    public List<SchemaMapping> getMappings() {
+    public Set<SchemaMapping> getMappings() {
         return mappings;
     }
 
-    public List<SchemaMapping> getMappings(final String intAttrName,
+    public Set<SchemaMapping> getMappings(final String intAttrName,
             final IntMappingType intMappingType) {
 
-        List<SchemaMapping> result = new ArrayList<SchemaMapping>();
+        Set<SchemaMapping> result = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
             if (intAttrName.equals(mapping.getIntAttrName())
                     && mapping.getIntMappingType() == intMappingType) {

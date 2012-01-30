@@ -173,7 +173,7 @@ public class SyncopeUser extends AbstractAttributable {
     @JoinColumn(name = "user_id"),
     inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
-    private List<ExternalResource> resources;
+    private Set<ExternalResource> resources;
 
     public SyncopeUser() {
         super();
@@ -185,7 +185,7 @@ public class SyncopeUser extends AbstractAttributable {
         passwordHistory = new ArrayList<String>();
         failedLogins = 0;
         suspended = getBooleanAsInteger(Boolean.FALSE);
-        resources = new ArrayList<ExternalResource>();
+        resources = new HashSet<ExternalResource>();
     }
 
     @Override
@@ -194,7 +194,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    protected List<ExternalResource> resources() {
+    protected Set<ExternalResource> resources() {
         return resources;
     }
 
@@ -258,8 +258,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public List<ExternalResource> getResources() {
-        List<ExternalResource> result = new ArrayList<ExternalResource>();
+    public Set<ExternalResource> getResources() {
+        Set<ExternalResource> result = new HashSet<ExternalResource>();
         result.addAll(super.getResources());
         for (SyncopeRole role : getRoles()) {
             result.addAll(role.getResources());

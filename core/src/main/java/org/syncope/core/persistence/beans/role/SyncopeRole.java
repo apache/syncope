@@ -17,8 +17,10 @@ package org.syncope.core.persistence.beans.role;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -73,7 +75,7 @@ public class SyncopeRole extends AbstractAttributable {
     @JoinColumn(name = "role_id"),
     inverseJoinColumns =
     @JoinColumn(name = "entitlement_name"))
-    private List<Entitlement> entitlements;
+    private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
@@ -127,12 +129,12 @@ public class SyncopeRole extends AbstractAttributable {
     inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
     @Valid
-    private List<ExternalResource> resources;
+    private Set<ExternalResource> resources;
 
     public SyncopeRole() {
         super();
 
-        entitlements = new ArrayList<Entitlement>();
+        entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RAttr>();
         derivedAttributes = new ArrayList<RDerAttr>();
         virtualAttributes = new ArrayList<RVirAttr>();
@@ -141,7 +143,7 @@ public class SyncopeRole extends AbstractAttributable {
         inheritVirtualAttributes = getBooleanAsInteger(false);
         inheritPasswordPolicy = getBooleanAsInteger(false);
         inheritAccountPolicy = getBooleanAsInteger(false);
-        resources = new ArrayList<ExternalResource>();
+        resources = new HashSet<ExternalResource>();
     }
 
     @Override
@@ -150,7 +152,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    protected List<ExternalResource> resources() {
+    protected Set<ExternalResource> resources() {
         return resources;
     }
 
@@ -171,15 +173,14 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public boolean addEntitlement(final Entitlement entitlement) {
-        return entitlements.contains(entitlement)
-                || entitlements.add(entitlement);
+        return entitlements.add(entitlement);
     }
 
     public boolean removeEntitlement(final Entitlement entitlement) {
         return entitlements.remove(entitlement);
     }
 
-    public List<Entitlement> getEntitlements() {
+    public Set<Entitlement> getEntitlements() {
         return entitlements;
     }
 
