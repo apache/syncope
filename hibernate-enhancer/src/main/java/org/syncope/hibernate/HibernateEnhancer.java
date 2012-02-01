@@ -14,7 +14,6 @@
 package org.syncope.hibernate;
 
 import java.lang.reflect.Field;
-import java.util.Set;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -26,13 +25,22 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.StringMemberValue;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
-import org.reflections.Reflections;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
 
 /**
  * Add Hibernate's @Type to each entity String field labeled @Lob, in order to
  * enable PostgreSQL's LOB support.
  */
-public class HibernateEnhancer {
+public final class HibernateEnhancer {
+
+    /**
+     * Private empty constructor: this is an utility class!
+     */
+    private HibernateEnhancer() {
+    }
 
     public static void main(final String[] args)
             throws Exception {
@@ -45,33 +53,51 @@ public class HibernateEnhancer {
         ClassPool classPool = ClassPool.getDefault();
         classPool.appendClassPath(args[0]);
 
-        Reflections reflections = new Reflections("org.syncope.core");
-        Set<Class<?>> entities =
-                reflections.getTypesAnnotatedWith(Entity.class);
-        for (Class<?> entity : entities) {
-            classPool.appendClassPath(new ClassClassPath(entity));
-            CtClass ctClass =
-                    ClassPool.getDefault().get(entity.getName());
+        PathMatchingResourcePatternResolver resResolver =
+                new PathMatchingResourcePatternResolver(
+                classPool.getClassLoader());
+        CachingMetadataReaderFactory cachingMetadataReaderFactory =
+                new CachingMetadataReaderFactory();
 
-            ClassFile classFile = ctClass.getClassFile();
-            ConstPool constPool = classFile.getConstPool();
+        for (Resource resource : resResolver.getResources(
+                "classpath*:org/syncope/core/**/*.class")) {
 
-            for (Field field : entity.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Lob.class)) {
-                    AnnotationsAttribute typeAttr = new AnnotationsAttribute(
-                            constPool, AnnotationsAttribute.visibleTag);
-                    Annotation typeAnnot = new Annotation(
-                            "org.hibernate.annotations.Type", constPool);
-                    typeAnnot.addMemberValue("type", new StringMemberValue(
-                            "org.hibernate.type.StringClobType", constPool));
-                    typeAttr.addAnnotation(typeAnnot);
+            MetadataReader metadataReader =
+                    cachingMetadataReaderFactory.getMetadataReader(resource);
+            if (metadataReader.getAnnotationMetadata().
+                    isAnnotated(Entity.class.getName())) {
 
-                    CtField lobField = ctClass.getDeclaredField(field.getName());
-                    lobField.getFieldInfo().addAttribute(typeAttr);
+                Class entity = Class.forName(
+                        metadataReader.getClassMetadata().getClassName());
+                classPool.appendClassPath(new ClassClassPath(entity));
+                CtClass ctClass =
+                        ClassPool.getDefault().get(entity.getName());
+                if (ctClass.isFrozen()) {
+                    ctClass.defrost();
                 }
-            }
+                ClassFile classFile = ctClass.getClassFile();
+                ConstPool constPool = classFile.getConstPool();
 
-            ctClass.writeFile(args[0]);
+                for (Field field : entity.getDeclaredFields()) {
+                    if (field.isAnnotationPresent(Lob.class)) {
+                        AnnotationsAttribute typeAttr =
+                                new AnnotationsAttribute(
+                                constPool, AnnotationsAttribute.visibleTag);
+                        Annotation typeAnnot = new Annotation(
+                                "org.hibernate.annotations.Type", constPool);
+                        typeAnnot.addMemberValue("type", new StringMemberValue(
+                                "org.hibernate.type.StringClobType",
+                                constPool));
+                        typeAttr.addAnnotation(typeAnnot);
+
+                        CtField lobField = ctClass.getDeclaredField(field.
+                                getName());
+                        lobField.getFieldInfo().addAttribute(typeAttr);
+                    }
+                }
+
+                ctClass.writeFile(args[0]);
+            }
         }
     }
 }

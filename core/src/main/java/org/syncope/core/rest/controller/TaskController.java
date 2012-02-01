@@ -14,9 +14,8 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,13 +23,16 @@ import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.ArrayUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
+import org.quartz.StatefulJob;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,13 +60,13 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
+import org.syncope.core.scheduling.AbstractJob;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
+import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationTaskExecStatus;
-import org.syncope.core.scheduling.AbstractJob;
-import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -91,6 +93,9 @@ public class TaskController extends AbstractController {
 
     @Autowired
     private SchedulerFactoryBean scheduler;
+
+    @Autowired
+    private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -249,33 +254,43 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/jobClasses")
-    public ModelAndView getJobClasses()
-            throws MalformedURLException {
-
-        // this is needed because Job interface is not in the same classloader
-        // as the current class
-        List<URL> urls = new ArrayList<URL>();
-        for (URL url : ClasspathHelper.forClassLoader()) {
-            if (!url.toExternalForm().endsWith(".jar")
-                    || url.toExternalForm().contains("quartz")) {
-
-                urls.add(url);
-            }
-        }
-        Reflections reflections = new Reflections(
-                new ConfigurationBuilder().setUrls(urls));
-
-        Set<Class<? extends Job>> subTypes =
-                reflections.getSubTypesOf(Job.class);
+    public ModelAndView getJobClasses() {
+        CachingMetadataReaderFactory cachingMetadataReaderFactory =
+                new CachingMetadataReaderFactory();
 
         Set<String> jobClasses = new HashSet<String>();
-        for (Class jobClass : subTypes) {
-            if (!Modifier.isAbstract(jobClass.getModifiers())
-                    && !jobClass.equals(SyncJob.class)
-                    && !jobClass.equals(NotificationJob.class)) {
+        try {
+            for (Resource resource : resResolver.getResources(
+                    "classpath*:**/*.class")) {
 
-                jobClasses.add(jobClass.getName());
+                ClassMetadata metadata =
+                        cachingMetadataReaderFactory.getMetadataReader(
+                        resource).getClassMetadata();
+                if (ArrayUtils.contains(metadata.getInterfaceNames(),
+                        Job.class.getName())
+                        || AbstractJob.class.getName().equals(
+                        metadata.getSuperClassName())
+                        || ArrayUtils.contains(metadata.getInterfaceNames(),
+                        StatefulJob.class.getName())) {
+
+                    try {
+                        Class jobClass = Class.forName(metadata.getClassName());
+                        if (!Modifier.isAbstract(jobClass.getModifiers())
+                                && !metadata.hasEnclosingClass()
+                                && !jobClass.equals(SyncJob.class)
+                                && !jobClass.equals(NotificationJob.class)) {
+
+                            jobClasses.add(jobClass.getName());
+                        }
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("Could not load class {}",
+                                metadata.getClassName(), e);
+                    }
+                }
             }
+        } catch (IOException e) {
+            LOG.error("While searching for class implementing {}",
+                    Job.class.getName(), e);
         }
 
         ModelAndView result = new ModelAndView();
@@ -287,16 +302,34 @@ public class TaskController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/jobActionsClasses")
     public ModelAndView getJobActionClasses() {
-        Reflections reflections = new Reflections("");
-
-        Set<Class<? extends SyncJobActions>> subTypes =
-                reflections.getSubTypesOf(SyncJobActions.class);
+        CachingMetadataReaderFactory cachingMetadataReaderFactory =
+                new CachingMetadataReaderFactory();
 
         Set<String> jobActionsClasses = new HashSet<String>();
-        for (Class jobClass : subTypes) {
-            if (!Modifier.isAbstract(jobClass.getModifiers())) {
-                jobActionsClasses.add(jobClass.getName());
+        try {
+            for (Resource resource : resResolver.getResources(
+                    "classpath*:**/*.class")) {
+
+                ClassMetadata metadata =
+                        cachingMetadataReaderFactory.getMetadataReader(
+                        resource).getClassMetadata();
+                if (ArrayUtils.contains(metadata.getInterfaceNames(),
+                        SyncJobActions.class.getName())) {
+
+                    try {
+                        Class jobClass = Class.forName(metadata.getClassName());
+                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
+                            jobActionsClasses.add(jobClass.getName());
+                        }
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("Could not load class {}",
+                                metadata.getClassName(), e);
+                    }
+                }
             }
+        } catch (IOException e) {
+            LOG.error("While searching for class implementing {}",
+                    SyncJobActions.class.getName(), e);
         }
 
         ModelAndView result = new ModelAndView();

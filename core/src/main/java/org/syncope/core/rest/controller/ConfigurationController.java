@@ -14,19 +14,21 @@
  */
 package org.syncope.core.rest.controller;
 
-import com.google.common.io.PatternFilenameFilter;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.reflections.Reflections;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,7 @@ import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
+import org.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 import org.syncope.core.util.ImportExport;
@@ -55,6 +58,9 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private ImportExport importExport;
+
+    @Autowired
+    private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -109,10 +115,8 @@ public class ConfigurationController extends AbstractController {
 
         ConfigurationTO result;
         try {
-            SyncopeConf syncopeConfiguration =
-                    confDAO.find(key);
-            result = configurationDataBinder.getConfigurationTO(
-                    syncopeConfiguration);
+            SyncopeConf conf = confDAO.find(key);
+            result = configurationDataBinder.getConfigurationTO(conf);
         } catch (MissingConfKeyException e) {
             LOG.error("Could not find configuration key '" + key
                     + "', returning null");
@@ -143,17 +147,37 @@ public class ConfigurationController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/validators")
     public ModelAndView getValidators() {
-        Reflections reflections = new Reflections(
-                "org.syncope.core.persistence.validation");
-
-        Set<Class<? extends Validator>> subTypes =
-                reflections.getSubTypesOf(Validator.class);
+        CachingMetadataReaderFactory cachingMetadataReaderFactory =
+                new CachingMetadataReaderFactory();
 
         Set<String> validators = new HashSet<String>();
-        for (Class validatorClass : subTypes) {
-            if (!Modifier.isAbstract(validatorClass.getModifiers())) {
-                validators.add(validatorClass.getName());
+        try {
+            for (Resource resource : resResolver.getResources(
+                    "classpath:org/syncope/core/persistence/validation/"
+                    + "attrvalue/*.class")) {
+
+                ClassMetadata metadata =
+                        cachingMetadataReaderFactory.getMetadataReader(
+                        resource).getClassMetadata();
+                if (ArrayUtils.contains(metadata.getInterfaceNames(),
+                        Validator.class.getName())
+                        || AbstractValidator.class.getName().equals(
+                        metadata.getSuperClassName())) {
+
+                    try {
+                        Class jobClass = Class.forName(metadata.getClassName());
+                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
+                            validators.add(jobClass.getName());
+                        }
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("Could not load class {}",
+                                metadata.getClassName(), e);
+                    }
+                }
             }
+        } catch (IOException e) {
+            LOG.error("While searching for class implementing {}",
+                    Validator.class.getName(), e);
         }
 
         return new ModelAndView().addObject(validators);
@@ -162,27 +186,34 @@ public class ConfigurationController extends AbstractController {
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/mailTemplates")
-    public ModelAndView getMailTemplates()
-            throws URISyntaxException {
-
-        String[] templatesFiles = new File(getClass().getResource(
-                "/mailTemplates").toURI()).list(
-                new PatternFilenameFilter(".*\\.vm"));
+    public ModelAndView getMailTemplates() {
+        CachingMetadataReaderFactory cachingMetadataReaderFactory =
+                new CachingMetadataReaderFactory();
 
         Set<String> htmlTemplates = new HashSet<String>();
         Set<String> textTemplates = new HashSet<String>();
 
-        for (String templateFile : templatesFiles) {
-            if (templateFile.endsWith(".html.vm")) {
-                htmlTemplates.add(templateFile.substring(
-                        0, templateFile.indexOf(".html.vm")));
-            } else if (templateFile.endsWith(".txt.vm")) {
-                textTemplates.add(templateFile.substring(
-                        0, templateFile.indexOf(".txt.vm")));
-            } else {
-                LOG.warn("Unexpected file found: {}, ignoring...",
-                        templateFile);
+        try {
+            for (Resource resource : resResolver.getResources(
+                    "classpath:/mailTemplates/*.vm")) {
+
+                String template = resource.getURL().toExternalForm();
+                if (template.endsWith(".html.vm")) {
+                    htmlTemplates.add(template.substring(
+                            template.indexOf("mailTemplates/") + 14,
+                            template.indexOf(".html.vm")));
+                } else if (template.endsWith(".txt.vm")) {
+                    textTemplates.add(template.substring(
+                            template.indexOf("mailTemplates/") + 14,
+                            template.indexOf(".txt.vm")));
+                } else {
+                    LOG.warn("Unexpected template found: {}, ignoring...",
+                            template);
+                }
             }
+        } catch (IOException e) {
+            LOG.error("While searching for class implementing {}",
+                    Validator.class.getName(), e);
         }
 
         // Only templates available both as HTML and TEXT are considered
