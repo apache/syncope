@@ -423,7 +423,7 @@ public class ResourceTestITCase extends AbstractTest {
                 BASE_URL + "resource/schema/{resourceName}/list",
                 String[].class, "resource-testdb"));
         assertNotNull(schemaNames);
-        assertEquals(1, schemaNames.size());
+        assertEquals(0, schemaNames.size());
 
         schemaNames = Arrays.asList(restTemplate.getForObject(
                 BASE_URL + "resource/schema/{resourceName}/list?showAll=true",

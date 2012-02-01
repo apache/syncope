@@ -137,6 +137,7 @@ public class TaskDataBinder {
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
+        task.setSyncStatus(taskTO.isSyncStatus());
 
         task.setJobActionsClassName(taskTO.getJobActionsClassName());
     }

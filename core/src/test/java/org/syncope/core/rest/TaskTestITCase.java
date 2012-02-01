@@ -320,8 +320,10 @@ public class TaskTestITCase extends AbstractTest {
         // check for sync policy
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
                 UserTO.class, userTO.getId());
+
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
+        assertEquals("active", userTO.getStatus());
         assertEquals("test9@syncope.org",
                 userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.org",
@@ -356,6 +358,22 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(usersPost);
         assertTrue("Expected " + (usersPre + 9) + ", found " + usersPost,
                 usersPost == usersPre + 9);
+
+        // Check for issue 215: 
+        // * expected disabled user test1
+        // * expected enabled user test2
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read.json?username=test1",
+                UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("suspended", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read.json?username=test3",
+                UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
     }
 
     @Test

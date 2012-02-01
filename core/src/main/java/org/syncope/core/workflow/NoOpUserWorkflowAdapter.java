@@ -43,9 +43,21 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 "create", "activate", "update",
                 "suspend", "reactivate", "delete"});
 
+    public static final String ENABLED = "enabled";
+
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO,
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(
+            final UserTO userTO,
             final boolean disablePwdPolicyCheck)
+            throws WorkflowException {
+        return create(userTO, disablePwdPolicyCheck, null);
+    }
+
+    @Override
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(
+            final UserTO userTO,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled)
             throws WorkflowException {
 
         SyncopeUser user = new SyncopeUser();
@@ -57,14 +69,25 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             user.removeClearPassword();
         }
 
-        user.setStatus("created");
+        String status;
+        boolean propagate_enable;
+
+        if (enabled == null) {
+            status = "created";
+            propagate_enable = true;
+        } else {
+            status = enabled ? "active" : "suspended";
+            propagate_enable = enabled;
+        }
+
+        user.setStatus(status);
         user = userDAO.save(user);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE,
-                user.getResourceNames());
+        propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
+
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), Boolean.TRUE),
+                new DefaultMapEntry(user.getId(), propagate_enable),
                 propByRes, "create");
     }
 

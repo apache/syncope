@@ -61,12 +61,20 @@ public class AccessTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
 
         selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[@id='tabs']/ul/li[2]/a/span\");",
+                "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
 
         selenium.click("css=img[alt=\"Tasks\"]");
-        selenium.waitForPageToLoad("30000");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[@id='tabs']/ul/li[2]/a/span\");",
+                "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
     }

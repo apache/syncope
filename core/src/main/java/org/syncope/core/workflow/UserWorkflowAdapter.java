@@ -48,8 +48,25 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO,
+    WorkflowResult<Map.Entry<Long, Boolean>> create(
+            UserTO userTO,
             boolean disablePwdPolicyCheck)
+            throws UnauthorizedRoleException, WorkflowException;
+
+    /**
+     * Create an user, optionally disabling password policy check.
+     *
+     * @param userTO user to be created and wether to propagate it as active
+     * @param disablePwdPolicyCheck disable password policy check?
+     * @param enabled specify true/false to force active/supended status.
+     * @return user just created
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws WorkflowException workflow exception
+     */
+    WorkflowResult<Map.Entry<Long, Boolean>> create(
+            UserTO userTO,
+            boolean disablePwdPolicyCheck,
+            final Boolean enabled)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**

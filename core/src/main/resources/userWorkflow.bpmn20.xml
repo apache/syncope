@@ -35,7 +35,7 @@
         <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
         
         <exclusiveGateway id="createGW"/>
-        <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="activate">
+        <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
             <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
         </sequenceFlow>
         <sequenceFlow id="create2CreateApproval" sourceRef="createGW" targetRef="createApproval">
@@ -53,11 +53,23 @@
         <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
         
         <exclusiveGateway id="createApprovalGW"/>
-        <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="activate">
+        <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="enableGW">
             <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
         </sequenceFlow>
         <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
             <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+        </sequenceFlow>
+        
+        <!-- activate user if suspension is not required -->
+        <exclusiveGateway id="enableGW"/>
+        <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
+            <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
+            <conditionExpression xsi:type="tFormalExpression">${enabled}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
+            <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
         </sequenceFlow>
         
         <!-- Comment the following two lines, uncomment the lines below and change

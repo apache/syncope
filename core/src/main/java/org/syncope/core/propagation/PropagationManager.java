@@ -628,8 +628,23 @@ public class PropagationManager {
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
                 }
+
                 if (preparedAttribute.getValue() != null) {
-                    attributes.add(preparedAttribute.getValue());
+                    final Attribute alreadyAdded = AttributeUtil.find(
+                            preparedAttribute.getValue().getName(), attributes);
+
+                    if (alreadyAdded != null) {
+                        attributes.remove(alreadyAdded);
+
+                        Set values = new HashSet(alreadyAdded.getValue());
+                        values.addAll(preparedAttribute.getValue().getValue());
+
+                        attributes.add(AttributeBuilder.build(
+                                preparedAttribute.getValue().getName(), values));
+                    } else {
+                        attributes.add(preparedAttribute.getValue());
+                    }
+
                 }
             } catch (Throwable t) {
                 LOG.debug("Attribute '{}' processing failed",

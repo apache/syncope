@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -240,15 +241,12 @@ public class SyncJob extends AbstractJob {
 
         // 1. fill with data from connector object
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute;
-            if (mapping.isAccountid()) {
-                attribute = obj.getAttributeByName(Uid.NAME);
-            } else if (mapping.isPassword()) {
-                attribute = obj.getAttributeByName(
-                        OperationalAttributes.PASSWORD_NAME);
-            } else {
-                attribute = obj.getAttributeByName(mapping.getExtAttrName());
-            }
+            Attribute attribute = obj.getAttributeByName(
+                    mapping.isAccountid()
+                    ? Uid.NAME
+                    : mapping.isPassword()
+                    ? OperationalAttributes.PASSWORD_NAME
+                    : mapping.getExtAttrName());
 
             AttributeTO attributeTO;
             switch (mapping.getIntMappingType()) {
@@ -364,16 +362,12 @@ public class SyncJob extends AbstractJob {
         userMod.setId(userId);
 
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute;
-
-            if (mapping.isAccountid()) {
-                attribute = obj.getAttributeByName(Uid.NAME);
-            } else if (mapping.isPassword()) {
-                attribute = obj.getAttributeByName(
-                        OperationalAttributes.PASSWORD_NAME);
-            } else {
-                attribute = obj.getAttributeByName(mapping.getExtAttrName());
-            }
+            Attribute attribute = obj.getAttributeByName(
+                    mapping.isAccountid()
+                    ? Uid.NAME
+                    : mapping.isPassword()
+                    ? OperationalAttributes.PASSWORD_NAME
+                    : mapping.getExtAttrName());
 
             List<Object> values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
@@ -504,7 +498,11 @@ public class SyncJob extends AbstractJob {
                 }
 
                 extValues.put(key, object.getAttributeByName(
-                        mapping.getExtAttrName()));
+                        mapping.isAccountid()
+                        ? Uid.NAME
+                        : mapping.isPassword()
+                        ? OperationalAttributes.PASSWORD_NAME
+                        : mapping.getExtAttrName()));
             }
 
             // search user by attributes specified into the policy
@@ -628,8 +626,28 @@ public class SyncJob extends AbstractJob {
             result.setStatus(Status.SUCCESS);
         } else {
             try {
+                Boolean enabled = null;
+
+                // --------------------------
+                // Check for status synchronization ...
+                // --------------------------
+                if (((SyncTask) this.task).isSyncStatus()) {
+                    Attribute status = AttributeUtil.find(
+                            OperationalAttributes.ENABLE_NAME,
+                            delta.getObject().getAttributes());
+
+                    if (status != null) {
+                        enabled = status != null
+                                && status.getValue() != null
+                                && !status.getValue().isEmpty()
+                                ? (Boolean) status.getValue().get(0) : null;
+                    }
+                }
+                // --------------------------
+
                 WorkflowResult<Map.Entry<Long, Boolean>> created =
-                        wfAdapter.create(userTO, true);
+                        wfAdapter.create(userTO, true, enabled);
+
                 List<PropagationTask> tasks =
                         propagationManager.getCreateTaskIds(
                         created, userTO.getPassword(), null,
@@ -637,8 +655,7 @@ public class SyncJob extends AbstractJob {
                         ((SyncTask) this.task).getResource().getName()));
                 propagationManager.execute(tasks);
 
-                userTO = userDataBinder.getUserTO(
-                        created.getResult().getKey());
+                userTO = userDataBinder.getUserTO(created.getResult().getKey());
 
                 result.setUserId(created.getResult().getKey());
                 result.setUsername(userTO.getUsername());

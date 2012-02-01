@@ -119,5 +119,10 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
                 "performDelete", getString("updates"),
                 new PropertyModel<Boolean>(taskTO, "performDelete"), false);
         profile.add(deletes);
+
+        final AjaxCheckBoxPanel status = new AjaxCheckBoxPanel(
+                "syncStatus", getString("status"),
+                new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+        profile.add(status);
     }
 }

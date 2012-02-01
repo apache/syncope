@@ -54,6 +54,11 @@ public class SyncTask extends SchedTask {
     @Max(1)
     private Integer performDelete;
 
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer syncStatus;
+
     private String jobActionsClassName;
 
     /**
@@ -109,6 +114,14 @@ public class SyncTask extends SchedTask {
 
     public void setPerformDelete(boolean performDelete) {
         this.performDelete = getBooleanAsInteger(performDelete);
+    }
+
+    public boolean isSyncStatus() {
+        return isBooleanAsInteger(syncStatus);
+    }
+
+    public void setSyncStatus(final boolean syncStatus) {
+        this.syncStatus = getBooleanAsInteger(syncStatus);
     }
 
     public String getJobActionsClassName() {

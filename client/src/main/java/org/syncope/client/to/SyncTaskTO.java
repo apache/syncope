@@ -28,6 +28,8 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private boolean performDelete;
 
+    private boolean syncStatus;
+
     private String jobActionsClassName;
 
     public UserTO getUserTemplate() {
@@ -68,6 +70,14 @@ public class SyncTaskTO extends SchedTaskTO {
 
     public void setPerformDelete(boolean performDelete) {
         this.performDelete = performDelete;
+    }
+
+    public boolean isSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(boolean syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     public String getJobActionsClassName() {

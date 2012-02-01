@@ -91,6 +91,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String USER_TO = "userTO";
 
+    public static final String ENABLED = "enabled";
+
     public static final String USER_MOD = "userMod";
 
     public static final String EMAIL_KIND = "emailKind";
@@ -188,12 +190,23 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO,
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(
+            final UserTO userTO,
             final boolean disablePwdPolicyCheck)
+            throws WorkflowException {
+        return create(userTO, disablePwdPolicyCheck, null);
+    }
+
+    @Override
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(
+            final UserTO userTO,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled)
             throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(USER_TO, userTO);
+        variables.put(ENABLED, enabled);
 
         final ProcessInstance processInstance;
         try {
@@ -215,14 +228,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean enable = (Boolean) runtimeService.getVariable(
+        Boolean propagate_enable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
+
+        if (propagate_enable == null) {
+            propagate_enable = enabled;
+        }
 
         // save resources to be propagated and password for later -
         // after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE,
-                user.getResourceNames());
+        propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
+
         if (waitingForForm(user)) {
             runtimeService.setVariable(processInstance.getProcessInstanceId(),
                     PROP_BY_RESOURCE, propByRes);
@@ -236,7 +253,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), enable), propByRes,
+                new DefaultMapEntry(user.getId(), propagate_enable), propByRes,
                 getPerformedTasks(user));
     }
 

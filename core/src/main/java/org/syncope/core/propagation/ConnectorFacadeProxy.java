@@ -33,9 +33,11 @@ import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
@@ -580,8 +582,11 @@ public class ConnectorFacadeProxy {
         try {
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall || (!"__NAME__".equals(attrInfo.getName())
-                            && !"__PASSWORD__".equals(attrInfo.getName()))) {
+                    if (showall || (!Name.NAME.equals(attrInfo.getName())
+                            && !OperationalAttributes.PASSWORD_NAME.equals(
+                            attrInfo.getName())
+                            && !OperationalAttributes.ENABLE_NAME.equals(
+                            attrInfo.getName()))) {
 
                         resourceSchemaNames.add(attrInfo.getName());
                     }
