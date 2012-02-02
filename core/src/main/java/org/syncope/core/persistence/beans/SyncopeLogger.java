@@ -12,17 +12,26 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.core.persistence.beans;
 
-import org.syncope.client.AbstractBaseBean;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
 import org.syncope.types.LoggerLevel;
 
-public class LoggerTO extends AbstractBaseBean {
+@Entity
+public class SyncopeLogger extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -7794833835668648505L;
+    private static final long serialVersionUID = 943012777014416027L;
 
+    @Id
+    @Column(name = "logName")
     private String name;
 
+    @Column(name = "logLevel")
+    @Enumerated(EnumType.STRING)
     private LoggerLevel level;
 
     public LoggerLevel getLevel() {

@@ -53,7 +53,6 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ConfigurationRestClient;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.syncope.console.pages.panels.PoliciesPanel;
@@ -73,6 +72,7 @@ import org.syncope.console.rest.NotificationRestClient;
 import org.syncope.console.rest.WorkflowRestClient;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
 import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.syncope.types.LoggerLevel;
 
 /**
  * Configurations WebPage.
@@ -245,7 +245,8 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -272,7 +273,8 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -435,7 +437,8 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -462,7 +465,8 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -513,7 +517,8 @@ public class Configuration extends BasePage {
         AjaxLink createNotificationLink =
                 new AjaxLink("createNotificationLink") {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -664,17 +669,6 @@ public class Configuration extends BasePage {
         }
     }
 
-    enum LoggerLevel {
-
-        OFF,
-        ERROR,
-        WARN,
-        INFO,
-        DEBUG,
-        TRACE,
-        ALL
-    }
-
     private class LoggerPropertyList extends PropertyListView<LoggerTO> {
 
         private static final long serialVersionUID = 5911412425994616111L;
@@ -703,13 +697,12 @@ public class Configuration extends BasePage {
 
                 @Override
                 public LoggerLevel getObject() {
-                    return LoggerLevel.valueOf(
-                            item.getModelObject().getLevel());
+                    return item.getModelObject().getLevel();
                 }
 
                 @Override
                 public void setObject(final LoggerLevel object) {
-                    item.getModelObject().setLevel(object.toString());
+                    item.getModelObject().setLevel(object);
                 }
 
                 @Override
@@ -765,7 +758,7 @@ public class Configuration extends BasePage {
                 if (logger.getLevel() != null) {
                     loggerTO = new LoggerTO();
                     loggerTO.setName(logger.getName());
-                    loggerTO.setLevel(logger.getLevel().toString());
+                    loggerTO.setLevel(LoggerLevel.fromLevel(logger.getLevel()));
                     result.add(loggerTO);
                 }
             }
@@ -774,13 +767,13 @@ public class Configuration extends BasePage {
         }
 
         public boolean setLoggerLevel(final String name,
-                final String level) {
+                final LoggerLevel level) {
 
             LoggerContext lc =
                     (LoggerContext) LoggerFactory.getILoggerFactory();
             Logger logger = lc.getLogger(name);
             if (logger != null) {
-                logger.setLevel(Level.valueOf(level));
+                logger.setLevel(level.getLevel());
             }
 
             return logger != null;

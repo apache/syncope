@@ -41,6 +41,9 @@ public class SpringContextInitializer implements ServletContextAware,
     @Autowired
     private ActivitiWorkflowLoader activitiWorkflowLoader;
 
+    @Autowired
+    private LoggerLoader loggerLoader;
+
     @Override
     public void setServletContext(final ServletContext servletContext) {
     }
@@ -58,5 +61,6 @@ public class SpringContextInitializer implements ServletContextAware,
         connInstanceLoader.load();
         jobInstanceLoader.load();
         activitiWorkflowLoader.load();
+        loggerLoader.load();
     }
 }

@@ -16,19 +16,18 @@ package org.syncope.core.rest;
 
 import static org.junit.Assert.*;
 
-import ch.qos.logback.classic.Level;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.syncope.client.to.LoggerTO;
+import org.syncope.types.LoggerLevel;
 
-public class LogTestITCase extends AbstractTest {
+public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<LoggerTO> loggers = Arrays.asList(
-                restTemplate.getForObject(
-                BASE_URL + "log/controller/list", LoggerTO[].class));
+        List<LoggerTO> loggers = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "logger/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -36,12 +35,22 @@ public class LogTestITCase extends AbstractTest {
         }
     }
 
-    public void setLoggerLevel() {
-        LoggerTO logger = restTemplate.postForObject(
-                BASE_URL + "log/controller/{name}/{level}",
-                null, LoggerTO.class, "org.syncope.core.monitor", "INFO");
-        assertNotNull(logger);
+    @Test
+    public void setLevel() {
+        List<LoggerTO> loggers = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "logger/list", LoggerTO[].class));
+        assertNotNull(loggers);
+        int startSize = loggers.size();
 
-        assertEquals(Level.INFO, logger.getLevel());
+        LoggerTO logger = restTemplate.postForObject(
+                BASE_URL + "logger/set/{name}/{level}",
+                null, LoggerTO.class, "TEST", "INFO");
+        assertNotNull(logger);
+        assertEquals(LoggerLevel.INFO, logger.getLevel());
+
+        loggers = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "logger/list", LoggerTO[].class));
+        assertNotNull(loggers);
+        assertEquals(startSize + 1, loggers.size());
     }
 }

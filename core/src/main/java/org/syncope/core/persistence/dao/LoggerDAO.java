@@ -12,32 +12,20 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.core.persistence.dao;
 
-import org.syncope.client.AbstractBaseBean;
-import org.syncope.types.LoggerLevel;
+import java.util.List;
+import org.syncope.core.persistence.beans.SyncopeLogger;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public class LoggerTO extends AbstractBaseBean {
+public interface LoggerDAO extends DAO {
 
-    private static final long serialVersionUID = -7794833835668648505L;
+    SyncopeLogger find(String name);
 
-    private String name;
+    List<SyncopeLogger> findAll();
 
-    private LoggerLevel level;
+    SyncopeLogger save(SyncopeLogger logger)
+            throws InvalidEntityException;
 
-    public LoggerLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(final LoggerLevel level) {
-        this.level = level;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
+    void delete(String name);
 }

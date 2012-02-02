@@ -136,34 +136,13 @@
         <appender-ref ref="rest"/>
     </logger>
 
-    <logger name="org.hibernate" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="persistence"/>
-    </logger>
-    <logger name="org.hibernate.stat" additivity="false">
-        <level value="OFF"/>
-        <appender-ref ref="persistence"/>
-    </logger>
-    <logger name="org.hibernate.SQL" additivity="false">
-        <level value="OFF"/>
-        <appender-ref ref="persistence"/>
-    </logger>
-    <logger name="org.hibernate.type" additivity="false">
-        <level value="OFF"/>
-        <appender-ref ref="persistence"/>
-    </logger>
-
-    <logger name="org.apache.commons.httpclient" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
-    <logger name="httpclient" additivity="false">
+    <logger name="org.apache.http" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
 
     <!-- Log4JDBC -->
-    <logger name="jdbc.sqlonly" additivity="false">
+<!--    <logger name="jdbc.sqlonly" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
@@ -186,7 +165,7 @@
     <logger name="jdbc.connection" additivity="false">
         <level value="OFF"/>
         <appender-ref ref="test"/>
-    </logger>
+    </logger>-->
     <!-- /Log4JDBC -->
     
     <root>

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.types.LoggerLevel;
 
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {
@@ -33,39 +34,25 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all stored configurations.
+     *
      * @return ConfigurationTOs
      */
-    public List<ConfigurationTO> getAllConfigurations()
-            throws SyncopeClientCompositeErrorException {
-
-        List<ConfigurationTO> configurations = null;
-
-        configurations = Arrays.asList(
+    public List<ConfigurationTO> getAllConfigurations() {
+        return Arrays.asList(
                 restTemplate.getForObject(baseURL
                 + "configuration/list.json", ConfigurationTO[].class));
-
-        return configurations;
     }
 
-    /**
-     * Load an existent configuration.
-     * @return ConfigurationTO object if the configuration exists,
-     * null otherwise
-     */
-    public ConfigurationTO readConfiguration(String key)
-            throws SyncopeClientCompositeErrorException {
+    public ConfigurationTO readConfiguration(String key) {
 
-        ConfigurationTO configurationTO =
-                restTemplate.getForObject(baseURL
-                + "configuration/read/{key}.json", ConfigurationTO.class,
-                key);
-
-
-        return configurationTO;
+        return restTemplate.getForObject(
+                baseURL + "configuration/read/{key}.json",
+                ConfigurationTO.class, key);
     }
 
     /**
      * Create a new configuration.
+     *
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
@@ -81,6 +68,7 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
 
     /**
      * Update an existent configuration.
+     *
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
@@ -95,39 +83,32 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
             LOG.error("While updating a configuration", e);
             return false;
         }
-        return (configurationTO.equals(newConfigurationTO)) ? true : false;
+        return configurationTO.equals(newConfigurationTO);
     }
 
     /**
      * Deelete a configuration by key.
      */
-    public void deleteConfiguration(String key)
-            throws SyncopeClientCompositeErrorException {
-
+    public void deleteConfiguration(final String key) {
         restTemplate.delete(baseURL
-                + "configuration/delete/{key}.json",
-                key);
+                + "configuration/delete/{key}.json", key);
     }
 
     /**
      * Get all loggers.
+     *
      * @return LoggerTOs
      */
-    public List<LoggerTO> getLoggers()
-            throws SyncopeClientCompositeErrorException {
-
-        List<LoggerTO> loggers = Arrays.asList(
-                restTemplate.getForObject(
-                baseURL + "log/controller/list", LoggerTO[].class));
-
-        return loggers;
+    public List<LoggerTO> getLoggers() {
+        return Arrays.asList(restTemplate.getForObject(
+                baseURL + "logger/list", LoggerTO[].class));
     }
 
-    public boolean setLoggerLevel(final String name, final String level) {
+    public boolean setLoggerLevel(final String name, final LoggerLevel level) {
         boolean result;
         try {
             restTemplate.postForObject(
-                    baseURL + "log/controller/{name}/{level}",
+                    baseURL + "logger/set/{name}/{level}",
                     null, LoggerTO.class, name, level);
             result = true;
         } catch (SyncopeClientCompositeErrorException e) {
