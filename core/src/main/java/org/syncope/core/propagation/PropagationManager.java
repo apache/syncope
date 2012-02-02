@@ -172,8 +172,8 @@ public class PropagationManager {
      * result from workflow.
      * @param password to be set.
      * @param vAttrs virtual attributes to be set.
-     * @param syncResourceNames external resources performing sync, hence
-     * not to be considered for propagation.
+     * @param syncResourceNames external resources performing sync, hence not to
+     * be considered for propagation.
      * @return list of propagation tasks.
      * @throws NotFoundException if userId is not found.
      */
@@ -204,14 +204,14 @@ public class PropagationManager {
     }
 
     /**
-     * Performs update on each resource associated to the user excluding the 
+     * Performs update on each resource associated to the user excluding the
      * specified into 'resourceNames' parameter.
      *
      * @param user to be propagated.
      * @param enable wether user must be enabled or not.
-     * @param syncResourceNames external resource names not to be considered 
-     * for propagation. Use this during sync and disable/enable actions limited
-     * to the external resources only.
+     * @param syncResourceNames external resource names not to be considered for
+     * propagation. Use this during sync and disable/enable actions limited to
+     * the external resources only.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
@@ -282,9 +282,9 @@ public class PropagationManager {
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
-     * @param syncResourceNames external resource names not to be considered 
-     * for propagation. Use this during sync and disable/enable actions limited
-     * to the external resources only.
+     * @param syncResourceNames external resource names not to be considered for
+     * propagation. Use this during sync and disable/enable actions limited to
+     * the external resources only.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
@@ -347,11 +347,10 @@ public class PropagationManager {
     }
 
     /**
-     * Perform delete on each resource associated to the user.
-     * It is possible to ask for a mandatory provisioning for some resources
-     * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stopped if the
-     * creation fails onto a mandatory resource.
+     * Perform delete on each resource associated to the user. It is possible to
+     * ask for a mandatory provisioning for some resources specifying a set of
+     * resource names. Exceptions won't be ignored and the process will be
+     * stopped if the creation fails onto a mandatory resource.
      *
      * @param userId to be deleted
      * @return list of propagation tasks
@@ -364,11 +363,10 @@ public class PropagationManager {
     }
 
     /**
-     * Perform delete on each resource associated to the user.
-     * It is possible to ask for a mandatory provisioning for some resources
-     * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stopped if the
-     * creation fails onto a mandatory resource.
+     * Perform delete on each resource associated to the user. It is possible to
+     * ask for a mandatory provisioning for some resources specifying a set of
+     * resource names. Exceptions won't be ignored and the process will be
+     * stopped if the creation fails onto a mandatory resource.
      *
      * @param userId to be deleted
      * @param syncResourceName name of external resource performing sync, hence
@@ -424,7 +422,7 @@ public class PropagationManager {
 
     /**
      * Prepare an attribute for sending to a connector instance.
-     * 
+     *
      * @param mapping schema mapping for the given attribute
      * @param user given user
      * @param password clear-text password
@@ -640,7 +638,8 @@ public class PropagationManager {
                         values.addAll(preparedAttribute.getValue().getValue());
 
                         attributes.add(AttributeBuilder.build(
-                                preparedAttribute.getValue().getName(), values));
+                                preparedAttribute.getValue().getName(),
+                                values));
                     } else {
                         attributes.add(preparedAttribute.getValue());
                     }
@@ -653,9 +652,12 @@ public class PropagationManager {
         }
 
         if (!StringUtils.hasText(accountId)) {
-            throw new IllegalArgumentException(
-                    "Missing accountId specification for "
-                    + resource.getName());
+            // LOG error but avoid to throw exception: leave it to the 
+            //external resource
+
+            LOG.error(
+                    "Failure preparing attributes for '{}': missing accountId",
+                    resource.getName());
         }
 
         // Evaluate AccountLink expression
@@ -717,17 +719,19 @@ public class PropagationManager {
             }
 
             for (ExternalResource resource : resourcesByPriority) {
-                Map.Entry<String, Set<Attribute>> preparedAttrs =
-                        prepareAttributes(user, password, enable, resource);
 
                 PropagationTask task = new PropagationTask();
                 task.setResource(resource);
                 task.setSyncopeUser(user);
                 task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
-                task.setAccountId(preparedAttrs.getKey());
                 task.setOldAccountId(
                         propByRes.getOldAccountId(resource.getName()));
+
+                Map.Entry<String, Set<Attribute>> preparedAttrs =
+                        prepareAttributes(user, password, enable, resource);
+
+                task.setAccountId(preparedAttrs.getKey());
                 task.setAttributes(preparedAttrs.getValue());
 
                 tasks.add(task);

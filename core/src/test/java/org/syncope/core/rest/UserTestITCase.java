@@ -1569,18 +1569,43 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/update", userMod, UserTO.class);
         assertNotNull(userTO);
 
-        final Map<String, PropagationTaskExecStatus> propStatusMap =
+        final Map<String, PropagationTaskExecStatus> statuses =
                 userTO.getPropagationStatusMap();
 
-        assertNotNull(propStatusMap);
-        assertEquals(1, propStatusMap.size());
-        assertEquals(1, propStatusMap.size());
+        assertNotNull(statuses);
+        assertEquals(1, statuses.size());
 
         final PropagationTaskExecStatus exec =
-                propStatusMap.values().iterator().next();
+                statuses.values().iterator().next();
 
         assertNotNull(exec);
-        assertEquals("resource-testdb", propStatusMap.keySet().iterator().next());
+        assertEquals("resource-testdb", statuses.keySet().iterator().next());
         assertTrue(exec.isSuccessful());
+    }
+
+    @Test
+    public final void issue281() {
+        UserTO userTO = getSampleTO("issue281@syncope-idm.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.addResource("resource-csv");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        final Map<String, PropagationTaskExecStatus> statuses =
+                userTO.getPropagationStatusMap();
+
+        assertNotNull(statuses);
+        assertEquals(1, statuses.size());
+
+        final PropagationTaskExecStatus exec =
+                statuses.values().iterator().next();
+
+        assertNotNull(exec);
+        assertEquals("resource-csv", statuses.keySet().iterator().next());
+        assertFalse(exec.isSuccessful());
     }
 }
