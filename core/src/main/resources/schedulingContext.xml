@@ -37,7 +37,7 @@
     </bean>
     
     <bean id="scheduler"
-	  class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
           lazy-init="false" depends-on="quartzDbInitializer">
         <property name="autoStartup" value="true"/>
         <property name="applicationContextSchedulerContextKey" value="applicationContext"/>

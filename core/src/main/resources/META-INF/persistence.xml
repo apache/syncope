@@ -18,6 +18,7 @@
              http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
     <persistence-unit name="syncopePersistenceUnit">
+        <mapping-file>META-INF/orm.xml</mapping-file>
         <validation-mode>NONE</validation-mode>
         
         <properties>

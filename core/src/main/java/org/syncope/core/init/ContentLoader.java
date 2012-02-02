@@ -52,7 +52,6 @@ public class ContentLoader {
 
     @Transactional
     public void load() {
-
         // 0. DB connection, to be used below
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
@@ -78,8 +77,16 @@ public class ContentLoader {
             existingData = true;
         } finally {
             try {
-                resultSet.close();
-                statement.close();
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                LOG.error("While closing SQL result set", e);
+            }
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
             } catch (SQLException e) {
                 LOG.error("While closing SQL statement", e);
             }

@@ -195,7 +195,7 @@
             <artifactId>groovy-all</artifactId>
             <scope>provided</scope>
         </dependency>
-            
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -512,6 +512,7 @@
                         <deployables>
                             <deployable>
                                 <location>${cargo.run.dir}</location>
+                                <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
                                 <properties>
                                     <context>syncope</context>
                                 </properties>
@@ -573,6 +574,8 @@
                     <exclude>oracle/**</exclude>
                     <exclude>postgres/**</exclude>
                     <exclude>mysql/**</exclude>
+                    <exclude>glassfish/**</exclude>
+                    <exclude>jboss/**</exclude>
                 </excludes>
             </testResource>
         </testResources>
@@ -941,7 +944,7 @@
             <build>
                 <defaultGoal>clean verify</defaultGoal>
 
-                <plugins>       
+                <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -959,7 +962,7 @@
                             <container>
                                 <containerId>glassfish3x</containerId>
                                 <zipUrlInstaller>
-                                    <url>http://download.java.net/glassfish/${glassfish.version}/release/glassfish-${glassfish.version}.zip</url>
+                                    <url>http://download.java.net/glassfish/3.1.1/release/glassfish-3.1.1.zip</url>
                                     <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                                     <extractDir>${java.io.tmpdir}</extractDir>
                                 </zipUrlInstaller>
@@ -969,6 +972,188 @@
                         </configuration>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>jboss-it</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.syncope</groupId>
+                    <artifactId>syncope-hibernate-enhancer</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-all</artifactId>
+                </dependency>
+                
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <defaultGoal>clean verify</defaultGoal>
+
+                <plugins>   
+                
+                    <plugin>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>enhancer</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <classpathScope>compile</classpathScope>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>enhance-hibernate</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>org.syncope.hibernate.HibernateEnhancer</argument>
+                                        <argument>${project.build.directory}/classes</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>rename-persistence.xml</id>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <target>
+                                        <delete file="${project.build.directory}/classes/META-INF/persistence.xml"/>
+                                        <copy file="src/main/resources/META-INF/persistence.xml" tofile="${project.build.directory}/classes/META-INF/spring-persistence.xml"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+      
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <packagingExcludes>WEB-INF/lib/dom4j*.jar,WEB-INF/lib/mail*.jar</packagingExcludes>
+                        </configuration>
+                    </plugin>
+                
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <container>
+                                <containerId>jboss71x</containerId>
+                                <zipUrlInstaller>
+                                    <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.CR1b/jboss-as-7.1.0.CR1b.zip</url>
+                                    <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                                    <extractDir>${java.io.tmpdir}</extractDir>
+                                </zipUrlInstaller>
+                                <log>${cargo.log}</log>
+                                <output>${cargo.output}</output>
+                            </container>
+                            <configuration>
+                                <properties>
+                                    <cargo.jvmargs>-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                                </properties>
+                            </configuration>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-container</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-container</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistenceContextEMFactory.xml</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>src/test/resources/jboss</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>persistenceContextEMFactory.xml</include>
+                            <include>persistence.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistence.properties</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/resources/jboss</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>persistence.properties</include>
+                        </includes>
+                    </testResource>
+                </testResources>
             </build>
         </profile>
     </profiles>

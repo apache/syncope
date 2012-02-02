@@ -169,7 +169,6 @@
         <apacheds.version>1.5.7</apacheds.version>
 
         <tomcat.version>7.0.25</tomcat.version>
-        <glassfish.version>3.1.1</glassfish.version>
  
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
@@ -625,9 +624,9 @@
                     <version>1.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.5</version>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.openjpa</groupId>
