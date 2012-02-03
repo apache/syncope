@@ -14,7 +14,6 @@
  */
 package org.syncope.core.rest.controller;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -226,17 +225,18 @@ public class ConfigurationController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/dbexport")
     @Transactional(readOnly = true)
-    public ModelAndView dbExport() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    public void dbExport(final HttpServletResponse response) {
         try {
-            importExport.export(baos);
+            importExport.export(response.getOutputStream());
+            response.flushBuffer();
 
             LOG.debug("Default content successfully exported");
         } catch (Throwable t) {
             LOG.error("While exporting content", t);
         }
 
-        return new ModelAndView("dbExport").addObject(
-                "export", new String(baos.toByteArray()));
+        response.setContentType("application/xml;charset=UTF-8");
+        response.setHeader("Content-Disposition",
+                "attachment; filename=content.xml");
     }
 }
