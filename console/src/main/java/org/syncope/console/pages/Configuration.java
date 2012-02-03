@@ -194,6 +194,11 @@ public class Configuration extends BasePage {
                 new WebMarkupContainer("coreLoggerContainer");
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                coreLoggerContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "loggerList"));
         add(coreLoggerContainer);
 
         ConsoleLoggerController consoleLoggerController =
@@ -207,6 +212,11 @@ public class Configuration extends BasePage {
                 new WebMarkupContainer("consoleLoggerContainer");
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                consoleLoggerContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "loggerList"));
         add(consoleLoggerContainer);
     }
 
@@ -279,8 +289,8 @@ public class Configuration extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            confRestClient.deleteConfiguration(configurationTO.
-                                    getKey());
+                            confRestClient.deleteConfiguration(
+                                    configurationTO.getKey());
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
@@ -677,8 +687,7 @@ public class Configuration extends BasePage {
 
         public LoggerPropertyList(
                 final ConsoleLoggerController consoleLoggerController,
-                final String id,
-                final List<? extends LoggerTO> list) {
+                final String id, final List<? extends LoggerTO> list) {
 
             super(id, list);
             this.consoleLoggerController = consoleLoggerController;
@@ -738,13 +747,15 @@ public class Configuration extends BasePage {
                 }
             });
 
-
+            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE,
+                    xmlRolesReader.getAllAllowedRoles(
+                    "Configuration", "loggerSetLevel"));
 
             item.add(level);
         }
     }
 
-    private class ConsoleLoggerController implements Serializable {
+    private static class ConsoleLoggerController implements Serializable {
 
         private static final long serialVersionUID = -1550459341476431714L;
 
