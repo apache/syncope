@@ -740,7 +740,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForInt(
-                    "SELECT id FROM test WHERE id=?", userTO.getId());
+                    "SELECT id FROM test WHERE id=?", userTO.getUsername());
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -776,9 +776,11 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getPropagationStatusMap().isEmpty());
         exception = null;
         try {
-            int id = jdbcTemplate.queryForInt(
-                    "SELECT id FROM test WHERE id=?", userTO.getId());
-            assertEquals(userTO.getId(), id);
+            String username = jdbcTemplate.queryForObject(
+                    "SELECT id FROM test WHERE id=?",
+                    String.class,
+                    userTO.getUsername());
+            assertEquals(userTO.getUsername(), username);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -1396,7 +1398,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        String dbTableUID = String.valueOf(userTO.getId());
+        String dbTableUID = userTO.getUsername();
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(
@@ -1461,24 +1463,27 @@ public class UserTestITCase extends AbstractTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
-        int id = jdbcTemplate.queryForInt(
-                "SELECT id FROM test WHERE id=?", userTO.getId());
+        String username = jdbcTemplate.queryForObject(
+                "SELECT id FROM test WHERE id=?",
+                String.class,
+                userTO.getUsername());
 
-        assertEquals(userTO.getId(), id);
+        assertEquals(userTO.getUsername(), username);
 
         UserMod userMod = new UserMod();
 
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeRemoved(
-                "resource-testdb");
+        userMod.addResourceToBeRemoved("resource-testdb");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
 
         assertTrue(userTO.getResources().isEmpty());
 
-        jdbcTemplate.queryForInt(
-                "SELECT id FROM test WHERE id=?", userTO.getId());
+        jdbcTemplate.queryForObject(
+                "SELECT id FROM test WHERE id=?",
+                String.class,
+                userTO.getUsername());
     }
 
     @Test

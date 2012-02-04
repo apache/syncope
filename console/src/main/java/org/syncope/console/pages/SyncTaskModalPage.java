@@ -124,5 +124,10 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
                 "syncStatus", getString("status"),
                 new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
         profile.add(status);
+
+        final AjaxCheckBoxPanel fullReconciliation = new AjaxCheckBoxPanel(
+                "fullReconciliation", getString("fullReconciliation"),
+                new PropertyModel<Boolean>(taskTO, "fullReconciliation"), false);
+        profile.add(fullReconciliation);
     }
 }

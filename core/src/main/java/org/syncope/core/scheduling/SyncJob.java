@@ -26,6 +26,7 @@ import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -349,12 +350,11 @@ public class SyncJob extends AbstractJob {
     /**
      * Build an UserMod out of connector object attributes and schema mapping.
      *
-     * @param user user to be updated
+     * @param userId user to be updated
      * @param obj connector object
      * @return UserMod for the user to be updated
      */
-    private UserMod getUserMod(final Long userId,
-            final ConnectorObject obj) {
+    private UserMod getUserMod(final Long userId, final ConnectorObject obj) {
 
         final SyncTask syncTask = (SyncTask) this.task;
 
@@ -618,6 +618,7 @@ public class SyncJob extends AbstractJob {
         result.setOperation(Operation.CREATE);
 
         UserTO userTO = getUserTO(delta.getObject());
+        
         actions.beforeCreate(delta, userTO);
 
         if (dryRun) {
@@ -698,6 +699,7 @@ public class SyncJob extends AbstractJob {
 
                     final UserMod userMod =
                             getUserMod(userId, delta.getObject());
+                    
                     actions.beforeUpdate(delta, userTO, userMod);
 
                     result.setStatus(Status.SUCCESS);
@@ -966,9 +968,13 @@ public class SyncJob extends AbstractJob {
 
         final List<SyncDelta> deltas;
         try {
-            deltas = connector.sync(syncTask.getResource().getSyncToken());
+            if (syncTask.isFullReconciliation()) {
+                deltas = connector.getAllObjects(ObjectClass.ACCOUNT, null);
+            } else {
+                deltas = connector.sync(syncTask.getResource().getSyncToken());
+            }
 
-            if (!dryRun) {
+            if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
                     ExternalResource resource =
                             resourceDAO.find(syncTask.getResource().getName());
@@ -1012,7 +1018,7 @@ public class SyncJob extends AbstractJob {
                     delta.getDeltaType(), delta.getUid().getUidValue());
 
             List<Long> users = findExistingUsers(delta);
-
+            
             switch (delta.getDeltaType()) {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {

@@ -101,7 +101,7 @@ public class TaskController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/create/sync")
     public TaskTO createSyncTask(final HttpServletResponse response,
-            final @RequestBody SyncTaskTO taskTO)
+            @RequestBody final SyncTaskTO taskTO)
             throws NotFoundException {
 
         return createSchedTask(response, taskTO);
@@ -110,8 +110,9 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create/sched")
-    public TaskTO createSchedTask(final HttpServletResponse response,
-            final @RequestBody SchedTaskTO taskTO)
+    public TaskTO createSchedTask(
+            final HttpServletResponse response,
+            @RequestBody final SchedTaskTO taskTO)
             throws NotFoundException {
 
         LOG.debug("Creating task " + taskTO);

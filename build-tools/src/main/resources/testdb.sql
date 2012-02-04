@@ -13,8 +13,8 @@ ALTER USER sa SET PASSWORD '${testdb.password}';
 
 DROP TABLE test IF EXISTS;
 CREATE TABLE test (
-id INTEGER PRIMARY KEY,
+id VARCHAR(50) PRIMARY KEY,
 password VARCHAR(255) NOT NULL,
 status VARCHAR(5));
 
-INSERT INTO test VALUES (1, 'password', 'false');
+INSERT INTO test VALUES ('testuser1', 'password', 'false');

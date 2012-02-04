@@ -30,6 +30,8 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private boolean syncStatus;
 
+    private boolean fullReconciliation;
+
     private String jobActionsClassName;
 
     public UserTO getUserTemplate() {
@@ -78,6 +80,14 @@ public class SyncTaskTO extends SchedTaskTO {
 
     public void setSyncStatus(boolean syncStatus) {
         this.syncStatus = syncStatus;
+    }
+
+    public boolean isFullReconciliation() {
+        return fullReconciliation;
+    }
+
+    public void setFullReconciliation(boolean fullReconciliation) {
+        this.fullReconciliation = fullReconciliation;
     }
 
     public String getJobActionsClassName() {

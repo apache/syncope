@@ -138,6 +138,7 @@ public class TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
+        task.setFullReconciliation(taskTO.isFullReconciliation());
 
         task.setJobActionsClassName(taskTO.getJobActionsClassName());
     }

@@ -65,7 +65,7 @@ public class TaskTest extends AbstractTest {
         assertEquals(1, sclist.size());
 
         List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
-        assertEquals(1, sylist.size());
+        assertEquals(2, sylist.size());
 
         ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);

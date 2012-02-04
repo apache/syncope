@@ -13,7 +13,6 @@
  */
 package org.syncope.core.init;
 
-import org.syncope.core.util.ConnBundleManager;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -30,6 +29,7 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
+import org.syncope.core.util.ConnBundleManager;
 import org.syncope.types.ConnConfProperty;
 
 /**

@@ -293,13 +293,16 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
-        // read executions before sync (dryrun test could be executed before)        
+        // read executions before sync (dryrun test could be executed before)
         int preSyncSize = taskTO.getExecutions().size();
 
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, taskTO.getId());
         assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = 20;
 
         // wait for sync completion (executions incremented)
         do {
@@ -315,7 +318,9 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
 
-        } while (preSyncSize == taskTO.getExecutions().size());
+            i++;
+
+        } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
 
         // check for sync policy
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
@@ -374,6 +379,85 @@ public class TaskTestITCase extends AbstractTest {
                 UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
+    }
+
+    @Test
+    public void reconcile() {
+        // Update sync task
+        SyncTaskTO task = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 7);
+        assertNotNull(task);
+
+        //  add user template
+        UserTO template = new UserTO();
+
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema("type");
+        attrTO.addValue("'type a'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("userId");
+        attrTO.addValue("'reconciled@syncope.org'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("fullname");
+        attrTO.addValue("'reconciled fullname'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("surname");
+        attrTO.addValue("'surname'");
+        template.addAttribute(attrTO);
+
+        task.setUserTemplate(template);
+
+        SyncTaskTO actual = restTemplate.postForObject(
+                BASE_URL + "task/update/sync", task, SyncTaskTO.class);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+
+        // read executions before sync (dryrun test could be executed before)
+        int preSyncSize = actual.getExecutions().size();
+
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null,
+                TaskExecTO.class, actual.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = 20;
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}",
+                    SyncTaskTO.class, actual.getId());
+
+            assertNotNull(actual);
+            assertNotNull(actual.getExecutions());
+
+            i++;
+
+        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
+
+        assertEquals(1, actual.getExecutions().size());
+
+        final String status = actual.getExecutions().get(0).getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        final UserTO userTO = restTemplate.getForObject(
+                BASE_URL + "user/read.json?username=testuser1", UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("reconciled@syncope.org",
+                userTO.getAttributeMap().get("userId").getValues().get(0));
     }
 
     @Test

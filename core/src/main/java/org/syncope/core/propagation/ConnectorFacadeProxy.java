@@ -30,19 +30,7 @@ import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ObjectClassInfo;
-import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.Schema;
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.identityconnectors.framework.common.objects.SyncToken;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
@@ -508,6 +496,45 @@ public class ConnectorFacadeProxy {
     }
 
     /**
+     * Get remote object used by the propagation manager in order to choose for
+     * a create (object doesn't exist) or an update (object exists).
+     *
+     * @param objectClass ConnId's object class
+     * @param options ConnId's OperationOptions
+     * @return ConnId's connector object for given uid
+     */
+    public List<SyncDelta> getAllObjects(
+            final ObjectClass objectClass,
+            final OperationOptions options) {
+
+        final List<SyncDelta> result = new ArrayList<SyncDelta>();
+
+        if (capabitilies.contains(ConnectorCapability.SEARCH)) {
+            connector.search(objectClass, null,
+                    new ResultsHandler() {
+
+                        @Override
+                        public boolean handle(final ConnectorObject obj) {
+                            final SyncDeltaBuilder bld = new SyncDeltaBuilder();
+                            bld.setObject(obj);
+                            bld.setUid(obj.getUid());
+                            bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
+                            bld.setToken(new SyncToken(""));
+
+                            return result.add(bld.build());
+                        }
+                    }, options);
+
+        } else {
+            LOG.info("Search was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    capabitilies);
+        }
+
+        return result;
+    }
+
+    /**
      * Read attribute for a given connector object.
      *
      * @param objectClass ConnId's object class
@@ -554,8 +581,8 @@ public class ConnectorFacadeProxy {
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
         try {
-            final ConnectorObject object = connector.getObject(objectClass, uid,
-                    options);
+            final ConnectorObject object =
+                    connector.getObject(objectClass, uid, options);
 
             for (String attribute : attributeNames) {
                 attributes.add(object.getAttributeByName(attribute));

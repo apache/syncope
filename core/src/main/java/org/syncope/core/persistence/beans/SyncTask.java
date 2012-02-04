@@ -59,6 +59,11 @@ public class SyncTask extends SchedTask {
     @Max(1)
     private Integer syncStatus;
 
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer fullReconciliation;
+
     private String jobActionsClassName;
 
     /**
@@ -122,6 +127,14 @@ public class SyncTask extends SchedTask {
 
     public void setSyncStatus(final boolean syncStatus) {
         this.syncStatus = getBooleanAsInteger(syncStatus);
+    }
+
+    public boolean isFullReconciliation() {
+        return isBooleanAsInteger(fullReconciliation);
+    }
+
+    public void setFullReconciliation(final boolean fullReconciliation) {
+        this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
     }
 
     public String getJobActionsClassName() {
