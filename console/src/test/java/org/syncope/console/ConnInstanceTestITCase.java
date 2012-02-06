@@ -84,4 +84,35 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 + "\"Error occurred during the requested operation\");",
                 "10000");
     }
+
+    @Test
+    public void checkConnection() {
+        selenium.click("css=img[alt=\"Resources\"]");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[3]/ul/li[2]/a");
+        selenium.click("//tr[2]/td[6]/span/span[7]/a");
+
+
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='version:textField']\");",
+                "30000");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='version:textField']\");",
+                "30000");
+
+        selenium.click("//div[2]/form/div[2]/"
+                + "div[2]/div/span/div[2]/div[27]/a/img");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent("
+                + "\"//div/ul/li/span[contains(text(),'Successful connecting to resource')]\");",
+                "30000");
+    }
 }

@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.connid.bundles.soap.WebServiceConnector;
+import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.databasetable.DatabaseTableConnector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -45,6 +47,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String connidSoapVersion;
 
+    private static String connidDbTableVersion;
+
     private static String bundlesDirectory;
 
     @BeforeClass
@@ -56,6 +60,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                     "/bundles.properties");
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
+            connidDbTableVersion = props.getProperty("connid.db.table.version");
             bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
@@ -344,5 +349,109 @@ public class ConnInstanceTestITCase extends AbstractTest {
                         getSchema().getDisplayName());
             }
         }
+    }
+
+    @Test
+    public void check() {
+
+        ConnInstanceTO connectorTO = new ConnInstanceTO();
+
+        // set connector version
+        connectorTO.setVersion(connidDbTableVersion);
+
+        // set connector name
+        connectorTO.setConnectorName(DatabaseTableConnector.class.getName());
+
+        // set bundle name
+        connectorTO.setBundleName("org.connid.bundles.db.table");
+
+        connectorTO.setDisplayName("H2Test");
+
+        // set the connector configuration using PropertyTO
+        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+
+        ConnConfPropSchema userSchema = new ConnConfPropSchema();
+        userSchema.setName("user");
+        userSchema.setType(String.class.getName());
+        userSchema.setRequired(false);
+        ConnConfProperty user = new ConnConfProperty();
+        user.setSchema(userSchema);
+        user.setValues(Collections.singletonList("sa"));
+
+        ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
+        keyColumnSchema.setName("keyColumn");
+        keyColumnSchema.setType(String.class.getName());
+        keyColumnSchema.setRequired(true);
+        ConnConfProperty keyColumn = new ConnConfProperty();
+        keyColumn.setSchema(keyColumnSchema);
+        keyColumn.setValues(Collections.singletonList("id"));
+
+        ConnConfPropSchema jdbcUrlTemplateSchema = new ConnConfPropSchema();
+        jdbcUrlTemplateSchema.setName("jdbcUrlTemplate");
+        jdbcUrlTemplateSchema.setType(String.class.getName());
+        jdbcUrlTemplateSchema.setRequired(true);
+        ConnConfProperty jdbcUrlTemplate = new ConnConfProperty();
+        jdbcUrlTemplate.setSchema(jdbcUrlTemplateSchema);
+        jdbcUrlTemplate.setValues(Collections.singletonList(
+                "jdbc:h2:tcp://localhost:9092/testdb"));
+
+        ConnConfPropSchema passwordColumnSchema = new ConnConfPropSchema();
+        passwordColumnSchema.setName("passwordColumn");
+        passwordColumnSchema.setType(String.class.getName());
+        passwordColumnSchema.setRequired(true);
+        ConnConfProperty passwordColumn = new ConnConfProperty();
+        passwordColumn.setSchema(passwordColumnSchema);
+        passwordColumn.setValues(Collections.singletonList("password"));
+
+        ConnConfPropSchema tableSchema = new ConnConfPropSchema();
+        tableSchema.setName("table");
+        tableSchema.setType(String.class.getName());
+        tableSchema.setRequired(true);
+        ConnConfProperty table = new ConnConfProperty();
+        table.setSchema(tableSchema);
+        table.setValues(Collections.singletonList("test"));
+
+        ConnConfPropSchema passwordSchema = new ConnConfPropSchema();
+        passwordSchema.setName("password");
+        passwordSchema.setType(GuardedString.class.getName());
+        passwordSchema.setRequired(true);
+        ConnConfProperty password = new ConnConfProperty();
+        password.setSchema(passwordSchema);
+        password.setValues(Collections.singletonList("sa"));
+
+        ConnConfPropSchema jdbcDriverSchema = new ConnConfPropSchema();
+        jdbcDriverSchema.setName("jdbcDriver");
+        jdbcDriverSchema.setType(String.class.getName());
+        jdbcDriverSchema.setRequired(true);
+        ConnConfProperty jdbcDriver = new ConnConfProperty();
+        jdbcDriver.setSchema(jdbcDriverSchema);
+        jdbcDriver.setValues(Collections.singletonList("org.h2.Driver"));
+
+        conf.add(user);
+        conf.add(keyColumn);
+        conf.add(jdbcUrlTemplate);
+        conf.add(passwordColumn);
+        conf.add(table);
+        conf.add(password);
+        conf.add(jdbcDriver);
+
+        // set connector configuration
+        connectorTO.setConfiguration(conf);
+
+        Boolean verify = restTemplate.postForObject(
+                BASE_URL + "connector/check.json",
+                connectorTO, Boolean.class);
+
+        assertTrue(verify);
+
+        conf.remove(password);
+        password.setValues(Collections.singletonList("password"));
+        conf.add(password);
+        
+        verify = restTemplate.postForObject(
+                BASE_URL + "connector/check.json",
+                connectorTO, Boolean.class);
+        
+        assertFalse(verify);
     }
 }

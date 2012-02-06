@@ -26,7 +26,6 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
@@ -231,41 +229,6 @@ public class ResourceController extends AbstractController {
         Collections.sort(result);
 
         return result;
-    }
-
-    @PreAuthorize("hasRole('RESOURCE_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/check/{resourceName}")
-    @Transactional(readOnly = true)
-    public ModelAndView check(
-            @PathVariable("resourceName") final String resourceName)
-            throws NotFoundException {
-
-        final ExternalResource resource = resourceDAO.find(resourceName);
-        if (resource == null) {
-            LOG.error("Missing resource: {}", resourceName);
-            throw new NotFoundException("Resource '" + resourceName + "'");
-        }
-
-        ConnectorFacadeProxy connector;
-        try {
-            connector = connLoader.getConnector(resource);
-        } catch (BeansException e) {
-            throw new NotFoundException(
-                    "Connector " + resource.getConnector().getId(), e);
-        }
-
-        Boolean verify = Boolean.FALSE;
-        try {
-            if (connector != null) {
-                connector.validate();
-                verify = Boolean.TRUE;
-            }
-        } catch (RuntimeException ignore) {
-            LOG.warn("Connector validation failed", ignore);
-        }
-
-        return new ModelAndView().addObject(verify);
     }
 
     @PreAuthorize("hasRole('RESOURCE_READ')")

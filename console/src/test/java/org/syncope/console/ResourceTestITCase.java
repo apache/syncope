@@ -53,7 +53,7 @@ public class ResourceTestITCase extends AbstractTest {
                 "30000");
 
         selenium.click("//tbody/tr[2]/td/input");
-        
+
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
 
@@ -95,5 +95,35 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//li[3]/a");
 
         selenium.click("css=a.w_close");
+    }
+
+    @Test
+    public void checkConnection() {
+        selenium.click("css=img[alt=\"Resources\"]");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//*[@id=\"users-contain\"]//"
+                + "*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                "30000");
+
+        selenium.click("//li[3]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[2]/"
+                + "div[3]/span/div/div/div/span[text()='endpoint']\");",
+                "30000");
+        
+        selenium.click("//div[2]/form/div[2]/div[3]/span/div[2]/a/img");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent("
+                + "\"//div/ul/li/span[contains(text(),"
+                + "'Successful connecting to resource')]\");",
+                "30000");
     }
 }

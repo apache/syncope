@@ -27,11 +27,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -48,9 +50,11 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ClassUtils;
+import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
+import org.syncope.client.util.ConnConfPropUtils;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.syncope.console.rest.ConnectorRestClient;
@@ -124,6 +128,10 @@ public class ResourceModalPage extends BaseModalPage {
     final ListView<SchemaMappingTO> mappings;
 
     final AjaxButton addSchemaMappingBtn;
+
+    final AjaxDropDownChoicePanel<ConnBundleTO> bundle =
+            new AjaxDropDownChoicePanel<ConnBundleTO>(
+            "bundle", "bundle", new Model(null), false);
 
     public ResourceModalPage(final PageReference callPageRef,
             final ModalWindow window, final ResourceTO resourceTO,
@@ -743,6 +751,39 @@ public class ResourceModalPage extends BaseModalPage {
                         target.add(connectorPropertiesContainer);
                     }
                 });
+
+        final AjaxLink check =
+                new IndicatingAjaxLink("check", new ResourceModel("check")) {
+
+                    private static final long serialVersionUID =
+                            -4199438518229098169L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        ConnInstanceTO connectorTO =
+                                connectorRestClient.read(
+                                resourceTO.getConnectorId());
+
+                        connectorTO.setConfiguration(
+                                ConnConfPropUtils.joinConnInstanceProperties(
+                                connectorTO.getConfigurationMap(),
+                                ConnConfPropUtils.getConnConfPropertyMap(
+                                resourceTO.getConnectorConfigurationProperties())));
+
+                            if (connectorRestClient.check(
+                                    connectorTO).booleanValue()) {
+                                info(getString("success_connection"));
+                            } else {
+                                error(getString("error_connection"));
+                            }
+                            
+                            target.add(feedbackPanel);  
+                    }
+                };
+
+        check.setEnabled(!connectorPropertiesModel.getObject().isEmpty());
+        connectorPropertiesContainer.add(check);
 
         //--------------------------------
         // Security container

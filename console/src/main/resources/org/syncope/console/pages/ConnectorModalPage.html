@@ -88,19 +88,25 @@
                                 <label for="version"><wicket:message key="overridable"/></label>
                             </div>
                         </div>
+                        <form wicket:id="connectorPropForm">
+                            <div class="tablerow" wicket:id="connectorProperties">
 
-                        <div class="tablerow" wicket:id="connectorProperties">
-                            <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
-                                <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                                <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
+                                    <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                                </div>
+                                <div class="tablecolumn_label short_dynamicsize">
+                                    <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                                </div>
+                                <div class="tablecolumn_field short_dynamicsize">
+                                    <span wicket:id="panel">[panel]</span>
+                                </div>
                             </div>
-                            <div class="tablecolumn_label short_dynamicsize">
-                                <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                            <div>
+                                <label style="position: absolute; top: 10px; right:55px;"><wicket:message key="check"/></label>
+                                <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
+                                    <img src="img/ping.png" width="30" height="30" /></a>
                             </div>
-                            <div class="tablecolumn_field short_dynamicsize">
-                                <span wicket:id="panel">[panel]</span>
-                            </div>
-                        </div>
-
+                        </form>
                         <!-- inside the container in order to re-process javascript -->
                         <script type="text/javascript">
                             $(function() {

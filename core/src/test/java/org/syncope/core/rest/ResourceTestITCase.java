@@ -403,15 +403,6 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
-    public void check() {
-        Boolean verify = restTemplate.getForObject(
-                BASE_URL + "resource/check/{resourceName}.json",
-                Boolean.class, "ws-target-resource-1");
-
-        assertTrue(verify);
-    }
-
-    @Test
     public void getSchemaNames() {
         List<String> schemaNames = Arrays.asList(restTemplate.getForObject(
                 BASE_URL + "resource/schema/{resourceName}/list?showAll=true",

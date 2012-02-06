@@ -150,8 +150,7 @@ public class ConnectorFacadeProxy {
 
                     if (GuardedString.class.equals(propertySchemaClass)) {
                         propertyValue = new GuardedString(
-                                ((String) property.getValues().iterator().next()).
-                                toCharArray());
+                                ((String) property.getValues().iterator().next()).toCharArray());
                     } else if (GuardedByteArray.class.equals(
                             propertySchemaClass)) {
 
@@ -632,6 +631,13 @@ public class ConnectorFacadeProxy {
      */
     public void validate() {
         connector.validate();
+    }
+
+    /**
+     * Check connection to resource.
+     */
+    public void test() {
+        connector.test();
     }
 
     @Override

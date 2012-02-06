@@ -16,8 +16,10 @@ package org.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -119,9 +121,15 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return properties;
     }
 
-    private void filterProperties(final Set<ConnConfProperty> properties) {
+    private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
+
+        Set<ConnConfProperty> newProperties = new HashSet<ConnConfProperty>();
 
         for (ConnConfProperty property : properties) {
+            ConnConfProperty prop = new ConnConfProperty();
+            prop.setSchema(property.getSchema());
+            prop.setOverridable(property.isOverridable());
+
             final List parsed = new ArrayList();
 
             for (Object obj : property.getValues()) {
@@ -129,8 +137,33 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
                     parsed.add(obj);
                 }
             }
+            prop.setValues(parsed);
+            newProperties.add(prop);
+        }
+        return newProperties;
+    }
 
-            property.setValues(parsed);
+    /**
+     * Test connection.
+     *
+     * @param connectorTO
+     * @return Connection status
+     */
+    public Boolean check(final ConnInstanceTO connectorTO) {
+
+        ConnInstanceTO connector = new ConnInstanceTO();
+        BeanUtils.copyProperties(connectorTO, connector);
+
+        connector.setConfiguration(
+                filterProperties(connector.getConfiguration()));
+
+        try {
+            return restTemplate.postForObject(baseURL
+                    + "connector/check.json", connector, Boolean.class);
+
+        } catch (Exception ex) {
+            LOG.error("Connector not found {}", ex);
+            return false;
         }
     }
 }

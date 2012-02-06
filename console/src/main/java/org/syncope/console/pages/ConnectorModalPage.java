@@ -26,9 +26,11 @@ import java.util.List;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -44,6 +46,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ClassUtils;
@@ -196,7 +199,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<ConnBundleTO> bundle =
                 new AjaxDropDownChoicePanel<ConnBundleTO>(
-                "bundle", "bundle", new Model(null), false);
+                "bundle", "bundle", new Model(null), true);
 
         bundle.setStyleShet("long_dynamicsize");
 
@@ -388,13 +391,44 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         };
 
+        final Form connectorForm = new Form("form");
+        connectorForm.setModel(new CompoundPropertyModel(connectorTO));
+
+        final Form connectorPropForm = new Form("connectorPropForm");
+        connectorPropForm.setModel(new CompoundPropertyModel(connectorTO));
+        connectorPropForm.setOutputMarkupId(true);
+
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);
-        propertiesContainer.add(propView);
 
-        Form connectorForm = new Form("form");
-        connectorForm.setModel(new CompoundPropertyModel(connectorTO));
+        propertiesContainer.add(connectorPropForm);
         connectorForm.add(propertiesContainer);
+        connectorPropForm.add(propView);
+
+        final AjaxLink check =
+                new IndicatingAjaxLink("check", new ResourceModel("check")) {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        connectorTO.setBundleName(
+                                selectedBundleTO.getBundleName());
+                        connectorTO.setVersion(selectedBundleTO.getVersion());
+
+                            if (restClient.check(connectorTO).booleanValue()) {
+                                info(getString("success_connection"));
+                            } else {
+                                error(getString("error_connection"));
+                            }
+                            
+                            target.add(feedbackPanel);
+                    }
+                };
+
+        connectorPropForm.add(check);
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(
                 getString("submit"))) {
