@@ -260,7 +260,6 @@
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_UPDATE"/>
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_UPDATE"/>
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_DELETE"/>
-    <ConnInstance_capabilities ConnInstance_id="105" capabilities="RESOLVE"/>
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_DELETE"/>
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="SEARCH"/>
     <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_CREATE"/>

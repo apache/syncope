@@ -26,7 +26,6 @@ public enum ConnectorCapability {
     ONE_PHASE_DELETE,
     TWO_PHASES_DELETE,
     SEARCH,
-    RESOLVE,
     SYNC
 
 }

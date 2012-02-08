@@ -234,33 +234,6 @@ public class ConnectorFacadeProxy {
     }
 
     /**
-     * Resolve username to ConnId's Uid.
-     *
-     * @param objectClass ConnId's object class
-     * @param username to resolve
-     * @param options ConnId's OperationOptions
-     * @return the resolved Uid (if connector instance is capable); can be null
-     * if not found
-     */
-    public Uid resolveUsername(
-            final ObjectClass objectClass,
-            final String username,
-            final OperationOptions options) {
-
-        Uid result = null;
-        if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
-            result = connector.resolveUsername(
-                    objectClass, username, options);
-        } else {
-            LOG.info("Resolve for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
-                    username, capabitilies);
-        }
-
-        return result;
-    }
-
-    /**
      * Create user on a connector instance.
      *
      * @param propagationMode propagation mode
