@@ -538,8 +538,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
-                attrValue = schema.getValidator().
-                        getValue(cond.getExpression(), attrValue);
+                schema.getValidator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
             LOG.error("Could not validate expression '"
@@ -595,8 +594,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
-                attrValue = schema.getValidator().
-                        getValue(cond.getExpression(), attrValue);
+                schema.getValidator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
             LOG.error("Could not validate expression '"

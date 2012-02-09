@@ -95,6 +95,8 @@
     <USchema name="gender" type="Enum"
              mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
              enumerationValues="M;F"/>
+    <USchema name="aLong" type="Long"
+             mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
     <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
 

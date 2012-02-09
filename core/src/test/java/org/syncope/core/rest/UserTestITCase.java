@@ -1589,7 +1589,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void issue281() {
+    public void issue281() {
         UserTO userTO = getSampleTO("issue281@syncope-idm.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1612,5 +1612,24 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(exec);
         assertEquals("resource-csv", statuses.keySet().iterator().next());
         assertFalse(exec.isSuccessful());
+    }
+
+    @Test
+    public void issue288() {
+        UserTO userTO = getSampleTO("issue288@syncope-idm.org");
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("aLong");
+        attributeTO.addValue("STRING");
+        userTO.addAttribute(attributeTO);
+
+        try {
+            restTemplate.postForObject(
+                    BASE_URL + "user/create", userTO, UserTO.class);
+            fail();
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            assertNotNull(sccee.getException(
+                    SyncopeClientExceptionType.InvalidValues));
+        }
     }
 }

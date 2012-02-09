@@ -22,8 +22,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.SyncopeConstants;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractSchema;
 
 public abstract class AbstractValidator implements Validator, Serializable {
 
@@ -42,19 +42,17 @@ public abstract class AbstractValidator implements Validator, Serializable {
     }
 
     @Override
-    public <T extends AbstractAttrValue> T getValue(final String value,
+    public <T extends AbstractAttrValue> void validate(final String value,
             T attributeValue)
-            throws ParseException, InvalidAttrValueException {
+            throws ParsingValidationException, InvalidAttrValueException {
 
-        attributeValue = parseValue(value, attributeValue);
+        parseValue(value, attributeValue);
         doValidate(attributeValue);
-
-        return attributeValue;
     }
 
-    private <T extends AbstractAttrValue> T parseValue(final String value,
-            T attributeValue)
-            throws ParseException {
+    private <T extends AbstractAttrValue> void parseValue(final String value,
+            final T attributeValue)
+            throws ParsingValidationException {
 
         Exception exception = null;
 
@@ -78,7 +76,7 @@ public abstract class AbstractValidator implements Validator, Serializable {
                                 ((DecimalFormat) schema.getFormatter()).parse(
                                 value).longValue()));
                     }
-                } catch (java.text.ParseException pe) {
+                } catch (Exception pe) {
                     exception = pe;
                 }
                 break;
@@ -92,7 +90,7 @@ public abstract class AbstractValidator implements Validator, Serializable {
                                 ((DecimalFormat) schema.getFormatter()).parse(
                                 value).doubleValue()));
                     }
-                } catch (java.text.ParseException pe) {
+                } catch (Exception pe) {
                     exception = pe;
                 }
                 break;
@@ -101,25 +99,24 @@ public abstract class AbstractValidator implements Validator, Serializable {
                 try {
                     if (schema.getFormatter() == null) {
                         attributeValue.setDateValue(DateUtils.parseDate(
-                                value,
-                                SyncopeConstants.DATE_PATTERNS));
+                                value, SyncopeConstants.DATE_PATTERNS));
                     } else {
                         attributeValue.setDateValue(new Date(
                                 ((DateFormat) schema.getFormatter()).parse(
                                 value).getTime()));
                     }
-                } catch (java.text.ParseException pe) {
+                } catch (Exception pe) {
                     exception = pe;
                 }
                 break;
+
+            default:
         }
 
         if (exception != null) {
-            throw new ParseException("While trying to parse '" + value + "'",
-                    exception);
+            throw new ParsingValidationException("While trying to parse '"
+                    + value + "'", exception);
         }
-
-        return attributeValue;
     }
 
     protected abstract <T extends AbstractAttrValue> void doValidate(
