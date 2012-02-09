@@ -39,7 +39,7 @@ public class SchemaTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<USchema> userList = schemaDAO.findAll(USchema.class);
-        assertEquals(11, userList.size());
+        assertEquals(12, userList.size());
 
         List<RSchema> roleList = schemaDAO.findAll(RSchema.class);
         assertEquals(4, roleList.size());

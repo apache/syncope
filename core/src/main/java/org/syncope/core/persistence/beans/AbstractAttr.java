@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.attrvalue.ParseException;
 import org.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.syncope.core.persistence.validation.entity.AttrCheck;
 import org.syncope.core.util.AttributableUtil;
@@ -33,7 +32,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public <T extends AbstractAttrValue> T addValue(final String value,
             final AttributableUtil attributableUtil)
-            throws ParseException, InvalidAttrValueException {
+            throws InvalidAttrValueException {
 
         T attrValue;
         if (getSchema().isUniqueConstraint()) {
@@ -44,7 +43,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         }
 
         attrValue.setAttribute(this);
-        attrValue = getSchema().getValidator().getValue(value, attrValue);
+        getSchema().getValidator().validate(value, attrValue);
 
         if (getSchema().isUniqueConstraint()) {
             setUniqueValue(attrValue);

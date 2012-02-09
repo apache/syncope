@@ -190,11 +190,12 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    /* This test has been introduced to verify and solve the following issue:
-     * http://code.google.com/p/syncope/issues/detail?id=172.
-     * Creations of a new user without having a global password policy stored
-     * into the local repository used to fail with a null pointer exception.
-     * This bug has been fixed introducing a simple control.
+    /*
+     * This test has been introduced to verify and solve the following issue:
+     * http://code.google.com/p/syncope/issues/detail?id=172. Creations of a new
+     * user without having a global password policy stored into the local
+     * repository used to fail with a null pointer exception. This bug has been
+     * fixed introducing a simple control.
      */
     public final void issue172() {
         PolicyTO policyTO = restTemplate.getForObject(
@@ -1475,7 +1476,27 @@ public class UserTestITCase extends AbstractTest {
                 propStatusMap.values().iterator().next();
 
         assertNotNull(exec);
-        assertEquals("resource-testdb", propStatusMap.keySet().iterator().next());
+        assertEquals("resource-testdb",
+                propStatusMap.keySet().iterator().next());
         assertTrue(exec.isSuccessful());
+    }
+
+    @Test
+    public void issue288() {
+        UserTO userTO = getSampleTO("issue288@syncope-idm.org");
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("aLong");
+        attributeTO.addValue("STRING");
+        userTO.addAttribute(attributeTO);
+
+        try {
+            restTemplate.postForObject(
+                    BASE_URL + "user/create", userTO, UserTO.class);
+            fail();
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            assertNotNull(sccee.getException(
+                    SyncopeClientExceptionType.InvalidValues));
+        }
     }
 }

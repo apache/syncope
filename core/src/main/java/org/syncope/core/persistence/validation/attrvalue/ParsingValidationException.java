@@ -16,9 +16,11 @@ package org.syncope.core.persistence.validation.attrvalue;
 
 import javax.validation.ValidationException;
 
-public class ParseException extends ValidationException {
+public class ParsingValidationException extends ValidationException {
 
-    public ParseException(String message, Throwable cause) {
+    private static final long serialVersionUID = 5669262895008285522L;
+
+    public ParsingValidationException(String message, Throwable cause) {
         super(message, cause);
     }
 }
