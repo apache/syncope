@@ -15,8 +15,11 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +44,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -65,10 +69,14 @@ public class ConnInstanceController extends AbstractController {
     @Autowired
     private ConnBundleManager bundleManager;
 
+    @Autowired
+    private ConnInstanceLoader connLoader;
+
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public ConnInstanceTO create(final HttpServletResponse response,
+    public ConnInstanceTO create(
+            final HttpServletResponse response,
             @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
@@ -106,8 +114,8 @@ public class ConnInstanceController extends AbstractController {
 
         LOG.debug("Connector update called with configuration {}", connectorTO);
 
-        ConnInstance connInstance = binder.updateConnInstance(
-                connectorTO.getId(), connectorTO);
+        ConnInstance connInstance =
+                binder.updateConnInstance(connectorTO.getId(), connectorTO);
 
         try {
             connInstance = connInstanceDAO.save(connInstance);
@@ -300,6 +308,45 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/schema/list")
+    @Transactional(readOnly = true)
+    public List<String> getSchemaNames(
+            final HttpServletResponse response,
+            @RequestBody final ConnInstanceTO connectorTO,
+            @RequestParam(required = false,
+            value = "showall", defaultValue = "false") final boolean showall)
+            throws NotFoundException {
+
+        final ConnInstance connInstance =
+                connInstanceDAO.find(connectorTO.getId());
+
+        if (connInstance == null) {
+            LOG.error("Could not find connector '" + connInstance + "'");
+            throw new NotFoundException("Connector '" + connInstance + "'");
+        }
+
+        // consider the possibility to receive overridden properties only
+        final Set<ConnConfProperty> conf = mergeConnConfProperties(
+                connectorTO.getConfiguration(),
+                connInstance.getConfiguration());
+
+        // We cannot use Spring bean because this method could be used during
+        // resource definition or modification: bean couldn't exist or bean
+        // couldn't be updated.
+        // This is the reason why we should take a "not mature" connector
+        // facade proxy to ask for schema names.
+
+        final List<String> result = new ArrayList<String>(
+                connLoader.createConnectorBean(
+                connInstance, conf).getSchema(showall));
+
+        Collections.sort(result);
+
+        return result;
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{connectorId}/configurationProperty/list")
     @Transactional(readOnly = true)
@@ -316,24 +363,58 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/check")
+    @RequestMapping(method = RequestMethod.POST, value = "/check")
     @Transactional(readOnly = true)
     public ModelAndView check(final HttpServletResponse response,
-            @RequestBody final ConnInstanceTO connInstanceTO)
-            throws NotFoundException {
+            @RequestBody final ConnInstanceTO connectorTO)
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        Boolean status = Boolean.FALSE;
-        ConnectorFacadeProxy connector = new ConnectorFacadeProxy(
-                binder.getConnInstance(connInstanceTO), bundleManager);
+        final ConnectorFacadeProxy connector =
+                new ConnectorFacadeProxy(
+                binder.getConnInstance(connectorTO), bundleManager);
 
         try {
             connector.test();
-            status = Boolean.TRUE;
-        } catch (Exception e) {
-            LOG.error("Test connection failure {} {}", connInstanceTO, e);
+            return new ModelAndView().addObject(true);
+        } catch (Exception ex) {
+            LOG.error("Test connection failure {}", ex);
+            return new ModelAndView().addObject(false);
+        }
+    }
+
+    /**
+     * Merge connector configuration properties avoiding repetition but giving
+     * priority to primary set.
+     *
+     * @param primary primary set.
+     * @param secondary secondary set.
+     * @return merged set.
+     */
+    private Set<ConnConfProperty> mergeConnConfProperties(
+            final Set<ConnConfProperty> primary,
+            final Set<ConnConfProperty> secondary) {
+
+        final Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+
+        // to be used to control managed prop (needed by overridden mechanism)
+        final Set<String> propertyNames = new HashSet<String>();
+
+        // get overridden connector configuration properties
+        for (ConnConfProperty prop : primary) {
+            if (!propertyNames.contains(prop.getSchema().getName())) {
+                conf.add(prop);
+                propertyNames.add(prop.getSchema().getName());
+            }
         }
 
-        return new ModelAndView().addObject(status);
+        // get connector configuration properties
+        for (ConnConfProperty prop : secondary) {
+            if (!propertyNames.contains(prop.getSchema().getName())) {
+                conf.add(prop);
+                propertyNames.add(prop.getSchema().getName());
+            }
+        }
+
+        return conf;
     }
 }

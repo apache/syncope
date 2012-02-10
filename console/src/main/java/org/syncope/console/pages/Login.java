@@ -157,11 +157,10 @@ public class Login extends WebPage {
 
                                 @Override
                                 public Page createPage() {
-                                    return new UserModalPage(
+                                    return new UserRequestModalPage(
                                             Login.this.getPageReference(),
                                             editProfileModalWin,
-                                            new UserTO(),
-                                            UserModalPage.Mode.SELF);
+                                            new UserTO());
                                 }
                             });
 

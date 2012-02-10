@@ -59,8 +59,8 @@ import org.syncope.console.commons.UserDataProvider;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.DisplayAttributesModalPage;
+import org.syncope.console.pages.EditUserModalPage;
 import org.syncope.console.pages.StatusModalPage;
-import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
@@ -101,12 +101,12 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Schemas to be shown modal window height.
      */
-    private final static int STATUS_MODAL_WIN_HEIGHT = 400;
+    private final static int STATUS_MODAL_WIN_HEIGHT = 500;
 
     /**
      * Schemas to be shown modal window width.
      */
-    private final static int STATUS_MODAL_WIN_WIDTH = 400;
+    private final static int STATUS_MODAL_WIN_WIDTH = 500;
 
     /**
      * User rest client.
@@ -142,9 +142,9 @@ public class ResultSetPanel extends Panel implements IEventSource {
     final private FeedbackPanel feedbackPanel;
 
     /**
-     * Specify if results are about a filtered search or not.
-     * Using this attribute it is possible to use this panel to show results
-     * about user list and user search.
+     * Specify if results are about a filtered search or not. Using this
+     * attribute it is possible to use this panel to show results about user
+     * list and user search.
      */
     private boolean filtered;
 
@@ -164,8 +164,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private UserDataProvider dataProvider;
 
     /**
-     * Modal window to be used for user profile editing.
-     * Global visibility is required ...
+     * Modal window to be used for user profile editing. Global visibility is
+     * required ...
      */
     private final ModalWindow editmodal = new ModalWindow("editModal");
 
@@ -469,11 +469,10 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                                     @Override
                                     public Page createPage() {
-                                        return new UserModalPage(
+                                        return new EditUserModalPage(
                                                 page.getPageReference(),
                                                 editmodal,
-                                                model.getObject(),
-                                                UserModalPage.Mode.ADMIN);
+                                                model.getObject());
                                     }
                                 });
 

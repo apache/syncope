@@ -119,7 +119,7 @@ public class ResourceDataBinder {
 
         resource.setConnectorConfigurationProperties(
                 new HashSet<ConnConfProperty>(
-                resourceTO.getConnectorConfigurationProperties()));
+                resourceTO.getConnConfProperties()));
 
         if (resourceTO.getSyncToken() == null) {
             resource.setSerializedSyncToken(null);

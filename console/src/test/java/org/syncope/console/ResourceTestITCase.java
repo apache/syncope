@@ -27,7 +27,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//div[3]/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
                 "30000");
 
         selenium.click("css=a.w_close");
@@ -43,7 +43,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
                 "30000");
 
         selenium.click("//li[2]/a");
@@ -83,7 +83,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
                 "30000");
 
         selenium.click("//li[4]/a");
@@ -108,17 +108,16 @@ public class ResourceTestITCase extends AbstractTest {
                 + "*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/div/div/label[text()='Name']\");",
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
                 "30000");
 
         selenium.click("//li[3]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/"
-                + "div[3]/span/div/div/div/span[text()='endpoint']\");",
+                + "\"//span[text()='endpoint']\");",
                 "30000");
         
-        selenium.click("//div[2]/form/div[2]/div[3]/span/div[2]/a/img");
+        selenium.click("//div[2]/form/div[2]/div[3]/span/span/div[2]/a/img");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent("

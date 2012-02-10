@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
@@ -70,13 +69,13 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Long syncPolicy;
 
-    private Set<ConnConfProperty> connectorConfigurationProperties;
+    private Set<ConnConfProperty> connConfProperties;
 
     private String syncToken;
 
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
-        connectorConfigurationProperties = new HashSet<ConnConfProperty>();
+        connConfProperties = new HashSet<ConnConfProperty>();
         propagationMode = PropagationMode.TWO_PHASES;
         propagationPriority = 0;
 
@@ -206,14 +205,13 @@ public class ResourceTO extends AbstractBaseBean {
         this.syncPolicy = syncPolicy;
     }
 
-    public Set<ConnConfProperty> getConnectorConfigurationProperties() {
-        return connectorConfigurationProperties;
+    public Set<ConnConfProperty> getConnConfProperties() {
+        return connConfProperties;
     }
 
     public void setConnectorConfigurationProperties(
-            final Set<ConnConfProperty> connectorConfigurationProperties) {
-        this.connectorConfigurationProperties =
-                connectorConfigurationProperties;
+            final Set<ConnConfProperty> connConfProperties) {
+        this.connConfProperties = connConfProperties;
     }
 
     public TraceLevel getSyncTraceLevel() {

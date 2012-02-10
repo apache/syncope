@@ -16,6 +16,7 @@ package org.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -110,6 +111,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     public List<ConnConfProperty> getConnectorProperties(
             final Long connectorId) {
         List<ConnConfProperty> properties = null;
+
         try {
             properties = Arrays.asList(restTemplate.getForObject(baseURL
                     + "connector/{connectorId}/configurationProperty/list",
@@ -146,8 +148,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     /**
      * Test connection.
      *
-     * @param connectorTO
-     * @return Connection status
+     * @param connectorTO connector.
+     * @return Connection status.
      */
     public Boolean check(final ConnInstanceTO connectorTO) {
 
@@ -158,12 +160,30 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
                 filterProperties(connector.getConfiguration()));
 
         try {
-            return restTemplate.postForObject(baseURL
-                    + "connector/check.json", connector, Boolean.class);
+            return restTemplate.postForObject(
+                    baseURL + "connector/check.json", connector, Boolean.class);
 
-        } catch (Exception ex) {
-            LOG.error("Connector not found {}", ex);
+        } catch (Exception e) {
+            LOG.error("Connector not found {}", connector, e);
             return false;
         }
+    }
+
+    public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
+        List<String> schemaNames = null;
+
+        try {
+            schemaNames = Arrays.asList(restTemplate.postForObject(
+                    baseURL + "connector/schema/list",
+                    connectorTO, String[].class));
+
+            // re-order schema names list
+            Collections.sort(schemaNames);
+
+        } catch (Exception e) {
+            LOG.error("While getting resource schema names", e);
+        }
+
+        return schemaNames;
     }
 }

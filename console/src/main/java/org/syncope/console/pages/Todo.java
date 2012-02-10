@@ -275,7 +275,7 @@ public class Todo extends BasePage {
 
                                     @Override
                                     public Page createPage() {
-                                        return new UserModalPage(
+                                        return new UserRequestModalPage(
                                                 Todo.this.getPageReference(),
                                                 editUserRequestWin,
                                                 model.getObject());

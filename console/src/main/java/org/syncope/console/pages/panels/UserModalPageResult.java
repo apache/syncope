@@ -50,8 +50,10 @@ public class UserModalPageResult extends Panel {
 
     private static final int PROPAGATION_RESULT_PAGINATOR_ROWS = 7;
 
-    public UserModalPageResult(final String id,
-            final ModalWindow window, final UserModalPage.Mode mode,
+    public UserModalPageResult(
+            final String id,
+            final ModalWindow window, 
+            final UserModalPage.Mode mode,
             final UserTO userTO) {
 
         super(id);

@@ -1,0 +1,87 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<html>
+    <wicket:panel>
+        <div id="formtable">
+            <div class="tablerow">
+                <div class="tablecolumn_field all_dynamicsize">
+                    <table id="mappingUserSchema"
+                           class="ui-widget ui-widget-content ui-corner-all"
+                           style="font-size: 1em;margin-top:2px;"
+                           width="100%" cellpadding="2px" cellspacing="1px"
+                           wicket:id="mappingContainer">
+                        <thead>
+                            <tr class="ui-widget-header">
+                                <th><wicket:message key="delete"/></th>
+                        <th><wicket:message key="intMappingTypes"/></th>
+                        <th><wicket:message key="intAttrNames"/></th>
+                        <th><wicket:message key="extAttrNames"/></th>
+                        <th><wicket:message key="mandatoryCondition"/></th>
+                        <th><wicket:message key="accountId"/></th>
+                        <th><wicket:message key="password"/></th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <td colspan="7" style="padding: 5px">
+                                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                           wicket:id="addUserSchemaMappingBtn" />
+                                </td>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            <tr wicket:id="mappings">
+                                <td align="center" valign="middle">
+                                    <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="intMappingTypes">[intMappingTypes]</span>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="intAttrNames">[intAttrNames]</span>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="extAttrName">[extAttrName]</span>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="accountId">[accountId]</span>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="password">[password]</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tablerow" style="margin-top: 10px">
+                <div class="tablecolumn_label long_fixedsize">
+                    <label for="accountLink"><wicket:message key="accountLink"/></label>
+                    <span wicket:id="accountLink">[accountLink]</span>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            $(function() {
+                $('div#mappings div#formtable div.tablerow:even').addClass("alt");
+            });
+        </script>
+    </wicket:panel>
+</html>

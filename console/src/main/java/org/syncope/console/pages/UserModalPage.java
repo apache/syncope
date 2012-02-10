@@ -26,13 +26,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.mod.UserMod;
-import org.syncope.client.to.SyncTaskTO;
-import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.util.AttributableOperations;
 import org.syncope.console.pages.panels.AttributesPanel;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
@@ -40,14 +36,11 @@ import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.UserDetailsPanel;
 import org.syncope.console.pages.panels.UserModalPageResult;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
-import org.syncope.console.rest.TaskRestClient;
-import org.syncope.console.rest.UserRequestRestClient;
-import org.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.
  */
-public class UserModalPage extends BaseModalPage {
+public abstract class UserModalPage extends BaseModalPage {
 
     public enum Mode {
 
@@ -58,81 +51,60 @@ public class UserModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 5002005009737457667L;
 
-    @SpringBean
-    private UserRestClient userRestClient;
+    protected final PageReference callerPageRef;
 
-    @SpringBean
-    private UserRequestRestClient requestRestClient;
+    protected final ModalWindow window;
 
-    @SpringBean
-    private TaskRestClient taskRestClient;
+    protected UserTO userTO;
 
-    private final PageReference callerPageRef;
+    private final Mode mode;
 
-    private final ModalWindow window;
+    private Fragment fragment = null;
 
-    private UserRequestTO userRequestTO;
+    private final boolean resetPassword;
 
-    private UserTO userTO;
-
-    private SyncTaskTO syncTaskTO;
-
-    private Mode mode = Mode.ADMIN;
-
-    private UserTO initialUserTO;
-
-    private Fragment fragment;
-
-    private boolean submitted = false;
-
-    public UserModalPage(final PageReference callerPageRef,
+    public UserModalPage(
+            final PageReference callerPageRef,
             final ModalWindow window,
-            final UserRequestTO userRequestTO) {
-
-        super();
-
-        this.callerPageRef = callerPageRef;
-        this.window = window;
-        this.userRequestTO = userRequestTO;
-        this.mode = Mode.ADMIN;
-
-        setupModalPage();
-    }
-
-    public UserModalPage(final PageReference callerPageRef,
-            final ModalWindow window,
-            final SyncTaskTO syncTaskTO) {
-
-        super();
-
-        this.callerPageRef = callerPageRef;
-        this.window = window;
-        this.syncTaskTO = syncTaskTO;
-        this.mode = Mode.TEMPLATE;
-
-        setupModalPage();
-    }
-
-    public UserModalPage(final PageReference callerPageRef,
-            final ModalWindow window, final UserTO userTO,
-            final Mode mode) {
-
-        this(callerPageRef, window, userTO, mode, false);
-    }
-
-    public UserModalPage(final PageReference callerPageRef,
-            final ModalWindow window, final UserTO userTO,
-            final Mode mode, final boolean submitted) {
+            final UserTO userTO,
+            final Mode mode,
+            final boolean resetPassword) {
 
         super();
 
         this.callerPageRef = callerPageRef;
         this.window = window;
         this.userTO = userTO;
-        this.mode = mode == null ? Mode.ADMIN : mode;
-        this.submitted = submitted;
+        this.mode = mode;
+        this.resetPassword = resetPassword;
 
-        setupModalPage();
+        fragment = new Fragment("userModalFrag", "userModalEditFrag", this);
+        fragment.setOutputMarkupId(true);
+        add(fragment);
+    }
+
+    public UserModalPage(
+            final ModalWindow window,
+            final UserTO userTO,
+            final Mode mode) {
+
+        super();
+
+        this.callerPageRef = null;
+        this.window = window;
+        this.mode = mode;
+        this.userTO = userTO;
+        this.resetPassword = false;
+
+        fragment = new Fragment("userModalFrag", "userModalResultFrag", this);
+        fragment.setOutputMarkupId(true);
+        add(fragment);
+
+        final UserModalPageResult result = new UserModalPageResult(
+                "userModalPageResult", window, mode, userTO);
+        result.setOutputMarkupId(true);
+
+        fragment.add(result);
     }
 
     public UserTO getUserTO() {
@@ -143,53 +115,13 @@ public class UserModalPage extends BaseModalPage {
         this.userTO = userTO;
     }
 
-    private void setupModalPage() {
-        fragment = new Fragment("userModalFrag",
-                submitted ? "userModalResultFrag" : "userModalEditFrag", this);
-        fragment.setOutputMarkupId(true);
-        add(fragment);
-
-        if (submitted) {
-            setupResultPanel();
-        } else {
-            setupEditPanel();
-        }
-    }
-
-    private void setupEditPanel() {
-        if (userRequestTO != null) {
-            switch (userRequestTO.getType()) {
-                case CREATE:
-                    userTO = userRequestTO.getUserTO();
-                    break;
-
-                case UPDATE:
-                    initialUserTO = userRestClient.read(
-                            userRequestTO.getUserMod().getId());
-                    userTO = AttributableOperations.apply(
-                            initialUserTO, userRequestTO.getUserMod());
-                    break;
-
-                case DELETE:
-                default:
-            }
-        }
-        if (syncTaskTO != null) {
-            userTO = syncTaskTO.getUserTemplate();
-            if (userTO == null) {
-                userTO = new UserTO();
-                syncTaskTO.setUserTemplate(userTO);
-            }
-        }
-
-        if (initialUserTO == null && userTO.getId() > 0) {
-            initialUserTO = AttributableOperations.clone(userTO);
-        }
+    protected Form setupEditPanel() {
 
         fragment.add(new Label("id", userTO.getId() == 0
                 ? "" : userTO.getUsername()));
+
         fragment.add(new Label("new", userTO.getId() == 0
-                ? getString("new") : ""));
+                ? new ResourceModel("new") : new Model("")));
 
         final Form form = new Form("UserForm");
         form.setModel(new CompoundPropertyModel(userTO));
@@ -197,15 +129,19 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         // User details
         //--------------------------------
-        form.add(new UserDetailsPanel("details", userTO, form,
-                userRequestTO == null, mode == Mode.TEMPLATE));
+        form.add(new UserDetailsPanel(
+                "details", userTO, form, resetPassword, mode == Mode.TEMPLATE));
+        
+        form.add(new Label("statuspanel", ""));
+        
+        form.add(new Label("accountinformation", ""));
         //--------------------------------
 
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attributes", userTO, form,
-                mode == Mode.TEMPLATE));
+        form.add(new AttributesPanel(
+                "attributes", userTO, form, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -217,8 +153,8 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes panel
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", userTO,
-                mode == Mode.TEMPLATE));
+        form.add(new VirtualAttributesPanel(
+                "virtualAttributes", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -233,71 +169,40 @@ public class UserModalPage extends BaseModalPage {
         form.add(new RolesPanel("roles", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("submit")) {
+        final AjaxButton submit = getOnSubmit();
 
-            private static final long serialVersionUID =
-                    -958724007591692537L;
+        if (mode == Mode.ADMIN) {
+            String allowedRoles = userTO.getId() == 0
+                    ? xmlRolesReader.getAllAllowedRoles("Users", "create")
+                    : xmlRolesReader.getAllAllowedRoles("Users", "update");
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    submit, RENDER, allowedRoles);
+        }
+
+        fragment.add(form);
+        form.add(submit);
+
+        return form;
+    }
+
+    protected AjaxButton getOnSubmit() {
+        return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(
+                    final AjaxRequestTarget target, final Form form) {
 
-                final UserTO updatedUserTO = (UserTO) form.getModelObject();
                 try {
-                    if (updatedUserTO.getId() == 0) {
-                        switch (mode) {
-                            case SELF:
-                                requestRestClient.requestCreate(updatedUserTO);
-                                break;
-
-                            case TEMPLATE:
-                                syncTaskTO.setUserTemplate(updatedUserTO);
-                                taskRestClient.updateSyncTask(syncTaskTO);
-                                break;
-
-                            default:
-                                userTO = userRestClient.create(updatedUserTO);
-                                if (userRequestTO != null) {
-                                    requestRestClient.delete(
-                                            userRequestTO.getId());
-                                }
-                        }
-                    } else {
-                        UserMod userMod = AttributableOperations.diff(
-                                updatedUserTO, initialUserTO);
-
-                        // update user just if it is changed
-                        if (!userMod.isEmpty()) {
-                            if (mode == Mode.SELF) {
-                                requestRestClient.requestUpdate(userMod);
-                            } else {
-                                userTO = userRestClient.update(userMod);
-                                if (userRequestTO != null) {
-                                    requestRestClient.delete(
-                                            userRequestTO.getId());
-                                }
-                            }
-                        }
-                    }
+                    submitAction(target, form);
 
                     if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(
-                                true);
+                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
                     }
 
-                    switch (mode) {
-                        case ADMIN:
-                        case SELF:
-                            setResponsePage(new UserModalPage(
-                                    callerPageRef, window, userTO, mode,
-                                    form.isSubmitted()));
-                            break;
+                    closeAction(target, form);
 
-                        case TEMPLATE:
-                        default:
-                            window.close(target);
-                    }
                 } catch (Exception e) {
                     LOG.error("While creating or updating user", e);
                     error(getString("error") + ":" + e.getMessage());
@@ -312,24 +217,11 @@ public class UserModalPage extends BaseModalPage {
                 target.add(feedbackPanel);
             }
         };
-
-        if (mode == Mode.ADMIN) {
-            String allowedRoles = userTO.getId() == 0
-                    ? xmlRolesReader.getAllAllowedRoles("Users", "create")
-                    : xmlRolesReader.getAllAllowedRoles("Users", "update");
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    submit, RENDER, allowedRoles);
-        }
-
-        fragment.add(form);
-        form.add(submit);
     }
 
-    private void setupResultPanel() {
-        final UserModalPageResult result =
-                new UserModalPageResult("userModalPageResult",
-                window, mode, userTO);
-        result.setOutputMarkupId(true);
-        fragment.add(result);
-    }
+    protected abstract void submitAction(
+            final AjaxRequestTarget target, final Form form);
+
+    protected abstract void closeAction(
+            final AjaxRequestTarget target, final Form form);
 }

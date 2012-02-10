@@ -30,13 +30,28 @@ import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.Schema;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.syncope.core.util.ConnBundleManager;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
+import org.syncope.core.util.ConnBundleManager;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 import org.syncope.types.PropagationMode;
@@ -142,7 +157,8 @@ public class ConnectorFacadeProxy {
         Class propertySchemaClass;
         Object propertyValue;
         for (ConnConfProperty property : connInstance.getConfiguration()) {
-            if (property.getValues() != null && !property.getValues().isEmpty()) {
+            if (property.getValues() != null
+                    && !property.getValues().isEmpty()) {
                 try {
                     propertySchemaClass = ClassUtils.forName(
                             property.getSchema().getType(),
@@ -150,7 +166,8 @@ public class ConnectorFacadeProxy {
 
                     if (GuardedString.class.equals(propertySchemaClass)) {
                         propertyValue = new GuardedString(
-                                ((String) property.getValues().iterator().next()).toCharArray());
+                                ((String) property.getValues().iterator().next()).
+                                toCharArray());
                     } else if (GuardedByteArray.class.equals(
                             propertySchemaClass)) {
 

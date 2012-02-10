@@ -54,7 +54,7 @@ public class ConnInstanceLoader extends AbstractLoader {
 
     /**
      * Get a live connector bean that is registered with the given resource.
-     * 
+     *
      * @param resource the resource.
      * @return live connector bran for given resource
      * @throws BeansException in case the connector is not registered in the
@@ -77,15 +77,13 @@ public class ConnInstanceLoader extends AbstractLoader {
             final ExternalResource resource)
             throws NotFoundException {
 
-        final ConnInstance connInstanceClone =
-                (ConnInstance) SerializationUtils.clone(
-                resource.getConnector());
-
         final Set<ConnConfProperty> configuration =
                 new HashSet<ConnConfProperty>();
 
+        // to be used to control managed prop (needed by overridden mechanism)
         final Set<String> propertyNames = new HashSet<String>();
 
+        // get overridden connector configuration properties
         for (ConnConfProperty prop : resource.getConfiguration()) {
             if (!propertyNames.contains(prop.getSchema().getName())) {
                 configuration.add(prop);
@@ -93,12 +91,35 @@ public class ConnInstanceLoader extends AbstractLoader {
             }
         }
 
-        for (ConnConfProperty prop : connInstanceClone.getConfiguration()) {
+        final ConnInstance connInstance = resource.getConnector();
+
+        // get connector configuration properties
+        for (ConnConfProperty prop : connInstance.getConfiguration()) {
             if (!propertyNames.contains(prop.getSchema().getName())) {
                 configuration.add(prop);
                 propertyNames.add(prop.getSchema().getName());
             }
         }
+
+        return createConnectorBean(connInstance, configuration);
+    }
+
+    /**
+     * Create connector bean starting from connector instance and configuration
+     * properties. This method has to be used to create a connector instance
+     * without any linked external resource.
+     * @param connInstance connector instance.
+     * @param configuration configuration properties.
+     * @return connector facade proxy.
+     * @throws NotFoundException when not able to fetch all the required data.
+     */
+    public ConnectorFacadeProxy createConnectorBean(
+            final ConnInstance connInstance,
+            final Set<ConnConfProperty> configuration)
+            throws NotFoundException {
+
+        final ConnInstance connInstanceClone =
+                (ConnInstance) SerializationUtils.clone(connInstance);
 
         connInstanceClone.setConfiguration(configuration);
 

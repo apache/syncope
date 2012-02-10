@@ -22,6 +22,7 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.pages.panels.StatusPanel.StatusBean;
 
 /**
  * Console client for invoking rest users services.
@@ -36,6 +37,7 @@ public class UserRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all stored users.
+     *
      * @param page pagination element to fetch
      * @param size maximum number to fetch
      * @return list of TaskTO objects
@@ -48,6 +50,7 @@ public class UserRestClient extends AbstractBaseRestClient {
 
     /**
      * Create a new user and start off the workflow.
+     *
      * @param userTO instance
      * @throws SyncopeClientCompositeErrorException
      */
@@ -60,6 +63,7 @@ public class UserRestClient extends AbstractBaseRestClient {
 
     /**
      * Update existing user.
+     *
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
@@ -93,6 +97,7 @@ public class UserRestClient extends AbstractBaseRestClient {
 
     /**
      * Search an user by its schema values.
+     *
      * @param userTO
      * @return UserTOs
      */
@@ -121,44 +126,50 @@ public class UserRestClient extends AbstractBaseRestClient {
                 ConnObjectTO.class, resourceName, objectId);
     }
 
-    public UserTO reactivate(long userId, List<String> resources)
+    public UserTO reactivate(long userId, List<StatusBean> statuses)
             throws SyncopeClientCompositeErrorException {
 
-        return enable(userId, resources, true);
+        return enable(userId, statuses, true);
     }
 
-    public UserTO suspend(long userId, List<String> resources)
+    public UserTO suspend(long userId, List<StatusBean> statuses)
             throws SyncopeClientCompositeErrorException {
 
-        return enable(userId, resources, false);
+        return enable(userId, statuses, false);
     }
 
     private UserTO enable(
             final long userId,
-            final List<String> resources,
+            final List<StatusBean> statuses,
             final boolean enable)
             throws SyncopeClientCompositeErrorException {
 
-        boolean performLoacal = false;
-        if (resources.contains("Syncope")) {
-            resources.remove("Syncope");
-            performLoacal = true;
-        }
-
         final StringBuilder query = new StringBuilder();
+
         query.append(baseURL).append("user/").append(
                 enable ? "reactivate/" : "suspend/").append(userId).
                 append("?").
-                // perform on syncope if and only if it has been requested
-                append("performLocally=").append(performLoacal).
-                append("&").
                 // perform on resource if and only if resources have been speciofied
-                append("performRemotely=").append(!resources.isEmpty()).
+                append("performRemotely=").append(!statuses.isEmpty()).
                 append("&");
 
-        for (String resource : resources) {
-            query.append("resourceNames=").append(resource).append("&");
+        boolean performLoacal = false;
+
+        for (StatusBean status : statuses) {
+            if ((enable && !status.getStatus().isActive())
+                    || (!enable && status.getStatus().isActive())) {
+
+                if ("Syncope".equals(status.getResourceName())) {
+                    performLoacal = true;
+                } else {
+                    query.append("resourceNames=").
+                            append(status.getResourceName()).append("&");
+                }
+            }
         }
+
+        // perform on syncope if and only if it has been requested
+        query.append("performLocally=").append(performLoacal);
 
         return restTemplate.getForObject(query.toString(), UserTO.class);
     }

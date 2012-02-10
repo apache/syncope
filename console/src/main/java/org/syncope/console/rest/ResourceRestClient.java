@@ -15,7 +15,6 @@
 package org.syncope.console.rest;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ResourceTO;
@@ -26,23 +25,6 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
  */
 @Component
 public class ResourceRestClient extends AbstractBaseRestClient {
-
-    public List<String> getSchemaNames(final String resourceName) {
-        List<String> schemaNames = null;
-
-        try {
-            schemaNames = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "resource/schema/{resourceName}/list",
-                    String[].class, resourceName));
-
-            // re-order schema names list
-            Collections.sort(schemaNames);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While getting resource schema names", e);
-        }
-
-        return schemaNames;
-    }
 
     public List<ResourceTO> getAllResources() {
         List<ResourceTO> resources = null;

@@ -44,4 +44,8 @@ public abstract class BaseModalPage extends WebPage {
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
     }
+
+    public FeedbackPanel getFeedbackPanel() {
+        return feedbackPanel;
+    }
 }

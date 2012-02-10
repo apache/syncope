@@ -82,8 +82,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     }
 
     /**
-     * Constructor that is invoked when page is invoked without a
-     * session.
+     * Constructor that is invoked when page is invoked without a session.
      *
      * @param PageParameters parameters
      */
@@ -171,12 +170,11 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
                                         @Override
                                         public Page createPage() {
-                                            return new UserModalPage(
+                                            return new UserRequestModalPage(
                                                     BasePage.this.
                                                     getPageReference(),
                                                     editProfileModalWin,
-                                                    userTO,
-                                                    UserModalPage.Mode.SELF);
+                                                    userTO);
                                         }
                                     });
 
@@ -213,6 +211,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     /**
      * Set a WindowClosedCallback for a ModalWindow instance.
+     *
      * @param window window
      * @param container container
      */

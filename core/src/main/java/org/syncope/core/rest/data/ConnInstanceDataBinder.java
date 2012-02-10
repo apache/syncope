@@ -93,7 +93,7 @@ public class ConnInstanceDataBinder {
     }
 
     public ConnInstance updateConnInstance(
-            final Long connectorInstanceId,
+            final long connInstanceId,
             final ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -105,16 +105,14 @@ public class ConnInstanceDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (connectorInstanceId == null) {
+        if (connInstanceId == 0) {
             requiredValuesMissing.addElement("connector id");
         }
 
-        ConnInstance connInstance =
-                connectorInstanceDAO.find(connectorInstanceId);
+        ConnInstance connInstance = connectorInstanceDAO.find(connInstanceId);
 
         if (connInstanceTO.getBundleName() != null) {
-            connInstance.setBundleName(
-                    connInstanceTO.getBundleName());
+            connInstance.setBundleName(connInstanceTO.getBundleName());
         }
 
         if (connInstanceTO.getVersion() != null) {
@@ -122,24 +120,20 @@ public class ConnInstanceDataBinder {
         }
 
         if (connInstanceTO.getConnectorName() != null) {
-            connInstance.setConnectorName(
-                    connInstanceTO.getConnectorName());
+            connInstance.setConnectorName(connInstanceTO.getConnectorName());
         }
 
         if (connInstanceTO.getConfiguration() != null
                 && !connInstanceTO.getConfiguration().isEmpty()) {
 
-            connInstance.setConfiguration(
-                    connInstanceTO.getConfiguration());
+            connInstance.setConfiguration(connInstanceTO.getConfiguration());
         }
 
         if (connInstanceTO.getDisplayName() != null) {
-            connInstance.setDisplayName(
-                    connInstanceTO.getDisplayName());
+            connInstance.setDisplayName(connInstanceTO.getDisplayName());
         }
 
-        connInstance.setCapabilities(
-                connInstanceTO.getCapabilities());
+        connInstance.setCapabilities(connInstanceTO.getCapabilities());
 
         if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
@@ -158,7 +152,8 @@ public class ConnInstanceDataBinder {
             throws NotFoundException {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setId(connInstance.getId());
+        connInstanceTO.setId(connInstance.getId() != null
+                ? connInstance.getId().longValue() : 0L);
 
         // retrieve the ConfigurationProperties.
         ConfigurationProperties properties =

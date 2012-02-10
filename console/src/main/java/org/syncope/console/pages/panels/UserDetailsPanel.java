@@ -14,7 +14,6 @@
  */
 package org.syncope.console.pages.panels;
 
-import java.util.Date;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -29,11 +28,8 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.console.SyncopeSession;
-import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 
 public class UserDetailsPanel extends Panel {
@@ -119,102 +115,6 @@ public class UserDetailsPanel extends Panel {
         });
 
         add(mandatoryPassword);
-        // ------------------------
-
-        // ------------------------
-        // Status
-        // ------------------------
-        final AjaxTextFieldPanel status = new AjaxTextFieldPanel(
-                "status",
-                "status",
-                new Model<String>(userTO.getStatus()),
-                false);
-
-        status.setReadOnly(true);
-        add(status);
-        // ------------------------
-
-        // ------------------------
-        // Creation date
-        // ------------------------
-        final DateTimeFieldPanel creationDate = new DateTimeFieldPanel(
-                "creationDate",
-                "creationDate",
-                new Model<Date>(userTO.getCreationDate()),
-                false,
-                SyncopeSession.get().getDateFormat().toLocalizedPattern());
-
-        creationDate.setReadOnly(true);
-        add(creationDate);
-        // ------------------------
-
-        // ------------------------
-        // Change password date
-        // ------------------------
-        final DateTimeFieldPanel changePwdDate = new DateTimeFieldPanel(
-                "changePwdDate",
-                "changePwdDate",
-                new Model<Date>(userTO.getChangePwdDate()),
-                false,
-                SyncopeSession.get().getDateFormat().toLocalizedPattern());
-
-        changePwdDate.setReadOnly(true);
-        add(changePwdDate);
-        // ------------------------
-
-        // ------------------------
-        // Last login date
-        // ------------------------
-        final DateTimeFieldPanel lastLoginDate = new DateTimeFieldPanel(
-                "lastLoginDate",
-                "lastLoginDate",
-                new Model<Date>(userTO.getLastLoginDate()),
-                false,
-                SyncopeSession.get().getDateFormat().toLocalizedPattern());
-
-        lastLoginDate.setReadOnly(true);
-        add(lastLoginDate);
-        // ------------------------
-
-        // ------------------------
-        // Failed logins
-        // ------------------------
-        final AjaxNumberFieldPanel failedLogins = new AjaxNumberFieldPanel(
-                "failedLogins",
-                "failedLogins",
-                new Model<Number>(userTO.getFailedLogins()),
-                Integer.class,
-                false);
-
-        failedLogins.setReadOnly(true);
-        add(failedLogins);
-        // ------------------------
-
-        // ------------------------
-        // Token
-        // ------------------------
-        final AjaxTextFieldPanel token = new AjaxTextFieldPanel(
-                "token",
-                "token",
-                new Model<String>(userTO.getToken()),
-                false);
-
-        token.setReadOnly(true);
-        add(token);
-        // ------------------------
-
-        // ------------------------
-        // Token expire time
-        // ------------------------
-        final DateTimeFieldPanel tokenExpireTime = new DateTimeFieldPanel(
-                "tokenExpireTime",
-                "tokenExpireTime",
-                new Model<Date>(userTO.getTokenExpireTime()),
-                false,
-                SyncopeSession.get().getDateFormat().toLocalizedPattern());
-
-        tokenExpireTime.setReadOnly(true);
-        add(tokenExpireTime);
         // ------------------------
     }
 }

@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,7 +118,8 @@ public class ResourceSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> passwordPolicy =
                 new AjaxDropDownChoicePanel<Long>(
                 "passwordPolicy",
-                getString("passwordPolicy"),
+                new ResourceModel("passwordPolicy", "passwordPolicy").
+                getObject(),
                 new PropertyModel(resourceTO, "passwordPolicy"),
                 false);
 
@@ -138,7 +140,8 @@ public class ResourceSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> accountPolicy =
                 new AjaxDropDownChoicePanel<Long>(
                 "accountPolicy",
-                getString("accountPolicy"),
+                new ResourceModel("accountPolicy", "accountPolicy").
+                getObject(),
                 new PropertyModel(resourceTO, "accountPolicy"),
                 false);
 
@@ -159,7 +162,8 @@ public class ResourceSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> syncPolicy =
                 new AjaxDropDownChoicePanel<Long>(
                 "syncPolicy",
-                getString("syncPolicy"),
+                new ResourceModel("syncPolicy", "syncPolicy").
+                getObject(),
                 new PropertyModel(resourceTO, "syncPolicy"),
                 false);
 

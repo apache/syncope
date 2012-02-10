@@ -14,29 +14,6 @@
 -->
 <wicket:head>
     <style>
-        div.group{
-            width:300px;
-        }
-
-        div#check{
-            width:20%;
-            height: 25px;
-            float:left;
-        }
-
-        div#resource{
-            margin-top: 3px;
-            width:70%;
-            height: 25px;
-            float:left;
-        }
-
-        div#status{
-            margin-top: 3px;
-            height: 25px;
-            float: left;
-        }
-
         .submit{
             display:  block;
             clear:  both;
@@ -52,22 +29,8 @@
         <wicket:message key="title"/>
         </p>
 
-        <div>
-            <span wicket:id="selections">
-                <div class="group">
-                    <div wicket:id="resources">
-                        <div id="check">
-                            <input type="checkbox" wicket:id="check"/>
-                        </div>
-                        <div id="resource">
-                            <span wicket:id="name">[schema name]</span>
-                        </div>
-                        <div id="status">
-                            <img wicket:id="icon"/>
-                        </div>
-                    </div>
-                </div>
-            </span>
+        <div style="display: block; margin: 10px">
+            <span wicket:id="statuspanel">[Status Panel]</span>
         </div>
 
         <div class="submit">

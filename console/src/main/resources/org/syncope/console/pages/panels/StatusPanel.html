@@ -1,0 +1,127 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<html>
+    <wicket:head>
+        <style>
+            div.group{
+                width:100%;
+            }
+
+            div#check{
+                width:8%;
+                height: 25px;
+                float:left;
+            }
+
+            div#resource{
+                margin-top: 3px;
+                margin-left: 5px;
+                width: 35%;
+                height: 25px;
+                float:left;
+            }
+
+            div#accountLink{
+                margin-top: 3px;
+                width:45%;
+                height: 25px;
+                float:left
+            }
+
+            div#status{
+                margin-top: 3px;
+                height: 25px;
+                width: 10%;
+                float: left;
+                text-align: center;
+            }
+
+            div.assignment {
+                display: inline-table;
+                width: 100%
+            }
+
+            div.assignments {
+                margin-top: 20px;
+                display: inline-table;
+                width: 100%;
+                border: 1px solid #DDDDDD;
+                color: #555555;
+            }
+        </style>
+    </wicket:head>
+    <wicket:panel>
+        <div class="assignments">
+            <div class="group">
+                <div>
+                    <span wicket:id="headerCheck"/>
+
+                    <div id="resource">
+                        <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+                            <wicket:message key="resourceheader"/>
+                        </span>
+                    </div>
+                    <div id="accountLink">
+                        <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+                            <wicket:message key="accountlinkheader"/>
+                        </span>
+                    </div>
+                    <div id="status">
+                        <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+                            <wicket:message key="statusheader"/>
+                        </span>
+                    </div>
+                </div>
+
+                <span wicket:id="group">
+
+                    <div wicket:id="resources" class="assignment">
+                        <span wicket:id="rowCheck"/>
+
+                        <div id="resource">
+                            <span wicket:id="resource">[resource name]</span>
+                        </div>
+                        <div id="accountLink">
+                            <span wicket:id="accountLink">[accountLink]</span>
+                        </div>
+                        <div id="status">
+                            <img wicket:id="icon"/>
+                        </div>
+                    </div>
+
+                    <wicket:fragment wicket:id="rowCheckFrag">
+                        <div id="check">
+                            <input type="checkbox" wicket:id="check"/>
+                        </div>
+                    </wicket:fragment>
+                </span>
+            </div>
+
+            <wicket:fragment wicket:id="headerCheckFrag">
+                <div id="check">
+                    <input type="checkbox" wicket:id="groupselector" />
+                </div>
+            </wicket:fragment>
+
+            <wicket:fragment wicket:id="emptyCheckFrag" />
+        </div>
+
+        <script type="text/javascript">
+            $(function() {
+                $('div.assignments div.assignment:even').addClass("alt");
+            });
+        </script>
+    </wicket:panel>
+</html>

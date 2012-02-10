@@ -14,10 +14,10 @@
  */
 package org.syncope.client.to;
 
-import org.syncope.types.ConnConfPropSchema;
 import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.ConnConfPropSchema;
 
 public class ConnBundleTO extends AbstractBaseBean {
 
@@ -83,27 +83,5 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        // needed into the administration console
-        if (obj instanceof ConnBundleTO) {
-            return toString().equals(obj.toString());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        // needed into the administration console
-        return toString().hashCode();
-    }
-
-    @Override
-    public String toString() {
-        // needed into the administration console
-        return bundleName + "#" + version;
     }
 }

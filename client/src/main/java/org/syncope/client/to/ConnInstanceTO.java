@@ -14,7 +14,6 @@
  */
 package org.syncope.client.to;
 
-import org.syncope.types.ConnConfProperty;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,13 +21,14 @@ import java.util.Map;
 import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
 public class ConnInstanceTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2707778645445168671L;
 
-    private Long id;
+    private long id;
 
     private String bundleName;
 
@@ -49,11 +49,11 @@ public class ConnInstanceTO extends AbstractBaseBean {
         capabilities = EnumSet.noneOf(ConnectorCapability.class);
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

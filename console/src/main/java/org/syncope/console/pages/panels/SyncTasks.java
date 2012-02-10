@@ -47,7 +47,7 @@ import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.SyncTaskModalPage;
 import org.syncope.console.pages.Tasks;
 import org.syncope.console.pages.Tasks.TasksProvider;
-import org.syncope.console.pages.UserModalPage;
+import org.syncope.console.pages.UserTemplateModalPage;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
@@ -174,7 +174,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new UserModalPage(
+                                return new UserTemplateModalPage(
                                         callerPageRef, window, taskTO);
                             }
                         });

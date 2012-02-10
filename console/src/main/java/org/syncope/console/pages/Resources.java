@@ -323,8 +323,7 @@ public class Resources extends BasePage {
                                     public Page createPage() {
                                         return new ConnectorModalPage(
                                                 Resources.this.getPageReference(),
-                                                editConnectorWin, connectorTO,
-                                                false);
+                                                editConnectorWin, connectorTO);
                                     }
                                 });
 
@@ -397,7 +396,7 @@ public class Resources extends BasePage {
                     public Page createPage() {
                         ConnectorModalPage form = new ConnectorModalPage(
                                 Resources.this.getPageReference(),
-                                editConnectorWin, new ConnInstanceTO(), true);
+                                editConnectorWin, new ConnInstanceTO());
                         return form;
                     }
                 });

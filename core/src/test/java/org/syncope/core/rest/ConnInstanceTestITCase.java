@@ -147,6 +147,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // check for the updating
         connectorTO.setId(actual.getId());
+
         connectorTO.removeCapability(ConnectorCapability.TWO_PHASES_UPDATE);
         actual = null;
         try {
@@ -166,7 +167,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json",
-                    actual.getId().toString());
+                    String.valueOf(actual.getId()));
         } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
             t = e;
@@ -179,7 +180,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             restTemplate.getForObject(
                     BASE_URL + "connector/read/{connectorId}",
                     ConnInstanceTO.class,
-                    actual.getId().toString());
+                    String.valueOf(actual.getId()));
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -228,8 +229,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
-        ConnInstanceTO actual =
-                (ConnInstanceTO) restTemplate.postForObject(
+        ConnInstanceTO actual = (ConnInstanceTO) restTemplate.postForObject(
                 BASE_URL + "connector/update.json",
                 connectorTO, ConnInstanceTO.class);
 
@@ -238,7 +238,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         actual = restTemplate.getForObject(
                 BASE_URL + "connector/read/{connectorId}",
                 ConnInstanceTO.class,
-                actual.getId().toString());
+                String.valueOf(actual.getId()));
 
         assertNotNull(actual);
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -447,11 +447,43 @@ public class ConnInstanceTestITCase extends AbstractTest {
         conf.remove(password);
         password.setValues(Collections.singletonList("password"));
         conf.add(password);
-        
+
         verify = restTemplate.postForObject(
                 BASE_URL + "connector/check.json",
                 connectorTO, Boolean.class);
-        
+
         assertFalse(verify);
+    }
+
+    @Test
+    public void getSchemaNames() {
+        ConnInstanceTO conn = restTemplate.getForObject(
+                BASE_URL + "connector/read/{connectorId}.json",
+                ConnInstanceTO.class, "101");
+
+        List<String> schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector/schema/list?showall=true",
+                conn, String[].class));
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
+
+        schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector/schema/list",
+                conn, String[].class));
+        assertNotNull(schemaNames);
+        assertEquals(0, schemaNames.size());
+
+        conn = restTemplate.getForObject(
+                BASE_URL + "connector/read/{connectorId}.json",
+                ConnInstanceTO.class, "104");
+
+        // to be used with overridden properties
+        conn.getConfiguration().clear();
+
+        schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector//schema/list?showall=true",
+                conn, String[].class, conn));
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
     }
 }

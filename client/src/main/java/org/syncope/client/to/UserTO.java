@@ -33,6 +33,8 @@ public class UserTO extends AbstractAttributableTO {
 
     private List<MembershipTO> memberships;
 
+    private List<ConnObjectTO> connObjectTOs;
+
     private String status;
 
     private String token;
@@ -55,6 +57,7 @@ public class UserTO extends AbstractAttributableTO {
         super();
 
         memberships = new ArrayList<MembershipTO>();
+        connObjectTOs = new ArrayList<ConnObjectTO>();
         propagationStatusMap = new HashMap<String, PropagationTaskExecStatus>();
     }
 
@@ -183,6 +186,14 @@ public class UserTO extends AbstractAttributableTO {
         if (propagationStatusMap != null && !propagationStatusMap.isEmpty()) {
             this.propagationStatusMap.putAll(propagationStatusMap);
         }
+    }
+
+    public List<ConnObjectTO> getConnObjectTOs() {
+        return connObjectTOs;
+    }
+
+    public void setConnObjectTOs(final List<ConnObjectTO> connObjectTOs) {
+        this.connObjectTOs = connObjectTOs;
     }
 
     @Override

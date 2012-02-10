@@ -18,11 +18,10 @@ package org.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -48,7 +47,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.ClassUtils;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -96,23 +94,36 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private CheckBoxMultipleChoice capabilitiesPalette;
 
-    private ConnBundleTO selectedBundleTO = new ConnBundleTO();
-
     private WebMarkupContainer propertiesContainer;
 
     private List<ConnectorCapability> selectedCapabilities;
 
+    private ConnBundleTO bundleTO;
+
+    private List<ConnConfProperty> properties;
+
     public ConnectorModalPage(
             final PageReference callerPageRef,
             final ModalWindow window,
-            final ConnInstanceTO connectorTO,
-            final boolean createFlag) {
+            final ConnInstanceTO connectorTO) {
 
         super();
 
-        selectedCapabilities = new ArrayList(createFlag
+        selectedCapabilities = new ArrayList(connectorTO.getId() == 0
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connectorTO.getCapabilities());
+
+        final IModel<List<ConnectorCapability>> capabilities =
+                new LoadableDetachableModel<List<ConnectorCapability>>() {
+
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
 
         final IModel<List<ConnBundleTO>> bundles =
                 new LoadableDetachableModel<List<ConnBundleTO>>() {
@@ -126,49 +137,8 @@ public class ConnectorModalPage extends BaseModalPage {
                     }
                 };
 
-        IModel<List<ConnConfProperty>> selectedBundleProperties =
-                new LoadableDetachableModel<List<ConnConfProperty>>() {
-
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
-
-                    @Override
-                    protected List<ConnConfProperty> load() {
-                        List<ConnConfProperty> result;
-
-                        if (createFlag) {
-                            connectorTO.setConnectorName(
-                                    selectedBundleTO.getConnectorName());
-                            connectorTO.setVersion(
-                                    selectedBundleTO.getVersion());
-
-                            result = new ArrayList<ConnConfProperty>();
-                            ConnConfProperty propertyTO;
-
-                            for (ConnConfPropSchema key :
-                                    selectedBundleTO.getProperties()) {
-
-                                propertyTO = new ConnConfProperty();
-                                propertyTO.setSchema(key);
-
-                                result.add(propertyTO);
-                            }
-                        } else {
-                            BeanUtils.copyProperties(
-                                    connectorTO, selectedBundleTO, new String[]{
-                                        "id", "configuration", "capabilities"});
-
-                            result = new ArrayList<ConnConfProperty>(
-                                    connectorTO.getConfiguration());
-                        }
-
-                        if (result != null && !result.isEmpty()) {
-                            Collections.sort(result);
-                        }
-
-                        return result;
-                    }
-                };
+        bundleTO = getSelectedBundleTO(bundles.getObject(), connectorTO);
+        properties = getProperties(bundleTO, connectorTO);
 
         final AjaxTextFieldPanel connectorName = new AjaxTextFieldPanel(
                 "connectorName",
@@ -199,7 +169,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<ConnBundleTO> bundle =
                 new AjaxDropDownChoicePanel<ConnBundleTO>(
-                "bundle", "bundle", new Model(null), true);
+                "bundle", "bundle", new Model<ConnBundleTO>(bundleTO), false);
 
         bundle.setStyleShet("long_dynamicsize");
 
@@ -219,7 +189,7 @@ public class ConnectorModalPage extends BaseModalPage {
             public String getIdValue(final ConnBundleTO object,
                     final int index) {
                 // idValue must include version as well in order to cope
-                //with multiple version of the same bundle.
+                // with multiple version of the same bundle.
                 return object.getBundleName() + "#" + object.getVersion();
             }
         });
@@ -238,13 +208,14 @@ public class ConnectorModalPage extends BaseModalPage {
                         //reset all informations stored in connectorTO
                         connectorTO.setConfiguration(
                                 new HashSet<ConnConfProperty>());
-                        DropDownChoice bundleChoice =
-                                (DropDownChoice) bundle.getField();
-                        bundleChoice.setNullValid(false);
+
+                        ((DropDownChoice) bundle.getField()).setNullValid(false);
                         target.add(bundle.getField());
-                        target.add(propertiesContainer);
+
                         target.add(connectorName);
                         target.add(version);
+
+                        target.add(propertiesContainer);
                     }
                 });
 
@@ -254,12 +225,18 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             public ConnBundleTO getObject() {
-                return selectedBundleTO;
+                return bundleTO;
             }
 
             @Override
             public void setObject(final ConnBundleTO object) {
-                selectedBundleTO = object;
+                if (object != null && connectorTO != null) {
+                    connectorTO.setBundleName(object.getBundleName());
+                    connectorTO.setVersion(object.getVersion());
+                    connectorTO.setConnectorName(object.getConnectorName());
+                    properties = getProperties(object, connectorTO);
+                    bundleTO = object;
+                }
             }
 
             @Override
@@ -268,10 +245,11 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         bundle.addRequiredLabel();
-        bundle.setEnabled(createFlag);
+        bundle.setEnabled(connectorTO.getId() == 0);
 
-        final ListView<ConnConfProperty> propView = new ListView<ConnConfProperty>(
-                "connectorProperties", selectedBundleProperties) {
+        final ListView<ConnConfProperty> view = new ListView<ConnConfProperty>(
+                "connectorProperties",
+                new PropertyModel(this, "properties")) {
 
             private static final long serialVersionUID =
                     9101744072914090143L;
@@ -283,8 +261,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 final Label label = new Label("connPropAttrSchema",
                         property.getSchema().getDisplayName() == null
-                        || property.getSchema().getDisplayName().
-                        isEmpty()
+                        || property.getSchema().getDisplayName().isEmpty()
                         ? property.getSchema().getName()
                         : property.getSchema().getDisplayName());
 
@@ -400,10 +377,10 @@ public class ConnectorModalPage extends BaseModalPage {
 
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);
-
         propertiesContainer.add(connectorPropForm);
+
         connectorForm.add(propertiesContainer);
-        connectorPropForm.add(propView);
+        connectorPropForm.add(view);
 
         final AjaxLink check =
                 new IndicatingAjaxLink("check", new ResourceModel("check")) {
@@ -414,17 +391,16 @@ public class ConnectorModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        connectorTO.setBundleName(
-                                selectedBundleTO.getBundleName());
-                        connectorTO.setVersion(selectedBundleTO.getVersion());
+                        connectorTO.setBundleName(bundleTO.getBundleName());
+                        connectorTO.setVersion(bundleTO.getVersion());
 
-                            if (restClient.check(connectorTO).booleanValue()) {
-                                info(getString("success_connection"));
-                            } else {
-                                error(getString("error_connection"));
-                            }
-                            
-                            target.add(feedbackPanel);
+                        if (restClient.check(connectorTO).booleanValue()) {
+                            info(getString("success_connection"));
+                        } else {
+                            error(getString("error_connection"));
+                        }
+
+                        target.add(feedbackPanel);
                     }
                 };
 
@@ -439,27 +415,25 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
-                final ConnInstanceTO connector =
+                final ConnInstanceTO conn =
                         (ConnInstanceTO) form.getDefaultModelObject();
 
-                ConnBundleTO bundleTO = (ConnBundleTO) bundle.getModelObject();
-                connector.setBundleName(bundleTO.getBundleName());
+                conn.setBundleName(bundleTO.getBundleName());
 
                 // Set the model object's capabilites to
                 // capabilitiesPalette's converted Set
                 if (!selectedCapabilities.isEmpty()) {
                     // exception if selectedCapabilities is empy
-                    connector.setCapabilities(
-                            EnumSet.copyOf(selectedCapabilities));
+                    conn.setCapabilities(EnumSet.copyOf(selectedCapabilities));
                 } else {
-                    connector.setCapabilities(
+                    conn.setCapabilities(
                             EnumSet.noneOf(ConnectorCapability.class));
                 }
                 try {
-                    if (createFlag) {
-                        restClient.create(connector);
+                    if (connectorTO.getId() == 0) {
+                        restClient.create(conn);
                     } else {
-                        restClient.update(connector);
+                        restClient.update(conn);
                     }
 
                     ((Resources) callerPageRef.getPage()).setModalResult(true);
@@ -467,10 +441,8 @@ public class ConnectorModalPage extends BaseModalPage {
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
-                    ((Resources) callerPageRef.getPage()).setModalResult(
-                            false);
-                    LOG.error("While creating or updating connector "
-                            + connector);
+                    ((Resources) callerPageRef.getPage()).setModalResult(false);
+                    LOG.error("While creating or updating connector {}", conn);
                 }
             }
 
@@ -482,29 +454,16 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         };
 
-        String allowedRoles = createFlag
+        String roles = connectorTO.getId() == 0
                 ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
                 : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
 
         connectorForm.add(connectorName);
         connectorForm.add(displayName);
         connectorForm.add(bundle);
         connectorForm.add(version);
-
-        final IModel<List<ConnectorCapability>> capabilities =
-                new LoadableDetachableModel<List<ConnectorCapability>>() {
-
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
-
-                    @Override
-                    protected List<ConnectorCapability> load() {
-                        return Arrays.asList(ConnectorCapability.values());
-                    }
-                };
 
         capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
                 new PropertyModel(this, "selectedCapabilities"), capabilities);
@@ -513,5 +472,52 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(submit);
 
         add(connectorForm);
+    }
+
+    private ConnBundleTO getSelectedBundleTO(
+            final List<ConnBundleTO> bundles, final ConnInstanceTO connTO) {
+        // -------------------------------------
+        // Manage bundle and connector beans
+        // -------------------------------------
+
+        if (connTO != null
+                && StringUtils.isNotBlank(connTO.getBundleName())
+                && StringUtils.isNotBlank(connTO.getVersion())) {
+
+            for (ConnBundleTO to : bundles) {
+                if (to.getVersion().equals(connTO.getVersion())
+                        && to.getBundleName().equals(connTO.getBundleName())) {
+
+                    connTO.setConnectorName(to.getConnectorName());
+                    connTO.setVersion(to.getVersion());
+
+                    return to;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private List<ConnConfProperty> getProperties(
+            final ConnBundleTO bundleTO, final ConnInstanceTO connTO) {
+
+        // -------------------------------------
+        // Manage bundle properties
+        // -------------------------------------
+        final List<ConnConfProperty> props = new ArrayList<ConnConfProperty>();
+
+        if (connTO.getId() == 0 && bundleTO != null) {
+            for (ConnConfPropSchema key : bundleTO.getProperties()) {
+                final ConnConfProperty propertyTO = new ConnConfProperty();
+                propertyTO.setSchema(key);
+                props.add(propertyTO);
+            }
+        } else {
+            props.addAll(connTO.getConfiguration());
+        }
+        // -------------------------------------
+
+        return props;
     }
 }

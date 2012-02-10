@@ -15,7 +15,6 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
@@ -200,35 +198,6 @@ public class ResourceController extends AbstractController {
         }
 
         return binder.getResourceTOs(resources);
-    }
-
-    @PreAuthorize("hasRole('RESOURCE_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/schema/{resourceName}/list")
-    @Transactional(readOnly = true)
-    public List<String> getSchemaNames(
-            @PathVariable("resourceName") final String resourceName,
-            @RequestParam(required = false,
-            value = "showall", defaultValue = "false") final boolean showall)
-            throws NotFoundException {
-
-        ExternalResource resource = resourceDAO.find(resourceName);
-        if (resource == null) {
-            LOG.error("Could not find resource '" + resourceName + "'");
-            throw new NotFoundException("Resource '" + resourceName + "'");
-        }
-
-        // We cannot use Spring bean because this method could be used during
-        // resource definition or modification: bean couldn't exist or bean
-        // couldn't be updated.
-        // This is the reason why we should take a "not mature" connector
-        // facade proxy to ask for schema names.
-
-        List<String> result = new ArrayList<String>(
-                connLoader.createConnectorBean(resource).getSchema(showall));
-        Collections.sort(result);
-
-        return result;
     }
 
     @PreAuthorize("hasRole('RESOURCE_READ')")
