@@ -11,21 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.syncope.client.report;
+package org.syncope.core.report;
 
-public class XMLReport {
+import org.syncope.client.report.ReportletConf;
 
-    public static String TYPE_TEXT = "CDATA";
+public abstract class AbstractReportlet implements Reportlet {
 
-    public enum Elements {
+    private ReportletConf conf;
 
-        report
-
+    public ReportletConf getConf() {
+        return conf;
     }
 
-    public enum Attrs {
-
-        name
-
+    @Override
+    public void setConf(final ReportletConf conf) {
+        this.conf = conf;
     }
 }

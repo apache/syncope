@@ -23,8 +23,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.syncope.client.report.Reportlet;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.validation.entity.ReportCheck;
 import org.syncope.core.util.XMLSerializer;
 
@@ -41,9 +42,10 @@ public class Report extends AbstractBaseBean {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Lob
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "reportlets")
-    private List<String> reportlets;
+    @Column(name = "reportletConfs", columnDefinition = "CLOB")
+    private List<String> reportletConfs;
 
     private String cronExpression;
 
@@ -54,7 +56,7 @@ public class Report extends AbstractBaseBean {
     public Report() {
         super();
 
-        reportlets = new ArrayList<String>();
+        reportletConfs = new ArrayList<String>();
         executions = new ArrayList<ReportExec>();
     }
 
@@ -90,39 +92,41 @@ public class Report extends AbstractBaseBean {
         }
     }
 
-    public boolean addReportlet(Reportlet reportlet) {
-        if (reportlet == null) {
+    public boolean addReportletConf(ReportletConf reportletConf) {
+        if (reportletConf == null) {
             return false;
         }
 
-        String xmlReportlet = XMLSerializer.serialize(reportlet);
-        return !reportlets.contains(xmlReportlet)
-                && reportlets.add(xmlReportlet);
+        String xmlReportlet = XMLSerializer.serialize(reportletConf);
+        return !reportletConfs.contains(xmlReportlet)
+                && reportletConfs.add(xmlReportlet);
     }
 
-    public boolean removeReportlet(Reportlet reportlet) {
-        if (reportlet == null) {
+    public boolean removeReportletConf(ReportletConf reportletConf) {
+        if (reportletConf == null) {
             return false;
         }
 
-        String xmlReportlet = XMLSerializer.serialize(reportlet);
-        return reportlets.remove(xmlReportlet);
+        String xmlReportlet = XMLSerializer.serialize(reportletConf);
+        return reportletConfs.remove(xmlReportlet);
     }
 
-    public List<Reportlet> getReportlets() {
-        List<Reportlet> result = new ArrayList<Reportlet>(reportlets.size());
-        for (String xmlReportlet : reportlets) {
-            result.add(XMLSerializer.<Reportlet>deserialize(xmlReportlet));
+    public List<ReportletConf> getReportletConfs() {
+        List<ReportletConf> result =
+                new ArrayList<ReportletConf>(reportletConfs.size());
+        for (String xmlReportletConf : reportletConfs) {
+            result.add(
+                    XMLSerializer.<ReportletConf>deserialize(xmlReportletConf));
         }
 
         return result;
     }
 
-    public void setReportlets(List<Reportlet> reportlets) {
-        this.reportlets.clear();
-        if (reportlets != null && !reportlets.isEmpty()) {
-            for (Reportlet reportlet : reportlets) {
-                addReportlet(reportlet);
+    public void setReportlets(List<ReportletConf> reportletConfs) {
+        this.reportletConfs.clear();
+        if (reportletConfs != null && !reportletConfs.isEmpty()) {
+            for (ReportletConf reportlet : reportletConfs) {
+                addReportletConf(reportlet);
             }
         }
     }

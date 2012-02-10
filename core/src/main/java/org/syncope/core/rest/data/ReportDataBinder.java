@@ -15,7 +15,7 @@ package org.syncope.core.rest.data;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
-import org.syncope.client.report.Reportlet;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.core.persistence.beans.Report;
@@ -31,21 +31,19 @@ public class ReportDataBinder {
         "id", "report", "execResult"};
 
     public void getReport(final Report report, final ReportTO reportTO) {
-        BeanUtils.copyProperties(reportTO, report,
-                IGNORE_REPORT_PROPERTIES);
-        report.getReportlets().clear();
-        for (Reportlet reportlet : reportTO.getReportlets()) {
-            report.addReportlet(reportlet);
+        BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
+        report.getReportletConfs().clear();
+        for (ReportletConf conf : reportTO.getReportletConfs()) {
+            report.addReportletConf(conf);
         }
     }
 
     public ReportTO getReportTO(final Report report) {
         ReportTO reportTO = new ReportTO();
         reportTO.setId(report.getId());
-        BeanUtils.copyProperties(report, reportTO,
-                IGNORE_REPORT_PROPERTIES);
+        BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
 
-        reportTO.setReportlets(report.getReportlets());
+        reportTO.setReportletConfs(report.getReportletConfs());
 
         for (ReportExec reportExec : report.getExecs()) {
             reportTO.addExec(getReportExecTO(reportExec));

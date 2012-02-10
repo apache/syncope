@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.syncope.client.report.UserReportlet;
+import org.syncope.client.report.UserReportletConf;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
@@ -103,21 +103,20 @@ public class JSONTest {
     }
 
     @Test
-    public void testReportletImplementations()
+    public void testReportletConfImplementations()
             throws IOException {
 
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");
-        report.addReportlet(new UserReportlet());
-        report.addReportlet(new UserReportlet("second"));
+        report.addReportletConf(new UserReportletConf("first"));
+        report.addReportletConf(new UserReportletConf("second"));
 
         ObjectMapper mapper = new ObjectMapper();
 
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, report);
 
-        ReportTO actual = mapper.readValue(
-                writer.toString(), ReportTO.class);
+        ReportTO actual = mapper.readValue(writer.toString(), ReportTO.class);
         assertEquals(report, actual);
     }
 }

@@ -16,7 +16,7 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.client.report.Reportlet;
+import org.syncope.client.report.ReportletConf;
 
 public class ReportTO extends AbstractBaseBean {
 
@@ -26,7 +26,7 @@ public class ReportTO extends AbstractBaseBean {
 
     private String name;
 
-    private List<Reportlet> reportlets;
+    private List<ReportletConf> reportletConfs;
 
     private String cronExpression;
 
@@ -35,7 +35,7 @@ public class ReportTO extends AbstractBaseBean {
     public ReportTO() {
         super();
 
-        reportlets = new ArrayList<Reportlet>();
+        reportletConfs = new ArrayList<ReportletConf>();
         executions = new ArrayList<ReportExecTO>();
     }
 
@@ -55,20 +55,20 @@ public class ReportTO extends AbstractBaseBean {
         this.name = name;
     }
 
-    public boolean addReportlet(Reportlet reportlet) {
-        return this.reportlets.add(reportlet);
+    public boolean addReportletConf(ReportletConf reportlet) {
+        return this.reportletConfs.add(reportlet);
     }
 
-    public boolean removeReportlet(Reportlet reportlet) {
-        return this.reportlets.remove(reportlet);
+    public boolean removeReportletConf(ReportletConf reportlet) {
+        return this.reportletConfs.remove(reportlet);
     }
 
-    public List<Reportlet> getReportlets() {
-        return reportlets;
+    public List<ReportletConf> getReportletConfs() {
+        return reportletConfs;
     }
 
-    public void setReportlets(List<Reportlet> reportlets) {
-        this.reportlets = reportlets;
+    public void setReportletConfs(List<ReportletConf> reportlets) {
+        this.reportletConfs = reportlets;
     }
 
     public String getCronExpression() {

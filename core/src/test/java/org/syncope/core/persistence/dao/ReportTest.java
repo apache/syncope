@@ -20,7 +20,7 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.client.report.UserReportlet;
+import org.syncope.client.report.UserReportletConf;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.Report;
 
@@ -52,8 +52,8 @@ public class ReportTest extends AbstractTest {
 
         Report report = new Report();
         report.setName("new report");
-        report.addReportlet(new UserReportlet());
-        report.addReportlet(new UserReportlet("second"));
+        report.addReportletConf(new UserReportletConf("first"));
+        report.addReportletConf(new UserReportletConf("second"));
 
         report = reportDAO.save(report);
         assertNotNull(report);

@@ -580,6 +580,6 @@
     <Notification_events Notification_id="101" events="unexisting2"/>
     
     <Report id="1" name="test"/>
-    <Report_reportlets Report_id="1" reportlets="%3Corg.syncope.client.report.UserReportlet%3E%0A++%3Cname%3EtestReportlet%3C%2Fname%3E%0A%3C%2Forg.syncope.client.report.UserReportlet%3E"/>
+    <Report_reportletConfs Report_id="1" reportletConfs="%3Corg.syncope.client.report.UserReportletConf%3E%0A++%3Cname%3Eorg.syncope.client.report.UserReportletConf%3C%2Fname%3E%0A++%3Cattrs%2F%3E%0A++%3CderAttrs%2F%3E%0A++%3CvirAttrs%2F%3E%0A++%3Cfeatures%2F%3E%0A%3C%2Forg.syncope.client.report.UserReportletConf%3E"/>
     <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
 </dataset>

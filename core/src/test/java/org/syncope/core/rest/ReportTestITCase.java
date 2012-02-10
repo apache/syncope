@@ -13,19 +13,19 @@
  */
 package org.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.syncope.client.report.UserReportlet;
+import org.syncope.client.report.UserReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.to.UserTO;
@@ -85,8 +85,8 @@ public class ReportTestITCase extends AbstractTest {
     public void create() {
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");
-        report.addReportlet(new UserReportlet());
-        report.addReportlet(new UserReportlet("second"));
+        report.addReportletConf(new UserReportletConf("first"));
+        report.addReportletConf(new UserReportletConf("second"));
 
         report = restTemplate.postForObject(
                 BASE_URL + "report/create", report, ReportTO.class);
@@ -103,28 +103,28 @@ public class ReportTestITCase extends AbstractTest {
     public void update() {
         ReportTO report = new ReportTO();
         report.setName("testReportForUpdate");
-        report.addReportlet(new UserReportlet());
-        report.addReportlet(new UserReportlet("second"));
+        report.addReportletConf(new UserReportletConf("first"));
+        report.addReportletConf(new UserReportletConf("second"));
 
         report = restTemplate.postForObject(
                 BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
-        assertEquals(2, report.getReportlets().size());
+        assertEquals(2, report.getReportletConfs().size());
 
-        report.addReportlet(new UserReportlet("last"));
+        report.addReportletConf(new UserReportletConf("last"));
 
         ReportTO updated = restTemplate.postForObject(
                 BASE_URL + "report/update", report, ReportTO.class);
         assertNotNull(updated);
-        assertEquals(3, updated.getReportlets().size());
+        assertEquals(3, updated.getReportletConfs().size());
     }
 
     @Test
     public void delete() {
         ReportTO report = new ReportTO();
         report.setName("testReportForDelete");
-        report.addReportlet(new UserReportlet());
-        report.addReportlet(new UserReportlet("second"));
+        report.addReportletConf(new UserReportletConf("first"));
+        report.addReportletConf(new UserReportletConf("second"));
 
         report = restTemplate.postForObject(
                 BASE_URL + "report/create", report, ReportTO.class);
@@ -163,7 +163,7 @@ public class ReportTestITCase extends AbstractTest {
             newExecs = reportTO.getExecutions().size();
         }
         assertEquals(newExecs, execs + 1);
-        
+
         long newExec = reportTO.getExecutions().get(newExecs - 1).getId();
 
         HttpGet getMethod = new HttpGet(

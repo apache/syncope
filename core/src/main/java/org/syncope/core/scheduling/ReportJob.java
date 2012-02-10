@@ -17,10 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -34,18 +31,15 @@ import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.syncope.client.report.Reportlet;
-import org.syncope.client.report.XMLReport;
-import org.syncope.client.report.XMLReport.Attrs;
-import org.syncope.client.report.XMLReport.Elements;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
+import org.syncope.core.report.Reportlet;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ReportExecStatus;
 import org.xml.sax.SAXException;
@@ -61,6 +55,12 @@ public class ReportJob implements StatefulJob {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ReportJob.class);
+
+    private static String TYPE_TEXT = "CDATA";
+
+    private static String ELEMENT_REPORT = "report";
+
+    private static String ATTR_NAME = "name";
 
     /**
      * Report DAO.
@@ -142,39 +142,39 @@ public class ReportJob implements StatefulJob {
             // report header
             handler.startDocument();
             AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "", Attrs.name.name(),
-                    XMLReport.TYPE_TEXT, report.getName());
-            handler.startElement("", "", Elements.report.name(), atts);
+            atts.addAttribute("", "", ATTR_NAME, TYPE_TEXT, report.getName());
+            handler.startElement("", "", ELEMENT_REPORT, atts);
 
             // iterate over reportlet instances defined for this report
-            for (Reportlet reportlet : report.getReportlets()) {
-                // for each reportlet instance, get an autowired instance
-                // and copy non autowired field values
-                List<String> ignoreProperties = new ArrayList<String>();
-                for (Field field : reportlet.getClass().getFields()) {
-                    if (field.isAnnotationPresent(Autowired.class)) {
-                        ignoreProperties.add(field.getName());
-                    }
+            for (ReportletConf reportletConf : report.getReportletConfs()) {
+                Class reportletClass = null;
+                try {
+                    reportletClass = Class.forName(
+                            reportletConf.getReportletClassName());
+                } catch (ClassNotFoundException e) {
+                    LOG.error("Reportlet class not found: {}",
+                            reportletConf.getReportletClassName(), e);
+
                 }
 
-                Reportlet autowired = (Reportlet) beanFactory.autowire(
-                        reportlet.getClass(),
-                        AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                BeanUtils.copyProperties(reportlet, autowired,
-                        ignoreProperties.toArray(new String[ignoreProperties.
-                        size()]));
+                if (reportletClass != null) {
+                    Reportlet autowired =
+                            (Reportlet) beanFactory.autowire(reportletClass,
+                            AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    autowired.setConf(reportletConf);
 
-                // invoke reportlet
-                try {
-                    autowired.extract(handler);
-                } catch (SAXException e) {
-                    LOG.error("While extracting from reportlet {}",
-                            reportlet.getName(), e);
+                    // invoke reportlet
+                    try {
+                        autowired.extract(handler);
+                    } catch (SAXException e) {
+                        LOG.error("While extracting from reportlet {}",
+                                reportletConf.getName(), e);
+                    }
                 }
             }
 
             // report footer
-            handler.endElement("", "", Elements.report.name());
+            handler.endElement("", "", ELEMENT_REPORT);
             handler.endDocument();
 
             execution.setStatus(ReportExecStatus.SUCCESS);

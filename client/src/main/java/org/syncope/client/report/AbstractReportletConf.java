@@ -13,23 +13,25 @@
  */
 package org.syncope.client.report;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import org.syncope.client.AbstractBaseBean;
 
-public class UserReportlet extends AbstractReportlet {
+public abstract class AbstractReportletConf extends AbstractBaseBean
+        implements ReportletConf {
 
-    private static final long serialVersionUID = 6602717600064602764L;
+    private static final long serialVersionUID = -6130008602014516608L;
 
-    public UserReportlet() {
-        super();
-    }
+    private String name;
 
-    public UserReportlet(final String name) {
-        super(name);
+    public AbstractReportletConf(final String name) {
+        this.name = name;
     }
 
     @Override
-    public void extract(final ContentHandler handler)
-            throws SAXException {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 }

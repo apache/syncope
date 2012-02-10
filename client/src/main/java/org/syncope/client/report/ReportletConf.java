@@ -14,31 +14,22 @@
 package org.syncope.client.report;
 
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
-/**
- * Interface for all elements that can be embedded in a report.
- *
- * @see org.syncope.core.persistence.beans.Report
- */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
 include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface Reportlet {
+public interface ReportletConf {
 
     /**
-     * Give name of this reportlet instance.
+     * Give name of related reportlet instance.
      *
      * @return name of this reportlet instance
      */
     String getName();
 
     /**
-     * Actual data extraction for reporting.
+     * Return Reportlet implementation for this conf.
      *
-     * @param handler SAX content handler for streaming result
-     * @throws SAXException if anything goes wrong
+     * @return corresponding reportlet class name
      */
-    void extract(ContentHandler handler)
-            throws SAXException;
+    String getReportletClassName();
 }
