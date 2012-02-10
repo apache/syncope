@@ -72,9 +72,8 @@ public abstract class AbstractDAOImpl implements DAO {
     }
 
     @Override
-    public <T extends AbstractBaseBean> T refresh(final T entity) {
+    public <T extends AbstractBaseBean> void refresh(final T entity) {
         entityManager.refresh(entity);
-        return entity;
     }
 
     @Override

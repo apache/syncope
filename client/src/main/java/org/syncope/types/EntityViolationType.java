@@ -67,6 +67,8 @@ public enum EntityViolationType {
     "org.syncope.core.validation.policy.invalid"),
     InvalidNotification(
     "org.syncope.core.validation.notification.invalid"),
+    InvalidReport(
+    "org.syncope.core.validation.report.invalid"),
     InvalidSchemaMapping(
     "org.syncope.core.validation.mapping.invalid");
 

@@ -18,43 +18,23 @@ import java.text.ParseException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;
-import org.syncope.core.persistence.beans.SchedTask;
-import org.syncope.core.scheduling.AbstractTaskJob;
+import org.syncope.core.persistence.beans.Report;
 import org.syncope.types.EntityViolationType;
 
-public class SchedTaskValidator extends AbstractValidator
-        implements ConstraintValidator<SchedTaskCheck, SchedTask> {
+public class ReportValidator extends AbstractValidator
+        implements ConstraintValidator<ReportCheck, Report> {
 
     @Override
-    public void initialize(final SchedTaskCheck constraintAnnotation) {
+    public void initialize(final ReportCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final SchedTask object,
+    public boolean isValid(final Report object,
             final ConstraintValidatorContext context) {
 
         boolean isValid = true;
 
-        Class jobClass = null;
-        try {
-            jobClass = Class.forName(object.getJobClassName());
-            isValid = AbstractTaskJob.class.isAssignableFrom(jobClass);
-        } catch (Throwable t) {
-            LOG.error("Invalid Job class specified", t);
-            isValid = false;
-        }
-        if (jobClass == null || !isValid) {
-            isValid = false;
-
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    EntityViolationType.InvalidSchedTask.toString()).
-                    addNode(object
-                    + ".jobClassName is not valid").
-                    addConstraintViolation();
-        }
-
-        if (isValid && object.getCronExpression() != null) {
+        if (object.getCronExpression() != null) {
             try {
                 new CronExpression(object.getCronExpression());
             } catch (ParseException e) {
@@ -64,10 +44,9 @@ public class SchedTaskValidator extends AbstractValidator
 
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidSchedTask.toString()).
+                        EntityViolationType.InvalidReport.name()).
                         addNode(object + ".cronExpression=="
-                        + object.getCronExpression()).
-                        addConstraintViolation();
+                        + object.getCronExpression()).addConstraintViolation();
             }
         }
 

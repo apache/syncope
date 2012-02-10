@@ -82,7 +82,7 @@ import org.syncope.types.TraceLevel;
  * @see org.syncope.core.scheduling.Job
  * @see SyncTask
  */
-public class SyncJob extends AbstractJob {
+public class SyncJob extends AbstractTaskJob {
 
     /**
      * ConnInstance loader.

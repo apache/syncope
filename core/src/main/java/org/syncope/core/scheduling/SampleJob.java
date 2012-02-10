@@ -22,7 +22,7 @@ import org.syncope.core.persistence.beans.TaskExec;
  *
  * @see SchedTask
  */
-public class SampleJob extends AbstractJob {
+public class SampleJob extends AbstractTaskJob {
 
     @Override
     protected String doExecute(final boolean dryRun)

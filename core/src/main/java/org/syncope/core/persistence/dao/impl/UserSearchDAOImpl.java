@@ -95,7 +95,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public Integer count(final Set<Long> adminRoles,
+    public int count(final Set<Long> adminRoles,
             final NodeCond searchCondition) {
 
         List<Object> parameters = Collections.synchronizedList(
@@ -120,7 +120,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         LOG.debug("Native count query\n{}\nwith parameters\n{}",
                 queryString.toString(), parameters);
 
-        Integer result = ((Number) countQuery.getSingleResult()).intValue();
+        int result = ((Number) countQuery.getSingleResult()).intValue();
         LOG.debug("Native count query result: {}", result);
 
         return result;

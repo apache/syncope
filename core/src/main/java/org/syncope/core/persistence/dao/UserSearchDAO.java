@@ -26,7 +26,7 @@ public interface UserSearchDAO extends DAO {
      * @param searchCondition the search condition
      * @return size of search result
      */
-    Integer count(Set<Long> adminRoles, NodeCond searchCondition);
+    int count(Set<Long> adminRoles, NodeCond searchCondition);
 
     /**
      * @param searchCondition the search condition

@@ -31,12 +31,16 @@ import org.springframework.scheduling.quartz.JobDetailBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.scheduling.AbstractJob;
+import org.syncope.core.scheduling.AbstractTaskJob;
 import org.syncope.core.scheduling.DefaultSyncJobActions;
 import org.syncope.core.scheduling.NotificationJob;
+import org.syncope.core.scheduling.ReportJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.scheduling.SyncJobActions;
 
@@ -52,46 +56,89 @@ public class JobInstanceLoader extends AbstractLoader {
     @Autowired
     private TaskDAO taskDAO;
 
-    public static Long getTaskIdFromJobName(final String name) {
+    @Autowired
+    private ReportDAO reportDAO;
+
+    private static Long getIdFromJobName(final String name,
+            final String pattern, final int prefixLength) {
+
         Long result = null;
 
-        Matcher jobMatcher = Pattern.compile("job[0-9]+").matcher(name);
+        Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
         if (jobMatcher.matches()) {
             try {
-                result = Long.valueOf(name.substring(3));
+                result = Long.valueOf(name.substring(prefixLength));
             } catch (NumberFormatException e) {
-                LOG.error("Unparsable task id: {}", name.substring(3), e);
+                LOG.error("Unparsable id: {}", name.substring(prefixLength), e);
             }
         }
 
         return result;
     }
 
-    public static String getJobName(final Long taskId) {
-        return "job" + taskId;
+    public static Long getTaskIdFromJobName(final String name) {
+        return getIdFromJobName("taskJob[0-9]+", name, 7);
     }
 
-    public static String getTriggerName(final Long taskId) {
-        return "Trigger_" + getJobName(taskId);
+    public static Long getReportIdFromJobName(final String name) {
+        return getIdFromJobName("reportJob[0-9]+", name, 9);
     }
 
-    public void registerJob(final Long taskId, final String jobClassName,
-            final String cronExpression)
+    public static String getJobName(final Task task) {
+        return task == null
+                ? "taskNotificationJob"
+                : "taskJob" + task.getId();
+    }
+
+    public static String getJobName(final Report report) {
+        return "reportJob" + report.getId();
+    }
+
+    public static String getTriggerName(final String jobName) {
+        return "Trigger_" + jobName;
+    }
+
+    private void registerJob(final String jobName,
+            final Job jobInstance, final String cronExpression)
             throws Exception {
 
         // 0. unregister job
-        unregisterJob(taskId);
+        unregisterJob(jobName);
 
         // 1. Job bean
+        getBeanFactory().registerSingleton(jobName, jobInstance);
+
+        // 2. JobDetail bean
+        JobDetail jobDetail = new JobDetailBean();
+        jobDetail.setName(jobName);
+        jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
+        jobDetail.setJobClass(jobInstance.getClass());
+
+        // 3. Trigger
+        if (cronExpression == null) {
+            scheduler.getScheduler().addJob(jobDetail, true);
+        } else {
+            CronTriggerBean cronTrigger = new CronTriggerBean();
+            cronTrigger.setName(getTriggerName(jobName));
+            cronTrigger.setCronExpression(cronExpression);
+
+            scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
+        }
+    }
+
+    public void registerJob(final Task task, final String jobClassName,
+            final String cronExpression)
+            throws Exception {
+
         Class jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) getBeanFactory().autowire(jobClass,
                 AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        if (jobInstance instanceof AbstractJob) {
-            ((AbstractJob) jobInstance).setTaskId(taskId);
+        if (jobInstance instanceof AbstractTaskJob) {
+            ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
         if (jobInstance instanceof SyncJob) {
             String jobActionsClassName =
-                    ((SyncTask) taskDAO.find(taskId)).getJobActionsClassName();
+                    ((SyncTask) task).getJobActionsClassName();
             Class syncJobActionsClass = DefaultSyncJobActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
@@ -109,39 +156,42 @@ public class JobInstanceLoader extends AbstractLoader {
 
             ((SyncJob) jobInstance).setActions(syncJobActions);
         }
-        getBeanFactory().registerSingleton(getJobName(taskId), jobInstance);
 
-        // 2. JobDetail bean
-        JobDetail jobDetail = new JobDetailBean();
-        jobDetail.setName(getJobName(taskId));
-        jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
-        jobDetail.setJobClass(jobClass);
+        registerJob(getJobName(task), jobInstance, cronExpression);
+    }
 
-        // 3. Trigger
-        if (cronExpression == null) {
-            scheduler.getScheduler().addJob(jobDetail, true);
-        } else {
-            CronTriggerBean cronTrigger = new CronTriggerBean();
-            cronTrigger.setName(getTriggerName(taskId));
-            cronTrigger.setCronExpression(cronExpression);
+    public void registerJob(final Report report)
+            throws Exception {
 
-            scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
+        Job jobInstance = (Job) getBeanFactory().autowire(ReportJob.class,
+                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        ((ReportJob) jobInstance).setReportId(report.getId());
+
+        registerJob(getJobName(report), jobInstance,
+                report.getCronExpression());
+    }
+
+    private void unregisterJob(final String jobName) {
+        try {
+            scheduler.getScheduler().unscheduleJob(
+                    jobName, Scheduler.DEFAULT_GROUP);
+            scheduler.getScheduler().deleteJob(
+                    jobName, Scheduler.DEFAULT_GROUP);
+        } catch (SchedulerException e) {
+            LOG.error("Could not remove job " + jobName, e);
+        }
+
+        if (getBeanFactory().containsSingleton(jobName)) {
+            getBeanFactory().destroySingleton(jobName);
         }
     }
 
-    public void unregisterJob(final Long taskId) {
-        try {
-            scheduler.getScheduler().unscheduleJob(
-                    getJobName(taskId), Scheduler.DEFAULT_GROUP);
-            scheduler.getScheduler().deleteJob(
-                    getJobName(taskId), Scheduler.DEFAULT_GROUP);
-        } catch (SchedulerException e) {
-            LOG.error("Could not remove job " + getJobName(taskId), e);
-        }
+    public void unregisterJob(final Task task) {
+        unregisterJob(getJobName(task));
+    }
 
-        if (getBeanFactory().containsSingleton(getJobName(taskId))) {
-            getBeanFactory().destroySingleton(getJobName(taskId));
-        }
+    public void unregisterJob(final Report report) {
+        unregisterJob(getJobName(report));
     }
 
     @Override
@@ -152,7 +202,7 @@ public class JobInstanceLoader extends AbstractLoader {
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {
-                registerJob(task.getId(), task.getJobClassName(),
+                registerJob(task, task.getJobClassName(),
                         task.getCronExpression());
             } catch (Exception e) {
                 LOG.error("While loading job instance for task "
@@ -160,12 +210,22 @@ public class JobInstanceLoader extends AbstractLoader {
             }
         }
 
-        // 2.NotificationJob
+        // 2. NotificationJob
         try {
-            registerJob(-1L, NotificationJob.class.getName(),
+            registerJob(null, NotificationJob.class.getName(),
                     "0 0/2 * * * ?");
         } catch (Exception e) {
             LOG.error("While loading NotificationJob instance", e);
+        }
+
+        // 3. ReportJobs
+        for (Report report : reportDAO.findAll()) {
+            try {
+                registerJob(report);
+            } catch (Exception e) {
+                LOG.error("While loading job instance for report "
+                        + report.getName(), e);
+            }
         }
     }
 }

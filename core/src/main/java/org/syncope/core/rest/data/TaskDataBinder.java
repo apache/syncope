@@ -183,7 +183,7 @@ public class TaskDataBinder {
         }
     }
 
-    public TaskExecTO getTaskExecutionTO(final TaskExec execution) {
+    public TaskExecTO getTaskExecTO(final TaskExec execution) {
         TaskExecTO executionTO = new TaskExecTO();
         BeanUtils.copyProperties(execution, executionTO,
                 IGNORE_TASK_EXECUTION_PROPERTIES);
@@ -195,15 +195,16 @@ public class TaskDataBinder {
         return executionTO;
     }
 
-    private void setExecTime(final SchedTaskTO taskTO) {
+    private void setExecTime(final SchedTaskTO taskTO, final Task task) {
+        String triggerName = JobInstanceLoader.getTriggerName(
+                JobInstanceLoader.getJobName(task));
+
         Trigger trigger;
         try {
-            trigger = scheduler.getScheduler().getTrigger(
-                    JobInstanceLoader.getTriggerName(taskTO.getId()),
+            trigger = scheduler.getScheduler().getTrigger(triggerName,
                     Scheduler.DEFAULT_GROUP);
         } catch (SchedulerException e) {
-            LOG.warn("While trying to get to " + JobInstanceLoader.
-                    getTriggerName(taskTO.getId()), e);
+            LOG.warn("While trying to get to " + triggerName, e);
             trigger = null;
         }
 
@@ -223,7 +224,7 @@ public class TaskDataBinder {
 
         List<TaskExec> executions = task.getExecs();
         for (TaskExec execution : executions) {
-            taskTO.addExecution(getTaskExecutionTO(execution));
+            taskTO.addExecution(getTaskExecTO(execution));
         }
 
         switch (taskUtil) {
@@ -237,11 +238,11 @@ public class TaskDataBinder {
                 break;
 
             case SCHED:
-                setExecTime((SchedTaskTO) taskTO);
+                setExecTime((SchedTaskTO) taskTO, task);
                 break;
 
             case SYNC:
-                setExecTime((SchedTaskTO) taskTO);
+                setExecTime((SchedTaskTO) taskTO, task);
 
                 ((SyncTaskTO) taskTO).setResource(
                         ((SyncTask) task).getResource().getName());

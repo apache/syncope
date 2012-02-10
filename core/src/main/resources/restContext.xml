@@ -30,7 +30,7 @@
     </bean>
     
     <!-- JSON (via Jackson) -->
-    <bean id="jacksonObjectMapper" class="org.syncope.core.rest.jackson.UnwrappedObjectMapper"/>
+    <bean id="jacksonObjectMapper" class="org.syncope.core.rest.data.UnwrappedObjectMapper"/>
     <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
         <property name="objectMapper" ref="jacksonObjectMapper"/>

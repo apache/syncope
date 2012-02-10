@@ -123,7 +123,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends Task> Integer count(final Class<T> reference) {
+    public <T extends Task> int count(final Class<T> reference) {
         Query countQuery = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM Task WHERE DTYPE=?1");
         countQuery.setParameter(1, reference.getSimpleName());

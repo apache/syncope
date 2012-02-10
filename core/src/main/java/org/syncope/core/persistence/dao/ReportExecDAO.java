@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,15 +14,20 @@
  */
 package org.syncope.core.persistence.dao;
 
-import org.syncope.core.persistence.beans.AbstractBaseBean;
+import java.util.List;
+import org.syncope.core.persistence.beans.ReportExec;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface DAO {
+public interface ReportExecDAO extends DAO {
 
-     <T extends AbstractBaseBean> void refresh(T entity);
+    ReportExec find(Long id);
 
-    void detach(Object object);
+    List<ReportExec> findAll();
 
-    void flush();
+    ReportExec save(ReportExec execution)
+            throws InvalidEntityException;
 
-    void clear();
+    void delete(Long id);
+
+    void delete(ReportExec execution);
 }

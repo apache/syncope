@@ -44,7 +44,7 @@ public interface UserDAO extends DAO {
 
     List<SyncopeUser> findAll(Set<Long> adminRoles, int page, int itemsPerPage);
 
-    Integer count(Set<Long> adminRoles);
+    int count(Set<Long> adminRoles);
 
     SyncopeUser save(SyncopeUser user)
             throws InvalidEntityException;

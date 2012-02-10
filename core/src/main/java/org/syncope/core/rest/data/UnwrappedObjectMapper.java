@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.rest.jackson;
+package org.syncope.core.rest.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 
 /**
- * TODO: there should be a simpler way to achieve this!
+ * Jackson ObjectMapper that unwraps singleton map values and enable default
+ * typing for handling abstract types serialization.
  */
 public class UnwrappedObjectMapper extends ObjectMapper {
 
@@ -34,11 +35,10 @@ public class UnwrappedObjectMapper extends ObjectMapper {
      * Unwraps the given value if it implements the Map interface and contains
      * only a single entry. Otherwise the value is returned unmodified.
      *
-     * @param value
-     *          the potential Map to unwrap
+     * @param value the potential Map to unwrap
      * @return the unwrapped map or the original value
      */
-    private Object unwrapMap(Object value) {
+    private Object unwrapMap(final Object value) {
         if (value instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) value;
             if (map.size() == 1) {
@@ -50,50 +50,50 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     }
 
     @Override
-    public void writeValue(JsonGenerator jgen, Object value)
+    public void writeValue(final JsonGenerator jgen, final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(jgen, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(JsonGenerator jgen, Object value,
-            SerializationConfig config)
+    public void writeValue(final JsonGenerator jgen, final Object value,
+            final SerializationConfig config)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(jgen, unwrapMap(value), config);
     }
 
     @Override
-    public void writeValue(File resultFile, Object value)
+    public void writeValue(final File resultFile, final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(resultFile, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(OutputStream out, Object value)
+    public void writeValue(final OutputStream out, final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(out, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(Writer w, Object value)
+    public void writeValue(final Writer w, final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(w, unwrapMap(value));
     }
 
     @Override
-    public byte[] writeValueAsBytes(Object value)
+    public byte[] writeValueAsBytes(final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         return super.writeValueAsBytes(unwrapMap(value));
     }
 
     @Override
-    public String writeValueAsString(Object value)
+    public String writeValueAsString(final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         return super.writeValueAsString(unwrapMap(value));

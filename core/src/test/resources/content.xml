@@ -386,7 +386,6 @@
                    resource_name="resource-testdb"
                    intMappingType="Username" mandatoryCondition="true"
                    accountid="1" password="0"/>
-                   
     <SchemaMapping id="117" extAttrName="PASSWORD"
                    resource_name="resource-testdb"
                    intMappingType="Password" mandatoryCondition="true"
@@ -468,8 +467,8 @@
           resource_name="ws-target-resource-nopropagation" syncopeUser_id="1"
           xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
     <Task DTYPE="SyncTask" id="7" resource_name="resource-testdb"
-                performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
-                jobClassName="org.syncope.core.scheduling.SyncJob"/>
+          performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+          jobClassName="org.syncope.core.scheduling.SyncJob"/>
                 
     <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
 
@@ -498,7 +497,6 @@
     <Entitlement name="RESOURCE_UPDATE"/>
     <Entitlement name="RESOURCE_DELETE"/>
     <Entitlement name="RESOURCE_GETOBJECT"/>
-    <Entitlement name="REPORT_LIST"/>
     <Entitlement name="CONNECTOR_LIST"/>
     <Entitlement name="CONNECTOR_CREATE"/>
     <Entitlement name="CONNECTOR_READ"/>
@@ -537,6 +535,12 @@
     <Entitlement name="USER_REQUEST_LIST"/>
     <Entitlement name="USER_REQUEST_READ"/>
     <Entitlement name="USER_REQUEST_DELETE"/>
+    <Entitlement name="REPORT_LIST"/>
+    <Entitlement name="REPORT_READ"/>
+    <Entitlement name="REPORT_CREATE"/>
+    <Entitlement name="REPORT_UPDATE"/>
+    <Entitlement name="REPORT_DELETE"/>
+    <Entitlement name="REPORT_EXECUTE"/>
     <Entitlement name="ROLE_1"/>
     <Entitlement name="ROLE_2"/>
     <Entitlement name="ROLE_3"/>
@@ -574,4 +578,8 @@
     <Notification_events Notification_id="100" events="unexisting2"/>
     <Notification_events Notification_id="101" events="unexisting1"/>
     <Notification_events Notification_id="101" events="unexisting2"/>
+    
+    <Report id="1" name="test"/>
+    <Report_reportlets Report_id="1" reportlets="%3Corg.syncope.client.report.UserReportlet%3E%0A++%3Cname%3EtestReportlet%3C%2Fname%3E%0A%3C%2Forg.syncope.client.report.UserReportlet%3E"/>
+    <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
 </dataset>

@@ -32,7 +32,6 @@ public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
 
     @Override
     public <T extends AbstractAttr> List<T> findAll(final Class<T> reference) {
-
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();

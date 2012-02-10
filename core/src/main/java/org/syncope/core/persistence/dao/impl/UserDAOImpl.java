@@ -336,7 +336,7 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public final Integer count(final Set<Long> adminRoles) {
+    public final int count(final Set<Long> adminRoles) {
         StringBuilder queryString = getFindAllQuery(adminRoles);
         queryString.insert(0, "SELECT COUNT(id) FROM (");
         queryString.append(") count_user_id");

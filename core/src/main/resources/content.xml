@@ -63,7 +63,6 @@
     <Entitlement name="RESOURCE_UPDATE"/>
     <Entitlement name="RESOURCE_DELETE"/>
     <Entitlement name="RESOURCE_GETOBJECT"/>
-    <Entitlement name="REPORT_LIST"/>
     <Entitlement name="CONNECTOR_LIST"/>
     <Entitlement name="CONNECTOR_CREATE"/>
     <Entitlement name="CONNECTOR_READ"/>
@@ -102,5 +101,11 @@
     <Entitlement name="USER_REQUEST_LIST"/>
     <Entitlement name="USER_REQUEST_READ"/>
     <Entitlement name="USER_REQUEST_DELETE"/>
+    <Entitlement name="REPORT_LIST"/>
+    <Entitlement name="REPORT_READ"/>
+    <Entitlement name="REPORT_CREATE"/>
+    <Entitlement name="REPORT_UPDATE"/>
+    <Entitlement name="REPORT_DELETE"/>
+    <Entitlement name="REPORT_EXECUTE"/>
     
 </dataset>

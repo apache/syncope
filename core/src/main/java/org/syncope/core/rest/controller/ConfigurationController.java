@@ -28,6 +28,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -226,17 +227,16 @@ public class ConfigurationController extends AbstractController {
     value = "/dbexport")
     @Transactional(readOnly = true)
     public void dbExport(final HttpServletResponse response) {
+        response.setContentType(MediaType.TEXT_XML_VALUE);
+        response.setHeader("Content-Disposition",
+                "attachment; filename=content.xml");
+
         try {
             importExport.export(response.getOutputStream());
-            response.flushBuffer();
 
             LOG.debug("Default content successfully exported");
         } catch (Throwable t) {
             LOG.error("While exporting content", t);
         }
-
-        response.setContentType("application/xml;charset=UTF-8");
-        response.setHeader("Content-Disposition",
-                "attachment; filename=content.xml");
     }
 }

@@ -32,7 +32,7 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
  * job execution and provides some background settings (like as the
  * corresponding Task, for example).
  */
-public abstract class AbstractJob implements StatefulJob {
+public abstract class AbstractTaskJob implements StatefulJob {
 
     public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 
@@ -50,7 +50,7 @@ public abstract class AbstractJob implements StatefulJob {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractJob.class);
+            AbstractTaskJob.class);
 
     /**
      * Task DAO.

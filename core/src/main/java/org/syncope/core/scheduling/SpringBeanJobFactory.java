@@ -21,7 +21,9 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.init.JobInstanceLoader;
+import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 
 public class SpringBeanJobFactory
@@ -70,8 +72,19 @@ public class SpringBeanJobFactory
 
                 JobInstanceLoader jobInstanceLoader =
                         ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerJob(taskId,
+                jobInstanceLoader.registerJob(task,
                         task.getJobClassName(), task.getCronExpression());
+            }
+
+            Long reportId = JobInstanceLoader.getReportIdFromJobName(
+                    bundle.getJobDetail().getName());
+            if (reportId != null) {
+                ReportDAO reportDAO = ctx.getBean(ReportDAO.class);
+                Report report = reportDAO.find(reportId);
+
+                JobInstanceLoader jobInstanceLoader =
+                        ctx.getBean(JobInstanceLoader.class);
+                jobInstanceLoader.registerJob(report);
             }
         }
 

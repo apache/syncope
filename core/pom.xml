@@ -185,6 +185,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.cocoon.sax</groupId>
+            <artifactId>cocoon-sax</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa-all</artifactId>
             <scope>provided</scope>

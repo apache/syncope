@@ -23,9 +23,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.syncope.client.report.UserReportlet;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.to.ReportTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.WorkflowFormPropertyTO;
 
@@ -98,5 +100,24 @@ public class JSONTest {
         WorkflowFormPropertyTO unserializedProp = mapper.readValue(
                 writer.toString(), WorkflowFormPropertyTO.class);
         assertEquals(prop, unserializedProp);
+    }
+
+    @Test
+    public void testReportletImplementations()
+            throws IOException {
+
+        ReportTO report = new ReportTO();
+        report.setName("testReportForCreate");
+        report.addReportlet(new UserReportlet());
+        report.addReportlet(new UserReportlet("second"));
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, report);
+
+        ReportTO actual = mapper.readValue(
+                writer.toString(), ReportTO.class);
+        assertEquals(report, actual);
     }
 }

@@ -60,8 +60,9 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
-import org.syncope.core.scheduling.AbstractJob;
+import org.syncope.core.scheduling.AbstractTaskJob;
 import org.syncope.core.scheduling.NotificationJob;
+import org.syncope.core.scheduling.ReportJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.core.util.TaskUtil;
@@ -117,22 +118,21 @@ public class TaskController extends AbstractController {
 
         LOG.debug("Creating task " + taskTO);
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
         TaskUtil taskUtil = getTaskUtil(taskTO);
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtil);
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
+            jobInstanceLoader.registerJob(task, task.getJobClassName(),
                     task.getCronExpression());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task "
                     + task.getId(), e);
 
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(
                     SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
@@ -177,7 +177,7 @@ public class TaskController extends AbstractController {
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
+            jobInstanceLoader.registerJob(task, task.getJobClassName(),
                     task.getCronExpression());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task "
@@ -235,7 +235,7 @@ public class TaskController extends AbstractController {
         return taskTOs;
     }
 
-    @PreAuthorize("hasRole('TASK_READ')")
+    @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/execution/list")
     public List<TaskExecTO> listExecutions(
@@ -246,7 +246,7 @@ public class TaskController extends AbstractController {
         List<TaskExecTO> executionTOs =
                 new ArrayList<TaskExecTO>(executions.size());
         for (TaskExec execution : executions) {
-            executionTOs.add(binder.getTaskExecutionTO(execution));
+            executionTOs.add(binder.getTaskExecTO(execution));
         }
 
         return executionTOs;
@@ -269,7 +269,7 @@ public class TaskController extends AbstractController {
                         resource).getClassMetadata();
                 if (ArrayUtils.contains(metadata.getInterfaceNames(),
                         Job.class.getName())
-                        || AbstractJob.class.getName().equals(
+                        || AbstractTaskJob.class.getName().equals(
                         metadata.getSuperClassName())
                         || ArrayUtils.contains(metadata.getInterfaceNames(),
                         StatefulJob.class.getName())) {
@@ -279,6 +279,7 @@ public class TaskController extends AbstractController {
                         if (!Modifier.isAbstract(jobClass.getModifiers())
                                 && !metadata.hasEnclosingClass()
                                 && !jobClass.equals(SyncJob.class)
+                                && !jobClass.equals(ReportJob.class)
                                 && !jobClass.equals(NotificationJob.class)) {
 
                             jobClasses.add(jobClass.getName());
@@ -364,7 +365,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        return binder.getTaskExecutionTO(execution);
+        return binder.getTaskExecTO(execution);
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
@@ -385,26 +386,26 @@ public class TaskController extends AbstractController {
             case PROPAGATION:
                 final TaskExec propExec = propagationManager.execute(
                         (PropagationTask) task);
-                result = binder.getTaskExecutionTO(propExec);
+                result = binder.getTaskExecTO(propExec);
                 break;
 
             case NOTIFICATION:
                 final TaskExec notExec = notificationManager.execute(
                         (NotificationTask) task);
-                result = binder.getTaskExecutionTO(notExec);
+                result = binder.getTaskExecTO(notExec);
                 break;
 
             case SCHED:
             case SYNC:
                 try {
-                    jobInstanceLoader.registerJob(task.getId(),
+                    jobInstanceLoader.registerJob(task,
                             ((SchedTask) task).getJobClassName(),
                             ((SchedTask) task).getCronExpression());
 
                     JobDataMap map = new JobDataMap();
-                    map.put(AbstractJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
+                    map.put(AbstractTaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
                     scheduler.getScheduler().triggerJob(
-                            JobInstanceLoader.getJobName(task.getId()),
+                            JobInstanceLoader.getJobName(task),
                             Scheduler.DEFAULT_GROUP, map);
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
@@ -490,7 +491,7 @@ public class TaskController extends AbstractController {
         exec.setMessage(message);
         exec = taskExecDAO.save(exec);
 
-        return binder.getTaskExecutionTO(exec);
+        return binder.getTaskExecTO(exec);
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
@@ -507,7 +508,7 @@ public class TaskController extends AbstractController {
         if (TaskUtil.SCHED == getTaskUtil(task)
                 || TaskUtil.SYNC == getTaskUtil(task)) {
 
-            jobInstanceLoader.unregisterJob(taskId);
+            jobInstanceLoader.unregisterJob(task);
         }
 
         taskDAO.delete(task);

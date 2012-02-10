@@ -15,9 +15,9 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
@@ -39,7 +39,7 @@ public interface TaskDAO extends DAO {
 
     List<PropagationTask> findAll(SyncopeUser user);
 
-     <T extends Task> Integer count(Class<T> reference);
+     <T extends Task> int count(Class<T> reference);
 
      <T extends Task> T save(T task)
             throws InvalidEntityException;
