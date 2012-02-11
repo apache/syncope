@@ -17,7 +17,9 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
@@ -66,7 +68,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void read() {
         ReportTO reportTO = restTemplate.getForObject(
-                BASE_URL + "report/read/{taskId}", ReportTO.class, 1);
+                BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
@@ -76,7 +78,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void readExecution() {
         ReportExecTO reportExecTO = restTemplate.getForObject(
-                BASE_URL + "report/execution/read/{taskId}",
+                BASE_URL + "report/execution/read/{reportId}",
                 ReportExecTO.class, 1);
         assertNotNull(reportExecTO);
     }
@@ -147,27 +149,44 @@ public class ReportTestITCase extends AbstractTest {
             throws IOException {
 
         ReportTO reportTO = restTemplate.getForObject(
-                BASE_URL + "report/read/{taskId}", ReportTO.class, 1);
+                BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
         assertNotNull(reportTO);
-        final int execs = reportTO.getExecutions().size();
+
+        Set<Long> preExecIds = new HashSet<Long>();
+        for (ReportExecTO exec : reportTO.getExecutions()) {
+            preExecIds.add(exec.getId());
+        }
 
         ReportExecTO execution = restTemplate.postForObject(
                 BASE_URL + "report/execute/{reportId}",
                 null, ReportExecTO.class, reportTO.getId());
         assertNotNull(execution);
 
-        int newExecs = execs;
-        while (newExecs == execs) {
+        int i = 0;
+        int maxit = 20;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
             reportTO = restTemplate.getForObject(
-                    BASE_URL + "report/read/{taskId}", ReportTO.class, 1);
-            newExecs = reportTO.getExecutions().size();
+                    BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+
+            i++;
+        } while (preExecIds.size() == reportTO.getExecutions().size()
+                && i < maxit);
+
+        Set<Long> postExecIds = new HashSet<Long>();
+        for (ReportExecTO exec : reportTO.getExecutions()) {
+            postExecIds.add(exec.getId());
         }
-        assertEquals(newExecs, execs + 1);
 
-        long newExec = reportTO.getExecutions().get(newExecs - 1).getId();
+        postExecIds.removeAll(preExecIds);
+        assertEquals(1, postExecIds.size());
 
-        HttpGet getMethod = new HttpGet(
-                BASE_URL + "report/execution/export/" + newExec);
+        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/"
+                + postExecIds.iterator().next());
         HttpResponse response =
                 ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory()).getHttpClient().execute(getMethod);

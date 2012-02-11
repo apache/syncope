@@ -319,7 +319,6 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(taskTO.getExecutions());
 
             i++;
-
         } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
 
         // check for sync policy

@@ -40,6 +40,9 @@ public enum SyncopeClientExceptionType {
     InvalidSyncopeRole(
     "Syncope.InvalidSyncopeRole",
     "Syncope.InvalidSyncopeRole.reason"),
+    InvalidReportExec(
+    "Syncope.InvalidReportExec",
+    "Syncope.InvalidReportExec.reason"),
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.name"),

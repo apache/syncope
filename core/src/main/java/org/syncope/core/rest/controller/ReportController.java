@@ -286,6 +286,20 @@ public class ReportController extends AbstractController {
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
+        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus())
+                || reportExec.getExecResult() == null) {
+
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidReportExec);
+            sce.addElement(reportExec.getExecResult() == null
+                    ? "No report data produced"
+                    : "Report did not run successfully");
+
+            throw sccee;
+        }
 
         ReportExecExportFormat format =
                 fmt == null ? ReportExecExportFormat.XML : fmt;
