@@ -18,7 +18,6 @@ package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
@@ -34,6 +33,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.client.to.PropagationTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.types.PropagationTaskExecStatus;
@@ -52,7 +52,7 @@ public class UserModalPageResult extends Panel {
 
     public UserModalPageResult(
             final String id,
-            final ModalWindow window, 
+            final ModalWindow window,
             final UserModalPage.Mode mode,
             final UserTO userTO) {
 
@@ -70,43 +70,44 @@ public class UserModalPageResult extends Panel {
         container.add(fragment);
 
         if (mode == UserModalPage.Mode.ADMIN) {
-            final Map<String, PropagationTaskExecStatus> propagationMap =
-                    userTO.getPropagationStatusMap();
-
-            final List<String> resourceListKey =
-                    new ArrayList<String>(propagationMap.keySet());
 
             // add Syncope propagation status
-            resourceListKey.add(0, "Syncope");
-            propagationMap.put("Syncope", PropagationTaskExecStatus.SUCCESS);
+            PropagationTO syncope = new PropagationTO();
+            syncope.setResourceName("Syncope");
+            syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
+
+            List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+            propagations.add(syncope);
+            propagations.addAll(userTO.getPropagationTOs());
 
             fragment.add(new Label("userInfo", userTO.getUsername()));
 
-            final PageableListView<String> propagationStatus =
-                    new PageableListView<String>(
+            final PageableListView<PropagationTO> propagationStatus =
+                    new PageableListView<PropagationTO>(
                     "propagationResults",
-                    resourceListKey,
+                    propagations,
                     PROPAGATION_RESULT_PAGINATOR_ROWS) {
 
                         private static final long serialVersionUID =
                                 -1020475259727720708L;
 
                         @Override
-                        protected void populateItem(final ListItem item) {
-                            final String resourceItem =
-                                    (String) item.getDefaultModelObject();
+                        protected void populateItem(
+                                final ListItem item) {
+                            final PropagationTO propagation =
+                                    (PropagationTO) item.getDefaultModelObject();
 
-                            item.add(new Label("resourceName", resourceItem));
+                            item.add(new Label("resourceName",
+                                    propagation.getResourceName()));
 
                             item.add(new Label("propagation",
-                                    propagationMap.get(resourceItem) != null
-                                    ? propagationMap.get(resourceItem).name()
+                                    propagation.getStatus() != null
+                                    ? propagation.getStatus().toString()
                                     : "UNDEFINED"));
 
                             item.add(new Image("status",
-                                    propagationMap.get(resourceItem) != null
-                                    && propagationMap.get(resourceItem).
-                                    isSuccessful()
+                                    propagation.getStatus() != null
+                                    && propagation.getStatus().isSuccessful()
                                     ? new ContextRelativeResource(
                                     "img/success.png")
                                     : new ContextRelativeResource(

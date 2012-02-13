@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
@@ -46,6 +45,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
+import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -61,6 +61,9 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDataBinder binder;
+
+    @Autowired
+    private ConnInstanceDataBinder connInstanceDataBinder;
 
     @Autowired
     private ConnInstanceLoader connLoader;
@@ -278,21 +281,6 @@ public class ResourceController extends AbstractController {
             attributes.add(connectorObject.getName());
         }
 
-        final ConnObjectTO connObjectTO = new ConnObjectTO();
-
-        for (Attribute attr : attributes) {
-            AttributeTO attrTO = new AttributeTO();
-            attrTO.setSchema(attr.getName());
-
-            if (attr.getValue() != null) {
-                for (Object value : attr.getValue()) {
-                    attrTO.addValue(value.toString());
-                }
-            }
-
-            connObjectTO.addAttribute(attrTO);
-        }
-
-        return connObjectTO;
+        return connInstanceDataBinder.getConnObjectTO(connectorObject);
     }
 }

@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.syncope.types.PropagationTaskExecStatus;
 
 public class UserTO extends AbstractAttributableTO {
 
@@ -33,7 +32,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private List<MembershipTO> memberships;
 
-    private List<ConnObjectTO> connObjectTOs;
+    List<PropagationTO> propagationTOs;
 
     private String status;
 
@@ -51,14 +50,11 @@ public class UserTO extends AbstractAttributableTO {
 
     private Integer failedLogins;
 
-    private Map<String, PropagationTaskExecStatus> propagationStatusMap;
-
     public UserTO() {
         super();
 
         memberships = new ArrayList<MembershipTO>();
-        connObjectTOs = new ArrayList<ConnObjectTO>();
-        propagationStatusMap = new HashMap<String, PropagationTaskExecStatus>();
+        propagationTOs = new ArrayList<PropagationTO>();
     }
 
     public String getPassword() {
@@ -164,36 +160,35 @@ public class UserTO extends AbstractAttributableTO {
         this.lastLoginDate = lastLoginDate;
     }
 
-    public void addPropagationStatus(String resource,
-            PropagationTaskExecStatus status) {
-
-        propagationStatusMap.put(resource, status);
+    public void addPropagationTO(final PropagationTO status) {
+        propagationTOs.add(status);
     }
 
-    public void removePropagationStatus(String resource) {
+    public void removePropagationTO(final String resource) {
+        if (resource != null && getPropagationTOs().isEmpty()) {
 
-        propagationStatusMap.remove(resource);
-    }
+            final List<PropagationTO> toBeRemoved =
+                    new ArrayList<PropagationTO>();
 
-    public Map<String, PropagationTaskExecStatus> getPropagationStatusMap() {
-        return propagationStatusMap;
-    }
+            for (PropagationTO propagationTO : getPropagationTOs()) {
+                if (resource.equals(propagationTO.getResourceName())) {
+                    toBeRemoved.add(propagationTO);
+                }
+            }
 
-    public void setPropagationStatusMap(
-            Map<String, PropagationTaskExecStatus> propagationStatusMap) {
-
-        this.propagationStatusMap.clear();
-        if (propagationStatusMap != null && !propagationStatusMap.isEmpty()) {
-            this.propagationStatusMap.putAll(propagationStatusMap);
+            propagationTOs.removeAll(toBeRemoved);
         }
     }
 
-    public List<ConnObjectTO> getConnObjectTOs() {
-        return connObjectTOs;
+    public List<PropagationTO> getPropagationTOs() {
+        return propagationTOs;
     }
 
-    public void setConnObjectTOs(final List<ConnObjectTO> connObjectTOs) {
-        this.connObjectTOs = connObjectTOs;
+    public void setPropagationTOs(
+            final List<PropagationTO> propagationTOs) {
+
+        this.propagationTOs.clear();
+        this.propagationTOs.addAll(propagationTOs);
     }
 
     @Override

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,19 +42,23 @@ import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
+import org.syncope.client.to.PropagationTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
+import org.syncope.core.propagation.PropagationHandler;
 import org.syncope.core.propagation.PropagationManager;
+import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowException;
 import org.syncope.core.workflow.WorkflowResult;
+import org.syncope.types.PropagationTaskExecStatus;
 
 /**
- * Note that this controller does not extend AbstractController, hence does not 
+ * Note that this controller does not extend AbstractController, hence does not
  * provide any Spring's @Transactional logic at class level.
  *
  * @see AbstractController
@@ -75,7 +80,10 @@ public class UserController {
     private UserSearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder dataBinder;
+    private UserDataBinder userDataBinder;
+
+    @Autowired
+    private ConnInstanceDataBinder connInstanceDataBinder;
 
     @Autowired
     private UserWorkflowAdapter wfAdapter;
@@ -95,7 +103,7 @@ public class UserController {
             throws NotFoundException, UnauthorizedRoleException {
 
         return new ModelAndView().addObject(
-                dataBinder.verifyPassword(userId, password));
+                userDataBinder.verifyPassword(userId, password));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -137,7 +145,7 @@ public class UserController {
                 EntitlementUtil.getOwnedEntitlementNames()));
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user));
+            userTOs.add(userDataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -157,7 +165,7 @@ public class UserController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user));
+            userTOs.add(userDataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -170,7 +178,7 @@ public class UserController {
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return dataBinder.getUserTO(userId);
+        return userDataBinder.getUserTO(userId);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -180,7 +188,7 @@ public class UserController {
     public UserTO read(@RequestParam("username") final String username)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return dataBinder.getUserTO(username);
+        return userDataBinder.getUserTO(username);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -202,7 +210,7 @@ public class UserController {
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user));
+            result.add(userDataBinder.getUserTO(user));
         }
 
         return result;
@@ -232,7 +240,7 @@ public class UserController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user));
+            result.add(userDataBinder.getUserTO(user));
         }
 
         return result;
@@ -265,15 +273,45 @@ public class UserController {
 
         List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
-        propagationManager.execute(tasks);
+
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+
+        propagationManager.execute(tasks, new PropagationHandler() {
+
+            @Override
+            public void handle(
+                    final String resourceName,
+                    final PropagationTaskExecStatus executionStatus,
+                    final ConnectorObject before,
+                    final ConnectorObject after) {
+
+                final PropagationTO propagation = new PropagationTO();
+                propagation.setResourceName(resourceName);
+                propagation.setStatus(executionStatus);
+
+                if (before != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(before));
+                }
+
+                if (after != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(after));
+                }
+
+                propagations.add(propagation);
+            }
+        });
 
         notificationManager.createTasks(new WorkflowResult<Long>(
                 created.getResult().getKey(),
                 created.getPropByRes(),
                 created.getPerformedTasks()));
 
-        final UserTO savedTO = dataBinder.getUserTO(
+        final UserTO savedTO = userDataBinder.getUserTO(
                 created.getResult().getKey());
+
+        savedTO.setPropagationTOs(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -296,12 +334,42 @@ public class UserController {
                 updated, userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
                 userMod.getVirtualAttributesToBeUpdated(), null);
-        propagationManager.execute(tasks);
+
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+
+        propagationManager.execute(tasks, new PropagationHandler() {
+
+            @Override
+            public void handle(
+                    final String resourceName,
+                    final PropagationTaskExecStatus executionStatus,
+                    final ConnectorObject before,
+                    final ConnectorObject after) {
+
+                final PropagationTO propagation = new PropagationTO();
+                propagation.setResourceName(resourceName);
+                propagation.setStatus(executionStatus);
+
+                if (before != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(before));
+                }
+
+                if (after != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(after));
+                }
+
+                propagations.add(propagation);
+            }
+        });
 
         notificationManager.createTasks(updated);
 
         final UserTO updatedTO =
-                dataBinder.getUserTO(updated.getResult());
+                userDataBinder.getUserTO(updated.getResult());
+
+        updatedTO.setPropagationTOs(propagations);
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -400,9 +468,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
+    @RequestMapping(method = RequestMethod.GET,
     value = "/delete/{userId}")
-    public void delete(@PathVariable("userId") final Long userId)
+    public UserTO delete(@PathVariable("userId") final Long userId)
             throws NotFoundException, WorkflowException, PropagationException,
             UnauthorizedRoleException {
 
@@ -418,11 +486,42 @@ public class UserController {
 
         List<PropagationTask> tasks =
                 propagationManager.getDeleteTaskIds(userId);
-        propagationManager.execute(tasks);
+
+        final UserTO userTO = new UserTO();
+        userTO.setId(userId);
+
+        propagationManager.execute(tasks, new PropagationHandler() {
+
+            @Override
+            public void handle(
+                    final String resourceName,
+                    final PropagationTaskExecStatus executionStatus,
+                    final ConnectorObject before,
+                    final ConnectorObject after) {
+
+                final PropagationTO propagation = new PropagationTO();
+                propagation.setResourceName(resourceName);
+                propagation.setStatus(executionStatus);
+
+                if (before != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(before));
+                }
+
+                if (after != null) {
+                    propagation.setBefore(
+                            connInstanceDataBinder.getConnObjectTO(after));
+                }
+
+                userTO.addPropagationTO(propagation);
+            }
+        });
 
         wfAdapter.delete(userId);
 
         LOG.debug("User successfully deleted: {}", userId);
+
+        return userTO;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -445,7 +544,7 @@ public class UserController {
 
         notificationManager.createTasks(updated);
 
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -469,7 +568,7 @@ public class UserController {
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+        SyncopeUser user = userDataBinder.getUserFromId(userId);
         return wfAdapter.getForm(user.getWorkflowId());
     }
 
@@ -505,7 +604,7 @@ public class UserController {
                 updated.getResult().getValue(), null, null, Boolean.TRUE);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(
+        final UserTO savedTO = userDataBinder.getUserTO(
                 updated.getResult().getKey());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
@@ -559,7 +658,7 @@ public class UserController {
         propagationManager.execute(tasks);
         notificationManager.createTasks(updated);
 
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return suspended user\n{}", savedTO);
 

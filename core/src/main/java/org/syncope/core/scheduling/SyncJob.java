@@ -29,6 +29,7 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -618,7 +619,7 @@ public class SyncJob extends AbstractTaskJob {
         result.setOperation(Operation.CREATE);
 
         UserTO userTO = getUserTO(delta.getObject());
-        
+
         actions.beforeCreate(delta, userTO);
 
         if (dryRun) {
@@ -699,7 +700,7 @@ public class SyncJob extends AbstractTaskJob {
 
                     final UserMod userMod =
                             getUserMod(userId, delta.getObject());
-                    
+
                     actions.beforeUpdate(delta, userTO, userMod);
 
                     result.setStatus(Status.SUCCESS);
@@ -962,16 +963,76 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException(msg, e);
         }
 
+        final SchemaMapping accountIdMap =
+                syncTask.getResource().getAccountIdMapping();
+
+        if (accountIdMap == null) {
+            throw new JobExecutionException(
+                    "Invalid account id mapping for resource "
+                    + syncTask.getResource());
+        }
+
         LOG.debug("Execute synchronization with token {}",
                 syncTask.getResource().getSyncToken() != null
                 ? syncTask.getResource().getSyncToken().getValue() : null);
 
-        final List<SyncDelta> deltas;
+        final List<SyncResult> results = new ArrayList<SyncResult>();
+
+        actions.beforeAll(syncTask);
+
         try {
+            final SyncPolicy syncPolicy =
+                    syncTask.getResource().getSyncPolicy();
+
+            final ConflictResolutionAction conflictResolutionAction =
+                    syncPolicy != null && syncPolicy.getSpecification() != null
+                    ? ((SyncPolicySpec) syncPolicy.getSpecification()).
+                    getConflictResolutionAction()
+                    : ConflictResolutionAction.IGNORE;
+
             if (syncTask.isFullReconciliation()) {
-                deltas = connector.getAllObjects(ObjectClass.ACCOUNT, null);
+                connector.getAllObjects(
+                        ObjectClass.ACCOUNT,
+                        new SyncResultsHandler() {
+
+                            @Override
+                            public boolean handle(final SyncDelta delta) {
+                                try {
+
+                                    return results.addAll(handleDelta(
+                                            syncTask,
+                                            delta,
+                                            conflictResolutionAction,
+                                            dryRun));
+
+                                } catch (JobExecutionException e) {
+                                    LOG.error("Reconciliation failed", e);
+                                    return false;
+                                }
+                            }
+                        },
+                        null);
             } else {
-                deltas = connector.sync(syncTask.getResource().getSyncToken());
+                connector.sync(
+                        syncTask.getResource().getSyncToken(),
+                        new SyncResultsHandler() {
+
+                            @Override
+                            public boolean handle(final SyncDelta delta) {
+                                try {
+
+                                    return results.addAll(handleDelta(
+                                            syncTask,
+                                            delta,
+                                            conflictResolutionAction,
+                                            dryRun));
+
+                                } catch (JobExecutionException e) {
+                                    LOG.error("Synchronization failed", e);
+                                    return false;
+                                }
+                            }
+                        });
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
@@ -991,107 +1052,7 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException("While syncing on connector", t);
         }
 
-        LOG.debug("Retrieved {} changes to synchronize", deltas.size());
-
-        final SchemaMapping accountIdMap =
-                syncTask.getResource().getAccountIdMapping();
-
-        if (accountIdMap == null) {
-            throw new JobExecutionException(
-                    "Invalid account id mapping for resource "
-                    + syncTask.getResource());
-        }
-
-        final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
-        final ConflictResolutionAction conflictResolutionAction =
-                syncPolicy != null && syncPolicy.getSpecification() != null
-                ? ((SyncPolicySpec) syncPolicy.getSpecification()).
-                getConflictResolutionAction()
-                : ConflictResolutionAction.IGNORE;
-
-        final List<SyncResult> results = new ArrayList<SyncResult>();
-
-        actions.beforeAll(deltas);
-
-        for (SyncDelta delta : deltas) {
-            LOG.debug("Process '{}' for '{}'",
-                    delta.getDeltaType(), delta.getUid().getUidValue());
-
-            List<Long> users = findExistingUsers(delta);
-            
-            switch (delta.getDeltaType()) {
-                case CREATE_OR_UPDATE:
-                    if (users.isEmpty()) {
-                        if (syncTask.isPerformCreate()) {
-                            results.add(createUser(delta, dryRun));
-                        } else {
-                            LOG.debug("SyncTask not configured for create");
-                        }
-                    } else if (users.size() == 1) {
-                        updateUsers(delta, users.subList(0, 1),
-                                dryRun, results);
-                    } else {
-                        switch (conflictResolutionAction) {
-                            case IGNORE:
-                                LOG.error("More than one match {}", users);
-                                break;
-
-                            case FIRSTMATCH:
-                                updateUsers(delta, users.subList(0, 1),
-                                        dryRun, results);
-                                break;
-
-                            case LASTMATCH:
-                                updateUsers(delta, users.subList(users.size()
-                                        - 1, users.size()), dryRun, results);
-                                break;
-
-                            case ALL:
-                                updateUsers(delta, users, dryRun, results);
-                                break;
-
-                            default:
-                        }
-                    }
-                    break;
-
-                case DELETE:
-                    if (users.isEmpty()) {
-                        LOG.debug("No match found for deletion");
-                    } else if (users.size() == 1) {
-                        deleteUsers(delta, users, dryRun, results);
-                    } else {
-                        switch (conflictResolutionAction) {
-                            case IGNORE:
-                                LOG.error("More than one match {}", users);
-                                break;
-
-                            case FIRSTMATCH:
-                                deleteUsers(delta, users.subList(0, 1),
-                                        dryRun, results);
-                                break;
-
-                            case LASTMATCH:
-                                deleteUsers(delta, users.subList(
-                                        users.size() - 1, users.size()),
-                                        dryRun, results);
-                                break;
-
-                            case ALL:
-                                deleteUsers(delta, users, dryRun, results);
-                                break;
-
-                            default:
-                        }
-                    }
-
-                    break;
-
-                default:
-            }
-        }
-
-        actions.afterAll(deltas, results);
+        actions.afterAll(syncTask, results);
 
         final String result = createReport(
                 results, syncTask.getResource().getSyncTraceLevel(), dryRun);
@@ -1099,6 +1060,104 @@ public class SyncJob extends AbstractTaskJob {
         LOG.debug("Sync result: {}", result);
 
         return result.toString();
+    }
+
+    /**
+     * Handle delatas.
+     *
+     * @param syncTask sync task.
+     * @param delta delta.
+     * @param conflictResolutionAction conflict resolution action.
+     * @param dryRun dry run.
+     * @return list of synchronization results.
+     * @throws JobExecutionException in case of synchronization failure.
+     */
+    protected final List<SyncResult> handleDelta(
+            final SyncTask syncTask,
+            final SyncDelta delta,
+            final ConflictResolutionAction conflictResolutionAction,
+            final boolean dryRun)
+            throws JobExecutionException {
+
+        final List<SyncResult> results = new ArrayList<SyncResult>();
+
+        LOG.debug("Process '{}' for '{}'",
+                delta.getDeltaType(), delta.getUid().getUidValue());
+
+        final List<Long> users = findExistingUsers(delta);
+
+        switch (delta.getDeltaType()) {
+            case CREATE_OR_UPDATE:
+                if (users.isEmpty()) {
+                    if (syncTask.isPerformCreate()) {
+                        results.add(createUser(delta, dryRun));
+                    } else {
+                        LOG.debug("SyncTask not configured for create");
+                    }
+                } else if (users.size() == 1) {
+                    updateUsers(delta, users.subList(0, 1),
+                            dryRun, results);
+                } else {
+                    switch (conflictResolutionAction) {
+                        case IGNORE:
+                            LOG.error("More than one match {}", users);
+                            break;
+
+                        case FIRSTMATCH:
+                            updateUsers(delta, users.subList(0, 1),
+                                    dryRun, results);
+                            break;
+
+                        case LASTMATCH:
+                            updateUsers(delta, users.subList(users.size()
+                                    - 1, users.size()), dryRun, results);
+                            break;
+
+                        case ALL:
+                            updateUsers(delta, users, dryRun, results);
+                            break;
+
+                        default:
+                    }
+                }
+                break;
+
+            case DELETE:
+                if (users.isEmpty()) {
+                    LOG.debug("No match found for deletion");
+                } else if (users.size() == 1) {
+                    deleteUsers(delta, users, dryRun, results);
+                } else {
+                    switch (conflictResolutionAction) {
+                        case IGNORE:
+                            LOG.error("More than one match {}", users);
+                            break;
+
+                        case FIRSTMATCH:
+                            deleteUsers(delta, users.subList(0, 1),
+                                    dryRun, results);
+                            break;
+
+                        case LASTMATCH:
+                            deleteUsers(delta, users.subList(
+                                    users.size() - 1, users.size()),
+                                    dryRun, results);
+                            break;
+
+                        case ALL:
+                            deleteUsers(delta, users, dryRun, results);
+                            break;
+
+                        default:
+                    }
+                }
+
+                break;
+
+            default:
+        }
+
+        return results;
     }
 
     /**

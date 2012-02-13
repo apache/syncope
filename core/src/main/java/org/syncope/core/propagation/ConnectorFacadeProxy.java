@@ -16,7 +16,6 @@ package org.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +39,6 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Schema;
-import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
@@ -364,27 +362,17 @@ public class ConnectorFacadeProxy {
      * Sync users from a connector instance.
      *
      * @param token to be passed to the underlying connector
-     * @return list of sync operations to be performed
+     * @param handler to be used to handle deltas.
      */
-    public List<SyncDelta> sync(final SyncToken token) {
-        final List<SyncDelta> result = new ArrayList<SyncDelta>();
+    public void sync(final SyncToken token, final SyncResultsHandler handler) {
 
         if (capabitilies.contains(ConnectorCapability.SYNC)) {
-            connector.sync(ObjectClass.ACCOUNT, token,
-                    new SyncResultsHandler() {
-
-                        @Override
-                        public boolean handle(final SyncDelta delta) {
-                            return result.add(delta);
-                        }
-                    }, null);
+            connector.sync(ObjectClass.ACCOUNT, token, handler, null);
         } else {
             LOG.info("Sync was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
                     capabitilies);
         }
-
-        return result;
     }
 
     /**
@@ -488,15 +476,14 @@ public class ConnectorFacadeProxy {
      * Get remote object used by the propagation manager in order to choose for
      * a create (object doesn't exist) or an update (object exists).
      *
-     * @param objectClass ConnId's object class
-     * @param options ConnId's OperationOptions
-     * @return ConnId's connector object for given uid
+     * @param objectClass ConnId's object class.
+     * @param handler to be used to handle deltas.
+     * @param options ConnId's OperationOptions.
      */
-    public List<SyncDelta> getAllObjects(
+    public void getAllObjects(
             final ObjectClass objectClass,
+            final SyncResultsHandler handler,
             final OperationOptions options) {
-
-        final List<SyncDelta> result = new ArrayList<SyncDelta>();
 
         if (capabitilies.contains(ConnectorCapability.SEARCH)) {
             connector.search(objectClass, null,
@@ -510,7 +497,7 @@ public class ConnectorFacadeProxy {
                             bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
                             bld.setToken(new SyncToken(""));
 
-                            return result.add(bld.build());
+                            return handler.handle(bld.build());
                         }
                     }, options);
 
@@ -519,8 +506,6 @@ public class ConnectorFacadeProxy {
                     + "connector only has these capabilities: {}. No action.",
                     capabitilies);
         }
-
-        return result;
     }
 
     /**

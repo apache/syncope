@@ -13,12 +13,10 @@
  */
 package org.syncope.core.rest;
 
-import java.security.Principal;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
@@ -233,7 +231,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         // 7. actually delete user
-        restTemplate.delete(BASE_URL + "user/delete/{userId}", userTO.getId());
+        restTemplate.getForObject(BASE_URL + "user/delete/{userId}",
+                UserTO.class, userTO.getId());
 
         // 8. user does not exist any more
         try {

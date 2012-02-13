@@ -18,13 +18,14 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.beans.SyncTask;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
  */
 public interface SyncJobActions {
 
-    void beforeAll(List<SyncDelta> deltas)
+    void beforeAll(SyncTask task)
             throws JobExecutionException;
 
     void beforeCreate(SyncDelta delta, UserTO user)
@@ -39,6 +40,6 @@ public interface SyncJobActions {
     void after(SyncDelta delta, UserTO user, SyncResult result)
             throws JobExecutionException;
 
-    void afterAll(List<SyncDelta> deltas, List<SyncResult> results)
+    void afterAll(SyncTask task, List<SyncResult> results)
             throws JobExecutionException;
 }

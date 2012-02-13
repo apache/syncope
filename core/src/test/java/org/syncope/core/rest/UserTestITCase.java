@@ -46,6 +46,7 @@ import org.syncope.client.search.ResourceCond;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
+import org.syncope.client.to.PropagationTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.UserTO;
@@ -382,9 +383,9 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         assertNotNull(userTO);
-        assertEquals(1, userTO.getPropagationStatusMap().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS,
-                userTO.getPropagationStatusMap().get("resource-testdb"));
+        assertEquals(1, userTO.getPropagationTOs().size());
+        assertTrue(
+                userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -736,7 +737,9 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton("resource-testdb"),
                 userTO.getResources());
-        assertTrue(userTO.getPropagationStatusMap().isEmpty());
+
+        assertTrue(userTO.getPropagationTOs().isEmpty());
+
         Exception exception = null;
         try {
             jdbcTemplate.queryForInt(
@@ -767,13 +770,12 @@ public class UserTestITCase extends AbstractTest {
         props.get("approve").setValue(Boolean.TRUE.toString());
         form.setProperties(props.values());
         userTO = restTemplate.postForObject(
-                BASE_URL + "user/workflow/form/submit",
-                form, UserTO.class);
+                BASE_URL + "user/workflow/form/submit", form, UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
         assertEquals(Collections.singleton("resource-testdb"),
                 userTO.getResources());
-        assertFalse(userTO.getPropagationStatusMap().isEmpty());
+
         exception = null;
         try {
             String username = jdbcTemplate.queryForObject(
@@ -799,17 +801,34 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void delete() {
         try {
-            restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
+            restTemplate.getForObject(
+                    BASE_URL + "user/delete/{userId}", UserTO.class, 0);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        // specify a propagation
+        userTO.addResource("resource-testdb");
 
-        restTemplate.delete(BASE_URL + "user/delete/{userId}", userTO.getId());
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        long id = userTO.getId();
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/delete/{userId}", UserTO.class, id);
+
+        assertNotNull(userTO);
+        assertEquals(id, userTO.getId());
+        assertTrue(userTO.getAttributes().isEmpty());
+
+        // check for propagation result
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertTrue(
+                userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
                     UserTO.class, userTO.getId());
@@ -1310,8 +1329,8 @@ public class UserTestITCase extends AbstractTest {
         // --------------------------------------
         // Delete operation
         // --------------------------------------
-        restTemplate.delete(
-                BASE_URL + "user/delete/{userId}", userTO.getId());
+        restTemplate.getForObject(BASE_URL + "user/delete/{userId}",
+                UserTO.class, userTO.getId());
 
         // get the new task list
         tasks = Arrays.asList(
@@ -1574,18 +1593,18 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/update", userMod, UserTO.class);
         assertNotNull(userTO);
 
-        final Map<String, PropagationTaskExecStatus> statuses =
-                userTO.getPropagationStatusMap();
+        final List<PropagationTO> propagations = userTO.getPropagationTOs();
 
-        assertNotNull(statuses);
-        assertEquals(1, statuses.size());
+        assertNotNull(propagations);
+        assertEquals(1, propagations.size());
 
-        final PropagationTaskExecStatus exec =
-                statuses.values().iterator().next();
+        final PropagationTaskExecStatus status =
+                propagations.get(0).getStatus();
+        final String resource = propagations.get(0).getResourceName();
 
-        assertNotNull(exec);
-        assertEquals("resource-testdb", statuses.keySet().iterator().next());
-        assertTrue(exec.isSuccessful());
+        assertNotNull(status);
+        assertEquals("resource-testdb", resource);
+        assertTrue(status.isSuccessful());
     }
 
     @Test
@@ -1600,18 +1619,18 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        final Map<String, PropagationTaskExecStatus> statuses =
-                userTO.getPropagationStatusMap();
+        final List<PropagationTO> propagations = userTO.getPropagationTOs();
 
-        assertNotNull(statuses);
-        assertEquals(1, statuses.size());
+        assertNotNull(propagations);
+        assertEquals(1, propagations.size());
 
-        final PropagationTaskExecStatus exec =
-                statuses.values().iterator().next();
+        final PropagationTaskExecStatus status =
+                propagations.get(0).getStatus();
+        final String resource = propagations.get(0).getResourceName();
 
-        assertNotNull(exec);
-        assertEquals("resource-csv", statuses.keySet().iterator().next());
-        assertFalse(exec.isSuccessful());
+        assertNotNull(status);
+        assertEquals("resource-csv", resource);
+        assertFalse(status.isSuccessful());
     }
 
     @Test

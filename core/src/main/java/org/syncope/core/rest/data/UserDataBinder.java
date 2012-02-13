@@ -425,15 +425,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             userTO.addMembership(membershipTO);
         }
 
-        for (ExternalResource resource : user.getResources()) {
-            for (PropagationTask task : taskDAO.findAll(resource, user)) {
-                TaskExec exec = taskExecDAO.findLatestStarted(task);
-                userTO.addPropagationStatus(resource.getName(),
-                        exec == null ? null
-                        : PropagationTaskExecStatus.valueOf(exec.getStatus()));
-            }
-        }
-
         return userTO;
     }
 

@@ -14,7 +14,6 @@
  */
 package org.syncope.core.propagation;
 
-import org.syncope.types.PropagationTaskExecStatus;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -48,8 +47,8 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
-import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
@@ -68,9 +67,10 @@ import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.core.workflow.WorkflowResult;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
-import org.syncope.types.IntMappingType;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SchemaType;
 import org.syncope.types.TraceLevel;
 
@@ -743,6 +743,11 @@ public class PropagationManager {
         return tasks;
     }
 
+    public void execute(final List<PropagationTask> tasks)
+            throws PropagationException {
+        execute(tasks, null);
+    }
+
     /**
      * Execute a list of PropagationTask, in given order.
      *
@@ -751,13 +756,15 @@ public class PropagationManager {
      * interrupted as soon as the result of the communication with a primary
      * resource is in error
      */
-    public void execute(final List<PropagationTask> tasks)
+    public void execute(
+            final List<PropagationTask> tasks,
+            final PropagationHandler handler)
             throws PropagationException {
 
         for (PropagationTask task : tasks) {
             LOG.debug("Execution started for {}", task);
 
-            TaskExec execution = execute(task);
+            TaskExec execution = execute(task, handler);
 
             LOG.debug("Execution finished for {}, {}", task, execution);
 
@@ -836,6 +843,18 @@ public class PropagationManager {
      * @return TaskExecution
      */
     public TaskExec execute(final PropagationTask task) {
+        return execute(task, null);
+    }
+
+    /**
+     * Execute a propagation task.
+     *
+     * @param task to execute.
+     * @param handler propagation handler.
+     * @return TaskExecution.
+     */
+    public TaskExec execute(
+            final PropagationTask task, final PropagationHandler handler) {
         final Date startDate = new Date();
 
         TaskExec execution = new TaskExec();
@@ -845,6 +864,9 @@ public class PropagationManager {
 
         // Flag to state wether any propagation has been attempted
         Set<String> propagationAttempted = new HashSet<String>();
+
+        ConnectorObject before = null;
+        ConnectorObject after = null;
 
         try {
             final ConnInstance connInstance =
@@ -863,114 +885,111 @@ public class PropagationManager {
             }
 
             // Try to read user BEFORE any actual operation
-            ConnectorObject remoteObject = null;
+            before = getRemoteObject(connector, task, false);
+
             try {
-                remoteObject = connector.getObject(
-                        task.getPropagationMode(),
-                        task.getPropagationOperation(),
-                        ObjectClass.ACCOUNT,
-                        new Uid(task.getOldAccountId() == null
-                        ? task.getAccountId()
-                        : task.getOldAccountId()),
-                        null);
-            } catch (RuntimeException ignore) {
-                LOG.debug("To be ignored, when resolving "
-                        + "username on connector", ignore);
-            }
+                switch (task.getPropagationOperation()) {
+                    case CREATE:
+                    case UPDATE:
+                        // set of attributes to be propagated
+                        final Set<Attribute> attributes =
+                                new HashSet<Attribute>(task.getAttributes());
 
-            switch (task.getPropagationOperation()) {
-                case CREATE:
-                case UPDATE:
-                    // set of attributes to be propagated
-                    final Set<Attribute> attributes =
-                            new HashSet<Attribute>(task.getAttributes());
+                        if (before != null) {
 
-                    if (remoteObject != null) {
+                            // 1. check if rename is really required
+                            final Name newName = (Name) AttributeUtil.find(
+                                    Name.NAME, attributes);
 
-                        // 1. check if rename is really required
-                        final Name newName = (Name) AttributeUtil.find(
-                                Name.NAME, attributes);
+                            LOG.debug("Rename required with value {}", newName);
 
-                        LOG.debug("Rename required with value {}", newName);
+                            if (newName != null
+                                    && newName.equals(before.getName())
+                                    && !before.getUid().getUidValue().equals(
+                                    newName.getNameValue())) {
 
-                        if (newName != null
-                                && newName.equals(remoteObject.getName())
-                                && !remoteObject.getUid().getUidValue().equals(
-                                newName.getNameValue())) {
-
-                            LOG.debug("Remote object name unchanged");
-                            attributes.remove(newName);
-                        }
-
-                        LOG.debug("Attributes to be replaced {}", attributes);
-
-                        // 2. update with a new "normalized" attribute set
-                        connector.update(
-                                task.getPropagationMode(),
-                                ObjectClass.ACCOUNT,
-                                remoteObject.getUid(),
-                                attributes,
-                                null,
-                                propagationAttempted);
-                    } else {
-                        // 1. get accountId
-                        final String accountId = task.getAccountId();
-
-                        // 2. get name
-                        final Name name = (Name) AttributeUtil.find(
-                                Name.NAME, attributes);
-
-                        // 3. check if accountId is not blank and is not equal
-                        // to Name
-                        if (StringUtils.hasText(accountId)
-                                && (name == null
-                                || !accountId.equals(name.getNameValue()))) {
-
-                            // 3.a retrieve uid
-                            final Uid uid = (Uid) AttributeUtil.find(
-                                    Uid.NAME, attributes);
-
-                            // 3.b add Uid if not provided
-                            if (uid == null) {
-                                attributes.add(AttributeBuilder.build(
-                                        Uid.NAME,
-                                        Collections.singleton(accountId)));
+                                LOG.debug("Remote object name unchanged");
+                                attributes.remove(newName);
                             }
+
+                            LOG.debug("Attributes to be replaced {}", attributes);
+
+                            // 2. update with a new "normalized" attribute set
+                            connector.update(
+                                    task.getPropagationMode(),
+                                    ObjectClass.ACCOUNT,
+                                    before.getUid(),
+                                    attributes,
+                                    null,
+                                    propagationAttempted);
+                        } else {
+                            // 1. get accountId
+                            final String accountId = task.getAccountId();
+
+                            // 2. get name
+                            final Name name = (Name) AttributeUtil.find(
+                                    Name.NAME, attributes);
+
+                            // 3. check if:
+                            //      * accountId is not blank;
+                            //      * accountId is not equal to Name.
+                            if (StringUtils.hasText(accountId)
+                                    && (name == null
+                                    || !accountId.equals(name.getNameValue()))) {
+
+                                // 3.a retrieve uid
+                                final Uid uid = (Uid) AttributeUtil.find(
+                                        Uid.NAME, attributes);
+
+                                // 3.b add Uid if not provided
+                                if (uid == null) {
+                                    attributes.add(AttributeBuilder.build(
+                                            Uid.NAME,
+                                            Collections.singleton(accountId)));
+                                }
+                            }
+
+                            // 4. provision entry
+                            connector.create(
+                                    task.getPropagationMode(),
+                                    ObjectClass.ACCOUNT,
+                                    attributes,
+                                    null,
+                                    propagationAttempted);
                         }
+                        break;
 
-                        // 4. provision entry
-                        connector.create(
-                                task.getPropagationMode(),
-                                ObjectClass.ACCOUNT,
-                                attributes,
-                                null,
-                                propagationAttempted);
-                    }
-                    break;
+                    case DELETE:
+                        if (before == null) {
+                            LOG.debug("{} not found on external resource:"
+                                    + " ignoring delete", task.getAccountId());
+                        } else {
+                            connector.delete(task.getPropagationMode(),
+                                    ObjectClass.ACCOUNT,
+                                    before.getUid(),
+                                    null,
+                                    propagationAttempted);
+                        }
+                        break;
 
-                case DELETE:
-                    if (remoteObject == null) {
-                        LOG.debug("{} not found on external resource:"
-                                + " ignoring delete", task.getAccountId());
-                    } else {
-                        connector.delete(task.getPropagationMode(),
-                                ObjectClass.ACCOUNT,
-                                remoteObject.getUid(),
-                                null,
-                                propagationAttempted);
-                    }
-                    break;
+                    default:
+                }
 
-                default:
+                execution.setStatus(
+                        task.getPropagationMode() == PropagationMode.ONE_PHASE
+                        ? PropagationTaskExecStatus.SUCCESS.name()
+                        : PropagationTaskExecStatus.SUBMITTED.name());
+
+                LOG.debug("Successfully propagated to {}", task.getResource());
+
+                // Try to read user AFTER any actual operation
+                after = getRemoteObject(connector, task, true);
+
+            } catch (Exception e) {
+                after = getRemoteObject(connector, task, false);
+                throw e;
             }
 
-            execution.setStatus(
-                    task.getPropagationMode() == PropagationMode.ONE_PHASE
-                    ? PropagationTaskExecStatus.SUCCESS.name()
-                    : PropagationTaskExecStatus.SUBMITTED.name());
-
-            LOG.debug("Successfully propagated to resource {}",
-                    task.getResource());
         } catch (Throwable t) {
             LOG.error("Exception during provision on resource "
                     + task.getResource().getName(), t);
@@ -1016,6 +1035,41 @@ public class PropagationManager {
             }
         }
 
+        if (handler != null) {
+            handler.handle(
+                    task.getResource().getName(),
+                    PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                    before,
+                    after);
+        }
+
         return execution;
+    }
+
+    /**
+     * Get remote object.
+     *
+     * @param connector connector facade proxy.
+     * @param task current propagation task.
+     * @param latest 'FALSE' to retrieve object using old accountId if not null.
+     * @return remote connector object.
+     */
+    private ConnectorObject getRemoteObject(
+            final ConnectorFacadeProxy connector,
+            final PropagationTask task,
+            final boolean latest) {
+        try {
+            return connector.getObject(
+                    task.getPropagationMode(),
+                    task.getPropagationOperation(),
+                    ObjectClass.ACCOUNT,
+                    new Uid(latest || task.getOldAccountId() == null
+                    ? task.getAccountId()
+                    : task.getOldAccountId()),
+                    null);
+        } catch (RuntimeException ignore) {
+            LOG.debug("Resolving username", ignore);
+            return null;
+        }
     }
 }

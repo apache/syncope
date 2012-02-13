@@ -74,8 +74,11 @@ public class UserRestClient extends AbstractBaseRestClient {
                 userModTO, UserTO.class);
     }
 
-    public void delete(Long id) {
-        restTemplate.delete(baseURL + "user/delete/{userId}", id);
+    public UserTO delete(Long id)
+            throws SyncopeClientCompositeErrorException {
+        
+        return restTemplate.getForObject(
+                baseURL + "user/delete/{userId}", UserTO.class, id);
     }
 
     public UserTO read(Long id) {

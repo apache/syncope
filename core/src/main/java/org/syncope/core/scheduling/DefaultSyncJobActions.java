@@ -18,15 +18,17 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.beans.SyncTask;
 
 /**
  * Default (empty) implementation of SyncJobActions.
+ *
  * @see SyncJobActions
  */
 public class DefaultSyncJobActions implements SyncJobActions {
 
     @Override
-    public void beforeAll(final List<SyncDelta> deltas)
+    public void beforeAll(final SyncTask task)
             throws JobExecutionException {
     }
 
@@ -52,7 +54,8 @@ public class DefaultSyncJobActions implements SyncJobActions {
     }
 
     @Override
-    public void afterAll(final List<SyncDelta> deltas,
+    public void afterAll(
+            final SyncTask task,
             final List<SyncResult> results)
             throws JobExecutionException {
     }

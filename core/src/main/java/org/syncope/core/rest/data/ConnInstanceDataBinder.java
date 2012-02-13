@@ -18,11 +18,15 @@ import java.util.Map;
 import javassist.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnInstance;
@@ -196,5 +200,32 @@ public class ConnInstanceDataBinder {
             }
         }
         return connInstanceTO;
+    }
+
+    /**
+     * Get connector object TO from a connector object.
+     *
+     * @param connObject connector object.
+     * @return connector object TO.
+     */
+    public ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
+        final ConnObjectTO connObjectTO = new ConnObjectTO();
+
+        for (Attribute attr : connObject.getAttributes()) {
+            AttributeTO attrTO = new AttributeTO();
+            attrTO.setSchema(attr.getName());
+
+            if (attr.getValue() != null) {
+                for (Object value : attr.getValue()) {
+                    if (value != null) {
+                        attrTO.addValue(value.toString());
+                    }
+                }
+            }
+
+            connObjectTO.addAttribute(attrTO);
+        }
+
+        return connObjectTO;
     }
 }
