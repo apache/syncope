@@ -39,10 +39,13 @@ import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
+import org.syncope.core.report.ReportException;
 import org.syncope.core.report.Reportlet;
+import static org.syncope.core.scheduling.ReportXMLConst.ATTR_NAME;
+import static org.syncope.core.scheduling.ReportXMLConst.ELEMENT_REPORT;
+import static org.syncope.core.scheduling.ReportXMLConst.XSD_STRING;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ReportExecStatus;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -55,12 +58,6 @@ public class ReportJob implements StatefulJob {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ReportJob.class);
-
-    private static String TYPE_TEXT = "CDATA";
-
-    private static String ELEMENT_REPORT = "report";
-
-    private static String ATTR_NAME = "name";
 
     /**
      * Report DAO.
@@ -137,12 +134,13 @@ public class ReportJob implements StatefulJob {
                 getBeanFactory();
 
         // 3. actual report execution
-        String reportExecutionMessage = null;
+        StringBuilder reportExecutionMessage = new StringBuilder();
+        StringWriter exceptionWriter = new StringWriter();
         try {
             // report header
             handler.startDocument();
             AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "", ATTR_NAME, TYPE_TEXT, report.getName());
+            atts.addAttribute("", "", ATTR_NAME, XSD_STRING, report.getName());
             handler.startElement("", "", ELEMENT_REPORT, atts);
 
             // iterate over reportlet instances defined for this report
@@ -159,16 +157,23 @@ public class ReportJob implements StatefulJob {
 
                 if (reportletClass != null) {
                     Reportlet autowired =
-                            (Reportlet) beanFactory.autowire(reportletClass,
+                            (Reportlet) beanFactory.createBean(reportletClass,
                             AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     autowired.setConf(reportletConf);
 
                     // invoke reportlet
                     try {
                         autowired.extract(handler);
-                    } catch (SAXException e) {
-                        LOG.error("While extracting from reportlet {}",
-                                reportletConf.getName(), e);
+                    } catch (Exception e) {
+                        execution.setStatus(ReportExecStatus.FAILURE);
+
+                        Throwable t = e instanceof ReportException
+                                ? e.getCause() : e;
+                        exceptionWriter.write(t.getMessage() + "\n\n");
+                        t.printStackTrace(new PrintWriter(exceptionWriter));
+                        reportExecutionMessage.append(
+                                exceptionWriter.toString()).
+                                append("\n==================\n");
                     }
                 }
             }
@@ -177,14 +182,17 @@ public class ReportJob implements StatefulJob {
             handler.endElement("", "", ELEMENT_REPORT);
             handler.endDocument();
 
-            execution.setStatus(ReportExecStatus.SUCCESS);
-        } catch (SAXException e) {
+            if (!ReportExecStatus.FAILURE.name().
+                    equals(execution.getStatus())) {
+
+                execution.setStatus(ReportExecStatus.SUCCESS);
+            }
+        } catch (Exception e) {
             execution.setStatus(ReportExecStatus.FAILURE);
 
-            StringWriter exceptionWriter = new StringWriter();
             exceptionWriter.write(e.getMessage() + "\n\n");
             e.printStackTrace(new PrintWriter(exceptionWriter));
-            reportExecutionMessage = exceptionWriter.toString();
+            reportExecutionMessage.append(exceptionWriter.toString());
 
             throw new JobExecutionException(e, true);
         } finally {
@@ -197,7 +205,7 @@ public class ReportJob implements StatefulJob {
             }
 
             execution.setExecResult(baos.toByteArray());
-            execution.setMessage(reportExecutionMessage);
+            execution.setMessage(reportExecutionMessage.toString());
             execution.setEndDate(new Date());
             reportExecDAO.save(execution);
         }

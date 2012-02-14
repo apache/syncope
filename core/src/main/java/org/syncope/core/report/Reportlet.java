@@ -26,6 +26,8 @@ public interface Reportlet {
 
     /**
      * Set this reportlet configuration.
+     *
+     * @param conf configuration
      */
     void setConf(ReportletConf conf);
 
@@ -33,8 +35,9 @@ public interface Reportlet {
      * Actual data extraction for reporting.
      *
      * @param handler SAX content handler for streaming result
-     * @throws SAXException if anything goes wrong
+     * @throws SAXException if ther is any problem in SAX handling
+     * @throws ReportException if anything goes wrong
      */
     void extract(ContentHandler handler)
-            throws SAXException;
+            throws SAXException, ReportException;
 }

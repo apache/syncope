@@ -45,8 +45,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.syncope.core.report.AbstractReportlet;
-import org.syncope.core.report.Reportlet;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -56,6 +54,8 @@ import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
+import org.syncope.core.report.AbstractReportlet;
+import org.syncope.core.report.Reportlet;
 import org.syncope.core.rest.data.ReportDataBinder;
 import org.syncope.types.ReportExecExportFormat;
 import org.syncope.types.ReportExecStatus;
@@ -297,7 +297,7 @@ public class ReportController extends AbstractController {
             sce.addElement(reportExec.getExecResult() == null
                     ? "No report data produced"
                     : "Report did not run successfully");
-
+            sccee.addException(sce);
             throw sccee;
         }
 

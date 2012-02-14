@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
@@ -184,6 +185,12 @@ public class ReportTestITCase extends AbstractTest {
 
         postExecIds.removeAll(preExecIds);
         assertEquals(1, postExecIds.size());
+
+        // wait for report exec XML to be stored...
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+        }
 
         HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/"
                 + postExecIds.iterator().next());

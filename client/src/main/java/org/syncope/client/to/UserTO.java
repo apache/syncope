@@ -32,7 +32,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private List<MembershipTO> memberships;
 
-    List<PropagationTO> propagationTOs;
+    private List<PropagationTO> propagationTOs;
 
     private String status;
 

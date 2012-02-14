@@ -15,7 +15,6 @@
  */
 package org.syncope.core.rest.controller;
 
-import org.syncope.core.util.AttributableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
@@ -29,6 +28,7 @@ import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.TaskUtil;
 
 @Transactional(rollbackFor = {

@@ -49,7 +49,8 @@ public class PolicyEvaluator {
                 case PASSWORD:
                 case GLOBAL_PASSWORD:
                     final PasswordPolicySpec pspec = policy.getSpecification();
-                    final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
+                    final PasswordPolicySpec passwordPolicy =
+                            new PasswordPolicySpec();
 
                     BeanUtils.copyProperties(
                             pspec,
@@ -77,8 +78,10 @@ public class PolicyEvaluator {
                     if (((SyncopeUser) attributable).verifyPasswordHistory(
                             ((SyncopeUser) attributable).getClearPassword(),
                             pspec.getHistoryLength())) {
-                        passwordPolicy.getWordsNotPermitted().add(
-                                ((SyncopeUser) attributable).getClearPassword());
+
+                        passwordPolicy.getWordsNotPermitted().
+                                add(((SyncopeUser) attributable).
+                                getClearPassword());
                     } else {
 
                         if (pspec.getHistoryLength() > 0 && password != null) {
@@ -88,6 +91,7 @@ public class PolicyEvaluator {
                         if (pspec.getHistoryLength() < passwordHistory.size()) {
                             for (int i = 0; i < passwordHistory.size()
                                     - pspec.getHistoryLength(); i++) {
+
                                 passwordHistory.remove(i);
                             }
                         }
@@ -98,7 +102,8 @@ public class PolicyEvaluator {
                 case ACCOUNT:
                 case GLOBAL_ACCOUNT:
                     final AccountPolicySpec spec = policy.getSpecification();
-                    final AccountPolicySpec accountPolicy = new AccountPolicySpec();
+                    final AccountPolicySpec accountPolicy =
+                            new AccountPolicySpec();
 
                     BeanUtils.copyProperties(
                             spec,

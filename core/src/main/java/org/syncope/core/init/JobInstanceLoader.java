@@ -131,7 +131,7 @@ public class JobInstanceLoader extends AbstractLoader {
             throws Exception {
 
         Class jobClass = Class.forName(jobClassName);
-        Job jobInstance = (Job) getBeanFactory().autowire(jobClass,
+        Job jobInstance = (Job) getBeanFactory().createBean(jobClass,
                 AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
@@ -150,7 +150,7 @@ public class JobInstanceLoader extends AbstractLoader {
                 }
             }
             SyncJobActions syncJobActions =
-                    (SyncJobActions) getBeanFactory().autowire(
+                    (SyncJobActions) getBeanFactory().createBean(
                     syncJobActionsClass,
                     AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
@@ -163,7 +163,7 @@ public class JobInstanceLoader extends AbstractLoader {
     public void registerJob(final Report report)
             throws Exception {
 
-        Job jobInstance = (Job) getBeanFactory().autowire(ReportJob.class,
+        Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class,
                 AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
