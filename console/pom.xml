@@ -318,13 +318,17 @@
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
+                                <groupId>org.connid.bundles.soap</groupId>
+                                <artifactId>wssample</artifactId>
+                                <type>war</type>                                
                                 <properties>
                                     <context>wssample</context>
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${basedir}/../build-tools/target/syncope-build-tools-${project.version}.war</location>
+                                <groupId>org.syncope</groupId>
+                                <artifactId>syncope-build-tools</artifactId>
+                                <type>war</type>                                
                                 <properties>
                                     <context>syncope-build-tools</context>
                                 </properties>
