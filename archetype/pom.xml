@@ -23,21 +23,21 @@
         <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope Archetype</name>
-    <description>Syncope Archetype</description>
+    <name>Apache Syncope Archetype</name>
+    <description>Apache Syncope Archetype</description>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <properties>
-        <SVNRepoURL>http://syncope.googlecode.com/svn/trunk</SVNRepoURL>
+        <SVNRepoURL>http://svn.apache.org/repos/asf/incubator/syncope/trunk</SVNRepoURL>
     </properties>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/archetype</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/archetype</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk/archetype</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</developerConnection>
+        <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</url>
     </scm>
 
     <build>
