@@ -94,12 +94,12 @@
             </roles>
         </developer>
         <developer>
-            <id>mdisabatinodidiodoro</id>
+            <id>mdisabatino</id>
             <name>Marco Di Sabatino Di Diodoro</name>
             <organization>Tirasa</organization>
             <organizationUrl>http://www.tirasa.net/</organizationUrl>
             <roles>
-                <role>Committer</role>
+                <role>PPMC member</role>
             </roles>
         </developer>        
     </developers>
