@@ -31,8 +31,5 @@
     <rule ref="rulesets/controversial.xml"/>
     <rule ref="rulesets/strictexception.xml"/>
     <rule ref="rulesets/typeresolution.xml"/>
-    <rule ref="rulesets/optimization.xml">
-        <exclude name="AvoidInstantiatingObjectsInLoops"/>
-    </rule>
     
 </ruleset>
