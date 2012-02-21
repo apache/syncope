@@ -134,6 +134,18 @@
                 <role>PPMC member</role>
             </roles>
             <url>http://people.apache.org/~massi/</url>
+        </developer>    
+        <developer>
+            <id>simonetripodi</id>
+            <name>Simone Tripodi</name>            
+            <organization>The Apache Software Foundation</organization>
+            <organizationUrl>http://www.apache.org/</organizationUrl>
+            <roles>
+                <role>Champion</role>
+                <role>Mentor</role>
+                <role>PPMC member</role>
+            </roles>
+            <url>http://people.apache.org/~simonetripodi/</url>
         </developer>
     </developers>
 
