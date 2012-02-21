@@ -17,15 +17,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.syncope</groupId>
+        <groupId>org.apache.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
-    <name>Syncope Build Tools</name>
-    <description>Syncope Build Tools</description>
-    <groupId>org.syncope</groupId>
+    <name>Apache Syncope Build Tools</name>
+    <description>Apache Syncope Build Tools</description>
+    <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-build-tools</artifactId>
     <packaging>war</packaging>
     
@@ -146,7 +146,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.9</version>
                 <configuration>
                     <configLocation>org/syncope/checkstyle.xml</configLocation>
                     <targetJdk>${targetJdk}</targetJdk>
@@ -155,7 +155,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7.1</version>
                 <configuration>
                     <rulesets>
                         <ruleset>org/syncope/pmd.xml</ruleset>

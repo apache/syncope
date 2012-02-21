@@ -17,16 +17,16 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.syncope</groupId>
+            <groupId>org.apache.syncope</groupId>
             <artifactId>syncope-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.syncope</groupId>
+            <groupId>org.apache.syncope</groupId>
             <artifactId>syncope-core</artifactId>
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>org.syncope</groupId>
+            <groupId>org.apache.syncope</groupId>
             <artifactId>syncope-core</artifactId>
             <classifier>classes</classifier>
         </dependency>
@@ -107,7 +107,7 @@
         </dependency>
             
         <dependency>
-            <groupId>org.syncope</groupId>
+            <groupId>org.apache.syncope</groupId>
             <artifactId>syncope-build-tools</artifactId>
             <type>war</type>
             <scope>test</scope>
