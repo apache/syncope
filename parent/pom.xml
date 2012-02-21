@@ -106,9 +106,14 @@
     
     <contributors>
         <contributor>
+	    <id>massi</id>
             <name>Massimiliano Perrone</name>            
             <organization>Tirasa</organization>
             <organizationUrl>http://www.tirasa.net/</organizationUrl>
+            <roles>
+                <role>PPMC member</role>
+            </roles>
+            <url>http://people.apache.org/~massi/</url>
         </contributor>
         <contributor>
             <name>Geert Van der Ploeg</name>
