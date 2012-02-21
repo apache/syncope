@@ -147,6 +147,17 @@
             </roles>
             <url>http://people.apache.org/~simonetripodi/</url>
         </developer>
+        <developer>
+            <id>elecharny</id>
+            <name>Emmanuel Lecharny</name>            
+            <organization>The Apache Software Foundation</organization>
+            <organizationUrl>http://www.apache.org/</organizationUrl>
+            <roles>
+                <role>Mentor</role>
+                <role>PPMC member</role>
+            </roles>
+            <url>http://people.apache.org/~elecharny/</url>
+        </developer>
     </developers>
 
     <prerequisites>
