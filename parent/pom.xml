@@ -24,7 +24,7 @@ under the License.
 
     <name>Apache Syncope Parent</name>
     <description>Apache Syncope parent POM</description>
-
+        
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
     <version>1.1-SNAPSHOT</version>
@@ -52,7 +52,7 @@ under the License.
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-        <url>https://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
+        <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
     </scm>
 
     <issueManagement>
@@ -64,6 +64,14 @@ under the License.
         <system>Jenkins</system>
         <url>https://builds.apache.org/job/Syncope-trunk/</url>
     </ciManagement>
+
+    <distributionManagement>
+        <site>
+            <id>syncope.website</id>
+            <name>Apache Syncope website</name>
+            <url>${site.deploymentBaseUrl}</url>
+        </site>
+    </distributionManagement>
   
     <mailingLists>
         <mailingList>
@@ -109,7 +117,7 @@ under the License.
             <roles>
                 <role>PPMC member</role>
             </roles>
-            <url>https://people.apache.org/~ilgrosso/</url>
+            <url>http://people.apache.org/~ilgrosso/</url>
         </developer>
         <developer>
             <id>fmartelli</id>
@@ -170,7 +178,7 @@ under the License.
         <maven>[3.0.3,)</maven>
     </prerequisites>
     
-    <properties>
+    <properties>         
         <targetJdk>1.6</targetJdk>
         
         <servlet-api.version>2.5</servlet-api.version>
@@ -622,15 +630,6 @@ under the License.
             <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
         </repository>
 
-        <repository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://repository.apache.org/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-
     </repositories>
     
     <pluginRepositories>
@@ -908,55 +907,56 @@ under the License.
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <locales>en,it</locales>
+                    <locales>en</locales>
                     <reportPlugins>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-checkstyle-plugin</artifactId>
-                            <version>2.8</version>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.4</version>
                             <configuration>
-                                <configLocation>org/syncope/checkstyle.xml</configLocation>
-                                <targetJdk>${targetJdk}</targetJdk>
+                                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                             </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-jxr-plugin</artifactId>
-                            <version>2.3</version>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>summary</report>
+                                        <report>mailing-list</report>
+                                        <report>project-team</report>
+                                        <report>scm</report>
+                                        <report>cim</report>
+                                        <report>issue-tracking</report>
+                                        <report>dependency-management</report>
+                                        <report>distribution-management</report>
+                                        <report>plugin-management</report>
+                                        <report>plugins</report>
+                                        <report>license</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
                         </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>2.9</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-pmd-plugin</artifactId>
-                            <version>2.7.1</version>
-                            <configuration>
-                                <targetJdk>${targetJdk}</targetJdk>
-                                <rulesets>
-                                    <ruleset>org/syncope/pmd.xml</ruleset>
-                                </rulesets>
-                                <format>xml</format>
-                                <linkXref>true</linkXref>
-                                <sourceEncoding>utf-8</sourceEncoding>
-                                <minimumTokens>100</minimumTokens>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>2.4.0</version>
-                            <configuration>
-                                <findbugsXmlOutput>true</findbugsXmlOutput>
-                                <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                                <xmlOutput>true</xmlOutput>
-                                <targetJdk>${targetJdk}</targetJdk>
-                            </configuration>
+                            <version>2.8.1</version>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>aggregate</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
                         </plugin>
                     </reportPlugins>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-descriptor</id>
+                        <goals>
+                            <goal>attach-descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>    
         </plugins>
     </build>
@@ -969,6 +969,18 @@ under the License.
                 <module>../build-tools</module>
                 <module>../archetype</module>
                 <module>../hibernate-enhancer</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>site</id>
+            <modules>
+                <module>../quality</module>
+                <module>../build-tools</module>
+                <module>../archetype</module>
+                <module>../hibernate-enhancer</module>
+                <module>../client</module>
+                <module>../core</module>
+                <module>../console</module>
             </modules>
         </profile>
         <profile>

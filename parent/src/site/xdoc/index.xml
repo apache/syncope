@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+    <properties>
+        <title>Apache Syncope</title>
+        <author email="syncope-dev@incubator.apache.org">Apache Syncope Documentation Team</author>
+    </properties>
+
+    <body>
+        <div class="hero-unit" style="padding-top: 0px; padding-bottom: 0px;">
+            <img src="images/apache-syncope-logo-medium.png"/>
+
+            <br clear="left"/>
+
+            <p>
+                <span style="font-weight: bold">Apache Syncope</span>
+                is an Open Source system for managing digital identities in enterprise environments, 
+                implemented in JEE technology and released under Apache 2.0 license.
+            </p>
+            <p>
+                In order to run Apache Syncope, a J2EE container (Apache Tomcat, for example) and a DBMS are only needed.
+                <br/>
+                Most DBMSes available either on the market or in the Open Source space are fully supported.
+            </p>
+        </div>
+
+        <div class="alert-message warning">
+            <h2>Disclaimer</h2>
+            <p>Apache Syncope is an effort undergoing
+                <a href="http://incubator.apache.org/">incubation</a>
+                at
+                The Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly
+                accepted projects until a further review indicates that the infrastructure, communications, and decision making
+                process have stabilized in a manner consistent with other successful ASF projects.
+                While incubation status is not necessarily a reflection of the completeness or stability of the code,
+                it does indicate that the project has yet to be fully endorsed by the ASF.
+            </p>
+            <p>You can view our current
+                <a href="http://incubator.apache.org/projects/syncope.html">incubation status</a>
+                for more details.
+            </p>
+        </div>
+    </body>
+</document>

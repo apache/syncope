@@ -1103,7 +1103,7 @@ under the License.
                             <container>
                                 <containerId>jboss71x</containerId>
                                 <zipUrlInstaller>
-                                    <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.CR1b/jboss-as-7.1.0.CR1b.zip</url>
+                                    <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.Final/jboss-as-7.1.0.Final.zip</url>
                                     <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                                     <extractDir>${java.io.tmpdir}</extractDir>
                                 </zipUrlInstaller>
