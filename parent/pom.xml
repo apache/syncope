@@ -58,7 +58,7 @@
         <system>Jenkins</system>
         <url>https://builds.apache.org/job/Syncope-trunk/</url>
     </ciManagement>
-
+  
     <mailingLists>
         <mailingList>
             <name>Syncope User List</name>
@@ -591,6 +591,15 @@
         <repository>
             <id>activiti</id>
             <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
+        </repository>
+
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
 
     </repositories>
