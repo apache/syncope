@@ -85,12 +85,12 @@
             <url>https://people.apache.org/~ilgrosso/</url>
         </developer>
         <developer>
-            <id>fabio.martelli</id>
+            <id>fmartelli</id>
             <name>Fabio Martelli</name>
             <organization>Tirasa</organization>
             <organizationUrl>http://www.tirasa.net/</organizationUrl>
             <roles>
-                <role>Owner</role>
+                <role>PPMC member</role>
             </roles>
         </developer>
         <developer>
