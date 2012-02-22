@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.core.rest;
 
@@ -24,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
@@ -196,6 +196,8 @@ public class ReportTestITCase extends AbstractTest {
         } catch (InterruptedException e) {
         }
 
+        // Export
+        // 1. XML (default)
         HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/"
                 + postExecIds.iterator().next());
         HttpResponse response =
@@ -204,6 +206,39 @@ public class ReportTestITCase extends AbstractTest {
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         String export = EntityUtils.toString(response.getEntity()).trim();
+        assertNotNull(export);
+        assertFalse(export.isEmpty());
+
+        // 2. HTML
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
+                + postExecIds.iterator().next() + "?fmt=HTML");
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory()).getHttpClient().execute(getMethod);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        export = EntityUtils.toString(response.getEntity()).trim();
+        assertNotNull(export);
+        assertFalse(export.isEmpty());
+
+        // 3. PDF
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
+                + postExecIds.iterator().next() + "?fmt=PDF");
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory()).getHttpClient().execute(getMethod);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        export = EntityUtils.toString(response.getEntity()).trim();
+        assertNotNull(export);
+        assertFalse(export.isEmpty());
+
+        // 4. RTF
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
+                + postExecIds.iterator().next() + "?fmt=RTF");
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory()).getHttpClient().execute(getMethod);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        export = EntityUtils.toString(response.getEntity()).trim();
         assertNotNull(export);
         assertFalse(export.isEmpty());
     }

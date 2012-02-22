@@ -7,21 +7,19 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.console.pages.panels;
 
-import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
@@ -40,14 +38,10 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
-import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.ConnObjectTO;
-import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.console.rest.ResourceRestClient;
-import org.syncope.console.rest.UserRestClient;
-import org.syncope.types.IntMappingType;
+import org.syncope.console.commons.StatusBean;
+import org.syncope.console.commons.StatusUtils;
+import org.syncope.console.commons.StatusUtils.Status;
 
 public class StatusPanel extends Panel {
 
@@ -58,22 +52,7 @@ public class StatusPanel extends Panel {
             LoggerFactory.getLogger(StatusPanel.class);
 
     @SpringBean
-    private UserRestClient userRestClient;
-
-    @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    public enum Status {
-
-        ACTIVE,
-        SUSPENDED,
-        UNDEFINED,
-        USER_NOT_FOUND;
-
-        public boolean isActive() {
-            return this == ACTIVE;
-        }
-    }
+    private StatusUtils statusUtils;
 
     public <T extends AbstractAttributableTO> StatusPanel(
             final String id,
@@ -100,7 +79,7 @@ public class StatusPanel extends Panel {
                 : Status.UNDEFINED);
 
         statuses.add(syncope);
-        statuses.addAll(getRemoteStatuses(userTO));
+        statuses.addAll(statusUtils.getRemoteStatuses(userTO));
 
         final CheckGroup group = new CheckGroup("group", selectedResources);
         add(group);
@@ -220,160 +199,5 @@ public class StatusPanel extends Panel {
         resources.setReuseItems(true);
 
         group.add(resources);
-    }
-
-    private List<StatusBean> getRemoteStatuses(final UserTO userTO) {
-        final List<StatusBean> statuses = new ArrayList<StatusBean>();
-
-        for (String res : userTO.getResources()) {
-            final StatusBean statusBean = new StatusBean();
-            statuses.add(statusBean);
-
-            statusBean.setResourceName(res);
-
-            final ResourceTO resourceTO = resourceRestClient.read(res);
-
-            final Map.Entry<IntMappingType, String> accountId =
-                    getAccountId(resourceTO);
-
-            String objectId = null;
-
-            switch (accountId != null
-                    ? accountId.getKey() : IntMappingType.SyncopeUserId) {
-
-                case SyncopeUserId:
-                    objectId = String.valueOf(userTO.getId());
-                    break;
-                case Username:
-                    objectId = userTO.getUsername();
-                    break;
-                case UserSchema:
-                    AttributeTO attributeTO = null;
-                    attributeTO =
-                            userTO.getAttributeMap().get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
-                    break;
-                case UserDerivedSchema:
-                    attributeTO = userTO.getDerivedAttributeMap().
-                            get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
-                    break;
-                case UserVirtualSchema:
-                    attributeTO = userTO.getVirtualAttributeMap().
-                            get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
-                    break;
-                default:
-            }
-
-
-            try {
-                Status status;
-                String accountLink;
-
-                final ConnObjectTO objectTO =
-                        userRestClient.getRemoteObject(res, objectId);
-
-                final Boolean enabled = isEnabled(objectTO);
-
-                status = enabled == null
-                        ? Status.UNDEFINED
-                        : enabled ? Status.ACTIVE : Status.SUSPENDED;
-
-                accountLink = getAccountLink(objectTO);
-
-                statusBean.setStatus(status);
-                statusBean.setAccountLink(accountLink);
-
-            } catch (Exception e) {
-                LOG.warn("User '{}' not found on resource '{}'", objectId, res);
-            }
-        }
-
-        return statuses;
-    }
-
-    private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final String STATUSATTR = "__ENABLE__";
-
-        final Map<String, AttributeTO> attributeTOs =
-                objectTO.getAttributeMap();
-
-        final AttributeTO status = attributeTOs.get(STATUSATTR);
-
-        return status != null && status.getValues() != null
-                && !status.getValues().isEmpty()
-                ? Boolean.parseBoolean(status.getValues().get(0)) : null;
-    }
-
-    private String getAccountLink(final ConnObjectTO objectTO) {
-        final String NAME = "__NAME__";
-
-        final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
-        final AttributeTO name = attributeTOs.get(NAME);
-
-        return name != null && name.getValues() != null
-                && !name.getValues().isEmpty()
-                ? (String) name.getValues().get(0) : null;
-    }
-
-    private Map.Entry<IntMappingType, String> getAccountId(
-            final ResourceTO resourceTO) {
-        Map.Entry<IntMappingType, String> accountId = null;
-
-        for (SchemaMappingTO mapping : resourceTO.getMappings()) {
-            if (mapping.isAccountid()) {
-                accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
-                        mapping.getIntMappingType(),
-                        mapping.getIntAttrName());
-            }
-        }
-
-        return accountId;
-    }
-
-    public class StatusBean implements Serializable {
-
-        private String resourceName = null;
-
-        private String accountLink = null;
-
-        private Status status = Status.USER_NOT_FOUND;
-
-        public String getAccountLink() {
-            return accountLink;
-        }
-
-        public void setAccountLink(final String accountLink) {
-            this.accountLink = accountLink;
-        }
-
-        public String getResourceName() {
-            return resourceName;
-        }
-
-        public void setResourceName(final String resourceName) {
-            this.resourceName = resourceName;
-        }
-
-        public Status getStatus() {
-            return status;
-        }
-
-        public void setStatus(final Status status) {
-            this.status = status;
-        }
     }
 }

@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.core.rest;
 
@@ -23,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
@@ -37,7 +37,10 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SchemaType;
+import org.syncope.types.SyncopeClientExceptionType;
 
 public class AuthenticationTestITCase extends AbstractTest {
 
@@ -171,15 +174,16 @@ public class AuthenticationTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user2", "password"));
 
-        HttpClientErrorException exception = null;
+        SyncopeClientException exception = null;
         try {
             restTemplate.getForObject(
                     BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
-        } catch (HttpClientErrorException e) {
-            exception = e;
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(
+                    SyncopeClientExceptionType.UnauthorizedRole);
         }
         assertNotNull(exception);
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
 
         // reset admin credentials for restTemplate
         super.setupRestTemplate();

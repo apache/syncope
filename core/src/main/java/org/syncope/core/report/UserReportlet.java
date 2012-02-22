@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.core.report;
 
@@ -33,10 +34,12 @@ import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.UserSearchDAO;
+import org.syncope.core.rest.data.RoleDataBinder;
 import org.syncope.core.rest.data.UserDataBinder;
 import static org.syncope.core.scheduling.ReportXMLConst.*;
 import org.syncope.core.util.EntitlementUtil;
@@ -74,7 +77,10 @@ public class UserReportlet extends AbstractReportlet {
     private UserSearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder dataBinder;
+    private UserDataBinder userDataBinder;
+
+    @Autowired
+    private RoleDataBinder roleDataBinder;
 
     private List<SyncopeUser> getPagedUsers(final UserReportletConf conf,
             final int page) {
@@ -296,7 +302,7 @@ public class UserReportlet extends AbstractReportlet {
 
             // Using UserTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            UserTO userTO = dataBinder.getUserTO(user);
+            UserTO userTO = userDataBinder.getUserTO(user);
 
             doExtractAttributes(handler, userTO, conf.getAttrs(),
                     conf.getDerAttrs(), conf.getVirAttrs());
@@ -321,7 +327,17 @@ public class UserReportlet extends AbstractReportlet {
                             memb.getVirtualAttributeMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        doExtractResources(handler, memb);
+                        Membership actualMemb =
+                                user.getMembership(memb.getRoleId());
+                        if (actualMemb == null) {
+                            LOG.warn("Unexpected: cannot find membership for "
+                                    + "role {} for user {}",
+                                    memb.getRoleId(), user);
+                        } else {
+                            doExtractResources(handler,
+                                    roleDataBinder.getRoleTO(
+                                    actualMemb.getSyncopeRole()));
+                        }
                     }
 
                     handler.endElement("", "", "membership");
@@ -354,6 +370,7 @@ public class UserReportlet extends AbstractReportlet {
 
         AttributesImpl atts = new AttributesImpl();
         atts.addAttribute("", "", ATTR_NAME, XSD_STRING, getConf().getName());
+        atts.addAttribute("", "", ATTR_CLASS, XSD_STRING, getClass().getName());
         handler.startElement("", "", ELEMENT_REPORTLET, atts);
 
         for (int i = 1; i <= (count(conf) / PAGE_SIZE) + 1; i++) {

@@ -113,13 +113,11 @@
         response.setHeader(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.UnauthorizedRole.getHeaderValue());
-        for (Long roleId : ((UnauthorizedRoleException) ex).getRoleIds()) {
-            response.setHeader(
-                    SyncopeClientExceptionType.UnauthorizedRole.
-                    getElementHeaderName(), roleId.toString());
-        }
+        response.setHeader(
+                SyncopeClientExceptionType.UnauthorizedRole.getElementHeaderName(),
+                ex.getMessage());
 
-        statusCode = HttpServletResponse.SC_UNAUTHORIZED;
+        statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof DataIntegrityViolationException) {
         response.setHeader(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,

@@ -7,18 +7,20 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.console.wicket.markup.html.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,6 +32,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
 import org.syncope.console.commons.RoleTreeBuilder;
+import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
 
 public class TreeRolePanel extends Panel {
@@ -38,6 +41,9 @@ public class TreeRolePanel extends Panel {
 
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
+
+    @SpringBean
+    protected XMLRolesReader xmlRolesReader;
 
     final WebMarkupContainer treeContainer;
 
@@ -78,6 +84,10 @@ public class TreeRolePanel extends Panel {
 
             }
         };
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                tree, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Roles", "read"));
 
         tree.setOutputMarkupId(true);
         tree.getTreeState().expandAll();

@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.core.rest;
 
@@ -49,12 +50,16 @@ public class UserRequestTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(),
                 new UsernamePasswordCredentials("user1", "password"));
 
+        SyncopeClientException exception = null;
         try {
             restTemplate.getForObject(
                     BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(
+                    SyncopeClientExceptionType.UnauthorizedRole);
         }
+        assertNotNull(exception);
 
         UserTO userTO = restTemplate.getForObject(
                 BASE_URL + "user/request/read/self", UserTO.class);
@@ -77,12 +82,16 @@ public class UserRequestTestITCase extends AbstractTest {
                 "selfcreate@syncope-idm.org");
 
         // 2. get unauthorized when trying to request user create
+        SyncopeClientException exception = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/request/create",
                     userTO, UserRequestTO.class);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(
+                    SyncopeClientExceptionType.UnauthorizedRole);
         }
+        assertNotNull(exception);
 
         // 3. set create request allowed
         configurationTO.setValue("true");
@@ -132,12 +141,16 @@ public class UserRequestTestITCase extends AbstractTest {
         userMod.setPassword(initialPassword);
 
         // 2. try to request user update as admin: failure
+        SyncopeClientException exception = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/request/update",
                     userMod, UserRequestTO.class);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(
+                    SyncopeClientExceptionType.UnauthorizedRole);
         }
+        assertNotNull(exception);
 
         // 3. auth as user just created
         PreemptiveAuthHttpRequestFactory requestFactory =
@@ -150,7 +163,7 @@ public class UserRequestTestITCase extends AbstractTest {
                 initialPassword));
 
         // 4. update with same password: not matching password policy
-        SyncopeClientException exception = null;
+        exception = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/request/update",
                     userMod, UserRequestTO.class);
@@ -202,12 +215,16 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 2. try to request user delete as admin: failure
+        SyncopeClientException exception = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/request/delete/",
                     userTO.getId(), UserRequestTO.class);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(
+                    SyncopeClientExceptionType.UnauthorizedRole);
         }
+        assertNotNull(exception);
 
         // 3. auth as user just created
         PreemptiveAuthHttpRequestFactory requestFactory =

@@ -8,7 +8,7 @@ to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
@@ -16,315 +16,316 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
+
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>${groupId}</groupId>
-        <artifactId>${rootArtifactId}</artifactId>
-        <version>${version}</version>
-    </parent>
-
-    <name>Syncope sample project core</name>
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <packaging>war</packaging>
-
-    <dependencies>
-
-        <dependency>
-            <groupId>org.apache.syncope</groupId>
-            <artifactId>syncope-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.syncope</groupId>
-            <artifactId>syncope-core</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.syncope</groupId>
-            <artifactId>syncope-core</artifactId>
-            <classifier>classes</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-all</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-        </dependency>
-
-        <!-- TEST -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles.soap</groupId>
-            <artifactId>org.connid.bundles.soap</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles.soap</groupId>
-            <artifactId>wssample</artifactId>
-            <type>war</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles.db</groupId>
-            <artifactId>org.connid.bundles.db.table</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles</groupId>
-            <artifactId>org.connid.bundles.csvdir</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles</groupId>
-            <artifactId>org.connid.bundles.ldap</artifactId>
-            <scope>test</scope>
-        </dependency>
-            
-        <dependency>
-            <groupId>org.apache.syncope</groupId>
-            <artifactId>syncope-build-tools</artifactId>
-            <type>war</type>
-            <scope>test</scope>
-        </dependency>
-        <!-- /TEST -->
-
-    </dependencies>
-
-    <build>
-        <finalName>syncope</finalName>
-
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>set-bundles</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <encoding>utf-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>explodeSyncopeWAR</id>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <target>
-                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
-                                       dest="${cargo.run.dir}">
-                                    <patternset>
-                                        <exclude name="**/content.xml"/>
-                                        <exclude name="**/persistence.properties"/>
-                                        <exclude name="**/security.properties"/>
-                                        <exclude name="**/workflow.properties" />
-                                    </patternset>
-                                </unzip>
-                                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
-                                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
-                                    <fileset dir="${project.build.directory}/test-classes"/>
-                                </copy>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>setupCSV</id>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <target>
-                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
-                            </target>    
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <container>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.h2database</groupId>
-                                <artifactId>h2</artifactId>
-                            </dependency>
-                        </dependencies>
-                    </container>
-                    <configuration>
-                        <type>standalone</type>
-                        <properties>
-                            <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-                            <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
-                        </properties>
-                        <deployables>
-                            <deployable>
-                                <location>${cargo.run.dir}</location>
-                                <properties>
-                                    <context>syncope</context>
-                                </properties>
-                            </deployable>
-                            <deployable>
-                                <location>${settings.localRepository}/org/syncope/syncope-build-tools/${syncope.version}/syncope-build-tools-${syncope.version}.war</location>
-                                <properties>
-                                    <context>syncope-build-tools</context>
-                                </properties>
-                            </deployable>
-                            <deployable>
-                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
-                                <properties>
-                                    <context>wssample</context>
-                                </properties>
-                            </deployable>
-                        </deployables>
-                    </configuration>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-container</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <wait>false</wait>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-container</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.openjpa</groupId>
-                <artifactId>openjpa-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${h2.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <includes>org/syncope/core/persistence/beans/**/*.class</includes>
-                    <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
-                    <connectionProperties>
-                        driverClassName=org.h2.Driver,
-                        url=jdbc:h2:mem:syncopedb
-                        username=sa,
-                        password=
-                    </connectionProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>enhancer</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
-    </build>
-</project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>${groupId}</groupId>
+        <artifactId>${rootArtifactId}</artifactId>
+        <version>${version}</version>
+    </parent>
+
+    <name>Syncope sample project core</name>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <packaging>war</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-core</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-core</artifactId>
+            <classifier>classes</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>org.connid.bundles.soap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>wssample</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.db</groupId>
+            <artifactId>org.connid.bundles.db.table</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles</groupId>
+            <artifactId>org.connid.bundles.csvdir</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles</groupId>
+            <artifactId>org.connid.bundles.ldap</artifactId>
+            <scope>test</scope>
+        </dependency>
+            
+        <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-build-tools</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <!-- /TEST -->
+
+    </dependencies>
+
+    <build>
+        <finalName>syncope</finalName>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>set-bundles</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <encoding>utf-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>explodeSyncopeWAR</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
+                                       dest="${cargo.run.dir}">
+                                    <patternset>
+                                        <exclude name="**/content.xml"/>
+                                        <exclude name="**/persistence.properties"/>
+                                        <exclude name="**/security.properties"/>
+                                        <exclude name="**/workflow.properties" />
+                                    </patternset>
+                                </unzip>
+                                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
+                                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
+                                    <fileset dir="${project.build.directory}/test-classes"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupCSV</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                            </target>    
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <container>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <properties>
+                            <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                            <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
+                        </properties>
+                        <deployables>
+                            <deployable>
+                                <location>${cargo.run.dir}</location>
+                                <properties>
+                                    <context>syncope</context>
+                                </properties>
+                            </deployable>
+                            <deployable>
+                                <location>${settings.localRepository}/org/syncope/syncope-build-tools/${syncope.version}/syncope-build-tools-${syncope.version}.war</location>
+                                <properties>
+                                    <context>syncope-build-tools</context>
+                                </properties>
+                            </deployable>
+                            <deployable>
+                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
+                                <properties>
+                                    <context>wssample</context>
+                                </properties>
+                            </deployable>
+                        </deployables>
+                    </configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <wait>false</wait>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <includes>org/syncope/core/persistence/beans/**/*.class</includes>
+                    <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
+                    <connectionProperties>
+                        driverClassName=org.h2.Driver,
+                        url=jdbc:h2:mem:syncopedb
+                        username=sa,
+                        password=
+                    </connectionProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enhancer</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+</project>

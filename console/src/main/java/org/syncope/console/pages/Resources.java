@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.console.pages;
 
@@ -146,24 +147,28 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editResourceWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
 
-                            @Override
-                            public Page createPage() {
-                                ResourceModalPage form = new ResourceModalPage(
-                                        Resources.this.getPageReference(),
-                                        editResourceWin, resourceTO, false);
-                                return form;
-                            }
-                        });
+                                    @Override
+                                    public Page createPage() {
+                                        ResourceModalPage form =
+                                                new ResourceModalPage(
+                                                Resources.this.getPageReference(),
+                                                editResourceWin, resourceTO,
+                                                false);
+                                        return form;
+                                    }
+                                });
 
                         editResourceWin.show(target);
                     }
@@ -171,7 +176,8 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -219,33 +225,46 @@ public class Resources extends BasePage {
         editResourceWin.setInitialWidth(WIN_WIDTH);
         editResourceWin.setCookieName("edit-res-modal");
 
-        add(new IndicatingAjaxLink("createResourceLink") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-
-                createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+        AjaxLink createResourceLink =
+                new IndicatingAjaxLink("createResourceLink") {
 
                     private static final long serialVersionUID =
-                            -7834632442532690940L;
+                            -7978723352517770644L;
 
                     @Override
-                    public Page createPage() {
-                        final ResourceModalPage windows = new ResourceModalPage(
-                                Resources.this.getPageReference(),
-                                editResourceWin,
-                                new ResourceTO(), true);
-                        return windows;
-                    }
-                });
+                    public void onClick(final AjaxRequestTarget target) {
 
-                createResourceWin.show(target);
-            }
-        });
+                        createResourceWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
+
+                                    @Override
+                                    public Page createPage() {
+                                        final ResourceModalPage windows =
+                                                new ResourceModalPage(
+                                                Resources.this.getPageReference(),
+                                                editResourceWin,
+                                                new ResourceTO(), true);
+                                        return windows;
+                                    }
+                                });
+
+                        createResourceWin.show(target);
+                    }
+                };
+
+        MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Resources", "create"));
+
+        add(createResourceLink);
 
         final Form paginatorForm = new Form("resourcePaginatorForm");
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                paginatorForm, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Resources", "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
                 new PropertyModel(this, "resourcePaginatorRows"),
@@ -311,7 +330,8 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -336,7 +356,8 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -367,6 +388,10 @@ public class Resources extends BasePage {
         connectorContainer.add(table);
         connectorContainer.setOutputMarkupId(true);
 
+        MetaDataRoleAuthorizationStrategy.authorize(
+                connectorContainer, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Connectors", "list"));
+
         add(connectorContainer);
 
         setWindowClosedCallback(createConnectorWin, connectorContainer);
@@ -388,34 +413,38 @@ public class Resources extends BasePage {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
 
-                createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+                createConnectorWin.setPageCreator(
+                        new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
-                    @Override
-                    public Page createPage() {
-                        ConnectorModalPage form = new ConnectorModalPage(
-                                Resources.this.getPageReference(),
-                                editConnectorWin, new ConnInstanceTO());
-                        return form;
-                    }
-                });
+                            @Override
+                            public Page createPage() {
+                                ConnectorModalPage form =
+                                        new ConnectorModalPage(
+                                        Resources.this.getPageReference(),
+                                        editConnectorWin, new ConnInstanceTO());
+                                return form;
+                            }
+                        });
 
                 createConnectorWin.show(target);
             }
         };
 
-        String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors", "create");
         MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE,
-                allowedRoles);
+                xmlRolesReader.getAllAllowedRoles("Connectors", "create"));
 
         add(createConnectorLink);
 
         Form paginatorForm = new Form("connectorPaginatorForm");
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                paginatorForm, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Connectors", "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
                 new PropertyModel(this, "connectorPaginatorRows"),
@@ -472,7 +501,8 @@ public class Resources extends BasePage {
         public IModel<ResourceTO> model(final ResourceTO resource) {
             return new AbstractReadOnlyModel<ResourceTO>() {
 
-                private static final long serialVersionUID = 8952474152465381634L;
+                private static final long serialVersionUID =
+                        8952474152465381634L;
 
                 @Override
                 public ResourceTO getObject() {

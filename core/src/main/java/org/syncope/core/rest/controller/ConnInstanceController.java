@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.core.rest.controller;
 
@@ -176,8 +177,7 @@ public class ConnInstanceController extends AbstractController {
     value = "/list")
     @Transactional(readOnly = true)
     public List<ConnInstanceTO> list(
-            @RequestParam(value = "lang", required = false) final String lang)
-            throws NotFoundException {
+            @RequestParam(value = "lang", required = false) final String lang) {
 
         if (StringUtils.isBlank(lang)) {
             CurrentLocale.set(Locale.ENGLISH);
@@ -187,10 +187,17 @@ public class ConnInstanceController extends AbstractController {
 
         List<ConnInstance> connInstances = connInstanceDAO.findAll();
 
-        List<ConnInstanceTO> connInstanceTOs =
+        final List<ConnInstanceTO> connInstanceTOs =
                 new ArrayList<ConnInstanceTO>();
+
         for (ConnInstance connector : connInstances) {
-            connInstanceTOs.add(binder.getConnInstanceTO(connector));
+            try {
+                connInstanceTOs.add(binder.getConnInstanceTO(connector));
+            } catch (NotFoundException e) {
+                LOG.error("Connector '{}#{}' not found",
+                        connector.getBundleName(),
+                        connector.getVersion());
+            }
         }
 
         return connInstanceTOs;

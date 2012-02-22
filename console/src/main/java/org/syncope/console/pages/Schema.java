@@ -7,13 +7,14 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.console.pages;
 
@@ -71,6 +72,7 @@ public class Schema extends BasePage {
         RoleSchema,
         UserSchema,
         MembershipSchema
+
     };
 
     private enum SchemaDerivedType {
@@ -78,6 +80,7 @@ public class Schema extends BasePage {
         RoleDerivedSchema,
         UserDerivedSchema,
         MembershipDerivedSchema
+
     };
 
     private enum SchemaVirtualType {
@@ -85,6 +88,7 @@ public class Schema extends BasePage {
         RoleVirtualSchema,
         UserVirtualSchema,
         MembershipVirtualSchema
+
     };
 
     private static final int WIN_WIDTH = 550;
@@ -172,7 +176,7 @@ public class Schema extends BasePage {
     private int membershipVirPageRows;
 
     /*
-    Response flag set by the Modal Window after the operation is completed
+     * Response flag set by the Modal Window after the operation is completed
      */
     private boolean operationResult = false;
 
@@ -949,10 +953,11 @@ public class Schema extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         modalWindow.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
@@ -982,7 +987,8 @@ public class Schema extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {

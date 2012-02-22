@@ -7,17 +7,17 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
+ * under the License.
  */
 package org.syncope.console.pages;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -49,10 +49,10 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
@@ -115,11 +115,15 @@ public class Login extends WebPage {
                 String[] entitlements = authenticate(
                         userIdField.getRawInput(), passwordField.getRawInput());
 
-                SyncopeSession.get().setUserId(userIdField.getRawInput());
-                SyncopeSession.get().setEntitlements(entitlements);
-                SyncopeSession.get().setCoreVersion(getCoreVersion());
+                if (entitlements == null) {
+                    error(getString("login-error"));
+                } else {
+                    SyncopeSession.get().setUserId(userIdField.getRawInput());
+                    SyncopeSession.get().setEntitlements(entitlements);
+                    SyncopeSession.get().setCoreVersion(getCoreVersion());
 
-                setResponsePage(WelcomePage.class, parameters);
+                    setResponsePage(WelcomePage.class, parameters);
+                }
             }
         };
 
@@ -139,9 +143,7 @@ public class Login extends WebPage {
         add(editProfileModalWin);
 
         Fragment selfRegFrag;
-        if (restTemplate.getForObject(baseURL + "user/request/create/allowed",
-                Boolean.class)) {
-
+        if (isSelfRegistrationAllowed()) {
             selfRegFrag =
                     new Fragment("selfRegistration", "selfRegAllowed", this);
 
@@ -199,12 +201,23 @@ public class Login extends WebPage {
         try {
             entitlements = restTemplate.getForObject(
                     baseURL + "auth/entitlements.json", String[].class);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (HttpClientErrorException e) {
             LOG.error("While fetching user's entitlements", e);
-            getSession().error(e.getMessage());
         }
 
         return entitlements;
+    }
+
+    private boolean isSelfRegistrationAllowed() {
+        Boolean result = null;
+        try {
+            result = restTemplate.getForObject(
+                    baseURL + "user/request/create/allowed", Boolean.class);
+        } catch (HttpClientErrorException e) {
+            LOG.error("While seeking if self registration is allowed", e);
+        }
+
+        return result == null ? false : result.booleanValue();
     }
 
     private String getCoreVersion() {
@@ -217,7 +230,7 @@ public class Login extends WebPage {
             HttpGet get = new HttpGet(baseURL + "../version.jsp");
             HttpResponse response = requestFactory.getHttpClient().execute(get);
             version = EntityUtils.toString(response.getEntity()).trim();
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("While fetching core version", e);
             getSession().error(e.getMessage());
         }

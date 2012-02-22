@@ -92,6 +92,27 @@ select[disabled] {
     background-color: #ddd;
 }
 
+#loginFeedbackDiv {
+    width: 97%;
+}
+
+#loginFeedbackDiv ul {
+    list-style:none outside none;
+    margin:0;
+    text-align:center;
+    width: 100%;
+    height: 30px;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+#loginFeedbackDiv ul li{
+    list-style:none outside none;
+    margin:0;
+    text-align:center;
+    width: 100%;
+}
+
 #feedbackDiv {
     height: 20px;
     margin: 0px;
