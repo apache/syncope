@@ -633,11 +633,6 @@ under the License.
     <repositories>
 
         <repository>
-            <id>main</id>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-        
-        <repository>
             <id>activiti</id>
             <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
         </repository>
