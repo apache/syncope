@@ -81,9 +81,9 @@ public class Resources extends BasePage {
 
     private final ModalWindow editConnectorWin;
 
-    private static final int WIN_HEIGHT = 500;
+    private static final int WIN_HEIGHT = 600;
 
-    private static final int WIN_WIDTH = 900;
+    private static final int WIN_WIDTH = 950;
 
     private WebMarkupContainer resourceContainer;
 

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
@@ -48,19 +49,27 @@ import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractAttributable;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TaskExec;
+import org.syncope.core.persistence.beans.membership.MDerSchema;
+import org.syncope.core.persistence.beans.membership.MSchema;
+import org.syncope.core.persistence.beans.membership.MVirSchema;
+import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.RDerSchema;
+import org.syncope.core.persistence.beans.role.RSchema;
+import org.syncope.core.persistence.beans.role.RVirSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
-import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -408,13 +417,31 @@ public class PropagationManager {
             case UserSchema:
                 result = USchema.class;
                 break;
+            case RoleSchema:
+                result = RSchema.class;
+                break;
+            case MembershipSchema:
+                result = MSchema.class;
+                break;
 
             case UserDerivedSchema:
                 result = UDerSchema.class;
                 break;
+            case RoleDerivedSchema:
+                result = RDerSchema.class;
+                break;
+            case MembershipDerivedSchema:
+                result = MDerSchema.class;
+                break;
 
             case UserVirtualSchema:
                 result = UVirSchema.class;
+                break;
+            case RoleVirtualSchema:
+                result = RVirSchema.class;
+                break;
+            case MembershipVirtualSchema:
+                result = MVirSchema.class;
                 break;
 
             default:
@@ -440,163 +467,220 @@ public class PropagationManager {
             final String password)
             throws ClassNotFoundException {
 
+        final List<AbstractAttributable> attributables =
+                new ArrayList<AbstractAttributable>();
+
+        switch (mapping.getIntMappingType().getEntity()) {
+            case USER:
+                attributables.addAll(Collections.singleton(user));
+                break;
+            case ROLE:
+                final List<Membership> memberships = user.getMemberships();
+                for (Membership membership : memberships) {
+                    attributables.add(membership.getSyncopeRole());
+                }
+                break;
+            case MEMBERSHIP:
+                attributables.addAll(user.getMemberships());
+                break;
+            default:
+        }
+
+        final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
+                getAttributeValues(mapping, attributables, password);
+
+        final List<AbstractAttrValue> values = entry.getValue();
+        final AbstractSchema schema = entry.getKey();
+        final SchemaType schemaType =
+                schema == null ? SchemaType.String : schema.getType();
+
+        LOG.debug("Define mapping for: "
+                + "\n* ExtAttrName " + mapping.getExtAttrName()
+                + "\n* is accountId " + mapping.isAccountid()
+                + "\n* is password " + (mapping.isPassword()
+                || mapping.getIntMappingType().equals(
+                IntMappingType.Password))
+                + "\n* mandatory condition "
+                + mapping.getMandatoryCondition()
+                + "\n* Schema " + mapping.getIntAttrName()
+                + "\n* IntMappingType "
+                + mapping.getIntMappingType().toString()
+                + "\n* ClassType " + schemaType.getClassName()
+                + "\n* Values " + values);
+
+        List<Object> objValues = new ArrayList<Object>();
+        for (AbstractAttrValue value : values) {
+            if (FrameworkUtil.isSupportedAttributeType(
+                    Class.forName(schemaType.getClassName()))) {
+                objValues.add(value.getValue());
+            } else {
+                objValues.add(value.getValueAsString());
+            }
+        }
+
+        Map.Entry<String, Attribute> res;
+
+        if (mapping.isAccountid()) {
+
+            res = new DefaultMapEntry(
+                    objValues.iterator().next().toString(), null);
+
+        } else if (mapping.isPassword()) {
+
+            res = new DefaultMapEntry(null,
+                    AttributeBuilder.buildPassword(
+                    objValues.iterator().next().toString().toCharArray()));
+
+        } else {
+            if (schema != null && schema.isMultivalue()) {
+                res = new DefaultMapEntry(null,
+                        AttributeBuilder.build(mapping.getExtAttrName(),
+                        objValues));
+
+            } else {
+                res = new DefaultMapEntry(null,
+                        objValues.isEmpty()
+                        ? AttributeBuilder.build(mapping.getExtAttrName())
+                        : AttributeBuilder.build(mapping.getExtAttrName(),
+                        objValues.iterator().next()));
+            }
+        }
+
+        return res;
+    }
+
+    /**
+     * Get attribute values.
+     *
+     * @param mapping mapping.
+     * @param attributables list of attributables.
+     * @param password password.
+     * @return schema and attribute values.
+     */
+    private Entry<AbstractSchema, List<AbstractAttrValue>> getAttributeValues(
+            final SchemaMapping mapping,
+            final List<AbstractAttributable> attributables,
+            final String password) {
+
+
+        LOG.debug("Get attributes for '{}' and mapping type '{}'",
+                attributables, mapping.getIntMappingType());
+
         AbstractSchema schema = null;
-        SchemaType schemaType = null;
-        List<AbstractAttrValue> values = null;
+
+        List<AbstractAttrValue> values = new ArrayList<AbstractAttrValue>();
         AbstractAttrValue attrValue;
+
         switch (mapping.getIntMappingType()) {
             case UserSchema:
+            case RoleSchema:
+            case MembershipSchema:
                 schema = schemaDAO.find(mapping.getIntAttrName(),
-                        getIntMappingTypeClass(
-                        mapping.getIntMappingType()));
-                schemaType = schema.getType();
+                        getIntMappingTypeClass(mapping.getIntMappingType()));
 
-                UAttr attr = user.getAttribute(mapping.getIntAttrName());
-                values = attr != null
-                        ? (schema.isUniqueConstraint()
-                        ? Collections.singletonList(attr.getUniqueValue())
-                        : attr.getValues())
-                        : Collections.EMPTY_LIST;
+                for (AbstractAttributable attributable : attributables) {
+                    final UAttr attr =
+                            attributable.getAttribute(mapping.getIntAttrName());
 
-                LOG.debug("Retrieved attribute {}", attr
-                        + "\n* IntAttrName {}"
-                        + "\n* IntMappingType {}"
-                        + "\n* Attribute values {}",
-                        new Object[]{mapping.getIntAttrName(),
-                            mapping.getIntMappingType(), values});
+                    if (attr != null && attr.getValues() != null) {
+                        values.addAll(schema.isUniqueConstraint()
+                                ? Collections.singletonList(
+                                attr.getUniqueValue())
+                                : attr.getValues());
+                    }
+
+                    LOG.debug("Retrieved attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{attr, mapping.getIntAttrName(),
+                                mapping.getIntMappingType(), values});
+                }
+
                 break;
 
             case UserVirtualSchema:
-                schemaType = SchemaType.String;
+            case RoleVirtualSchema:
+            case MembershipVirtualSchema:
 
-                UVirAttr virAttr = user.getVirtualAttribute(
-                        mapping.getIntAttrName());
+                for (AbstractAttributable attributable : attributables) {
+                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(
+                            mapping.getIntAttrName());
 
-                values = new ArrayList<AbstractAttrValue>();
-                if (virAttr != null && virAttr.getValues() != null) {
-                    for (String value : virAttr.getValues()) {
-                        attrValue = new UAttrValue();
-                        attrValue.setStringValue(value);
-                        values.add(attrValue);
+                    if (virAttr != null && virAttr.getValues() != null) {
+                        for (String value : virAttr.getValues()) {
+                            attrValue = new UAttrValue();
+                            attrValue.setStringValue(value);
+                            values.add(attrValue);
+                        }
                     }
-                }
 
-                LOG.debug("Retrieved virtual attribute {}", virAttr
-                        + "\n* IntAttrName {}"
-                        + "\n* IntMappingType {}"
-                        + "\n* Attribute values {}",
-                        new Object[]{mapping.getIntAttrName(),
-                            mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved virtual attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{virAttr, mapping.getIntAttrName(),
+                                mapping.getIntMappingType(), values});
+                }
                 break;
 
             case UserDerivedSchema:
-                schemaType = SchemaType.String;
+            case RoleDerivedSchema:
+            case MembershipDerivedSchema:
+                for (AbstractAttributable attributable : attributables) {
+                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(
+                            mapping.getIntAttrName());
 
-                UDerAttr derAttr = user.getDerivedAttribute(
-                        mapping.getIntAttrName());
-                attrValue = new UAttrValue();
-                if (derAttr != null) {
-                    attrValue.setStringValue(
-                            derAttr.getValue(user.getAttributes()));
+                    if (derAttr != null) {
+                        attrValue = new UAttrValue();
+                        attrValue.setStringValue(
+                                derAttr.getValue(attributable.getAttributes()));
+                        values.add(attrValue);
+                    }
 
-                    values = Collections.singletonList(attrValue);
-                } else {
-                    values = Collections.EMPTY_LIST;
+                    LOG.debug("Retrieved attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{derAttr, mapping.getIntAttrName(),
+                                mapping.getIntMappingType(), values});
                 }
-
-                LOG.debug("Retrieved attribute {}", derAttr
-                        + "\n* IntAttrName {}"
-                        + "\n* IntMappingType {}"
-                        + "\n* Attribute values {}",
-                        new Object[]{mapping.getIntAttrName(),
-                            mapping.getIntMappingType(), values});
                 break;
 
-
             case Username:
-                schema = null;
-                schemaType = SchemaType.String;
+                for (AbstractAttributable attributable : attributables) {
+                    attrValue = new UAttrValue();
+                    attrValue.setStringValue(
+                            ((SyncopeUser) attributable).getUsername());
 
-                attrValue = new UAttrValue();
-                attrValue.setStringValue(user.getUsername());
-
-                values = Collections.singletonList(attrValue);
+                    values.add(attrValue);
+                }
                 break;
 
             case SyncopeUserId:
-                schema = null;
-                schemaType = SchemaType.String;
-                attrValue = new UAttrValue();
-                attrValue.setStringValue(user.getId().toString());
-                values = Collections.singletonList(attrValue);
+                for (AbstractAttributable attributable : attributables) {
+                    attrValue = new UAttrValue();
+                    attrValue.setStringValue(attributable.getId().toString());
+                    values.add(attrValue);
+                }
                 break;
 
             case Password:
-                schema = null;
-                schemaType = SchemaType.String;
                 attrValue = new UAttrValue();
 
                 if (password != null) {
                     attrValue.setStringValue(password);
                 }
 
-                values = Collections.singletonList(attrValue);
+                values.add(attrValue);
                 break;
 
             default:
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Define mapping for: "
-                    + "\n* ExtAttrName " + mapping.getExtAttrName()
-                    + "\n* is accountId " + mapping.isAccountid()
-                    + "\n* is password " + (mapping.isPassword()
-                    || mapping.getIntMappingType().equals(
-                    IntMappingType.Password))
-                    + "\n* mandatory condition "
-                    + mapping.getMandatoryCondition()
-                    + "\n* Schema " + mapping.getIntAttrName()
-                    + "\n* IntMappingType "
-                    + mapping.getIntMappingType().toString()
-                    + "\n* ClassType " + schemaType.getClassName()
-                    + "\n* Values " + values);
-        }
+        LOG.debug("Retrived values '{}'", values);
 
-        List<Object> objValues = new ArrayList<Object>();
-        for (AbstractAttrValue value : values) {
-            if (!FrameworkUtil.isSupportedAttributeType(
-                    Class.forName(schemaType.getClassName()))) {
-
-                objValues.add(value.getValueAsString());
-            } else {
-                objValues.add(value.getValue());
-            }
-        }
-
-        String accountId = null;
-        if (mapping.isAccountid()) {
-            accountId = objValues.iterator().next().toString();
-        }
-
-        Attribute attribute = null;
-        if (mapping.isPassword()) {
-            attribute = AttributeBuilder.buildPassword(
-                    objValues.iterator().next().toString().toCharArray());
-        }
-
-        if (!mapping.isPassword() && !mapping.isAccountid()) {
-            if (schema != null && schema.isMultivalue()) {
-                attribute = AttributeBuilder.build(mapping.getExtAttrName(),
-                        objValues);
-            } else {
-                attribute = objValues.isEmpty()
-                        ? AttributeBuilder.build(mapping.getExtAttrName())
-                        : AttributeBuilder.build(mapping.getExtAttrName(),
-                        objValues.iterator().next());
-            }
-        }
-
-        return new DefaultMapEntry(accountId, attribute);
+        return new DefaultMapEntry(schema, values);
     }
 
     /**
@@ -635,7 +719,9 @@ public class PropagationManager {
                     final Attribute alreadyAdded = AttributeUtil.find(
                             preparedAttribute.getValue().getName(), attributes);
 
-                    if (alreadyAdded != null) {
+                    if (alreadyAdded == null) {
+                        attributes.add(preparedAttribute.getValue());
+                    } else {
                         attributes.remove(alreadyAdded);
 
                         Set values = new HashSet(alreadyAdded.getValue());
@@ -644,8 +730,6 @@ public class PropagationManager {
                         attributes.add(AttributeBuilder.build(
                                 preparedAttribute.getValue().getName(),
                                 values));
-                    } else {
-                        attributes.add(preparedAttribute.getValue());
                     }
 
                 }
@@ -658,25 +742,22 @@ public class PropagationManager {
         if (!StringUtils.hasText(accountId)) {
             // LOG error but avoid to throw exception: leave it to the 
             //external resource
-
-            LOG.error(
-                    "Failure preparing attributes for '{}': missing accountId",
-                    resource.getName());
+            LOG.error("Missing accountId for '{}': ", resource.getName());
         }
 
         // Evaluate AccountLink expression
-        String evaluatedAccountLink =
+        String evalAccountLink =
                 jexlUtil.evaluate(resource.getAccountLink(), user);
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
-        if (evaluatedAccountLink.isEmpty()) {
+        if (evalAccountLink.isEmpty()) {
             // add accountId as __NAME__ attribute ...
             LOG.debug("Add AccountId [{}] as __NAME__", accountId);
             attributes.add(new Name(accountId));
         } else {
-            LOG.debug("Add AccountLink [{}] as __NAME__", evaluatedAccountLink);
-            attributes.add(new Name(evaluatedAccountLink));
+            LOG.debug("Add AccountLink [{}] as __NAME__", evalAccountLink);
+            attributes.add(new Name(evalAccountLink));
 
             // AccountId not propagated: 
             // it will be used to set the value for __UID__ attribute

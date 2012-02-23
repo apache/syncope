@@ -31,6 +31,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.types.Entity;
 import org.syncope.types.IntMappingType;
 
 @Transactional
@@ -121,6 +122,11 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
+        ConnInstance connector =
+                resourceDAO.find("ws-target-resource-1").getConnector();
+
+        resource.setConnector(connector);
+
         SchemaMapping accountId = new SchemaMapping();
         accountId.setResource(resource);
         accountId.setAccountid(true);
@@ -140,6 +146,11 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
+        ConnInstance connector =
+                resourceDAO.find("ws-target-resource-1").getConnector();
+
+        resource.setConnector(connector);
+
         SchemaMapping mapping = new SchemaMapping();
         mapping.setResource(resource);
         mapping.setAccountid(true);
@@ -150,8 +161,46 @@ public class ResourceTest extends AbstractTest {
 
         mapping = new SchemaMapping();
         mapping.setResource(resource);
+        mapping.setIntAttrName("userId");
+        mapping.setIntMappingType(IntMappingType.UserSchema);
+
+        resource.addMapping(mapping);
+
+        resourceDAO.save(resource);
+    }
+
+    @Test
+    public void saveWithRoleMappingType() {
+
+        ExternalResource resource = new ExternalResource();
+        resource.setName("ws-target-resource-basic-save-invalid");
+
+        ConnInstance connector =
+                resourceDAO.find("ws-target-resource-1").getConnector();
+
+        resource.setConnector(connector);
+
+        SchemaMapping mapping = new SchemaMapping();
+        mapping.setResource(resource);
+        mapping.setAccountid(true);
         mapping.setIntAttrName("fullname");
         mapping.setIntMappingType(IntMappingType.UserSchema);
+
+        resource.addMapping(mapping);
+
+        mapping = new SchemaMapping();
+        mapping.setResource(resource);
+        mapping.setIntAttrName("icon");
+        mapping.setExtAttrName("icon");
+        mapping.setIntMappingType(IntMappingType.RoleSchema);
+
+        resource.addMapping(mapping);
+
+        mapping = new SchemaMapping();
+        mapping.setResource(resource);
+        mapping.setIntAttrName("mderiveddata");
+        mapping.setExtAttrName("mderiveddata");
+        mapping.setIntMappingType(IntMappingType.MembershipDerivedSchema);
 
         resource.addMapping(mapping);
 
@@ -159,6 +208,23 @@ public class ResourceTest extends AbstractTest {
         ExternalResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
+
+        assertEquals(3, actual.getMappings().size());
+
+        for (SchemaMapping schemaMapping : actual.getMappings()) {
+
+            if ("icon".equals(schemaMapping.getIntAttrName())) {
+                assertTrue(IntMappingType.contains(
+                        Entity.ROLE,
+                        schemaMapping.getIntMappingType().toString()));
+            }
+
+            if ("mderiveddata".equals(schemaMapping.getIntAttrName())) {
+                assertTrue(IntMappingType.contains(
+                        Entity.MEMBERSHIP,
+                        schemaMapping.getIntMappingType().toString()));
+            }
+        }
     }
 
     @Test

@@ -36,6 +36,10 @@
     width: 150px;
 }
 
+.veryshort_fixedsize{
+    width: 70px;
+}
+
 .all_dynamicsize{
     width: 100%;
 }

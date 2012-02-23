@@ -21,6 +21,7 @@ package org.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,8 +37,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -56,10 +55,17 @@ import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfProperty;
+import org.syncope.types.Entity;
 import org.syncope.types.IntMappingType;
 
+/**
+ * Resource mapping panel.
+ */
 public class ResourceMappingPanel extends Panel {
 
+    /**
+     * Serial verion UID.
+     */
     private static final long serialVersionUID = -7982691107029848579L;
 
     /**
@@ -68,61 +74,95 @@ public class ResourceMappingPanel extends Panel {
     protected static final Logger LOG =
             LoggerFactory.getLogger(ResourceMappingPanel.class);
 
+    /**
+     * Schema rest client.
+     */
     @SpringBean
-    private SchemaRestClient schemaRestClient;
+    private transient SchemaRestClient schemaRestClient;
 
+    /**
+     * ConnInstance rest client.
+     */
     @SpringBean
-    private ConnectorRestClient connRestClient;
+    private transient ConnectorRestClient connRestClient;
 
-    private List<String> uSchemaAttrNames;
+    /**
+     * Resource schema name.
+     */
+    private List<String> schemaNames;
 
-    private List<String> uDerSchemaAttrNames;
+    /**
+     * Internal attribute types.
+     */
+    private List<IntMappingType> attrTypes = new ArrayList<IntMappingType>();
 
-    private List<String> uVirSchemaAttrNames;
+    /**
+     * Add mapping button.
+     */
+    private final AjaxButton addMappingBtn;
 
-    private List<String> resourceSchemaNames;
+    /**
+     * All mappings.
+     */
+    private final ListView mappings;
 
-    private AjaxButton addSchemaMappingBtn;
+    /**
+     * External resource to be updated.
+     */
+    private final ResourceTO resourceTO;
 
-    private ListView mappings;
+    /**
+     * Mapping container.
+     */
+    private final WebMarkupContainer mappingContainer;
 
-    private ResourceTO resourceTO;
+    /**
+     * Create flag.
+     */
+    private final boolean createFlag;
 
-    private WebMarkupContainer mappingContainer;
+    /**
+     * OnChange event name.
+     */
+    private static String onchange = "onchange";
 
-    private boolean createFlag;
+    /**
+     * Mapping field style sheet.
+     */
+    private static String fieldStyle =
+            "ui-widget-content ui-corner-all short_fixedsize";
 
+    /**
+     * Mapping field style sheet.
+     */
+    private static String defFieldStyle =
+            "ui-widget-content ui-corner-all";
+
+    /**
+     * Mapping field style sheet.
+     */
+    private static String shortFieldStyle =
+            "ui-widget-content ui-corner-all veryshort_fixedsize";
+
+    /**
+     * Attribute Mapping Panel.
+     *
+     * @param panelid panel id.
+     * @param resourceTO external resource.
+     * @param createFlag create flag.
+     */
     public ResourceMappingPanel(
-            final String id,
+            final String panelid,
             final ResourceTO resourceTO,
             final boolean createFlag) {
 
-        super(id);
+        super(panelid);
         setOutputMarkupId(true);
 
         this.resourceTO = resourceTO;
         this.createFlag = createFlag;
 
         initResourceSchemaNames();
-
-        uSchemaAttrNames =
-                schemaRestClient.getSchemaNames("user");
-        uDerSchemaAttrNames =
-                schemaRestClient.getDerivedSchemaNames("user");
-        uVirSchemaAttrNames =
-                schemaRestClient.getVirtualSchemaNames("user");
-
-        final IModel<List<IntMappingType>> intMappingTypes =
-                new LoadableDetachableModel<List<IntMappingType>>() {
-
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
-
-                    @Override
-                    protected List<IntMappingType> load() {
-                        return Arrays.asList(IntMappingType.values());
-                    }
-                };
 
         final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel(
                 "accountLink",
@@ -137,6 +177,9 @@ public class ResourceMappingPanel extends Panel {
         mappings = new ListView<SchemaMappingTO>(
                 "mappings", resourceTO.getMappings()) {
 
+            /**
+             * Serial version UID.
+             */
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
@@ -144,6 +187,11 @@ public class ResourceMappingPanel extends Panel {
                     final ListItem<SchemaMappingTO> item) {
 
                 final SchemaMappingTO mappingTO = item.getModelObject();
+
+                final Entity entity = mappingTO.getIntMappingType() == null
+                        ? null : mappingTO.getIntMappingType().getEntity();
+
+                attrTypes = getAttributeTypes(entity);
 
                 item.add(new AjaxDecoratedCheckbox("toRemove",
                         new Model(Boolean.FALSE)) {
@@ -201,73 +249,81 @@ public class ResourceMappingPanel extends Panel {
                         getString("intAttrNames"),
                         new PropertyModel(mappingTO, "intAttrName"),
                         true);
-                intAttrNames.setChoices(resourceSchemaNames);
+                intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
-                intAttrNames.setStyleShet(
-                        "ui-widget-content ui-corner-all short_fixedsize");
+                intAttrNames.setStyleShet(fieldStyle);
 
-                if (mappingTO.getIntMappingType() == null) {
-                    intAttrNames.setChoices(Collections.EMPTY_LIST);
-                } else {
-                    switch (mappingTO.getIntMappingType()) {
-                        case UserSchema:
-                            intAttrNames.setChoices(uSchemaAttrNames);
-                            break;
-
-                        case UserDerivedSchema:
-                            intAttrNames.setChoices(uDerSchemaAttrNames);
-                            break;
-
-                        case UserVirtualSchema:
-                            intAttrNames.setChoices(uVirSchemaAttrNames);
-                            break;
-
-                        case SyncopeUserId:
-                            intAttrNames.setEnabled(false);
-                            intAttrNames.setRequired(false);
-                            intAttrNames.setChoices(Collections.EMPTY_LIST);
-                            mappingTO.setIntAttrName("SyncopeUserId");
-                            break;
-
-                        case Password:
-                            intAttrNames.setEnabled(false);
-                            intAttrNames.setRequired(false);
-                            intAttrNames.setChoices(Collections.EMPTY_LIST);
-                            mappingTO.setIntAttrName("Password");
-                            break;
-
-                        case Username:
-                            intAttrNames.setEnabled(false);
-                            intAttrNames.setRequired(false);
-                            intAttrNames.setChoices(Collections.EMPTY_LIST);
-                            mappingTO.setIntAttrName("Username");
-                            break;
-
-                        default:
-                            intAttrNames.setChoices(Collections.EMPTY_LIST);
-                    }
-                }
+                setAttrNames(mappingTO.getIntMappingType(), intAttrNames);
 
                 item.add(intAttrNames);
 
-                final IntMappingTypesDropDownChoice mappingTypesPanel =
-                        new IntMappingTypesDropDownChoice(
+
+                final AjaxDropDownChoicePanel typesPanel =
+                        new AjaxDropDownChoicePanel(
                         "intMappingTypes",
                         new ResourceModel("intMappingTypes", "intMappingTypes").
                         getObject(),
                         new PropertyModel<IntMappingType>(
-                        mappingTO, "intMappingType"),
-                        intAttrNames);
+                        mappingTO, "intMappingType"), false);
 
-                mappingTypesPanel.setRequired(true);
-                mappingTypesPanel.setChoices(intMappingTypes.getObject());
-                mappingTypesPanel.setStyleShet(
-                        "ui-widget-content ui-corner-all short_fixedsize");
+                typesPanel.getField().add(
+                        new AjaxFormComponentUpdatingBehavior(onchange) {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(
+                                    final AjaxRequestTarget target) {
+                                setAttrNames(
+                                        (IntMappingType) typesPanel.
+                                        getModelObject(), intAttrNames);
+                                target.add(intAttrNames);
+                            }
+                        });
+
+                typesPanel.setRequired(true);
+                typesPanel.setChoices(attrTypes);
+                typesPanel.setStyleShet(fieldStyle);
+                item.add(typesPanel);
+
+                final AjaxDropDownChoicePanel mappingTypesPanel =
+                        new AjaxDropDownChoicePanel(
+                        "mappingTypes",
+                        new ResourceModel("mappingTypes", "mappingTypes").
+                        getObject(), new Model(entity), false);
+
+                mappingTypesPanel.setChoices(Arrays.asList(Entity.values()));
+                mappingTypesPanel.setStyleShet(defFieldStyle);
+
                 item.add(mappingTypesPanel);
+
+                mappingTypesPanel.getField().add(
+                        new AjaxFormComponentUpdatingBehavior(onchange) {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(
+                                    final AjaxRequestTarget target) {
+
+                                attrTypes = getAttributeTypes(
+                                        (Entity) mappingTypesPanel.
+                                        getModelObject());
+
+                                typesPanel.setChoices(attrTypes);
+                                intAttrNames.setChoices(Collections.EMPTY_LIST);
+
+                                target.add(typesPanel.getField());
+                                target.add(intAttrNames.getField());
+
+                            }
+                        });
 
                 final FieldPanel extAttrName;
 
-                if (resourceSchemaNames.isEmpty()) {
+                if (schemaNames.isEmpty()) {
                     extAttrName = new AjaxTextFieldPanel(
                             "extAttrName",
                             new ResourceModel("extAttrNames", "extAttrNames").
@@ -284,7 +340,7 @@ public class ResourceMappingPanel extends Panel {
                             new PropertyModel(mappingTO, "extAttrName"),
                             true);
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(
-                            resourceSchemaNames);
+                            schemaNames);
 
                 }
 
@@ -294,26 +350,23 @@ public class ResourceMappingPanel extends Panel {
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
 
-                extAttrName.setStyleShet(
-                        "ui-widget-content ui-corner-all short_fixedsize");
+                extAttrName.setStyleShet(fieldStyle);
                 item.add(extAttrName);
 
-                final AjaxTextFieldPanel mandatoryCondition =
+                final AjaxTextFieldPanel mandatory =
                         new AjaxTextFieldPanel(
                         "mandatoryCondition",
                         new ResourceModel(
                         "mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel(mappingTO,
-                        "mandatoryCondition"),
+                        new PropertyModel(mappingTO, "mandatoryCondition"),
                         true);
 
-                mandatoryCondition.setChoices(
+                mandatory.setChoices(
                         Arrays.asList(new String[]{"true", "false"}));
 
-                mandatoryCondition.setStyleShet(
-                        "ui-widget-content ui-corner-all short_fixedsize");
+                mandatory.setStyleShet(shortFieldStyle);
 
-                item.add(mandatoryCondition);
+                item.add(mandatory);
 
                 final AjaxCheckBoxPanel accountId =
                         new AjaxCheckBoxPanel(
@@ -322,7 +375,7 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel(mappingTO, "accountid"), false);
 
                 accountId.getField().add(
-                        new AjaxFormComponentUpdatingBehavior("onchange") {
+                        new AjaxFormComponentUpdatingBehavior(onchange) {
 
                             private static final long serialVersionUID =
                                     -1107858522700306810L;
@@ -349,14 +402,14 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel(mappingTO, "password"), true);
 
                 password.getField().add(
-                        new AjaxFormComponentUpdatingBehavior("onchange") {
+                        new AjaxFormComponentUpdatingBehavior(onchange) {
 
                             private static final long serialVersionUID =
                                     -1107858522700306810L;
 
                             @Override
                             protected void onUpdate(
-                                    AjaxRequestTarget target) {
+                                    final AjaxRequestTarget target) {
                                 extAttrName.setEnabled(
                                         !mappingTO.isAccountid()
                                         && !password.getModelObject());
@@ -374,7 +427,7 @@ public class ResourceMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addSchemaMappingBtn = new IndicatingAjaxButton(
+        addMappingBtn = new IndicatingAjaxButton(
                 "addUserSchemaMappingBtn", new ResourceModel("add")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
@@ -388,74 +441,16 @@ public class ResourceMappingPanel extends Panel {
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form<?> form) {
+            protected void onError(
+                    final AjaxRequestTarget target, final Form<?> form) {
                 // ignore errors
             }
         };
 
-        addSchemaMappingBtn.setDefaultFormProcessing(false);
-        addSchemaMappingBtn.setEnabled(!createFlag);
-        mappingContainer.add(addSchemaMappingBtn);
+        addMappingBtn.setDefaultFormProcessing(false);
+        addMappingBtn.setEnabled(!createFlag);
+        mappingContainer.add(addMappingBtn);
 
-    }
-
-    /**
-     * Extension class of DropDownChoice. It's purposed for storing values in
-     * the corresponding property model after pressing 'Add' button.
-     */
-    private class IntMappingTypesDropDownChoice
-            extends AjaxDropDownChoicePanel {
-
-        private static final long serialVersionUID = -2855668124505116627L;
-
-        public IntMappingTypesDropDownChoice(
-                final String id,
-                final String name,
-                final PropertyModel<IntMappingType> model,
-                final AjaxDropDownChoicePanel<String> chooserToPopulate) {
-
-            super(id, name, model, false);
-
-            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-
-                    chooserToPopulate.setRequired(true);
-                    chooserToPopulate.setEnabled(true);
-
-                    final List<String> result;
-
-                    switch (model.getObject()) {
-                        case UserSchema:
-                            result = uSchemaAttrNames;
-                            break;
-
-                        case UserDerivedSchema:
-                            result = uDerSchemaAttrNames;
-                            break;
-
-                        case UserVirtualSchema:
-                            result = uVirSchemaAttrNames;
-                            break;
-
-                        case SyncopeUserId:
-                        case Password:
-                        case Username:
-                        default:
-                            chooserToPopulate.setRequired(false);
-                            chooserToPopulate.setEnabled(false);
-                            result = Collections.EMPTY_LIST;
-                    }
-
-                    chooserToPopulate.setChoices(result);
-                    target.add(chooserToPopulate);
-                }
-            });
-        }
     }
 
     /**
@@ -472,12 +467,12 @@ public class ResourceMappingPanel extends Panel {
             connInstanceTO.setConfiguration(
                     resourceTO.getConnConfProperties());
 
-            resourceSchemaNames = getResourceSchemaNames(
+            schemaNames = getResourceSchemaNames(
                     resourceTO.getConnectorId(),
                     resourceTO.getConnConfProperties());
 
         } else {
-            resourceSchemaNames = Collections.EMPTY_LIST;
+            schemaNames = Collections.EMPTY_LIST;
         }
     }
 
@@ -520,15 +515,106 @@ public class ResourceMappingPanel extends Panel {
 
             mappings.removeAll();
 
-            addSchemaMappingBtn.setEnabled(
+            addMappingBtn.setEnabled(
                     resourceTO.getConnectorId() != null
                     && resourceTO.getConnectorId() > 0);
 
-            resourceSchemaNames = getResourceSchemaNames(
+            schemaNames = getResourceSchemaNames(
                     resourceTO.getConnectorId(),
                     new HashSet<ConnConfProperty>(conf));
 
             target.add(mappingContainer);
         }
+    }
+
+    /**
+     * Seta attribute names for a drop down chice list.
+     *
+     * @param attrType attribute type.
+     * @param toBeUpdated drop down choice to be updated.
+     */
+    private void setAttrNames(
+            final IntMappingType attrType,
+            final AjaxDropDownChoicePanel toBeUpdated) {
+
+        toBeUpdated.setRequired(true);
+        toBeUpdated.setEnabled(true);
+
+        if (attrType == null || attrType.getEntity() == null) {
+            toBeUpdated.setChoices(Collections.EMPTY_LIST);
+        } else {
+
+            switch (attrType) {
+                // user attribute names
+                case UserSchema:
+                case RoleSchema:
+                case MembershipSchema:
+                    toBeUpdated.setChoices(
+                            schemaRestClient.getSchemaNames(
+                            attrType.getEntity().toString().toLowerCase()));
+                    break;
+
+                case UserDerivedSchema:
+                case RoleDerivedSchema:
+                case MembershipDerivedSchema:
+                    toBeUpdated.setChoices(
+                            schemaRestClient.getDerivedSchemaNames(
+                            attrType.getEntity().toString().toLowerCase()));
+                    break;
+
+                case UserVirtualSchema:
+                case RoleVirtualSchema:
+                case MembershipVirtualSchema:
+                    toBeUpdated.setChoices(
+                            schemaRestClient.getVirtualSchemaNames(
+                            attrType.getEntity().toString().toLowerCase()));
+                    break;
+
+                case SyncopeUserId:
+                    toBeUpdated.setEnabled(false);
+                    toBeUpdated.setRequired(false);
+                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
+                    break;
+
+                case Password:
+                    toBeUpdated.setEnabled(false);
+                    toBeUpdated.setRequired(false);
+                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
+                    break;
+
+                case Username:
+                    toBeUpdated.setEnabled(false);
+                    toBeUpdated.setRequired(false);
+                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
+                    break;
+
+                default:
+                    toBeUpdated.setRequired(false);
+                    toBeUpdated.setEnabled(false);
+                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
+            }
+        }
+    }
+
+    /**
+     * Get all attribute types from a selected attribute type.
+     *
+     * @param entity entity.
+     * @return all attribute types.
+     */
+    private List<IntMappingType> getAttributeTypes(final Entity entity) {
+        final List<IntMappingType> res = new ArrayList<IntMappingType>();
+
+        if (entity != null) {
+            final EnumSet types = IntMappingType.getAttributeTypes(
+                    Entity.valueOf(entity.toString()));
+
+            for (Object type : types) {
+                res.add(IntMappingType.valueOf(
+                        type.toString()));
+            }
+        }
+
+        return res;
     }
 }

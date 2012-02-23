@@ -25,6 +25,7 @@
                         <thead>
                             <tr class="ui-widget-header">
                                 <th><wicket:message key="delete"/></th>
+                        <th><wicket:message key="entity"/></th>
                         <th><wicket:message key="intMappingTypes"/></th>
                         <th><wicket:message key="intAttrNames"/></th>
                         <th><wicket:message key="extAttrNames"/></th>
@@ -45,6 +46,9 @@
                             <tr wicket:id="mappings">
                                 <td align="center" valign="middle">
                                     <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                </td>
+                                <td align="center" valign="middle">
+                                    <span wicket:id="mappingTypes">[mappingTypes]</span>
                                 </td>
                                 <td align="center" valign="middle">
                                     <span wicket:id="intMappingTypes">[intMappingTypes]</span>
