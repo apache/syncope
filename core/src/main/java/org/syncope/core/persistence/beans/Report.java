@@ -32,7 +32,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.validation.entity.ReportCheck;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 
 @Entity
 @ReportCheck

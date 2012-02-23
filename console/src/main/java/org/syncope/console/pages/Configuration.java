@@ -18,6 +18,8 @@
  */
 package org.syncope.console.pages;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -41,42 +44,40 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
-import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.PreferenceManager;
-import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.rest.ConfigurationRestClient;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import org.syncope.console.pages.panels.PoliciesPanel;
-import org.syncope.types.PolicyType;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.request.resource.ContentDisposition;
-import org.apache.wicket.util.resource.StringResourceStream;
 import org.syncope.client.to.NotificationTO;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.commons.Constants;
+import org.syncope.console.commons.HttpResourceStream;
+import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.pages.panels.PoliciesPanel;
+import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.rest.NotificationRestClient;
 import org.syncope.console.rest.WorkflowRestClient;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
 import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.syncope.types.LoggerLevel;
+import org.syncope.types.PolicyType;
 
 /**
  * Configurations WebPage.
@@ -93,6 +94,12 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private WorkflowRestClient wfRestClient;
+
+    @SpringBean
+    private RestTemplate restTemplate;
+
+    @SpringBean(name = "baseURL")
+    protected String baseURL;
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -371,13 +378,20 @@ public class Configuration extends BasePage {
 
             @Override
             public void onClick() {
-                StringResourceStream stream =
-                        new StringResourceStream(
-                        confRestClient.dbContentAsXml(), "text/xml");
-                getRequestCycle().scheduleRequestHandlerAfterCurrent(
-                        new ResourceStreamRequestHandler(stream).setFileName(
-                        "content.xml").setContentDisposition(
-                        ContentDisposition.ATTACHMENT));
+                try {
+                    HttpResourceStream stream = new HttpResourceStream(
+                            baseURL + "configuration/dbexport", restTemplate);
+
+                    ResourceStreamRequestHandler rsrh =
+                            new ResourceStreamRequestHandler(stream);
+                    rsrh.setFileName(stream.getFilename() == null
+                            ? "content.xml" : stream.getFilename());
+                    rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
+
+                    getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
+                } catch (Exception e) {
+                    error(getString("error") + ": " + e.getMessage());
+                }
             }
         };
 

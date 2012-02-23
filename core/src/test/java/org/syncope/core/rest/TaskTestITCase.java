@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -37,6 +38,22 @@ import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.core.scheduling.TestSyncJobActions;
 
 public class TaskTestITCase extends AbstractTest {
+
+    @Test
+    public void getJobClasses() {
+        Set<String> jobClasses = restTemplate.getForObject(
+                BASE_URL + "task/jobClasses.json", Set.class);
+        assertNotNull(jobClasses);
+        assertFalse(jobClasses.isEmpty());
+    }
+
+    @Test
+    public void getJobActionsClasses() {
+        Set<String> actions = restTemplate.getForObject(
+                BASE_URL + "task/jobActionsClasses.json", Set.class);
+        assertNotNull(actions);
+        assertFalse(actions.isEmpty());
+    }
 
     @Test
     public void create() {

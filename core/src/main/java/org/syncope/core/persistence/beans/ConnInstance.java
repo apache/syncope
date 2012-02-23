@@ -33,7 +33,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 

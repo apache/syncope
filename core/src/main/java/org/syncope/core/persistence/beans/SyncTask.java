@@ -27,7 +27,7 @@ import javax.validation.constraints.Min;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.syncope.core.scheduling.SyncJob;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 
 @Entity
 @SyncTaskCheck

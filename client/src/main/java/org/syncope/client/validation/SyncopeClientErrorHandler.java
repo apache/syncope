@@ -63,10 +63,9 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
                 new SyncopeClientCompositeErrorException(
                 response.getStatusCode());
 
-        SyncopeClientExceptionType exceptionType = null;
-        SyncopeClientException clientException = null;
         Set<String> handledExceptions = new HashSet<String>();
         for (String exceptionTypeAsString : exceptionTypesInHeaders) {
+            SyncopeClientExceptionType exceptionType = null;
             try {
                 exceptionType = SyncopeClientExceptionType.getFromHeaderValue(
                         exceptionTypeAsString);
@@ -78,7 +77,8 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
             if (exceptionType != null) {
                 handledExceptions.add(exceptionTypeAsString);
 
-                clientException = new SyncopeClientException();
+                SyncopeClientException clientException =
+                        new SyncopeClientException();
                 clientException.setType(exceptionType);
                 if (response.getHeaders().get(
                         exceptionType.getElementHeaderName()) != null

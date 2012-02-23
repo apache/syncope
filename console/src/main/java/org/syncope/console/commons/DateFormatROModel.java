@@ -16,18 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.console.pages;
+package org.syncope.console.commons;
 
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.Model;
+import java.util.Date;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
+import org.syncope.console.SyncopeSession;
 
-public class TaskExecMessageModalPage extends BaseModalPage {
+public class DateFormatROModel implements IModel<String> {
 
-    private static final long serialVersionUID = 3163146190501510888L;
+    private static final long serialVersionUID = 6677274580927636121L;
 
-    public TaskExecMessageModalPage(final String message) {
-        final Label dialogContent =
-                new Label("message", new Model<String>(message));
-        add(dialogContent.setOutputMarkupId(true));
+    private final PropertyModel model;
+
+    public DateFormatROModel(final PropertyModel model) {
+        this.model = model;
+    }
+
+    @Override
+    public String getObject() {
+        return model.getObject() == null
+                ? "" : SyncopeSession.get().getDateFormat().
+                format((Date) model.getObject());
+    }
+
+    @Override
+    public void setObject(final String object) {
+    }
+
+    @Override
+    public void detach() {
     }
 }

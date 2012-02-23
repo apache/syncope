@@ -28,7 +28,7 @@ import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 import org.syncope.types.UserRequestType;
 
 @Entity

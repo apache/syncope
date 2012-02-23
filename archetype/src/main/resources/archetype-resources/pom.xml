@@ -18,78 +18,78 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.apache.syncope</groupId>
-        <artifactId>syncope</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-
-    <properties>
-        <syncope.version>1.0-SNAPSHOT</syncope.version>
-    </properties>
-
-    <name>Syncope sample project</name>
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <version>${version}</version>
-    <packaging>pom</packaging>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-client</artifactId>
-                <version>${syncope.version}</version>
-            </dependency> 
-
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-build-tools</artifactId>
-                <version>${syncope.version}</version>
-                <type>war</type>
-            </dependency> 
-            
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-core</artifactId>
-                <version>${syncope.version}</version>
-                <type>war</type>
-            </dependency> 
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-core</artifactId>
-                <version>${syncope.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency> 
-
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-console</artifactId>
-                <version>${syncope.version}</version>
-                <type>war</type>
-            </dependency> 
-            <dependency>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-console</artifactId>
-                <version>${syncope.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency> 
-        </dependencies>
-    </dependencyManagement>
-    
-    <modules>
-        <module>core</module>
-        <module>console</module>
-    </modules>
-
-</project>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.syncope</groupId>
+        <artifactId>syncope</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <syncope.version>1.0-SNAPSHOT</syncope.version>
+    </properties>
+
+    <name>Syncope sample project</name>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>${version}</version>
+    <packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-client</artifactId>
+                <version>${syncope.version}</version>
+            </dependency> 
+
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-build-tools</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+            </dependency> 
+            
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-core</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+            </dependency> 
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-core</artifactId>
+                <version>${syncope.version}</version>
+                <classifier>classes</classifier>
+                <scope>provided</scope>
+            </dependency> 
+
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-console</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+            </dependency> 
+            <dependency>
+                <groupId>org.apache.syncope</groupId>
+                <artifactId>syncope-console</artifactId>
+                <version>${syncope.version}</version>
+                <classifier>classes</classifier>
+                <scope>provided</scope>
+            </dependency> 
+        </dependencies>
+    </dependencyManagement>
+    
+    <modules>
+        <module>core</module>
+        <module>console</module>
+    </modules>
+
+</project>

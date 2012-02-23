@@ -14,9 +14,37 @@
 -->
 <wicket:extend>
 
-    <div style="margin:auto;vertical-align: middle">
-        <img src="img/under-construction.jpg" alt="under_construction"
-             style="display:block; margin:auto;"/>
+    <div id="tabs">
+        <ul>
+            <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="reports"/></span></a></li>
+            <li><a href="#tabs-2"><span><wicket:message key="auditing"/></span></a></li>
+        </ul>
+
+        <div id="tabs-1">
+            <div id="users-contain" class="ui-widget" style="width:inherit;">
+                <span wicket:id="reportContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="reportTable"/>
+                </span>
+                <span style="float:right">
+                    <form wicket:id="paginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
+                    </form>
+                </span>
+            </div>
+
+            <div wicket:id="reportWin">[Show modal window for report editing]</div>
+            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               wicket:id="createLink">
+                <wicket:message key="create_report"/>
+            </a>
+
+        </div>
+
+        <div id="tabs-2">
+        </div>
     </div>
 
 </wicket:extend>

@@ -27,7 +27,7 @@ import javax.persistence.ManyToOne;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.PropagationTaskCheck;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 

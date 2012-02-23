@@ -40,7 +40,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.PropagationMode;

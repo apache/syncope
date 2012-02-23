@@ -145,7 +145,8 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -168,7 +169,8 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -186,7 +188,8 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -204,7 +207,8 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {

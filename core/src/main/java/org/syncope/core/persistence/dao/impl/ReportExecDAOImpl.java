@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportExecDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -33,6 +34,31 @@ public class ReportExecDAOImpl extends AbstractDAOImpl
     @Override
     public ReportExec find(final Long id) {
         return entityManager.find(ReportExec.class, id);
+    }
+
+    private ReportExec findLatest(final Report report,
+            final String field) {
+
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + ReportExec.class.getSimpleName() + " e "
+                + "WHERE e.report=:report "
+                + "ORDER BY e." + field + " DESC");
+        query.setParameter("report", report);
+        query.setMaxResults(1);
+
+        List<ReportExec> result = query.getResultList();
+        return result == null || result.isEmpty()
+                ? null : result.iterator().next();
+    }
+
+    @Override
+    public ReportExec findLatestStarted(final Report report) {
+        return findLatest(report, "startDate");
+    }
+
+    @Override
+    public ReportExec findLatestEnded(final Report report) {
+        return findLatest(report, "endDate");
     }
 
     @Override

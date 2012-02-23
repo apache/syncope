@@ -35,7 +35,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -152,7 +151,8 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -164,7 +164,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                                     @Override
                                     public Page createPage() {
-                                        return new TaskExecMessageModalPage(
+                                        return new ExecMessageModalPage(
                                                 model.getObject().getMessage());
                                     }
                                 });
@@ -175,7 +175,8 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID =
+                            -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -193,7 +194,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                         target.add(executions);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", "delete");
+                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
 
                 cellItem.add(panel);
             }
@@ -215,7 +216,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         private TaskTO taskTO;
 
-        public TaskExecutionsProvider(TaskTO taskTO) {
+        public TaskExecutionsProvider(final TaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", SortOrder.ASCENDING);
@@ -227,7 +228,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         public Iterator<TaskExecTO> iterator(final int first,
                 final int count) {
 
-            List<TaskExecTO> list = getTaskDB();
+            List<TaskExecTO> list = taskTO.getExecutions();
 
             Collections.sort(list, comparator);
 
@@ -236,7 +237,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         @Override
         public int size() {
-            return getTaskDB().size();
+            return taskTO.getExecutions().size();
         }
 
         @Override
@@ -254,64 +255,5 @@ public abstract class TaskModalPage extends BaseModalPage {
                 }
             };
         }
-
-        public List<TaskExecTO> getTaskDB() {
-            return taskTO.getExecutions();
-        }
-    }
-
-    protected String getCronField(
-            final FormComponent formComponent, final int field) {
-        String cronField = null;
-
-        if (formComponent != null) {
-            cronField = getCronField(formComponent.getInput(), field);
-        }
-
-        return cronField;
-    }
-
-    protected String getCronField(
-            final String cron, final int field) {
-        String cronField = null;
-
-        if (cron != null && !cron.isEmpty() && !"UNSCHEDULE".equals(cron)) {
-            cronField = cron.split(" ")[field].trim();
-        }
-
-        return cronField;
-    }
-
-    protected String getCron(
-            final FormComponent seconds,
-            final FormComponent minutes,
-            final FormComponent hours,
-            final FormComponent daysOfMonth,
-            final FormComponent months,
-            final FormComponent daysOfWeek) {
-
-        final StringBuilder cron = new StringBuilder();
-
-        if (seconds != null && seconds.getInput() != null
-                && minutes != null && minutes.getInput() != null
-                && hours != null && hours.getInput() != null
-                && daysOfMonth != null && daysOfMonth.getInput() != null
-                && months != null && months.getInput() != null
-                && daysOfWeek != null && daysOfWeek.getInput() != null) {
-
-            cron.append(seconds.getInput().trim()).
-                    append(" ").
-                    append(minutes.getInput().trim()).
-                    append(" ").
-                    append(hours.getInput().trim()).
-                    append(" ").
-                    append(daysOfMonth.getInput().trim()).
-                    append(" ").
-                    append(months.getInput().trim()).
-                    append(" ").
-                    append(daysOfWeek.getInput().trim());
-        }
-
-        return cron.toString();
     }
 }

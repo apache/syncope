@@ -19,12 +19,17 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface ReportExecDAO extends DAO {
 
     ReportExec find(Long id);
+
+    ReportExec findLatestStarted(Report report);
+
+    ReportExec findLatestEnded(Report report);
 
     List<ReportExec> findAll();
 

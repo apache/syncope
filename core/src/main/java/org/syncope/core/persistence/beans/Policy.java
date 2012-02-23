@@ -25,7 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import org.syncope.core.persistence.validation.entity.PolicyCheck;
-import org.syncope.core.util.XMLSerializer;
+import org.syncope.client.util.XMLSerializer;
 import org.syncope.types.AbstractPolicySpec;
 import org.syncope.types.PolicyType;
 

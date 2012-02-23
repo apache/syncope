@@ -104,6 +104,26 @@ under the License.
         <action id="list">
             <entitlement>REPORT_LIST</entitlement>
         </action>
+        
+        <action id="create">
+            <entitlement>REPORT_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>REPORT_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>REPORT_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>REPORT_DELETE</entitlement>
+        </action>
+
+        <action id="execute">
+            <entitlement>REPORT_EXECUTE</entitlement>
+        </action>
     </page>
 
     <page id="Connectors">

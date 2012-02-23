@@ -18,7 +18,6 @@
  */
 package org.syncope.core.rest.data;
 
-import java.util.List;
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Scheduler;
@@ -226,8 +225,7 @@ public class TaskDataBinder {
         taskTO.setLatestExecStatus(latestExec == null
                 ? "" : latestExec.getStatus());
 
-        List<TaskExec> executions = task.getExecs();
-        for (TaskExec execution : executions) {
+        for (TaskExec execution : task.getExecs()) {
             taskTO.addExecution(getTaskExecTO(execution));
         }
 

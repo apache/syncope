@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.core.util;
+package org.syncope.client.util;
 
 import com.thoughtworks.xstream.XStream;
 import java.io.UnsupportedEncodingException;

@@ -19,23 +19,26 @@
 package org.syncope.console.commons;
 
 import java.io.Serializable;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class SelectOption implements Serializable {
+
+    private static final long serialVersionUID = 2961127533930849828L;
 
     private String displayValue;
 
     private String keyValue;
 
-    public SelectOption(String description, String cronStr) {
-        this.displayValue = description;
-        this.keyValue = cronStr;
+    public SelectOption(final String displayValue, final String keyValue) {
+        this.displayValue = displayValue;
+        this.keyValue = keyValue;
     }
 
     public String getDisplayValue() {
         return displayValue;
     }
 
-    public void setDisplayValue(String displayValue) {
+    public void setDisplayValue(final String displayValue) {
         this.displayValue = displayValue;
     }
 
@@ -43,8 +46,24 @@ public class SelectOption implements Serializable {
         return keyValue;
     }
 
-    public void setKeyValue(String keyValue) {
+    public void setKeyValue(final String keyValue) {
         this.keyValue = keyValue;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == null || !(obj instanceof SelectOption)) {
+            return false;
+        }
+
+        return (keyValue == null && ((SelectOption) obj).keyValue == null)
+                || keyValue != null
+                && keyValue.equals(((SelectOption) obj).keyValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override

@@ -39,11 +39,21 @@ public class AjaxDropDownChoicePanel<T>
             final IModel<T> model,
             final boolean active) {
 
+        this(id, name, model, active, true);
+    }
+
+    public AjaxDropDownChoicePanel(
+            final String id,
+            final String name,
+            final IModel<T> model,
+            final boolean active,
+            final boolean nullValid) {
+
         super(id, name, model, active);
 
         field = new DropDownChoice("dropDownChoiceField", model,
                 Collections.EMPTY_LIST, new ChoiceRenderer());
-
+        ((DropDownChoice) field).setNullValid(nullValid);
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
         if (active) {
@@ -53,7 +63,7 @@ public class AjaxDropDownChoicePanel<T>
                         -1107858522700306810L;
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget art) {
+                protected void onUpdate(final AjaxRequestTarget target) {
                     // nothing to do
                 }
             });
@@ -81,7 +91,6 @@ public class AjaxDropDownChoicePanel<T>
 
     @Override
     public FieldPanel clone() {
-
         AjaxDropDownChoicePanel<T> panel =
                 (AjaxDropDownChoicePanel<T>) super.clone();
 
