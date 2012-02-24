@@ -750,7 +750,22 @@ under the License.
                                 </includes>
                                 <filtering>true</filtering>
                             </resource>
+                            <!--
+                            HACK: Include legal files explicity,
+                            otherwise they will end up in the wrong path
+                            or in another jar file in the war.
+                            -->
+                            <resource>
+                                <directory>${project.build.outputDirectory}</directory>
+                                <includes>
+                                    <include>META-INF/LICENSE*</include>
+                                    <include>META-INF/NOTICE*</include>
+                                    <include>META-INF/DISCLAIMER*</include>
+                                    <include>META-INF/DEPENDENCIES*</include>
+                                </includes>
+                            </resource>
                         </webResources>
+                        <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DISCLAIMER*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -887,6 +902,22 @@ under the License.
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>ianal-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Fail the build if any artifacts are missing legal files -->
+                            <strict>true</strict>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
