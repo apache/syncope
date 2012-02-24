@@ -64,8 +64,8 @@ under the License.
         </menu>
 
         <footer>
-            <div class="row span16">
-                Apache Syncope Apache, the Apache feather logo, and the Apache Syncope project logos are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
+            <div class="row span16" style="width:100%">
+                Apache, Syncope, Apache Syncope, the Apache feather logo, the Apache Syncope project logo and the Apache Syncope logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
             </div>
         </footer>
     </body>
