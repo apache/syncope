@@ -151,6 +151,16 @@ under the License.
             <url>http://people.apache.org/~massi/</url>
         </developer>    
         <developer>
+            <id>rene</id>
+            <name>René Mulder</name>            
+            <organization>Everett</organization>
+            <organizationUrl>http://www.everett.nl/</organizationUrl>
+            <roles>
+                <role>PPMC member</role>
+            </roles>
+            <url>http://people.apache.org/~rene/</url>
+        </developer>    
+        <developer>
             <id>simonetripodi</id>
             <name>Simone Tripodi</name>            
             <organization>The Apache Software Foundation</organization>
