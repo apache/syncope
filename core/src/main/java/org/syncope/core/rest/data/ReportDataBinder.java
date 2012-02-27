@@ -58,7 +58,7 @@ public class ReportDataBinder {
 
     public void getReport(final Report report, final ReportTO reportTO) {
         BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
-        report.getReportletConfs().clear();
+        report.setReportletConfs(null);
         for (ReportletConf conf : reportTO.getReportletConfs()) {
             report.addReportletConf(conf);
         }

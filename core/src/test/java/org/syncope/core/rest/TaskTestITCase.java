@@ -323,7 +323,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("JOB_FIRED", execution.getStatus());
 
         int i = 0;
-        int maxit = 20;
+        int maxit = 50;
 
         // wait for sync completion (executions incremented)
         do {

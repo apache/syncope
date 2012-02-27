@@ -22,17 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.validation.entity.ReportCheck;
-import org.syncope.client.util.XMLSerializer;
 
 @Entity
 @ReportCheck
@@ -41,16 +36,14 @@ public class Report extends AbstractBaseBean {
     private static final long serialVersionUID = -587652654964285834L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Lob
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "reportletConfs", columnDefinition = "CLOB")
-    private List<String> reportletConfs;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
+    fetch = FetchType.EAGER, mappedBy = "report")
+    private List<ReportletConfInstance> reportletConfs;
 
     private String cronExpression;
 
@@ -61,7 +54,7 @@ public class Report extends AbstractBaseBean {
     public Report() {
         super();
 
-        reportletConfs = new ArrayList<String>();
+        reportletConfs = new ArrayList<ReportletConfInstance>();
         executions = new ArrayList<ReportExec>();
     }
 
@@ -102,9 +95,11 @@ public class Report extends AbstractBaseBean {
             return false;
         }
 
-        String xmlReportlet = XMLSerializer.serialize(reportletConf);
-        return !reportletConfs.contains(xmlReportlet)
-                && reportletConfs.add(xmlReportlet);
+        ReportletConfInstance instance = new ReportletConfInstance();
+        instance.setReport(this);
+        instance.setInstance(reportletConf);
+
+        return reportletConfs.add(instance);
     }
 
     public boolean removeReportletConf(ReportletConf reportletConf) {
@@ -112,22 +107,28 @@ public class Report extends AbstractBaseBean {
             return false;
         }
 
-        String xmlReportlet = XMLSerializer.serialize(reportletConf);
-        return reportletConfs.remove(xmlReportlet);
+        ReportletConfInstance found = null;
+        for (ReportletConfInstance instance : reportletConfs) {
+            if (reportletConf.equals(instance.getInstance())) {
+                found = instance;
+            }
+        }
+
+        return found == null ? false : reportletConfs.remove(found);
     }
 
     public List<ReportletConf> getReportletConfs() {
         List<ReportletConf> result =
                 new ArrayList<ReportletConf>(reportletConfs.size());
-        for (String xmlReportletConf : reportletConfs) {
-            result.add(
-                    XMLSerializer.<ReportletConf>deserialize(xmlReportletConf));
+
+        for (ReportletConfInstance instance : reportletConfs) {
+            result.add(instance.getInstance());
         }
 
         return result;
     }
 
-    public void setReportlets(List<ReportletConf> reportletConfs) {
+    public void setReportletConfs(final List<ReportletConf> reportletConfs) {
         this.reportletConfs.clear();
         if (reportletConfs != null && !reportletConfs.isEmpty()) {
             for (ReportletConf reportlet : reportletConfs) {

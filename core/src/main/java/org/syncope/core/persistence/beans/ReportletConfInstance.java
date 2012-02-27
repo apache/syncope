@@ -18,32 +18,26 @@
  */
 package org.syncope.core.persistence.beans;
 
-import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import org.syncope.types.ReportExecStatus;
+import org.syncope.client.report.ReportletConf;
+import org.syncope.client.util.XMLSerializer;
 
 @Entity
-public class ReportExec extends AbstractExec {
+public class ReportletConfInstance extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -6178274296037547769L;
+    private static final long serialVersionUID = -2436055132955674610L;
 
     @Id
     private Long id;
 
-    /**
-     * The referred report.
-     */
-    @ManyToOne(optional = false)
-    private Report report;
+    @Lob
+    private String serializedInstance;
 
-    /**
-     * Report execution result, stored as an XML stream.
-     */
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] execResult;
+    @ManyToOne
+    private Report report;
 
     public Long getId() {
         return id;
@@ -53,19 +47,19 @@ public class ReportExec extends AbstractExec {
         return report;
     }
 
-    public void setReport(Report report) {
+    public void setReport(final Report report) {
         this.report = report;
     }
 
-    public byte[] getExecResult() {
-        return execResult;
+    public ReportletConf getInstance() {
+        return serializedInstance == null
+                ? null
+                : XMLSerializer.<ReportletConf>deserialize(serializedInstance);
     }
 
-    public void setExecResult(byte[] execResult) {
-        this.execResult = execResult;
-    }
-
-    public void setStatus(ReportExecStatus status) {
-        super.setStatus(status.name());
+    public void setInstance(final ReportletConf instance) {
+        serializedInstance = instance == null
+                ? null
+                : XMLSerializer.serialize(instance);
     }
 }

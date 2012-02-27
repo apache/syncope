@@ -13,11 +13,11 @@
   limitations under the License.
 -->
 <entity-mappings
-  xmlns="http://java.sun.com/xml/ns/persistence/orm"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm 
+    xmlns="http://java.sun.com/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm 
   http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
-  version="2.0">
+    version="2.0">
 
     <table-generator name="SEQ_UAttrValue" pk-column-value="SEQ_UAttrValue" initial-value="100"/>
     <table-generator name="SEQ_RAttrValue" pk-column-value="SEQ_RAttrValue" initial-value="100"/>
@@ -188,6 +188,31 @@
             <id name="id">
                 <generated-value generator="SEQ_Policy" strategy="TABLE"/>
                 <table-generator name="SEQ_Policy" pk-column-value="SEQ_Policy" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="org.syncope.core.persistence.beans.Report">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_Report" strategy="TABLE"/>
+                <table-generator name="SEQ_Report" pk-column-value="SEQ_Report" initial-value="100"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.ReportExec">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_ReportExec" strategy="TABLE"/>
+                <table-generator name="SEQ_ReportExec" pk-column-value="SEQ_ReportExec" initial-value="100"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.ReportletConfInstance">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_ReportletConfInstance" strategy="TABLE"/>
+                <table-generator name="SEQ_ReportletConfInstance" pk-column-value="SEQ_ReportletConfInstance" initial-value="100"/>
             </id>
         </attributes>
     </entity>

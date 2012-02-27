@@ -176,7 +176,7 @@ public class ReportTestITCase extends AbstractTest {
         assertNotNull(execution);
 
         int i = 0;
-        int maxit = 20;
+        int maxit = 50;
         do {
             try {
                 Thread.sleep(1000);
