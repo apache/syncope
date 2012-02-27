@@ -37,6 +37,8 @@ under the License.
         </property>
         <property name="jpaPropertyMap">
             <map>
+                <!--<entry key="openjpa.Log" value="SQL=TRACE"/>-->
+                
                 <entry key="openjpa.NontransactionalWrite" value="false"/>
                 <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
                 

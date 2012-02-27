@@ -302,18 +302,6 @@ under the License.
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.lazyluke</groupId>
-            <artifactId>log4jdbc-remix</artifactId>
-            <version>0.2.4</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- /TEST -->
     </dependencies>
 
@@ -803,7 +791,7 @@ under the License.
                 <dependency>
                     <groupId>postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.1-901.jdbc4</version>
+                    <version>9.1-901-1.jdbc4</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
