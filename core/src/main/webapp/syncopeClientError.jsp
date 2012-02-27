@@ -1,3 +1,4 @@
+<%@page import="org.springframework.orm.jpa.JpaSystemException"%>
 <%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.syncope.types.EntityViolationType"%>
 <%@page import="java.util.Set"%>
@@ -118,7 +119,9 @@
                 ex.getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
-    } else if (ex instanceof DataIntegrityViolationException) {
+    } else if (ex instanceof DataIntegrityViolationException
+            || ex instanceof JpaSystemException) {
+
         response.setHeader(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.DataIntegrityViolation.getHeaderValue());
