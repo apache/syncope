@@ -46,9 +46,6 @@ under the License.
 
     <!-- Use JNDI datasource as default but, when not available, revert to
          local datasource, using different properties for execution and testing -->
-<!--    <bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
-        <constructor-arg ref="dataSourceSpied" />
-    </bean>-->
     <bean id="dataSource"
           class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
