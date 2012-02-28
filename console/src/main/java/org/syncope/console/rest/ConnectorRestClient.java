@@ -55,7 +55,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param schemaTO
      */
     public void create(final ConnInstanceTO connectorTO) {
-        filterProperties(connectorTO.getConfiguration());
+        connectorTO.setConfiguration(
+                filterProperties(connectorTO.getConfiguration()));
         restTemplate.postForObject(baseURL
                 + "connector/create.json", connectorTO, ConnInstanceTO.class);
     }
@@ -81,7 +82,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        filterProperties(connectorTO.getConfiguration());
+        connectorTO.setConfiguration(
+                filterProperties(connectorTO.getConfiguration()));
         restTemplate.postForObject(baseURL + "connector/update.json",
                 connectorTO, ConnInstanceTO.class);
     }
@@ -127,7 +129,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return properties;
     }
 
-    private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
+    private Set<ConnConfProperty> filterProperties(
+            final Set<ConnConfProperty> properties) {
 
         Set<ConnConfProperty> newProperties = new HashSet<ConnConfProperty>();
 
