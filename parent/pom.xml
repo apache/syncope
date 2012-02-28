@@ -1014,7 +1014,6 @@ under the License.
             <id>all</id>
             <modules>
                 <module>../quality</module>
-                <module>../build-tools</module>
                 <module>../archetype</module>
                 <module>../hibernate-enhancer</module>
             </modules>
@@ -1023,9 +1022,9 @@ under the License.
             <id>site</id>
             <modules>
                 <module>../quality</module>
-                <module>../build-tools</module>
                 <module>../archetype</module>
                 <module>../hibernate-enhancer</module>
+                <module>../build-tools</module>
                 <module>../client</module>
                 <module>../core</module>
                 <module>../console</module>
