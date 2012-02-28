@@ -18,11 +18,7 @@
  */
 package org.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
@@ -248,6 +245,99 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
+    }
+
+    @Test
+    public void issueSYNCOPE10() {
+        // ----------------------------------
+        // Copy resource and connector in order to create new objects.
+        // ----------------------------------
+        // Retrieve a connector instance template.
+        ConnInstanceTO connInstanceTO = restTemplate.getForObject(
+                BASE_URL + "connector/read/{connectorId}",
+                ConnInstanceTO.class, 103L);
+
+        assertNotNull(connInstanceTO);
+
+        // check for resource
+        List<ResourceTO> resources = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/list.json?connInstanceId=103",
+                ResourceTO[].class));
+
+        assertEquals(1, resources.size());
+
+        // Retrieve a resource TO template.
+        ResourceTO resourceTO = resources.get(0);
+
+        // Make it new.
+        resourceTO.setName("newAbout103");
+
+        // Make it new.
+        connInstanceTO.setId(0);
+        // ----------------------------------
+
+        // ----------------------------------
+        // Create a new connector instance.
+        // ----------------------------------
+        connInstanceTO = restTemplate.postForObject(
+                BASE_URL + "connector/create.json",
+                connInstanceTO, ConnInstanceTO.class);
+
+        assertNotNull(connInstanceTO);
+        assertTrue(connInstanceTO.getCapabilities().isEmpty());
+
+        long connId = connInstanceTO.getId();
+
+        // Link resourceTO to the new connector instance.
+        resourceTO.setConnectorId(connId);
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for connector instance update after resource creation.
+        // ----------------------------------
+        resourceTO = restTemplate.postForObject(
+                BASE_URL + "resource/create.json",
+                resourceTO, ResourceTO.class);
+
+        assertNotNull(resourceTO);
+
+        resources = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/list.json?connInstanceId=" + connId,
+                ResourceTO[].class));
+
+        assertEquals(1, resources.size());
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for spring bean.
+        // ----------------------------------
+        ConnInstanceTO connInstanceBean = restTemplate.getForObject(
+                BASE_URL + "connector/{resourceName}/connectorBean",
+                ConnInstanceTO.class, resourceTO.getName());
+
+        assertNotNull(connInstanceBean);
+        assertTrue(connInstanceBean.getCapabilities().isEmpty());
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for spring bean update after connector instance update.
+        // ----------------------------------
+        connInstanceTO.addCapability(ConnectorCapability.SEARCH);
+
+        ConnInstanceTO actual = (ConnInstanceTO) restTemplate.postForObject(
+                BASE_URL + "connector/update.json",
+                connInstanceTO, ConnInstanceTO.class);
+
+        assertNotNull(actual);
+        assertFalse(connInstanceTO.getCapabilities().isEmpty());
+
+        // check for spring bean update
+        connInstanceBean = restTemplate.getForObject(
+                BASE_URL + "connector/{resourceName}/connectorBean",
+                ConnInstanceTO.class, resourceTO.getName());
+
+        assertFalse(connInstanceBean.getCapabilities().isEmpty());
+        // ----------------------------------
     }
 
     @Test

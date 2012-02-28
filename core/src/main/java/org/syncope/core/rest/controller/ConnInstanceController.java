@@ -53,6 +53,7 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.util.ConnBundleManager;
@@ -63,6 +64,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/connector")
 public class ConnInstanceController extends AbstractController {
+
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -426,5 +430,25 @@ public class ConnInstanceController extends AbstractController {
         }
 
         return conf;
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{resourceName}/connectorBean")
+    @Transactional(readOnly = true)
+    public ConnInstanceTO readConnectorBean(
+            @PathVariable("resourceName") String resourceName)
+            throws NotFoundException {
+
+        ExternalResource resource = resourceDAO.find(resourceName);
+
+        if (resource == null) {
+            LOG.error("Could not find resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + "'");
+        }
+
+        final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
+
+        return binder.getConnInstanceTO(connector.getActiveConnInstance());
     }
 }

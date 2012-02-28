@@ -38,14 +38,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.ConnInstanceLoader;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
@@ -59,6 +62,9 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
+    @Autowired
+    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -195,10 +201,20 @@ public class ResourceController extends AbstractController {
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public List<ResourceTO> list(HttpServletResponse response)
+    public List<ResourceTO> list(
+            @RequestParam(required = false, value = "connInstanceId")
+            final Long connInstanceId)
             throws NotFoundException {
 
-        List<ExternalResource> resources = resourceDAO.findAll();
+        final List<ExternalResource> resources;
+
+        if (connInstanceId == null) {
+            resources = resourceDAO.findAll();
+        } else {
+            ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+            resources = connInstance.getResources();
+        }
+
         if (resources == null) {
             LOG.error("No resources found");
             throw new NotFoundException("No resources found");

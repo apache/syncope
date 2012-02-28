@@ -398,6 +398,17 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
+    public void listByType() {
+        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "resource/list.json?connInstanceId=105",
+                ResourceTO[].class));
+
+        assertNotNull(actuals);
+        assertEquals(1, actuals.size());
+        assertNotNull(actuals.get(0));
+    }
+
+    @Test
     public void read() {
         ResourceTO actual = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",

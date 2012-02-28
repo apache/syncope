@@ -78,11 +78,11 @@ public class ConnectorFacadeProxy {
     private final ConnectorFacade connector;
 
     /**
-     * Set of configure connecto instance capabilities.
+     * Active connecto instance.
      *
      * @see org.syncope.core.persistence.beans.ConnInstance
      */
-    private final Set<ConnectorCapability> capabitilies;
+    private final ConnInstance activeConnInstance;
 
     /**
      * Use the passed connector instance to build a ConnectorFacade that will be
@@ -101,6 +101,8 @@ public class ConnectorFacadeProxy {
             final ConnInstance connInstance,
             final ConnBundleManager connBundleManager)
             throws NotFoundException {
+
+        this.activeConnInstance = connInstance;
 
         // specify a connector.
         ConnectorKey key = new ConnectorKey(
@@ -248,8 +250,6 @@ public class ConnectorFacadeProxy {
 
         // Make sure we have set up the Configuration properly
         connector.validate();
-
-        this.capabitilies = connInstance.getCapabilities();
     }
 
     /**
@@ -273,9 +273,9 @@ public class ConnectorFacadeProxy {
         Uid result = null;
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? capabitilies.contains(
+                ? activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.ONE_PHASE_CREATE)
-                : capabitilies.contains(
+                : activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.TWO_PHASES_CREATE)) {
 
             propagationAttempted.add("create");
@@ -284,7 +284,7 @@ public class ConnectorFacadeProxy {
         } else {
             LOG.info("Create was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    capabitilies);
+                    activeConnInstance.getCapabilities());
         }
 
         return result;
@@ -312,9 +312,9 @@ public class ConnectorFacadeProxy {
         Uid result = null;
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? capabitilies.contains(
+                ? activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.ONE_PHASE_UPDATE)
-                : capabitilies.contains(
+                : activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.TWO_PHASES_UPDATE)) {
 
             propagationAttempted.add("update");
@@ -324,7 +324,7 @@ public class ConnectorFacadeProxy {
         } else {
             LOG.info("Update for {} was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    uid.getUidValue(), capabitilies);
+                    uid.getUidValue(), activeConnInstance.getCapabilities());
         }
 
         return result;
@@ -347,9 +347,9 @@ public class ConnectorFacadeProxy {
             final Set<String> propagationAttempted) {
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? capabitilies.contains(
+                ? activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.ONE_PHASE_DELETE)
-                : capabitilies.contains(
+                : activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.TWO_PHASES_DELETE)) {
 
             propagationAttempted.add("delete");
@@ -358,7 +358,7 @@ public class ConnectorFacadeProxy {
         } else {
             LOG.info("Delete for {} was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    uid.getUidValue(), capabitilies);
+                    uid.getUidValue(), activeConnInstance.getCapabilities());
         }
     }
 
@@ -370,12 +370,13 @@ public class ConnectorFacadeProxy {
      */
     public void sync(final SyncToken token, final SyncResultsHandler handler) {
 
-        if (capabitilies.contains(ConnectorCapability.SYNC)) {
+        if (activeConnInstance.getCapabilities().contains(
+                ConnectorCapability.SYNC)) {
             connector.sync(ObjectClass.ACCOUNT, token, handler, null);
         } else {
             LOG.info("Sync was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    capabitilies);
+                    activeConnInstance.getCapabilities());
         }
     }
 
@@ -387,12 +388,13 @@ public class ConnectorFacadeProxy {
     public SyncToken getLatestSyncToken() {
         SyncToken result = null;
 
-        if (capabitilies.contains(ConnectorCapability.SYNC)) {
+        if (activeConnInstance.getCapabilities().contains(
+                ConnectorCapability.SYNC)) {
             result = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
         } else {
             LOG.info("getLatestSyncToken was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    capabitilies);
+                    activeConnInstance.getCapabilities());
         }
 
         return result;
@@ -434,7 +436,8 @@ public class ConnectorFacadeProxy {
 
         ConnectorObject result = null;
 
-        if (capabitilies.contains(ConnectorCapability.SEARCH)) {
+        if (activeConnInstance.getCapabilities().contains(
+                ConnectorCapability.SEARCH)) {
             if (operationType == null) {
                 result = connector.getObject(objectClass, uid, options);
             } else {
@@ -442,9 +445,9 @@ public class ConnectorFacadeProxy {
                     case CREATE:
                         if (propagationMode == null
                                 || (propagationMode == PropagationMode.ONE_PHASE
-                                ? capabitilies.contains(
+                                ? activeConnInstance.getCapabilities().contains(
                                 ConnectorCapability.ONE_PHASE_CREATE)
-                                : capabitilies.contains(
+                                : activeConnInstance.getCapabilities().contains(
                                 ConnectorCapability.TWO_PHASES_CREATE))) {
 
                             result = connector.getObject(
@@ -454,9 +457,9 @@ public class ConnectorFacadeProxy {
                     case UPDATE:
                         if (propagationMode == null
                                 || (propagationMode == PropagationMode.ONE_PHASE
-                                ? capabitilies.contains(
+                                ? activeConnInstance.getCapabilities().contains(
                                 ConnectorCapability.ONE_PHASE_UPDATE)
-                                : capabitilies.contains(
+                                : activeConnInstance.getCapabilities().contains(
                                 ConnectorCapability.TWO_PHASES_UPDATE))) {
 
                             result = connector.getObject(
@@ -470,7 +473,7 @@ public class ConnectorFacadeProxy {
         } else {
             LOG.info("Search was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    capabitilies);
+                    activeConnInstance.getCapabilities());
         }
 
         return result;
@@ -489,7 +492,8 @@ public class ConnectorFacadeProxy {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        if (capabitilies.contains(ConnectorCapability.SEARCH)) {
+        if (activeConnInstance.getCapabilities().contains(
+                ConnectorCapability.SEARCH)) {
             connector.search(objectClass, null,
                     new ResultsHandler() {
 
@@ -508,7 +512,7 @@ public class ConnectorFacadeProxy {
         } else {
             LOG.info("Search was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
-                    capabitilies);
+                    activeConnInstance.getCapabilities());
         }
     }
 
@@ -623,6 +627,15 @@ public class ConnectorFacadeProxy {
     public String toString() {
         return "ConnectorFacadeProxy{"
                 + "connector=" + connector
-                + "capabitilies=" + capabitilies + '}';
+                + "capabitilies=" + activeConnInstance.getCapabilities() + '}';
+    }
+
+    /**
+     * Getter for active connector instance.
+     *
+     * @return active connector instance.
+     */
+    public ConnInstance getActiveConnInstance() {
+        return activeConnInstance;
     }
 }

@@ -87,6 +87,10 @@ public class ResourceDataBinder {
             ConnInstance connector =
                     connectorInstanceDAO.find(resourceTO.getConnectorId());
             resource.setConnector(connector);
+
+            if (!connector.getResources().contains(resource)) {
+                connector.addResource(resource);
+            }
         }
 
         resource.setForceMandatoryConstraint(
