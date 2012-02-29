@@ -894,6 +894,7 @@ under the License.
                         <exclude>**/*.js</exclude>
                         <exclude>**/*.csv</exclude>
                         <exclude>**/archetype-resources/**</exclude>
+                        <exclude>.externalToolBuilders/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
