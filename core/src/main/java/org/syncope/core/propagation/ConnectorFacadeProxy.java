@@ -20,6 +20,7 @@ package org.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Schema;
@@ -51,7 +53,10 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.util.ConnBundleManager;
 import org.syncope.types.ConnConfProperty;
@@ -368,11 +373,14 @@ public class ConnectorFacadeProxy {
      * @param token to be passed to the underlying connector
      * @param handler to be used to handle deltas.
      */
-    public void sync(final SyncToken token, final SyncResultsHandler handler) {
+    public void sync(
+            final SyncToken token,
+            final SyncResultsHandler handler,
+            final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(
                 ConnectorCapability.SYNC)) {
-            connector.sync(ObjectClass.ACCOUNT, token, handler, null);
+            connector.sync(ObjectClass.ACCOUNT, token, handler, options);
         } else {
             LOG.info("Sync was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
@@ -637,5 +645,34 @@ public class ConnectorFacadeProxy {
      */
     public ConnInstance getActiveConnInstance() {
         return activeConnInstance;
+    }
+
+    public OperationOptions getOperationOptions(
+            final ExternalResource resource) {
+
+        // -------------------------------------
+        // Ask just for mapped attributes
+        // -------------------------------------
+        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+
+        final Set<String> attributesToGet = new HashSet<String>(
+                Arrays.asList(new String[]{
+                    Name.NAME,
+                    Uid.NAME,
+                    OperationalAttributes.ENABLE_NAME
+                }));
+
+        for (SchemaMapping mapping : resource.getMappings()) {
+            if (StringUtils.hasText(mapping.getExtAttrName())) {
+                attributesToGet.add(mapping.getExtAttrName());
+            }
+        }
+
+        attributesToGet.add(OperationalAttributes.ENABLE_NAME);
+
+        oob.setAttributesToGet(attributesToGet);
+        // -------------------------------------
+
+        return oob.build();
     }
 }

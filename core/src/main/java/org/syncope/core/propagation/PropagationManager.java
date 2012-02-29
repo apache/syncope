@@ -1144,6 +1144,7 @@ public class PropagationManager {
             final PropagationTask task,
             final boolean latest) {
         try {
+
             return connector.getObject(
                     task.getPropagationMode(),
                     task.getPropagationOperation(),
@@ -1151,7 +1152,8 @@ public class PropagationManager {
                     new Uid(latest || task.getOldAccountId() == null
                     ? task.getAccountId()
                     : task.getOldAccountId()),
-                    null);
+                    connector.getOperationOptions(task.getResource()));
+            
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);
             return null;

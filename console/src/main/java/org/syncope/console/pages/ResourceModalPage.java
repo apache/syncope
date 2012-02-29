@@ -30,7 +30,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.syncope.console.pages.panels.ResourceMappingPanel;
@@ -119,7 +118,7 @@ public class ResourceModalPage extends BaseModalPage {
                         ((Resources) pageref.getPage()).setModalResult(true);
                         window.close(target);
 
-                    } catch (SyncopeClientCompositeErrorException e) {
+                    } catch (Exception e) {
                         LOG.error("Failuer managing resource {}", resourceTO);
                         error(new ResourceModel("error", "error").getObject()
                                 + ":" + e.getMessage());

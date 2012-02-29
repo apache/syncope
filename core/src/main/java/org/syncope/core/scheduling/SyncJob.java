@@ -1016,7 +1016,7 @@ public class SyncJob extends AbstractTaskJob {
                                 }
                             }
                         },
-                        null);
+                        connector.getOperationOptions(syncTask.getResource()));
             } else {
                 connector.sync(
                         syncTask.getResource().getSyncToken(),
@@ -1037,7 +1037,8 @@ public class SyncJob extends AbstractTaskJob {
                                     return false;
                                 }
                             }
-                        });
+                        },
+                        connector.getOperationOptions(syncTask.getResource()));
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {

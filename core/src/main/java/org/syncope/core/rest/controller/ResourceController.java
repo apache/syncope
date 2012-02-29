@@ -283,7 +283,10 @@ public class ResourceController extends AbstractController {
         final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
 
         final ConnectorObject connectorObject =
-                connector.getObject(ObjectClass.ACCOUNT, new Uid(objectId), null);
+                connector.getObject(
+                ObjectClass.ACCOUNT, 
+                new Uid(objectId), 
+                connector.getOperationOptions(resource));
 
         if (connectorObject == null) {
             throw new NotFoundException(
