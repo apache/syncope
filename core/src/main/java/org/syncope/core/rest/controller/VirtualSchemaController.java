@@ -132,11 +132,11 @@ public class VirtualSchemaController extends AbstractController {
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        Class reference = getAttributableUtil(kind).virtualSchemaClass();
         AbstractVirSchema virtualSchema =
                 virtualSchemaDAO.find(virtualSchemaTO.getName(), reference);
         if (virtualSchema == null) {
-            LOG.error("Could not find derived schema '"
+            LOG.error("Could not find virtual schema '"
                     + virtualSchemaTO.getName() + "'");
             throw new NotFoundException(virtualSchemaTO.getName());
         }
