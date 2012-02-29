@@ -102,7 +102,7 @@ public class UserTestITCase extends AbstractTest {
                 "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click(
-                "//*[@id=\"users-contain\"]//*[span=4]/../td[4]/span/span[8]/a");
+                "//*[@id=\"users-contain\"]//*[span=4]/../td[4]/span/span[9]/a");
 
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));

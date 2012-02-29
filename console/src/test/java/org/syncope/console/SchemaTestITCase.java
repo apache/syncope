@@ -58,7 +58,7 @@ public class SchemaTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='membership']/ul/li[3]/a/span");
 
-        selenium.click("//table/tbody/tr/td[3]/span/span[8]/a");
+        selenium.click("//table/tbody/tr/td[3]/span/span[9]/a");
 
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));

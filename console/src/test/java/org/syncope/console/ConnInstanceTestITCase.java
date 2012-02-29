@@ -79,7 +79,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//tr[4]/td[6]/span/span[8]/a");
+        selenium.click("//tr[4]/td[6]/span/span[9]/a");
 
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));

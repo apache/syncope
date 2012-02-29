@@ -195,11 +195,11 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
         selenium.waitForCondition(
-                "selenium.isElementPresent(\"//span[8]/a\");", "30000");
+                "selenium.isElementPresent(\"//span[9]/a\");", "30000");
 
         selenium.click(
                 "//div[3]/span[2]/span/span/div/form/div"
-                + "[2]/div[2]/div/div/span/div/table/tbody/tr[2]/td[4]/span/span[8]/a");
+                + "[2]/div[2]/div/div/span/div/table/tbody/tr[2]/td[4]/span/span[9]/a");
 
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));

@@ -72,6 +72,10 @@ public class AccessTestITCase extends AbstractTest {
                 "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[@id='tabs']/ul/li[3]/a/span\");",
+                "30000");
+        
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
 
         selenium.click("css=img[alt=\"Tasks\"]");
