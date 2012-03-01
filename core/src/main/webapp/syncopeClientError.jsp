@@ -14,6 +14,7 @@
 <%@page import="org.syncope.core.propagation.PropagationException"%>
 <%@page import="org.syncope.core.workflow.WorkflowException"%>
 <%@page import="org.syncope.types.SyncopeClientExceptionType"%>
+<%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientErrorHandler"%>
 <%@page import="javassist.NotFoundException"%>
 <%@page import="org.slf4j.LoggerFactory"%>
@@ -138,6 +139,17 @@
                 SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
         response.setHeader(
                 SyncopeClientExceptionType.GenericPersistence.
+                getElementHeaderName(),
+                ex.getCause() == null ? ex.getMessage() : ex.getCause().
+                getMessage());
+
+        statusCode = HttpServletResponse.SC_BAD_REQUEST;
+    } else if (ex instanceof ConfigurationException) {
+        response.setHeader(
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
+        response.setHeader(
+                SyncopeClientExceptionType.InvalidExternalResource.
                 getElementHeaderName(),
                 ex.getCause() == null ? ex.getMessage() : ex.getCause().
                 getMessage());
