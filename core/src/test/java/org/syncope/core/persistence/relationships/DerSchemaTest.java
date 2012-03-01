@@ -30,6 +30,7 @@ import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 
 @Transactional
 public class DerSchemaTest extends AbstractTest {
@@ -47,7 +48,7 @@ public class DerSchemaTest extends AbstractTest {
     public void test() {
         UDerSchema schema = derSchemaDAO.find("cn", UDerSchema.class);
 
-        derSchemaDAO.delete(schema.getName(), AttributableUtil.USER);
+        derSchemaDAO.delete(schema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
         derSchemaDAO.flush();
 

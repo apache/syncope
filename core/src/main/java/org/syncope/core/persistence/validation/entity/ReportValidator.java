@@ -19,9 +19,12 @@
 package org.syncope.core.persistence.validation.entity;
 
 import java.text.ParseException;
+import java.util.HashSet;
+import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.types.EntityViolationType;
 
@@ -33,6 +36,7 @@ public class ReportValidator extends AbstractValidator
     }
 
     @Override
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public boolean isValid(final Report object,
             final ConstraintValidatorContext context) {
 
@@ -47,11 +51,24 @@ public class ReportValidator extends AbstractValidator
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidReport.name()).
-                        addNode(object + ".cronExpression=="
-                        + object.getCronExpression()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).
+                        addNode(object + ".cronExpression==" + object.getCronExpression()).
+                        addConstraintViolation();
             }
+        }
+
+        Set<String> reportletNames = new HashSet<String>();
+        for (ReportletConf conf : object.getReportletConfs()) {
+            reportletNames.add(conf.getName());
+        }
+        if (reportletNames.size() != object.getReportletConfs().size()) {
+            LOG.error("Reportlet name must be unique");
+            isValid = false;
+
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).
+                    addNode(object + ".reportletConfs with duplicate names").
+                    addConstraintViolation();
         }
 
         return isValid;

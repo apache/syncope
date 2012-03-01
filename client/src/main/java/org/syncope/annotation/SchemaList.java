@@ -16,24 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.client.report;
+package org.syncope.annotation;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface ReportletConf {
+@Retention(RUNTIME)
+public @interface SchemaList {
 
-    /**
-     * Give name of related reportlet instance.
-     *
-     * @return name of this reportlet instance
-     */
-    String getName();
-
-    /**
-     * Return Reportlet implementation for this conf.
-     *
-     * @return corresponding reportlet class name
-     */
-    String getReportletClassName();
+    boolean extended() default false;
 }

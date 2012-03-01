@@ -20,8 +20,7 @@ package org.syncope.client.report;
 
 import org.syncope.client.AbstractBaseBean;
 
-public abstract class AbstractReportletConf extends AbstractBaseBean
-        implements ReportletConf {
+public abstract class AbstractReportletConf extends AbstractBaseBean implements ReportletConf {
 
     private static final long serialVersionUID = -6130008602014516608L;
 

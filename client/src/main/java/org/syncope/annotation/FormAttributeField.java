@@ -16,13 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.client;
+package org.syncope.annotation;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.syncope.types.IntMappingType;
 
-@Retention(RUNTIME)
-public @interface SchemaList {
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface FormAttributeField {
 
-    boolean extended() default false;
+    IntMappingType schema() default IntMappingType.UserSchema;
 }

@@ -64,6 +64,7 @@ import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
+import org.syncope.types.AttributableType;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -621,7 +622,7 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Derived attributes to be added:\n{}", propByRes);
 
         // 7. virtual attributes: for users this is delegated to  PropagationManager
-        if (AttributableUtil.USER != attributableUtil) {
+        if (AttributableType.USER != attributableUtil.getType()) {
             fillVirtual(attributable,
                     attributableMod.getVirtualAttributesToBeRemoved(),
                     attributableMod.getVirtualAttributesToBeUpdated(),
@@ -731,7 +732,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         // 3. virtual attributes: for users this is delegated to PropagationManager
-        if (AttributableUtil.USER != attributableUtil) {
+        if (AttributableType.USER != attributableUtil.getType()) {
             fillVirtual(attributable, attributableTO.getVirtualAttributes(), attributableUtil);
         }
 

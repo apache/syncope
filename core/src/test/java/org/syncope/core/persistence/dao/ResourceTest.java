@@ -31,7 +31,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.types.Entity;
+import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
 @Transactional
@@ -215,13 +215,13 @@ public class ResourceTest extends AbstractTest {
 
             if ("icon".equals(schemaMapping.getIntAttrName())) {
                 assertTrue(IntMappingType.contains(
-                        Entity.ROLE,
+                        AttributableType.ROLE,
                         schemaMapping.getIntMappingType().toString()));
             }
 
             if ("mderiveddata".equals(schemaMapping.getIntAttrName())) {
                 assertTrue(IntMappingType.contains(
-                        Entity.MEMBERSHIP,
+                        AttributableType.MEMBERSHIP,
                         schemaMapping.getIntMappingType().toString()));
             }
         }

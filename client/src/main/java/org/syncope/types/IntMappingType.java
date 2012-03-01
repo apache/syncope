@@ -29,43 +29,43 @@ public enum IntMappingType {
     // -------------------------
     // User attribute types (the same in UserMappingType)
     // -------------------------
-    UserSchema(Entity.USER),
-    UserDerivedSchema(Entity.USER),
-    UserVirtualSchema(Entity.USER),
-    SyncopeUserId(Entity.USER),
-    Password(Entity.USER),
-    Username(Entity.USER),
+    UserSchema(AttributableType.USER),
+    UserDerivedSchema(AttributableType.USER),
+    UserVirtualSchema(AttributableType.USER),
+    SyncopeUserId(AttributableType.USER),
+    Password(AttributableType.USER),
+    Username(AttributableType.USER),
     // -------------------------
     // Role attribute types (the same in RoleMappingType)
     // -------------------------
-    RoleSchema(Entity.ROLE),
-    RoleDerivedSchema(Entity.ROLE),
-    RoleVirtualSchema(Entity.ROLE),
+    RoleSchema(AttributableType.ROLE),
+    RoleDerivedSchema(AttributableType.ROLE),
+    RoleVirtualSchema(AttributableType.ROLE),
     // -------------------------
     // Membership attribute types (the same in MembershipMappingType)
     // -------------------------
-    MembershipSchema(Entity.MEMBERSHIP),
-    MembershipDerivedSchema(Entity.MEMBERSHIP),
-    MembershipVirtualSchema(Entity.MEMBERSHIP);
+    MembershipSchema(AttributableType.MEMBERSHIP),
+    MembershipDerivedSchema(AttributableType.MEMBERSHIP),
+    MembershipVirtualSchema(AttributableType.MEMBERSHIP);
 
-    private Entity entity;
+    private AttributableType attributableType;
 
-    private IntMappingType(final Entity entity) {
-        this.entity = entity;
+    private IntMappingType(final AttributableType attributableType) {
+        this.attributableType = attributableType;
     }
 
-    public Entity getEntity() {
-        return entity;
+    public AttributableType getAttributableType() {
+        return attributableType;
     }
 
     /**
-     * Get attribute types for a certain entity.
+     * Get attribute types for a certain attributable type.
      *
-     * @param entity entity.
+     * @param attributableType attributable type
      * @return set of attribute types.
      */
-    public static EnumSet getAttributeTypes(final Entity entity) {
-        switch (entity) {
+    public static EnumSet getAttributeTypes(final AttributableType attributableType) {
+        switch (attributableType) {
             case ROLE:
                 return EnumSet.allOf(RoleMappingType.class);
             case MEMBERSHIP:
@@ -76,16 +76,15 @@ public enum IntMappingType {
     }
 
     /**
-     * Check if attribute type belongs to the specified entity set.
+     * Check if attribute type belongs to the specified attributable type set.
      *
-     * @param entity entity.
+     * @param attributableType attributable type.
      * @param type attrybute type.
-     * @return true if attribute type belongs to the specified entity set.
+     * @return true if attribute type belongs to the specified attributable type set.
      */
-    public static boolean contains(
-            final Entity entity, final String type) {
+    public static boolean contains(final AttributableType attributableType, final String type) {
 
-        switch (entity) {
+        switch (attributableType) {
             case ROLE:
                 return RoleMappingType.valueOf(type) != null;
             case MEMBERSHIP:
@@ -106,6 +105,7 @@ public enum IntMappingType {
         SyncopeUserId,
         Password,
         Username;
+
     }
 
     /**
@@ -116,6 +116,7 @@ public enum IntMappingType {
         RoleSchema,
         RoleDerivedSchema,
         RoleVirtualSchema;
+
     }
 
     /**
@@ -126,5 +127,6 @@ public enum IntMappingType {
         MembershipSchema,
         MembershipDerivedSchema,
         MembershipVirtualSchema;
+
     }
 }

@@ -35,6 +35,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
 @Transactional
@@ -75,7 +76,7 @@ public class SchemaTest extends AbstractTest {
         assertFalse(mappings.isEmpty());
 
         // delete user schema fullname
-        schemaDAO.delete("fullname", AttributableUtil.USER);
+        schemaDAO.delete("fullname", AttributableUtil.getInstance(AttributableType.USER));
 
         schemaDAO.flush();
 
@@ -123,7 +124,7 @@ public class SchemaTest extends AbstractTest {
         assertFalse(mappings.isEmpty());
 
         // delete user schema fullname
-        schemaDAO.delete("surname", AttributableUtil.USER);
+        schemaDAO.delete("surname", AttributableUtil.getInstance(AttributableType.USER));
 
         schemaDAO.flush();
 

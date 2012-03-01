@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 
 @Transactional
 public class VirSchemaTest extends AbstractTest {
@@ -71,9 +72,7 @@ public class VirSchemaTest extends AbstractTest {
         UVirSchema attributeSchema =
                 virSchemaDAO.find("virtualdata", UVirSchema.class);
 
-        virSchemaDAO.delete(
-                attributeSchema.getName(),
-                AttributableUtil.USER);
+        virSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
         UVirSchema actual =
                 virSchemaDAO.find("virtualdata", UVirSchema.class);

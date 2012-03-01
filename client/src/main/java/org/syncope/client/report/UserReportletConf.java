@@ -21,7 +21,9 @@ package org.syncope.client.report;
 import java.util.ArrayList;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.syncope.annotation.FormAttributeField;
 import org.syncope.client.search.NodeCond;
+import org.syncope.types.IntMappingType;
 
 public class UserReportletConf extends AbstractReportletConf {
 
@@ -45,10 +47,13 @@ public class UserReportletConf extends AbstractReportletConf {
 
     private NodeCond matchingCond;
 
+    @FormAttributeField(schema = IntMappingType.UserSchema)
     private List<String> attrs;
 
+    @FormAttributeField(schema = IntMappingType.UserDerivedSchema)
     private List<String> derAttrs;
 
+    @FormAttributeField(schema = IntMappingType.UserVirtualSchema)
     private List<String> virAttrs;
 
     private List<Feature> features;

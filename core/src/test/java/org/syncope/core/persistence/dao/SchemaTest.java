@@ -31,6 +31,7 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.types.AttributableType;
 import org.syncope.types.SchemaType;
 
 @Transactional
@@ -135,7 +136,7 @@ public class SchemaTest extends AbstractTest {
     public void delete() {
         USchema schema = schemaDAO.find("fullname", USchema.class);
 
-        schemaDAO.delete(schema.getName(), AttributableUtil.USER);
+        schemaDAO.delete(schema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
         USchema actual = schemaDAO.find("fullname", USchema.class);
         assertNull("delete did not work", actual);

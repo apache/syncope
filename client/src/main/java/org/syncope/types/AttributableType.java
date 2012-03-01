@@ -18,10 +18,10 @@
  */
 package org.syncope.types;
 
-/**
- * Mapping type.
- */
-public enum Entity {
+public enum AttributableType {
 
-    USER, ROLE, MEMBERSHIP;
+    USER,
+    ROLE,
+    MEMBERSHIP;
+
 }

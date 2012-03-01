@@ -32,6 +32,7 @@ import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 import org.syncope.types.EntityViolationType;
 
 @Transactional
@@ -87,8 +88,8 @@ public class AttrTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attribute.addValue("john.doe@gmail.com", AttributableUtil.USER);
-            attribute.addValue("mario.rossi@gmail.com", AttributableUtil.USER);
+            attribute.addValue("john.doe@gmail.com", AttributableUtil.getInstance(AttributableType.USER));
+            attribute.addValue("mario.rossi@gmail.com", AttributableUtil.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             LOG.error("Unexpected exception", e);
             thrown = e;
@@ -96,7 +97,7 @@ public class AttrTest extends AbstractTest {
         assertNull("no validation exception expected here ", thrown);
 
         try {
-            attribute.addValue("http://www.apache.org", AttributableUtil.USER);
+            attribute.addValue("http://www.apache.org", AttributableUtil.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -135,13 +136,13 @@ public class AttrTest extends AbstractTest {
         Exception thrown = null;
 
         try {
-            attribute.addValue("A", AttributableUtil.USER);
+            attribute.addValue("A", AttributableUtil.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNotNull("validation exception expected here ", thrown);
 
-        attribute.addValue("M", AttributableUtil.USER);
+        attribute.addValue("M", AttributableUtil.getInstance(AttributableType.USER));
 
         InvalidEntityException iee = null;
         try {
@@ -180,7 +181,7 @@ public class AttrTest extends AbstractTest {
 
         InvalidEntityException iee = null;
         try {
-            attribute = attrDAO.save(attribute);
+            attrDAO.save(attribute);
         } catch (InvalidEntityException e) {
             iee = e;
         }

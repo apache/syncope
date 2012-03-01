@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 
 @Transactional
 public class DerSchemaTest extends AbstractTest {
@@ -72,9 +73,7 @@ public class DerSchemaTest extends AbstractTest {
         UDerSchema attributeSchema =
                 derSchemaDAO.find("cn", UDerSchema.class);
 
-        derSchemaDAO.delete(
-                attributeSchema.getName(),
-                AttributableUtil.USER);
+        derSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
         UDerSchema actual =
                 derSchemaDAO.find("cn", UDerSchema.class);

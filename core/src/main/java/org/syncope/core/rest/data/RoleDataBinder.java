@@ -36,6 +36,7 @@ import org.syncope.core.persistence.beans.role.RVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.propagation.PropagationByResource;
+import org.syncope.types.AttributableType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -96,7 +97,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        fill(role, roleTO, AttributableUtil.ROLE, scce);
+        fill(role, roleTO, AttributableUtil.getInstance(AttributableType.ROLE), scce);
 
         // entitlements
         Entitlement entitlement;
@@ -201,7 +202,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        return fill(role, roleMod, AttributableUtil.ROLE, scce);
+        return fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce);
     }
 
     public RoleTO getRoleTO(SyncopeRole role) {

@@ -98,11 +98,8 @@ public class ReportController extends AbstractController {
     private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('REPORT_CREATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
-    public ReportTO create(final HttpServletResponse response,
-            @RequestBody final ReportTO reportTO) {
-
+    @RequestMapping(method = RequestMethod.POST, value = "/create")
+    public ReportTO create(final HttpServletResponse response, @RequestBody final ReportTO reportTO) {
         LOG.debug("Creating report " + reportTO);
 
         Report report = new Report();
@@ -112,14 +109,10 @@ public class ReportController extends AbstractController {
         try {
             jobInstanceLoader.registerJob(report);
         } catch (Exception e) {
-            LOG.error("While registering quartz job for report "
-                    + report.getId(), e);
+            LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.Scheduling);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
             throw scce;
@@ -130,8 +123,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
+    @RequestMapping(method = RequestMethod.POST, value = "/update")
     public ReportTO update(@RequestBody final ReportTO reportTO)
             throws NotFoundException {
 
@@ -151,11 +143,8 @@ public class ReportController extends AbstractController {
             LOG.error("While registering quartz job for report "
                     + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.Scheduling);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
             throw scce;
@@ -165,15 +154,13 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/count")
+    @RequestMapping(method = RequestMethod.GET, value = "/count")
     public ModelAndView count() {
         return new ModelAndView().addObject(reportDAO.count());
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/list")
     public List<ReportTO> list() {
         List<Report> reports = reportDAO.findAll();
         List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
@@ -185,11 +172,8 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list/{page}/{size}")
-    public List<ReportTO> list(@PathVariable("page") final int page,
-            @PathVariable("size") final int size) {
-
+    @RequestMapping(method = RequestMethod.GET, value = "/list/{page}/{size}")
+    public List<ReportTO> list(@PathVariable("page") final int page, @PathVariable("size") final int size) {
         List<Report> reports = reportDAO.findAll(page, size);
         List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
         for (Report report : reports) {
@@ -200,12 +184,10 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/execution/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/execution/list")
     public List<ReportExecTO> listExecutions() {
         List<ReportExec> executions = reportExecDAO.findAll();
-        List<ReportExecTO> executionTOs =
-                new ArrayList<ReportExecTO>(executions.size());
+        List<ReportExecTO> executionTOs = new ArrayList<ReportExecTO>(executions.size());
         for (ReportExec execution : executions) {
             executionTOs.add(binder.getReportExecTO(execution));
         }
@@ -214,40 +196,29 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/reportletClasses")
+    @RequestMapping(method = RequestMethod.GET, value = "/reportletClasses")
     public ModelAndView getReportletClasses() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory =
-                new CachingMetadataReaderFactory();
+        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
 
         Set<String> reportletClasses = new HashSet<String>();
         try {
-            for (Resource resource : resResolver.getResources(
-                    "classpath*:**/*.class")) {
-
-                ClassMetadata metadata =
-                        cachingMetadataReaderFactory.getMetadataReader(
-                        resource).getClassMetadata();
-                if (ArrayUtils.contains(metadata.getInterfaceNames(),
-                        Reportlet.class.getName())
-                        || AbstractReportlet.class.getName().equals(
-                        metadata.getSuperClassName())) {
+            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
+                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
+                if (ArrayUtils.contains(metadata.getInterfaceNames(), Reportlet.class.getName())
+                        || AbstractReportlet.class.getName().equals(metadata.getSuperClassName())) {
 
                     try {
                         Class jobClass = Class.forName(metadata.getClassName());
                         if (!Modifier.isAbstract(jobClass.getModifiers())) {
-
                             reportletClasses.add(jobClass.getName());
                         }
                     } catch (ClassNotFoundException e) {
-                        LOG.error("Could not load class {}",
-                                metadata.getClassName(), e);
+                        LOG.error("Could not load class {}", metadata.getClassName(), e);
                     }
                 }
             }
         } catch (IOException e) {
-            LOG.error("While searching for class implementing {}",
-                    Reportlet.class.getName(), e);
+            LOG.error("While searching for class implementing {}", Reportlet.class.getName(), e);
         }
 
         ModelAndView result = new ModelAndView();
@@ -256,8 +227,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/{reportId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/{reportId}")
     public ReportTO read(@PathVariable("reportId") final Long reportId)
             throws NotFoundException {
 
@@ -270,11 +240,9 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/execution/read/{executionId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     @Transactional(readOnly = true)
-    public ReportExecTO readExecution(
-            @PathVariable("executionId") final Long executionId)
+    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId)
             throws NotFoundException {
 
         ReportExec execution = reportExecDAO.find(executionId);
@@ -286,28 +254,21 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/execution/export/{executionId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/execution/export/{executionId}")
     @Transactional(readOnly = true)
-    public void exportExecutionResult(
-            final HttpServletResponse response,
+    public void exportExecutionResult(final HttpServletResponse response,
             @PathVariable("executionId") final Long executionId,
-            @RequestParam(value = "fmt",
-            required = false) final ReportExecExportFormat fmt)
+            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt)
             throws NotFoundException {
 
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
-        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus())
-                || reportExec.getExecResult() == null) {
-
+        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
             SyncopeClientCompositeErrorException sccee =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidReportExec);
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
             sce.addElement(reportExec.getExecResult() == null
                     ? "No report data produced"
                     : "Report did not run successfully");
@@ -322,12 +283,10 @@ public class ReportController extends AbstractController {
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.addHeader("Content-Disposition",
-                "attachment; filename=" + reportExec.getReport().getName()
-                + "." + format.name().toLowerCase());
+                "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase());
 
         // streaming SAX handler from a compressed byte array stream
-        ByteArrayInputStream bais =
-                new ByteArrayInputStream(reportExec.getExecResult());
+        ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
         ZipInputStream zis = new ZipInputStream(bais);
         try {
             // a single ZipEntry in the ZipInputStream (see ReportJob)
@@ -345,30 +304,24 @@ public class ReportController extends AbstractController {
 
             switch (format) {
                 case HTML:
-                    XSLTTransformer xsl2html = new XSLTTransformer(
-                            getClass().getResource("/report/report2html.xsl"));
+                    XSLTTransformer xsl2html = new XSLTTransformer(getClass().getResource("/report/report2html.xsl"));
                     xsl2html.setParameters(parameters);
                     pipeline.addComponent(xsl2html);
-                    pipeline.addComponent(
-                            XMLSerializer.createXHTMLSerializer());
+                    pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
                     break;
 
                 case PDF:
-                    XSLTTransformer xsl2pdf = new XSLTTransformer(
-                            getClass().getResource("/report/report2fo.xsl"));
+                    XSLTTransformer xsl2pdf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
                     xsl2pdf.setParameters(parameters);
                     pipeline.addComponent(xsl2pdf);
-                    pipeline.addComponent(
-                            new FopSerializer(MimeConstants.MIME_PDF));
+                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
                     break;
 
                 case RTF:
-                    XSLTTransformer xsl2rtf = new XSLTTransformer(
-                            getClass().getResource("/report/report2fo.xsl"));
+                    XSLTTransformer xsl2rtf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
                     xsl2rtf.setParameters(parameters);
                     pipeline.addComponent(xsl2rtf);
-                    pipeline.addComponent(
-                            new FopSerializer(MimeConstants.MIME_RTF));
+                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
                     break;
 
                 case XML:
@@ -394,8 +347,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/execute/{reportId}")
+    @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
     public ReportExecTO execute(@PathVariable("reportId") final Long reportId)
             throws NotFoundException {
 
@@ -408,17 +360,12 @@ public class ReportController extends AbstractController {
             jobInstanceLoader.registerJob(report);
 
             JobDataMap map = new JobDataMap();
-            scheduler.getScheduler().triggerJob(
-                    JobInstanceLoader.getJobName(report),
-                    Scheduler.DEFAULT_GROUP, map);
+            scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.Scheduling);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
             throw scce;
@@ -434,8 +381,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{reportId}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{reportId}")
     public void delete(@PathVariable("reportId") Long reportId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
@@ -450,8 +396,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/execution/delete/{executionId}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/execution/delete/{executionId}")
     public void deleteExecution(@PathVariable("executionId") Long executionId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 

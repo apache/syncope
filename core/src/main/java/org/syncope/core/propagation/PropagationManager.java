@@ -80,6 +80,7 @@ import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.core.workflow.WorkflowResult;
+import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
@@ -196,7 +197,7 @@ public class PropagationManager {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
+            userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.getInstance(AttributableType.USER));
         }
 
         final PropagationByResource propByRes = wfResult.getPropByRes();
@@ -326,7 +327,7 @@ public class PropagationManager {
                 user,
                 vAttrsToBeRemoved == null ? Collections.EMPTY_SET : vAttrsToBeRemoved,
                 vAttrsToBeUpdated == null ? Collections.EMPTY_SET : vAttrsToBeUpdated,
-                AttributableUtil.USER);
+                AttributableUtil.getInstance(AttributableType.USER));
 
         if (propByRes != null && !propByRes.isEmpty()) {
             localPropByRes.merge(propByRes);
@@ -453,7 +454,7 @@ public class PropagationManager {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
-        switch (mapping.getIntMappingType().getEntity()) {
+        switch (mapping.getIntMappingType().getAttributableType()) {
             case USER:
                 attributables.addAll(Collections.singleton(user));
                 break;

@@ -52,6 +52,7 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.util.EntitlementUtil;
+import org.syncope.types.AttributableType;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.PasswordPolicySpec;
@@ -172,13 +173,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     user.addMembership(membership);
                 }
 
-                fill(membership, membershipTO, AttributableUtil.MEMBERSHIP,
-                        scce);
+                fill(membership, membershipTO, AttributableUtil.getInstance(AttributableType.MEMBERSHIP), scce);
             }
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        fill(user, userTO, AttributableUtil.USER, scce);
+        fill(user, userTO, AttributableUtil.getInstance(AttributableType.USER), scce);
 
         // set password
         int passwordHistorySize = 0;
@@ -268,7 +268,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(user, userMod, AttributableUtil.USER, scce));
+        propByRes.merge(fill(user, userMod, AttributableUtil.getInstance(AttributableType.USER), scce));
 
         // store the role ids of membership required to be added
         Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
@@ -357,7 +357,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     propByRes.addAll(PropagationOperation.UPDATE, role.getResourceNames());
                 }
 
-                propByRes.merge(fill(membership, membershipMod, AttributableUtil.MEMBERSHIP, scce));
+                propByRes.merge(fill(membership, membershipMod,
+                        AttributableUtil.getInstance(AttributableType.MEMBERSHIP), scce));
             }
         }
 

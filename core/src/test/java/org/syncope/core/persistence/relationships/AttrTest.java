@@ -41,6 +41,7 @@ import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AttributableType;
 import org.syncope.types.SchemaType;
 
 @Transactional
@@ -112,7 +113,7 @@ public class AttrTest extends AbstractTest {
         MAttr attribute = new MAttr();
         attribute.setSchema(actualSchema);
         attribute.setOwner(membership);
-        attribute.addValue("yellow", AttributableUtil.MEMBERSHIP);
+        attribute.addValue("yellow", AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
         membership.addAttribute(attribute);
 
         MAttr actualAttribute = attrDAO.save(attribute);

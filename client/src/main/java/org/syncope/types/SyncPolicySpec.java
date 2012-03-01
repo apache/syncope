@@ -20,7 +20,7 @@ package org.syncope.types;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.syncope.client.SchemaList;
+import org.syncope.annotation.SchemaList;
 
 public class SyncPolicySpec extends AbstractPolicySpec {
 

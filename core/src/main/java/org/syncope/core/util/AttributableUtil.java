@@ -49,42 +49,81 @@ import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.beans.user.UVirSchema;
+import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
-public enum AttributableUtil {
+public class AttributableUtil {
 
-    USER,
-    ROLE,
-    MEMBERSHIP;
+    private final AttributableType type;
+
+    public static AttributableUtil getInstance(final AttributableType type) {
+        return new AttributableUtil(type);
+    }
+
+    public static AttributableUtil valueOf(final String name) {
+        return new AttributableUtil(AttributableType.valueOf(name));
+    }
+
+    private AttributableUtil(final AttributableType type) {
+        this.type = type;
+    }
+
+    public AttributableType getType() {
+        return type;
+    }
 
     public IntMappingType intMappingType() {
-        IntMappingType result = null;
+        IntMappingType result;
 
-        switch (this) {
+        switch (type) {
+            case ROLE:
+                result = IntMappingType.RoleSchema;
+                break;
+            case MEMBERSHIP:
+                result = IntMappingType.MembershipSchema;
+                break;
+            case USER:
             default:
                 result = IntMappingType.UserSchema;
+                break;
         }
 
         return result;
     }
 
     public IntMappingType derivedIntMappingType() {
-        IntMappingType result = null;
+        IntMappingType result;
 
-        switch (this) {
+        switch (type) {
+            case ROLE:
+                result = IntMappingType.RoleDerivedSchema;
+                break;
+            case MEMBERSHIP:
+                result = IntMappingType.MembershipDerivedSchema;
+                break;
+            case USER:
             default:
                 result = IntMappingType.UserDerivedSchema;
+                break;
         }
 
         return result;
     }
 
     public IntMappingType virtualIntMappingType() {
-        IntMappingType result = null;
+        IntMappingType result;
 
-        switch (this) {
+        switch (type) {
+            case ROLE:
+                result = IntMappingType.RoleVirtualSchema;
+                break;
+            case MEMBERSHIP:
+                result = IntMappingType.MembershipVirtualSchema;
+                break;
+            case USER:
             default:
                 result = IntMappingType.UserVirtualSchema;
+                break;
         }
 
         return result;
@@ -93,7 +132,7 @@ public enum AttributableUtil {
     public <T extends AbstractSchema> Class<T> schemaClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = USchema.class;
                 break;
@@ -111,7 +150,7 @@ public enum AttributableUtil {
     public <T extends AbstractSchema> T newSchema() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new USchema();
                 break;
@@ -129,7 +168,7 @@ public enum AttributableUtil {
     public <T extends AbstractDerSchema> Class<T> derivedSchemaClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UDerSchema.class;
                 break;
@@ -147,7 +186,7 @@ public enum AttributableUtil {
     public <T extends AbstractVirSchema> Class<T> virtualSchemaClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UVirSchema.class;
                 break;
@@ -165,7 +204,7 @@ public enum AttributableUtil {
     public <T extends AbstractDerSchema> T newDerivedSchema() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UDerSchema();
                 break;
@@ -183,7 +222,7 @@ public enum AttributableUtil {
     public <T extends AbstractAttr> Class<T> attributeClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UAttr.class;
                 break;
@@ -201,7 +240,7 @@ public enum AttributableUtil {
     public <T extends AbstractAttr> T newAttribute() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UAttr();
                 break;
@@ -219,7 +258,7 @@ public enum AttributableUtil {
     public <T extends AbstractDerAttr> Class<T> derivedAttributeClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UDerAttr.class;
                 break;
@@ -237,7 +276,7 @@ public enum AttributableUtil {
     public <T extends AbstractVirAttr> Class<T> virtualAttributeClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UVirAttr.class;
                 break;
@@ -255,7 +294,7 @@ public enum AttributableUtil {
     public <T extends AbstractDerAttr> T newDerivedAttribute() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UDerAttr();
                 break;
@@ -273,7 +312,7 @@ public enum AttributableUtil {
     public <T extends AbstractVirAttr> T newVirtualAttribute() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UVirAttr();
                 break;
@@ -291,7 +330,7 @@ public enum AttributableUtil {
     public <T extends AbstractVirSchema> T newVirtualSchema() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UVirSchema();
                 break;
@@ -309,7 +348,7 @@ public enum AttributableUtil {
     public <T extends AbstractAttrValue> Class<T> attributeValueClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = UAttrValue.class;
                 break;
@@ -327,7 +366,7 @@ public enum AttributableUtil {
     public <T extends AbstractAttrValue> T newAttributeValue() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UAttrValue();
                 break;
@@ -345,7 +384,7 @@ public enum AttributableUtil {
     public <T extends AbstractAttrValue> T newAttributeUniqueValue() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case USER:
                 result = (T) new UAttrUniqueValue();
                 break;
