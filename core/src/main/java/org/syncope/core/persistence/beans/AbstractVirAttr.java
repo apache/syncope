@@ -35,6 +35,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.IntMappingType;
 
 @MappedSuperclass
@@ -102,7 +103,8 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
                 if (mapping.isAccountid()) {
                     try {
-                        accountId = attributable.getAttribute(mapping.getIntAttrName()).getValuesAsStrings().get(0);
+                        final List<String> values = SchemaMappingUtil.getIntValueAsStrings(attributable, mapping);
+                        accountId = values == null ? null : values.get(0);
                     } catch (NullPointerException e) {
                         // ignore exception
                         LOG.debug("Invalid accountId specified", e);
@@ -114,7 +116,6 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                 LOG.debug("Get object attribute for entry {}", accountId);
 
                 try {
-
                     final OperationOptionsBuilder oob = new OperationOptionsBuilder();
                     oob.setAttributesToGet(attributeNames);
 

@@ -128,9 +128,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         Set<Long> roleIds = user.getRoleIds();
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         roleIds.removeAll(adminRoleIds);
+        
         if (!roleIds.isEmpty()) {
             throw new UnauthorizedRoleException(roleIds);
         }

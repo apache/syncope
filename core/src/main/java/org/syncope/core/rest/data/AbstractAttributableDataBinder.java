@@ -771,8 +771,7 @@ public abstract class AbstractAttributableDataBinder {
 
         for (AbstractDerAttr derivedAttribute : derivedAttributes) {
             attributeTO = new AttributeTO();
-            attributeTO.setSchema(
-                    derivedAttribute.getDerivedSchema().getName());
+            attributeTO.setSchema(derivedAttribute.getDerivedSchema().getName());
             attributeTO.addValue(derivedAttribute.getValue(attributes));
             attributeTO.setReadonly(true);
 
@@ -781,8 +780,7 @@ public abstract class AbstractAttributableDataBinder {
 
         for (AbstractVirAttr virtualAttribute : virtualAttributes) {
             attributeTO = new AttributeTO();
-            attributeTO.setSchema(
-                    virtualAttribute.getVirtualSchema().getName());
+            attributeTO.setSchema(virtualAttribute.getVirtualSchema().getName());
             attributeTO.setValues(virtualAttribute.getValues());
             attributeTO.setReadonly(false);
 

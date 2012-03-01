@@ -44,15 +44,13 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
 
     /**
      * @see http://commons.apache.org/jexl/reference/index.html
-     * @param attributes the set of attributes against which evaluate this
-     * derived attribute
+     * @param attributes the set of attributes against which evaluate this derived attribute
      * @return the value of this derived attribute
      */
     public String getValue(
             final Collection<? extends AbstractAttr> attributes) {
 
-        final ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
+        final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
         final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes

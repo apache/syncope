@@ -32,14 +32,9 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
         T attribute;
-        for (Iterator<? extends AbstractAttr> itor =
-                getAttributes().iterator();
-                result == null && itor.hasNext();) {
-
+        for (Iterator<? extends AbstractAttr> itor = getAttributes().iterator(); result == null && itor.hasNext();) {
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null
-                    && schemaName.equals(attribute.getSchema().getName())) {
-
+            if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
                 result = attribute;
             }
         }

@@ -325,7 +325,7 @@ public class PropagationManager {
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(
                 user,
                 vAttrsToBeRemoved == null ? Collections.EMPTY_SET : vAttrsToBeRemoved,
-                vAttrsToBeUpdated == null ? Collections.EMPTY_SET : vAttrsToBeUpdated, 
+                vAttrsToBeUpdated == null ? Collections.EMPTY_SET : vAttrsToBeUpdated,
                 AttributableUtil.USER);
 
         if (propByRes != null && !propByRes.isEmpty()) {
@@ -479,18 +479,16 @@ public class PropagationManager {
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + mapping.getExtAttrName()
                 + "\n* is accountId " + mapping.isAccountid()
-                + "\n* is password " + (mapping.isPassword()
-                || mapping.getIntMappingType().equals(
-                IntMappingType.Password))
-                + "\n* mandatory condition "
-                + mapping.getMandatoryCondition()
+                + "\n* is password "
+                + (mapping.isPassword() || mapping.getIntMappingType().equals(IntMappingType.Password))
+                + "\n* mandatory condition " + mapping.getMandatoryCondition()
                 + "\n* Schema " + mapping.getIntAttrName()
-                + "\n* IntMappingType "
-                + mapping.getIntMappingType().toString()
+                + "\n* IntMappingType " + mapping.getIntMappingType().toString()
                 + "\n* ClassType " + schemaType.getClassName()
                 + "\n* Values " + values);
 
         List<Object> objValues = new ArrayList<Object>();
+
         for (AbstractAttrValue value : values) {
             if (FrameworkUtil.isSupportedAttributeType(Class.forName(schemaType.getClassName()))) {
                 objValues.add(value.getValue());
@@ -552,26 +550,21 @@ public class PropagationManager {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                schema = schemaDAO.find(mapping.getIntAttrName(),
-                        getIntMappingTypeClass(mapping.getIntMappingType()));
+                schema = schemaDAO.find(mapping.getIntAttrName(), getIntMappingTypeClass(mapping.getIntMappingType()));
 
                 for (AbstractAttributable attributable : attributables) {
-                    final UAttr attr =
-                            attributable.getAttribute(mapping.getIntAttrName());
+                    final UAttr attr = attributable.getAttribute(mapping.getIntAttrName());
 
                     if (attr != null && attr.getValues() != null) {
                         values.addAll(schema.isUniqueConstraint()
-                                ? Collections.singletonList(
-                                attr.getUniqueValue())
-                                : attr.getValues());
+                                ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
                     }
 
                     LOG.debug("Retrieved attribute {}"
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            new Object[]{attr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                            new Object[]{attr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
                 }
 
                 break;
