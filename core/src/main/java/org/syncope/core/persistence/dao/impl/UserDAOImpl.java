@@ -112,18 +112,16 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     /**
-     * Find users by derived attribute value. This method could fail if one or
-     * more string literals contained into the derived attribute value provided
-     * derive from identifier (schema name) replacement. When you are going to
-     * specify a derived attribute expression you must be quite sure that string
-     * literals used to build the expression cannot be found into the attribute
-     * values used to replace attribute schema names used as identifiers.
+     * Find users by derived attribute value. This method could fail if one or more string literals contained into the
+     * derived attribute value provided derive from identifier (schema name) replacement. When you are going to specify
+     * a derived attribute expression you must be quite sure that string literals used to build the expression cannot be
+     * found into the attribute values used to replace attribute schema names used as identifiers.
      *
      * @param schemaName derived schema name.
      * @param value derived attribute value.
      * @return list of users.
-     * @throws InvalidSearchConditionException in case of errors retrieving
-     * schema names used to buid the derived schema expression.
+     * @throws InvalidSearchConditionException in case of errors retrieving schema names used to buid the derived schema
+     * expression.
      */
     @Override
     public List<SyncopeUser> findByDerAttrValue(
@@ -356,8 +354,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         SyncopeUser merged = entityManager.merge(user);
 
         for (AbstractVirAttr virtual : merged.getVirtualAttributes()) {
-            virtual.setValues(user.getVirtualAttribute(
-                    virtual.getVirtualSchema().getName()).getValues());
+            virtual.setValues(user.getVirtualAttribute(virtual.getVirtualSchema().getName()).getValues());
         }
 
         return merged;
@@ -396,14 +393,12 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     /**
-     * Generate one where clause for each different attribute schema into the
-     * derived schema expression provided.
+     * Generate one where clause for each different attribute schema into the derived schema expression provided.
      *
      * @param expression derived schema expression.
      * @param value derived attribute value.
      * @return where clauses to use to build the query.
-     * @throws InvalidSearchConditionException in case of errors retrieving
-     * identifiers.
+     * @throws InvalidSearchConditionException in case of errors retrieving identifiers.
      */
     private Set<String> getWhereClause(
             final String expression, final String value)

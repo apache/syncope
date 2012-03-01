@@ -342,9 +342,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public void setDerivedAttributes(
-            final List<? extends AbstractDerAttr> derivedAttributes) {
-
+    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
         this.derivedAttributes.clear();
         if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
             this.derivedAttributes.addAll((List<UDerAttr>) derivedAttributes);
@@ -352,16 +350,12 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(
-            final T virtualAttribute) {
-
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virtualAttribute) {
         return virtualAttributes.add((UVirAttr) virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(
-            final T virtualAttribute) {
-
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virtualAttribute) {
         return virtualAttributes.remove((UVirAttr) virtualAttribute);
     }
 
@@ -371,9 +365,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public void setVirtualAttributes(
-            final List<? extends AbstractVirAttr> virtualAttributes) {
-
+    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
         if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
             this.virtualAttributes.addAll((List<UVirAttr>) virtualAttributes);

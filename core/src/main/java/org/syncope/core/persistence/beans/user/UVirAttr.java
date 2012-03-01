@@ -63,17 +63,14 @@ public class UVirAttr extends AbstractVirAttr {
 
     @Override
     public List<String> getValues() {
-        LOG.debug("{}: retrieve value for attribute {}",
-                new Object[]{getOwner(), getVirtualSchema().getName()});
+        LOG.debug("{}: retrieve value for attribute {}", new Object[]{getOwner(), getVirtualSchema().getName()});
 
         if (values != null) {
             return values;
         }
 
         final List<Object> retrievedValues =
-                retrieveValues(getOwner(),
-                getVirtualSchema().getName(),
-                IntMappingType.UserVirtualSchema);
+                retrieveValues(getOwner(), getVirtualSchema().getName(), IntMappingType.UserVirtualSchema);
 
         LOG.debug("Retrieved external values {}", retrievedValues);
 

@@ -29,8 +29,7 @@ public class Create extends AbstractActivitiDelegate {
     protected void doExecute(final DelegateExecution execution)
             throws Exception {
 
-        UserTO userTO = (UserTO) execution.getVariable(
-                ActivitiUserWorkflowAdapter.USER_TO);
+        UserTO userTO = (UserTO) execution.getVariable(ActivitiUserWorkflowAdapter.USER_TO);
 
         // create and set workflow id
         SyncopeUser user = new SyncopeUser();
@@ -38,7 +37,6 @@ public class Create extends AbstractActivitiDelegate {
         user.setWorkflowId(execution.getProcessInstanceId());
 
         // report SyncopeUser as result
-        execution.setVariable(
-                ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
     }
 }

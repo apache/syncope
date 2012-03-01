@@ -62,8 +62,8 @@ import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.PropagationTaskExecStatus;
 
 /**
- * Note that this controller does not extend AbstractController, hence does not
- * provide any Spring's @Transactional logic at class level.
+ * Note that this controller does not extend AbstractController, hence does not provide any Spring's @Transactional
+ * logic at class level.
  *
  * @see AbstractController
  */
@@ -210,8 +210,7 @@ public class UserController {
         }
 
         List<SyncopeUser> matchingUsers = searchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition);
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user));
@@ -253,30 +252,26 @@ public class UserController {
     @PreAuthorize("hasRole('USER_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public UserTO create(final HttpServletResponse response,
-            @RequestBody final UserTO userTO)
-            throws PropagationException, UnauthorizedRoleException,
-            WorkflowException, NotFoundException {
+    public UserTO create(final HttpServletResponse response, @RequestBody final UserTO userTO)
+            throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
 
         LOG.debug("User create called with {}", userTO);
 
-        Set<Long> requestRoleIds =
-                new HashSet<Long>(userTO.getMemberships().size());
+        Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
         }
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
+
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         requestRoleIds.removeAll(adminRoleIds);
         if (!requestRoleIds.isEmpty()) {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        WorkflowResult<Map.Entry<Long, Boolean>> created =
-                wfAdapter.create(userTO);
+        WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO);
 
-        List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
-                created, userTO.getPassword(), userTO.getVirtualAttributes());
+        List<PropagationTask> tasks =
+                propagationManager.getCreateTaskIds(created, userTO.getPassword(), userTO.getVirtualAttributes());
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
 
@@ -308,12 +303,9 @@ public class UserController {
         });
 
         notificationManager.createTasks(new WorkflowResult<Long>(
-                created.getResult().getKey(),
-                created.getPropByRes(),
-                created.getPerformedTasks()));
+                created.getResult().getKey(), created.getPropByRes(), created.getPerformedTasks()));
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                created.getResult().getKey());
+        final UserTO savedTO = userDataBinder.getUserTO(created.getResult().getKey());
 
         savedTO.setPropagationTOs(propagations);
 
@@ -337,7 +329,8 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
                 updated, userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeUpdated(), null);
+                userMod.getVirtualAttributesToBeUpdated(), 
+                null);
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
 

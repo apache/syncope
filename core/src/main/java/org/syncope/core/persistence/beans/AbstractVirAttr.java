@@ -29,6 +29,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.init.ConnInstanceLoader;
@@ -57,22 +58,24 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
     }
 
     protected <T extends AbstractAttributable> List<Object> retrieveValues(
-            final T attributable, final String attributeName,
-            final IntMappingType intMappingType) {
+            final T attributable, final String attributeName, final IntMappingType intMappingType) {
 
-        LOG.debug("{}: retrieving external values for {}",
-                new Object[]{attributable, attributeName});
+        LOG.debug("{}: retrieving external values for {}", new Object[]{attributable, attributeName});
 
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-        ConnInstanceLoader connInstanceLoader =
-                context.getBean(ConnInstanceLoader.class);
+        List<Object> virAttrValues = new ArrayList<Object>();
+
+        // if attributable is not defined it won't be possible to retrieve values from external resources.
+        if (attributable == null) {
+            return virAttrValues;
+        }
+
+        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+        ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
+
         if (connInstanceLoader == null) {
             LOG.error("Could not get to ConnInstanceLoader");
             return null;
         }
-
-        List<Object> virAttrValues = new ArrayList<Object>();
 
         for (ExternalResource resource : attributable.getResources()) {
             LOG.debug("Retrieving attribute mapped on {}", resource);
@@ -88,23 +91,18 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                             + "\n\tSource: " + mapping.getIntAttrName()
                             + "\n\tDestination: " + mapping.getExtAttrName()
                             + "\n\tType: " + mapping.getIntMappingType()
-                            + "\n\tMandatory condition: "
-                            + mapping.getMandatoryCondition()
+                            + "\n\tMandatory condition: " + mapping.getMandatoryCondition()
                             + "\n\tAccountId: " + mapping.isAccountid()
                             + "\n\tPassword: " + mapping.isPassword());
                 }
 
-                if (attributeName.equals(mapping.getIntAttrName())
-                        && mapping.getIntMappingType() == intMappingType) {
-
+                if (attributeName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
                     attributeNames.add(mapping.getExtAttrName());
                 }
 
                 if (mapping.isAccountid()) {
                     try {
-                        accountId = attributable.getAttribute(
-                                mapping.getIntAttrName()).
-                                getValuesAsStrings().get(0);
+                        accountId = attributable.getAttribute(mapping.getIntAttrName()).getValuesAsStrings().get(0);
                     } catch (NullPointerException e) {
                         // ignore exception
                         LOG.debug("Invalid accountId specified", e);
@@ -116,13 +114,14 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                 LOG.debug("Get object attribute for entry {}", accountId);
 
                 try {
-                    ConnectorFacadeProxy connector =
-                            connInstanceLoader.getConnector(resource);
+
+                    final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+                    oob.setAttributesToGet(attributeNames);
+
+                    final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+
                     Set<Attribute> attributes = connector.getObjectAttributes(
-                            ObjectClass.ACCOUNT,
-                            new Uid(accountId),
-                            null,
-                            attributeNames);
+                            ObjectClass.ACCOUNT, new Uid(accountId), oob.build(), attributeNames);
 
                     LOG.debug("Retrieved {}", attributes);
 

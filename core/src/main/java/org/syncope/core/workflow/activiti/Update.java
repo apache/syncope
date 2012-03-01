@@ -30,18 +30,14 @@ public class Update extends AbstractActivitiDelegate {
     protected void doExecute(final DelegateExecution execution)
             throws Exception {
 
-        SyncopeUser user = (SyncopeUser) execution.getVariable(
-                ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-        UserMod userMod = (UserMod) execution.getVariable(
-                ActivitiUserWorkflowAdapter.USER_MOD);
+        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+        UserMod userMod = (UserMod) execution.getVariable(ActivitiUserWorkflowAdapter.USER_MOD);
 
         // update SyncopeUser
         PropagationByResource propByRes = dataBinder.update(user, userMod);
 
         // report updated user and propagation by resource as result
-        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER,
-                user);
-        execution.setVariable(ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE,
-                propByRes);
+        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        execution.setVariable(ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

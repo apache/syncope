@@ -40,9 +40,7 @@ import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.ExternalResource;
-import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
@@ -58,7 +56,6 @@ import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PropagationOperation;
-import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -149,9 +146,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public void create(final SyncopeUser user, final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // memberships
         SyncopeRole role;
@@ -160,8 +155,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid role "
-                            + membershipTO.getRoleName());
+                    LOG.debug("Ignoring invalid role " + membershipTO.getRoleName());
                 }
             } else {
                 Membership membership = null;
@@ -226,9 +220,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // when requesting to add user to new resources, either directly or
         // through role subscription, password is mandatory (issue 147)
@@ -246,13 +238,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // ignore exceptions
             }
 
-            user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
-                    passwordHistorySize);
+            user.setPassword(userMod.getPassword(), getCipherAlgoritm(), passwordHistorySize);
 
             user.setChangePwdDate(new Date());
 
-            propByRes.addAll(PropagationOperation.UPDATE,
-                    user.getResourceNames());
+            propByRes.addAll(PropagationOperation.UPDATE, user.getResourceNames());
         }
 
         // username
@@ -293,17 +283,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             membership = membershipDAO.find(membershipId);
             if (membership == null) {
-                LOG.debug("Invalid membership id specified to be removed: {}",
-                        membershipId);
+                LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
                 for (ExternalResource resource :
                         membership.getSyncopeRole().getResources()) {
 
-                    if (!membershipToBeAddedRoleIds.contains(
-                            membership.getSyncopeRole().getId())) {
+                    if (!membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
 
-                        propByRes.add(PropagationOperation.DELETE,
-                                resource.getName());
+                        propByRes.add(PropagationOperation.DELETE, resource.getName());
                     }
                 }
 
@@ -311,13 +298,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // we need to be sure to take exactly the same membership
                 // of the user object currently in memory (which has potentially
                 // some modifications compared to the one stored in the DB
-                membership = user.getMembership(
-                        membership.getSyncopeRole().getId());
+                membership = user.getMembership(membership.getSyncopeRole().getId());
                 if (membershipToBeAddedRoleIds.contains(
                         membership.getSyncopeRole().getId())) {
 
-                    Set<Long> attributeIds = new HashSet<Long>(
-                            membership.getAttributes().size());
+                    Set<Long> attributeIds = new HashSet<Long>(membership.getAttributes().size());
                     for (AbstractAttr attribute : membership.getAttributes()) {
                         attributeIds.add(attribute.getId());
                     }
@@ -327,8 +312,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     attributeIds.clear();
 
                     // remove derived attributes
-                    for (AbstractDerAttr derAttr :
-                            membership.getDerivedAttributes()) {
+                    for (AbstractDerAttr derAttr : membership.getDerivedAttributes()) {
 
                         attributeIds.add(derAttr.getId());
                     }
@@ -338,8 +322,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     attributeIds.clear();
 
                     // remove virtual attributes
-                    for (AbstractVirAttr virAttr :
-                            membership.getVirtualAttributes()) {
+                    for (AbstractVirAttr virAttr : membership.getVirtualAttributes()) {
 
                         attributeIds.add(virAttr.getId());
                     }
@@ -357,8 +340,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // memberships to be added
         for (MembershipMod membershipMod : userMod.getMembershipsToBeAdded()) {
-            LOG.debug("Membership to be added: role({})",
-                    membershipMod.getRole());
+            LOG.debug("Membership to be added: role({})", membershipMod.getRole());
 
             SyncopeRole role = roleDAO.find(membershipMod.getRole());
             if (role == null) {
@@ -372,12 +354,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     user.addMembership(membership);
 
-                    propByRes.addAll(PropagationOperation.UPDATE,
-                            role.getResourceNames());
+                    propByRes.addAll(PropagationOperation.UPDATE, role.getResourceNames());
                 }
 
-                propByRes.merge(fill(membership, membershipMod,
-                        AttributableUtil.MEMBERSHIP, scce));
+                propByRes.merge(fill(membership, membershipMod, AttributableUtil.MEMBERSHIP, scce));
             }
         }
 
@@ -385,13 +365,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // providing password
         Set<String> updatedResources = user.getResourceNames();
         updatedResources.removeAll(currentResources);
-        if (!updatedResources.isEmpty()
-                && StringUtils.isBlank(userMod.getPassword())) {
+        if (!updatedResources.isEmpty() && StringUtils.isBlank(userMod.getPassword())) {
 
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.RequiredValuesMissing);
-            sce.addElement("password cannot be empty "
-                    + "when subscribing to new resources");
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+            sce.addElement("password cannot be empty " + "when subscribing to new resources");
             scce.addException(sce);
 
             throw scce;

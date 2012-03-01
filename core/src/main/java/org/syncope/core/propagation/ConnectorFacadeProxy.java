@@ -571,8 +571,7 @@ public class ConnectorFacadeProxy {
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
         try {
-            final ConnectorObject object =
-                    connector.getObject(objectClass, uid, options);
+            final ConnectorObject object = connector.getObject(objectClass, uid, options);
 
             for (String attribute : attributeNames) {
                 attributes.add(object.getAttributeByName(attribute));

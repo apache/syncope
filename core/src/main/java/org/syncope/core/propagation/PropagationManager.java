@@ -163,8 +163,7 @@ public class PropagationManager {
     /**
      * Create the user on every associated resource.
      *
-     * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be set
      * @param vAttrs virtual attributes to be set
      * @return list of propagation tasks
@@ -181,12 +180,10 @@ public class PropagationManager {
     /**
      * Create the user on every associated resource.
      *
-     * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow.
+     * @param wfResult user to be propagated (and info associated), as per result from workflow.
      * @param password to be set.
      * @param vAttrs virtual attributes to be set.
-     * @param syncResourceNames external resources performing sync, hence not to
-     * be considered for propagation.
+     * @param syncResourceNames external resources performing sync, hence not to be considered for propagation.
      * @return list of propagation tasks.
      * @throws NotFoundException if userId is not found.
      */
@@ -217,14 +214,12 @@ public class PropagationManager {
     }
 
     /**
-     * Performs update on each resource associated to the user excluding the
-     * specified into 'resourceNames' parameter.
+     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
      *
      * @param user to be propagated.
      * @param enable wether user must be enabled or not.
-     * @param syncResourceNames external resource names not to be considered for
-     * propagation. Use this during sync and disable/enable actions limited to
-     * the external resources only.
+     * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
+     * disable/enable actions limited to the external resources only.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
@@ -247,8 +242,7 @@ public class PropagationManager {
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow.
+     * @param wfResult user to be propagated (and info associated), as per result from workflow.
      * @param enable wether user must be enabled or not.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
@@ -265,8 +259,7 @@ public class PropagationManager {
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
@@ -282,22 +275,19 @@ public class PropagationManager {
             final Boolean enable)
             throws NotFoundException {
 
-        return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved,
-                vAttrsToBeUpdated, enable, null);
+        return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, null);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per
-     * result from workflow
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
-     * @param syncResourceNames external resource names not to be considered for
-     * propagation. Use this during sync and disable/enable actions limited to
-     * the external resources only.
+     * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
+     * disable/enable actions limited to the external resources only.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
@@ -334,10 +324,8 @@ public class PropagationManager {
 
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(
                 user,
-                vAttrsToBeRemoved == null
-                ? Collections.EMPTY_SET : vAttrsToBeRemoved,
-                vAttrsToBeUpdated == null
-                ? Collections.EMPTY_SET : vAttrsToBeUpdated,
+                vAttrsToBeRemoved == null ? Collections.EMPTY_SET : vAttrsToBeRemoved,
+                vAttrsToBeUpdated == null ? Collections.EMPTY_SET : vAttrsToBeUpdated, 
                 AttributableUtil.USER);
 
         if (propByRes != null && !propByRes.isEmpty()) {
@@ -360,10 +348,9 @@ public class PropagationManager {
     }
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to
-     * ask for a mandatory provisioning for some resources specifying a set of
-     * resource names. Exceptions won't be ignored and the process will be
-     * stopped if the creation fails onto a mandatory resource.
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
      *
      * @param userId to be deleted
      * @return list of propagation tasks
@@ -376,14 +363,12 @@ public class PropagationManager {
     }
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to
-     * ask for a mandatory provisioning for some resources specifying a set of
-     * resource names. Exceptions won't be ignored and the process will be
-     * stopped if the creation fails onto a mandatory resource.
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
      *
      * @param userId to be deleted
-     * @param syncResourceName name of external resource performing sync, hence
-     * not to be considered for propagation
+     * @param syncResourceName name of external resource performing sync, hence not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      */
@@ -458,8 +443,7 @@ public class PropagationManager {
      * @param user given user
      * @param password clear-text password
      * @return account link + prepare attributes
-     * @throws ClassNotFoundException if schema type for given mapping does not
-     * exists in current class loader
+     * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
     private Map.Entry<String, Attribute> prepareAttribute(
             final SchemaMapping mapping,
@@ -467,8 +451,7 @@ public class PropagationManager {
             final String password)
             throws ClassNotFoundException {
 
-        final List<AbstractAttributable> attributables =
-                new ArrayList<AbstractAttributable>();
+        final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
         switch (mapping.getIntMappingType().getEntity()) {
             case USER:
@@ -491,8 +474,7 @@ public class PropagationManager {
 
         final List<AbstractAttrValue> values = entry.getValue();
         final AbstractSchema schema = entry.getKey();
-        final SchemaType schemaType =
-                schema == null ? SchemaType.String : schema.getType();
+        final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + mapping.getExtAttrName()
@@ -510,8 +492,7 @@ public class PropagationManager {
 
         List<Object> objValues = new ArrayList<Object>();
         for (AbstractAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(
-                    Class.forName(schemaType.getClassName()))) {
+            if (FrameworkUtil.isSupportedAttributeType(Class.forName(schemaType.getClassName()))) {
                 objValues.add(value.getValue());
             } else {
                 objValues.add(value.getValueAsString());
@@ -522,20 +503,16 @@ public class PropagationManager {
 
         if (mapping.isAccountid()) {
 
-            res = new DefaultMapEntry(
-                    objValues.iterator().next().toString(), null);
+            res = new DefaultMapEntry(objValues.iterator().next().toString(), null);
 
         } else if (mapping.isPassword()) {
 
-            res = new DefaultMapEntry(null,
-                    AttributeBuilder.buildPassword(
-                    objValues.iterator().next().toString().toCharArray()));
+            res = new DefaultMapEntry(
+                    null, AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
 
         } else {
             if (schema != null && schema.isMultivalue()) {
-                res = new DefaultMapEntry(null,
-                        AttributeBuilder.build(mapping.getExtAttrName(),
-                        objValues));
+                res = new DefaultMapEntry(null, AttributeBuilder.build(mapping.getExtAttrName(), objValues));
 
             } else {
                 res = new DefaultMapEntry(null,
@@ -604,8 +581,7 @@ public class PropagationManager {
             case MembershipVirtualSchema:
 
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(
-                            mapping.getIntAttrName());
+                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
 
                     if (virAttr != null && virAttr.getValues() != null) {
                         for (String value : virAttr.getValues()) {
@@ -619,8 +595,7 @@ public class PropagationManager {
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            new Object[]{virAttr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                            new Object[]{virAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
                 }
                 break;
 
@@ -837,9 +812,8 @@ public class PropagationManager {
      * Execute a list of PropagationTask, in given order.
      *
      * @param tasks to be execute, in given order
-     * @throws PropagationException if propagation goes wrong: propagation is
-     * interrupted as soon as the result of the communication with a primary
-     * resource is in error
+     * @throws PropagationException if propagation goes wrong: propagation is interrupted as soon as the result of the
+     * communication with a primary resource is in error
      */
     public void execute(
             final List<PropagationTask> tasks,
@@ -1153,7 +1127,7 @@ public class PropagationManager {
                     ? task.getAccountId()
                     : task.getOldAccountId()),
                     connector.getOperationOptions(task.getResource()));
-            
+
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);
             return null;
