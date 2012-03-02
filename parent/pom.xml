@@ -210,7 +210,7 @@ under the License.
         <javamail-specs.version>1.6</javamail-specs.version>
         <javamail-provider.version>1.8.2</javamail-provider.version>
 
-        <activiti.version>5.8</activiti.version>
+        <activiti.version>5.9</activiti.version>
 
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring-security.version>3.1.0.RELEASE</spring-security.version>
