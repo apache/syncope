@@ -41,7 +41,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.syncope.client.SchemaList;
+import org.syncope.annotation.SchemaList;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.rest.SchemaRestClient;

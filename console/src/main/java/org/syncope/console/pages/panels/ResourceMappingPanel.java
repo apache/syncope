@@ -55,7 +55,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfProperty;
-import org.syncope.types.Entity;
+import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
 /**
@@ -188,8 +188,8 @@ public class ResourceMappingPanel extends Panel {
 
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
-                final Entity entity = mappingTO.getIntMappingType() == null
-                        ? null : mappingTO.getIntMappingType().getEntity();
+                final AttributableType entity = mappingTO.getIntMappingType() == null
+                        ? null : mappingTO.getIntMappingType().getAttributableType();
 
                 attrTypes = getAttributeTypes(entity);
 
@@ -293,7 +293,7 @@ public class ResourceMappingPanel extends Panel {
                         new ResourceModel("mappingTypes", "mappingTypes").
                         getObject(), new Model(entity), false);
 
-                mappingTypesPanel.setChoices(Arrays.asList(Entity.values()));
+                mappingTypesPanel.setChoices(Arrays.asList(AttributableType.values()));
                 mappingTypesPanel.setStyleShet(defFieldStyle);
 
                 item.add(mappingTypesPanel);
@@ -309,7 +309,7 @@ public class ResourceMappingPanel extends Panel {
                                     final AjaxRequestTarget target) {
 
                                 attrTypes = getAttributeTypes(
-                                        (Entity) mappingTypesPanel.
+                                        (AttributableType) mappingTypesPanel.
                                         getModelObject());
 
                                 typesPanel.setChoices(attrTypes);
@@ -540,7 +540,7 @@ public class ResourceMappingPanel extends Panel {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
-        if (attrType == null || attrType.getEntity() == null) {
+        if (attrType == null || attrType.getAttributableType() == null) {
             toBeUpdated.setChoices(Collections.EMPTY_LIST);
         } else {
 
@@ -551,7 +551,7 @@ public class ResourceMappingPanel extends Panel {
                 case MembershipSchema:
                     toBeUpdated.setChoices(
                             schemaRestClient.getSchemaNames(
-                            attrType.getEntity().toString().toLowerCase()));
+                            attrType.getAttributableType().toString().toLowerCase()));
                     break;
 
                 case UserDerivedSchema:
@@ -559,7 +559,7 @@ public class ResourceMappingPanel extends Panel {
                 case MembershipDerivedSchema:
                     toBeUpdated.setChoices(
                             schemaRestClient.getDerivedSchemaNames(
-                            attrType.getEntity().toString().toLowerCase()));
+                            attrType.getAttributableType().toString().toLowerCase()));
                     break;
 
                 case UserVirtualSchema:
@@ -567,7 +567,7 @@ public class ResourceMappingPanel extends Panel {
                 case MembershipVirtualSchema:
                     toBeUpdated.setChoices(
                             schemaRestClient.getVirtualSchemaNames(
-                            attrType.getEntity().toString().toLowerCase()));
+                            attrType.getAttributableType().toString().toLowerCase()));
                     break;
 
                 case SyncopeUserId:
@@ -602,12 +602,12 @@ public class ResourceMappingPanel extends Panel {
      * @param entity entity.
      * @return all attribute types.
      */
-    private List<IntMappingType> getAttributeTypes(final Entity entity) {
+    private List<IntMappingType> getAttributeTypes(final AttributableType entity) {
         final List<IntMappingType> res = new ArrayList<IntMappingType>();
 
         if (entity != null) {
             final EnumSet types = IntMappingType.getAttributeTypes(
-                    Entity.valueOf(entity.toString()));
+                    AttributableType.valueOf(entity.toString()));
 
             for (Object type : types) {
                 res.add(IntMappingType.valueOf(
