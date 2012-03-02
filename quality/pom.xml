@@ -34,7 +34,7 @@ under the License.
     <description>Configuration for widely used quality enforcement plugins: pmd, checkstyle, findbugs...</description>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-quality</artifactId>
-    
+
     <build>
         <resources>
             <resource>

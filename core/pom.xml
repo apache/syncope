@@ -32,7 +32,7 @@ under the License.
 
     <name>Apache Syncope Core</name>
     <description>Apache Syncope Core</description>
-    
+
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
     <packaging>war</packaging>
@@ -40,7 +40,7 @@ under the License.
     <properties>
         <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
         <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
-        
+
         <javaagent />
     </properties>
 
@@ -51,7 +51,7 @@ under the License.
             <artifactId>syncope-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -73,7 +73,7 @@ under the License.
             <groupId>org.apache.geronimo.javamail</groupId>
             <artifactId>geronimo-javamail_1.4_provider</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
@@ -176,12 +176,12 @@ under the License.
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
@@ -199,18 +199,18 @@ under the License.
             <groupId>org.apache.cocoon.optional</groupId>
             <artifactId>cocoon-optional</artifactId>
         </dependency>
-            
-        <dependency>    
+
+        <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
         </dependency>
-            
+
         <dependency>
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa-all</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
@@ -309,7 +309,7 @@ under the License.
         <finalName>${project.parent.artifactId}</finalName>
 
         <plugins>
-            
+
             <plugin>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-maven-plugin</artifactId>
@@ -360,7 +360,7 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -375,7 +375,7 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
-                
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -537,7 +537,7 @@ under the License.
                             <deployable>
                                 <groupId>org.apache.syncope</groupId>
                                 <artifactId>syncope-build-tools</artifactId>
-                                <type>war</type>                                
+                                <type>war</type>
                                 <properties>
                                     <context>syncope-build-tools</context>
                                 </properties>
@@ -601,9 +601,9 @@ under the License.
             </testResource>
         </testResources>
     </build>
-    
+
     <profiles>
-    
+
         <profile>
             <id>dev</id>
             <properties>
@@ -613,7 +613,7 @@ under the License.
             </properties>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -671,7 +671,7 @@ under the License.
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>jrebel</id>
             <properties>
@@ -681,7 +681,7 @@ under the License.
             </properties>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.zeroturnaround</groupId>
@@ -698,8 +698,8 @@ under the License.
                                             <exclude>workflow.properties</exclude>
                                         </excludes>
                                     </resource>
-                                </resources>    
-                            </classpath>    
+                                </resources>
+                            </classpath>
                         </configuration>
                         <executions>
                             <execution>
@@ -711,7 +711,7 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
@@ -723,7 +723,7 @@ under the License.
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>oracle-it</id>
             <properties>
@@ -741,7 +741,7 @@ under the License.
             </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -763,7 +763,7 @@ under the License.
                         </executions>
                     </plugin>
                 </plugins>
-                
+
                 <testResources>
                     <testResource>
                         <directory>src/test/resources</directory>
@@ -779,7 +779,7 @@ under the License.
                 </testResources>
             </build>
         </profile>
-        
+
         <profile>
             <id>postgres-it</id>
             <properties>
@@ -813,7 +813,7 @@ under the License.
                 </testResources>
             </build>
         </profile>
-        
+
         <profile>
             <id>mysql-it</id>
             <properties>
@@ -847,14 +847,14 @@ under the License.
                 </testResources>
             </build>
         </profile>
-        
+
         <profile>
             <id>notification-test</id>
-            
+
             <properties>
                 <mail.password />
             </properties>
-                        
+
             <build>
                 <defaultGoal>clean test</defaultGoal>
 
@@ -902,7 +902,7 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
@@ -922,8 +922,8 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>  
-                
+                </plugins>
+
                 <testResources>
                     <testResource>
                         <directory>src/test/resources</directory>
@@ -941,11 +941,11 @@ under the License.
                 </testResources>
             </build>
         </profile>
-        
+
         <profile>
             <id>glassfish-it</id>
-            
-            <dependencies>                                   
+
+            <dependencies>
                 <dependency>
                     <groupId>org.apache.openjpa</groupId>
                     <artifactId>openjpa-all</artifactId>
@@ -955,13 +955,13 @@ under the License.
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-all</artifactId>
                 </dependency>
-                
+
                 <dependency>
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
                 </dependency>
             </dependencies>
-            
+
             <build>
                 <defaultGoal>clean verify</defaultGoal>
 
@@ -974,7 +974,7 @@ under the License.
                             <skipTests>true</skipTests>
                         </configuration>
                     </plugin>
-                
+
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
@@ -995,7 +995,7 @@ under the License.
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>jboss-it</id>
 
@@ -1011,7 +1011,7 @@ under the License.
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-all</artifactId>
                 </dependency>
-                
+
                 <dependency>
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
@@ -1021,8 +1021,8 @@ under the License.
             <build>
                 <defaultGoal>clean verify</defaultGoal>
 
-                <plugins>   
-                
+                <plugins>
+
                     <plugin>
                         <groupId>org.apache.openjpa</groupId>
                         <artifactId>openjpa-maven-plugin</artifactId>
@@ -1034,7 +1034,7 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-                
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -1061,7 +1061,7 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -1082,7 +1082,7 @@ under the License.
                             </execution>
                         </executions>
                     </plugin>
-      
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -1091,7 +1091,7 @@ under the License.
                             <skipTests>true</skipTests>
                         </configuration>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
@@ -1100,7 +1100,7 @@ under the License.
                             <packagingExcludes>WEB-INF/lib/dom4j*.jar,WEB-INF/lib/mail*.jar</packagingExcludes>
                         </configuration>
                     </plugin>
-                
+
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
@@ -1141,7 +1141,7 @@ under the License.
                         </executions>
                     </plugin>
                 </plugins>
-                
+
                 <resources>
                     <resource>
                         <directory>src/main/resources</directory>
@@ -1178,7 +1178,7 @@ under the License.
             </build>
         </profile>
     </profiles>
-    
+
     <reporting>
         <plugins>
             <plugin>

@@ -35,19 +35,19 @@ under the License.
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-build-tools</artifactId>
     <packaging>war</packaging>
-    
+
     <dependencies>
         <dependency>
             <artifactId>servlet-api</artifactId>
             <groupId>javax.servlet</groupId>
             <scope>provided</scope>
         </dependency>
-            
+
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -64,12 +64,12 @@ under the License.
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
-            
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -111,7 +111,7 @@ under the License.
                     </webResources>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
@@ -124,7 +124,7 @@ under the License.
                         <output>${cargo.output}</output>
                     </container>
                     <configuration>
-                        <properties>                            
+                        <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
                         </properties>
                         <deployables>
@@ -137,9 +137,9 @@ under the License.
                         </deployables>
                     </configuration>
                 </configuration>
-            </plugin>   
+            </plugin>
         </plugins>
-        
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
