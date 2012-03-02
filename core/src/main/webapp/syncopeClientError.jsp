@@ -1,5 +1,5 @@
-<%@page import="org.springframework.orm.jpa.JpaSystemException"%>
 <%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
+<%@page import="org.springframework.orm.jpa.JpaSystemException"%>
 <%@page import="org.syncope.types.EntityViolationType"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
@@ -70,6 +70,14 @@
                 ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
+    } else if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
+        response.setHeader(
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.Workflow.getHeaderValue());
+        response.setHeader(
+                SyncopeClientExceptionType.Workflow.getElementHeaderName(), "Currently unavailable. Please try later.");
+
+        statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof PropagationException) {
         response.setHeader(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
@@ -84,13 +92,10 @@
                 ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
 
             response.addHeader(
-                    SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    sce.getType().getHeaderValue());
+                    SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
             for (String attributeName : sce.getElements()) {
-                response.addHeader(
-                        sce.getType().getElementHeaderName(),
-                        attributeName);
+                response.addHeader(sce.getType().getElementHeaderName(), attributeName);
             }
         }
 
@@ -98,8 +103,7 @@
                 value();
     } else if (ex instanceof MissingConfKeyException) {
         response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.NotFound.getHeaderValue());
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, SyncopeClientExceptionType.NotFound.getHeaderValue());
         response.setHeader(
                 SyncopeClientExceptionType.NotFound.getElementHeaderName(),
                 ((MissingConfKeyException) ex).getConfKey());
@@ -127,8 +131,7 @@
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.DataIntegrityViolation.getHeaderValue());
         response.setHeader(
-                SyncopeClientExceptionType.DataIntegrityViolation.
-                getElementHeaderName(),
+                SyncopeClientExceptionType.DataIntegrityViolation.getElementHeaderName(),
                 ex.getCause() == null ? ex.getMessage() : ex.getCause().
                 getMessage());
 
@@ -138,10 +141,8 @@
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
         response.setHeader(
-                SyncopeClientExceptionType.GenericPersistence.
-                getElementHeaderName(),
-                ex.getCause() == null ? ex.getMessage() : ex.getCause().
-                getMessage());
+                SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
+                ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof ConfigurationException) {
@@ -149,8 +150,7 @@
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
         response.setHeader(
-                SyncopeClientExceptionType.InvalidExternalResource.
-                getElementHeaderName(),
+                SyncopeClientExceptionType.InvalidExternalResource.getElementHeaderName(),
                 ex.getCause() == null ? ex.getMessage() : ex.getCause().
                 getMessage());
 
