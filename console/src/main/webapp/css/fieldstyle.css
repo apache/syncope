@@ -78,6 +78,7 @@ div.tablecolumn_check{
     background: none repeat scroll 0 0 #FFFFFF;
     border-width: 0;
     display: block;
+    overflow: auto;
     padding: 1em 1.4em;
 }
 
