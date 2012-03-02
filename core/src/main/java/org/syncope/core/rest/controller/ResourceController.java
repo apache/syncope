@@ -52,8 +52,8 @@ import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
-import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.rest.data.ResourceDataBinder;
+import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -72,8 +72,11 @@ public class ResourceController extends AbstractController {
     @Autowired
     private ResourceDataBinder binder;
 
+    /**
+     * ConnectorObject util.
+     */
     @Autowired
-    private ConnInstanceDataBinder connInstanceDataBinder;
+    private ConnObjectUtil connObjectUtil;
 
     @Autowired
     private ConnInstanceLoader connLoader;
@@ -284,8 +287,8 @@ public class ResourceController extends AbstractController {
 
         final ConnectorObject connectorObject =
                 connector.getObject(
-                ObjectClass.ACCOUNT, 
-                new Uid(objectId), 
+                ObjectClass.ACCOUNT,
+                new Uid(objectId),
                 connector.getOperationOptions(resource));
 
         if (connectorObject == null) {
@@ -304,6 +307,6 @@ public class ResourceController extends AbstractController {
             attributes.add(connectorObject.getName());
         }
 
-        return connInstanceDataBinder.getConnObjectTO(connectorObject);
+        return connObjectUtil.getConnObjectTO(connectorObject);
     }
 }

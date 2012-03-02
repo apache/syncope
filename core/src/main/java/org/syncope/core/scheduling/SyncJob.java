@@ -24,10 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javassist.NotFoundException;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.identityconnectors.common.security.GuardedByteArray;
-import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -35,7 +31,6 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,14 +39,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.SyncopeUserCond;
-import org.syncope.client.to.AbstractAttributableTO;
-import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.Entitlement;
@@ -74,8 +65,9 @@ import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.scheduling.SyncResult.Operation;
+import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.core.util.EntitlementUtil;
-import org.syncope.core.util.JexlUtil;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.ConflictResolutionAction;
@@ -144,310 +136,13 @@ public class SyncJob extends AbstractTaskJob {
     private SyncJobActions actions;
 
     /**
-     * JEXL engine for evaluating connector's account link.
+     * ConnectorObject util.
      */
     @Autowired
-    private JexlUtil jexlUtil;
+    private ConnObjectUtil connObjectUtil;
 
     public void setActions(final SyncJobActions actions) {
         this.actions = actions;
-    }
-
-    /**
-     * Extract password value from passed value (if instance of GuardedString or
-     * GuardedByteArray).
-     *
-     * @param pwd received from the underlying connector
-     * @return password value
-     */
-    private String getPassword(final Object pwd) {
-        final StringBuilder result = new StringBuilder();
-
-        if (pwd instanceof GuardedString) {
-            ((GuardedString) pwd).access(new GuardedString.Accessor() {
-
-                @Override
-                public void access(final char[] clearChars) {
-                    result.append(clearChars);
-                }
-            });
-        } else if (pwd instanceof GuardedByteArray) {
-            ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
-
-                @Override
-                public void access(final byte[] clearBytes) {
-                    result.append(new String(clearBytes));
-                }
-            });
-        } else if (pwd instanceof String) {
-            result.append((String) pwd);
-        } else {
-            result.append(pwd.toString());
-        }
-
-        return result.toString();
-    }
-
-    private AttributeTO evaluateAttrTemplate(
-            final AbstractAttributableTO attributableTO,
-            final AttributeTO template) {
-
-        AttributeTO result = new AttributeTO();
-        result.setSchema(template.getSchema());
-
-        if (template.getValues() != null && !template.getValues().isEmpty()) {
-            for (String value : template.getValues()) {
-                String evaluated = jexlUtil.evaluate(value, attributableTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    result.addValue(evaluated);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private void fillFromTemplate(final AbstractAttributableTO attributableTO,
-            final AbstractAttributableTO template) {
-
-        Map<String, AttributeTO> currentAttrMap =
-                attributableTO.getAttributeMap();
-        for (AttributeTO attrTO : template.getAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addAttribute(
-                        evaluateAttrTemplate(attributableTO, attrTO));
-            }
-        }
-
-        currentAttrMap = attributableTO.getDerivedAttributeMap();
-        for (AttributeTO attrTO : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addDerivedAttribute(attrTO);
-            }
-        }
-
-        currentAttrMap = attributableTO.getVirtualAttributeMap();
-        for (AttributeTO attrTO : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addVirtualAttribute(
-                        evaluateAttrTemplate(attributableTO, attrTO));
-            }
-        }
-    }
-
-    /**
-     * Build an UserTO out of connector object attributes and schema mapping.
-     *
-     * @param obj connector object
-     * @return UserTO for the user to be created
-     */
-    private UserTO getUserTO(final ConnectorObject obj) {
-        final SyncTask syncTask = (SyncTask) this.task;
-
-        final UserTO userTO = new UserTO();
-
-        // 1. fill with data from connector object
-        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(
-                    mapping.isAccountid()
-                    ? Uid.NAME
-                    : mapping.isPassword()
-                    ? OperationalAttributes.PASSWORD_NAME
-                    : mapping.getExtAttrName());
-
-            AttributeTO attributeTO;
-            switch (mapping.getIntMappingType()) {
-                case SyncopeUserId:
-                    break;
-
-                case Password:
-                    if (attribute != null && attribute.getValue() != null
-                            && !attribute.getValue().isEmpty()) {
-
-                        userTO.setPassword(
-                                getPassword(attribute.getValue().get(0)));
-                    }
-                    break;
-
-                case Username:
-                    userTO.setUsername(
-                            attribute == null || attribute.getValue().isEmpty()
-                            ? null : attribute.getValue().get(0).toString());
-                    break;
-
-                case UserSchema:
-                    attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
-                    for (Object value : attribute == null
-                            ? Collections.EMPTY_LIST : attribute.getValue()) {
-
-                        attributeTO.addValue(value.toString());
-                    }
-                    userTO.addAttribute(attributeTO);
-                    break;
-
-                case UserDerivedSchema:
-                    attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
-                    userTO.addDerivedAttribute(attributeTO);
-                    break;
-
-                case UserVirtualSchema:
-                    attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
-                    userTO.addVirtualAttribute(attributeTO);
-                    break;
-
-                default:
-            }
-        }
-
-        // 2. add data from defined template (if any)
-        UserTO template = syncTask.getUserTemplate();
-        if (template != null) {
-            if (StringUtils.isBlank(userTO.getUsername())
-                    && StringUtils.isNotBlank(template.getUsername())) {
-
-                String evaluated =
-                        jexlUtil.evaluate(template.getUsername(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setUsername(template.getUsername());
-                }
-            }
-
-            if (StringUtils.isBlank(userTO.getPassword())
-                    && StringUtils.isNotBlank(template.getPassword())) {
-
-                String evaluated =
-                        jexlUtil.evaluate(template.getPassword(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setPassword(template.getPassword());
-                }
-            }
-
-            fillFromTemplate(userTO, template);
-
-            for (String resource : template.getResources()) {
-                userTO.addResource(resource);
-            }
-
-            Map<Long, MembershipTO> currentMembs = userTO.getMembershipMap();
-            for (MembershipTO membTO : template.getMemberships()) {
-                MembershipTO membTBU;
-                if (currentMembs.containsKey(membTO.getRoleId())) {
-                    membTBU = currentMembs.get(membTO.getRoleId());
-                } else {
-                    membTBU = new MembershipTO();
-                    membTBU.setRoleId(membTO.getRoleId());
-                    userTO.addMembership(membTBU);
-                }
-                fillFromTemplate(membTBU, membTO);
-            }
-        }
-
-        // 3. if password was not set above, generate a random string
-        if (StringUtils.isBlank(userTO.getPassword())) {
-            userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
-        }
-
-        return userTO;
-    }
-
-    /**
-     * Build an UserMod out of connector object attributes and schema mapping.
-     *
-     * @param userId user to be updated
-     * @param obj connector object
-     * @return UserMod for the user to be updated
-     */
-    private UserMod getUserMod(final Long userId, final ConnectorObject obj) {
-
-        final SyncTask syncTask = (SyncTask) this.task;
-
-        final UserMod userMod = new UserMod();
-        userMod.setId(userId);
-
-        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(
-                    mapping.isAccountid()
-                    ? Uid.NAME
-                    : mapping.isPassword()
-                    ? OperationalAttributes.PASSWORD_NAME
-                    : mapping.getExtAttrName());
-
-            List<Object> values = attribute == null
-                    ? Collections.EMPTY_LIST : attribute.getValue();
-
-            AttributeMod attributeMod;
-            switch (mapping.getIntMappingType()) {
-                case SyncopeUserId:
-                    break;
-
-                case Password:
-                    attribute = obj.getAttributeByName(
-                            OperationalAttributes.PASSWORD_NAME);
-
-                    if (attribute != null && attribute.getValue() != null
-                            && !attribute.getValue().isEmpty()) {
-
-                        String password =
-                                getPassword(attribute.getValue().get(0));
-                        // update password if and only if password has really 
-                        // changed
-                        try {
-                            if (!userDataBinder.verifyPassword(userId,
-                                    password)) {
-
-                                userMod.setPassword(password);
-                            }
-                        } catch (NotFoundException e) {
-                            LOG.error("Could not find user {}", userId, e);
-                        } catch (UnauthorizedRoleException e) {
-                            LOG.error("Not allowed to read user {}", userId, e);
-                        }
-                    }
-                    break;
-
-                case Username:
-                    if (values != null && !values.isEmpty()) {
-                        userMod.setUsername(values.get(0).toString());
-                    }
-                    break;
-
-                case UserSchema:
-                    userMod.addAttributeToBeRemoved(
-                            mapping.getIntAttrName());
-
-                    attributeMod = new AttributeMod();
-                    attributeMod.setSchema(mapping.getIntAttrName());
-                    for (Object value : values) {
-                        attributeMod.addValueToBeAdded(value.toString());
-                    }
-                    userMod.addAttributeToBeUpdated(attributeMod);
-                    break;
-
-                case UserDerivedSchema:
-                    userMod.addDerivedAttributeToBeAdded(
-                            mapping.getIntAttrName());
-                    break;
-
-                case UserVirtualSchema:
-                    userMod.addVirtualAttributeToBeRemoved(
-                            mapping.getIntAttrName());
-
-                    attributeMod = new AttributeMod();
-                    attributeMod.setSchema(mapping.getIntAttrName());
-                    for (Object value : values) {
-                        attributeMod.addValueToBeAdded(value.toString());
-                    }
-                    userMod.addVirtualAttributeToBeUpdated(attributeMod);
-                    break;
-
-                default:
-            }
-        }
-
-        return userMod;
     }
 
     /**
@@ -485,30 +180,9 @@ public class SyncJob extends AbstractTaskJob {
                     new HashMap<String, Attribute>();
 
             for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-                String key;
-                switch (mapping.getIntMappingType()) {
-                    case SyncopeUserId:
-                        key = "id";
-                        break;
-
-                    case Username:
-                        key = "username";
-                        break;
-
-                    case Password:
-                        key = "password";
-                        break;
-
-                    default:
-                        key = mapping.getIntAttrName();
-                }
-
-                extValues.put(key, object.getAttributeByName(
-                        mapping.isAccountid()
-                        ? Uid.NAME
-                        : mapping.isPassword()
-                        ? OperationalAttributes.PASSWORD_NAME
-                        : mapping.getExtAttrName()));
+                extValues.put(
+                        SchemaMappingUtil.getIntAttrName(mapping),
+                        object.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping)));
             }
 
             // search user by attributes specified into the policy
@@ -520,23 +194,18 @@ public class SyncJob extends AbstractTaskJob {
                 AttributeCond.Type type;
                 String expression = null;
 
-                if (value == null
-                        || value.getValue() == null
-                        || value.getValue().isEmpty()) {
-
+                if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
                     type = AttributeCond.Type.ISNULL;
                 } else {
                     type = AttributeCond.Type.EQ;
                     expression = value.getValue().size() > 1
-                            ? value.getValue().toString()
-                            : value.getValue().get(0).toString();
+                            ? value.getValue().toString() : value.getValue().get(0).toString();
                 }
 
                 NodeCond nodeCond;
 
                 // just Username or SyncopeUserId can be selected to be used
-                if ("id".equalsIgnoreCase(schema)
-                        || "username".equalsIgnoreCase(schema)) {
+                if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)) {
 
                     final SyncopeUserCond cond = new SyncopeUserCond();
                     cond.setSchema(schema);
@@ -554,14 +223,11 @@ public class SyncJob extends AbstractTaskJob {
                     nodeCond = NodeCond.getLeafCond(cond);
                 }
 
-                searchCondition = searchCondition != null
-                        ? NodeCond.getAndCond(searchCondition, nodeCond)
-                        : nodeCond;
+                searchCondition = searchCondition != null ? NodeCond.getAndCond(searchCondition, nodeCond) : nodeCond;
             }
 
-            List<SyncopeUser> users = userSearchDAO.search(
-                    EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                    searchCondition);
+            List<SyncopeUser> users =
+                    userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition);
             for (SyncopeUser user : users) {
                 result.add(user.getId());
             }
@@ -569,8 +235,8 @@ public class SyncJob extends AbstractTaskJob {
             final SyncopeUser found;
             List<SyncopeUser> users;
 
-            final SchemaMapping accountIdMap =
-                    syncTask.getResource().getAccountIdMapping();
+            final SchemaMapping accountIdMap = syncTask.getResource().getAccountIdMapping();
+
             switch (accountIdMap.getIntMappingType()) {
                 case Username:
                     found = userDAO.find(uid);
@@ -589,8 +255,7 @@ public class SyncJob extends AbstractTaskJob {
                 case UserSchema:
                     final UAttrValue value = new UAttrValue();
                     value.setStringValue(uid);
-                    users = userDAO.findByAttrValue(
-                            accountIdMap.getIntAttrName(), value);
+                    users = userDAO.findByAttrValue(accountIdMap.getIntAttrName(), value);
                     for (SyncopeUser user : users) {
                         result.add(user.getId());
                     }
@@ -598,8 +263,7 @@ public class SyncJob extends AbstractTaskJob {
 
                 case UserDerivedSchema:
                     try {
-                        users = userDAO.findByDerAttrValue(
-                                accountIdMap.getIntAttrName(), uid);
+                        users = userDAO.findByDerAttrValue(accountIdMap.getIntAttrName(), uid);
                         for (SyncopeUser user : users) {
                             result.add(user.getId());
                         }
@@ -609,8 +273,7 @@ public class SyncJob extends AbstractTaskJob {
                     break;
 
                 default:
-                    LOG.error("Invalid accountId type '{}'",
-                            accountIdMap.getIntMappingType());
+                    LOG.error("Invalid accountId type '{}'", accountIdMap.getIntMappingType());
             }
         }
 
@@ -623,7 +286,7 @@ public class SyncJob extends AbstractTaskJob {
         final SyncResult result = new SyncResult();
         result.setOperation(Operation.CREATE);
 
-        UserTO userTO = getUserTO(delta.getObject());
+        UserTO userTO = connObjectUtil.getUserTO(delta.getObject(), (SyncTask) task);
 
         actions.beforeCreate(delta, userTO);
 
@@ -639,27 +302,21 @@ public class SyncJob extends AbstractTaskJob {
                 // Check for status synchronization ...
                 // --------------------------
                 if (((SyncTask) this.task).isSyncStatus()) {
-                    Attribute status = AttributeUtil.find(
-                            OperationalAttributes.ENABLE_NAME,
-                            delta.getObject().getAttributes());
+                    Attribute status =
+                            AttributeUtil.find(OperationalAttributes.ENABLE_NAME, delta.getObject().getAttributes());
 
                     if (status != null) {
                         enabled = status != null
                                 && status.getValue() != null
-                                && !status.getValue().isEmpty()
-                                ? (Boolean) status.getValue().get(0) : null;
+                                && !status.getValue().isEmpty() ? (Boolean) status.getValue().get(0) : null;
                     }
                 }
                 // --------------------------
 
-                WorkflowResult<Map.Entry<Long, Boolean>> created =
-                        wfAdapter.create(userTO, true, enabled);
+                WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
 
-                List<PropagationTask> tasks =
-                        propagationManager.getCreateTaskIds(
-                        created, userTO.getPassword(), null,
-                        Collections.singleton(
-                        ((SyncTask) this.task).getResource().getName()));
+                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(), null,
+                        Collections.singleton(((SyncTask) this.task).getResource().getName()));
                 propagationManager.execute(tasks);
 
                 userTO = userDataBinder.getUserTO(created.getResult().getKey());
@@ -668,13 +325,11 @@ public class SyncJob extends AbstractTaskJob {
                 result.setUsername(userTO.getUsername());
                 result.setStatus(Status.SUCCESS);
             } catch (PropagationException e) {
-                LOG.error("Could not propagate user "
-                        + delta.getUid().getUidValue(), e);
+                LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
             } catch (Throwable t) {
                 result.setStatus(Status.FAILURE);
                 result.setMessage(t.getMessage());
-                LOG.error("Could not create user "
-                        + delta.getUid().getUidValue(), t);
+                LOG.error("Could not create user " + delta.getUid().getUidValue(), t);
             }
         }
 
@@ -703,9 +358,7 @@ public class SyncJob extends AbstractTaskJob {
                 UserTO userTO = userDataBinder.getUserTO(userId);
                 try {
 
-                    final UserMod userMod =
-                            getUserMod(userId, delta.getObject());
-
+                    final UserMod userMod = connObjectUtil.getUserMod(userId, delta.getObject(), (SyncTask) task);
                     actions.beforeUpdate(delta, userTO, userMod);
 
                     result.setStatus(Status.SUCCESS);
@@ -716,26 +369,19 @@ public class SyncJob extends AbstractTaskJob {
                         WorkflowResult<Long> updated =
                                 wfAdapter.update(userMod);
 
-                        List<PropagationTask> tasks =
-                                propagationManager.getUpdateTaskIds(
-                                updated,
-                                userMod.getPassword(),
-                                null, null, null,
-                                Collections.singleton(
-                                ((SyncTask) this.task).getResource().getName()));
+                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                                updated, userMod.getPassword(), null, null, null,
+                                Collections.singleton(((SyncTask) this.task).getResource().getName()));
 
                         propagationManager.execute(tasks);
-
                         userTO = userDataBinder.getUserTO(updated.getResult());
                     }
                 } catch (PropagationException e) {
-                    LOG.error("Could not propagate user "
-                            + delta.getUid().getUidValue(), e);
+                    LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
                 } catch (Throwable t) {
                     result.setStatus(Status.FAILURE);
                     result.setMessage(t.getMessage());
-                    LOG.error("Could not update user "
-                            + delta.getUid().getUidValue(), t);
+                    LOG.error("Could not update user " + delta.getUid().getUidValue(), t);
                 }
 
                 actions.after(delta, userTO, result);
@@ -773,9 +419,8 @@ public class SyncJob extends AbstractTaskJob {
 
                 if (!dryRun) {
                     try {
-                        List<PropagationTask> tasks =
-                                propagationManager.getDeleteTaskIds(userId,
-                                ((SyncTask) this.task).getResource().getName());
+                        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(
+                                userId, ((SyncTask) this.task).getResource().getName());
                         propagationManager.execute(tasks);
                     } catch (Exception e) {
                         LOG.error("Could not propagate user " + userId, e);
@@ -882,46 +527,35 @@ public class SyncJob extends AbstractTaskJob {
                 append(deleted.size()).append('/').append(deletedFailed.size());
 
         // Failures
-        if (syncTraceLevel == TraceLevel.FAILURES
-                || syncTraceLevel == TraceLevel.ALL) {
+        if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
 
             if (!createdFailed.isEmpty()) {
                 report.append("\n\nFailed to create: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(
-                        createdFailed,
-                        syncTraceLevel));
+                report.append(SyncResult.reportSetOfSynchronizationResult(createdFailed, syncTraceLevel));
             }
             if (!updatedFailed.isEmpty()) {
                 report.append("\nFailed to update: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(
-                        updatedFailed,
-                        syncTraceLevel));
+                report.append(SyncResult.reportSetOfSynchronizationResult(updatedFailed, syncTraceLevel));
             }
             if (!deletedFailed.isEmpty()) {
                 report.append("\nFailed to delete: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(
-                        deletedFailed,
-                        syncTraceLevel));
+                report.append(SyncResult.reportSetOfSynchronizationResult(deletedFailed, syncTraceLevel));
             }
         }
 
         // Succeeded, only if on 'ALL' level
         if (syncTraceLevel == TraceLevel.ALL) {
             report.append("\n\nCreated:\n").
-                    append(SyncResult.reportSetOfSynchronizationResult(created,
-                    syncTraceLevel)).
-                    append("\nUpdated:\n").append(SyncResult.
-                    reportSetOfSynchronizationResult(updated, syncTraceLevel)).
-                    append("\nDeleted:\n").append(SyncResult.
-                    reportSetOfSynchronizationResult(deleted, syncTraceLevel));
+                    append(SyncResult.reportSetOfSynchronizationResult(created, syncTraceLevel)).
+                    append("\nUpdated:\n").append(SyncResult.reportSetOfSynchronizationResult(updated, syncTraceLevel)).
+                    append("\nDeleted:\n").append(SyncResult.reportSetOfSynchronizationResult(deleted, syncTraceLevel));
         }
 
         return report.toString();
     }
 
     /**
-     * Used to simulate authentication in order to perform updates through
-     * AbstractUserWorkflowAdapter.
+     * Used to simulate authentication in order to perform updates through AbstractUserWorkflowAdapter.
      */
     private void setupSecurity() {
         final List<GrantedAuthority> authorities =
@@ -931,12 +565,10 @@ public class SyncJob extends AbstractTaskJob {
             authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
         }
 
-        final UserDetails userDetails = new User(
-                "admin", "FAKE_PASSWORD", true, true, true, true, authorities);
+        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", true, true, true, true, authorities);
 
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                userDetails, "FAKE_PASSWORD", authorities));
+                new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
     }
 
     @Override
@@ -949,8 +581,7 @@ public class SyncJob extends AbstractTaskJob {
         }
 
         if (!(task instanceof SyncTask)) {
-            throw new JobExecutionException(
-                    "Task " + taskId + " isn't a SyncTask");
+            throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
         }
 
         final SyncTask syncTask = (SyncTask) this.task;
@@ -960,21 +591,16 @@ public class SyncJob extends AbstractTaskJob {
             connector = connInstanceLoader.getConnector(syncTask.getResource());
         } catch (Exception e) {
             final String msg = String.format(
-                    "Connector instance bean for resource %s "
-                    + "and connInstance %s not found",
-                    syncTask.getResource(),
-                    syncTask.getResource().getConnector());
+                    "Connector instance bean for resource %s and connInstance %s not found",
+                    syncTask.getResource(), syncTask.getResource().getConnector());
 
             throw new JobExecutionException(msg, e);
         }
 
-        final SchemaMapping accountIdMap =
-                syncTask.getResource().getAccountIdMapping();
+        final SchemaMapping accountIdMap = syncTask.getResource().getAccountIdMapping();
 
         if (accountIdMap == null) {
-            throw new JobExecutionException(
-                    "Invalid account id mapping for resource "
-                    + syncTask.getResource());
+            throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());
         }
 
         LOG.debug("Execute synchronization with token {}",
@@ -986,13 +612,11 @@ public class SyncJob extends AbstractTaskJob {
         actions.beforeAll(syncTask);
 
         try {
-            final SyncPolicy syncPolicy =
-                    syncTask.getResource().getSyncPolicy();
+            final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
 
             final ConflictResolutionAction conflictResolutionAction =
                     syncPolicy != null && syncPolicy.getSpecification() != null
-                    ? ((SyncPolicySpec) syncPolicy.getSpecification()).
-                    getConflictResolutionAction()
+                    ? ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction()
                     : ConflictResolutionAction.IGNORE;
 
             if (syncTask.isFullReconciliation()) {
@@ -1004,11 +628,8 @@ public class SyncJob extends AbstractTaskJob {
                             public boolean handle(final SyncDelta delta) {
                                 try {
 
-                                    return results.addAll(handleDelta(
-                                            syncTask,
-                                            delta,
-                                            conflictResolutionAction,
-                                            dryRun));
+                                    return results.addAll(
+                                            handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
 
                                 } catch (JobExecutionException e) {
                                     LOG.error("Reconciliation failed", e);
@@ -1026,11 +647,8 @@ public class SyncJob extends AbstractTaskJob {
                             public boolean handle(final SyncDelta delta) {
                                 try {
 
-                                    return results.addAll(handleDelta(
-                                            syncTask,
-                                            delta,
-                                            conflictResolutionAction,
-                                            dryRun));
+                                    return results.addAll(
+                                            handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
 
                                 } catch (JobExecutionException e) {
                                     LOG.error("Synchronization failed", e);
@@ -1043,15 +661,12 @@ public class SyncJob extends AbstractTaskJob {
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
-                    ExternalResource resource =
-                            resourceDAO.find(syncTask.getResource().getName());
-
+                    ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
                     resource.setSyncToken(connector.getLatestSyncToken());
                     resourceDAO.save(resource);
 
                 } catch (Throwable t) {
-                    throw new JobExecutionException("While updating SyncToken",
-                            t);
+                    throw new JobExecutionException("While updating SyncToken", t);
                 }
             }
         } catch (Throwable t) {
@@ -1060,8 +675,7 @@ public class SyncJob extends AbstractTaskJob {
 
         actions.afterAll(syncTask, results);
 
-        final String result = createReport(
-                results, syncTask.getResource().getSyncTraceLevel(), dryRun);
+        final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 
@@ -1087,8 +701,7 @@ public class SyncJob extends AbstractTaskJob {
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
-        LOG.debug("Process '{}' for '{}'",
-                delta.getDeltaType(), delta.getUid().getUidValue());
+        LOG.debug("Process '{}' for '{}'", delta.getDeltaType(), delta.getUid().getUidValue());
 
         final List<Long> users = findExistingUsers(delta);
 
@@ -1101,8 +714,7 @@ public class SyncJob extends AbstractTaskJob {
                         LOG.debug("SyncTask not configured for create");
                     }
                 } else if (users.size() == 1) {
-                    updateUsers(delta, users.subList(0, 1),
-                            dryRun, results);
+                    updateUsers(delta, users.subList(0, 1), dryRun, results);
                 } else {
                     switch (conflictResolutionAction) {
                         case IGNORE:
@@ -1110,13 +722,11 @@ public class SyncJob extends AbstractTaskJob {
                             break;
 
                         case FIRSTMATCH:
-                            updateUsers(delta, users.subList(0, 1),
-                                    dryRun, results);
+                            updateUsers(delta, users.subList(0, 1), dryRun, results);
                             break;
 
                         case LASTMATCH:
-                            updateUsers(delta, users.subList(users.size()
-                                    - 1, users.size()), dryRun, results);
+                            updateUsers(delta, users.subList(users.size() - 1, users.size()), dryRun, results);
                             break;
 
                         case ALL:
@@ -1140,14 +750,11 @@ public class SyncJob extends AbstractTaskJob {
                             break;
 
                         case FIRSTMATCH:
-                            deleteUsers(delta, users.subList(0, 1),
-                                    dryRun, results);
+                            deleteUsers(delta, users.subList(0, 1), dryRun, results);
                             break;
 
                         case LASTMATCH:
-                            deleteUsers(delta, users.subList(
-                                    users.size() - 1, users.size()),
-                                    dryRun, results);
+                            deleteUsers(delta, users.subList(users.size() - 1, users.size()), dryRun, results);
                             break;
 
                         case ALL:
@@ -1176,8 +783,7 @@ public class SyncJob extends AbstractTaskJob {
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
         return (Status.valueOf(execution.getStatus()) == Status.FAILURE
-                && syncTask.getResource().getSyncTraceLevel().ordinal()
-                >= TraceLevel.FAILURES.ordinal())
+                && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || syncTask.getResource().getSyncTraceLevel() == TraceLevel.ALL;
     }
 }

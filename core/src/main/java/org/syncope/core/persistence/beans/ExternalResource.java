@@ -81,8 +81,7 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      *
-     * List type cannot be used. Please, take a look at
-     * https://hibernate.onjira.com/browse/HHH-1718
+     * List type cannot be used. Please, take a look at https://hibernate.onjira.com/browse/HHH-1718
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
     fetch = FetchType.EAGER, mappedBy = "resource")
@@ -90,8 +89,8 @@ public class ExternalResource extends AbstractBaseBean {
     private Set<SchemaMapping> mappings;
 
     /**
-     * A JEXL expression for determining how to link user account id in Syncope
-     * DB to user account id in target resource's DB.
+     * A JEXL expression for determining how to link user account id in Syncope DB to user account id in target
+     * resource's DB.
      */
     private String accountLink;
 
@@ -216,14 +215,11 @@ public class ExternalResource extends AbstractBaseBean {
         return mappings;
     }
 
-    public Set<SchemaMapping> getMappings(final String intAttrName,
-            final IntMappingType intMappingType) {
+    public Set<SchemaMapping> getMappings(final String intAttrName, final IntMappingType intMappingType) {
 
         Set<SchemaMapping> result = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
-            if (intAttrName.equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType() == intMappingType) {
-
+            if (intAttrName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
                 result.add(mapping);
             }
         }
@@ -347,8 +343,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>
-                    deserialize(xmlConfiguration);
+            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }

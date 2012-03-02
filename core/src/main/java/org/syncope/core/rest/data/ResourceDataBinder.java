@@ -224,8 +224,7 @@ public class ResourceDataBinder {
         return schemaMappings;
     }
 
-    private SchemaMapping getSchemaMapping(ExternalResource resource,
-            SchemaMappingTO mappingTO)
+    private SchemaMapping getSchemaMapping(ExternalResource resource, SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -246,18 +245,15 @@ public class ResourceDataBinder {
         if (mappingTO.getIntAttrName() == null) {
             switch (mappingTO.getIntMappingType()) {
                 case SyncopeUserId:
-                    mappingTO.setIntAttrName(
-                            IntMappingType.SyncopeUserId.toString());
+                    mappingTO.setIntAttrName(IntMappingType.SyncopeUserId.toString());
                     break;
 
                 case Password:
-                    mappingTO.setIntAttrName(
-                            IntMappingType.Password.toString());
+                    mappingTO.setIntAttrName(IntMappingType.Password.toString());
                     break;
 
                 case Username:
-                    mappingTO.setIntAttrName(
-                            IntMappingType.Username.toString());
+                    mappingTO.setIntAttrName(IntMappingType.Username.toString());
                     break;
 
                 default:
@@ -273,14 +269,12 @@ public class ResourceDataBinder {
 
         // no mandatory condition implies mandatory condition false
         if (!jexlUtil.isExpressionValid(
-                mappingTO.getMandatoryCondition() != null
-                ? mappingTO.getMandatoryCondition() : "false")) {
+                mappingTO.getMandatoryCondition() != null ? mappingTO.getMandatoryCondition() : "false")) {
 
             SyncopeClientException invalidMandatoryCondition =
-                    new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(
-                    mappingTO.getMandatoryCondition());
+                    new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);
+
+            invalidMandatoryCondition.addElement(mappingTO.getMandatoryCondition());
 
             compositeErrorException.addException(invalidMandatoryCondition);
         }

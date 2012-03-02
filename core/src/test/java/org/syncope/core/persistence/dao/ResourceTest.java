@@ -31,6 +31,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
@@ -81,9 +82,8 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void getAccountId() {
-        SchemaMapping mapping = resourceDAO.getMappingForAccountId(
-                "ws-target-resource-2");
-        assertEquals("fullname", mapping.getIntAttrName());
+        SchemaMapping mapping = resourceDAO.getMappingForAccountId("ws-target-resource-2");
+        assertEquals("fullname", SchemaMappingUtil.getIntAttrName(mapping));
     }
 
     @Test
@@ -213,16 +213,14 @@ public class ResourceTest extends AbstractTest {
 
         for (SchemaMapping schemaMapping : actual.getMappings()) {
 
-            if ("icon".equals(schemaMapping.getIntAttrName())) {
+            if ("icon".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
                 assertTrue(IntMappingType.contains(
-                        AttributableType.ROLE,
-                        schemaMapping.getIntMappingType().toString()));
+                        AttributableType.ROLE, schemaMapping.getIntMappingType().toString()));
             }
 
-            if ("mderiveddata".equals(schemaMapping.getIntAttrName())) {
+            if ("mderiveddata".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
                 assertTrue(IntMappingType.contains(
-                        AttributableType.MEMBERSHIP,
-                        schemaMapping.getIntMappingType().toString()));
+                        AttributableType.MEMBERSHIP, schemaMapping.getIntMappingType().toString()));
             }
         }
     }

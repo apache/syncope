@@ -20,9 +20,10 @@ package org.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang.StringUtils;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.IntMappingType;
 
 public class SchemaMappingValidator extends AbstractValidator
         implements ConstraintValidator<SchemaMappingCheck, SchemaMapping> {
@@ -32,34 +33,20 @@ public class SchemaMappingValidator extends AbstractValidator
     }
 
     @Override
-    public boolean isValid(
-            final SchemaMapping object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final SchemaMapping mapping, final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
 
-        if (object.getExtAttrName() == null
-                && !object.isAccountid()
-                && !object.isPassword()) {
-            context.buildConstraintViolationWithTemplate(
-                    "Missing external attribute name").addNode(
-                    EntityViolationType.InvalidSchemaMapping.toString()).
-                    addConstraintViolation();
+        if (StringUtils.isBlank(SchemaMappingUtil.getExtAttrName(mapping))) {
+            context.buildConstraintViolationWithTemplate("Missing external attribute name").
+                    addNode(EntityViolationType.InvalidSchemaMapping.toString()).addConstraintViolation();
 
             return false;
         }
 
-        if (object.getIntAttrName() == null
-                && IntMappingType.SyncopeUserId
-                != object.getIntMappingType()
-                && IntMappingType.Password
-                != object.getIntMappingType()
-                && IntMappingType.Username
-                != object.getIntMappingType()) {
-            context.buildConstraintViolationWithTemplate(
-                    "Missing internal attribute name").addNode(
-                    EntityViolationType.InvalidSchemaMapping.toString()).
-                    addConstraintViolation();
+        if (StringUtils.isBlank(SchemaMappingUtil.getIntAttrName(mapping))) {
+            context.buildConstraintViolationWithTemplate("Missing internal attribute name").
+                    addNode(EntityViolationType.InvalidSchemaMapping.toString()).addConstraintViolation();
 
             return false;
         }

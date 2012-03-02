@@ -35,6 +35,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
 
@@ -66,10 +67,7 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType()
-                    == IntMappingType.UserSchema) {
-
+            if (schema.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
                 mappings.add(mapping);
             }
         }
@@ -88,10 +86,7 @@ public class SchemaTest extends AbstractTest {
         // check for mappings deletion
         mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if ("fullname".equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType()
-                    == IntMappingType.UserSchema) {
-
+            if ("fullname".equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
                 mappings.add(mapping);
             }
         }
@@ -114,10 +109,7 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType()
-                    == IntMappingType.UserSchema) {
-
+            if (schema.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
                 mappings.add(mapping);
             }
         }

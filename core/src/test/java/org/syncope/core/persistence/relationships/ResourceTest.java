@@ -44,6 +44,7 @@ import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.IntMappingType;
 
@@ -101,10 +102,7 @@ public class ResourceTest extends AbstractTest {
 
         Set<SchemaMapping> beforeUserIdMappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (userId.getName().equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType()
-                    == IntMappingType.UserSchema) {
-
+            if (userId.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
                 beforeUserIdMappings.add(mapping);
             }
         }
@@ -141,16 +139,12 @@ public class ResourceTest extends AbstractTest {
 
         Set<SchemaMapping> afterUserIdMappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (userId.getName().equals(mapping.getIntAttrName())
-                    && mapping.getIntMappingType()
-                    == IntMappingType.UserSchema) {
-
+            if (userId.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
                 afterUserIdMappings.add(mapping);
             }
         }
 
-        assertEquals(beforeUserIdMappings.size(),
-                afterUserIdMappings.size() - 1);
+        assertEquals(beforeUserIdMappings.size(), afterUserIdMappings.size() - 1);
     }
 
     @Test

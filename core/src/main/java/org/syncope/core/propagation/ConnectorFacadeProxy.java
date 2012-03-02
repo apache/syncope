@@ -59,15 +59,15 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.util.ConnBundleManager;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 
 /**
- * Intercept calls to ConnectorFacade's methods and check if the correspondant
- * connector instance has been configured to allow every single operation: if
- * not, simply do nothig.
+ * Intercept calls to ConnectorFacade's methods and check if the correspondant connector instance has been configured to
+ * allow every single operation: if not, simply do nothig.
  */
 public class ConnectorFacadeProxy {
 
@@ -90,8 +90,7 @@ public class ConnectorFacadeProxy {
     private final ConnInstance activeConnInstance;
 
     /**
-     * Use the passed connector instance to build a ConnectorFacade that will be
-     * used to make all wrapped calls.
+     * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
      *
      * @param connInstance the connector instance configuration
      * @param connBundleManager connector bundle loader
@@ -175,8 +174,7 @@ public class ConnectorFacadeProxy {
 
                     if (GuardedString.class.equals(propertySchemaClass)) {
                         propertyValue = new GuardedString(
-                                ((String) property.getValues().iterator().next()).
-                                toCharArray());
+                                ((String) property.getValues().iterator().next()).toCharArray());
                     } else if (GuardedByteArray.class.equals(
                             propertySchemaClass)) {
 
@@ -264,8 +262,7 @@ public class ConnectorFacadeProxy {
      * @param objectClass ConnId's object class
      * @param attrs attributes for creation
      * @param options ConnId's OperationOptions
-     * @param propagationAttempted if creation is actually performed (based on
-     * connector instance's capabilities)
+     * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
      * @return Uid for created user
      */
     public Uid create(
@@ -303,8 +300,7 @@ public class ConnectorFacadeProxy {
      * @param uid user to be updated
      * @param attrs attributes for update
      * @param options ConnId's OperationOptions
-     * @param propagationAttempted if update is actually performed (based on
-     * connector instance's capabilities)
+     * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
      * @return Uid for created user
      */
     public Uid update(final PropagationMode propagationMode,
@@ -342,8 +338,7 @@ public class ConnectorFacadeProxy {
      * @param objectClass ConnId's object class
      * @param uid user to be deleted
      * @param options ConnId's OperationOptions
-     * @param propagationAttempted if deletion is actually performed (based on
-     * connector instance's capabilities)
+     * @param propagationAttempted if deletion is actually performed (based on connector instance's capabilities)
      */
     public void delete(final PropagationMode propagationMode,
             final ObjectClass objectClass,
@@ -425,8 +420,8 @@ public class ConnectorFacadeProxy {
     }
 
     /**
-     * Get remote object used by the propagation manager in order to choose for
-     * a create (object doesn't exist) or an update (object exists).
+     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
+     * update (object exists).
      *
      * @param propagationMode propagation mode
      * @param operationType resource operation type
@@ -488,8 +483,8 @@ public class ConnectorFacadeProxy {
     }
 
     /**
-     * Get remote object used by the propagation manager in order to choose for
-     * a create (object doesn't exist) or an update (object exists).
+     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
+     * update (object exists).
      *
      * @param objectClass ConnId's object class.
      * @param handler to be used to handle deltas.
@@ -655,19 +650,15 @@ public class ConnectorFacadeProxy {
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
         final Set<String> attributesToGet = new HashSet<String>(
-                Arrays.asList(new String[]{
-                    Name.NAME,
-                    Uid.NAME,
-                    OperationalAttributes.ENABLE_NAME
-                }));
+                Arrays.asList(new String[]{Name.NAME, Uid.NAME, OperationalAttributes.ENABLE_NAME}));
 
         for (SchemaMapping mapping : resource.getMappings()) {
-            if (StringUtils.hasText(mapping.getExtAttrName())) {
-                attributesToGet.add(mapping.getExtAttrName());
+            final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
+
+            if (StringUtils.hasText(extAttrName)) {
+                attributesToGet.add(extAttrName);
             }
         }
-
-        attributesToGet.add(OperationalAttributes.ENABLE_NAME);
 
         oob.setAttributesToGet(attributesToGet);
         // -------------------------------------

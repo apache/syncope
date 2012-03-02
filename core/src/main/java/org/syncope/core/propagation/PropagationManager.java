@@ -50,27 +50,14 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TaskExec;
-import org.syncope.core.persistence.beans.membership.MDerSchema;
-import org.syncope.core.persistence.beans.membership.MSchema;
-import org.syncope.core.persistence.beans.membership.MVirSchema;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.role.RDerSchema;
-import org.syncope.core.persistence.beans.role.RSchema;
-import org.syncope.core.persistence.beans.role.RVirSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UAttr;
-import org.syncope.core.persistence.beans.user.UAttrValue;
-import org.syncope.core.persistence.beans.user.UDerSchema;
-import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
@@ -79,6 +66,7 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
+import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.AttributableType;
 import org.syncope.types.IntMappingType;
@@ -389,55 +377,6 @@ public class PropagationManager {
     }
 
     /**
-     * For given source mapping type, return the corresponding Class object.
-     *
-     * @param intMappingType source mapping type
-     * @return corresponding Class object, if any (can be null)
-     */
-    private Class getIntMappingTypeClass(
-            final IntMappingType intMappingType) {
-
-        Class result;
-
-        switch (intMappingType) {
-            case UserSchema:
-                result = USchema.class;
-                break;
-            case RoleSchema:
-                result = RSchema.class;
-                break;
-            case MembershipSchema:
-                result = MSchema.class;
-                break;
-
-            case UserDerivedSchema:
-                result = UDerSchema.class;
-                break;
-            case RoleDerivedSchema:
-                result = RDerSchema.class;
-                break;
-            case MembershipDerivedSchema:
-                result = MDerSchema.class;
-                break;
-
-            case UserVirtualSchema:
-                result = UVirSchema.class;
-                break;
-            case RoleVirtualSchema:
-                result = RVirSchema.class;
-                break;
-            case MembershipVirtualSchema:
-                result = MVirSchema.class;
-                break;
-
-            default:
-                result = null;
-        }
-
-        return result;
-    }
-
-    /**
      * Prepare an attribute for sending to a connector instance.
      *
      * @param mapping schema mapping for the given attribute
@@ -471,14 +410,16 @@ public class PropagationManager {
         }
 
         final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
-                getAttributeValues(mapping, attributables, password);
+                SchemaMappingUtil.getIntValues(mapping, attributables, password, schemaDAO);
 
         final List<AbstractAttrValue> values = entry.getValue();
         final AbstractSchema schema = entry.getKey();
         final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
 
+        final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
+
         LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + mapping.getExtAttrName()
+                + "\n* ExtAttrName " + extAttrName
                 + "\n* is accountId " + mapping.isAccountid()
                 + "\n* is password "
                 + (mapping.isPassword() || mapping.getIntMappingType().equals(IntMappingType.Password))
@@ -511,145 +452,17 @@ public class PropagationManager {
 
         } else {
             if (schema != null && schema.isMultivalue()) {
-                res = new DefaultMapEntry(null, AttributeBuilder.build(mapping.getExtAttrName(), objValues));
+                res = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
 
             } else {
                 res = new DefaultMapEntry(null,
                         objValues.isEmpty()
-                        ? AttributeBuilder.build(mapping.getExtAttrName())
-                        : AttributeBuilder.build(mapping.getExtAttrName(),
-                        objValues.iterator().next()));
+                        ? AttributeBuilder.build(extAttrName)
+                        : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
         }
 
         return res;
-    }
-
-    /**
-     * Get attribute values.
-     *
-     * @param mapping mapping.
-     * @param attributables list of attributables.
-     * @param password password.
-     * @return schema and attribute values.
-     */
-    private Entry<AbstractSchema, List<AbstractAttrValue>> getAttributeValues(
-            final SchemaMapping mapping,
-            final List<AbstractAttributable> attributables,
-            final String password) {
-
-
-        LOG.debug("Get attributes for '{}' and mapping type '{}'",
-                attributables, mapping.getIntMappingType());
-
-        AbstractSchema schema = null;
-
-        List<AbstractAttrValue> values = new ArrayList<AbstractAttrValue>();
-        AbstractAttrValue attrValue;
-
-        switch (mapping.getIntMappingType()) {
-            case UserSchema:
-            case RoleSchema:
-            case MembershipSchema:
-                schema = schemaDAO.find(mapping.getIntAttrName(), getIntMappingTypeClass(mapping.getIntMappingType()));
-
-                for (AbstractAttributable attributable : attributables) {
-                    final UAttr attr = attributable.getAttribute(mapping.getIntAttrName());
-
-                    if (attr != null && attr.getValues() != null) {
-                        values.addAll(schema.isUniqueConstraint()
-                                ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
-                    }
-
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{attr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
-                }
-
-                break;
-
-            case UserVirtualSchema:
-            case RoleVirtualSchema:
-            case MembershipVirtualSchema:
-
-                for (AbstractAttributable attributable : attributables) {
-                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
-
-                    if (virAttr != null && virAttr.getValues() != null) {
-                        for (String value : virAttr.getValues()) {
-                            attrValue = new UAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
-                        }
-                    }
-
-                    LOG.debug("Retrieved virtual attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{virAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
-                }
-                break;
-
-            case UserDerivedSchema:
-            case RoleDerivedSchema:
-            case MembershipDerivedSchema:
-                for (AbstractAttributable attributable : attributables) {
-                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(
-                            mapping.getIntAttrName());
-
-                    if (derAttr != null) {
-                        attrValue = new UAttrValue();
-                        attrValue.setStringValue(
-                                derAttr.getValue(attributable.getAttributes()));
-                        values.add(attrValue);
-                    }
-
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{derAttr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
-                }
-                break;
-
-            case Username:
-                for (AbstractAttributable attributable : attributables) {
-                    attrValue = new UAttrValue();
-                    attrValue.setStringValue(
-                            ((SyncopeUser) attributable).getUsername());
-
-                    values.add(attrValue);
-                }
-                break;
-
-            case SyncopeUserId:
-                for (AbstractAttributable attributable : attributables) {
-                    attrValue = new UAttrValue();
-                    attrValue.setStringValue(attributable.getId().toString());
-                    values.add(attrValue);
-                }
-                break;
-
-            case Password:
-                attrValue = new UAttrValue();
-
-                if (password != null) {
-                    attrValue.setStringValue(password);
-                }
-
-                values.add(attrValue);
-                break;
-
-            default:
-        }
-
-        LOG.debug("Retrived values '{}'", values);
-
-        return new DefaultMapEntry(schema, values);
     }
 
     /**
@@ -675,7 +488,7 @@ public class PropagationManager {
 
         Map.Entry<String, Attribute> preparedAttribute;
         for (SchemaMapping mapping : resource.getMappings()) {
-            LOG.debug("Processing schema {}", mapping.getIntAttrName());
+            LOG.debug("Processing schema {}", SchemaMappingUtil.getIntAttrName(mapping));
 
             try {
                 preparedAttribute = prepareAttribute(mapping, user, password);
@@ -703,8 +516,7 @@ public class PropagationManager {
 
                 }
             } catch (Throwable t) {
-                LOG.debug("Attribute '{}' processing failed",
-                        mapping.getIntAttrName(), t);
+                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), t);
             }
         }
 

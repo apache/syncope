@@ -131,7 +131,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         Set<Long> roleIds = user.getRoleIds();
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         roleIds.removeAll(adminRoleIds);
-        
+
         if (!roleIds.isEmpty()) {
             throw new UnauthorizedRoleException(roleIds);
         }
@@ -257,11 +257,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             for (ExternalResource resource : user.getResources()) {
                 for (SchemaMapping mapping : resource.getMappings()) {
-                    if (mapping.isAccountid() && mapping.getIntMappingType()
-                            == IntMappingType.Username) {
-
-                        propByRes.addOldAccountId(
-                                resource.getName(), oldUsername);
+                    if (mapping.isAccountid() && mapping.getIntMappingType() == IntMappingType.Username) {
+                        propByRes.addOldAccountId(resource.getName(), oldUsername);
                     }
                 }
             }

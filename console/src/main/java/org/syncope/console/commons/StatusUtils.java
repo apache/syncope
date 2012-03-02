@@ -68,13 +68,11 @@ public class StatusUtils {
 
             final ResourceTO resourceTO = resourceRestClient.read(res);
 
-            final Map.Entry<IntMappingType, String> accountId =
-                    getAccountId(resourceTO);
+            final Map.Entry<IntMappingType, String> accountId = getAccountId(resourceTO);
 
             String objectId = null;
 
-            switch (accountId != null
-                    ? accountId.getKey() : IntMappingType.SyncopeUserId) {
+            switch (accountId != null ? accountId.getKey() : IntMappingType.SyncopeUserId) {
 
                 case SyncopeUserId:
                     objectId = String.valueOf(userTO.getId());
@@ -83,8 +81,7 @@ public class StatusUtils {
                     objectId = userTO.getUsername();
                     break;
                 case UserSchema:
-                    AttributeTO attributeTO =
-                            userTO.getAttributeMap().get(accountId.getValue());
+                    AttributeTO attributeTO = userTO.getAttributeMap().get(accountId.getValue());
                     objectId =
                             attributeTO != null
                             && attributeTO.getValues() != null
@@ -154,28 +151,24 @@ public class StatusUtils {
     public Boolean isEnabled(final ConnObjectTO objectTO) {
         final String STATUSATTR = "__ENABLE__";
 
-        final Map<String, AttributeTO> attributeTOs =
-                objectTO.getAttributeMap();
+        final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
 
         final AttributeTO status = attributeTOs.get(STATUSATTR);
 
         return status != null && status.getValues() != null
-                && !status.getValues().isEmpty()
-                ? Boolean.parseBoolean(status.getValues().get(0)) : null;
+                && !status.getValues().isEmpty() ? Boolean.parseBoolean(status.getValues().get(0)) : null;
     }
 
     public String getAccountLink(final ConnObjectTO objectTO) {
         final String NAME = "__NAME__";
 
         final Map<String, AttributeTO> attributeTOs = objectTO != null
-                ? objectTO.getAttributeMap()
-                : Collections.EMPTY_MAP;
+                ? objectTO.getAttributeMap() : Collections.EMPTY_MAP;
 
         final AttributeTO name = attributeTOs.get(NAME);
 
         return name != null && name.getValues() != null
-                && !name.getValues().isEmpty()
-                ? (String) name.getValues().get(0) : null;
+                && !name.getValues().isEmpty() ? (String) name.getValues().get(0) : null;
     }
 
     public Map.Entry<IntMappingType, String> getAccountId(
@@ -185,8 +178,7 @@ public class StatusUtils {
         for (SchemaMappingTO mapping : resourceTO.getMappings()) {
             if (mapping.isAccountid()) {
                 accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
-                        mapping.getIntMappingType(),
-                        mapping.getIntAttrName());
+                        mapping.getIntMappingType(), mapping.getIntAttrName());
             }
         }
 

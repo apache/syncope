@@ -83,7 +83,6 @@ public enum IntMappingType {
      * @return true if attribute type belongs to the specified attributable type set.
      */
     public static boolean contains(final AttributableType attributableType, final String type) {
-
         switch (attributableType) {
             case ROLE:
                 return RoleMappingType.valueOf(type) != null;
@@ -105,7 +104,6 @@ public enum IntMappingType {
         SyncopeUserId,
         Password,
         Username;
-
     }
 
     /**
@@ -116,7 +114,6 @@ public enum IntMappingType {
         RoleSchema,
         RoleDerivedSchema,
         RoleVirtualSchema;
-
     }
 
     /**
@@ -127,6 +124,5 @@ public enum IntMappingType {
         MembershipSchema,
         MembershipDerivedSchema,
         MembershipVirtualSchema;
-
     }
 }

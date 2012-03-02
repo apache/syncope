@@ -86,11 +86,13 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             String accountId = null;
 
             for (SchemaMapping mapping : resource.getMappings()) {
+                final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
+
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Processing mapping."
                             + "\n\tID: " + mapping.getId()
                             + "\n\tSource: " + mapping.getIntAttrName()
-                            + "\n\tDestination: " + mapping.getExtAttrName()
+                            + "\n\tDestination: " + extAttrName
                             + "\n\tType: " + mapping.getIntMappingType()
                             + "\n\tMandatory condition: " + mapping.getMandatoryCondition()
                             + "\n\tAccountId: " + mapping.isAccountid()
@@ -98,7 +100,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                 }
 
                 if (attributeName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
-                    attributeNames.add(mapping.getExtAttrName());
+                    attributeNames.add(extAttrName);
                 }
 
                 if (mapping.isAccountid()) {

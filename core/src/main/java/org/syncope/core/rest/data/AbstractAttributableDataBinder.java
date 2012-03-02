@@ -601,8 +601,7 @@ public abstract class AbstractAttributableDataBinder {
 
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (derivedSchema.getName().equals(
-                            mapping.getIntAttrName())
+                    if (derivedSchema.getName().equals(mapping.getIntAttrName())
                             && mapping.getIntMappingType() == attributableUtil.derivedIntMappingType()
                             && mapping.getResource() != null
                             && attributable.getResources().contains(mapping.getResource())) {

@@ -55,6 +55,7 @@ import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.propagation.PropagationHandler;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
+import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowException;
@@ -97,6 +98,12 @@ public class UserController {
 
     @Autowired
     private NotificationManager notificationManager;
+
+    /**
+     * ConnectorObject util.
+     */
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
@@ -289,13 +296,11 @@ public class UserController {
                 propagation.setStatus(executionStatus);
 
                 if (before != null) {
-                    propagation.setBefore(
-                            connInstanceDataBinder.getConnObjectTO(before));
+                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
                 }
 
                 if (after != null) {
-                    propagation.setAfter(
-                            connInstanceDataBinder.getConnObjectTO(after));
+                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
                 }
 
                 propagations.add(propagation);
@@ -329,7 +334,7 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
                 updated, userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeUpdated(), 
+                userMod.getVirtualAttributesToBeUpdated(),
                 null);
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
@@ -348,13 +353,11 @@ public class UserController {
                 propagation.setStatus(executionStatus);
 
                 if (before != null) {
-                    propagation.setBefore(
-                            connInstanceDataBinder.getConnObjectTO(before));
+                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
                 }
 
                 if (after != null) {
-                    propagation.setAfter(
-                            connInstanceDataBinder.getConnObjectTO(after));
+                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
                 }
 
                 propagations.add(propagation);
@@ -501,13 +504,11 @@ public class UserController {
                 propagation.setStatus(executionStatus);
 
                 if (before != null) {
-                    propagation.setBefore(
-                            connInstanceDataBinder.getConnObjectTO(before));
+                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
                 }
 
                 if (after != null) {
-                    propagation.setAfter(
-                            connInstanceDataBinder.getConnObjectTO(after));
+                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
                 }
 
                 userTO.addPropagationTO(propagation);
