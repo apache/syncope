@@ -156,8 +156,7 @@ public class ConnInstanceDataBinder {
             throws NotFoundException {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setId(connInstance.getId() != null
-                ? connInstance.getId().longValue() : 0L);
+        connInstanceTO.setId(connInstance.getId() != null ? connInstance.getId().longValue() : 0L);
 
         // retrieve the ConfigurationProperties.
         ConfigurationProperties properties =
@@ -166,37 +165,29 @@ public class ConnInstanceDataBinder {
                 connInstance.getVersion(),
                 connInstance.getConnectorName());
 
-        BeanUtils.copyProperties(
-                connInstance, connInstanceTO, IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
         ConnConfPropSchema connConfPropSchema;
         ConfigurationProperty configurationProperty;
 
-        Map<String, ConnConfProperty> connInstanceToConfMap =
-                connInstanceTO.getConfigurationMap();
+        Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
         for (String propName : properties.getPropertyNames()) {
             configurationProperty = properties.getProperty(propName);
 
             if (!connInstanceToConfMap.containsKey(propName)) {
                 connConfPropSchema = new ConnConfPropSchema();
-                connConfPropSchema.setName(
-                        configurationProperty.getName());
-                connConfPropSchema.setDisplayName(
-                        configurationProperty.getDisplayName(propName));
-                connConfPropSchema.setHelpMessage(
-                        configurationProperty.getHelpMessage(propName));
-                connConfPropSchema.setRequired(
-                        configurationProperty.isRequired());
-                connConfPropSchema.setType(
-                        configurationProperty.getType().getName());
+                connConfPropSchema.setName(configurationProperty.getName());
+                connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
+                connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
+                connConfPropSchema.setRequired(configurationProperty.isRequired());
+                connConfPropSchema.setType(configurationProperty.getType().getName());
 
                 ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(connConfPropSchema);
                 connInstanceTO.addConfiguration(property);
             } else {
                 connInstanceToConfMap.get(propName).getSchema().
-                        setDisplayName(
-                        configurationProperty.getDisplayName(propName));
+                        setDisplayName(configurationProperty.getDisplayName(propName));
             }
         }
         return connInstanceTO;

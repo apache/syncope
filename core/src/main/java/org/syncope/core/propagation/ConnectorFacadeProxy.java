@@ -127,8 +127,7 @@ public class ConnectorFacadeProxy {
         // get the specified connector.
         ConnectorInfo info;
         try {
-            info = connBundleManager.getConnectorManager().
-                    findConnectorInfo(key);
+            info = connBundleManager.getConnectorManager().findConnectorInfo(key);
             if (info == null) {
                 throw new NotFoundException("Connector Info for key " + key);
             }
@@ -144,8 +143,7 @@ public class ConnectorFacadeProxy {
         }
 
         // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties =
-                apiConfig.getConfigurationProperties();
+        final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
 
         if (properties == null) {
             throw new NotFoundException("Configuration properties");
@@ -154,99 +152,24 @@ public class ConnectorFacadeProxy {
         // Print out what the properties are (not necessary)
         if (LOG.isDebugEnabled()) {
             for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: "
-                        + properties.getProperty(propName).getName()
-                        + "\nProperty Type: "
-                        + properties.getProperty(propName).getType());
+                LOG.debug("\nProperty Name: {}\nProperty Type: {}",
+                        properties.getProperty(propName).getName(),
+                        properties.getProperty(propName).getType());
             }
         }
 
         // Set all of the ConfigurationProperties needed by the connector.
-        Class propertySchemaClass;
-        Object propertyValue;
         for (ConnConfProperty property : connInstance.getConfiguration()) {
-            if (property.getValues() != null
-                    && !property.getValues().isEmpty()) {
-                try {
-                    propertySchemaClass = ClassUtils.forName(
-                            property.getSchema().getType(),
-                            ClassUtils.getDefaultClassLoader());
-
-                    if (GuardedString.class.equals(propertySchemaClass)) {
-                        propertyValue = new GuardedString(
-                                ((String) property.getValues().iterator().next()).toCharArray());
-                    } else if (GuardedByteArray.class.equals(
-                            propertySchemaClass)) {
-
-                        propertyValue = new GuardedByteArray(
-                                (byte[]) property.getValues().iterator().next());
-                    } else if (Character.class.equals(propertySchemaClass)
-                            || char.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                (Character) property.getValues().iterator().next();
-                    } else if (Integer.class.equals(propertySchemaClass)
-                            || int.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                Integer.parseInt(
-                                property.getValues().iterator().next().toString());
-
-                    } else if (Long.class.equals(propertySchemaClass)
-                            || long.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                Long.parseLong(
-                                property.getValues().iterator().next().toString());
-
-                    } else if (Float.class.equals(propertySchemaClass)
-                            || float.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                Float.parseFloat(
-                                property.getValues().iterator().next().toString());
-
-                    } else if (Double.class.equals(propertySchemaClass)
-                            || double.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                Double.parseDouble(
-                                property.getValues().iterator().next().toString());
-
-                    } else if (Boolean.class.equals(propertySchemaClass)
-                            || boolean.class.equals(propertySchemaClass)) {
-
-                        propertyValue =
-                                Boolean.parseBoolean(
-                                property.getValues().iterator().next().toString());
-
-                    } else if (URI.class.equals(propertySchemaClass)) {
-                        propertyValue = URI.create(
-                                (String) property.getValues().iterator().next());
-                    } else if (File.class.equals(propertySchemaClass)) {
-                        propertyValue = new File(
-                                (String) property.getValues().iterator().next());
-                    } else if (String[].class.equals(propertySchemaClass)) {
-                        propertyValue =
-                                ((List<String>) property.getValues()).toArray(
-                                new String[]{});
-                    } else {
-                        propertyValue =
-                                (String) property.getValues().iterator().next();
-                    }
-
-                    properties.setPropertyValue(
-                            property.getSchema().getName(), propertyValue);
-                } catch (Throwable t) {
-                    LOG.error("Invalid ConnConfProperty specified: {}",
-                            property, t);
-                }
+            final Object propertyValue = getPropertyValue(property);
+            if (propertyValue != null) {
+                properties.setPropertyValue(property.getSchema().getName(), propertyValue);
             }
         }
 
         // Use the ConnectorFacadeFactory's newInstance() method to get
         // a new connector.
         connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
+
         if (connector == null) {
             throw new NotFoundException("Connector");
         }
@@ -664,5 +587,48 @@ public class ConnectorFacadeProxy {
         // -------------------------------------
 
         return oob.build();
+    }
+
+    private Object getPropertyValue(final ConnConfProperty property) {
+        Object value = null;
+
+        final List<Object> values = property.getValues();
+
+        if (values != null && !values.isEmpty()) {
+            try {
+                final Class propertySchemaClass =
+                        ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
+
+                if (GuardedString.class.equals(propertySchemaClass)) {
+                    value = new GuardedString((values.get(0).toString()).toCharArray());
+                } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
+                    value = new GuardedByteArray((byte[]) values.get(0));
+                } else if (Character.class.equals(propertySchemaClass) || char.class.equals(propertySchemaClass)) {
+                    value = StringUtils.hasText((String) values.get(0)) ? values.get(0).toString().charAt(0) : null;
+                } else if (Integer.class.equals(propertySchemaClass) || int.class.equals(propertySchemaClass)) {
+                    value = Integer.parseInt(values.get(0).toString());
+                } else if (Long.class.equals(propertySchemaClass) || long.class.equals(propertySchemaClass)) {
+                    value = Long.parseLong(values.get(0).toString());
+                } else if (Float.class.equals(propertySchemaClass) || float.class.equals(propertySchemaClass)) {
+                    value = Float.parseFloat(values.get(0).toString());
+                } else if (Double.class.equals(propertySchemaClass) || double.class.equals(propertySchemaClass)) {
+                    value = Double.parseDouble(values.get(0).toString());
+                } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
+                    value = Boolean.parseBoolean(values.get(0).toString());
+                } else if (URI.class.equals(propertySchemaClass)) {
+                    value = URI.create(values.get(0).toString());
+                } else if (File.class.equals(propertySchemaClass)) {
+                    value = new File(values.get(0).toString());
+                } else if (String[].class.equals(propertySchemaClass)) {
+                    value = values.toArray(new String[]{});
+                } else {
+                    value = values.get(0).toString();
+                }
+            } catch (Throwable t) {
+                LOG.error("Invalid ConnConfProperty specified: {}", property, t);
+            }
+        }
+
+        return value;
     }
 }

@@ -227,8 +227,7 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/bundle/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/bundle/list")
     @Transactional(readOnly = true)
     public List<ConnBundleTO> getBundles(
             @RequestParam(value = "lang", required = false) final String lang)
@@ -240,8 +239,7 @@ public class ConnInstanceController extends AbstractController {
             CurrentLocale.set(new Locale(lang));
         }
 
-        ConnectorInfoManager manager =
-                bundleManager.getConnectorManager();
+        ConnectorInfoManager manager = bundleManager.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
@@ -261,18 +259,14 @@ public class ConnInstanceController extends AbstractController {
         if (bundles != null) {
             for (ConnectorInfo bundle : bundles) {
                 connectorBundleTO = new ConnBundleTO();
-                connectorBundleTO.setDisplayName(
-                        bundle.getConnectorDisplayName());
+                connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
                 key = bundle.getConnectorKey();
 
                 LOG.debug("\nBundle name: {}"
                         + "\nBundle version: {}"
                         + "\nBundle class: {}",
-                        new Object[]{
-                            key.getBundleName(),
-                            key.getBundleVersion(),
-                            key.getConnectorName()});
+                        new Object[]{key.getBundleName(), key.getBundleVersion(), key.getConnectorName()});
 
                 connectorBundleTO.setBundleName(key.getBundleName());
                 connectorBundleTO.setConnectorName(key.getConnectorName());
@@ -289,30 +283,24 @@ public class ConnInstanceController extends AbstractController {
                     configurationProperty = properties.getProperty(propName);
 
                     // set name
-                    connConfPropSchema.setName(
-                            configurationProperty.getName());
+                    connConfPropSchema.setName(configurationProperty.getName());
 
                     // set display name
-                    connConfPropSchema.setDisplayName(
-                            configurationProperty.getDisplayName(propName));
+                    connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
 
                     // set help message
-                    connConfPropSchema.setHelpMessage(
-                            configurationProperty.getHelpMessage(propName));
+                    connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
 
                     // set if mandatory
-                    connConfPropSchema.setRequired(
-                            configurationProperty.isRequired());
+                    connConfPropSchema.setRequired(configurationProperty.isRequired());
 
                     // set type
-                    connConfPropSchema.setType(
-                            configurationProperty.getType().getName());
+                    connConfPropSchema.setType(configurationProperty.getType().getName());
 
                     connectorBundleTO.addProperty(connConfPropSchema);
                 }
 
-                LOG.debug("Bundle properties: {}",
-                        connectorBundleTO.getProperties());
+                LOG.debug("Bundle properties: {}", connectorBundleTO.getProperties());
 
                 connectorBundleTOs.add(connectorBundleTO);
             }
@@ -397,8 +385,7 @@ public class ConnInstanceController extends AbstractController {
     }
 
     /**
-     * Merge connector configuration properties avoiding repetition but giving
-     * priority to primary set.
+     * Merge connector configuration properties avoiding repetition but giving priority to primary set.
      *
      * @param primary primary set.
      * @param secondary secondary set.
