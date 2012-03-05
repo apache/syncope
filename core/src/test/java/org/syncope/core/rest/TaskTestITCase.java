@@ -318,8 +318,7 @@ public class TaskTestITCase extends AbstractTest {
         int preSyncSize = taskTO.getExecutions().size();
 
         TaskExecTO execution = restTemplate.postForObject(
-                BASE_URL + "task/execute/{taskId}", null,
-                TaskExecTO.class, taskTO.getId());
+                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
         assertEquals("JOB_FIRED", execution.getStatus());
 
         int i = 0;
@@ -332,9 +331,7 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            taskTO = restTemplate.getForObject(
-                    BASE_URL + "task/read/{taskId}",
-                    SyncTaskTO.class, taskTO.getId());
+            taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, taskTO.getId());
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());

@@ -177,18 +177,17 @@ public class ReportTestITCase extends AbstractTest {
 
         int i = 0;
         int maxit = 50;
+
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(
-                    BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
             i++;
-        } while (preExecIds.size() == reportTO.getExecutions().size()
-                && i < maxit);
+        } while (preExecIds.size() == reportTO.getExecutions().size() && i < maxit);
 
         Set<Long> postExecIds = new HashSet<Long>();
         for (ReportExecTO exec : reportTO.getExecutions()) {
@@ -198,19 +197,29 @@ public class ReportTestITCase extends AbstractTest {
         postExecIds.removeAll(preExecIds);
         assertEquals(1, postExecIds.size());
 
-        // wait for report exec XML to be stored...
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-        }
-
         // Export
         // 1. XML (default)
-        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/"
-                + postExecIds.iterator().next());
-        HttpResponse response =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory()).getHttpClient().execute(getMethod);
+
+        HttpResponse response = null;
+        HttpGet getMethod = null;
+
+        i = 0;
+        maxit = 10;
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
+
+            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().
+                    execute(getMethod);
+
+            i++;
+        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && i < maxit);
+
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         String export = EntityUtils.toString(response.getEntity()).trim();
@@ -220,8 +229,8 @@ public class ReportTestITCase extends AbstractTest {
         // 2. HTML
         getMethod = new HttpGet(BASE_URL + "report/execution/export/"
                 + postExecIds.iterator().next() + "?fmt=HTML");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory()).getHttpClient().execute(getMethod);
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
+                getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();
@@ -231,8 +240,8 @@ public class ReportTestITCase extends AbstractTest {
         // 3. PDF
         getMethod = new HttpGet(BASE_URL + "report/execution/export/"
                 + postExecIds.iterator().next() + "?fmt=PDF");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory()).getHttpClient().execute(getMethod);
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
+                getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();
@@ -242,8 +251,8 @@ public class ReportTestITCase extends AbstractTest {
         // 4. RTF
         getMethod = new HttpGet(BASE_URL + "report/execution/export/"
                 + postExecIds.iterator().next() + "?fmt=RTF");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory()).getHttpClient().execute(getMethod);
+        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
+                getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();
