@@ -603,17 +603,18 @@ public class ConnectorFacadeProxy {
                     value = new GuardedString((values.get(0).toString()).toCharArray());
                 } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
                     value = new GuardedByteArray((byte[]) values.get(0));
-                } else if (Character.class.equals(propertySchemaClass) || char.class.equals(propertySchemaClass)) {
-                    value = StringUtils.hasText((String) values.get(0)) ? values.get(0).toString().charAt(0) : null;
-                } else if (Integer.class.equals(propertySchemaClass) || int.class.equals(propertySchemaClass)) {
+                } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
+                    value = values.get(0) != null && !values.get(0).toString().isEmpty()
+                            ? values.get(0).toString().charAt(0) : null;
+                } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
                     value = Integer.parseInt(values.get(0).toString());
-                } else if (Long.class.equals(propertySchemaClass) || long.class.equals(propertySchemaClass)) {
+                } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
                     value = Long.parseLong(values.get(0).toString());
-                } else if (Float.class.equals(propertySchemaClass) || float.class.equals(propertySchemaClass)) {
+                } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
                     value = Float.parseFloat(values.get(0).toString());
-                } else if (Double.class.equals(propertySchemaClass) || double.class.equals(propertySchemaClass)) {
+                } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
                     value = Double.parseDouble(values.get(0).toString());
-                } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
+                } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
                     value = Boolean.parseBoolean(values.get(0).toString());
                 } else if (URI.class.equals(propertySchemaClass)) {
                     value = URI.create(values.get(0).toString());
