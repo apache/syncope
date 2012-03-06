@@ -55,15 +55,13 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                 taskTO.getCronExpression());
         form.add(crontab);
 
-        final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel(
-                "lastExec", getString("lastExec"), new DateFormatROModel(
-                new PropertyModel<String>(taskTO, "lastExec")), false);
+        final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
+                new DateFormatROModel(new PropertyModel<String>(taskTO, "lastExec")));
         lastExec.setEnabled(false);
         profile.add(lastExec);
 
-        final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel(
-                "nextExec", getString("nextExec"), new DateFormatROModel(
-                new PropertyModel<String>(taskTO, "nextExec")), false);
+        final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel("nextExec", getString("nextExec"),
+                new DateFormatROModel(new PropertyModel<String>(taskTO, "nextExec")));
         nextExec.setEnabled(false);
         profile.add(nextExec);
 

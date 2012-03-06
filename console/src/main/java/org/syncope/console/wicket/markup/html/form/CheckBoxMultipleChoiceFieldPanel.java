@@ -18,18 +18,30 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
-import org.apache.wicket.markup.html.panel.Panel;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.model.IModel;
 
-/**
- * This empty class must exist because there not seems to be alternative to
- * provide specialized HTML for edit links.
- */
-public class EditLinkPanel extends Panel {
+public class CheckBoxMultipleChoiceFieldPanel extends AbstractFieldPanel {
 
-    private static final long serialVersionUID = 322966537010107771L;
+    private static final long serialVersionUID = 4124935025837737298L;
 
-    public EditLinkPanel(final String componentId, final IModel<?> model) {
-        super(componentId, model);
+    private final CheckBoxMultipleChoice field;
+
+    public CheckBoxMultipleChoiceFieldPanel(final String id, final IModel<Collection> model,
+            final IModel<List> choices) {
+
+        super(id, model);
+
+        field = new CheckBoxMultipleChoice("checkBoxMultipleChoice", model, choices);
+        add(field);
+    }
+
+    @Override
+    public AbstractFieldPanel setModelObject(final Serializable object) {
+        field.setModelObject(object);
+        return this;
     }
 }

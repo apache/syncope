@@ -46,6 +46,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.syncope.types.AttributableType;
 
 public class VirtualAttributesPanel extends Panel {
 
@@ -70,14 +71,11 @@ public class VirtualAttributesPanel extends Panel {
                     @Override
                     protected List<String> load() {
                         if (entityTO instanceof RoleTO) {
-                            return schemaRestClient.getVirtualSchemaNames(
-                                    "role");
+                            return schemaRestClient.getVirtualSchemaNames(AttributableType.ROLE);
                         } else if (entityTO instanceof UserTO) {
-                            return schemaRestClient.getVirtualSchemaNames(
-                                    "user");
+                            return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
                         } else {
-                            return schemaRestClient.getVirtualSchemaNames(
-                                    "membership");
+                            return schemaRestClient.getVirtualSchemaNames(AttributableType.MEMBERSHIP);
                         }
                     }
                 };
@@ -197,16 +195,11 @@ public class VirtualAttributesPanel extends Panel {
                 }
 
                 if (templateMode) {
-                    item.add(new AjaxTextFieldPanel(
-                            "values", "values", new Model(), true));
+                    item.add(new AjaxTextFieldPanel("values", "values", new Model()));
                 } else {
-                    item.add(new MultiValueSelectorPanel(
-                            "values",
-                            new PropertyModel<List<String>>(
-                            attributeTO, "values"),
-                            String.class,
-                            new AjaxTextFieldPanel(
-                            "panel", "values", new Model(null), true)));
+                    item.add(new MultiValueSelectorPanel("values",
+                            new PropertyModel<List<String>>(attributeTO, "values"),
+                            new AjaxTextFieldPanel("panel", "values", new Model(null))));
                 }
             }
         };

@@ -19,32 +19,33 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Arrays;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.util.string.Strings;
-import org.syncope.client.to.SchemaTO;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.string.Strings;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.client.to.SchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.types.AttributableType;
 import org.syncope.types.SchemaType;
 
 /**
@@ -54,7 +55,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = -5991561277287424057L;
 
-    public SchemaModalPage(String kind) {
+    public SchemaModalPage(AttributableType kind) {
         super(kind);
     }
 
@@ -73,15 +74,13 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.setModel(new CompoundPropertyModel(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", getString("name"),
-                new PropertyModel<String>(schema, "name"), true);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
+                new PropertyModel<String>(schema, "name"));
         name.addRequiredLabel();
         name.setEnabled(createFlag);
 
-        final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel(
-                "conversionPattern", getString("conversionPattern"),
-                new PropertyModel<String>(schema, "conversionPattern"), true);
+        final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
+                getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
         final IModel<List<String>> validatorsList =
                 new LoadableDetachableModel<List<String>>() {
@@ -95,27 +94,21 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     }
                 };
 
-        final AjaxDropDownChoicePanel<String> validatorClass =
-                new AjaxDropDownChoicePanel<String>(
-                "validatorClass", getString("validatorClass"),
-                new PropertyModel(schema, "validatorClass"), true);
+        final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<String>("validatorClass",
+                getString("validatorClass"), new PropertyModel(schema, "validatorClass"));
 
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
 
-        final AjaxDropDownChoicePanel<SchemaType> type =
-                new AjaxDropDownChoicePanel<SchemaType>(
-                "type", getString("type"),
-                new PropertyModel(schema, "type"), false);
+        final AjaxDropDownChoicePanel<SchemaType> type = new AjaxDropDownChoicePanel<SchemaType>("type",
+                getString("type"), new PropertyModel(schema, "type"));
         type.setChoices(Arrays.asList(SchemaType.values()));
         type.addRequiredLabel();
 
-        final AjaxTextFieldPanel enumerationValues = new AjaxTextFieldPanel(
-                "enumerationValues", getString("enumerationValues"),
-                new PropertyModel<String>(schema, "enumerationValues"), false);
+        final AjaxTextFieldPanel enumerationValues = new AjaxTextFieldPanel("enumerationValues",
+                getString("enumerationValues"), new PropertyModel<String>(schema, "enumerationValues"));
 
-        if (schema != null
-                && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
+        if (schema != null && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
             enumerationValues.addRequiredLabel();
             enumerationValues.setEnabled(Boolean.TRUE);
         } else {
@@ -182,17 +175,14 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     }
                 });
 
-        final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel(
-                "multivalue", getString("multivalue"),
-                new PropertyModel<Boolean>(schema, "multivalue"), true);
+        final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
+                new PropertyModel<Boolean>(schema, "multivalue"));
 
-        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel(
-                "readonly", getString("readonly"),
-                new PropertyModel<Boolean>(schema, "readonly"), true);
+        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
+                new PropertyModel<Boolean>(schema, "readonly"));
 
-        final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel(
-                "uniqueConstraint", getString("uniqueConstraint"),
-                new PropertyModel<Boolean>(schema, "uniqueConstraint"), true);
+        final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
+                getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
         final AjaxButton submit = new IndicatingAjaxButton(
                 "apply", new ResourceModel("submit")) {

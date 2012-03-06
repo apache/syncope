@@ -20,7 +20,6 @@ package org.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
@@ -30,12 +29,12 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 public class ReportRestClient extends AbstractBaseRestClient
         implements ExecutionRestClient {
 
-    public Set<String> getReportletClasses() {
-        Set<String> reportletClasses = null;
+    public List<String> getReportletConfClasses() {
+        List<String> reportletClasses = null;
 
         try {
-            reportletClasses = restTemplate.getForObject(
-                    baseURL + "report/reportletClasses.json", Set.class);
+            reportletClasses = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "report/reportletConfClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting available reportlet classes", e);
         }

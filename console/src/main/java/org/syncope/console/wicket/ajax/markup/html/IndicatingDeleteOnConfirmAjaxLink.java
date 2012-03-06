@@ -23,12 +23,11 @@ import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.model.IModel;
 
-public abstract class IndicatingDeleteOnConfirmAjaxLink<T>
-        extends IndicatingAjaxLink<T> {
+public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends IndicatingAjaxLink<T> {
 
-    public IndicatingDeleteOnConfirmAjaxLink(final String id,
-            final IModel<T> model) {
+    private static final long serialVersionUID = 2228670850922265663L;
 
+    public IndicatingDeleteOnConfirmAjaxLink(final String id, final IModel<T> model) {
         super(id, model);
     }
 
@@ -38,13 +37,12 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T>
 
     @Override
     protected IAjaxCallDecorator getAjaxCallDecorator() {
-        return new AjaxPreprocessingCallDecorator(
-                super.getAjaxCallDecorator()) {
+        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+
+            private static final long serialVersionUID = -7927968187160354605L;
 
             @Override
-            public CharSequence preDecorateScript(
-                    final CharSequence script) {
-
+            public CharSequence preDecorateScript(final CharSequence script) {
                 return "if (confirm('"
                         + getString("confirmDelete") + "'))"
                         + "{" + script + "}";

@@ -41,6 +41,8 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
 
         add(new AjaxEventBehavior("onclick") {
 
+            private static final long serialVersionUID = -295188647830294610L;
+
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
                 onUpdate(target);
@@ -59,6 +61,7 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
      *
      * @return ajax call decorator
      */
+    @Override
     protected IAjaxCallDecorator getAjaxCallDecorator() {
         return null;
     }

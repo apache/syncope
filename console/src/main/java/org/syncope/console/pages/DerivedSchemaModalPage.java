@@ -31,6 +31,7 @@ import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.types.AttributableType;
 
 /**
  * Modal window with Schema form.
@@ -39,7 +40,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = 6668789770131753386L;
 
-    public DerivedSchemaModalPage(String kind) {
+    public DerivedSchemaModalPage(AttributableType kind) {
         super(kind);
     }
 
@@ -58,14 +59,12 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", getString("name"),
-                new PropertyModel<String>(schema, "name"), false);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
+                new PropertyModel<String>(schema, "name"));
         name.addRequiredLabel();
 
-        final AjaxTextFieldPanel expression = new AjaxTextFieldPanel(
-                "expression", getString("expression"),
-                new PropertyModel<String>(schema, "expression"), false);
+        final AjaxTextFieldPanel expression = new AjaxTextFieldPanel("expression", getString("expression"),
+                new PropertyModel<String>(schema, "expression"));
         expression.addRequiredLabel();
 
         name.setEnabled(createFlag);

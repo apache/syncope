@@ -32,16 +32,15 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
             final String id,
             final String name,
             final IModel<Number> model,
-            final Class reference,
-            final boolean active) {
+            final Class reference) {
 
-        super(id, name, model, active);
+        super(id, name, model);
 
         field = new TextField<Number>("numberField", model, reference);
 
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
-        if (active) {
+        if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =

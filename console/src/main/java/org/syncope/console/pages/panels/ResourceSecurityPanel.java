@@ -117,13 +117,9 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         // Password policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> passwordPolicy =
-                new AjaxDropDownChoicePanel<Long>(
-                "passwordPolicy",
-                new ResourceModel("passwordPolicy", "passwordPolicy").
-                getObject(),
-                new PropertyModel(resourceTO, "passwordPolicy"),
-                false);
+        final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
+                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
+                new PropertyModel(resourceTO, "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(
                 new PolicyRenderer(PolicyType.PASSWORD));
@@ -139,13 +135,9 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         // Account policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> accountPolicy =
-                new AjaxDropDownChoicePanel<Long>(
-                "accountPolicy",
-                new ResourceModel("accountPolicy", "accountPolicy").
-                getObject(),
-                new PropertyModel(resourceTO, "accountPolicy"),
-                false);
+        final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
+                new ResourceModel("accountPolicy", "accountPolicy").getObject(),
+                new PropertyModel(resourceTO, "accountPolicy"));
 
         accountPolicy.setChoiceRenderer(
                 new PolicyRenderer(PolicyType.ACCOUNT));
@@ -161,13 +153,8 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         // Sync policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> syncPolicy =
-                new AjaxDropDownChoicePanel<Long>(
-                "syncPolicy",
-                new ResourceModel("syncPolicy", "syncPolicy").
-                getObject(),
-                new PropertyModel(resourceTO, "syncPolicy"),
-                false);
+        final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
+                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel(resourceTO, "syncPolicy"));
 
         syncPolicy.setChoiceRenderer(
                 new PolicyRenderer(PolicyType.SYNC));

@@ -32,15 +32,13 @@ public class PropagationTaskModalPage extends TaskModalPage {
     public PropagationTaskModalPage(final TaskTO taskTO) {
         super(taskTO);
 
-        final AjaxTextFieldPanel accountId = new AjaxTextFieldPanel(
-                "accountId", getString("accountId"),
-                new PropertyModel<String>(taskTO, "accountId"), false);
+        final AjaxTextFieldPanel accountId = new AjaxTextFieldPanel("accountId", getString("accountId"),
+                new PropertyModel<String>(taskTO, "accountId"));
         accountId.setEnabled(false);
         profile.add(accountId);
 
-        final AjaxTextFieldPanel resource = new AjaxTextFieldPanel(
-                "resource", getString("resource"),
-                new PropertyModel<String>(taskTO, "resource"), false);
+        final AjaxTextFieldPanel resource = new AjaxTextFieldPanel("resource", getString("resource"),
+                new PropertyModel<String>(taskTO, "resource"));
         resource.setEnabled(false);
         profile.add(resource);
     }

@@ -60,26 +60,22 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         form.setOutputMarkupId(true);
         add(form);
 
-        final AjaxTextFieldPanel policyid = new AjaxTextFieldPanel(
-                "id", "id",
-                new PropertyModel<String>(policyTO, "id"), false);
+        final AjaxTextFieldPanel policyid = new AjaxTextFieldPanel("id", "id",
+                new PropertyModel<String>(policyTO, "id"));
         policyid.setEnabled(false);
         policyid.setStyleShet(
                 "ui-widget-content ui-corner-all short_fixedsize");
         form.add(policyid);
 
-        final AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                "description", "description",
-                new PropertyModel<String>(policyTO, "description"), false);
+        final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
+                new PropertyModel<String>(policyTO, "description"));
         description.addRequiredLabel();
         description.setStyleShet(
                 "ui-widget-content ui-corner-all medium_dynamicsize");
         form.add(description);
 
-        final AjaxDropDownChoicePanel<PolicyType> type =
-                new AjaxDropDownChoicePanel<PolicyType>(
-                "type", "type",
-                new PropertyModel<PolicyType>(policyTO, "type"), false);
+        final AjaxDropDownChoicePanel<PolicyType> type = new AjaxDropDownChoicePanel<PolicyType>("type", "type",
+                new PropertyModel<PolicyType>(policyTO, "type"));
 
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:

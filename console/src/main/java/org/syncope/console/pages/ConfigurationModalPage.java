@@ -47,7 +47,7 @@ public class ConfigurationModalPage extends BaseModalPage {
 
     /**
      * ConfigurationModalPage constructor.
-     * 
+     *
      * @param callPageRef base
      * @param window
      * @param configurationTO
@@ -61,16 +61,13 @@ public class ConfigurationModalPage extends BaseModalPage {
         Form form = new Form("form", new CompoundPropertyModel(
                 configurationTO));
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key",
-                new PropertyModel(configurationTO, "key"), false);
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key", new PropertyModel(configurationTO, "key"));
         form.add(key);
         key.setEnabled(createFlag);
         key.addRequiredLabel();
 
-        final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value",
-                new PropertyModel(configurationTO, "value"), false);
+        final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value",
+                new PropertyModel(configurationTO, "value"));
         form.add(value);
         value.addRequiredLabel();
 

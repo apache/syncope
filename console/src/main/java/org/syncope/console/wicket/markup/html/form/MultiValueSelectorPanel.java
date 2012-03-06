@@ -35,36 +35,25 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
-    ListView<E> view;
+    private ListView<E> view;
 
-    WebMarkupContainer container;
+    private WebMarkupContainer container;
 
     public MultiValueSelectorPanel(
             final String id,
             final IModel<List<E>> model,
-            final Class reference,
             final FieldPanel panelTemplate) {
-        super(id, model);
-        init(id, model, reference, panelTemplate, false);
 
+        this(id, model, panelTemplate, false);
     }
 
     public MultiValueSelectorPanel(
             final String id,
             final IModel<List<E>> model,
-            final Class reference,
             final FieldPanel panelTemplate,
             final boolean eventTemplate) {
-        super(id, model);
-        init(id, model, reference, panelTemplate, eventTemplate);
-    }
 
-    private void init(
-            final String id,
-            final IModel<List<E>> model,
-            final Class reference,
-            final FieldPanel panelTemplate,
-            final boolean sendEvent) {
+        super(id, model);
 
         // -----------------------
         // Object container definition
@@ -80,33 +69,28 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
             @Override
             protected void populateItem(final ListItem<E> item) {
-
                 final FieldPanel fieldPanel = panelTemplate.clone();
 
-                if (sendEvent) {
-                    fieldPanel.getField().add(
-                            new AjaxFormComponentUpdatingBehavior("onchange") {
+                if (eventTemplate) {
+                    fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                                private static final long serialVersionUID =
-                                        -1107858522700306810L;
+                        private static final long serialVersionUID = -1107858522700306810L;
 
-                                @Override
-                                protected void onUpdate(
-                                        final AjaxRequestTarget target) {
+                        @Override
+                        protected void onUpdate(
+                                final AjaxRequestTarget target) {
 
-                                    send(getPage(), Broadcast.BREADTH,
-                                            new MultiValueSelectorEvent(target));
-                                }
-                            });
+                            send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
+                        }
+                    });
                 }
 
-                fieldPanel.setNewModel(item, reference);
+                fieldPanel.setNewModel(item);
                 item.add(fieldPanel);
 
                 AjaxLink minus = new IndicatingAjaxLink("drop") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -115,9 +99,8 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                         fieldPanel.getField().clearInput();
                         target.add(container);
 
-                        if (sendEvent) {
-                            send(getPage(), Broadcast.BREADTH,
-                                    new MultiValueSelectorEvent(target));
+                        if (eventTemplate) {
+                            send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                         }
                     }
                 };
@@ -132,11 +115,11 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                     minus.setEnabled(true);
                 }
 
+                final Fragment fragment;
                 if (item.getIndex() == model.getObject().size() - 1) {
                     final AjaxLink plus = new IndicatingAjaxLink("add") {
 
-                        private static final long serialVersionUID =
-                                -7978723352517770644L;
+                        private static final long serialVersionUID = -7978723352517770644L;
 
                         @Override
                         public void onClick(final AjaxRequestTarget target) {
@@ -146,16 +129,13 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                         }
                     };
 
-                    final Fragment fragment = new Fragment(
-                            "panelPlus", "fragmentPlus", container);
+                    fragment = new Fragment("panelPlus", "fragmentPlus", container);
 
                     fragment.add(plus);
-                    item.add(fragment);
                 } else {
-                    final Fragment fragment = new Fragment(
-                            "panelPlus", "emptyFragment", container);
-                    item.add(fragment);
+                    fragment = new Fragment("panelPlus", "emptyFragment", container);
                 }
+                item.add(fragment);
             }
         };
 

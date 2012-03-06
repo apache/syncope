@@ -27,19 +27,19 @@ import java.util.List;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.form.validation.AbstractFormValidator;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
 import org.syncope.client.SyncopeConstants;
 
-public class DateTimeFieldPanel extends FieldPanel<Date> {
+public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private static final long serialVersionUID = -428975732068281726L;
 
@@ -61,10 +61,9 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             final String id,
             final String name,
             final IModel<Date> model,
-            final boolean active,
             final String datePattern) {
 
-        super(id, name, model, active);
+        super(id, name, model);
 
         this.datePattern = datePattern;
 
@@ -72,30 +71,24 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
         final Calendar cal = Calendar.getInstance();
 
-        field.get("hours").
-                add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("hours").add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(AjaxRequestTarget art) {
                 if (((DateTimeField) field).getHours() > 12) {
-                    cal.set(Calendar.HOUR_OF_DAY,
-                            ((DateTimeField) field).getHours());
+                    cal.set(Calendar.HOUR_OF_DAY, ((DateTimeField) field).getHours());
                 } else {
-                    cal.set(Calendar.HOUR,
-                            ((DateTimeField) field).getHours());
+                    cal.set(Calendar.HOUR, ((DateTimeField) field).getHours());
                 }
                 field.setModelObject(cal.getTime());
             }
         });
 
-        field.get("minutes").
-                add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("minutes").add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -104,11 +97,9 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             }
         });
 
-        field.get("date").
-                add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("date").add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -124,11 +115,9 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             }
         });
 
-        field.get("amOrPmChoice").
-                add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("amOrPmChoice").add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -146,8 +135,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     }
 
     /**
-     * Custom form validator for registering and handling DateTimeField
-     * components that are in it.
+     * Custom form validator for registering and handling DateTimeField components that are in it.
      */
     private class DateTimeFormValidator extends AbstractFormValidator {
 
@@ -157,8 +145,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
         public DateTimeFormValidator(final DateTimeField dateTimeComponent) {
             if (dateTimeComponent == null) {
-                throw new IllegalArgumentException(
-                        "argument dateTimeComponent cannot be null");
+                throw new IllegalArgumentException("argument dateTimeComponent cannot be null");
             }
 
             dateTimeComponents = new FormComponent[]{dateTimeComponent};
@@ -171,12 +158,12 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
         /**
          * Validation rule : all 3 fields (date,hours,minutes) must be not-null.
+         *
          * @param form
          */
         @Override
         public void validate(final Form form) {
-            final DateTimeField dateTimeField =
-                    (DateTimeField) dateTimeComponents[0];
+            final DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
             if (!(dateTimeField.getDate() != null
                     && dateTimeField.getHours() != null
@@ -203,7 +190,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     }
 
     @Override
-    public FieldPanel setNewModel(final ListItem item, final Class reference) {
+    public FieldPanel setNewModel(final ListItem item) {
         final SimpleDateFormat formatter = DATE_FORMAT.get();
 
         if (datePattern != null) {
@@ -212,23 +199,21 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
         IModel<Date> model = new Model() {
 
-            private static final long serialVersionUID =
-                    6799404673615637845L;
+            private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
             public Serializable getObject() {
                 Date date = null;
 
                 if (StringUtils.hasText((String) item.getModelObject())) {
-                    if (reference.equals(String.class)) {
+                    if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         try {
-                            date = formatter.parse(
-                                    (String) item.getModelObject());
+                            date = formatter.parse((String) item.getModelObject());
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
-                    } else if (reference.equals(Date.class)) {
+                    } else if (item.getModelObject() instanceof Date) {
                         // Don't parse anything
                         date = (Date) item.getModelObject();
                     } else {
@@ -243,11 +228,10 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             @Override
             public void setObject(final Serializable object) {
                 if (object != null) {
-                    if (reference.equals(String.class)) {
+                    if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
-                        item.setModelObject(
-                                (String) formatter.format((Date) object));
-                    } else if (reference.equals(Date.class)) {
+                        item.setModelObject((String) formatter.format((Date) object));
+                    } else if (item.getModelObject() instanceof Date) {
                         // Don't parse anything
                         item.setModelObject((Date) object);
                     } else {
@@ -280,8 +264,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             public Serializable getObject() {
                 Date date = null;
 
-                if (list != null && !list.isEmpty()
-                        && StringUtils.hasText(list.get(0).toString())) {
+                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
                     try {
                         // Parse string using datePattern
                         date = formatter.parse(list.get(0).toString());
@@ -307,25 +290,20 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setStyleShet(String classes) {
-        field.get("date").add(AttributeModifier.replace(
-                "class", (classes != null ? classes : "") + " date_size"));
+        field.get("date").add(AttributeModifier.replace("class", (classes != null ? classes : "") + " date_size"));
 
-        field.get("hours").add(AttributeModifier.replace(
-                "class", classes != null ? classes : ""));
+        field.get("hours").add(AttributeModifier.replace("class", classes != null ? classes : ""));
 
-        field.get("minutes").add(AttributeModifier.replace(
-                "class", classes != null ? classes : ""));
+        field.get("minutes").add(AttributeModifier.replace("class", classes != null ? classes : ""));
 
-        field.get("amOrPmChoice").add(AttributeModifier.replace(
-                "class", classes != null ? classes : ""));
+        field.get("amOrPmChoice").add(AttributeModifier.replace("class", classes != null ? classes : ""));
 
         return this;
     }
 
     @Override
     public FieldPanel clone() {
-        final FieldPanel panel = new DateTimeFieldPanel(
-                id, name, new Model(null), active, datePattern);
+        final FieldPanel panel = new DateTimeFieldPanel(id, name, new Model(null), datePattern);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

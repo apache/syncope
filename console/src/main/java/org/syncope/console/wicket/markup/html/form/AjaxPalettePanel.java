@@ -21,7 +21,6 @@ package org.syncope.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
@@ -38,42 +37,45 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
             final IModel<List<T>> model,
             final ListModel<T> choices) {
 
-        super(id, model);
-
-        this.palette = createPalette(
-                id, model, choices, new SelectChoiceRenderer());
-        add(palette.setOutputMarkupId(true));
-        setOutputMarkupId(true);
+        this(id, model, choices, false);
     }
 
     public AjaxPalettePanel(
             final String id,
             final IModel<List<T>> model,
             final ListModel<T> choices,
-            final ChoiceRenderer<T> renderer) {
+            final boolean allowOrder) {
+
+        this(id, model, choices, new SelectChoiceRenderer(), allowOrder);
+    }
+
+    public AjaxPalettePanel(
+            final String id,
+            final IModel<List<T>> model,
+            final ListModel<T> choices,
+            final IChoiceRenderer<T> renderer,
+            final boolean allowOrder) {
 
         super(id, model);
 
-        this.palette = createPalette(id, model, choices, renderer);
+        this.palette = createPalette(model, choices, renderer, allowOrder);
         add(palette.setOutputMarkupId(true));
         setOutputMarkupId(true);
     }
 
     private Palette<T> createPalette(
-            final String id,
             final IModel<List<T>> model,
             final ListModel<T> choices,
-            final IChoiceRenderer renderer) {
+            final IChoiceRenderer<T> renderer,
+            final boolean allowOrder) {
 
-        final Palette<T> palette = new Palette(
+        return new Palette(
                 "paletteField",
                 model,
                 choices,
                 renderer,
                 8,
-                false);
-
-        return palette;
+                allowOrder);
     }
 
     @Override

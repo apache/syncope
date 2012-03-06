@@ -27,14 +27,14 @@ import org.xml.sax.SAXException;
  *
  * @see org.syncope.core.persistence.beans.Report
  */
-public interface Reportlet {
+public interface Reportlet<T extends ReportletConf> {
 
     /**
      * Set this reportlet configuration.
      *
      * @param conf configuration
      */
-    void setConf(ReportletConf conf);
+    void setConf(T conf);
 
     /**
      * Actual data extraction for reporting.

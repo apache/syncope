@@ -20,7 +20,6 @@ package org.syncope.client.report;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.syncope.annotation.FormAttributeField;
 import org.syncope.client.search.NodeCond;
 import org.syncope.types.IntMappingType;
@@ -59,7 +58,7 @@ public class UserReportletConf extends AbstractReportletConf {
     private List<Feature> features;
 
     public UserReportletConf() {
-        this(UserReportletConf.class.getName());
+        super();
     }
 
     public UserReportletConf(final String name) {
@@ -69,12 +68,6 @@ public class UserReportletConf extends AbstractReportletConf {
         derAttrs = new ArrayList<String>();
         virAttrs = new ArrayList<String>();
         features = new ArrayList<Feature>();
-    }
-
-    @JsonIgnore
-    @Override
-    public String getReportletClassName() {
-        return "org.syncope.core.report.UserReportlet";
     }
 
     public List<String> getAttrs() {

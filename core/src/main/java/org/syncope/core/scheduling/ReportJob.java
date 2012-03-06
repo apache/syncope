@@ -46,6 +46,7 @@ import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
 import org.syncope.core.report.ReportException;
 import org.syncope.core.report.Reportlet;
+import org.syncope.core.rest.data.ReportDataBinder;
 import static org.syncope.core.scheduling.ReportXMLConst.ATTR_NAME;
 import static org.syncope.core.scheduling.ReportXMLConst.ELEMENT_REPORT;
 import static org.syncope.core.scheduling.ReportXMLConst.XSD_STRING;
@@ -61,8 +62,7 @@ public class ReportJob implements StatefulJob {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ReportJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
 
     /**
      * Report DAO.
@@ -75,6 +75,9 @@ public class ReportJob implements StatefulJob {
      */
     @Autowired
     private ReportExecDAO reportExecDAO;
+
+    @Autowired
+    private ReportDataBinder dataBinder;
 
     /**
      * Id, set by the caller, for identifying the report to be executed.
@@ -96,8 +99,7 @@ public class ReportJob implements StatefulJob {
 
         Report report = reportDAO.find(reportId);
         if (report == null) {
-            throw new JobExecutionException(
-                    "Report " + reportId + " not found");
+            throw new JobExecutionException("Report " + reportId + " not found");
         }
 
         // 1. create execution
@@ -114,8 +116,7 @@ public class ReportJob implements StatefulJob {
         ZipOutputStream zos = new ZipOutputStream(baos);
         zos.setLevel(Deflater.BEST_COMPRESSION);
         try {
-            SAXTransformerFactory transformerFactory =
-                    (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
             handler = transformerFactory.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
             serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -134,9 +135,7 @@ public class ReportJob implements StatefulJob {
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
-        ConfigurableListableBeanFactory beanFactory =
-                ApplicationContextManager.getApplicationContext().
-                getBeanFactory();
+        ConfigurableListableBeanFactory beanFactory = ApplicationContextManager.getApplicationContext().getBeanFactory();
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
@@ -150,19 +149,9 @@ public class ReportJob implements StatefulJob {
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class reportletClass = null;
-                try {
-                    reportletClass = Class.forName(
-                            reportletConf.getReportletClassName());
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Reportlet class not found: {}",
-                            reportletConf.getReportletClassName(), e);
-
-                }
-
+                Class<Reportlet> reportletClass = dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
                 if (reportletClass != null) {
-                    Reportlet autowired =
-                            (Reportlet) beanFactory.createBean(reportletClass,
+                    Reportlet autowired = (Reportlet) beanFactory.createBean(reportletClass,
                             AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     autowired.setConf(reportletConf);
 
@@ -187,9 +176,7 @@ public class ReportJob implements StatefulJob {
             handler.endElement("", "", ELEMENT_REPORT);
             handler.endDocument();
 
-            if (!ReportExecStatus.FAILURE.name().
-                    equals(execution.getStatus())) {
-
+            if (!ReportExecStatus.FAILURE.name().equals(execution.getStatus())) {
                 execution.setStatus(ReportExecStatus.SUCCESS);
             }
         } catch (Exception e) {

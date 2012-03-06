@@ -26,14 +26,14 @@ import java.util.Date;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
 
-public class DateTextFieldPanel extends FieldPanel<Date> {
+public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private static final long serialVersionUID = 1919852712185883648L;
 
@@ -43,16 +43,15 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
             final String id,
             final String name,
             final IModel<Date> model,
-            final boolean active,
             final String datePattern) {
 
-        super(id, name, model, active);
+        super(id, name, model);
 
         this.datePattern = datePattern;
 
         field = DateTextField.forDatePattern("field", model, datePattern);
 
-        if (active) {
+        if (!isReadOnly()) {
             field.add(
                     new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -91,7 +90,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
     }
 
     @Override
-    public FieldPanel setNewModel(final ListItem item, final Class reference) {
+    public FieldPanel setNewModel(final ListItem item) {
         final DateFormat formatter = new SimpleDateFormat(datePattern);
 
         IModel<Date> model = new Model() {
@@ -104,7 +103,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
                 Date date = null;
 
                 if (StringUtils.hasText((String) item.getModelObject())) {
-                    if (reference.equals(String.class)) {
+                    if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         try {
                             date = formatter.parse(
@@ -112,7 +111,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
-                    } else if (reference.equals(Date.class)) {
+                    } else if (item.getModelObject() instanceof Date) {
                         // Don't parse anything
                         date = (Date) item.getModelObject();
                     } else {
@@ -127,11 +126,11 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
             @Override
             public void setObject(final Serializable object) {
                 if (object != null) {
-                    if (reference.equals(String.class)) {
+                    if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         item.setModelObject(
                                 (String) formatter.format((Date) object));
-                    } else if (reference.equals(Date.class)) {
+                    } else if (item.getModelObject() instanceof Date) {
                         // Don't parse anything
                         item.setModelObject((Date) object);
                     } else {
@@ -188,9 +187,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel clone() {
-        final FieldPanel panel = new DateTextFieldPanel(
-                id, name, new Model(null), active, datePattern);
-
+        final FieldPanel panel = new DateTextFieldPanel(id, name, new Model(null), datePattern);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

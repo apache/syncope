@@ -82,97 +82,61 @@ public class ResourceDetailsPanel extends Panel {
         connInstanceTO =
                 getConectorInstanceTO(connectors.getObject(), resourceTO);
 
-        final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel(
-                "name",
-                new ResourceModel("name", "name").getObject(),
-                new PropertyModel<String>(resourceTO, "name"),
-                false);
+        final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel("name",
+                new ResourceModel("name", "name").getObject(), new PropertyModel<String>(resourceTO, "name"));
 
         resourceName.setEnabled(createFlag);
         resourceName.addRequiredLabel();
         add(resourceName);
 
-        final AjaxCheckBoxPanel forceMandatoryConstraint =
-                new AjaxCheckBoxPanel(
-                "forceMandatoryConstraint",
-                new ResourceModel(
-                "forceMandatoryConstraint", "forceMandatoryConstraint").
-                getObject(),
-                new PropertyModel<Boolean>(resourceTO,
-                "forceMandatoryConstraint"),
-                false);
+        final AjaxCheckBoxPanel forceMandatoryConstraint = new AjaxCheckBoxPanel("forceMandatoryConstraint",
+                new ResourceModel("forceMandatoryConstraint", "forceMandatoryConstraint").getObject(),
+                new PropertyModel<Boolean>(resourceTO, "forceMandatoryConstraint"));
         add(forceMandatoryConstraint);
 
-        final AjaxCheckBoxPanel propagationPrimary =
-                new AjaxCheckBoxPanel(
-                "propagationPrimary",
-                new ResourceModel(
-                "propagationPrimary", "propagationPrimary").getObject(),
-                new PropertyModel<Boolean>(resourceTO,
-                "propagationPrimary"),
-                false);
+        final AjaxCheckBoxPanel propagationPrimary = new AjaxCheckBoxPanel("propagationPrimary",
+                new ResourceModel("propagationPrimary", "propagationPrimary").getObject(),
+                new PropertyModel<Boolean>(resourceTO, "propagationPrimary"));
         add(propagationPrimary);
 
-        final AjaxNumberFieldPanel propagationPriority =
-                new AjaxNumberFieldPanel(
-                "propagationPriority",
-                new ResourceModel("propagationPriority", "propagationPriority").
-                getObject(),
-                new PropertyModel<Number>(resourceTO, "propagationPriority"),
-                Integer.class,
-                false);
+        final AjaxNumberFieldPanel propagationPriority = new AjaxNumberFieldPanel("propagationPriority",
+                new ResourceModel("propagationPriority", "propagationPriority").getObject(),
+                new PropertyModel<Number>(resourceTO, "propagationPriority"), Integer.class);
         add(propagationPriority);
 
-        final AjaxDropDownChoicePanel<PropagationMode> propagationMode =
-                new AjaxDropDownChoicePanel<PropagationMode>(
-                "propagationMode",
-                new ResourceModel("propagationMode", "propagationMode").
-                getObject(),
-                new PropertyModel(resourceTO, "propagationMode"),
-                false);
+        final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(
+                "propagationMode", new ResourceModel("propagationMode", "propagationMode").getObject(),
+                new PropertyModel(resourceTO, "propagationMode"));
         propagationMode.setChoices(
                 Arrays.asList(PropagationMode.values()));
         add(propagationMode);
 
-        final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel =
-                new AjaxDropDownChoicePanel<TraceLevel>("createTraceLevel",
-                new ResourceModel("createTraceLevel", "createTraceLevel").
-                getObject(),
-                new PropertyModel(resourceTO, "createTraceLevel"),
-                false);
+        final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+                "createTraceLevel", new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
+                new PropertyModel(resourceTO, "createTraceLevel"));
         createTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(createTraceLevel);
 
-        final AjaxDropDownChoicePanel<TraceLevel> updateTraceLevel =
-                new AjaxDropDownChoicePanel<TraceLevel>("updateTraceLevel",
-                new ResourceModel("updateTraceLevel", "updateTraceLevel").
-                getObject(),
-                new PropertyModel(resourceTO, "updateTraceLevel"),
-                false);
+        final AjaxDropDownChoicePanel<TraceLevel> updateTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+                "updateTraceLevel", new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
+                new PropertyModel(resourceTO, "updateTraceLevel"));
         updateTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(updateTraceLevel);
 
-        final AjaxDropDownChoicePanel<TraceLevel> deleteTraceLevel =
-                new AjaxDropDownChoicePanel<TraceLevel>("deleteTraceLevel",
-                new ResourceModel("deleteTraceLevel", "deleteTraceLevel").
-                getObject(),
-                new PropertyModel(resourceTO, "deleteTraceLevel"),
-                false);
+        final AjaxDropDownChoicePanel<TraceLevel> deleteTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+                "deleteTraceLevel", new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
+                new PropertyModel(resourceTO, "deleteTraceLevel"));
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(deleteTraceLevel);
 
-        final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel =
-                new AjaxDropDownChoicePanel<TraceLevel>("syncTraceLevel",
-                new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(),
-                new PropertyModel(resourceTO, "syncTraceLevel"),
-                false);
+        final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+                "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(),
+                new PropertyModel(resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
 
-        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel(
-                "resetToken",
-                new ResourceModel("resetToken", "resetToken").getObject(),
-                new Model(null), false);
+        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken",
+                new ResourceModel("resetToken", "resetToken").getObject(), new Model(null));
 
         resetToken.getField().add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -189,12 +153,9 @@ public class ResourceDetailsPanel extends Panel {
                 });
         add(resetToken);
 
-        final AjaxDropDownChoicePanel<ConnInstanceTO> conn =
-                new AjaxDropDownChoicePanel<ConnInstanceTO>(
-                "connector",
-                new ResourceModel("connector", "connector").getObject(),
-                new PropertyModel(this, "connInstanceTO"),
-                false);
+        final AjaxDropDownChoicePanel<ConnInstanceTO> conn = new AjaxDropDownChoicePanel<ConnInstanceTO>(
+                "connector", new ResourceModel("connector", "connector").getObject(),
+                new PropertyModel(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
         conn.setChoiceRenderer(new ChoiceRenderer("displayName", "id"));
 

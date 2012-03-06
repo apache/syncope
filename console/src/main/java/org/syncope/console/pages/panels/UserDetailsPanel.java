@@ -52,9 +52,8 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel username = new AjaxTextFieldPanel(
-                "username", "username",
-                new PropertyModel<String>(userTO, "username"), true);
+        final FieldPanel username = new AjaxTextFieldPanel("username", "username",
+                new PropertyModel<String>(userTO, "username"));
         if (!templateMode) {
             username.addRequiredLabel();
         }
@@ -69,30 +68,23 @@ public class UserDetailsPanel extends Panel {
                 new ResourceModel("confirmPassword"));
         final FieldPanel confirmPassword;
         if (templateMode) {
-            password = new AjaxTextFieldPanel("password", "password",
-                    new PropertyModel<String>(userTO, "password"), true);
+            password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
 
             confirmPasswordLabel.setVisible(false);
-            confirmPassword = new AjaxTextFieldPanel("confirmPassword",
-                    "confirmPassword", new Model<String>(), false);
+            confirmPassword = new AjaxTextFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
             confirmPassword.setEnabled(false);
             confirmPassword.setVisible(false);
         } else {
-            password = new AjaxPasswordFieldPanel("password", "password",
-                    new PropertyModel<String>(userTO, "password"), true);
+            password = new AjaxPasswordFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
             password.setRequired(userTO.getId() == 0);
-            ((PasswordTextField) password.getField()).setResetPassword(
-                    resetPassword);
+            ((PasswordTextField) password.getField()).setResetPassword(resetPassword);
 
-            confirmPassword = new AjaxPasswordFieldPanel("confirmPassword",
-                    "confirmPassword", new Model<String>(), true);
+            confirmPassword = new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
             if (!resetPassword) {
-                confirmPassword.getField().setModelObject(
-                        userTO.getPassword());
+                confirmPassword.getField().setModelObject(userTO.getPassword());
             }
             confirmPassword.setRequired(userTO.getId() == 0);
-            ((PasswordTextField) confirmPassword.getField()).setResetPassword(
-                    resetPassword);
+            ((PasswordTextField) confirmPassword.getField()).setResetPassword(resetPassword);
 
             form.add(new EqualPasswordInputValidator(
                     password.getField(), confirmPassword.getField()));

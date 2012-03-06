@@ -47,14 +47,14 @@ public class RoleSecurityPanel extends Panel {
      */
     protected static final Logger LOG =
             LoggerFactory.getLogger(RoleSecurityPanel.class);
-    
+
     private static final long serialVersionUID = -7982691107029848579L;
-    
+
     @SpringBean
     private PolicyRestClient policyRestClient;
-    
+
     IModel<Map<Long, String>> passwordPolicies = null;
-    
+
     IModel<Map<Long, String>> accountPolicies = null;
 
     public <T extends AbstractAttributableTO> RoleSecurityPanel(
@@ -103,11 +103,8 @@ public class RoleSecurityPanel extends Panel {
         // -------------------------------
         // Password policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> passwordPolicy =
-                new AjaxDropDownChoicePanel<Long>(
-                "passwordPolicy", "passwordPolicy",
-                new PropertyModel(entityTO, "passwordPolicy"),
-                false);
+        final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
+                "passwordPolicy", new PropertyModel(entityTO, "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(
                 new PolicyRenderer(PolicyType.PASSWORD));
@@ -119,10 +116,8 @@ public class RoleSecurityPanel extends Panel {
 
         securityContainer.add(passwordPolicy);
 
-        final AjaxCheckBoxPanel inhPasswordPolicy = new AjaxCheckBoxPanel(
-                "inheritPasswordPolicy", "inheritPasswordPolicy",
-                new PropertyModel<Boolean>(entityTO, "inheritPasswordPolicy"),
-                false);
+        final AjaxCheckBoxPanel inhPasswordPolicy = new AjaxCheckBoxPanel("inheritPasswordPolicy",
+                "inheritPasswordPolicy", new PropertyModel<Boolean>(entityTO, "inheritPasswordPolicy"));
 
         passwordPolicy.setReadOnly(inhPasswordPolicy.getModelObject());
 
@@ -147,29 +142,19 @@ public class RoleSecurityPanel extends Panel {
         // -------------------------------
         // Account policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> accountPolicy =
-                new AjaxDropDownChoicePanel<Long>(
-                "accountPolicy",
-                "accountPolicy",
-                new PropertyModel(entityTO, "accountPolicy"),
-                false);
+        final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
+                "accountPolicy", new PropertyModel(entityTO, "accountPolicy"));
 
-        accountPolicy.setChoiceRenderer(
-                new PolicyRenderer(PolicyType.ACCOUNT));
+        accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
-        accountPolicy.setChoices(
-                new ArrayList<Long>(accountPolicies.getObject().keySet()));
+        accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
 
         ((DropDownChoice) accountPolicy.getField()).setNullValid(true);
 
         securityContainer.add(accountPolicy);
 
-        final AjaxCheckBoxPanel inhAccountPolicy = new AjaxCheckBoxPanel(
-                "inheritAccountPolicy",
-                "inheritAccountPolicy",
-                new PropertyModel<Boolean>(entityTO, "inheritAccountPolicy"),
-                false);
-
+        final AjaxCheckBoxPanel inhAccountPolicy = new AjaxCheckBoxPanel("inheritAccountPolicy",
+                "inheritAccountPolicy", new PropertyModel<Boolean>(entityTO, "inheritAccountPolicy"));
         accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
 
         inhAccountPolicy.getField().add(
@@ -180,8 +165,7 @@ public class RoleSecurityPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        accountPolicy.setReadOnly(
-                                inhAccountPolicy.getModelObject());
+                        accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
                         target.add(accountPolicy);
                     }
                 });

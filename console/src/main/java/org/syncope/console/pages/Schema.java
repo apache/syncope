@@ -18,7 +18,6 @@
  */
 package org.syncope.console.pages;
 
-import org.syncope.console.commons.SchemaModalPageFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -53,12 +52,14 @@ import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.VirtualSchemaTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SchemaModalPageFactory;
 import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
 import org.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.syncope.types.AttributableType;
 
 /**
  * Schema WebPage.
@@ -174,11 +175,6 @@ public class Schema extends BasePage {
     private int membershipDerPageRows;
 
     private int membershipVirPageRows;
-
-    /*
-     * Response flag set by the Modal Window after the operation is completed
-     */
-    private boolean operationResult = false;
 
     public Schema(PageParameters parameters) {
         super(parameters);
@@ -302,7 +298,7 @@ public class Schema extends BasePage {
         List<IColumn> rolesColumns = getColumnsForSchema(
                 roleSchemasContainer,
                 editRoleSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 Constants.SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -322,7 +318,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsRolesDer = getColumnsForSchema(
                 roleDerivedSchemasContainer,
                 editRoleDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 Constants.DERIVED_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -343,7 +339,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsRolesVir = getColumnsForSchema(
                 roleVirtualSchemasContainer,
                 editRoleVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 Constants.VIRTUAL_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -364,7 +360,7 @@ public class Schema extends BasePage {
         List<IColumn> userColumns = getColumnsForSchema(
                 userSchemasContainer,
                 editUserSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 Constants.SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -386,7 +382,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsUsersDer = getColumnsForSchema(
                 userDerivedSchemasContainer,
                 editUserDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 Constants.DERIVED_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -407,7 +403,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsUsersVir = getColumnsForSchema(
                 userVirtualSchemasContainer,
                 editUserVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 Constants.VIRTUAL_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -428,7 +424,7 @@ public class Schema extends BasePage {
         List<IColumn> membershipsColumns = getColumnsForSchema(
                 membershipSchemaContainer,
                 editMembershipSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 Constants.SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -450,7 +446,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsMembershipsDer = getColumnsForSchema(
                 membershipDerivedSchemaContainer,
                 editMembershipDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 Constants.DERIVED_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -473,7 +469,7 @@ public class Schema extends BasePage {
         List<IColumn> columnsMembershipsVir = getColumnsForSchema(
                 membershipVirtualSchemaContainer,
                 editMembershipVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 Constants.VIRTUAL_SCHEMA_FIELDS,
                 allowedReadRoles,
@@ -672,7 +668,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createRoleSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 "createRoleSchemaWinLink",
                 "createRoleSchemaWin",
@@ -680,7 +676,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createRoleDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 "createRoleDerivedSchemaWinLink",
                 "createRoleDerivedSchemaWin",
@@ -688,7 +684,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createRoleVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.role,
+                AttributableType.ROLE,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 "createRoleVirtualSchemaWinLink",
                 "createRoleVirtualSchemaWin",
@@ -696,7 +692,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createUserSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 "createUserSchemaWinLink",
                 "createUserSchemaModalWin",
@@ -704,7 +700,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createUserDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 "createUserDerSchemaWinLink",
                 "createUserDerSchemaModalWin",
@@ -712,7 +708,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createUserVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.user,
+                AttributableType.USER,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 "createUserVirSchemaWinLink",
                 "createUserVirSchemaModalWin",
@@ -720,7 +716,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createMembershipSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.NORMAL,
                 "createMembershipSchemaWinLink",
                 "createMembershipSchemaModalWin",
@@ -728,7 +724,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createMembershipDerivedSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.DERIVED,
                 "createMembershipDerSchemaWinLink",
                 "createMembershipDerivedSchemaWin",
@@ -736,7 +732,7 @@ public class Schema extends BasePage {
 
         add(getCreateSchemaWindow(
                 createMembershipVirtualSchemaWin,
-                SchemaModalPageFactory.Entity.membership,
+                AttributableType.MEMBERSHIP,
                 SchemaModalPageFactory.SchemaType.VIRTUAL,
                 "createMembershipVirSchemaWinLink",
                 "createMembershipVirtualSchemaWin",
@@ -784,15 +780,15 @@ public class Schema extends BasePage {
             List<SchemaTO> list;
             switch (schemaType) {
                 case UserSchema:
-                    list = restClient.getSchemas("user");
+                    list = restClient.getSchemas(AttributableType.USER);
                     break;
 
                 case RoleSchema:
-                    list = restClient.getSchemas("role");
+                    list = restClient.getSchemas(AttributableType.ROLE);
                     break;
 
                 case MembershipSchema:
-                    list = restClient.getSchemas("membership");
+                    list = restClient.getSchemas(AttributableType.MEMBERSHIP);
                     break;
 
                 default:
@@ -846,11 +842,11 @@ public class Schema extends BasePage {
             List<DerivedSchemaTO> list = null;
 
             if (schema == SchemaDerivedType.RoleDerivedSchema) {
-                list = restClient.getDerivedSchemas("role");
+                list = restClient.getDerivedSchemas(AttributableType.ROLE);
             } else if (schema == SchemaDerivedType.UserDerivedSchema) {
-                list = restClient.getDerivedSchemas("user");
+                list = restClient.getDerivedSchemas(AttributableType.USER);
             } else if (schema == SchemaDerivedType.MembershipDerivedSchema) {
-                list = restClient.getDerivedSchemas("membership");
+                list = restClient.getDerivedSchemas(AttributableType.MEMBERSHIP);
             }
 
             return list;
@@ -900,11 +896,11 @@ public class Schema extends BasePage {
             List<VirtualSchemaTO> list = null;
 
             if (schema == SchemaVirtualType.RoleVirtualSchema) {
-                list = restClient.getVirtualSchemas("role");
+                list = restClient.getVirtualSchemas(AttributableType.ROLE);
             } else if (schema == SchemaVirtualType.UserVirtualSchema) {
-                list = restClient.getVirtualSchemas("user");
+                list = restClient.getVirtualSchemas(AttributableType.USER);
             } else if (schema == SchemaVirtualType.MembershipVirtualSchema) {
-                list = restClient.getVirtualSchemas("membership");
+                list = restClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
             }
 
             return list;
@@ -914,7 +910,7 @@ public class Schema extends BasePage {
     private <T extends AbstractSchemaModalPage> List<IColumn> getColumnsForSchema(
             final WebMarkupContainer webContainer,
             final ModalWindow modalWindow,
-            final SchemaModalPageFactory.Entity entity,
+            final AttributableType attributableType,
             final SchemaModalPageFactory.SchemaType schemaType,
             final String[] fields,
             final String readPermissions,
@@ -923,15 +919,11 @@ public class Schema extends BasePage {
         List<IColumn> columns = new ArrayList<IColumn>();
 
         for (String field : fields) {
-            columns.add(
-                    new PropertyColumn(new ResourceModel(field),
-                    field,
-                    field));
+            columns.add(new PropertyColumn(new ResourceModel(field), field, field));
         }
 
 
-        columns.add(new AbstractColumn<AbstractBaseBean>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<AbstractBaseBean>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -948,38 +940,29 @@ public class Schema extends BasePage {
 
                 final AbstractBaseBean schemaTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        modalWindow.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        modalWindow.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        AbstractSchemaModalPage page =
-                                                SchemaModalPageFactory.
-                                                getSchemaModalPage(entity,
-                                                schemaType);
+                            @Override
+                            public Page createPage() {
+                                AbstractSchemaModalPage page =
+                                        SchemaModalPageFactory.getSchemaModalPage(attributableType, schemaType);
 
-                                        page.setSchemaModalPage(
-                                                Schema.this.getPageReference(),
-                                                modalWindow,
-                                                schemaTO,
-                                                false);
+                                page.setSchemaModalPage(Schema.this.getPageReference(), modalWindow,
+                                        schemaTO, false);
 
-                                        return page;
-                                    }
-                                });
+                                return page;
+                            }
+                        });
 
                         modalWindow.show(target);
                     }
@@ -995,19 +978,13 @@ public class Schema extends BasePage {
 
                         switch (schemaType) {
                             case DERIVED:
-                                restClient.deleteDerivedSchema(
-                                        entity.toString(),
-                                        ((DerivedSchemaTO) schemaTO).getName());
+                                restClient.deleteDerivedSchema(attributableType, ((DerivedSchemaTO) schemaTO).getName());
                                 break;
                             case VIRTUAL:
-                                restClient.deleteVirtualSchema(
-                                        entity.toString(),
-                                        ((VirtualSchemaTO) schemaTO).getName());
+                                restClient.deleteVirtualSchema(attributableType, ((VirtualSchemaTO) schemaTO).getName());
                                 break;
                             default:
-                                restClient.deleteSchema(
-                                        entity.toString(),
-                                        ((SchemaTO) schemaTO).getName());
+                                restClient.deleteSchema(attributableType, ((SchemaTO) schemaTO).getName());
                                 break;
                         }
 
@@ -1046,12 +1023,8 @@ public class Schema extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        rowsPerPagePrefName,
-                        String.valueOf(rowChooser.getInput()));
-                dataTable.setItemsPerPage(
-                        Integer.parseInt(rowChooser.getInput()));
+                prefMan.set(getRequest(), getResponse(), rowsPerPagePrefName, String.valueOf(rowChooser.getInput()));
+                dataTable.setItemsPerPage(Integer.parseInt(rowChooser.getInput()));
 
                 target.add(webContainer);
             }
@@ -1064,7 +1037,7 @@ public class Schema extends BasePage {
 
     private <T extends AbstractSchemaModalPage> AjaxLink getCreateSchemaWindow(
             final ModalWindow createSchemaWin,
-            final SchemaModalPageFactory.Entity entity,
+            final AttributableType attributableType,
             final SchemaModalPageFactory.SchemaType schemaType,
             final String winLinkName,
             final String winName,
@@ -1079,20 +1052,14 @@ public class Schema extends BasePage {
 
                 createSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        AbstractSchemaModalPage page =
-                                SchemaModalPageFactory.getSchemaModalPage(
-                                entity, schemaType);
+                        AbstractSchemaModalPage page = SchemaModalPageFactory.getSchemaModalPage(
+                                attributableType, schemaType);
 
-                        page.setSchemaModalPage(
-                                Schema.this.getPageReference(),
-                                new ModalWindow(winName),
-                                null,
-                                true);
+                        page.setSchemaModalPage(Schema.this.getPageReference(), new ModalWindow(winName), null, true);
 
                         return page;
                     }

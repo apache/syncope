@@ -187,14 +187,8 @@ public class ResourceConnConfPanel extends Panel {
                         || GUARDED_BYTE_ARRAY.equalsIgnoreCase(
                         property.getSchema().getType())) {
 
-                    field = new AjaxPasswordFieldPanel(
-                            "panel",
-                            label.getDefaultModelObjectAsString(),
-                            new Model(),
-                            true);
-
-                    ((PasswordTextField) field.getField()).setResetPassword(
-                            false);
+                    field = new AjaxPasswordFieldPanel("panel", label.getDefaultModelObjectAsString(), new Model());
+                    ((PasswordTextField) field.getField()).setResetPassword(false);
 
                     required = property.getSchema().isRequired();
 
@@ -211,29 +205,14 @@ public class ResourceConnConfPanel extends Panel {
                     }
 
                     if (NUMBER.contains(propertySchemaClass)) {
-                        field = new AjaxNumberFieldPanel(
-                                "panel",
-                                label.getDefaultModelObjectAsString(),
-                                new Model(),
-                                ClassUtils.resolvePrimitiveIfNecessary(
-                                propertySchemaClass),
-                                true);
+                        field = new AjaxNumberFieldPanel("panel", label.getDefaultModelObjectAsString(),
+                                new Model(), ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
 
                         required = property.getSchema().isRequired();
-                    } else if (Boolean.class.equals(propertySchemaClass)
-                            || boolean.class.equals(propertySchemaClass)) {
-                        field = new AjaxCheckBoxPanel(
-                                "panel",
-                                label.getDefaultModelObjectAsString(),
-                                new Model(),
-                                true);
+                    } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
+                        field = new AjaxCheckBoxPanel("panel", label.getDefaultModelObjectAsString(), new Model());
                     } else {
-
-                        field = new AjaxTextFieldPanel(
-                                "panel",
-                                label.getDefaultModelObjectAsString(),
-                                new Model(),
-                                true);
+                        field = new AjaxTextFieldPanel("panel", label.getDefaultModelObjectAsString(), new Model());
 
                         required = property.getSchema().isRequired();
                     }
@@ -256,7 +235,6 @@ public class ResourceConnConfPanel extends Panel {
                             new MultiValueSelectorPanel<String>(
                             "panel",
                             new PropertyModel<List<String>>(property, "values"),
-                            String.class,
                             field,
                             true);
 
@@ -335,7 +313,7 @@ public class ResourceConnConfPanel extends Panel {
             // get configuration properties and send a new event
             send(getPage(), Broadcast.BREADTH,
                     new ConnConfModEvent(target, connConfProperties));
-            
+
         } else if (event.getPayload() instanceof MultiValueSelectorEvent) {
             // multi value connector property change: forward event
             final AjaxRequestTarget target =

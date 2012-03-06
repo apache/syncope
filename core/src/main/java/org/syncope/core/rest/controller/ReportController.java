@@ -20,7 +20,6 @@ package org.syncope.core.rest.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,15 +37,11 @@ import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -59,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -68,7 +64,6 @@ import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
-import org.syncope.core.report.AbstractReportlet;
 import org.syncope.core.report.Reportlet;
 import org.syncope.core.rest.data.ReportDataBinder;
 import org.syncope.types.ReportExecExportFormat;
@@ -196,33 +191,19 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/reportletClasses")
-    public ModelAndView getReportletClasses() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
+    @RequestMapping(method = RequestMethod.GET, value = "/reportletConfClasses")
+    public ModelAndView getReportletConfClasses() {
+        Set<String> reportletConfClasses = new HashSet<String>();
 
-        Set<String> reportletClasses = new HashSet<String>();
-        try {
-            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
-                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
-                if (ArrayUtils.contains(metadata.getInterfaceNames(), Reportlet.class.getName())
-                        || AbstractReportlet.class.getName().equals(metadata.getSuperClassName())) {
-
-                    try {
-                        Class jobClass = Class.forName(metadata.getClassName());
-                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
-                            reportletClasses.add(jobClass.getName());
-                        }
-                    } catch (ClassNotFoundException e) {
-                        LOG.error("Could not load class {}", metadata.getClassName(), e);
-                    }
-                }
+        for (Class<Reportlet> reportletClass : binder.getAllReportletClasses()) {
+            Class<? extends ReportletConf> reportletConfClass = binder.getReportletConfClass(reportletClass);
+            if (reportletConfClass != null) {
+                reportletConfClasses.add(reportletConfClass.getName());
             }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Reportlet.class.getName(), e);
         }
 
         ModelAndView result = new ModelAndView();
-        result.addObject(reportletClasses);
+        result.addObject(reportletConfClasses);
         return result;
     }
 

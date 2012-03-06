@@ -29,11 +29,4 @@ public interface ReportletConf {
      * @return name of this reportlet instance
      */
     String getName();
-
-    /**
-     * Return Reportlet implementation for this conf.
-     *
-     * @return corresponding reportlet class name
-     */
-    String getReportletClassName();
 }

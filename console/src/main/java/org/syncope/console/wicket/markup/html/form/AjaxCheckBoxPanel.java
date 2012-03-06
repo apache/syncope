@@ -34,15 +34,14 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     public AjaxCheckBoxPanel(
             final String id,
             final String name,
-            final IModel<Boolean> model,
-            final boolean active) {
+            final IModel<Boolean> model) {
 
-        super(id, name, model, active);
+        super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
-        if (active) {
+        if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =

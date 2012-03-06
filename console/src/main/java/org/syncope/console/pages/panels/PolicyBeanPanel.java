@@ -42,17 +42,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.syncope.annotation.SchemaList;
-import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
-import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.syncope.types.AbstractPolicySpec;
+import org.syncope.types.AttributableType;
 import org.syncope.types.ConflictResolutionAction;
 
 public class PolicyBeanPanel extends Panel {
@@ -76,16 +76,7 @@ public class PolicyBeanPanel extends Panel {
 
                 @Override
                 protected List<String> load() {
-                    final List<SchemaTO> schemaTOs;
-                    schemaTOs = schemaRestClient.getSchemas("user");
-
-                    final List<String> schemas = new ArrayList<String>();
-
-                    for (SchemaTO schemaTO : schemaTOs) {
-                        schemas.add(schemaTO.getName());
-                    }
-
-                    return schemas;
+                    return schemaRestClient.getSchemaNames(AttributableType.USER);
                 }
             };
 
@@ -96,18 +87,15 @@ public class PolicyBeanPanel extends Panel {
             final String id, final AbstractPolicySpec policy) {
         super(id);
 
-        FieldWrapper fieldWrapper = null;
         final List<FieldWrapper> items = new ArrayList<FieldWrapper>();
-
 
         for (Field field : policy.getClass().getDeclaredFields()) {
             if (!"serialVersionUID".equals(field.getName())) {
-                fieldWrapper = new FieldWrapper();
+                FieldWrapper fieldWrapper = new FieldWrapper();
                 fieldWrapper.setName(field.getName());
                 fieldWrapper.setType(field.getType());
 
-                final SchemaList schemaList =
-                        field.getAnnotation(SchemaList.class);
+                final SchemaList schemaList = field.getAnnotation(SchemaList.class);
 
                 fieldWrapper.setSchemaList(schemaList);
 
@@ -137,11 +125,8 @@ public class PolicyBeanPanel extends Panel {
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
 
-                        component = new AjaxDropDownChoicePanel(
-                                "field",
-                                field.getName(),
-                                new PropertyModel(policy, field.getName()),
-                                false);
+                        component = new AjaxDropDownChoicePanel("field", field.getName(),
+                                new PropertyModel(policy, field.getName()));
 
                         ((AjaxDropDownChoicePanel) component).setChoices(
                                 Arrays.asList(ConflictResolutionAction.values()));
@@ -156,20 +141,13 @@ public class PolicyBeanPanel extends Panel {
                                 ConflictResolutionAction.IGNORE));
 
 
-                    } else if (field.getType().equals(boolean.class)
-                            || field.getType().equals(Boolean.class)) {
-
-                        item.add(new AjaxCheckBoxPanel(
-                                "check",
-                                field.getName(),
-                                new PropertyModel(policy, field.getName()),
-                                false));
+                    } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+                        item.add(new AjaxCheckBoxPanel("check", field.getName(),
+                                new PropertyModel(policy, field.getName())));
 
                         item.add(new Label("field", new Model(null)));
 
-                    } else if (field.getType().equals(List.class)
-                            || field.getType().equals(Set.class)) {
-
+                    } else if (field.getType().equals(List.class) || field.getType().equals(Set.class)) {
                         classMethod = policy.getClass().getMethod(
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
@@ -197,18 +175,13 @@ public class PolicyBeanPanel extends Panel {
                                     new ArrayList<String>(),
                                     new ArrayList<String>()));
                         } else {
-                            final FieldPanel panel = new AjaxTextFieldPanel(
-                                    "panel",
-                                    field.getName(),
-                                    new Model(null),
-                                    true);
+                            final FieldPanel panel = new AjaxTextFieldPanel("panel", field.getName(), new Model(null));
 
                             panel.setRequired(true);
 
                             component = new MultiValueSelectorPanel<String>(
                                     "field",
                                     new PropertyModel(policy, field.getName()),
-                                    String.class,
                                     panel);
 
                             item.add(component);
@@ -232,11 +205,8 @@ public class PolicyBeanPanel extends Panel {
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
 
-                        component = new AjaxTextFieldPanel(
-                                "field",
-                                field.getName(),
-                                new PropertyModel(policy, field.getName()),
-                                false);
+                        component = new AjaxTextFieldPanel("field", field.getName(),
+                                new PropertyModel(policy, field.getName()));
 
                         item.add(component);
 
@@ -247,8 +217,7 @@ public class PolicyBeanPanel extends Panel {
                                 0,
                                 0));
                     } else {
-                        item.add(new AjaxCheckBoxPanel(
-                                "check", field.getName(), new Model(), false));
+                        item.add(new AjaxCheckBoxPanel("check", field.getName(), new Model()));
                         item.add(new Label("field", new Model(null)));
                     }
                 } catch (Exception e) {
@@ -266,11 +235,7 @@ public class PolicyBeanPanel extends Panel {
             final T defaultModelObject,
             final T reinitializedValue) {
 
-        final AjaxCheckBoxPanel check = new AjaxCheckBoxPanel(
-                "check",
-                "check",
-                new Model(checked),
-                false);
+        final AjaxCheckBoxPanel check = new AjaxCheckBoxPanel("check", "check", new Model(checked));
 
         panel.setEnabled(checked);
 
@@ -295,7 +260,7 @@ public class PolicyBeanPanel extends Panel {
         return check;
     }
 
-    private class FieldWrapper implements Serializable {
+    private static class FieldWrapper implements Serializable {
 
         private static final long serialVersionUID = -6770429509752964215L;
 
@@ -303,7 +268,7 @@ public class PolicyBeanPanel extends Panel {
 
         private String name;
 
-        private SchemaList schemaList;
+        private transient SchemaList schemaList;
 
         public String getName() {
             return name;

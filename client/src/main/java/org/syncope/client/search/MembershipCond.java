@@ -25,6 +25,8 @@ import org.syncope.client.AbstractBaseBean;
  */
 public class MembershipCond extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -728155256293925989L;
+
     private Long roleId;
 
     private String roleName;

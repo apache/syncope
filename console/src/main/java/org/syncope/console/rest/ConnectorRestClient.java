@@ -98,9 +98,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
         try {
             bundles = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "connector/bundle/list?lang="
-                    + SyncopeSession.get().getLocale(),
-                    ConnBundleTO[].class));
+                    baseURL + "connector/bundle/list?lang=" + SyncopeSession.get().getLocale(), ConnBundleTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector bundles", e);
         }
@@ -114,14 +112,12 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param connectorId the connector id
      * @return List of ConnConfProperty, or an empty list in case none found
      */
-    public List<ConnConfProperty> getConnectorProperties(
-            final Long connectorId) {
+    public List<ConnConfProperty> getConnectorProperties(final Long connectorId) {
         List<ConnConfProperty> properties = null;
 
         try {
             properties = Arrays.asList(restTemplate.getForObject(baseURL
-                    + "connector/{connectorId}/configurationProperty/list",
-                    ConnConfProperty[].class, connectorId));
+                    + "connector/{connectorId}/configurationProperty/list", ConnConfProperty[].class, connectorId));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector configuration properties", e);
         }
@@ -129,9 +125,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return properties;
     }
 
-    private Set<ConnConfProperty> filterProperties(
-            final Set<ConnConfProperty> properties) {
-
+    private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
         Set<ConnConfProperty> newProperties = new HashSet<ConnConfProperty>();
 
         for (ConnConfProperty property : properties) {
@@ -163,12 +157,10 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         ConnInstanceTO connector = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, connector);
 
-        connector.setConfiguration(
-                filterProperties(connector.getConfiguration()));
+        connector.setConfiguration(filterProperties(connector.getConfiguration()));
 
         try {
-            return restTemplate.postForObject(
-                    baseURL + "connector/check.json", connector, Boolean.class);
+            return restTemplate.postForObject(baseURL + "connector/check.json", connector, Boolean.class);
 
         } catch (Exception e) {
             LOG.error("Connector not found {}", connector, e);
@@ -181,12 +173,10 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
         try {
             schemaNames = Arrays.asList(restTemplate.postForObject(
-                    baseURL + "connector/schema/list",
-                    connectorTO, String[].class));
+                    baseURL + "connector/schema/list", connectorTO, String[].class));
 
             // re-order schema names list
             Collections.sort(schemaNames);
-
         } catch (Exception e) {
             LOG.error("While getting resource schema names", e);
         }

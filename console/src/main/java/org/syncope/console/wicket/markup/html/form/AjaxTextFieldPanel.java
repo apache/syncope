@@ -39,10 +39,9 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
     public AjaxTextFieldPanel(
             final String id,
             final String name,
-            final IModel<String> model,
-            final boolean active) {
+            final IModel<String> model) {
 
-        super(id, name, model, active);
+        super(id, name, model);
 
         field = new AutoCompleteTextField<String>("textField", model) {
 
@@ -68,11 +67,10 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
-        if (active) {
+        if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(AjaxRequestTarget art) {

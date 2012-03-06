@@ -28,14 +28,11 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public abstract class FieldPanel<T extends Serializable>
-        extends AbstractFieldPanel<T> {
+public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPanel<T> {
 
     private static final long serialVersionUID = -198988924922541273L;
 
     protected FormComponent field = null;
-
-    final protected boolean active;
 
     final protected String id;
 
@@ -45,21 +42,13 @@ public abstract class FieldPanel<T extends Serializable>
 
     protected boolean isRequiredLabelAdded = false;
 
-    public FieldPanel(
-            final String id,
-            final String name,
-            final IModel<T> model,
-            final boolean active) {
-
+    public FieldPanel(final String id, final String name, final IModel<T> model) {
         super(id, model);
 
         this.id = id;
         this.name = name;
-        this.active = active;
 
-        final Fragment fragment =
-                new Fragment("required", "notRequiredFragment", this);
-
+        final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
         add(fragment);
 
         setOutputMarkupId(true);
@@ -70,15 +59,13 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     public FieldPanel setTitle(String title) {
-        field.add(AttributeModifier.replace(
-                "title", title != null ? title : ""));
+        field.add(AttributeModifier.replace("title", title != null ? title : ""));
 
         return this;
     }
 
     public FieldPanel setStyleShet(final String classes) {
-        field.add(AttributeModifier.replace(
-                "class", classes != null ? classes : ""));
+        field.add(AttributeModifier.replace("class", classes != null ? classes : ""));
 
         return this;
     }
@@ -119,13 +106,12 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     /**
-     * Userd by MultiValueSelectorPanel to attach items.
+     * Used by MultiValueSelectorPanel to attach items.
+     *
      * @param item item to attach.
      * @return updated FieldPanel object.
      */
-    public FieldPanel setNewModel(
-            final ListItem<T> item, final Class reference) {
-
+    public FieldPanel setNewModel(final ListItem<T> item) {
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 6799404673615637845L;
@@ -172,12 +158,8 @@ public abstract class FieldPanel<T extends Serializable>
     public FieldPanel clone() {
         final FieldPanel panel;
         try {
-            panel = this.getClass().getConstructor(new Class[]{
-                        String.class,
-                        String.class,
-                        IModel.class,
-                        boolean.class}).newInstance(
-                    id, name, new Model(null), active);
+            panel = this.getClass().getConstructor(new Class[]{String.class, String.class, IModel.class}).
+                    newInstance(id, name, new Model(null));
         } catch (Exception e) {
             LOG.error("Error cloning field panel", e);
             return null;

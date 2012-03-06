@@ -18,6 +18,11 @@
  */
 package org.syncope.core.rest.data;
 
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang.ArrayUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -25,6 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.syncope.client.report.ReportletConf;
@@ -34,6 +43,9 @@ import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportExecDAO;
+import org.syncope.core.report.AbstractReportlet;
+import org.syncope.core.report.Reportlet;
+import org.syncope.core.report.ReportletConfClass;
 
 @Component
 public class ReportDataBinder {
@@ -55,6 +67,59 @@ public class ReportDataBinder {
 
     @Autowired
     private SchedulerFactoryBean scheduler;
+
+    @Autowired
+    private ResourcePatternResolver resResolver;
+
+    public Set<Class<Reportlet>> getAllReportletClasses() {
+        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
+
+        Set<Class<Reportlet>> reportletClasses = new HashSet<Class<Reportlet>>();
+        try {
+            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
+                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
+                if (ArrayUtils.contains(metadata.getInterfaceNames(), Reportlet.class.getName())
+                        || AbstractReportlet.class.getName().equals(metadata.getSuperClassName())) {
+
+                    try {
+                        Class jobClass = Class.forName(metadata.getClassName());
+                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
+                            reportletClasses.add(jobClass);
+                        }
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("Could not load class {}", metadata.getClassName(), e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("While searching for class implementing {}", Reportlet.class.getName(), e);
+        }
+
+        return reportletClasses;
+    }
+
+    public Class<? extends ReportletConf> getReportletConfClass(final Class<Reportlet> reportletClass) {
+        Class<? extends ReportletConf> result = null;
+
+        ReportletConfClass annotation = reportletClass.getAnnotation(ReportletConfClass.class);
+        if (annotation != null) {
+            result = annotation.value();
+        }
+
+        return result;
+    }
+
+    public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {
+        Class<Reportlet> result = null;
+        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
+            Class<? extends ReportletConf> found = getReportletConfClass(reportletClass);
+            if (found != null && found.equals(reportletConfClass)) {
+                result = reportletClass;
+            }
+        }
+
+        return result;
+    }
 
     public void getReport(final Report report, final ReportTO reportTO) {
         BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);

@@ -20,16 +20,12 @@ package org.syncope.console.commons;
 
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.pages.AbstractSchemaModalPage;
-import org.syncope.console.pages.AbstractSchemaModalPage;
-import org.syncope.console.pages.BaseModalPage;
 import org.syncope.console.pages.BaseModalPage;
 import org.syncope.console.pages.DerivedSchemaModalPage;
-import org.syncope.console.pages.DerivedSchemaModalPage;
 import org.syncope.console.pages.SchemaModalPage;
-import org.syncope.console.pages.SchemaModalPage;
-import org.syncope.console.pages.VirtualSchemaModalPage;
 import org.syncope.console.pages.VirtualSchemaModalPage;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.types.AttributableType;
 
 /**
  * Modal window with Schema form.
@@ -41,30 +37,28 @@ abstract public class SchemaModalPageFactory extends BaseModalPage {
     @SpringBean
     protected SchemaRestClient restClient;
 
-    public enum Entity {
-
-        user, role, membership
-    };
-
     public enum SchemaType {
 
-        NORMAL, DERIVED, VIRTUAL
+        NORMAL,
+        DERIVED,
+        VIRTUAL
+
     };
 
     public static AbstractSchemaModalPage getSchemaModalPage(
-            Entity entity, SchemaType schemaType) {
+            AttributableType entity, SchemaType schemaType) {
 
         AbstractSchemaModalPage page;
 
         switch (schemaType) {
             case DERIVED:
-                page = new DerivedSchemaModalPage(entity.toString());
+                page = new DerivedSchemaModalPage(entity);
                 break;
             case VIRTUAL:
-                page = new VirtualSchemaModalPage(entity.toString());
+                page = new VirtualSchemaModalPage(entity);
                 break;
             default:
-                page = new SchemaModalPage(entity.toString());
+                page = new SchemaModalPage(entity);
                 break;
         }
 

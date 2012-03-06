@@ -70,66 +70,51 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
                     }
                 };
 
-        final AjaxDropDownChoicePanel<String> resource =
-                new AjaxDropDownChoicePanel<String>(
-                "resource", getString("resourceName"),
-                new PropertyModel(taskTO, "resource"), false);
+        final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<String>("resource",
+                getString("resourceName"), new PropertyModel(taskTO, "resource"));
         resource.setChoices(allResources.getObject());
         resource.setChoiceRenderer(new SelectChoiceRenderer());
         resource.addRequiredLabel();
         resource.setEnabled(taskTO.getId() == 0);
-        resource.setStyleShet(
-                "ui-widget-content ui-corner-all long_dynamicsize");
+        resource.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
 
         profile.add(resource);
 
-        final IModel<List<String>> classNames =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> classNames = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        final List<String> classes = new ArrayList<String>(
-                                taskRestClient.getJobActionsClasses());
+            @Override
+            protected List<String> load() {
+                return taskRestClient.getJobActionsClasses();
+            }
+        };
 
-                        return classes;
-                    }
-                };
-
-        final AjaxDropDownChoicePanel<String> actionsClassName =
-                new AjaxDropDownChoicePanel<String>(
-                "jobActionsClassName", getString("actionsClass"),
-                new PropertyModel(taskTO, "jobActionsClassName"), false);
+        final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
+                "jobActionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "jobActionsClassName"));
         actionsClassName.setChoices(classNames.getObject());
         actionsClassName.setStyleShet(
                 "ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);
 
-        final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel(
-                "performCreate", getString("creates"),
-                new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+        final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel("performCreate", getString("creates"),
+                new PropertyModel<Boolean>(taskTO, "performCreate"));
         profile.add(creates);
 
-        final AjaxCheckBoxPanel updates = new AjaxCheckBoxPanel(
-                "performUpdate", getString("updates"),
-                new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
+        final AjaxCheckBoxPanel updates = new AjaxCheckBoxPanel("performUpdate", getString("updates"),
+                new PropertyModel<Boolean>(taskTO, "performUpdate"));
         profile.add(updates);
 
-        final AjaxCheckBoxPanel deletes = new AjaxCheckBoxPanel(
-                "performDelete", getString("updates"),
-                new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+        final AjaxCheckBoxPanel deletes = new AjaxCheckBoxPanel("performDelete", getString("updates"),
+                new PropertyModel<Boolean>(taskTO, "performDelete"));
         profile.add(deletes);
 
-        final AjaxCheckBoxPanel status = new AjaxCheckBoxPanel(
-                "syncStatus", getString("status"),
-                new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+        final AjaxCheckBoxPanel status = new AjaxCheckBoxPanel("syncStatus", getString("status"),
+                new PropertyModel<Boolean>(taskTO, "syncStatus"));
         profile.add(status);
 
-        final AjaxCheckBoxPanel fullReconciliation = new AjaxCheckBoxPanel(
-                "fullReconciliation", getString("fullReconciliation"),
-                new PropertyModel<Boolean>(taskTO, "fullReconciliation"), false);
+        final AjaxCheckBoxPanel fullReconciliation = new AjaxCheckBoxPanel("fullReconciliation",
+                getString("fullReconciliation"), new PropertyModel<Boolean>(taskTO, "fullReconciliation"));
         profile.add(fullReconciliation);
     }
 }

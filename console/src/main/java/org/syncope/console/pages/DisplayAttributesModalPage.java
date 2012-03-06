@@ -46,6 +46,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.types.AttributableType;
 
 /**
  * Modal window with Display attributes form.
@@ -57,7 +58,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     /**
      * Max permitted selections.
      */
-    private final int MAX_SELECTIONS = 9;
+    private static final int MAX_SELECTIONS = 9;
 
     private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
                 "attributes", "derivedAttributes", "virtualAttributes",
@@ -109,7 +110,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 protected List<String> load() {
 
                     List<String> schemas =
-                            schemaRestClient.getSchemaNames("user");
+                            schemaRestClient.getSchemaNames(AttributableType.USER);
 
                     if (schemas == null) {
                         schemas = new ArrayList<String>();
@@ -128,8 +129,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 @Override
                 protected List<String> load() {
 
-                    List<String> schemas =
-                            schemaRestClient.getDerivedSchemaNames("user");
+                    List<String> schemas = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
 
                     if (schemas == null) {
                         schemas = new ArrayList<String>();
@@ -148,8 +148,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 @Override
                 protected List<String> load() {
 
-                    List<String> schemas =
-                            schemaRestClient.getVirtualSchemaNames("user");
+                    List<String> schemas = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
 
                     if (schemas == null) {
                         schemas = new ArrayList<String>();

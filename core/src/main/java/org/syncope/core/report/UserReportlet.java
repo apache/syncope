@@ -18,16 +18,11 @@
  */
 package org.syncope.core.report;
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.syncope.client.SyncopeConstants;
 import org.syncope.client.report.UserReportletConf;
 import org.syncope.client.report.UserReportletConf.Feature;
 import org.syncope.client.to.AbstractAttributableTO;
@@ -47,25 +42,10 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-public class UserReportlet extends AbstractReportlet {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(UserReportlet.class);
+@ReportletConfClass(UserReportletConf.class)
+public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
     private final static int PAGE_SIZE = 10;
-
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new ThreadLocal<SimpleDateFormat>() {
-
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat(
-                            SyncopeConstants.DEFAULT_DATE_PATTERN);
-                }
-            };
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -82,21 +62,16 @@ public class UserReportlet extends AbstractReportlet {
     @Autowired
     private RoleDataBinder roleDataBinder;
 
-    private List<SyncopeUser> getPagedUsers(final UserReportletConf conf,
-            final int page) {
-
-        Set<Long> adminRoleIds =
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll());
+    private List<SyncopeUser> getPagedUsers(final int page) {
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
         return conf.getMatchingCond() == null
                 ? userDAO.findAll(adminRoleIds, page, PAGE_SIZE)
-                : searchDAO.search(adminRoleIds, conf.getMatchingCond(),
-                page, PAGE_SIZE);
+                : searchDAO.search(adminRoleIds, conf.getMatchingCond(), page, PAGE_SIZE);
     }
 
-    private int count(final UserReportletConf conf) {
-        Set<Long> adminRoleIds =
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll());
+    private int count() {
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
         return conf.getMatchingCond() == null
                 ? userDAO.count(adminRoleIds)
@@ -225,9 +200,7 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler,
-            final UserReportletConf conf,
-            final List<SyncopeUser> users)
+    private void doExtract(final ContentHandler handler, final List<SyncopeUser> users)
             throws SAXException, ReportException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -261,28 +234,24 @@ public class UserReportlet extends AbstractReportlet {
                     case creationDate:
                         type = XSD_DATETIME;
                         value = user.getCreationDate() == null ? ""
-                                : DATE_FORMAT.get().format(
-                                user.getCreationDate());
+                                : DATE_FORMAT.get().format(user.getCreationDate());
                         break;
 
                     case lastLoginDate:
                         type = XSD_DATETIME;
                         value = user.getLastLoginDate() == null ? ""
-                                : DATE_FORMAT.get().
-                                format(user.getLastLoginDate());
+                                : DATE_FORMAT.get().format(user.getLastLoginDate());
                         break;
 
                     case changePwdDate:
                         type = XSD_DATETIME;
                         value = user.getChangePwdDate() == null ? ""
-                                : DATE_FORMAT.get().format(
-                                user.getChangePwdDate());
+                                : DATE_FORMAT.get().format(user.getChangePwdDate());
                         break;
 
                     case passwordHistorySize:
                         type = XSD_INT;
-                        value = String.valueOf(
-                                user.getPasswordHistory().size());
+                        value = String.valueOf(user.getPasswordHistory().size());
                         break;
 
                     case failedLoginCount:
@@ -313,12 +282,9 @@ public class UserReportlet extends AbstractReportlet {
                 for (MembershipTO memb : userTO.getMemberships()) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "id", XSD_LONG,
-                            String.valueOf(memb.getId()));
-                    atts.addAttribute("", "", "roleId", XSD_LONG,
-                            String.valueOf(memb.getRoleId()));
-                    atts.addAttribute("", "", "roleName", XSD_STRING,
-                            String.valueOf(memb.getRoleName()));
+                    atts.addAttribute("", "", "id", XSD_LONG, String.valueOf(memb.getId()));
+                    atts.addAttribute("", "", "roleId", XSD_LONG, String.valueOf(memb.getRoleId()));
+                    atts.addAttribute("", "", "roleName", XSD_STRING, String.valueOf(memb.getRoleName()));
                     handler.startElement("", "", "membership", atts);
 
                     doExtractAttributes(handler, memb,
@@ -327,11 +293,9 @@ public class UserReportlet extends AbstractReportlet {
                             memb.getVirtualAttributeMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        Membership actualMemb =
-                                user.getMembership(memb.getRoleId());
+                        Membership actualMemb = user.getMembership(memb.getRoleId());
                         if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for "
-                                    + "role {} for user {}",
+                            LOG.warn("Unexpected: cannot find membership for role {} for user {}",
                                     memb.getRoleId(), user);
                         } else {
                             doExtractResources(handler,
@@ -355,28 +319,11 @@ public class UserReportlet extends AbstractReportlet {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler)
+    protected void doExtract(final ContentHandler handler)
             throws SAXException, ReportException {
 
-        if (getConf() == null || !(getConf() instanceof UserReportletConf)) {
-            throw new ReportException(
-                    new IllegalArgumentException("Expected "
-                    + UserReportletConf.class.getName()
-                    + ", got " + getConf()));
+        for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
+            doExtract(handler, getPagedUsers(i));
         }
-
-        UserReportletConf conf = (UserReportletConf) getConf();
-
-        AttributesImpl atts = new AttributesImpl();
-        atts.addAttribute("", "", ATTR_NAME, XSD_STRING, getConf().getName());
-        atts.addAttribute("", "", ATTR_CLASS, XSD_STRING, getClass().getName());
-        handler.startElement("", "", ELEMENT_REPORTLET, atts);
-
-        for (int i = 1; i <= (count(conf) / PAGE_SIZE) + 1; i++) {
-            doExtract(handler, conf, getPagedUsers(conf, i));
-        }
-
-        handler.endElement("", "", ELEMENT_REPORTLET);
     }
 }

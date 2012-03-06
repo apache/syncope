@@ -18,18 +18,63 @@
  */
 package org.syncope.core.report;
 
-import org.syncope.client.report.ReportletConf;
+import java.text.SimpleDateFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.SyncopeConstants;
+import org.syncope.client.report.AbstractReportletConf;
+import static org.syncope.core.scheduling.ReportXMLConst.*;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
-public abstract class AbstractReportlet implements Reportlet {
+public abstract class AbstractReportlet<T extends AbstractReportletConf> implements Reportlet<T> {
 
-    private ReportletConf conf;
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG =
+            LoggerFactory.getLogger(AbstractReportlet.class);
 
-    public ReportletConf getConf() {
+    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        }
+    };
+
+    protected T conf;
+
+    public T getConf() {
         return conf;
     }
 
     @Override
-    public void setConf(final ReportletConf conf) {
+    public void setConf(final T conf) {
         this.conf = conf;
+    }
+
+    protected abstract void doExtract(ContentHandler handler)
+            throws SAXException, ReportException;
+
+    @Override
+    @Transactional(readOnly = true)
+    public void extract(final ContentHandler handler)
+            throws SAXException, ReportException {
+
+        if (conf == null) {
+            throw new ReportException(new IllegalArgumentException("No configuration provided"));
+        }
+
+        AttributesImpl atts = new AttributesImpl();
+        atts.addAttribute("", "", ATTR_NAME, XSD_STRING, conf.getName());
+        atts.addAttribute("", "", ATTR_CLASS, XSD_STRING, getClass().getName());
+        handler.startElement("", "", ELEMENT_REPORTLET, atts);
+
+        doExtract(handler);
+
+        handler.endElement("", "", ELEMENT_REPORTLET);
     }
 }

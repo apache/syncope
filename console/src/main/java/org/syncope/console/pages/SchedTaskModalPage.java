@@ -42,25 +42,18 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
 
         super(window, taskTO, callerPageRef);
 
-        final IModel<List<String>> classNames =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> classNames = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        final List<String> classes = new ArrayList<String>(
-                                taskRestClient.getJobClasses());
+            @Override
+            protected List<String> load() {
+                return taskRestClient.getJobClasses();
+            }
+        };
 
-                        return classes;
-                    }
-                };
-
-        final AjaxDropDownChoicePanel<String> className =
-                new AjaxDropDownChoicePanel<String>(
-                "jobClassName", getString("class"),
-                new PropertyModel(taskTO, "jobClassName"), false);
+        final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<String>("jobClassName",
+                getString("class"), new PropertyModel(taskTO, "jobClassName"));
         className.setChoices(classNames.getObject());
         className.addRequiredLabel();
         className.setEnabled(taskTO.getId() == 0);

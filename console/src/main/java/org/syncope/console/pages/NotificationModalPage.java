@@ -58,53 +58,41 @@ class NotificationModalPage extends BaseModalPage {
                 notificationTO));
         form.setModel(new CompoundPropertyModel(notificationTO));
 
-        final AjaxTextFieldPanel sender = new AjaxTextFieldPanel(
-                "sender", getString("sender"),
-                new PropertyModel<String>(notificationTO, "sender"), false);
+        final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
+                new PropertyModel<String>(notificationTO, "sender"));
         sender.addRequiredLabel();
         sender.addValidator(EmailAddressValidator.getInstance());
         form.add(sender);
 
-        final AjaxTextFieldPanel subject = new AjaxTextFieldPanel(
-                "subject", getString("subject"),
-                new PropertyModel<String>(notificationTO, "subject"), false);
+        final AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
+                new PropertyModel<String>(notificationTO, "subject"));
         subject.addRequiredLabel();
         form.add(subject);
 
-        final AjaxDropDownChoicePanel<String> template =
-                new AjaxDropDownChoicePanel<String>("template",
-                getString("template"),
-                new PropertyModel(notificationTO, "template"),
-                false);
+        final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<String>("template",
+                getString("template"), new PropertyModel(notificationTO, "template"));
         template.setChoices(restClient.getMailTemplates());
         template.addRequiredLabel();
         form.add(template);
 
-        final AjaxDropDownChoicePanel<TraceLevel> traceLevel =
-                new AjaxDropDownChoicePanel<TraceLevel>("traceLevel",
-                getString("traceLevel"),
-                new PropertyModel(notificationTO, "traceLevel"),
-                false);
+        final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<TraceLevel>("traceLevel",
+                getString("traceLevel"), new PropertyModel(notificationTO, "traceLevel"));
         traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
 
-        final UserSearchPanel about = new UserSearchPanel("about",
-                notificationTO.getAbout());
+        final UserSearchPanel about = new UserSearchPanel("about", notificationTO.getAbout());
         form.add(about);
 
-        final AjaxPalettePanel events = new AjaxPalettePanel(
-                "events", new PropertyModel(notificationTO, "events"),
+        final AjaxPalettePanel events = new AjaxPalettePanel("events", new PropertyModel(notificationTO, "events"),
                 new ListModel<String>(restClient.getEvents()));
         form.add(events);
 
-        final UserSearchPanel recipients = new UserSearchPanel("recipients",
-                notificationTO.getRecipients());
+        final UserSearchPanel recipients = new UserSearchPanel("recipients", notificationTO.getRecipients());
         form.add(recipients);
 
-        final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel(
-                "selfAsRecipient", getString("selfAsRecipient"),
-                new PropertyModel(notificationTO, "selfAsRecipient"), false);
+        final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient", getString("selfAsRecipient"),
+                new PropertyModel(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
 
         AjaxButton submit = new IndicatingAjaxButton(

@@ -20,17 +20,18 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.VirtualSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.types.AttributableType;
 
 /**
  * Modal window with Schema form.
@@ -39,7 +40,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = 5979623248182851337L;
 
-    public VirtualSchemaModalPage(String kind) {
+    public VirtualSchemaModalPage(AttributableType kind) {
         super(kind);
     }
 
@@ -58,9 +59,8 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", getString("name"),
-                new PropertyModel<String>(schema, "name"), false);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
+                new PropertyModel<String>(schema, "name"));
         name.addRequiredLabel();
 
         name.setEnabled(createFlag);

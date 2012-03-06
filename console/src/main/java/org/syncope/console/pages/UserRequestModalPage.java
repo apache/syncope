@@ -35,6 +35,8 @@ import org.syncope.console.rest.UserRestClient;
  */
 public class UserRequestModalPage extends UserModalPage {
 
+    private static final long serialVersionUID = 603212869211672852L;
+
     @SpringBean
     private UserRestClient userRestClient;
 

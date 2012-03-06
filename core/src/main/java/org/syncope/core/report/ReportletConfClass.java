@@ -16,20 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.console.wicket.markup.html.form;
+package org.syncope.core.report;
 
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.syncope.client.report.ReportletConf;
 
-/**
- * This empty class must exist because there not seems to be alternative to
- * provide specialized HTML for edit links.
- */
-public class SearchLinkPanel extends Panel {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ReportletConfClass {
 
-    private static final long serialVersionUID = 8719971783832913228L;
-
-    public SearchLinkPanel(final String componentId, final IModel<?> model) {
-        super(componentId, model);
-    }
+    Class<? extends ReportletConf> value();
 }

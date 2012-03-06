@@ -54,8 +54,8 @@ import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.syncope.types.ConnConfProperty;
 import org.syncope.types.AttributableType;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.IntMappingType;
 
 /**
@@ -164,10 +164,9 @@ public class ResourceMappingPanel extends Panel {
 
         initResourceSchemaNames();
 
-        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel(
-                "accountLink",
+        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink",
                 new ResourceModel("accountLink", "accountLink").getObject(),
-                new PropertyModel<String>(resourceTO, "accountLink"), false);
+                new PropertyModel<String>(resourceTO, "accountLink"));
         add(accountLink);
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
@@ -243,12 +242,8 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                final AjaxDropDownChoicePanel intAttrNames =
-                        new AjaxDropDownChoicePanel<String>(
-                        "intAttrNames",
-                        getString("intAttrNames"),
-                        new PropertyModel(mappingTO, "intAttrName"),
-                        true);
+                final AjaxDropDownChoicePanel intAttrNames = new AjaxDropDownChoicePanel<String>("intAttrNames",
+                        getString("intAttrNames"), new PropertyModel(mappingTO, "intAttrName"));
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleShet(fieldStyle);
@@ -258,13 +253,9 @@ public class ResourceMappingPanel extends Panel {
                 item.add(intAttrNames);
 
 
-                final AjaxDropDownChoicePanel typesPanel =
-                        new AjaxDropDownChoicePanel(
-                        "intMappingTypes",
-                        new ResourceModel("intMappingTypes", "intMappingTypes").
-                        getObject(),
-                        new PropertyModel<IntMappingType>(
-                        mappingTO, "intMappingType"), false);
+                final AjaxDropDownChoicePanel typesPanel = new AjaxDropDownChoicePanel("intMappingTypes",
+                        new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
+                        new PropertyModel<IntMappingType>(mappingTO, "intMappingType"));
 
                 typesPanel.getField().add(
                         new AjaxFormComponentUpdatingBehavior(onchange) {
@@ -276,8 +267,7 @@ public class ResourceMappingPanel extends Panel {
                             protected void onUpdate(
                                     final AjaxRequestTarget target) {
                                 setAttrNames(
-                                        (IntMappingType) typesPanel.
-                                        getModelObject(), intAttrNames);
+                                        (IntMappingType) typesPanel.getModelObject(), intAttrNames);
                                 target.add(intAttrNames);
                             }
                         });
@@ -287,11 +277,8 @@ public class ResourceMappingPanel extends Panel {
                 typesPanel.setStyleShet(fieldStyle);
                 item.add(typesPanel);
 
-                final AjaxDropDownChoicePanel mappingTypesPanel =
-                        new AjaxDropDownChoicePanel(
-                        "mappingTypes",
-                        new ResourceModel("mappingTypes", "mappingTypes").
-                        getObject(), new Model(entity), false);
+                final AjaxDropDownChoicePanel mappingTypesPanel = new AjaxDropDownChoicePanel("mappingTypes",
+                        new ResourceModel("mappingTypes", "mappingTypes").getObject(), new Model(entity));
 
                 mappingTypesPanel.setChoices(Arrays.asList(AttributableType.values()));
                 mappingTypesPanel.setStyleShet(defFieldStyle);
@@ -309,8 +296,7 @@ public class ResourceMappingPanel extends Panel {
                                     final AjaxRequestTarget target) {
 
                                 attrTypes = getAttributeTypes(
-                                        (AttributableType) mappingTypesPanel.
-                                        getModelObject());
+                                        (AttributableType) mappingTypesPanel.getModelObject());
 
                                 typesPanel.setChoices(attrTypes);
                                 intAttrNames.setChoices(Collections.EMPTY_LIST);
@@ -324,24 +310,15 @@ public class ResourceMappingPanel extends Panel {
                 final FieldPanel extAttrName;
 
                 if (schemaNames.isEmpty()) {
-                    extAttrName = new AjaxTextFieldPanel(
-                            "extAttrName",
-                            new ResourceModel("extAttrNames", "extAttrNames").
-                            getObject(),
-                            new PropertyModel<String>(mappingTO, "extAttrName"),
-                            true);
+                    extAttrName = new AjaxTextFieldPanel("extAttrName",
+                            new ResourceModel("extAttrNames", "extAttrNames").getObject(),
+                            new PropertyModel<String>(mappingTO, "extAttrName"));
 
                 } else {
-                    extAttrName =
-                            new AjaxDropDownChoicePanel<String>(
-                            "extAttrName",
-                            new ResourceModel("extAttrNames", "extAttrNames").
-                            getObject(),
-                            new PropertyModel(mappingTO, "extAttrName"),
-                            true);
-                    ((AjaxDropDownChoicePanel) extAttrName).setChoices(
-                            schemaNames);
-
+                    extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName",
+                            new ResourceModel("extAttrNames", "extAttrNames").getObject(),
+                            new PropertyModel(mappingTO, "extAttrName"));
+                    ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
 
                 boolean required = mappingTO != null
@@ -353,26 +330,19 @@ public class ResourceMappingPanel extends Panel {
                 extAttrName.setStyleShet(fieldStyle);
                 item.add(extAttrName);
 
-                final AjaxTextFieldPanel mandatory =
-                        new AjaxTextFieldPanel(
-                        "mandatoryCondition",
-                        new ResourceModel(
-                        "mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel(mappingTO, "mandatoryCondition"),
-                        true);
+                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
+                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
+                        new PropertyModel(mappingTO, "mandatoryCondition"));
 
-                mandatory.setChoices(
-                        Arrays.asList(new String[]{"true", "false"}));
+                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
 
                 mandatory.setStyleShet(shortFieldStyle);
 
                 item.add(mandatory);
 
-                final AjaxCheckBoxPanel accountId =
-                        new AjaxCheckBoxPanel(
-                        "accountId",
+                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
                         new ResourceModel("accountId", "accountId").getObject(),
-                        new PropertyModel(mappingTO, "accountid"), false);
+                        new PropertyModel(mappingTO, "accountid"));
 
                 accountId.getField().add(
                         new AjaxFormComponentUpdatingBehavior(onchange) {
@@ -395,11 +365,8 @@ public class ResourceMappingPanel extends Panel {
 
                 item.add(accountId);
 
-                final AjaxCheckBoxPanel password =
-                        new AjaxCheckBoxPanel(
-                        "password",
-                        new ResourceModel("password", "password").getObject(),
-                        new PropertyModel(mappingTO, "password"), true);
+                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
+                        new ResourceModel("password", "password").getObject(), new PropertyModel(mappingTO, "password"));
 
                 password.getField().add(
                         new AjaxFormComponentUpdatingBehavior(onchange) {
@@ -549,25 +516,19 @@ public class ResourceMappingPanel extends Panel {
                 case UserSchema:
                 case RoleSchema:
                 case MembershipSchema:
-                    toBeUpdated.setChoices(
-                            schemaRestClient.getSchemaNames(
-                            attrType.getAttributableType().toString().toLowerCase()));
+                    toBeUpdated.setChoices(schemaRestClient.getSchemaNames(attrType.getAttributableType()));
                     break;
 
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                 case MembershipDerivedSchema:
-                    toBeUpdated.setChoices(
-                            schemaRestClient.getDerivedSchemaNames(
-                            attrType.getAttributableType().toString().toLowerCase()));
+                    toBeUpdated.setChoices(schemaRestClient.getDerivedSchemaNames(attrType.getAttributableType()));
                     break;
 
                 case UserVirtualSchema:
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
-                    toBeUpdated.setChoices(
-                            schemaRestClient.getVirtualSchemaNames(
-                            attrType.getAttributableType().toString().toLowerCase()));
+                    toBeUpdated.setChoices(schemaRestClient.getVirtualSchemaNames(attrType.getAttributableType()));
                     break;
 
                 case SyncopeUserId:

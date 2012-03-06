@@ -23,6 +23,7 @@ under the License.
                 version="1.0">
 
   <xsl:import href="userReportlet2html.xsl"/>
+  <xsl:import href="staticReportlet2html.xsl"/>
  
   <xsl:param name="status"/>
   <xsl:param name="message"/>
@@ -33,7 +34,7 @@ under the License.
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
       <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Syncope Report - <xsl:value-of select="report/@name"/></title>
+	<title>Apache Syncope Report - <xsl:value-of select="report/@name"/></title>
       </head>
       <body>
 	<table style="border: 1px solid black;">

@@ -24,6 +24,7 @@ under the License.
                 version="1.0">
 
   <xsl:import href="userReportlet2fo.xsl"/>
+  <xsl:import href="staticReportlet2fo.xsl"/>
  
   <xsl:param name="status"/>
   <xsl:param name="message"/>
@@ -48,7 +49,7 @@ under the License.
 	
 	<fo:flow flow-name="xsl-region-body">
 	  <fo:block font-size="24pt" font-weight="bold" text-align="center" space-after="1cm">
-	    Syncope Report - <xsl:value-of select="report/@name"/>
+	    Apache Syncope Report - <xsl:value-of select="report/@name"/>
 	  </fo:block>
 
 	  <fo:table table-layout="fixed" border-width="0.5mm" border-style="solid" width="100%" space-after="1cm">

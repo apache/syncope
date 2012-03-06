@@ -1,0 +1,78 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:extend>
+    <div style="margin:10px">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+        <form wicket:id="form">
+            <div id="tabs">
+                <ul>
+                    <li class="tabs-selected"><a href="#general"><span><wicket:message key="general"/></span></a></li>
+                    <li><a href="#configuration"><span><wicket:message key="configuration"/></span></a></li>
+                </ul>
+                <div id="general">
+                    <div id="formtable">
+                        <div class="tablerow">
+                            <div class="tablecolumn_label short_dynamicsize">
+                                <label for="name"><wicket:message key="name"/></label>
+                            </div>
+                            <div class="tablecolumn_field short_dynamicsize">
+                                <span wicket:id="name">[name]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label short_dynamicsize">
+                                <label for="reportletClass"><wicket:message key="reportletClass"/></label>
+                            </div>
+                            <div class="tablecolumn_field">
+                                <span wicket:id="reportletClass" style="width: 100%;">[reportletClass]</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script type="text/javascript">
+                        $(function() {
+                            $('#general #formtable div.tablerow:even').addClass("alt");
+                        });
+                    </script>
+                </div>
+                <div id="configuration">
+                    <div id="formtable">
+                        <span wicket:id="container">
+                            <div class="tablerow" wicket:id="propView">
+                                <div class="tablecolumn_label short_fixedsize">
+                                    <span wicket:id="key">[key]</span>
+                                </div>
+                                <div class="tablecolumn_field medium_dynamicsize">
+                                    <span wicket:id="value">[value]</span>
+                                </div>
+                            </div>
+
+                            <script type="text/javascript">
+                                $(function() {
+                                    $('#configuration #formtable div.tablerow:even').addClass("alt");
+                                });
+                            </script>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 20px 10px 0">
+                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="apply"/>
+            </div>
+        </form>
+    </div>
+</wicket:extend>

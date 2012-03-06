@@ -18,7 +18,6 @@
  */
 package org.syncope.console.pages.panels;
 
-import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,6 +48,8 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.syncope.types.AttributableType;
 import org.syncope.types.SchemaType;
 
 public class AttributesPanel extends Panel {
@@ -79,14 +80,11 @@ public class AttributesPanel extends Panel {
                     protected Map<String, SchemaTO> load() {
                         final List<SchemaTO> schemaTOs;
                         if (entityTO instanceof RoleTO) {
-                            schemaTOs = schemaRestClient.getSchemas(
-                                    "role");
+                            schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
                         } else if (entityTO instanceof UserTO) {
-                            schemaTOs = schemaRestClient.getSchemas(
-                                    "user");
+                            schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
                         } else {
-                            schemaTOs = schemaRestClient.getSchemas(
-                                    "membership");
+                            schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
                         }
 
                         final Map<String, SchemaTO> schemas =
@@ -130,7 +128,6 @@ public class AttributesPanel extends Panel {
                     item.add(new MultiValueSelectorPanel<String>(
                             "panel",
                             new PropertyModel(attributeTO, "values"),
-                            String.class,
                             panel));
                 }
             }
@@ -190,36 +187,26 @@ public class AttributesPanel extends Panel {
                 ? SchemaType.String : schemaTO.getType();
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel(
-                        "panel", schemaTO.getName(), new Model(), true);
+                panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model());
                 panel.setRequired(required);
                 break;
 
             case Date:
-                final String dataPattern = schemaTO.getConversionPattern() != null
+                final String dataPattern = schemaTO.getConversionPattern()
+                        != null
                         ? schemaTO.getConversionPattern()
                         : SyncopeConstants.DEFAULT_DATE_PATTERN;
 
                 if (!dataPattern.contains("H")) {
 
-                    panel = new DateTextFieldPanel(
-                            "panel",
-                            schemaTO.getName(),
-                            new Model(),
-                            true,
-                            dataPattern);
+                    panel = new DateTextFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
 
                     if (required) {
                         panel.addRequiredLabel();
                     }
                 } else {
 
-                    panel = new DateTimeFieldPanel(
-                            "panel",
-                            schemaTO.getName(),
-                            new Model(),
-                            true,
-                            dataPattern);
+                    panel = new DateTimeFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
 
                     if (required) {
                         panel.addRequiredLabel();
@@ -230,10 +217,8 @@ public class AttributesPanel extends Panel {
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel<String>(
-                        "panel", schemaTO.getName(), new Model(), true);
-                ((AjaxDropDownChoicePanel) panel).setChoices(
-                        Arrays.asList(schemaTO.getEnumerationValues().
+                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model());
+                ((AjaxDropDownChoicePanel) panel).setChoices(Arrays.asList(schemaTO.getEnumerationValues().
                         split(Schema.enumValuesSeparator)));
                 if (required) {
                     panel.addRequiredLabel();
@@ -241,8 +226,7 @@ public class AttributesPanel extends Panel {
                 break;
 
             default:
-                panel = new AjaxTextFieldPanel(
-                        "panel", schemaTO.getName(), new Model(), true);
+                panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model());
                 if (required) {
                     panel.addRequiredLabel();
                 }

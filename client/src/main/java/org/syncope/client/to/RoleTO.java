@@ -125,8 +125,8 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     /**
-     * Specify if password policy must be inherited.
-     * In this case eventual passwordPolicy occurrence will be ignored.
+     * Specify if password policy must be inherited. In this case eventual passwordPolicy occurrence will be ignored.
+     *
      * @param inheritPasswordPolicy 'true' to inherit policy, false otherwise.
      */
     public void setInheritPasswordPolicy(boolean inheritPasswordPolicy) {
@@ -146,8 +146,8 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     /**
-     * Specify if account policy must be inherited.
-     * In this case eventual accountPolicy occurrence will be ignored.
+     * Specify if account policy must be inherited. In this case eventual accountPolicy occurrence will be ignored.
+     *
      * @param inheritAccountPolicy 'true' to inherit policy, false otherwise.
      */
     public void setInheritAccountPolicy(boolean inheritAccountPolicy) {
@@ -164,9 +164,7 @@ public class RoleTO extends AbstractAttributableTO {
 
     public static long fromDisplayName(final String displayName) {
         long result = 0;
-        if (displayName != null && !displayName.isEmpty()
-                && displayName.indexOf(' ') != -1) {
-
+        if (displayName != null && !displayName.isEmpty() && displayName.indexOf(' ') != -1) {
             try {
                 result = Long.valueOf(displayName.split(" ")[0]);
             } catch (NumberFormatException e) {

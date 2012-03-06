@@ -43,24 +43,22 @@ public class TaskRestClient extends AbstractBaseRestClient
      *
      * @return list of classes.
      */
-    public Set<String> getJobClasses() {
-        Set<String> jobClasses = null;
+    public List<String> getJobClasses() {
+        List<String> jobClasses = null;
 
         try {
-            jobClasses = restTemplate.getForObject(
-                    baseURL + "task/jobClasses.json", Set.class);
+            jobClasses = Arrays.asList(restTemplate.getForObject(baseURL + "task/jobClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job classes", e);
         }
         return jobClasses;
     }
 
-    public Set<String> getJobActionsClasses() {
-        Set<String> actions = null;
+    public List<String> getJobActionsClasses() {
+        List<String> actions = null;
 
         try {
-            actions = restTemplate.getForObject(
-                    baseURL + "task/jobActionsClasses.json", Set.class);
+            actions = Arrays.asList(restTemplate.getForObject(baseURL + "task/jobActionsClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job actions classes", e);
         }
@@ -74,8 +72,7 @@ public class TaskRestClient extends AbstractBaseRestClient
      * @return number of stored tasks.
      */
     public Integer count(final String kind) {
-        return restTemplate.getForObject(baseURL + "task/{kind}/count.json",
-                Integer.class, kind);
+        return restTemplate.getForObject(baseURL + "task/{kind}/count.json", Integer.class, kind);
     }
 
     /**
@@ -85,9 +82,7 @@ public class TaskRestClient extends AbstractBaseRestClient
      * @param size per page.
      * @return paginated list.
      */
-    public <T extends TaskTO> List<T> listTasks(
-            final Class<T> reference, final int page, final int size) {
-
+    public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
         List<T> result = Collections.EMPTY_LIST;
 
         if (PropagationTaskTO.class == reference) {
@@ -112,28 +107,18 @@ public class TaskRestClient extends AbstractBaseRestClient
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {
-        return restTemplate.getForObject(
-                baseURL + "task/read/{taskId}",
-                PropagationTaskTO.class, taskId);
+        return restTemplate.getForObject(baseURL + "task/read/{taskId}", PropagationTaskTO.class, taskId);
     }
 
     public NotificationTaskTO readNotificationTask(final Long taskId) {
-        return restTemplate.getForObject(
-                baseURL + "task/read/{taskId}",
-                NotificationTaskTO.class, taskId);
+        return restTemplate.getForObject(baseURL + "task/read/{taskId}", NotificationTaskTO.class, taskId);
     }
 
-    public <T extends SchedTaskTO> T readSchedTask(
-            final Class<T> reference, final Long taskId) {
-
+    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
         if (SyncTaskTO.class.getName().equals(reference.getName())) {
-            return (T) restTemplate.getForObject(
-                    baseURL + "task/read/{taskId}",
-                    SyncTaskTO.class, taskId);
+            return (T) restTemplate.getForObject(baseURL + "task/read/{taskId}", SyncTaskTO.class, taskId);
         } else {
-            return (T) restTemplate.getForObject(
-                    baseURL + "task/read/{taskId}",
-                    SchedTaskTO.class, taskId);
+            return (T) restTemplate.getForObject(baseURL + "task/read/{taskId}", SchedTaskTO.class, taskId);
         }
     }
 
@@ -144,10 +129,7 @@ public class TaskRestClient extends AbstractBaseRestClient
      */
     @Override
     public List<TaskExecTO> listExecutions() {
-        return Arrays.asList(
-                restTemplate.getForObject(
-                baseURL + "task/execution/list",
-                TaskExecTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "task/execution/list", TaskExecTO[].class));
     }
 
     /**
@@ -156,8 +138,7 @@ public class TaskRestClient extends AbstractBaseRestClient
      * @param taskId task to delete
      */
     public void delete(final Long taskId) {
-        restTemplate.delete(
-                baseURL + "task/delete/{taskId}", taskId);
+        restTemplate.delete(baseURL + "task/delete/{taskId}", taskId);
     }
 
     @Override
@@ -172,8 +153,7 @@ public class TaskRestClient extends AbstractBaseRestClient
      */
     public void startExecution(final Long taskId, boolean dryRun) {
         restTemplate.postForObject(
-                baseURL + "task/execute/{taskId}?dryRun={dryRun}",
-                null, TaskExecTO.class, taskId, dryRun);
+                baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId, dryRun);
     }
 
     /**
@@ -183,27 +163,22 @@ public class TaskRestClient extends AbstractBaseRestClient
      */
     @Override
     public void deleteExecution(final Long taskExecId) {
-        restTemplate.delete(baseURL
-                + "task/execution/delete/{execId}", taskExecId);
+        restTemplate.delete(baseURL + "task/execution/delete/{execId}", taskExecId);
     }
 
     public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL
-                + "task/create/sync", taskTO, SyncTaskTO.class);
+        return restTemplate.postForObject(baseURL + "task/create/sync", taskTO, SyncTaskTO.class);
     }
 
     public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL
-                + "task/create/sched", taskTO, SchedTaskTO.class);
+        return restTemplate.postForObject(baseURL + "task/create/sched", taskTO, SchedTaskTO.class);
     }
 
     public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL
-                + "task/update/sched", taskTO, SchedTaskTO.class);
+        return restTemplate.postForObject(baseURL + "task/update/sched", taskTO, SchedTaskTO.class);
     }
 
     public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL
-                + "task/update/sync", taskTO, SyncTaskTO.class);
+        return restTemplate.postForObject(baseURL + "task/update/sync", taskTO, SyncTaskTO.class);
     }
 }

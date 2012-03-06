@@ -46,6 +46,7 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.syncope.types.AttributableType;
 
 public class DerivedAttributesPanel extends Panel {
 
@@ -75,14 +76,11 @@ public class DerivedAttributesPanel extends Panel {
                     @Override
                     protected List<String> load() {
                         if (entityTO instanceof RoleTO) {
-                            return schemaRestClient.getDerivedSchemaNames(
-                                    "role");
+                            return schemaRestClient.getDerivedSchemaNames(AttributableType.ROLE);
                         } else if (entityTO instanceof UserTO) {
-                            return schemaRestClient.getDerivedSchemaNames(
-                                    "user");
+                            return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
                         } else {
-                            return schemaRestClient.getDerivedSchemaNames(
-                                    "membership");
+                            return schemaRestClient.getDerivedSchemaNames(AttributableType.MEMBERSHIP);
                         }
                     }
                 };
@@ -177,8 +175,7 @@ public class DerivedAttributesPanel extends Panel {
                             protected void onUpdate(
                                     final AjaxRequestTarget art) {
 
-                                attributeTO.setSchema(schemaChoice.
-                                        getModelObject());
+                                attributeTO.setSchema(schemaChoice.getModelObject());
                             }
                         });
 

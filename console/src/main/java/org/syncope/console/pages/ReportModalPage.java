@@ -25,6 +25,10 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -38,6 +42,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -48,6 +53,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.syncope.client.report.ReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -61,15 +67,26 @@ import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.Dat
 import org.syncope.console.wicket.markup.html.form.ActionLink;
 import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.console.wicket.markup.html.form.SingleColumnPalette;
 import org.syncope.types.ReportExecStatus;
 
 public class ReportModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -5747628615211127644L;
 
+    private static final String ADD_BUTTON_ID = "addButton";
+
+    private static final String EDIT_BUTTON_ID = "editButton";
+
+    private static final String REMOVE_BUTTON_ID = "removeButton";
+
     private static final int EXEC_EXPORT_WIN_HEIGHT = 100;
 
     private static final int EXEC_EXPORT_WIN_WIDTH = 400;
+
+    private static final int REPORTLET_CONF_WIN_HEIGHT = 500;
+
+    private static final int REPORTLET_CONF_WIN_WIDTH = 800;
 
     @SpringBean
     private ReportRestClient restClient;
@@ -88,9 +105,11 @@ public class ReportModalPage extends BaseModalPage {
 
     private long exportExecId;
 
-    public ReportModalPage(final ModalWindow window, final ReportTO reportTO,
-            final PageReference callerPageRef) {
+    private ReportletConf modalReportletConf;
 
+    private String modalReportletConfOldName;
+
+    public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
         this.reportTO = reportTO;
 
         form = new Form<ReportTO>("form");
@@ -101,23 +120,17 @@ public class ReportModalPage extends BaseModalPage {
         setupExecutions();
 
         final CrontabContainer crontab = new CrontabContainer("crontab",
-                new PropertyModel<String>(reportTO, "cronExpression"),
-                reportTO.getCronExpression());
+                new PropertyModel<String>(reportTO, "cronExpression"), reportTO.getCronExpression());
         form.add(crontab);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("apply")) {
+        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
-
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
                 ReportTO reportTO = (ReportTO) form.getModelObject();
-                reportTO.setCronExpression(
-                        StringUtils.hasText(reportTO.getCronExpression())
+                reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
                         ? crontab.getCronExpression() : null);
 
                 try {
@@ -138,9 +151,7 @@ public class ReportModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
-
+            protected void onError(final AjaxRequestTarget target, final Form form) {
                 target.add(feedbackPanel);
             }
         };
@@ -158,90 +169,226 @@ public class ReportModalPage extends BaseModalPage {
     }
 
     private void setupProfile() {
-        WebMarkupContainer profile = new WebMarkupContainer("profile");
+        final WebMarkupContainer profile = new WebMarkupContainer("profile");
         profile.setOutputMarkupId(true);
         form.add(profile);
+
+        final ModalWindow reportletConfWin = new ModalWindow("reportletConfWin");
+        reportletConfWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        reportletConfWin.setCookieName("reportlet-conf-win-modal");
+        reportletConfWin.setInitialHeight(REPORTLET_CONF_WIN_HEIGHT);
+        reportletConfWin.setInitialWidth(REPORTLET_CONF_WIN_WIDTH);
+        reportletConfWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                int foundIdx = -1;
+                if (modalReportletConfOldName != null) {
+                    for (int i = 0; i < reportTO.getReportletConfs().size() && foundIdx == -1; i++) {
+                        if (reportTO.getReportletConfs().get(i).getName().equals(modalReportletConfOldName)) {
+                            foundIdx = i;
+                        }
+                    }
+                }
+                if (modalReportletConf != null) {
+                    if (foundIdx == -1) {
+                        reportTO.addReportletConf(modalReportletConf);
+                    } else {
+                        reportTO.getReportletConfs().set(foundIdx, modalReportletConf);
+                    }
+                }
+
+                target.add(profile);
+            }
+        });
+        add(reportletConfWin);
 
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel(
-                "id", getString("id"),
-                new PropertyModel<String>(reportTO, "id"), false);
-
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"),
+                new PropertyModel<String>(reportTO, "id"));
         id.setEnabled(false);
         profile.add(id);
 
-        final Label nameLabel =
-                new Label("nameLabel", new ResourceModel("name"));
+        final Label nameLabel = new Label("nameLabel", new ResourceModel("name"));
         profile.add(nameLabel);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", getString("name"),
-                new PropertyModel<String>(reportTO, "name"), false);
-
-        name.setEnabled(false);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
+                new PropertyModel<String>(reportTO, "name"));
         profile.add(name);
 
-        final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel(
-                "lastExec", getString("lastExec"), new DateFormatROModel(
-                new PropertyModel<String>(reportTO, "lastExec")), false);
+        final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
+                new DateFormatROModel(new PropertyModel<String>(reportTO, "lastExec")));
         lastExec.setEnabled(false);
         profile.add(lastExec);
 
-        final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel(
-                "nextExec", getString("nextExec"), new DateFormatROModel(
-                new PropertyModel<String>(reportTO, "nextExec")), false);
+        final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel("nextExec", getString("nextExec"),
+                new DateFormatROModel(new PropertyModel<String>(reportTO, "nextExec")));
         nextExec.setEnabled(false);
         profile.add(nextExec);
+
+        final SingleColumnPalette<ReportletConf> reportlets = new SingleColumnPalette<ReportletConf>("reportlets",
+                new PropertyModel<List<? extends ReportletConf>>(reportTO, "reportletConfs"),
+                new IChoiceRenderer<ReportletConf>() {
+
+                    private static final long serialVersionUID =
+                            1048000918946220007L;
+
+                    @Override
+                    public Object getDisplayValue(final ReportletConf object) {
+                        return object.getName();
+                    }
+
+                    @Override
+                    public String getIdValue(final ReportletConf object, int index) {
+
+                        return object.getName();
+                    }
+                }, 5, true);
+        reportlets.setOutputMarkupId(true);
+        reportlets.addRecordBehavior(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+            }
+        });
+        reportlets.addRecordBehavior(new AjaxFormComponentUpdatingBehavior("onselect") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (target.getLastFocusedElementId() != null
+                        && target.getLastFocusedElementId().startsWith(EDIT_BUTTON_ID)
+                        && reportlets.getSelectedItem() != null) {
+
+                    reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
+
+                        @Override
+                        public Page createPage() {
+                            modalReportletConfOldName = reportlets.getSelectedItem().getName();
+                            modalReportletConf = null;
+                            return new ReportletConfModalPage(reportlets.getSelectedItem(),
+                                    reportletConfWin, ReportModalPage.this.getPageReference());
+                        }
+                    });
+                    reportletConfWin.show(target);
+                }
+            }
+        });
+        reportlets.setAddLink(new AjaxLink(ADD_BUTTON_ID) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        modalReportletConfOldName = null;
+                        modalReportletConf = null;
+                        return new ReportletConfModalPage(null,
+                                reportletConfWin, ReportModalPage.this.getPageReference());
+                    }
+                });
+                reportletConfWin.show(target);
+            }
+        });
+        reportlets.setEditLink(new AjaxLink(EDIT_BUTTON_ID) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+            }
+
+            @Override
+            protected IAjaxCallDecorator getAjaxCallDecorator() {
+                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+
+                    private static final long serialVersionUID = -7927968187160354605L;
+
+                    @Override
+                    public CharSequence preDecorateScript(final CharSequence script) {
+                        return script
+                                + reportlets.getEditOnClickJS();
+                    }
+                };
+            }
+        });
+        reportlets.setRemoveLink(new AjaxLink(REMOVE_BUTTON_ID) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+            }
+
+            @Override
+            protected IAjaxCallDecorator getAjaxCallDecorator() {
+                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+
+                    private static final long serialVersionUID = -7927968187160354605L;
+
+                    @Override
+                    public CharSequence preDecorateScript(final CharSequence script) {
+                        return "if (confirm('" + getString("confirmDelete") + "')) {"
+                                + script
+                                + reportlets.getRemoveOnClickJS()
+                                + "}";
+                    }
+                };
+            }
+        });
+        profile.add(reportlets);
     }
 
     private void setupExecutions() {
-        final WebMarkupContainer executions =
-                new WebMarkupContainer("executions");
+        final WebMarkupContainer executions = new WebMarkupContainer("executions");
         executions.setOutputMarkupId(true);
         form.add(executions);
 
-        final ModalWindow reportExecMessageWin = new ModalWindow(
-                "reportExecMessageWin");
+        final ModalWindow reportExecMessageWin = new ModalWindow("reportExecMessageWin");
         reportExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         reportExecMessageWin.setCookieName("report-exec-message-win-modal");
         add(reportExecMessageWin);
 
-        final ModalWindow reportExecExportWin = new ModalWindow(
-                "reportExecExportWin");
+        final ModalWindow reportExecExportWin = new ModalWindow("reportExecExportWin");
         reportExecExportWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         reportExecExportWin.setCookieName("report-exec-export-win-modal");
         reportExecExportWin.setInitialHeight(EXEC_EXPORT_WIN_HEIGHT);
         reportExecExportWin.setInitialWidth(EXEC_EXPORT_WIN_WIDTH);
-        reportExecExportWin.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        reportExecExportWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID =
+                    8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        AjaxExportDownloadBehavior behavior =
-                                new AjaxExportDownloadBehavior(
-                                ReportModalPage.this.exportFormat,
-                                ReportModalPage.this.exportExecId);
-                        executions.add(behavior);
-                        behavior.initiate(target);
-                    }
-                });
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                AjaxExportDownloadBehavior behavior = new AjaxExportDownloadBehavior(
+                        ReportModalPage.this.exportFormat, ReportModalPage.this.exportExecId);
+                executions.add(behavior);
+                behavior.initiate(target);
+            }
+        });
         add(reportExecExportWin);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("startDate"), "startDate", "startDate"));
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("endDate"), "endDate", "endDate"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("status"), "status", "status"));
-        columns.add(new AbstractColumn<ReportExecTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
+        columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
+        columns.add(new AbstractColumn<ReportExecTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -258,28 +405,23 @@ public class ReportModalPage extends BaseModalPage {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        reportExecMessageWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        reportExecMessageWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new ExecMessageModalPage(
-                                                model.getObject().getMessage());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new ExecMessageModalPage(model.getObject().getMessage());
+                            }
+                        });
                         reportExecMessageWin.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, "Reports", "read",
@@ -295,24 +437,19 @@ public class ReportModalPage extends BaseModalPage {
                         reportExecExportWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                                    private static final long serialVersionUID = -7834632442532690940L;
 
                                     @Override
                                     public Page createPage() {
-                                        ReportModalPage.this.exportExecId =
-                                                model.getObject().getId();
+                                        ReportModalPage.this.exportExecId = model.getObject().getId();
                                         return new ReportExecResultDownloadModalPage(
-                                                reportExecExportWin,
-                                                ReportModalPage.this.
-                                                getPageReference());
+                                                reportExecExportWin, ReportModalPage.this.getPageReference());
                                     }
                                 });
                         reportExecExportWin.show(target);
                     }
                 }, ActionLink.ActionType.EXPORT, "Reports", "read",
-                        ReportExecStatus.SUCCESS.name().equals(
-                        model.getObject().getStatus()));
+                        ReportExecStatus.SUCCESS.name().equals(model.getObject().getStatus()));
 
                 panel.add(new ActionLink() {
 
@@ -322,8 +459,7 @@ public class ReportModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.deleteExecution(
-                                    taskExecutionTO.getId());
+                            restClient.deleteExecution(taskExecutionTO.getId());
 
                             reportTO.removeExecution(taskExecutionTO);
 
@@ -351,8 +487,13 @@ public class ReportModalPage extends BaseModalPage {
         this.exportFormat = exportFormat;
     }
 
-    private class ReportExecutionsProvider
-            extends SortableDataProvider<ReportExecTO> {
+    public void setModalReportletConf(final ReportletConf modalReportletConf) {
+        this.modalReportletConf = modalReportletConf;
+    }
+
+    private static class ReportExecutionsProvider extends SortableDataProvider<ReportExecTO> {
+
+        private static final long serialVersionUID = 2118096121691420539L;
 
         private SortableDataProviderComparator<ReportExecTO> comparator;
 
@@ -381,13 +522,11 @@ public class ReportModalPage extends BaseModalPage {
         }
 
         @Override
-        public IModel<ReportExecTO> model(
-                final ReportExecTO taskExecution) {
+        public IModel<ReportExecTO> model(final ReportExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<ReportExecTO>() {
 
-                private static final long serialVersionUID =
-                        7485475149862342421L;
+                private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override
                 public ReportExecTO getObject() {
@@ -397,11 +536,9 @@ public class ReportModalPage extends BaseModalPage {
         }
     }
 
-    private class AjaxExportDownloadBehavior
-            extends AbstractAjaxDownloadBehavior {
+    private class AjaxExportDownloadBehavior extends AbstractAjaxDownloadBehavior {
 
-        private static final long serialVersionUID =
-                3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
         private final String exportFormat;
 
@@ -411,9 +548,7 @@ public class ReportModalPage extends BaseModalPage {
 
         private HttpResourceStream stream;
 
-        public AjaxExportDownloadBehavior(final String exportFormat,
-                final long exportExecId) {
-
+        public AjaxExportDownloadBehavior(final String exportFormat, final long exportExecId) {
             this.exportFormat = exportFormat;
             this.exportExecId = exportExecId;
         }

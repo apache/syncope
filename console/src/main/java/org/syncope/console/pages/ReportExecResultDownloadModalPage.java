@@ -37,7 +37,7 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<ReportExecExportFormat> format =
                 new AjaxDropDownChoicePanel<ReportExecExportFormat>(
-                "format", "format", new Model<ReportExecExportFormat>(), false);
+                "format", "format", new Model<ReportExecExportFormat>());
 
         format.setChoices(Arrays.asList(ReportExecExportFormat.values()));
 

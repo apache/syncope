@@ -47,19 +47,15 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", "name",
-                new PropertyModel<String>(roleTO, "name"), false);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
+                new PropertyModel<String>(roleTO, "name"));
         name.addRequiredLabel();
         this.add(name);
 
         this.add(new AttributesPanel("attributes", roleTO, form, false));
 
-        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel(
-                "inheritAttributes",
-                "inheritAttributes",
-                new PropertyModel<Boolean>(roleTO, "inheritAttributes"),
-                false);
+        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",
+                new PropertyModel<Boolean>(roleTO, "inheritAttributes"));
         this.add(inhAttributes);
         //--------------------------------
 
@@ -68,11 +64,8 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
 
-        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel(
-                "inheritDerivedAttributes",
-                "inheritDerivedAttributes",
-                new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"),
-                false);
+        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
+                "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
         inhDerivedAttributes.setOutputMarkupId(true);
         this.add(inhDerivedAttributes);
         //--------------------------------
@@ -83,11 +76,8 @@ public class RoleAttributesPanel extends Panel {
         this.add(new VirtualAttributesPanel("virtualAttributes", roleTO,
                 false));
 
-        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel(
-                "inheritVirtualAttributes",
-                "inheritVirtualAttributes",
-                new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"),
-                false);
+        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
+                "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));
         inhVirtualAttributes.setOutputMarkupId(true);
         this.add(inhVirtualAttributes);
         //--------------------------------

@@ -33,23 +33,20 @@ public class NotificationTaskModalPage extends TaskModalPage {
     public NotificationTaskModalPage(final TaskTO taskTO) {
         super(taskTO);
 
-        final AjaxTextFieldPanel sender = new AjaxTextFieldPanel(
-                "sender", getString("sender"),
-                new PropertyModel<String>(taskTO, "sender"), false);
+        final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
+                new PropertyModel<String>(taskTO, "sender"));
         sender.setEnabled(false);
         profile.add(sender);
 
         final ListMultipleChoice<String> recipients =
                 new ListMultipleChoice<String>("recipients",
-                new ArrayList<String>(((NotificationTaskTO) taskTO).
-                getRecipients()));
+                new ArrayList<String>(((NotificationTaskTO) taskTO).getRecipients()));
         recipients.setMaxRows(5);
         recipients.setEnabled(false);
         profile.add(recipients);
 
-        final AjaxTextFieldPanel subject = new AjaxTextFieldPanel(
-                "subject", getString("subject"),
-                new PropertyModel<String>(taskTO, "subject"), false);
+        final AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
+                new PropertyModel<String>(taskTO, "subject"));
         subject.setEnabled(false);
         profile.add(subject);
 
@@ -63,9 +60,8 @@ public class NotificationTaskModalPage extends TaskModalPage {
         htmlBody.setEnabled(false);
         profile.add(htmlBody);
 
-        final AjaxTextFieldPanel traceLevel = new AjaxTextFieldPanel(
-                "traceLevel", getString("traceLevel"),
-                new PropertyModel<String>(taskTO, "traceLevel"), false);
+        final AjaxTextFieldPanel traceLevel = new AjaxTextFieldPanel("traceLevel", getString("traceLevel"),
+                new PropertyModel<String>(taskTO, "traceLevel"));
         traceLevel.setEnabled(false);
         profile.add(traceLevel);
     }

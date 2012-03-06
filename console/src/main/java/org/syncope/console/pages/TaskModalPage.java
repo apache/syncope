@@ -109,9 +109,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel(
-                "id", getString("id"),
-                new PropertyModel<String>(taskTO, "id"), false);
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"),
+                new PropertyModel<String>(taskTO, "id"));
 
         id.setEnabled(false);
         profile.add(id);
@@ -207,8 +206,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         executions.add(table);
     }
 
-    protected class TaskExecutionsProvider
-            extends SortableDataProvider<TaskExecTO> {
+    protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 

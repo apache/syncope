@@ -26,16 +26,21 @@ public abstract class AbstractReportletConf extends AbstractBaseBean implements 
 
     private String name;
 
+    public AbstractReportletConf() {
+        this("");
+        setName(getClass().getName());
+    }
+
     public AbstractReportletConf(final String name) {
         this.name = name;
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public void setName(final String name) {
+    public final void setName(final String name) {
         this.name = name;
     }
 }

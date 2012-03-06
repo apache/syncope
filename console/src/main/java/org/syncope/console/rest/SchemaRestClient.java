@@ -26,6 +26,7 @@ import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.VirtualSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.types.AttributableType;
 
 /**
  * Console client for invoking rest schema services.
@@ -35,34 +36,33 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
     /**
      * Get schemas.
+     *
      * @return List of schemas.
      */
-    public List<SchemaTO> getSchemas(final String kind) {
-        List<SchemaTO> userSchemas = null;
+    public List<SchemaTO> getSchemas(final AttributableType type) {
+        List<SchemaTO> schemas = null;
 
         try {
-            userSchemas = Arrays.asList(
-                    restTemplate.getForObject(
-                    baseURL + "schema/" + kind + "/list.json",
-                    SchemaTO[].class));
+            schemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "schema/" + type.name().toLowerCase() + "/list.json", SchemaTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While getting all user schemas", e);
+            LOG.error("While getting all schemas", e);
         }
 
-        return userSchemas;
+        return schemas;
     }
 
     /**
      * Get schema names.
+     *
      * @return List of schema names.
      */
-    public List<String> getSchemaNames(final String kind) {
+    public List<String> getSchemaNames(final AttributableType type) {
         final List<String> schemaNames = new ArrayList<String>();
 
         try {
-            final List<SchemaTO> userSchemas = Arrays.asList(
-                    restTemplate.getForObject(baseURL
-                    + "schema/" + kind + "/list.json", SchemaTO[].class));
+            final List<SchemaTO> userSchemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "schema/" + type.name().toLowerCase() + "/list.json", SchemaTO[].class));
 
             for (SchemaTO schemaTO : userSchemas) {
                 schemaNames.add(schemaTO.getName());
@@ -76,17 +76,16 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
     /**
      * Get derived schemas.
+     *
      * @return List of derived schemas.
      */
-    public List<DerivedSchemaTO> getDerivedSchemas(final String kind) {
+    public List<DerivedSchemaTO> getDerivedSchemas(final AttributableType type) {
 
         List<DerivedSchemaTO> userDerivedSchemas = null;
 
         try {
-            userDerivedSchemas = Arrays.asList(
-                    restTemplate.getForObject(
-                    baseURL + "derivedSchema/" + kind + "/list.json",
-                    DerivedSchemaTO[].class));
+            userDerivedSchemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "derivedSchema/" + type.name().toLowerCase() + "/list.json", DerivedSchemaTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user derived schemas", e);
         }
@@ -95,43 +94,21 @@ public class SchemaRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Get derived schemas.
-     * @return List of derived schemas.
-     */
-    public List<VirtualSchemaTO> getVirtualSchemas(final String kind) {
-
-        List<VirtualSchemaTO> userVirtualSchemas = null;
-
-        try {
-            userVirtualSchemas = Arrays.asList(
-                    restTemplate.getForObject(
-                    baseURL + "virtualSchema/" + kind + "/list.json",
-                    VirtualSchemaTO[].class));
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While getting all user derived schemas", e);
-        }
-
-        return userVirtualSchemas;
-    }
-
-    /**
      * Get derived schema names.
+     *
      * @return List of derived schema names.
      */
-    public List<String> getDerivedSchemaNames(final String kind) {
+    public List<String> getDerivedSchemaNames(final AttributableType type) {
 
         final List<String> userDerivedSchemasNames = new ArrayList<String>();
 
         try {
-            final List<DerivedSchemaTO> userDerivedSchemas =
-                    Arrays.asList(restTemplate.getForObject(baseURL
-                    + "derivedSchema/" + kind + "/list.json",
-                    DerivedSchemaTO[].class));
+            final List<DerivedSchemaTO> userDerivedSchemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "derivedSchema/" + type.name().toLowerCase() + "/list.json", DerivedSchemaTO[].class));
 
             for (DerivedSchemaTO schemaTO : userDerivedSchemas) {
                 userDerivedSchemasNames.add(schemaTO.getName());
             }
-
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user derived schema names", e);
         }
@@ -140,23 +117,39 @@ public class SchemaRestClient extends AbstractBaseRestClient {
     }
 
     /**
+     * Get derived schemas.
+     *
+     * @return List of derived schemas.
+     */
+    public List<VirtualSchemaTO> getVirtualSchemas(final AttributableType type) {
+
+        List<VirtualSchemaTO> userVirtualSchemas = null;
+
+        try {
+            userVirtualSchemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "virtualSchema/" + type.name().toLowerCase() + "/list.json", VirtualSchemaTO[].class));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting all user derived schemas", e);
+        }
+
+        return userVirtualSchemas;
+    }
+
+    /**
      * Get virtual schema names.
+     *
      * @return List of virtual schema names.
      */
-    public List<String> getVirtualSchemaNames(final String kind) {
-
+    public List<String> getVirtualSchemaNames(final AttributableType type) {
         final List<String> userVirtualSchemasNames = new ArrayList<String>();
 
         try {
-            final List<VirtualSchemaTO> userVirtualSchemas =
-                    Arrays.asList(restTemplate.getForObject(baseURL
-                    + "virtualSchema/" + kind + "/list.json",
-                    VirtualSchemaTO[].class));
+            final List<VirtualSchemaTO> userVirtualSchemas = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "virtualSchema/" + type.name().toLowerCase() + "/list.json", VirtualSchemaTO[].class));
 
             for (VirtualSchemaTO schemaTO : userVirtualSchemas) {
                 userVirtualSchemasNames.add(schemaTO.getName());
             }
-
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user derived schema names", e);
         }
@@ -166,26 +159,26 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
     /**
      * Create new user schema.
+     *
      * @param schemaTO
      */
-    public void createSchema(final String kind, final SchemaTO schemaTO) {
-        restTemplate.postForObject(baseURL
-                + "schema/" + kind + "/create", schemaTO, SchemaTO.class);
+    public void createSchema(final AttributableType type, final SchemaTO schemaTO) {
+        restTemplate.postForObject(
+                baseURL + "schema/" + type.name().toLowerCase() + "/create", schemaTO, SchemaTO.class);
     }
 
     /**
      * Load an already existent user schema by its name.
+     *
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public SchemaTO readSchema(final String kind, final String name) {
+    public SchemaTO readSchema(final AttributableType type, final String name) {
         SchemaTO schema = null;
 
         try {
             schema = restTemplate.getForObject(
-                    baseURL
-                    + "schema/" + kind + "/read/" + name + ".json",
-                    SchemaTO.class);
+                    baseURL + "schema/" + type.name().toLowerCase() + "/read/" + name + ".json", SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a user schema", e);
         }
@@ -194,60 +187,55 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
     /**
      * Update an already existent user schema.
+     *
      * @param schemaTO updated
      */
-    public void updateSchema(String kind, SchemaTO schemaTO) {
-        restTemplate.postForObject(baseURL
-                + "schema/" + kind + "/update", schemaTO, SchemaTO.class);
+    public void updateSchema(final AttributableType type, SchemaTO schemaTO) {
+        restTemplate.postForObject(
+                baseURL + "schema/" + type.name().toLowerCase() + "/update", schemaTO, SchemaTO.class);
     }
 
     /**
      * Delete an already existent user schema by its name.
+     *
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public void deleteSchema(String kind, String name) {
-        restTemplate.delete(baseURL
-                + "schema/" + kind + "/delete/" + name + ".json");
+    public void deleteSchema(final AttributableType type, String name) {
+        restTemplate.delete(baseURL + "schema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
     }
 
     /**
      * Create new derived user schema.
+     *
      * @param schemaTO
      */
-    public void createDerivedSchema(final String kind,
-            final DerivedSchemaTO schemaTO) {
-
-        restTemplate.postForObject(baseURL
-                + "derivedSchema/" + kind + "/create", schemaTO,
-                DerivedSchemaTO.class);
+    public void createDerivedSchema(final AttributableType type, final DerivedSchemaTO schemaTO) {
+        restTemplate.postForObject(
+                baseURL + "derivedSchema/" + type.name().toLowerCase() + "/create", schemaTO, DerivedSchemaTO.class);
     }
 
     /**
      * Create new derived user schema.
+     *
      * @param schemaTO
      */
-    public void createVirtualSchema(final String kind,
-            final VirtualSchemaTO schemaTO) {
-
-        restTemplate.postForObject(baseURL
-                + "virtualSchema/" + kind + "/create", schemaTO,
-                VirtualSchemaTO.class);
+    public void createVirtualSchema(final AttributableType type, final VirtualSchemaTO schemaTO) {
+        restTemplate.postForObject(
+                baseURL + "virtualSchema/" + type.name().toLowerCase() + "/create", schemaTO, VirtualSchemaTO.class);
     }
 
     /**
      * Load an already existent user derived schema by its name.
+     *
      * @param name (e.g.:surname)
      * @return DerivedSchemaTO
      */
-    public DerivedSchemaTO readDerivedSchema(final String kind,
-            final String name) {
-
+    public DerivedSchemaTO readDerivedSchema(final AttributableType type, final String name) {
         DerivedSchemaTO derivedSchemaTO = null;
         try {
             derivedSchemaTO = restTemplate.getForObject(
-                    baseURL
-                    + "derivedSchema/" + kind + "/read/" + name + ".json",
+                    baseURL + "derivedSchema/" + type.name().toLowerCase() + "/read/" + name + ".json",
                     DerivedSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a derived user schema", e);
@@ -257,50 +245,40 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
     /**
      * Update an already existent user derived schema.
+     *
      * @param schemaTO updated
      */
-    public void updateDerivedSchema(final String kind,
-            final DerivedSchemaTO schemaTO) {
-
-        restTemplate.postForObject(baseURL
-                + "derivedSchema/" + kind + "/update", schemaTO,
-                DerivedSchemaTO.class);
+    public void updateDerivedSchema(final AttributableType type, final DerivedSchemaTO schemaTO) {
+        restTemplate.postForObject(
+                baseURL + "derivedSchema/" + type.name().toLowerCase() + "/update", schemaTO, DerivedSchemaTO.class);
     }
 
     /**
      * Update an already existent user derived schema.
+     *
      * @param schemaTO updated
      */
-    public void updateVirtualSchema(final String kind,
-            final VirtualSchemaTO schemaTO) {
-
+    public void updateVirtualSchema(final AttributableType type, final VirtualSchemaTO schemaTO) {
         restTemplate.postForObject(baseURL
-                + "virtualSchema/" + kind + "/update", schemaTO,
-                VirtualSchemaTO.class);
+                + "virtualSchema/" + type.name().toLowerCase() + "/update", schemaTO, VirtualSchemaTO.class);
     }
 
     /**
      * Delete an already existent user derived schema by its name.
+     *
      * @param name (e.g.:surname)
      */
-    public void deleteDerivedSchema(String kind, String name) {
-        try {
-            restTemplate.delete(baseURL
-                    + "derivedSchema/" + kind + "/delete/" + name + ".json");
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deleting a derived user schema", e);
-        }
+    public void deleteDerivedSchema(final AttributableType type, String name) {
+        restTemplate.delete(baseURL + "derivedSchema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
     }
 
     /**
-     * Delete an already existent user derived schema by its name.
+     * Delete an already existent user virtual schema by its name.
+     *
      * @param name (e.g.:surname)
      */
-    public void deleteVirtualSchema(final String kind,
-            final String name) {
-
-        restTemplate.delete(baseURL
-                + "virtualSchema/" + kind + "/delete/" + name + ".json");
+    public void deleteVirtualSchema(final AttributableType type, final String name) {
+        restTemplate.delete(baseURL + "virtualSchema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
     }
 
     /**
@@ -311,8 +289,7 @@ public class SchemaRestClient extends AbstractBaseRestClient {
 
         try {
             validators = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "configuration/validators.json",
-                    String[].class));
+                    baseURL + "configuration/validators.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all validators", e);
         }

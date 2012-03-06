@@ -21,8 +21,9 @@ package org.syncope.console.pages;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.types.AttributableType;
 
 /**
  * Modal window with Schema form.
@@ -34,9 +35,9 @@ abstract public class AbstractSchemaModalPage extends BaseModalPage {
     @SpringBean
     protected SchemaRestClient restClient;
 
-    protected String kind;
+    protected AttributableType kind;
 
-    public AbstractSchemaModalPage(String kind) {
+    public AbstractSchemaModalPage(AttributableType kind) {
         this.kind = kind;
     }
 
@@ -46,7 +47,7 @@ abstract public class AbstractSchemaModalPage extends BaseModalPage {
             AbstractBaseBean schema,
             final boolean createFlag);
 
-    public String getKind() {
+    public AttributableType getKind() {
         return kind;
     }
 }
