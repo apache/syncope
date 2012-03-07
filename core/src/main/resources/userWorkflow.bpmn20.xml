@@ -18,7 +18,6 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <definitions id="definitions"
              targetNamespace="http://activiti.org/bpmn20" 
              xmlns:activiti="http://activiti.org/bpmn"
@@ -30,60 +29,60 @@ under the License.
              xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL 
                                  http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
   
-    <process id="userWorkflow" name="User Workflow">
+  <process id="userWorkflow" name="User Workflow">
   
-        <startEvent id="theStart"/>
+    <startEvent id="theStart"/>
     
         <!-- Create an user -->
-        <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
+    <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
       
-        <serviceTask id="create" name="Create" activiti:class="org.syncope.core.workflow.activiti.Create"/>
+    <serviceTask id="create" name="Create" activiti:class="org.syncope.core.workflow.activiti.Create"/>
 
-        <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
+    <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
         
-        <exclusiveGateway id="createGW"/>
-        <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
-            <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="create2CreateApproval" sourceRef="createGW" targetRef="createApproval">
-            <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(9)}</conditionExpression>
-        </sequenceFlow>
+    <exclusiveGateway id="createGW"/>
+    <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
+      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="create2CreateApproval" sourceRef="createGW" targetRef="createApproval">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+    </sequenceFlow>
         
-        <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval" activiti:candidateGroups="7">
-            <extensionElements>
-                <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
-                <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
-                <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
-            </extensionElements>
-        </userTask>
+    <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval" activiti:candidateGroups="7">
+      <extensionElements>
+        <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
+        <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
+        <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+      </extensionElements>
+    </userTask>
 
-        <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
+    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
         
-        <exclusiveGateway id="createApprovalGW"/>
-        <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="enableGW">
-            <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
-            <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
-        </sequenceFlow>
+    <exclusiveGateway id="createApprovalGW"/>
+    <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="enableGW">
+      <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
+      <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+    </sequenceFlow>
         
         <!-- activate user if suspension is not required -->
-        <exclusiveGateway id="enableGW"/>
-        <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
-            <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
-            <conditionExpression xsi:type="tFormalExpression">${enabled}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
-            <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
-        </sequenceFlow>
+    <exclusiveGateway id="enableGW"/>
+    <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
+      <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
+      <conditionExpression xsi:type="tFormalExpression">${enabled}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
+    </sequenceFlow>
         
         <!-- Comment the following two lines, uncomment the lines below and change
              createApproval2Activate.targetRef to "generateToken" in order to enable opt-in. -->
-        <serviceTask id="activate" name="Activate" activiti:class="org.syncope.core.workflow.activiti.AutoActivate"/>
+    <serviceTask id="activate" name="Activate" activiti:class="org.syncope.core.workflow.activiti.AutoActivate"/>
 
-        <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
+    <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
         <!-- Uncomment the following lines and comment the above line in order to enable opt-in.        
         <serviceTask id="generateToken" name="Generate token" activiti:class="org.syncope.core.workflow.activiti.GenerateToken"/>
@@ -117,69 +116,69 @@ under the License.
 
         <sequenceFlow id="flowN+3" sourceRef="activate" targetRef="active"/>-->
 
-        <userTask id="active" name="Active"/>
+    <userTask id="active" name="Active"/>
         
-        <sequenceFlow id="flow7" sourceRef="active" targetRef="activeGw"/>
+    <sequenceFlow id="flow7" sourceRef="active" targetRef="activeGw"/>
 
-        <exclusiveGateway id="activeGw"/>
-        <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'update'}</conditionExpression>
-        </sequenceFlow>  
-        <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'suspend'}</conditionExpression>
-        </sequenceFlow> 
-        <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
-        </sequenceFlow>
+    <exclusiveGateway id="activeGw"/>
+    <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'update'}</conditionExpression>
+    </sequenceFlow>  
+    <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'suspend'}</conditionExpression>
+    </sequenceFlow> 
+    <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
 
         <!-- Update an active user -->
-        <serviceTask id="update" name="Update" activiti:class="org.syncope.core.workflow.activiti.Update"/>
+    <serviceTask id="update" name="Update" activiti:class="org.syncope.core.workflow.activiti.Update"/>
 
-        <sequenceFlow id="flow8" sourceRef="update" targetRef="active"/>
+    <sequenceFlow id="flow8" sourceRef="update" targetRef="active"/>
 
         <!-- Suspend an active user -->
-        <serviceTask id="suspend" name="Suspend" activiti:class="org.syncope.core.workflow.activiti.Suspend"/>
+    <serviceTask id="suspend" name="Suspend" activiti:class="org.syncope.core.workflow.activiti.Suspend"/>
 
-        <sequenceFlow id="flow9" sourceRef="suspend" targetRef="suspended"/>
+    <sequenceFlow id="flow9" sourceRef="suspend" targetRef="suspended"/>
 
-        <userTask id="suspended" name="Suspended"/>
+    <userTask id="suspended" name="Suspended"/>
         
-        <sequenceFlow id="flow10" sourceRef="suspended" targetRef="suspendedGw"/>
+    <sequenceFlow id="flow10" sourceRef="suspended" targetRef="suspendedGw"/>
 
-        <exclusiveGateway id="suspendedGw"/>
-        <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'reactivate'}</conditionExpression>
-        </sequenceFlow>
-        <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
-        </sequenceFlow>
+    <exclusiveGateway id="suspendedGw"/>
+    <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'reactivate'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
 
         <!-- Reactivate a suspended user -->
-        <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.syncope.core.workflow.activiti.Reactivate"/>
+    <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.syncope.core.workflow.activiti.Reactivate"/>
 
-        <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
+    <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
         
         <!-- Reject an user -->
-        <scriptTask id="reject" name="Reject" scriptFormat="groovy">
+    <scriptTask id="reject" name="Reject" scriptFormat="groovy">
             <!-- Do something with rejectReason -->
-            <script>
-                def scriptVar = rejectReason
-            </script>
-        </scriptTask>
+      <script>
+        def scriptVar = rejectReason
+      </script>
+    </scriptTask>
         
-        <sequenceFlow id="flow12" sourceRef="reject" targetRef="rejected"/>
+    <sequenceFlow id="flow12" sourceRef="reject" targetRef="rejected"/>
 
-        <userTask id="rejected" name="Rejected"/>
+    <userTask id="rejected" name="Rejected"/>
         
-        <sequenceFlow id="flow13" sourceRef="rejected" targetRef="delete"/>
+    <sequenceFlow id="flow13" sourceRef="rejected" targetRef="delete"/>
 
         <!-- Delete an user (created, active or suspended) -->
-        <serviceTask id="delete" name="Delete" activiti:class="org.syncope.core.workflow.activiti.Delete"/>
+    <serviceTask id="delete" name="Delete" activiti:class="org.syncope.core.workflow.activiti.Delete"/>
 
-        <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
+    <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
 
-        <endEvent id="theEnd"/>
+    <endEvent id="theEnd"/>
       
-    </process>
+  </process>
   
 </definitions>

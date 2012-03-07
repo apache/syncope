@@ -18,11 +18,10 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
-    <deployment>
-        <dependencies>
-            <module name="org.hibernate" />
-        </dependencies>
-    </deployment>
+  <deployment>
+    <dependencies>
+      <module name="org.hibernate" />
+    </dependencies>
+  </deployment>
 </jboss-deployment-structure>

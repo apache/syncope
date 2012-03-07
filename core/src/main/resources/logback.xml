@@ -18,138 +18,137 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <configuration>
 
-    <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/core.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/core.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <appender name="persistence" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core-persistence.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core-persistence.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="persistence" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/core-persistence.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/core-persistence.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <appender name="rest" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core-rest.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core-rest.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="rest" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/core-rest.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/core-rest.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <appender name="connid" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core-connid.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core-connid.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="connid" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/core-connid.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/core-connid.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core-test.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core-test.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/core-test.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/core-test.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <logger name="org.syncope.client" additivity="false">
-        <level value="OFF"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.syncope.client" additivity="false">
+    <level value="OFF"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.syncope.core.persistence" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="persistence"/>
-    </logger>
-    <logger name="org.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="persistence"/>
-    </logger>
+  <logger name="org.syncope.core.persistence" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="persistence"/>
+  </logger>
+  <logger name="org.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="persistence"/>
+  </logger>
     
-    <logger name="org.syncope.core.security" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.syncope.core.security" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.syncope.core.rest" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="rest"/>
-    </logger>
+  <logger name="org.syncope.core.rest" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="rest"/>
+  </logger>
     
-    <logger name="org.identityconnectors" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="connid"/>
-    </logger>
-    <logger name="org.syncope.core.connid" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="connid"/>
-    </logger>
-    <logger name="org.connid" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="connid"/>
-    </logger>
+  <logger name="org.identityconnectors" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="connid"/>
+  </logger>
+  <logger name="org.syncope.core.connid" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="connid"/>
+  </logger>
+  <logger name="org.connid" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="connid"/>
+  </logger>
     
-    <logger name="org.syncope.core.test" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
+  <logger name="org.syncope.core.test" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="test"/>
+  </logger>
 
-    <logger name="org.springframework" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.springframework" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.springframework.orm" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="persistence"/>
-    </logger>
+  <logger name="org.springframework.orm" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="persistence"/>
+  </logger>
 
-    <logger name="org.springframework.test" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
+  <logger name="org.springframework.test" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="test"/>
+  </logger>
 
-    <logger name="org.springframework.web" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="rest"/>
-    </logger>
+  <logger name="org.springframework.web" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="rest"/>
+  </logger>
 
-    <logger name="org.apache.http" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
+  <logger name="org.apache.http" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="test"/>
+  </logger>
     
-    <root>
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </root>
+  <root>
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </root>
 </configuration>

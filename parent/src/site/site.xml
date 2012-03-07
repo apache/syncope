@@ -18,56 +18,55 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <project xmlns="http://maven.apache.org/DECORATION/1.1.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 
                              http://maven.apache.org/xsd/decoration-1.1.0.xsd" 
          name="Apache Syncope">
              
-    <bannerRight>
-        <src>images/apache-incubator-logo.png</src>
-        <href>http://incubator.apache.org/</href>
-    </bannerRight>
+  <bannerRight>
+    <src>images/apache-incubator-logo.png</src>
+    <href>http://incubator.apache.org/</href>
+  </bannerRight>
 
-    <bannerLeft>
-        <src>images/apache-syncope-logo-small.jpg</src>
-        <href>http://incubator.apache.org/syncope</href>
-    </bannerLeft>
+  <bannerLeft>
+    <src>images/apache-syncope-logo-small.jpg</src>
+    <href>http://incubator.apache.org/syncope</href>
+  </bannerLeft>
 
-    <publishDate position="right"/>
-    <version position="right"/>
+  <publishDate position="right"/>
+  <version position="right"/>
 
-    <skin>
-        <groupId>org.apache.maven.skins</groupId>
-        <artifactId>maven-fluido-skin</artifactId>
-        <version>1.1</version>
-    </skin>
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.1</version>
+  </skin>
 
-    <body>
-        <links>
-            <item name="Apache" href="http://www.apache.org/"/>
-            <item name="Apache Incubator" href="http://incubator.apache.org"/>
-        </links>
+  <body>
+    <links>
+      <item name="Apache" href="http://www.apache.org/"/>
+      <item name="Apache Incubator" href="http://incubator.apache.org"/>
+    </links>
 
-        <breadcrumbs>
-            <item name="Apache Syncope" href="http://incubator.apache.org/syncope"/>
-        </breadcrumbs>
+    <breadcrumbs>
+      <item name="Apache Syncope" href="http://incubator.apache.org/syncope"/>
+    </breadcrumbs>
         
-        <menu ref="reports" inherit="bottom"/>
+    <menu ref="reports" inherit="bottom"/>
 
-        <menu name="ASF">
-            <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
-            <item name="Foundation" href="http://www.apache.org/foundation/"/>
-            <item name="Sponsoring Apache" href="http://www.apache.org/foundation/sponsorship.html"/>
-            <item name="Thanks" href="http://www.apache.org/foundation/thanks.html"/>
-        </menu>
+    <menu name="ASF">
+      <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
+      <item name="Foundation" href="http://www.apache.org/foundation/"/>
+      <item name="Sponsoring Apache" href="http://www.apache.org/foundation/sponsorship.html"/>
+      <item name="Thanks" href="http://www.apache.org/foundation/thanks.html"/>
+    </menu>
 
-        <footer>
-            <div class="row span16" style="width:100%">
-                Apache, Syncope, Apache Syncope, the Apache feather logo, the Apache Syncope project logo and the Apache Syncope logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
-            </div>
-        </footer>
-    </body>
+    <footer>
+      <div class="row span16" style="width:100%">
+        Apache, Syncope, Apache Syncope, the Apache feather logo, the Apache Syncope project logo and the Apache Syncope logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
+      </div>
+    </footer>
+  </body>
 
 </project>

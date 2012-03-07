@@ -18,12 +18,11 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <Context>
     <!-- Disable session persistence across Tomcat restarts -->
-    <Manager pathname="" />
+  <Manager pathname="" />
 
-    <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
-            virtualClasspath="${project.build.directory}/classes:${project.build.directory}/${project.build.finalName}/WEB-INF/lib/*.jar"
-            searchVirtualFirst="true"/>
+  <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+          virtualClasspath="${project.build.directory}/classes:${project.build.directory}/${project.build.finalName}/WEB-INF/lib/*.jar"
+          searchVirtualFirst="true"/>
 </Context>

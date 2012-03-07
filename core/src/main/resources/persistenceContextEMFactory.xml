@@ -18,39 +18,38 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="entityManagerFactory"
+  <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
-                <property name="showSql" value="false"/>
-                <property name="generateDdl" value="true"/>
-                <property name="databasePlatform" value="${jpa.dialect}"/>
-            </bean>
-        </property>
-        <property name="jpaPropertyMap">
-            <map>
+    <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
+    <property name="dataSource" ref="dataSource"/>
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <property name="showSql" value="false"/>
+        <property name="generateDdl" value="true"/>
+        <property name="databasePlatform" value="${jpa.dialect}"/>
+      </bean>
+    </property>
+    <property name="jpaPropertyMap">
+      <map>
                 <!--<entry key="openjpa.Log" value="SQL=TRACE"/>-->
                 
-                <entry key="openjpa.NontransactionalWrite" value="false"/>
-                <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
+        <entry key="openjpa.NontransactionalWrite" value="false"/>
+        <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
                 
-                <entry key="openjpa.ReadLockLevel" value="none"/>
-                <entry key="openjpa.WriteLockLevel" value="write"/>
-                <entry key="openjpa.LockTimeout" value="30000"/>
+        <entry key="openjpa.ReadLockLevel" value="none"/>
+        <entry key="openjpa.WriteLockLevel" value="write"/>
+        <entry key="openjpa.LockTimeout" value="30000"/>
                                 
-                <entry key="openjpa.DataCache" value="true" />
-                <entry key="openjpa.QueryCache" value="true"/>
-                <entry key="openjpa.RemoteCommitProvider" value="sjvm" />
-            </map>
-        </property>
-    </bean>
+        <entry key="openjpa.DataCache" value="true" />
+        <entry key="openjpa.QueryCache" value="true"/>
+        <entry key="openjpa.RemoteCommitProvider" value="sjvm" />
+      </map>
+    </property>
+  </bean>
 
 </beans>

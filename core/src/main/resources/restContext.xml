@@ -18,7 +18,6 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -30,72 +29,72 @@ under the License.
        http://www.springframework.org/schema/oxm
        http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-    <context:component-scan base-package="org.syncope.core.rest.controller"/>
+  <context:component-scan base-package="org.syncope.core.rest.controller"/>
 
-    <bean id="adminUser" class="java.lang.String">
-        <constructor-arg value="${adminUser}"/>
-    </bean>
+  <bean id="adminUser" class="java.lang.String">
+    <constructor-arg value="${adminUser}"/>
+  </bean>
     
     <!-- JSON (via Jackson) -->
-    <bean id="jacksonObjectMapper" class="org.syncope.core.rest.data.UnwrappedObjectMapper"/>
-    <bean id="mappingJacksonHttpMessageConverter"
+  <bean id="jacksonObjectMapper" class="org.syncope.core.rest.data.UnwrappedObjectMapper"/>
+  <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-        <property name="objectMapper" ref="jacksonObjectMapper"/>
-    </bean>
+    <property name="objectMapper" ref="jacksonObjectMapper"/>
+  </bean>
     
     <!-- XML (via XStream) -->
-    <bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
-        <property name="autodetectAnnotations" value="true" />
-    </bean> 
-    <bean id="mappingXstreamHttpMessageConverter" class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
-        <constructor-arg ref="xStreamXmlMarshaller" />
-    </bean>
+  <bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+    <property name="autodetectAnnotations" value="true" />
+  </bean> 
+  <bean id="mappingXstreamHttpMessageConverter" class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+    <constructor-arg ref="xStreamXmlMarshaller" />
+  </bean>
    
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-        <property name="messageConverters">
-            <list>
-                <ref bean="mappingJacksonHttpMessageConverter"/>
-                <ref bean="mappingXstreamHttpMessageConverter" />
-            </list>
-        </property>
-    </bean>
+  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="messageConverters">
+      <list>
+        <ref bean="mappingJacksonHttpMessageConverter"/>
+        <ref bean="mappingXstreamHttpMessageConverter" />
+      </list>
+    </property>
+  </bean>
     
-    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-        <property name="mediaTypes">
-            <map>
-                <entry key="json" value="application/json;charset=UTF-8"/>
-                <entry key="xml" value="application/xml;charset=UTF-8"/>
-                <entry key="html" value="text/html;charset=UTF-8"/>
-            </map>
-        </property>
-        <property name="viewResolvers">
-            <list>
-                <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-                    <property name="prefix" value="/"/>
-                    <property name="suffix" value=".jsp"/>
-                </bean>
-            </list>
-        </property>
-        <property name="defaultViews">
-            <list>
-                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
-                    <property name="objectMapper" ref="jacksonObjectMapper"/>
-                </bean>
-                <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
-                    <constructor-arg ref="xStreamXmlMarshaller"/>
-                </bean>
-            </list>
-        </property>
-        <property name="defaultContentType">        
-            <bean id="jsonMediaType" class="org.springframework.http.MediaType">
-                <constructor-arg value="application"/>
-                <constructor-arg value="json"/>
-                <constructor-arg value="UTF-8"/>
-            </bean>
-        </property>
+  <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+    <property name="mediaTypes">
+      <map>
+        <entry key="json" value="application/json;charset=UTF-8"/>
+        <entry key="xml" value="application/xml;charset=UTF-8"/>
+        <entry key="html" value="text/html;charset=UTF-8"/>
+      </map>
+    </property>
+    <property name="viewResolvers">
+      <list>
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+          <property name="prefix" value="/"/>
+          <property name="suffix" value=".jsp"/>
+        </bean>
+      </list>
+    </property>
+    <property name="defaultViews">
+      <list>
+        <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+          <property name="objectMapper" ref="jacksonObjectMapper"/>
+        </bean>
+        <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+          <constructor-arg ref="xStreamXmlMarshaller"/>
+        </bean>
+      </list>
+    </property>
+    <property name="defaultContentType">        
+      <bean id="jsonMediaType" class="org.springframework.http.MediaType">
+        <constructor-arg value="application"/>
+        <constructor-arg value="json"/>
+        <constructor-arg value="UTF-8"/>
+      </bean>
+    </property>
         
-        <property name="ignoreAcceptHeader" value="false"/>
-    </bean>
+    <property name="ignoreAcceptHeader" value="false"/>
+  </bean>
 
 </beans>

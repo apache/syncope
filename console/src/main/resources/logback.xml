@@ -18,65 +18,64 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <configuration scan="true">
-    <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/console.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/console.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/console.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/console.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/console-test.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/console-test.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${log.directory}/console-test.log</file>
+    <append>true</append>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${log.directory}/console-test.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <logger name="org.syncope.client" additivity="false">
-        <level value="OFF"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.syncope.client" additivity="false">
+    <level value="OFF"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.syncope.console" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.syncope.console" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.syncope.console.test" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="test"/>
-    </logger>
+  <logger name="org.syncope.console.test" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="test"/>
+  </logger>
 
-    <logger name="org.apache.wicket" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.apache.wicket" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.springframework" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
+  <logger name="org.springframework" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
 
-    <logger name="org.apache.http" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
+  <logger name="org.apache.http" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="test"/>
+  </logger>
     
-    <root>
-        <priority value="INFO"/>
-        <appender-ref ref="main"/>
-    </root>
+  <root>
+    <priority value="INFO"/>
+    <appender-ref ref="main"/>
+  </root>
 </configuration>
 

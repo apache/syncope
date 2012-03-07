@@ -18,182 +18,181 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.syncope</groupId>
-        <artifactId>syncope</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
-    </parent>
-
-    <name>Apache Syncope Archetype</name>
-    <description>Apache Syncope Archetype</description>
+  <parent>
     <groupId>org.apache.syncope</groupId>
-    <artifactId>syncope-archetype</artifactId>
+    <artifactId>syncope</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <packaging>maven-archetype</packaging>
+    <relativePath>../parent</relativePath>
+  </parent>
 
-    <properties>
-        <SVNRepoURL>http://svn.apache.org/repos/asf/incubator/syncope/trunk</SVNRepoURL>
-    </properties>
+  <name>Apache Syncope Archetype</name>
+  <description>Apache Syncope Archetype</description>
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>syncope-archetype</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <packaging>maven-archetype</packaging>
 
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</developerConnection>
-        <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</url>
-    </scm>
+  <properties>
+    <SVNRepoURL>http://svn.apache.org/repos/asf/incubator/syncope/trunk</SVNRepoURL>
+  </properties>
 
-    <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.archetype</groupId>
-                <artifactId>archetype-packaging</artifactId>
-                <version>2.2</version>
-            </extension>
-        </extensions>
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</url>
+  </scm>
 
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-archetype-plugin</artifactId>
-                    <version>2.2</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.archetype</groupId>
+        <artifactId>archetype-packaging</artifactId>
+        <version>2.2</version>
+      </extension>
+    </extensions>
 
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>setupResources</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <target>
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-                                <if>
-                                    <available file="${basedir}/../core/pom.xml" />
-                                    <then>
-                                        <copy file="${basedir}/../core/src/test/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>2.2</version>
+          <extensions>true</extensions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
 
-                                        <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                                        <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>setupResources</id>
+            <phase>validate</phase>
+            <configuration>
+              <target>
+                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                <if>
+                  <available file="${basedir}/../core/pom.xml" />
+                  <then>
+                    <copy file="${basedir}/../core/src/test/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
 
-                                        <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
-                                        <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
-                                    </then>
-                                    <else>
-                                        <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
-                                        <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
-                                        <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
-                                        <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
-                                        <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
+                    <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
 
-                                        <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
-                                        <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
-                                        <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
-                                        <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
-                                        <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
+                    <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
+                  </then>
+                  <else>
+                    <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
+                    <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
+                    <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
+                    <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
+                    <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
 
-                                        <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
-                                        <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
-                                    </else>
-                                </if>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>20020829</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+                    <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
+                    <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
+                    <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
+                    <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
+                    <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.syncope</groupId>
-                        <artifactId>syncope-build-tools</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.syncope</groupId>
-                        <artifactId>syncope-build-tools</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
+                    <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
+                    <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
+                  </else>
+                </if>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>ant-contrib</groupId>
+            <artifactId>ant-contrib</artifactId>
+            <version>20020829</version>
+          </dependency>
+        </dependencies>
+      </plugin>
 
-        <resources>
-            <resource>
-                <directory>..</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>LICENSE</include>
-                    <include>NOTICE</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <inherited>true</inherited>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-build-tools</artifactId>
+            <version>${project.parent.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <inherited>true</inherited>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.syncope</groupId>
+            <artifactId>syncope-build-tools</artifactId>
+            <version>${project.parent.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <configLocation>org/syncope/checkstyle.xml</configLocation>
-                    <targetJdk>${targetJdk}</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.7.1</version>
-                <configuration>
-                    <rulesets>
-                        <ruleset>org/syncope/pmd.xml</ruleset>
-                    </rulesets>
-                    <targetJdk>${targetJdk}</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
-        </plugins>
-    </reporting>
+    <resources>
+      <resource>
+        <directory>..</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <configLocation>org/syncope/checkstyle.xml</configLocation>
+          <targetJdk>${targetJdk}</targetJdk>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>2.7.1</version>
+        <configuration>
+          <rulesets>
+            <ruleset>org/syncope/pmd.xml</ruleset>
+          </rulesets>
+          <targetJdk>${targetJdk}</targetJdk>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>

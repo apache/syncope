@@ -18,7 +18,6 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:security="http://www.springframework.org/schema/security"
@@ -27,29 +26,29 @@ under the License.
        http://www.springframework.org/schema/security
        http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <security:global-method-security pre-post-annotations="enabled"/>
+  <security:global-method-security pre-post-annotations="enabled"/>
 
-    <bean id="securityContextRepository" class='org.syncope.core.security.NullSecurityContextRepository'/>
+  <bean id="securityContextRepository" class='org.syncope.core.security.NullSecurityContextRepository'/>
 
-    <security:http security-context-repository-ref="securityContextRepository">
-        <security:http-basic/>
-        <security:intercept-url pattern="/**"/>
-    </security:http>
+  <security:http security-context-repository-ref="securityContextRepository">
+    <security:http-basic/>
+    <security:intercept-url pattern="/**"/>
+  </security:http>
 
-    <bean id="syncopeUserDetailsService"
+  <bean id="syncopeUserDetailsService"
           class="org.syncope.core.security.SyncopeUserDetailsService">
-        <property name="adminUser" value="${adminUser}"/>
-    </bean>
+    <property name="adminUser" value="${adminUser}"/>
+  </bean>
 
-    <bean id="syncopeAuthenticationProvider"
+  <bean id="syncopeAuthenticationProvider"
           class="org.syncope.core.security.SyncopeAuthenticationProvider">
-        <property name="adminUser" value="${adminUser}"/>
-        <property name="adminMD5Password" value="${adminMD5Password}"/>
-        <property name="syncopeUserDetailsService" ref="syncopeUserDetailsService"/>
-    </bean>
+    <property name="adminUser" value="${adminUser}"/>
+    <property name="adminMD5Password" value="${adminMD5Password}"/>
+    <property name="syncopeUserDetailsService" ref="syncopeUserDetailsService"/>
+  </bean>
 
-    <security:authentication-manager>
-        <security:authentication-provider ref="syncopeAuthenticationProvider"/>
-    </security:authentication-manager>
+  <security:authentication-manager>
+    <security:authentication-provider ref="syncopeAuthenticationProvider"/>
+  </security:authentication-manager>
 
 </beans>

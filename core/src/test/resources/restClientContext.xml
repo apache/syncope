@@ -18,28 +18,27 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
-    <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
-    <bean id="httpClientFactory" class="org.syncope.client.http.PreemptiveAuthHttpRequestFactory">
-        <constructor-arg value="localhost"/>
-        <constructor-arg value="9080"/>
-        <constructor-arg value="http"/>
-        <constructor-arg ref="httpClientConnManager"/>
-        <constructor-arg ref="httpClientParams"/>
-    </bean>
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <constructor-arg ref="httpClientFactory"/>
+  <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
+  <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
+  <bean id="httpClientFactory" class="org.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+    <constructor-arg value="localhost"/>
+    <constructor-arg value="9080"/>
+    <constructor-arg value="http"/>
+    <constructor-arg ref="httpClientConnManager"/>
+    <constructor-arg ref="httpClientParams"/>
+  </bean>
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+    <constructor-arg ref="httpClientFactory"/>
 
-        <property name="errorHandler">
-            <bean id="syncopeClientErrorHandler"
+    <property name="errorHandler">
+      <bean id="syncopeClientErrorHandler"
                   class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
-        </property>
-    </bean>
+    </property>
+  </bean>
 
 </beans>

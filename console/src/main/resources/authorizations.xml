@@ -18,268 +18,267 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <auth>
-    <page id="Schema">
-        <action id="create">
-            <entitlement>SCHEMA_CREATE</entitlement>
-        </action>
+  <page id="Schema">
+    <action id="create">
+      <entitlement>SCHEMA_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>SCHEMA_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>SCHEMA_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>SCHEMA_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>SCHEMA_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>SCHEMA_DELETE</entitlement>
-        </action>
-    </page>
+    <action id="delete">
+      <entitlement>SCHEMA_DELETE</entitlement>
+    </action>
+  </page>
 
-    <page id="Users">
-        <action id="list">
-            <entitlement>USER_LIST</entitlement>
-        </action>
+  <page id="Users">
+    <action id="list">
+      <entitlement>USER_LIST</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>USER_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>USER_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>USER_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>USER_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>USER_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>USER_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>USER_DELETE</entitlement>
-        </action>
+    <action id="delete">
+      <entitlement>USER_DELETE</entitlement>
+    </action>
 
-        <action id="changeView">
-            <entitlement>USER_VIEW</entitlement>
-        </action>
-    </page>
+    <action id="changeView">
+      <entitlement>USER_VIEW</entitlement>
+    </action>
+  </page>
 
-    <page id="Roles">
-        <action id="create">
-            <entitlement>ROLE_CREATE</entitlement>
-        </action>
+  <page id="Roles">
+    <action id="create">
+      <entitlement>ROLE_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>ROLE_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>ROLE_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>ROLE_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>ROLE_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>ROLE_DELETE</entitlement>
-        </action>
-    </page>
+    <action id="delete">
+      <entitlement>ROLE_DELETE</entitlement>
+    </action>
+  </page>
 
-    <page id="Resources">
-        <action id="create">
-            <entitlement>RESOURCE_CREATE</entitlement>
-        </action>
+  <page id="Resources">
+    <action id="create">
+      <entitlement>RESOURCE_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>RESOURCE_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>RESOURCE_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>RESOURCE_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>RESOURCE_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>RESOURCE_DELETE</entitlement>
-        </action>
-    </page>
+    <action id="delete">
+      <entitlement>RESOURCE_DELETE</entitlement>
+    </action>
+  </page>
 
-    <page id="Reports">
-        <action id="list">
-            <entitlement>REPORT_LIST</entitlement>
-        </action>
+  <page id="Reports">
+    <action id="list">
+      <entitlement>REPORT_LIST</entitlement>
+    </action>
         
-        <action id="create">
-            <entitlement>REPORT_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>REPORT_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>REPORT_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>REPORT_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>REPORT_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>REPORT_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>REPORT_DELETE</entitlement>
-        </action>
+    <action id="delete">
+      <entitlement>REPORT_DELETE</entitlement>
+    </action>
 
-        <action id="execute">
-            <entitlement>REPORT_EXECUTE</entitlement>
-        </action>
-    </page>
+    <action id="execute">
+      <entitlement>REPORT_EXECUTE</entitlement>
+    </action>
+  </page>
 
-    <page id="Connectors">
-        <action id="list">
-            <entitlement>CONNECTOR_LIST</entitlement>
-        </action>
+  <page id="Connectors">
+    <action id="list">
+      <entitlement>CONNECTOR_LIST</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>CONNECTOR_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>CONNECTOR_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>CONNECTOR_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>CONNECTOR_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>CONNECTOR_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>CONNECTOR_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>CONNECTOR_DELETE</entitlement>
-        </action>
-    </page>
+    <action id="delete">
+      <entitlement>CONNECTOR_DELETE</entitlement>
+    </action>
+  </page>
 
-    <page id="Approval">
-        <action id="list">
-            <entitlement>WORKFLOW_FORM_LIST</entitlement>
-        </action>
-        <action id="read">
-            <entitlement>WORKFLOW_FORM_READ</entitlement>
-        </action>
-        <action id="claim">
-            <entitlement>WORKFLOW_FORM_CLAIM</entitlement>
-        </action>
-        <action id="submit">
-            <entitlement>WORKFLOW_FORM_SUBMIT</entitlement>
-        </action>
-    </page>
+  <page id="Approval">
+    <action id="list">
+      <entitlement>WORKFLOW_FORM_LIST</entitlement>
+    </action>
+    <action id="read">
+      <entitlement>WORKFLOW_FORM_READ</entitlement>
+    </action>
+    <action id="claim">
+      <entitlement>WORKFLOW_FORM_CLAIM</entitlement>
+    </action>
+    <action id="submit">
+      <entitlement>WORKFLOW_FORM_SUBMIT</entitlement>
+    </action>
+  </page>
     
-    <page id="UserRequest">
-        <action id="list">
-            <entitlement>USER_REQUEST_LIST</entitlement>
-        </action>
-        <action id="read">
-            <entitlement>USER_REQUEST_READ</entitlement>
-        </action>
-        <action id="delete">
-            <entitlement>USER_REQUEST_DELETE</entitlement>
-        </action>
-    </page>
+  <page id="UserRequest">
+    <action id="list">
+      <entitlement>USER_REQUEST_LIST</entitlement>
+    </action>
+    <action id="read">
+      <entitlement>USER_REQUEST_READ</entitlement>
+    </action>
+    <action id="delete">
+      <entitlement>USER_REQUEST_DELETE</entitlement>
+    </action>
+  </page>
     
-    <page id="Configuration">
-        <action id="list">
-            <entitlement>CONFIGURATION_LIST</entitlement>
-        </action>
+  <page id="Configuration">
+    <action id="list">
+      <entitlement>CONFIGURATION_LIST</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>CONFIGURATION_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>CONFIGURATION_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>CONFIGURATION_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>CONFIGURATION_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>CONFIGURATION_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>CONFIGURATION_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>CONFIGURATION_DELETE</entitlement>
-        </action>
+    <action id="delete">
+      <entitlement>CONFIGURATION_DELETE</entitlement>
+    </action>
 
-        <action id="loggerList">
-            <entitlement>LOGGER_LIST</entitlement>
-        </action>
+    <action id="loggerList">
+      <entitlement>LOGGER_LIST</entitlement>
+    </action>
         
-        <action id="loggerSetLevel">
-            <entitlement>LOGGER_SET_LEVEL</entitlement>
-        </action>
+    <action id="loggerSetLevel">
+      <entitlement>LOGGER_SET_LEVEL</entitlement>
+    </action>
         
-        <action id="workflowDefRead">
-            <entitlement>WORKFLOW_DEF_READ</entitlement>
-        </action>
+    <action id="workflowDefRead">
+      <entitlement>WORKFLOW_DEF_READ</entitlement>
+    </action>
         
-        <action id="workflowDefUpdate">
-            <entitlement>WORKFLOW_DEF_UPDATE</entitlement>
-        </action>
-    </page>
+    <action id="workflowDefUpdate">
+      <entitlement>WORKFLOW_DEF_UPDATE</entitlement>
+    </action>
+  </page>
     
-    <page id="Notification">
-        <action id="list">
-            <entitlement>NOTIFICATION_LIST</entitlement>
-        </action>
+  <page id="Notification">
+    <action id="list">
+      <entitlement>NOTIFICATION_LIST</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>NOTIFICATION_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>NOTIFICATION_CREATE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>NOTIFICATION_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>NOTIFICATION_READ</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>NOTIFICATION_UPDATE</entitlement>
-        </action>
+    <action id="update">
+      <entitlement>NOTIFICATION_UPDATE</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>NOTIFICATION_DELETE</entitlement>
-        </action>
-    </page>
+    <action id="delete">
+      <entitlement>NOTIFICATION_DELETE</entitlement>
+    </action>
+  </page>
 
-    <page id="Tasks">
-        <action id="list">
-            <entitlement>TASK_LIST</entitlement>
-        </action>
+  <page id="Tasks">
+    <action id="list">
+      <entitlement>TASK_LIST</entitlement>
+    </action>
 
-        <action id="execute">
-            <entitlement>TASK_EXECUTE</entitlement>
-        </action>
+    <action id="execute">
+      <entitlement>TASK_EXECUTE</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>TASK_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>TASK_READ</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>TASK_DELETE</entitlement>
-        </action>
+    <action id="delete">
+      <entitlement>TASK_DELETE</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>TASK_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>TASK_CREATE</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>TASK_UPDATE</entitlement>
-        </action>
-    </page>
+    <action id="update">
+      <entitlement>TASK_UPDATE</entitlement>
+    </action>
+  </page>
 
-    <page id="Policies">
-        <action id="list">
-            <entitlement>POLICY_LIST</entitlement>
-        </action>
+  <page id="Policies">
+    <action id="list">
+      <entitlement>POLICY_LIST</entitlement>
+    </action>
 
-        <action id="read">
-            <entitlement>POLICY_READ</entitlement>
-        </action>
+    <action id="read">
+      <entitlement>POLICY_READ</entitlement>
+    </action>
 
-        <action id="delete">
-            <entitlement>POLICY_DELETE</entitlement>
-        </action>
+    <action id="delete">
+      <entitlement>POLICY_DELETE</entitlement>
+    </action>
 
-        <action id="create">
-            <entitlement>POLICY_CREATE</entitlement>
-        </action>
+    <action id="create">
+      <entitlement>POLICY_CREATE</entitlement>
+    </action>
 
-        <action id="update">
-            <entitlement>POLICY_UPDATE</entitlement>
-        </action>
-    </page>
+    <action id="update">
+      <entitlement>POLICY_UPDATE</entitlement>
+    </action>
+  </page>
 </auth>

@@ -18,7 +18,6 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -33,41 +32,41 @@ under the License.
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <import resource="persistenceContextEMFactory.xml"/>
+  <import resource="persistenceContextEMFactory.xml"/>
 
-    <context:annotation-config/>
-    <context:component-scan base-package="org.syncope.core.persistence"/>
-    <context:component-scan base-package="org.syncope.core.rest.data"/>
-    <context:component-scan base-package="org.syncope.core.policy"/>
+  <context:annotation-config/>
+  <context:component-scan base-package="org.syncope.core.persistence"/>
+  <context:component-scan base-package="org.syncope.core.rest.data"/>
+  <context:component-scan base-package="org.syncope.core.policy"/>
 
-    <aop:aspectj-autoproxy/>
+  <aop:aspectj-autoproxy/>
 
-    <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
+  <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
     <!-- Use JNDI datasource as default but, when not available, revert to
          local datasource, using different properties for execution and testing -->
-    <bean id="dataSource"
+  <bean id="dataSource"
           class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
-        <property name="defaultObject" ref="localDataSource"/>
-    </bean>
-    <bean id="localDataSource" class="org.apache.commons.dbcp.BasicDataSource">
-        <property name="driverClassName" value="${jpa.driverClassName}"/>
-        <property name="url" value="${jpa.url}"/>
-        <property name="username" value="${jpa.username}"/>
-        <property name="password" value="${jpa.password}"/>
-        <property name="initialSize" value="10"/>
-    </bean>
+    <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
+    <property name="defaultObject" ref="localDataSource"/>
+  </bean>
+  <bean id="localDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="${jpa.driverClassName}"/>
+    <property name="url" value="${jpa.url}"/>
+    <property name="username" value="${jpa.username}"/>
+    <property name="password" value="${jpa.password}"/>
+    <property name="initialSize" value="10"/>
+  </bean>
 
-    <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
+  <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-    <tx:annotation-driven/>
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+  <tx:annotation-driven/>
 
-    <bean id="validator"
+  <bean id="validator"
           class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 </beans>
