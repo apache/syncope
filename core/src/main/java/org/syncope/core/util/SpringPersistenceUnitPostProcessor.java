@@ -31,10 +31,8 @@ import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
 /**
- * Add to JPA persistence context all beans labeled as @Entity from given
- * location.
- * This is needed only when using LocalContainerEntityManagerFactoryBean with
- * non-standard persistence.xml (currently JBoss-only).
+ * Add to JPA persistence context all beans labeled as @Entity from given location. This is needed only when using
+ * LocalContainerEntityManagerFactoryBean with non-standard persistence.xml (currently JBoss-only).
  */
 public class SpringPersistenceUnitPostProcessor
         implements PersistenceUnitPostProcessor {
@@ -42,8 +40,7 @@ public class SpringPersistenceUnitPostProcessor
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SpringPersistenceUnitPostProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpringPersistenceUnitPostProcessor.class);
 
     @Autowired
     private ResourcePatternResolver resResolver;
@@ -62,21 +59,14 @@ public class SpringPersistenceUnitPostProcessor
             LOG.warn("No locations provided");
         }
 
-        CachingMetadataReaderFactory cachingMetadataReaderFactory =
-                new CachingMetadataReaderFactory();
+        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
 
         try {
             for (String location : locations) {
                 for (Resource resource : resResolver.getResources(location)) {
-                    MetadataReader metadataReader =
-                            cachingMetadataReaderFactory.getMetadataReader(
-                            resource);
-                    if (metadataReader.getAnnotationMetadata().
-                            isAnnotated(Entity.class.getName())) {
-
-                        mpui.addManagedClassName(
-                                metadataReader.getClassMetadata().
-                                getClassName());
+                    MetadataReader metadataReader = cachingMetadataReaderFactory.getMetadataReader(resource);
+                    if (metadataReader.getAnnotationMetadata().isAnnotated(Entity.class.getName())) {
+                        mpui.addManagedClassName(metadataReader.getClassMetadata().getClassName());
                     }
                 }
             }

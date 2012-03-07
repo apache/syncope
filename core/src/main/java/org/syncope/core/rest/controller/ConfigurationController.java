@@ -19,14 +19,12 @@
 package org.syncope.core.rest.controller;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -36,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +44,6 @@ import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 import org.syncope.core.util.ImportExport;
@@ -67,16 +65,13 @@ public class ConfigurationController extends AbstractController {
     private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
+    @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ConfigurationTO create(final HttpServletResponse response,
             @RequestBody final ConfigurationTO configurationTO) {
 
-        LOG.debug("Configuration create called with parameters {}",
-                configurationTO);
+        LOG.debug("Configuration create called with parameters {}", configurationTO);
 
-        SyncopeConf conf = configurationDataBinder.createSyncopeConfiguration(
-                configurationTO);
+        SyncopeConf conf = configurationDataBinder.createSyncopeConfiguration(configurationTO);
         conf = confDAO.save(conf);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -85,8 +80,7 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{key}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{key}")
     public void delete(@PathVariable("key") final String key)
             throws MissingConfKeyException {
 
@@ -95,16 +89,13 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list")
-    public List<ConfigurationTO> list(HttpServletRequest request) {
+    @RequestMapping(method = RequestMethod.GET, value = "/list")
+    public List<ConfigurationTO> list(final HttpServletRequest request) {
         List<SyncopeConf> configurations = confDAO.findAll();
-        List<ConfigurationTO> configurationTOs =
-                new ArrayList<ConfigurationTO>(configurations.size());
+        List<ConfigurationTO> configurationTOs = new ArrayList<ConfigurationTO>(configurations.size());
 
         for (SyncopeConf configuration : configurations) {
-            configurationTOs.add(
-                    configurationDataBinder.getConfigurationTO(configuration));
+            configurationTOs.add(configurationDataBinder.getConfigurationTO(configuration));
         }
 
         return configurationTOs;
@@ -113,8 +104,7 @@ public class ConfigurationController extends AbstractController {
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{key}")
-    public ConfigurationTO read(HttpServletResponse response,
-            @PathVariable("key") String key)
+    public ConfigurationTO read(final HttpServletResponse response, @PathVariable("key") final String key)
             throws MissingConfKeyException {
 
         ConfigurationTO result;
@@ -122,8 +112,7 @@ public class ConfigurationController extends AbstractController {
             SyncopeConf conf = confDAO.find(key);
             result = configurationDataBinder.getConfigurationTO(conf);
         } catch (MissingConfKeyException e) {
-            LOG.error("Could not find configuration key '" + key
-                    + "', returning null");
+            LOG.error("Could not find configuration key '" + key + "', returning null");
 
             result = new ConfigurationTO();
             result.setKey(key);
@@ -139,8 +128,7 @@ public class ConfigurationController extends AbstractController {
             @RequestBody final ConfigurationTO configurationTO)
             throws MissingConfKeyException {
 
-        SyncopeConf syncopeConfiguration =
-                confDAO.find(configurationTO.getKey());
+        SyncopeConf syncopeConfiguration = confDAO.find(configurationTO.getKey());
 
         syncopeConfiguration.setValue(configurationTO.getValue());
 
@@ -148,58 +136,43 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/validators")
+    @RequestMapping(method = RequestMethod.GET, value = "/validators")
     public ModelAndView getValidators() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory =
-                new CachingMetadataReaderFactory();
+        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
 
         Set<String> validators = new HashSet<String>();
         try {
             for (Resource resource : resResolver.getResources(
-                    "classpath:org/syncope/core/persistence/validation/"
-                    + "attrvalue/*.class")) {
+                    "classpath:org/syncope/core/persistence/validation/attrvalue/*.class")) {
 
-                ClassMetadata metadata =
-                        cachingMetadataReaderFactory.getMetadataReader(
-                        resource).getClassMetadata();
-                if (ArrayUtils.contains(metadata.getInterfaceNames(),
-                        Validator.class.getName())
-                        || AbstractValidator.class.getName().equals(
-                        metadata.getSuperClassName())) {
+                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
-                    try {
-                        Class jobClass = Class.forName(metadata.getClassName());
-                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
-                            validators.add(jobClass.getName());
-                        }
-                    } catch (ClassNotFoundException e) {
-                        LOG.error("Could not load class {}",
-                                metadata.getClassName(), e);
+                try {
+                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(
+                            ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader()));
+
+                    if (interfaces.contains(Validator.class) && !metadata.isAbstract()) {
+                        validators.add(metadata.getClassName());
                     }
+                } catch (ClassNotFoundException e) {
+                    LOG.error("Could not load class {}", metadata.getClassName(), e);
                 }
             }
         } catch (IOException e) {
-            LOG.error("While searching for class implementing {}",
-                    Validator.class.getName(), e);
+            LOG.error("While searching for class implementing {}", Validator.class.getName(), e);
         }
 
         return new ModelAndView().addObject(validators);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/mailTemplates")
+    @RequestMapping(method = RequestMethod.GET, value = "/mailTemplates")
     public ModelAndView getMailTemplates() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory =
-                new CachingMetadataReaderFactory();
-
         Set<String> htmlTemplates = new HashSet<String>();
         Set<String> textTemplates = new HashSet<String>();
 
         try {
-            for (Resource resource : resResolver.getResources(
-                    "classpath:/mailTemplates/*.vm")) {
+            for (Resource resource : resResolver.getResources("classpath:/mailTemplates/*.vm")) {
 
                 String template = resource.getURL().toExternalForm();
                 if (template.endsWith(".html.vm")) {
@@ -211,13 +184,11 @@ public class ConfigurationController extends AbstractController {
                             template.indexOf("mailTemplates/") + 14,
                             template.indexOf(".txt.vm")));
                 } else {
-                    LOG.warn("Unexpected template found: {}, ignoring...",
-                            template);
+                    LOG.warn("Unexpected template found: {}, ignoring...", template);
                 }
             }
         } catch (IOException e) {
-            LOG.error("While searching for class implementing {}",
-                    Validator.class.getName(), e);
+            LOG.error("While searching for class implementing {}", Validator.class.getName(), e);
         }
 
         // Only templates available both as HTML and TEXT are considered
@@ -227,13 +198,11 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/dbexport")
+    @RequestMapping(method = RequestMethod.GET, value = "/dbexport")
     @Transactional(readOnly = true)
     public void dbExport(final HttpServletResponse response) {
         response.setContentType(MediaType.TEXT_XML_VALUE);
-        response.setHeader("Content-Disposition",
-                "attachment; filename=content.xml");
+        response.setHeader("Content-Disposition", "attachment; filename=content.xml");
 
         try {
             importExport.export(response.getOutputStream());

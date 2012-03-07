@@ -19,10 +19,8 @@
 package org.syncope.core.rest.data;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.lang.ArrayUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -36,6 +34,7 @@ import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.syncope.client.report.ReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
@@ -43,7 +42,6 @@ import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
 import org.syncope.core.persistence.dao.ReportExecDAO;
-import org.syncope.core.report.AbstractReportlet;
 import org.syncope.core.report.Reportlet;
 import org.syncope.core.report.ReportletConfClass;
 
@@ -78,17 +76,16 @@ public class ReportDataBinder {
         try {
             for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
                 ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
-                if (ArrayUtils.contains(metadata.getInterfaceNames(), Reportlet.class.getName())
-                        || AbstractReportlet.class.getName().equals(metadata.getSuperClassName())) {
 
-                    try {
-                        Class jobClass = Class.forName(metadata.getClassName());
-                        if (!Modifier.isAbstract(jobClass.getModifiers())) {
-                            reportletClasses.add(jobClass);
-                        }
-                    } catch (ClassNotFoundException e) {
-                        LOG.error("Could not load class {}", metadata.getClassName(), e);
+                try {
+                    Class reportletClass =
+                            ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
+                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(reportletClass);
+                    if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
+                        reportletClasses.add(reportletClass);
                     }
+                } catch (ClassNotFoundException e) {
+                    LOG.error("Could not load class {}", metadata.getClassName(), e);
                 }
             }
         } catch (IOException e) {
