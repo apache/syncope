@@ -46,15 +46,34 @@ under the License.
   <body>
     <links>
       <item name="Apache" href="http://www.apache.org/"/>
-      <item name="Apache Incubator" href="http://incubator.apache.org"/>
+      <item name="Apache Incubator" href="http://incubator.apache.org/"/>
     </links>
 
     <breadcrumbs>
-      <item name="Apache Syncope" href="http://incubator.apache.org/syncope"/>
+      <item name="Apache Syncope" href="http://incubator.apache.org/syncope/"/>
     </breadcrumbs>
         
-    <menu ref="reports" inherit="bottom"/>
+    <menu name="Project Information">
+      <item name="Project Summary" href="project-summary.html"/>
+      <item name="Mailing Lists" href="mail-lists.html"/>
+      <item name="Project Team" href="team-list.html"/>
+      <item name="Source Repository" href="source-repository.html"/>
+      <item name="Continuous Integration" href="integration.html"/>
+      <item name="Issue Tracking" href="issue-tracking.html"/>
+      <item name="Dependency Management" href="dependency-management.html"/>
+      <item name="Distribution Management" href="distribution-management.html"/>
+      <item name="Plugin Management" href="plugin-management.html"/>
+      <item name="Project Plugins" href="plugins.html"/>
+      <item name="Project License" href="license.html"/>
+    </menu>
 
+    <menu name="Documentation">
+      <item name="Features" href="features.html"/>
+      <item name="Architecture" href="architecture.html"/>
+      <item name="Wiki" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Index"/>
+      <item name="Javadoc" href="apidocs/index.html"/>
+    </menu>
+    
     <menu name="ASF">
       <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
       <item name="Foundation" href="http://www.apache.org/foundation/"/>

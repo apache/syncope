@@ -16,3 +16,28 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
+.toc {
+  width: 300px;
+  border: 1px solid gray;
+  background-color: #f9f9f9;
+  padding-bottom: 15px;
+}
+
+ul.toc li {
+  visibility: hidden;
+  list-style: none;
+}
+
+ul.toc li ul {
+  visibility: visible;
+  counter-reset: item;
+}
+
+ul.toc li ul li {
+  visibility: visible;
+}
+
+ul.toc li ul li:before {
+  content: counters(item, ".") ". ";
+  counter-increment: item;
+}
