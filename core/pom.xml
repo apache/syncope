@@ -247,7 +247,7 @@ under the License.
       <artifactId>framework-internal</artifactId>
     </dependency>
 
-        <!-- TEST -->
+    <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
@@ -301,7 +301,7 @@ under the License.
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-        <!-- /TEST -->
+    <!-- /TEST -->
   </dependencies>
 
   <build>
@@ -1183,7 +1183,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9</version>
+        <version>2.9.1</version>
         <configuration>
           <configLocation>org/syncope/checkstyle.xml</configLocation>
           <targetJdk>${targetJdk}</targetJdk>

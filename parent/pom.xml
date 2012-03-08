@@ -356,7 +356,7 @@ under the License.
         <version>${velocity.version}</version>
       </dependency>
 
-            <!-- Spring -->
+      <!-- Spring -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
@@ -437,7 +437,7 @@ under the License.
         <artifactId>spring-security-config</artifactId>
         <version>${spring-security.version}</version>            
       </dependency>
-            <!-- /Spring -->
+      <!-- /Spring -->
 
       <dependency>
         <groupId>cglib</groupId>
@@ -501,7 +501,7 @@ under the License.
         <version>1.0</version>
       </dependency>
         
-            <!-- Wicket -->
+      <!-- Wicket -->
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket</artifactId>
@@ -528,7 +528,7 @@ under the License.
         <artifactId>wicket-auth-roles</artifactId>
         <version>${wicket.version}</version>
       </dependency>
-            <!-- /Wicket -->
+      <!-- /Wicket -->
 
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
@@ -547,8 +547,7 @@ under the License.
         <artifactId>apacheds-all</artifactId>
         <version>${apacheds.version}</version>
         <exclusions>
-                    <!-- shared-ldap-schema module needs to be excluded to avoid
-                         multiple schema resources on the classpath-->
+          <!-- shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath-->
           <exclusion>
             <groupId>org.apache.directory.shared</groupId>
             <artifactId>shared-ldap-schema</artifactId>
@@ -583,7 +582,7 @@ under the License.
         <version>${slf4j.version}</version>
       </dependency>
         
-            <!-- TEST -->
+      <!-- TEST -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -633,7 +632,7 @@ under the License.
         <version>${connid.ldap.version}</version>
         <scope>test</scope>
       </dependency>
-            <!-- /TEST -->
+      <!-- /TEST -->
 
     </dependencies>
 
@@ -749,11 +748,10 @@ under the License.
                 </includes>
                 <filtering>true</filtering>
               </resource>
-                            <!--
-                            HACK: Include legal files explicity,
-                            otherwise they will end up in the wrong path
-                            or in another jar file in the war.
-                            -->
+              <!--
+                   HACK: Include legal files explicity, otherwise they will end up in the wrong path
+                         or in another jar file in the war.
+              -->
               <resource>
                 <directory>${project.build.outputDirectory}</directory>
                 <includes>
@@ -915,7 +913,7 @@ under the License.
               <goal>verify-legal-files</goal>
             </goals>
             <configuration>
-                            <!-- Fail the build if any artifacts are missing legal files -->
+              <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
             </configuration>
           </execution>
@@ -924,7 +922,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9</version>
+        <version>2.9.1</version>
         <dependencies>    
           <dependency>
             <groupId>org.apache.syncope</groupId>
