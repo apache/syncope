@@ -75,21 +75,17 @@ public class SyncopeUserValidator extends AbstractValidator
                 // evaluate/enforce only during creation or password update
                 if (password != null) {
                     // evaluate policy
-                    final PasswordPolicySpec passwordPolicy =
-                            evaluator.evaluate(policy, object);
+                    final PasswordPolicySpec passwordPolicy = evaluator.evaluate(policy, object);
 
                     // enforce policy
-                    ppEnforcer.enforce(
-                            passwordPolicy, policy.getType(), password);
+                    ppEnforcer.enforce(passwordPolicy, policy.getType(), password);
                 }
             }
         } catch (Exception e) {
             LOG.debug("Invalid password");
 
             context.buildConstraintViolationWithTemplate(
-                    e.getMessage()).addNode(
-                    EntityViolationType.InvalidPassword.toString()).
-                    addConstraintViolation();
+                    e.getMessage()).addNode(EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
 
             return false;
         } finally {
@@ -108,8 +104,7 @@ public class SyncopeUserValidator extends AbstractValidator
             // missing username
             for (Policy policy : getAccountPolicies(object)) {
                 // evaluate policy
-                final AccountPolicySpec accountPolicy =
-                        evaluator.evaluate(policy, object);
+                final AccountPolicySpec accountPolicy = evaluator.evaluate(policy, object);
 
                 // enforce policy
                 apEnforcer.enforce(accountPolicy, policy.getType(), object);
@@ -118,9 +113,7 @@ public class SyncopeUserValidator extends AbstractValidator
             LOG.debug("Invalid username");
 
             context.buildConstraintViolationWithTemplate(
-                    e.getMessage()).addNode(
-                    EntityViolationType.InvalidUsername.toString()).
-                    addConstraintViolation();
+                    e.getMessage()).addNode(EntityViolationType.InvalidUsername.toString()).addConstraintViolation();
 
             return false;
         }

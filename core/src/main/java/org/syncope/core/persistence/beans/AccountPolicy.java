@@ -33,7 +33,6 @@ public class AccountPolicy extends Policy {
     public AccountPolicy(boolean global) {
         super();
 
-        this.type = global
-                ? PolicyType.GLOBAL_ACCOUNT : PolicyType.ACCOUNT;
+        this.type = global ? PolicyType.GLOBAL_ACCOUNT : PolicyType.ACCOUNT;
     }
 }

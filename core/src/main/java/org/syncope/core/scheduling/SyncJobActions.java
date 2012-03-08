@@ -30,21 +30,68 @@ import org.syncope.core.persistence.beans.SyncTask;
  */
 public interface SyncJobActions {
 
-    void beforeAll(SyncTask task)
+    /**
+     * Action to be executed before to start the synchronization task execution.
+     *
+     * @param task synchronization task to be executed.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    void beforeAll(final SyncTask task)
             throws JobExecutionException;
 
-    void beforeCreate(SyncDelta delta, UserTO user)
+    /**
+     * Action to be executed before to create a synchronized user locally.
+     *
+     * @param delta rerieved synchronization information.
+     * @param user user to be created.
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
             throws JobExecutionException;
 
-    void beforeUpdate(SyncDelta delta, UserTO user, UserMod userMod)
+    /**
+     * Action to be executed before to update a synchronized user locally.
+     *
+     * @param delta retrieved synchronization information.
+     * @param user local user information.
+     * @param userMod modification.
+     * @return synchronization information used for logging and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    SyncDelta beforeUpdate(final SyncDelta delta, final UserTO user, final UserMod userMod)
             throws JobExecutionException;
 
-    void beforeDelete(SyncDelta delta, UserTO user)
+    /**
+     * Action to be executed before to delete a synchronized user locally.
+     *
+     * @param delta retrieved synchronization information.
+     * @param userlocal user to be deleted.
+     * @return synchronization information used for logging and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    SyncDelta beforeDelete(final SyncDelta delta, final UserTO user)
             throws JobExecutionException;
 
-    void after(SyncDelta delta, UserTO user, SyncResult result)
+    /**
+     * Action to be executed after each local user synchronization.
+     *
+     * @param delta retrieved synchronization information (may be modified by 'beforeCreate/beforeUpdate/beforeDelete').
+     * @param user synchronizad local user.
+     * @param result global synchronization results at the current synchronization step.
+     * @return synchronization information.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result)
             throws JobExecutionException;
 
-    void afterAll(SyncTask task, List<SyncResult> results)
+    /**
+     * Action to be executed after the synchronization task completion.
+     *
+     * @param task executed synchronization task.
+     * @param results synchronization result.
+     * @throws JobExecutionException in case of generic failure.
+     */
+    void afterAll(final SyncTask task, final List<SyncResult> results)
             throws JobExecutionException;
 }

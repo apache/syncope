@@ -31,7 +31,7 @@ public class TestSyncJobActions extends DefaultSyncJobActions {
     private int counter = 0;
 
     @Override
-    public void beforeCreate(final SyncDelta delta, final UserTO user)
+    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
             throws JobExecutionException {
 
         AttributeTO attrTO = null;
@@ -46,11 +46,12 @@ public class TestSyncJobActions extends DefaultSyncJobActions {
             user.addAttribute(attrTO);
         }
         attrTO.setValues(Collections.singletonList(String.valueOf(counter++)));
+
+        return delta;
     }
 
     @Override
-    public void beforeUpdate(final SyncDelta delta, final UserTO user,
-            final UserMod userMod)
+    public SyncDelta beforeUpdate(final SyncDelta delta, final UserTO user, final UserMod userMod)
             throws JobExecutionException {
 
         userMod.addAttributeToBeRemoved("fullname");
@@ -67,7 +68,8 @@ public class TestSyncJobActions extends DefaultSyncJobActions {
             userMod.addAttributeToBeUpdated(fullnameMod);
         }
 
-        fullnameMod.setValuesToBeAdded(
-                Collections.singletonList(String.valueOf(counter++)));
+        fullnameMod.setValuesToBeAdded(Collections.singletonList(String.valueOf(counter++)));
+
+        return delta;
     }
 }

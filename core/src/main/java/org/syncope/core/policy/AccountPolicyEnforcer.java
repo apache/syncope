@@ -45,11 +45,11 @@ public class AccountPolicyEnforcer
     @Autowired
     private UserDataBinder userDataBinder;
 
-    private static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9-_@.]+");
+    private static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
-    private static final Pattern LCPATTERN = Pattern.compile("[a-z0-9-_@.]+");
+    private static final Pattern LCPATTERN = Pattern.compile("[a-z0-9-_@. ]+");
 
-    private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@.]+");
+    private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
 
     @Override
     public void enforce(

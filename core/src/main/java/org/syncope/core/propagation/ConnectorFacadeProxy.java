@@ -418,26 +418,23 @@ public class ConnectorFacadeProxy {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        if (activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.SEARCH)) {
-            connector.search(objectClass, null,
-                    new ResultsHandler() {
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
+            connector.search(objectClass, null, new ResultsHandler() {
 
-                        @Override
-                        public boolean handle(final ConnectorObject obj) {
-                            final SyncDeltaBuilder bld = new SyncDeltaBuilder();
-                            bld.setObject(obj);
-                            bld.setUid(obj.getUid());
-                            bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
-                            bld.setToken(new SyncToken(""));
+                @Override
+                public boolean handle(final ConnectorObject obj) {
+                    final SyncDeltaBuilder bld = new SyncDeltaBuilder();
+                    bld.setObject(obj);
+                    bld.setUid(obj.getUid());
+                    bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
+                    bld.setToken(new SyncToken(""));
 
-                            return handler.handle(bld.build());
-                        }
-                    }, options);
+                    return handler.handle(bld.build());
+                }
+            }, options);
 
         } else {
-            LOG.info("Search was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
+            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
     }

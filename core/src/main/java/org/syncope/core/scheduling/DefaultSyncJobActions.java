@@ -38,24 +38,28 @@ public class DefaultSyncJobActions implements SyncJobActions {
     }
 
     @Override
-    public void beforeCreate(final SyncDelta delta, final UserTO user)
+    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
             throws JobExecutionException {
+        return delta;
     }
 
     @Override
-    public void beforeUpdate(SyncDelta delta, UserTO user, UserMod userMod)
+    public SyncDelta beforeUpdate(final SyncDelta delta, final UserTO user, final UserMod userMod)
             throws JobExecutionException {
+        return delta;
     }
 
     @Override
-    public void beforeDelete(SyncDelta delta, UserTO user)
+    public SyncDelta beforeDelete(final SyncDelta delta, final UserTO user)
             throws JobExecutionException {
+        return delta;
     }
 
     @Override
-    public void after(final SyncDelta delta, final UserTO user,
+    public SyncDelta after(final SyncDelta delta, final UserTO user,
             final SyncResult result)
             throws JobExecutionException {
+        return delta;
     }
 
     @Override

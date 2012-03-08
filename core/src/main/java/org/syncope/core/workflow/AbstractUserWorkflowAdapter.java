@@ -54,20 +54,17 @@ public abstract class AbstractUserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> activate(final Long userId, final String token)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException {
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(SyncopeUser user,
-            UserMod userMod)
+    protected abstract WorkflowResult<Long> doUpdate(SyncopeUser user, UserMod userMod)
             throws WorkflowException;
 
     @Override
     public WorkflowResult<Long> update(final UserMod userMod)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException {
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
         return doUpdate(dataBinder.getUserFromId(userMod.getId()), userMod);
     }

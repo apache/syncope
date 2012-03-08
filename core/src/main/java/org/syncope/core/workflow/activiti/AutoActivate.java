@@ -27,7 +27,6 @@ public class AutoActivate extends AbstractActivitiDelegate {
     protected void doExecute(final DelegateExecution execution)
             throws Exception {
 
-        execution.setVariable(ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE,
-                Boolean.TRUE);
+        execution.setVariable(ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

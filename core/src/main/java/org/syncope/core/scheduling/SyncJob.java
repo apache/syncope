@@ -154,30 +154,25 @@ public class SyncJob extends AbstractTaskJob {
     private List<Long> findExistingUsers(final SyncDelta delta) {
         final SyncTask syncTask = (SyncTask) this.task;
 
-        final String uid = delta.getPreviousUid() == null
-                ? delta.getUid().getUidValue()
-                : delta.getPreviousUid().getUidValue();
+        final String uid =
+                delta.getPreviousUid() == null ? delta.getUid().getUidValue() : delta.getPreviousUid().getUidValue();
 
         // ---------------------------------
         // Get sync policy specification
         // ---------------------------------
         final SyncPolicy policy = syncTask.getResource().getSyncPolicy();
-
-        final SyncPolicySpec policySpec = policy != null
-                ? (SyncPolicySpec) policy.getSpecification() : null;
+        final SyncPolicySpec policySpec = policy != null ? (SyncPolicySpec) policy.getSpecification() : null;
         // ---------------------------------
 
         final List<Long> result = new ArrayList<Long>();
 
-        if (policySpec != null
-                && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
+        if (policySpec != null && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
 
             // search external attribute name/value 
             // about each specified name
             final ConnectorObject object = delta.getObject();
 
-            final Map<String, Attribute> extValues =
-                    new HashMap<String, Attribute>();
+            final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
             for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
                 extValues.put(
@@ -280,7 +275,7 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
-    private SyncResult createUser(final SyncDelta delta, final boolean dryRun)
+    private SyncResult createUser(SyncDelta delta, final boolean dryRun)
             throws JobExecutionException {
 
         final SyncResult result = new SyncResult();
@@ -288,7 +283,7 @@ public class SyncJob extends AbstractTaskJob {
 
         UserTO userTO = connObjectUtil.getUserTO(delta.getObject(), (SyncTask) task);
 
-        actions.beforeCreate(delta, userTO);
+        delta = actions.beforeCreate(delta, userTO);
 
         if (dryRun) {
             result.setUserId(0L);
@@ -333,14 +328,13 @@ public class SyncJob extends AbstractTaskJob {
             }
         }
 
-        actions.after(delta, userTO, result);
+        delta = actions.after(delta, userTO, result);
 
         return result;
     }
 
-    private void updateUsers(final SyncDelta delta,
-            final List<Long> users, final boolean dryRun,
-            final List<SyncResult> results)
+    private void updateUsers(
+            SyncDelta delta, final List<Long> users, final boolean dryRun, final List<SyncResult> results)
             throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformUpdate()) {
@@ -359,15 +353,14 @@ public class SyncJob extends AbstractTaskJob {
                 try {
 
                     final UserMod userMod = connObjectUtil.getUserMod(userId, delta.getObject(), (SyncTask) task);
-                    actions.beforeUpdate(delta, userTO, userMod);
+                    delta = actions.beforeUpdate(delta, userTO, userMod);
 
                     result.setStatus(Status.SUCCESS);
                     result.setUserId(userMod.getId());
                     result.setUsername(userMod.getUsername());
 
                     if (!dryRun) {
-                        WorkflowResult<Long> updated =
-                                wfAdapter.update(userMod);
+                        WorkflowResult<Long> updated = wfAdapter.update(userMod);
 
                         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
                                 updated, userMod.getPassword(), null, null, null,
@@ -384,7 +377,7 @@ public class SyncJob extends AbstractTaskJob {
                     LOG.error("Could not update user " + delta.getUid().getUidValue(), t);
                 }
 
-                actions.after(delta, userTO, result);
+                delta = actions.after(delta, userTO, result);
                 results.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find user {}", userId, e);
@@ -394,9 +387,8 @@ public class SyncJob extends AbstractTaskJob {
         }
     }
 
-    private void deleteUsers(final SyncDelta delta,
-            final List<Long> users, final boolean dryRun,
-            final List<SyncResult> results)
+    private void deleteUsers(
+            SyncDelta delta, final List<Long> users, final boolean dryRun, final List<SyncResult> results)
             throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformDelete()) {
@@ -409,7 +401,7 @@ public class SyncJob extends AbstractTaskJob {
         for (Long userId : users) {
             try {
                 UserTO userTO = userDataBinder.getUserTO(userId);
-                actions.beforeDelete(delta, userTO);
+                delta = actions.beforeDelete(delta, userTO);
 
                 final SyncResult result = new SyncResult();
                 result.setUserId(userId);
@@ -435,7 +427,7 @@ public class SyncJob extends AbstractTaskJob {
                     }
                 }
 
-                actions.after(delta, userTO, result);
+                delta = actions.after(delta, userTO, result);
                 results.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find user {}", userId, e);

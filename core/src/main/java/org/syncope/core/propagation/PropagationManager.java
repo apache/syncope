@@ -194,12 +194,10 @@ public class PropagationManager {
         }
 
         if (syncResourceNames != null) {
-            propByRes.get(PropagationOperation.CREATE).
-                    removeAll(syncResourceNames);
+            propByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
         }
 
-        return provision(
-                user, password, wfResult.getResult().getValue(), propByRes);
+        return provision(user, password, wfResult.getResult().getValue(), propByRes);
     }
 
     /**
@@ -241,8 +239,7 @@ public class PropagationManager {
             final Boolean enable)
             throws NotFoundException {
 
-        return getUpdateTaskIds(
-                wfResult, null, null, null, enable, null);
+        return getUpdateTaskIds(wfResult, null, null, null, enable, null);
     }
 
     /**
@@ -320,17 +317,13 @@ public class PropagationManager {
         if (propByRes != null && !propByRes.isEmpty()) {
             localPropByRes.merge(propByRes);
         } else {
-            localPropByRes.addAll(
-                    PropagationOperation.UPDATE, user.getResourceNames());
+            localPropByRes.addAll(PropagationOperation.UPDATE, user.getResourceNames());
         }
 
         if (syncResourceNames != null) {
-            localPropByRes.get(
-                    PropagationOperation.CREATE).removeAll(syncResourceNames);
-            localPropByRes.get(
-                    PropagationOperation.UPDATE).removeAll(syncResourceNames);
-            localPropByRes.get(
-                    PropagationOperation.DELETE).removeAll(syncResourceNames);
+            localPropByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
+            localPropByRes.get(PropagationOperation.UPDATE).removeAll(syncResourceNames);
+            localPropByRes.get(PropagationOperation.DELETE).removeAll(syncResourceNames);
         }
 
         return provision(user, password, enable, localPropByRes);
@@ -576,8 +569,7 @@ public class PropagationManager {
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
         for (PropagationOperation operation : PropagationOperation.values()) {
-            List<ExternalResource> resourcesByPriority =
-                    new ArrayList<ExternalResource>();
+            List<ExternalResource> resourcesByPriority = new ArrayList<ExternalResource>();
             for (ExternalResource resource : resourceDAO.findAllByPriority()) {
                 if (propByRes.get(operation).contains(resource.getName())) {
                     resourcesByPriority.add(resource);
@@ -591,11 +583,9 @@ public class PropagationManager {
                 task.setSyncopeUser(user);
                 task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
-                task.setOldAccountId(
-                        propByRes.getOldAccountId(resource.getName()));
+                task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                Map.Entry<String, Set<Attribute>> preparedAttrs =
-                        prepareAttributes(user, password, enable, resource);
+                Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password, enable, resource);
 
                 task.setAccountId(preparedAttrs.getKey());
                 task.setAttributes(preparedAttrs.getValue());
