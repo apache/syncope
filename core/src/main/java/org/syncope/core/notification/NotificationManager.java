@@ -46,6 +46,7 @@ import org.syncope.core.workflow.WorkflowResult;
 
 /**
  * Create notification tasks that will be executed by NotificationJob.
+ *
  * @see NotificationTask
  */
 @Transactional(rollbackFor = {
@@ -172,11 +173,10 @@ public class NotificationManager {
     }
 
     /**
-     * Create notification tasks for each notification matching the passed
-     * workflow result.
+     * Create notification tasks for each notification matching the passed workflow result.
+     *
      * @param wfResult workflow result
-     * @throws NotFoundException if user contained in the workflow result
-     * cannot be found
+     * @throws NotFoundException if user contained in the workflow result cannot be found
      */
     public void createTasks(final WorkflowResult<Long> wfResult)
             throws NotFoundException {
@@ -186,22 +186,16 @@ public class NotificationManager {
             throw new NotFoundException("User " + wfResult.getResult());
         }
 
-        final String emailSchema =
-                confDAO.find("email.schema", "email").getValue();
+        final String emailSchema = confDAO.find("email.schema", "email").getValue();
 
         for (Notification notification : notificationDAO.findAll()) {
             if (searchDAO.matches(user, notification.getAbout())) {
-                Set<String> events = new HashSet<String>(
-                        notification.getEvents());
+                Set<String> events = new HashSet<String>(notification.getEvents());
                 events.retainAll(wfResult.getPerformedTasks());
 
                 if (!events.isEmpty()) {
-                    LOG.debug(
-                            "Creating notification task for events {} about {}",
-                            events, user);
-
-                    taskDAO.save(getNotificationTask(notification, user,
-                            emailSchema));
+                    LOG.debug("Creating notification task for events {} about {}", events, user);
+                    taskDAO.save(getNotificationTask(notification, user, emailSchema));
                 } else {
                     LOG.debug("No events found about {}", user);
                 }

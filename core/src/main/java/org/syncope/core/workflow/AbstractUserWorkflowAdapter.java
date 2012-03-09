@@ -18,6 +18,7 @@
  */
 package org.syncope.core.workflow;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,7 @@ import org.syncope.core.rest.data.UserDataBinder;
 @Transactional(rollbackFor = {
     Throwable.class
 })
-public abstract class AbstractUserWorkflowAdapter
-        implements UserWorkflowAdapter {
+public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
 
     @Autowired
     protected UserDataBinder dataBinder;
@@ -59,11 +59,11 @@ public abstract class AbstractUserWorkflowAdapter
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(SyncopeUser user, UserMod userMod)
+    protected abstract WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(SyncopeUser user, UserMod userMod)
             throws WorkflowException;
 
     @Override
-    public WorkflowResult<Long> update(final UserMod userMod)
+    public WorkflowResult<Map.Entry<Long, Boolean>> update(final UserMod userMod)
             throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
         return doUpdate(dataBinder.getUserFromId(userMod.getId()), userMod);

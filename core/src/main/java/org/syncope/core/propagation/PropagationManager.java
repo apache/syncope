@@ -230,63 +230,57 @@ public class PropagationManager {
      * Performs update on each resource associated to the user.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow.
-     * @param enable wether user must be enabled or not.
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
     public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Long> wfResult,
-            final Boolean enable)
+            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
             throws NotFoundException {
 
-        return getUpdateTaskIds(wfResult, null, null, null, enable, null);
+        return getUpdateTaskIds(wfResult, null, null, null, null);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be updated
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param enable wether user must be enabled or not
-     * @return list of propagation tasks
-     * @throws NotFoundException if userId is not found
+     * @param wfResult user to be propagated (and info associated), as per result from workflow.
+     * @param password to be updated.
+     * @param vAttrsToBeRemoved virtual attributes to be removed.
+     * @param vAttrsToBeUpdated virtual attributes to be added.
+     * @return list of propagation tasks.
+     * @throws NotFoundException if userId is not found.
      */
     public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Long> wfResult,
+            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password,
             final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable)
+            final Set<AttributeMod> vAttrsToBeUpdated)
             throws NotFoundException {
 
-        return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, null);
+        return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be updated
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param enable wether user must be enabled or not
+     * @param wfResult user to be propagated (and info associated), as per result from workflow.
+     * @param password to be updated.
+     * @param vAttrsToBeRemoved virtual attributes to be removed.
+     * @param vAttrsToBeUpdated virtual attributes to be added.
      * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
      * disable/enable actions limited to the external resources only.
-     * @return list of propagation tasks
-     * @throws NotFoundException if userId is not found
+     * @return list of propagation tasks.
+     * @throws NotFoundException if userId is not found.
      */
     public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Long> wfResult,
+            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password,
             final Set<String> vAttrsToBeRemoved,
             final Set<AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable,
             final Set<String> syncResourceNames)
             throws NotFoundException {
 
-        SyncopeUser user = getSyncopeUser(wfResult.getResult());
+        SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
 
         return getUpdateTaskIds(
                 user,
@@ -294,7 +288,7 @@ public class PropagationManager {
                 password,
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,
-                enable,
+                wfResult.getResult().getValue(),
                 syncResourceNames);
     }
 

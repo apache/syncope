@@ -19,7 +19,9 @@
 package org.syncope.core.policy;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.UserTO;
@@ -125,8 +127,11 @@ public class AccountPolicyEnforcer
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager.
-                            getUpdateTaskIds(updated, Boolean.FALSE);
+                    final List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                            new WorkflowResult<Map.Entry<Long, Boolean>>(
+                            new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
+                            updated.getPropByRes(),
+                            updated.getPerformedTasks()));
 
                     propagationManager.execute(tasks);
                 }

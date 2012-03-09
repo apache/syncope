@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,7 +330,7 @@ public class UserController {
 
         LOG.debug("User update called with {}", userMod);
 
-        WorkflowResult<Long> updated = wfAdapter.update(userMod);
+        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
                 updated, userMod.getPassword(),
@@ -364,10 +365,12 @@ public class UserController {
             }
         });
 
-        notificationManager.createTasks(updated);
+        notificationManager.createTasks(
+                new WorkflowResult<Long>(updated.getResult().getKey(),
+                updated.getPropByRes(),
+                updated.getPerformedTasks()));
 
-        final UserTO updatedTO =
-                userDataBinder.getUserTO(updated.getResult());
+        final UserTO updatedTO = userDataBinder.getUserTO(updated.getResult().getKey());
 
         updatedTO.setPropagationTOs(propagations);
 
@@ -535,8 +538,10 @@ public class UserController {
 
         WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
 
-        List<PropagationTask> tasks =
-                propagationManager.getUpdateTaskIds(updated, null);
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(updated.getResult(), null),
+                updated.getPropByRes(),
+                updated.getPerformedTasks()));
 
         propagationManager.execute(tasks);
 
@@ -593,17 +598,17 @@ public class UserController {
         LOG.debug("About to process form {}", form);
 
         WorkflowResult<Map.Entry<Long, String>> updated =
-                wfAdapter.submitForm(form, SecurityContextHolder.getContext().
-                getAuthentication().getName());
+                wfAdapter.submitForm(form, SecurityContextHolder.getContext().getAuthentication().getName());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                new WorkflowResult<Long>(updated.getResult().getKey(),
-                updated.getPropByRes(), updated.getPerformedTasks()),
-                updated.getResult().getValue(), null, null, Boolean.TRUE);
+                new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE),
+                updated.getPropByRes(),
+                updated.getPerformedTasks()),
+                updated.getResult().getValue(), null, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                updated.getResult().getKey());
+        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult().getKey());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
 

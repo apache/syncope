@@ -360,14 +360,14 @@ public class SyncJob extends AbstractTaskJob {
                     result.setUsername(userMod.getUsername());
 
                     if (!dryRun) {
-                        WorkflowResult<Long> updated = wfAdapter.update(userMod);
+                        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
 
                         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                                updated, userMod.getPassword(), null, null, null,
+                                updated, userMod.getPassword(), null, null,
                                 Collections.singleton(((SyncTask) this.task).getResource().getName()));
 
                         propagationManager.execute(tasks);
-                        userTO = userDataBinder.getUserTO(updated.getResult());
+                        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
                     }
                 } catch (PropagationException e) {
                     LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);

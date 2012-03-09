@@ -69,14 +69,12 @@ public class ContentLoader {
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_READ_ONLY);
 
-            resultSet = statement.executeQuery("SELECT * FROM "
-                    + SyncopeConf.class.getSimpleName());
+            resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConf.class.getSimpleName());
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
         } catch (SQLException e) {
-            LOG.error("Could not access to table "
-                    + SyncopeConf.class.getSimpleName(), e);
+            LOG.error("Could not access to table " + SyncopeConf.class.getSimpleName(), e);
 
             // Setting this to true make nothing to be done below
             existingData = true;
@@ -107,8 +105,7 @@ public class ContentLoader {
         // 2. Create views
         LOG.debug("Creating views");
         try {
-            InputStream viewsStream = getClass().getResourceAsStream(
-                    "/views.xml");
+            InputStream viewsStream = getClass().getResourceAsStream("/views.xml");
             Properties views = new Properties();
             views.loadFromXML(viewsStream);
 
@@ -117,8 +114,7 @@ public class ContentLoader {
 
                 try {
                     statement = conn.createStatement();
-                    statement.executeUpdate(views.get(idx).toString().
-                            replaceAll("\\n", " "));
+                    statement.executeUpdate(views.get(idx).toString().replaceAll("\\n", " "));
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create view ", e);
@@ -133,8 +129,7 @@ public class ContentLoader {
         // 3. Create indexes
         LOG.debug("Creating indexes");
         try {
-            InputStream indexesStream = getClass().getResourceAsStream(
-                    "/indexes.xml");
+            InputStream indexesStream = getClass().getResourceAsStream("/indexes.xml");
             Properties indexes = new Properties();
             indexes.loadFromXML(indexesStream);
 
@@ -167,8 +162,7 @@ public class ContentLoader {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(getClass().getResourceAsStream("/content.xml"),
-                    importExport);
+            parser.parse(getClass().getResourceAsStream("/content.xml"), importExport);
             LOG.debug("Default content successfully loaded");
         } catch (Throwable t) {
             LOG.error("While loading default content", t);

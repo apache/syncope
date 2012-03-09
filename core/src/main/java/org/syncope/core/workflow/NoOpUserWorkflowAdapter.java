@@ -92,8 +92,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), propagate_enable),
-                propByRes, "create");
+                new DefaultMapEntry(user.getId(), propagate_enable), propByRes, "create");
     }
 
     @Override
@@ -114,7 +113,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(
+    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(
             final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
@@ -122,8 +121,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Long>(
-                updated.getId(), propByRes, "update");
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(updated.getId(), true), propByRes, "update");
     }
 
     @Override

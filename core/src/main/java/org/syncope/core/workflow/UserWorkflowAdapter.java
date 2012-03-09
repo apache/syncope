@@ -23,9 +23,9 @@ import java.util.Map;
 import javassist.NotFoundException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
@@ -85,8 +85,7 @@ public interface UserWorkflowAdapter {
      * @throws WorkflowException workflow exception
      */
     WorkflowResult<Long> execute(UserTO userTO, String taskId)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Activate an user.
@@ -99,8 +98,7 @@ public interface UserWorkflowAdapter {
      * @throws WorkflowException workflow exception
      */
     WorkflowResult<Long> activate(Long userId, String token)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Updated an user.
@@ -111,9 +109,8 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> update(UserMod userMod)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> update(UserMod userMod)
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Suspend an user.
@@ -125,8 +122,7 @@ public interface UserWorkflowAdapter {
      * @throws WorkflowException workflow exception
      */
     WorkflowResult<Long> suspend(Long userId)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Suspend an user.
@@ -149,8 +145,7 @@ public interface UserWorkflowAdapter {
      * @throws WorkflowException workflow exception
      */
     WorkflowResult<Long> reactivate(Long userId)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Delete an user.
@@ -161,8 +156,7 @@ public interface UserWorkflowAdapter {
      * @throws WorkflowException workflow exception
      */
     void delete(Long userId)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException;
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Get workflow definition.
@@ -195,7 +189,7 @@ public interface UserWorkflowAdapter {
     /**
      * Get all defined forms for current workflow process instances.
      *
-     * @return list of defined forms 
+     * @return list of defined forms
      */
     List<WorkflowFormTO> getForms();
 
@@ -231,7 +225,6 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, String>> submitForm(
-            WorkflowFormTO form, String username)
+    WorkflowResult<Map.Entry<Long, String>> submitForm(WorkflowFormTO form, String username)
             throws NotFoundException, WorkflowException;
 }

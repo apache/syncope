@@ -224,11 +224,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean propagate_enable =
+        Boolean propagateEnable =
                 (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
 
-        if (propagate_enable == null) {
-            propagate_enable = enabled;
+        if (propagateEnable == null) {
+            propagateEnable = enabled;
         }
 
         // save resources to be propagated and password for later -
@@ -247,7 +247,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), propagate_enable), propByRes, getPerformedTasks(user));
+                new DefaultMapEntry(user.getId(), propagateEnable), propByRes, getPerformedTasks(user));
     }
 
     private Set<String> doExecuteTask(
@@ -299,7 +299,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(
+    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(
             final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
@@ -317,7 +317,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(userMod.getPassword()));
         }
 
-        return new WorkflowResult<Long>(updated.getId(), propByRes, task);
+        Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
+
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(updated.getId(), propagateEnable), propByRes, task);
     }
 
     @Override
