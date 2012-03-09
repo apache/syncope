@@ -310,8 +310,12 @@ public class SyncJob extends AbstractTaskJob {
 
                 WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
 
-                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(), null,
+                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
+                        created,
+                        userTO.getPassword(),
+                        userTO.getVirtualAttributes(),
                         Collections.singleton(((SyncTask) this.task).getResource().getName()));
+
                 propagationManager.execute(tasks);
 
                 userTO = userDataBinder.getUserTO(created.getResult().getKey());
@@ -363,7 +367,10 @@ public class SyncJob extends AbstractTaskJob {
                         WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
 
                         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                                updated, userMod.getPassword(), null, null,
+                                updated,
+                                userMod.getPassword(),
+                                userMod.getVirtualAttributesToBeRemoved(),
+                                userMod.getVirtualAttributesToBeUpdated(),
                                 Collections.singleton(((SyncTask) this.task).getResource().getName()));
 
                         propagationManager.execute(tasks);
