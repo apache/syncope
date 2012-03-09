@@ -557,8 +557,7 @@ public abstract class AbstractAttributableDataBinder {
         // 5. derived attributes to be removed
         for (String derivedAttributeToBeRemoved : attributableMod.getDerivedAttributesToBeRemoved()) {
 
-            derivedSchema = getDerivedSchema(derivedAttributeToBeRemoved,
-                    attributableUtil.derivedSchemaClass());
+            derivedSchema = getDerivedSchema(derivedAttributeToBeRemoved, attributableUtil.derivedSchemaClass());
 
             if (derivedSchema != null) {
                 derivedAttribute = attributable.getDerivedAttribute(
@@ -643,22 +642,37 @@ public abstract class AbstractAttributableDataBinder {
         return propByRes;
     }
 
+    /**
+     * Add virtual attributes and specify values to be propagated.
+     *
+     * @param attributable attributable.
+     * @param vAttrs virtual attributes to be added.
+     * @param attributableUtil attributable util.
+     */
     public void fillVirtual(
             final AbstractAttributable attributable,
             final List<AttributeTO> vAttrs,
             final AttributableUtil attributableUtil) {
 
         for (AttributeTO attributeTO : vAttrs) {
-            AbstractVirSchema virtualSchema =
-                    getVirtualSchema(attributeTO.getSchema(), attributableUtil.virtualSchemaClass());
+            AbstractVirAttr virtualAttribute = attributable.getVirtualAttribute(attributeTO.getSchema());
 
-            if (virtualSchema != null) {
-                AbstractVirAttr virtualAttribute = attributableUtil.newVirtualAttribute();
-                virtualAttribute.setVirtualSchema(virtualSchema);
-                virtualAttribute.setOwner(attributable);
+            if (virtualAttribute == null) {
+                AbstractVirSchema virtualSchema =
+                        getVirtualSchema(attributeTO.getSchema(), attributableUtil.virtualSchemaClass());
+
+                if (virtualSchema != null) {
+                    virtualAttribute = attributableUtil.newVirtualAttribute();
+                    virtualAttribute.setVirtualSchema(virtualSchema);
+                    virtualAttribute.setOwner(attributable);
+                    attributable.addVirtualAttribute(virtualAttribute);
+                    virtualAttribute.setValues(attributeTO.getValues());
+                }
+
+            } else {
                 virtualAttribute.setValues(attributeTO.getValues());
-                attributable.addVirtualAttribute(virtualAttribute);
             }
+
         }
     }
 
@@ -708,8 +722,7 @@ public abstract class AbstractAttributableDataBinder {
             compositeErrorException.addException(invalidValues);
         }
 
-        SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil, attributable);
+        SyncopeClientException requiredValuesMissing = checkMandatory(attributableUtil, attributable);
         if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
@@ -719,8 +732,7 @@ public abstract class AbstractAttributableDataBinder {
         AbstractDerAttr derivedAttribute;
         for (AttributeTO attributeTO : attributableTO.getDerivedAttributes()) {
 
-            derivedSchema = getDerivedSchema(attributeTO.getSchema(),
-                    attributableUtil.derivedSchemaClass());
+            derivedSchema = getDerivedSchema(attributeTO.getSchema(), attributableUtil.derivedSchemaClass());
 
             if (derivedSchema != null) {
                 derivedAttribute = attributableUtil.newDerivedAttribute();
@@ -730,10 +742,22 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        // 3. virtual attributes: for users this is delegated to PropagationManager
-        if (AttributableType.USER != attributableUtil.getType()) {
-            fillVirtual(attributable, attributableTO.getVirtualAttributes(), attributableUtil);
+        // 3. user virtual attributes will be valued by the propagation manager only (if needed).
+        if (AttributableType.USER == attributableUtil.getType()) {
+            for (AttributeTO vattrTO : attributableTO.getVirtualAttributes()) {
+                AbstractVirSchema uVirSchema =
+                        getVirtualSchema(vattrTO.getSchema(), attributableUtil.virtualSchemaClass());
+
+                if (uVirSchema != null) {
+                    AbstractVirAttr vattr = attributableUtil.newVirtualAttribute();
+                    vattr.setVirtualSchema(uVirSchema);
+                    vattr.setOwner(attributable);
+                    attributable.addVirtualAttribute(vattr);
+                }
+            }
         }
+
+        fillVirtual(attributable, attributableTO.getVirtualAttributes(), attributableUtil);
 
         // 4. resources
         ExternalResource resource;

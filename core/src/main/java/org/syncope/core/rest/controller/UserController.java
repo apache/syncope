@@ -153,9 +153,11 @@ public class UserController {
     value = "/list")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> list() {
-        List<SyncopeUser> users = userDAO.findAll(EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames()));
+        List<SyncopeUser> users = 
+                userDAO.findAll(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
+        
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
+        
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user));
         }

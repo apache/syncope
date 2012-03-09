@@ -99,7 +99,8 @@ public class ConnObjectUtil {
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(mapping.getIntAttrName());
 
-                    for (Object value : attribute == null ? Collections.EMPTY_LIST : attribute.getValue()) {
+                    for (Object value : attribute == null || attribute.getValue() == null
+                            ? Collections.EMPTY_LIST : attribute.getValue()) {
                         attributeTO.addValue(value.toString());
                     }
 
@@ -115,6 +116,12 @@ public class ConnObjectUtil {
                 case UserVirtualSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(mapping.getIntAttrName());
+
+                    for (Object value : attribute == null || attribute.getValue() == null
+                            ? Collections.EMPTY_LIST : attribute.getValue()) {
+                        attributeTO.addValue(value.toString());
+                    }
+
                     userTO.addVirtualAttribute(attributeTO);
                     break;
 

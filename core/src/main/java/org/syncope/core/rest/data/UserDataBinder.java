@@ -162,8 +162,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 Membership membership = null;
                 if (user.getId() != null) {
                     membership = user.getMembership(role.getId()) == null
-                            ? membershipDAO.find(user, role)
-                            : user.getMembership(role.getId());
+                            ? membershipDAO.find(user, role) : user.getMembership(role.getId());
                 }
                 if (membership == null) {
                     membership = new Membership();

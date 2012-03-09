@@ -160,7 +160,8 @@ public class PropagationManager {
      */
     public List<PropagationTask> getCreateTaskIds(
             final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs)
+            final String password, 
+            final List<AttributeTO> vAttrs)
             throws NotFoundException {
 
         return getCreateTaskIds(wfResult, password, vAttrs, null);
