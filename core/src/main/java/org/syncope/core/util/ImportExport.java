@@ -83,8 +83,7 @@ public class ImportExport extends DefaultHandler {
 
         InputStream dbPropsStream = null;
         try {
-            dbPropsStream = getClass().getResourceAsStream(
-                    "/persistence.properties");
+            dbPropsStream = getClass().getResourceAsStream("/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             schema = dbProps.getProperty("database.schema");
@@ -156,6 +155,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.REAL:
                 case Types.INTEGER:
                 case Types.TINYINT:
+                case Types.SMALLINT:
                     try {
                         query.setParameter(i + 1,
                                 Integer.valueOf(atts.getValue(i)));
