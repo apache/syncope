@@ -19,7 +19,6 @@
 package org.syncope.core.rest.data;
 
 import java.util.Date;
-import org.syncope.core.util.AttributableUtil;
 import java.util.HashSet;
 import java.util.Set;
 import javassist.NotFoundException;
@@ -38,19 +37,19 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
-import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.syncope.core.util.AttributableUtil;
+import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.AttributableType;
 import org.syncope.types.CipherAlgorithm;
@@ -73,10 +72,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         "resources"};
 
     @Autowired
-    private TaskDAO taskDAO;
-
-    @Autowired
-    private TaskExecDAO taskExecDAO;
+    private ConnObjectUtil connObjectUtil;
 
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId)
@@ -376,9 +372,13 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public UserTO getUserTO(final SyncopeUser user) {
+
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
+
+        // retrieve virtual values
+        connObjectUtil.retrieveVirAttrValues(user);
 
         fillTO(userTO,
                 user.getAttributes(),

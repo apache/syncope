@@ -18,9 +18,13 @@
  */
 package org.syncope.core.util;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,10 +32,14 @@ import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.UserMod;
@@ -40,8 +48,13 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.init.ConnInstanceLoader;
+import org.syncope.core.persistence.beans.AbstractAttributable;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.rest.data.UserDataBinder;
 
@@ -320,6 +333,82 @@ public class ConnObjectUtil {
         }
 
         return connObjectTO;
+    }
+
+    public void retrieveVirAttrValues(final AbstractAttributable owner) {
+        final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+        final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
+
+        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects =
+                new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
+
+        for (ExternalResource resource : owner.getResources()) {
+            LOG.debug("Retrieve remote object from '{}'", resource.getName());
+            try {
+                final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+
+                final SchemaMappingUtil.SchemaMappingsWrapper mappings =
+                        new SchemaMappingUtil.SchemaMappingsWrapper(resource.getMappings());
+
+                final String accountId = SchemaMappingUtil.getAccountIdValue(owner, mappings.getAccountIdMapping());
+
+                LOG.debug("Search for object with accountId '{}'", accountId);
+
+                if (StringUtils.isNotBlank(accountId)) {
+                    // Retrieve attributes to get
+                    final Set<String> extAttrNames = new HashSet<String>();
+
+                    for (Collection<SchemaMapping> virAttrMappings : mappings.getuVirMappings().values()) {
+                        for (SchemaMapping virAttrMapping : virAttrMappings) {
+                            extAttrNames.add(SchemaMappingUtil.getExtAttrName(virAttrMapping));
+                        }
+                    }
+
+                    // Search for remote object
+                    if (extAttrNames != null) {
+                        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+                        oob.setAttributesToGet(extAttrNames);
+
+                        final ConnectorObject connectorObject =
+                                connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
+
+                        if (connectorObject != null) {
+                            remoteObjects.put(mappings, connectorObject);
+                        }
+
+                        LOG.debug("Retrieved remotye object {}", connectorObject);
+                    }
+                }
+            } catch (NotFoundException e) {
+                LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);
+            }
+        }
+
+        for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
+            LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
+
+            for (SchemaMappingUtil.SchemaMappingsWrapper mappings : remoteObjects.keySet()) {
+                Collection<SchemaMapping> virAttrMappings =
+                        mappings.getuVirMappings().get(virAttr.getVirtualSchema().getName());
+
+                if (virAttrMappings != null) {
+                    for (SchemaMapping virAttrMapping : virAttrMappings) {
+                        String extAttrName = SchemaMappingUtil.getExtAttrName(virAttrMapping);
+                        Attribute extAttr = remoteObjects.get(mappings).getAttributeByName(extAttrName);
+
+                        if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
+                            for (Object obj : extAttr.getValue()) {
+                                if (obj != null) {
+                                    virAttr.addValue(obj.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        LOG.debug("Virtual attribute evaluation ended");
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {

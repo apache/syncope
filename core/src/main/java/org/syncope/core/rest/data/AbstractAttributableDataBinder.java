@@ -400,14 +400,12 @@ public abstract class AbstractAttributableDataBinder {
 
         // 1. resources to be removed
         ExternalResource resource;
-        for (String resourceToBeRemoved :
-                attributableMod.getResourcesToBeRemoved()) {
+        for (String resourceToBeRemoved : attributableMod.getResourcesToBeRemoved()) {
 
             resource = getResource(resourceToBeRemoved);
 
             if (resource != null) {
                 propByRes.add(PropagationOperation.DELETE, resource.getName());
-
                 attributable.removeResource(resource);
             }
         }
@@ -415,14 +413,12 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Resources to be removed:\n{}", propByRes);
 
         // 2. resources to be added
-        for (String resourceToBeAdded :
-                attributableMod.getResourcesToBeAdded()) {
+        for (String resourceToBeAdded : attributableMod.getResourcesToBeAdded()) {
 
             resource = getResource(resourceToBeAdded);
 
             if (resource != null) {
                 propByRes.add(PropagationOperation.CREATE, resource.getName());
-
                 attributable.addResource(resource);
             }
         }
@@ -619,7 +615,7 @@ public abstract class AbstractAttributableDataBinder {
 
         LOG.debug("Derived attributes to be added:\n{}", propByRes);
 
-        // 7. virtual attributes: for users this is delegated to  PropagationManager
+        // 7. virtual attributes: for users this is delegated to PropagationManager
         if (AttributableType.USER != attributableUtil.getType()) {
             fillVirtual(attributable,
                     attributableMod.getVirtualAttributesToBeRemoved(),
@@ -691,11 +687,9 @@ public abstract class AbstractAttributableDataBinder {
 
         // Only consider attributeTO with values
         for (AttributeTO attributeTO : attributableTO.getAttributes()) {
-            if (attributeTO.getValues() != null
-                    && !attributeTO.getValues().isEmpty()) {
+            if (attributeTO.getValues() != null && !attributeTO.getValues().isEmpty()) {
 
-                schema = getSchema(attributeTO.getSchema(),
-                        attributableUtil.schemaClass());
+                schema = getSchema(attributeTO.getSchema(), attributableUtil.schemaClass());
 
                 if (schema != null) {
                     attribute = attributable.getAttribute(schema.getName());
@@ -704,7 +698,8 @@ public abstract class AbstractAttributableDataBinder {
                         attribute.setSchema(schema);
                     }
 
-                    fillAttribute(attributeTO.getValues(),
+                    fillAttribute(
+                            attributeTO.getValues(),
                             attributableUtil,
                             schema,
                             attribute,

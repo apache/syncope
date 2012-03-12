@@ -21,7 +21,6 @@ package org.syncope.core.propagation;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -480,15 +479,14 @@ public class ConnectorFacadeProxy {
     public Set<Attribute> getObjectAttributes(
             final ObjectClass objectClass,
             final Uid uid,
-            final OperationOptions options,
-            final Collection<String> attributeNames) {
+            final OperationOptions options) {
 
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
         try {
             final ConnectorObject object = connector.getObject(objectClass, uid, options);
 
-            for (String attribute : attributeNames) {
+            for (String attribute : options.getAttributesToGet()) {
                 attributes.add(object.getAttributeByName(attribute));
             }
         } catch (NullPointerException e) {

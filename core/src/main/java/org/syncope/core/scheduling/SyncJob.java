@@ -230,7 +230,8 @@ public class SyncJob extends AbstractTaskJob {
             final SyncopeUser found;
             List<SyncopeUser> users;
 
-            final SchemaMapping accountIdMap = syncTask.getResource().getAccountIdMapping();
+            final SchemaMapping accountIdMap =
+                    SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
 
             switch (accountIdMap.getIntMappingType()) {
                 case Username:
@@ -596,7 +597,7 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException(msg, e);
         }
 
-        final SchemaMapping accountIdMap = syncTask.getResource().getAccountIdMapping();
+        final SchemaMapping accountIdMap = SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
 
         if (accountIdMap == null) {
             throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());

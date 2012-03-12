@@ -367,7 +367,7 @@ public class SyncopeUser extends AbstractAttributable {
     @Override
     public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
-        
+
         if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
             this.virtualAttributes.addAll((List<UVirAttr>) virtualAttributes);
         }

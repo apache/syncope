@@ -19,24 +19,12 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.Uid;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.propagation.ConnectorFacadeProxy;
-import org.syncope.core.util.ApplicationContextManager;
-import org.syncope.core.util.SchemaMappingUtil;
-import org.syncope.types.IntMappingType;
 
 @MappedSuperclass
 public abstract class AbstractVirAttr extends AbstractBaseBean {
@@ -58,87 +46,14 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
         this.values = values;
     }
 
-    protected <T extends AbstractAttributable> List<Object> retrieveValues(
-            final T attributable, final String attributeName, final IntMappingType intMappingType) {
-
-        LOG.debug("{}: retrieving external values for {}", new Object[]{attributable, attributeName});
-
-        List<Object> virAttrValues = new ArrayList<Object>();
-
-        // if attributable is not defined it won't be possible to retrieve values from external resources.
-        if (attributable == null) {
-            return virAttrValues;
+    public void addValue(final String value) {
+        if (values == null) {
+            values = new ArrayList<String>();
         }
 
-        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
-        ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
-
-        if (connInstanceLoader == null) {
-            LOG.error("Could not get to ConnInstanceLoader");
-            return null;
+        if (!values.contains(value)) {
+            values.add(value);
         }
-
-        for (ExternalResource resource : attributable.getResources()) {
-            LOG.debug("Retrieving attribute mapped on {}", resource);
-
-            Set<String> attributeNames = new HashSet<String>();
-
-            String accountId = null;
-
-            for (SchemaMapping mapping : resource.getMappings()) {
-                final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Processing mapping."
-                            + "\n\tID: " + mapping.getId()
-                            + "\n\tSource: " + mapping.getIntAttrName()
-                            + "\n\tDestination: " + extAttrName
-                            + "\n\tType: " + mapping.getIntMappingType()
-                            + "\n\tMandatory condition: " + mapping.getMandatoryCondition()
-                            + "\n\tAccountId: " + mapping.isAccountid()
-                            + "\n\tPassword: " + mapping.isPassword());
-                }
-
-                if (attributeName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
-                    attributeNames.add(extAttrName);
-                }
-
-                if (mapping.isAccountid()) {
-                    try {
-                        final List<String> values = SchemaMappingUtil.getIntValueAsStrings(attributable, mapping);
-                        accountId = values == null ? null : values.get(0);
-                    } catch (NullPointerException e) {
-                        // ignore exception
-                        LOG.debug("Invalid accountId specified", e);
-                    }
-                }
-            }
-
-            if (attributeNames != null && accountId != null) {
-                LOG.debug("Get object attribute for entry {}", accountId);
-
-                try {
-                    final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-                    oob.setAttributesToGet(attributeNames);
-
-                    final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
-
-                    Set<Attribute> attributes = connector.getObjectAttributes(
-                            ObjectClass.ACCOUNT, new Uid(accountId), oob.build(), attributeNames);
-
-                    LOG.debug("Retrieved {}", attributes);
-
-                    for (Attribute attribute : attributes) {
-                        virAttrValues.addAll(attribute.getValue());
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Error connecting to {}", resource.getName(), e);
-                    // ignore exception and go ahead
-                }
-            }
-        }
-
-        return virAttrValues;
     }
 
     public abstract List<String> getValues();
@@ -149,6 +64,5 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractVirSchema> T getVirtualSchema();
 
-    public abstract <T extends AbstractVirSchema> void setVirtualSchema(
-            T derivedSchema);
+    public abstract <T extends AbstractVirSchema> void setVirtualSchema(T derivedSchema);
 }

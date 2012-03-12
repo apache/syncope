@@ -160,7 +160,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getCreateTaskIds(
             final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, 
+            final String password,
             final List<AttributeTO> vAttrs)
             throws NotFoundException {
 
@@ -463,8 +463,7 @@ public class PropagationManager {
      * @return account link + prepared attributes
      */
     private Map.Entry<String, Set<Attribute>> prepareAttributes(
-            final SyncopeUser user, final String password,
-            final Boolean enable, final ExternalResource resource) {
+            final SyncopeUser user, final String password, final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {}"
                 + " on resource {}"

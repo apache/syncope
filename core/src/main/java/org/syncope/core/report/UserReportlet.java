@@ -273,8 +273,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
             // values to String is already encapsulated there
             UserTO userTO = userDataBinder.getUserTO(user);
 
-            doExtractAttributes(handler, userTO, conf.getAttrs(),
-                    conf.getDerAttrs(), conf.getVirAttrs());
+            doExtractAttributes(handler, userTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
             if (conf.getFeatures().contains(Feature.memberships)) {
                 handler.startElement("", "", "memberships", null);

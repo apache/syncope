@@ -72,8 +72,7 @@ public class UserRequestController {
     }
 
     private Boolean isCreateAllowedByConf() {
-        SyncopeConf createRequestAllowed =
-                confDAO.find("createRequest.allowed", "false");
+        SyncopeConf createRequestAllowed = confDAO.find("createRequest.allowed", "false");
 
         return Boolean.valueOf(createRequestAllowed.getValue());
     }

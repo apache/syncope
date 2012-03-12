@@ -70,9 +70,7 @@ public class UserRequestDataBinder {
     public UserTO getAuthUserTO()
             throws NotFoundException {
 
-        SyncopeUser authUser = userDAO.find(
-                SecurityContextHolder.getContext().
-                getAuthentication().getName());
+        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
         return userDataBinder.getUserTO(authUser);
     }
 

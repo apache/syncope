@@ -26,7 +26,6 @@ import javax.persistence.ManyToOne;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
-import org.syncope.types.IntMappingType;
 
 @Entity
 public class UVirAttr extends AbstractVirAttr {
@@ -63,24 +62,9 @@ public class UVirAttr extends AbstractVirAttr {
 
     @Override
     public List<String> getValues() {
-        LOG.debug("{}: retrieve value for attribute {}", new Object[]{getOwner(), getVirtualSchema().getName()});
-
-        if (values != null) {
-            return values;
+        if (values == null) {
+            values = new ArrayList<String>();
         }
-
-        final List<Object> retrievedValues =
-                retrieveValues(getOwner(), getVirtualSchema().getName(), IntMappingType.UserVirtualSchema);
-
-        LOG.debug("Retrieved external values {}", retrievedValues);
-
-        List<String> stringValues = new ArrayList<String>();
-        for (Object value : retrievedValues) {
-            if (value != null) {
-                stringValues.add(value.toString());
-            }
-        }
-
-        return stringValues;
+        return values;
     }
 }

@@ -227,18 +227,6 @@ public class ExternalResource extends AbstractBaseBean {
         return result;
     }
 
-    public SchemaMapping getAccountIdMapping() {
-        SchemaMapping result = null;
-
-        for (SchemaMapping mapping : mappings) {
-            if (mapping.isAccountid()) {
-                result = mapping;
-            }
-        }
-
-        return result;
-    }
-
     public boolean removeMapping(SchemaMapping mapping) {
         return mappings.remove(mapping);
     }
