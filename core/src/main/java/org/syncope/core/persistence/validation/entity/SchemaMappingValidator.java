@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.util.SchemaMappingUtil;
 import org.syncope.types.EntityViolationType;
+import org.syncope.types.IntMappingType;
 
 public class SchemaMappingValidator extends AbstractValidator
         implements ConstraintValidator<SchemaMappingCheck, SchemaMapping> {
@@ -46,6 +47,23 @@ public class SchemaMappingValidator extends AbstractValidator
 
         if (StringUtils.isBlank(SchemaMappingUtil.getIntAttrName(mapping))) {
             context.buildConstraintViolationWithTemplate("Missing internal attribute name").
+                    addNode(EntityViolationType.InvalidSchemaMapping.toString()).addConstraintViolation();
+
+            return false;
+        }
+
+        if (mapping.isAccountid() && (IntMappingType.UserVirtualSchema == mapping.getIntMappingType()
+                || IntMappingType.RoleVirtualSchema == mapping.getIntMappingType()
+                || IntMappingType.MembershipVirtualSchema == mapping.getIntMappingType()
+                || IntMappingType.Password == mapping.getIntMappingType())) {
+            context.buildConstraintViolationWithTemplate("Virtual attribute as accountId is not permitted").
+                    addNode(EntityViolationType.InvalidSchemaMapping.toString()).addConstraintViolation();
+
+            return false;
+        }
+
+        if (mapping.isAccountid() && (IntMappingType.Password == mapping.getIntMappingType() || mapping.isPassword())) {
+            context.buildConstraintViolationWithTemplate("Password as accountId is not permitted").
                     addNode(EntityViolationType.InvalidSchemaMapping.toString()).addConstraintViolation();
 
             return false;

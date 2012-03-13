@@ -129,20 +129,17 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Mapping field style sheet.
      */
-    private static String fieldStyle =
-            "ui-widget-content ui-corner-all short_fixedsize";
+    private static String fieldStyle = "ui-widget-content ui-corner-all short_fixedsize";
 
     /**
      * Mapping field style sheet.
      */
-    private static String defFieldStyle =
-            "ui-widget-content ui-corner-all";
+    private static String defFieldStyle = "ui-widget-content ui-corner-all";
 
     /**
      * Mapping field style sheet.
      */
-    private static String shortFieldStyle =
-            "ui-widget-content ui-corner-all veryshort_fixedsize";
+    private static String shortFieldStyle = "ui-widget-content ui-corner-all veryshort_fixedsize";
 
     /**
      * Attribute Mapping Panel.
@@ -151,10 +148,7 @@ public class ResourceMappingPanel extends Panel {
      * @param resourceTO external resource.
      * @param createFlag create flag.
      */
-    public ResourceMappingPanel(
-            final String panelid,
-            final ResourceTO resourceTO,
-            final boolean createFlag) {
+    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final boolean createFlag) {
 
         super(panelid);
         setOutputMarkupId(true);
@@ -173,8 +167,7 @@ public class ResourceMappingPanel extends Panel {
         mappingContainer.setOutputMarkupId(true);
         add(mappingContainer);
 
-        mappings = new ListView<SchemaMappingTO>(
-                "mappings", resourceTO.getMappings()) {
+        mappings = new ListView<SchemaMappingTO>("mappings", resourceTO.getMappings()) {
 
             /**
              * Serial version UID.
@@ -182,8 +175,7 @@ public class ResourceMappingPanel extends Panel {
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
-            protected void populateItem(
-                    final ListItem<SchemaMappingTO> item) {
+            protected void populateItem(final ListItem<SchemaMappingTO> item) {
 
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
@@ -192,23 +184,15 @@ public class ResourceMappingPanel extends Panel {
 
                 attrTypes = getAttributeTypes(entity);
 
-                item.add(new AjaxDecoratedCheckbox("toRemove",
-                        new Model(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
 
-                    private static final long serialVersionUID =
-                            7170946748485726506L;
+                    private static final long serialVersionUID = 7170946748485726506L;
 
                     @Override
-                    protected void onUpdate(
-                            final AjaxRequestTarget target) {
+                    protected void onUpdate(final AjaxRequestTarget target) {
                         int index = -1;
-                        for (int i = 0; i < resourceTO.getMappings().
-                                size()
-                                && index == -1; i++) {
-
-                            if (mappingTO.equals(
-                                    resourceTO.getMappings().get(i))) {
-
+                        for (int i = 0; i < resourceTO.getMappings().size() && index == -1; i++) {
+                            if (mappingTO.equals(resourceTO.getMappings().get(i))) {
                                 index = i;
                             }
                         }
@@ -222,15 +206,12 @@ public class ResourceMappingPanel extends Panel {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID =
-                                    -7927968187160354605L;
+                            private static final long serialVersionUID = -7927968187160354605L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
+                            public CharSequence preDecorateScript(final CharSequence script) {
 
                                 return "if (confirm('"
                                         + getString("confirmDelete")
@@ -247,30 +228,13 @@ public class ResourceMappingPanel extends Panel {
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleShet(fieldStyle);
-
-                setAttrNames(mappingTO.getIntMappingType(), intAttrNames);
-
                 item.add(intAttrNames);
-
 
                 final AjaxDropDownChoicePanel typesPanel = new AjaxDropDownChoicePanel("intMappingTypes",
                         new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
                         new PropertyModel<IntMappingType>(mappingTO, "intMappingType"));
 
-                typesPanel.getField().add(
-                        new AjaxFormComponentUpdatingBehavior(onchange) {
-
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
-
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget target) {
-                                setAttrNames(
-                                        (IntMappingType) typesPanel.getModelObject(), intAttrNames);
-                                target.add(intAttrNames);
-                            }
-                        });
+                // typesPanel onChange behavior provided below ...
 
                 typesPanel.setRequired(true);
                 typesPanel.setChoices(attrTypes);
@@ -285,27 +249,23 @@ public class ResourceMappingPanel extends Panel {
 
                 item.add(mappingTypesPanel);
 
-                mappingTypesPanel.getField().add(
-                        new AjaxFormComponentUpdatingBehavior(onchange) {
+                mappingTypesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
 
-                                attrTypes = getAttributeTypes(
-                                        (AttributableType) mappingTypesPanel.getModelObject());
+                        attrTypes = getAttributeTypes((AttributableType) mappingTypesPanel.getModelObject());
 
-                                typesPanel.setChoices(attrTypes);
-                                intAttrNames.setChoices(Collections.EMPTY_LIST);
+                        typesPanel.setChoices(attrTypes);
+                        intAttrNames.setChoices(Collections.EMPTY_LIST);
 
-                                target.add(typesPanel.getField());
-                                target.add(intAttrNames.getField());
+                        target.add(typesPanel.getField());
+                        target.add(intAttrNames.getField());
 
-                            }
-                        });
+                    }
+                });
 
                 final FieldPanel extAttrName;
 
@@ -321,8 +281,7 @@ public class ResourceMappingPanel extends Panel {
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
 
-                boolean required = mappingTO != null
-                        && !mappingTO.isAccountid() && !mappingTO.isPassword();
+                boolean required = mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword();
 
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
@@ -344,50 +303,59 @@ public class ResourceMappingPanel extends Panel {
                         new ResourceModel("accountId", "accountId").getObject(),
                         new PropertyModel(mappingTO, "accountid"));
 
-                accountId.getField().add(
-                        new AjaxFormComponentUpdatingBehavior(onchange) {
+                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget target) {
-                                extAttrName.setEnabled(
-                                        !accountId.getModelObject()
-                                        && !mappingTO.isPassword());
-                                extAttrName.setModelObject(null);
-                                extAttrName.setRequired(
-                                        !accountId.getModelObject());
-                                target.add(extAttrName);
-                            }
-                        });
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        extAttrName.setEnabled(!accountId.getModelObject() && !mappingTO.isPassword());
+                        extAttrName.setModelObject(null);
+                        extAttrName.setRequired(!accountId.getModelObject());
+                        target.add(extAttrName);
+                    }
+                });
 
                 item.add(accountId);
 
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
-                        new ResourceModel("password", "password").getObject(), new PropertyModel(mappingTO, "password"));
+                        new ResourceModel("password", "password").getObject(),
+                        new PropertyModel(mappingTO, "password"));
 
-                password.getField().add(
-                        new AjaxFormComponentUpdatingBehavior(onchange) {
+                password.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget target) {
-                                extAttrName.setEnabled(
-                                        !mappingTO.isAccountid()
-                                        && !password.getModelObject());
-                                extAttrName.setModelObject(null);
-                                extAttrName.setRequired(
-                                        !password.getModelObject());
-                                target.add(extAttrName);
-                            }
-                        });
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        extAttrName.setEnabled(!mappingTO.isAccountid() && !password.getModelObject());
+                        extAttrName.setModelObject(null);
+                        extAttrName.setRequired(!password.getModelObject());
+                        target.add(extAttrName);
+
+                        setAccountId((IntMappingType) typesPanel.getModelObject(), accountId, password);
+                        target.add(accountId);
+                    }
+                });
 
                 item.add(password);
+
+                typesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        setAttrNames((IntMappingType) typesPanel.getModelObject(), intAttrNames);
+                        target.add(intAttrNames);
+
+                        setAccountId((IntMappingType) typesPanel.getModelObject(), accountId, password);
+                        target.add(accountId);
+                    }
+                });
+
+                setAttrNames(mappingTO.getIntMappingType(), intAttrNames);
+                setAccountId(mappingTO.getIntMappingType(), accountId, password);
             }
         };
 
@@ -400,16 +368,13 @@ public class ResourceMappingPanel extends Panel {
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
                 resourceTO.getMappings().add(new SchemaMappingTO());
                 target.add(mappingContainer);
             }
 
             @Override
-            protected void onError(
-                    final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 // ignore errors
             }
         };
@@ -424,19 +389,14 @@ public class ResourceMappingPanel extends Panel {
      * Initialize resource schema names.
      */
     private void initResourceSchemaNames() {
-        if (resourceTO != null
-                && resourceTO.getConnectorId() != null
-                && resourceTO.getConnectorId() > 0) {
+        if (resourceTO != null && resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0) {
 
             final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
             connInstanceTO.setId(resourceTO.getConnectorId());
 
-            connInstanceTO.setConfiguration(
-                    resourceTO.getConnConfProperties());
+            connInstanceTO.setConfiguration(resourceTO.getConnConfProperties());
 
-            schemaNames = getResourceSchemaNames(
-                    resourceTO.getConnectorId(),
-                    resourceTO.getConnConfProperties());
+            schemaNames = getResourceSchemaNames(resourceTO.getConnectorId(), resourceTO.getConnConfProperties());
 
         } else {
             schemaNames = Collections.EMPTY_LIST;
@@ -450,8 +410,7 @@ public class ResourceMappingPanel extends Panel {
      * @param conf connector configuration properties.
      * @return resource schema names.
      */
-    private List<String> getResourceSchemaNames(
-            final Long connectorId, final Set<ConnConfProperty> conf) {
+    private List<String> getResourceSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
         final List<String> names = new ArrayList<String>();
 
         try {
@@ -474,61 +433,53 @@ public class ResourceMappingPanel extends Panel {
 
         if (event.getPayload() instanceof ConnConfModEvent) {
 
-            final AjaxRequestTarget target =
-                    ((ConnConfModEvent) event.getPayload()).getTarget();
+            final AjaxRequestTarget target = ((ConnConfModEvent) event.getPayload()).getTarget();
 
-            final List<ConnConfProperty> conf =
-                    ((ConnConfModEvent) event.getPayload()).getConfiguration();
+            final List<ConnConfProperty> conf = ((ConnConfModEvent) event.getPayload()).getConfiguration();
 
             mappings.removeAll();
 
-            addMappingBtn.setEnabled(
-                    resourceTO.getConnectorId() != null
-                    && resourceTO.getConnectorId() > 0);
+            addMappingBtn.setEnabled(resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0);
 
-            schemaNames = getResourceSchemaNames(
-                    resourceTO.getConnectorId(),
-                    new HashSet<ConnConfProperty>(conf));
+            schemaNames = getResourceSchemaNames(resourceTO.getConnectorId(), new HashSet<ConnConfProperty>(conf));
 
             target.add(mappingContainer);
         }
     }
 
     /**
-     * Seta attribute names for a drop down chice list.
+     * Set attribute names for a drop down chice list.
      *
-     * @param attrType attribute type.
+     * @param type attribute type.
      * @param toBeUpdated drop down choice to be updated.
      */
-    private void setAttrNames(
-            final IntMappingType attrType,
-            final AjaxDropDownChoicePanel toBeUpdated) {
+    private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel toBeUpdated) {
 
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
-        if (attrType == null || attrType.getAttributableType() == null) {
+        if (type == null || type.getAttributableType() == null) {
             toBeUpdated.setChoices(Collections.EMPTY_LIST);
         } else {
 
-            switch (attrType) {
+            switch (type) {
                 // user attribute names
                 case UserSchema:
                 case RoleSchema:
                 case MembershipSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getSchemaNames(attrType.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                 case MembershipDerivedSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getDerivedSchemaNames(attrType.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getDerivedSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserVirtualSchema:
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getVirtualSchemaNames(attrType.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getVirtualSchemaNames(type.getAttributableType()));
                     break;
 
                 case SyncopeUserId:
@@ -558,6 +509,43 @@ public class ResourceMappingPanel extends Panel {
     }
 
     /**
+     * Enable/Disable accountId checkbox.
+     *
+     * @param type attribute type.
+     * @param accountId accountId checkbox.
+     * @param password password checkbox.
+     */
+    private void setAccountId(
+            final IntMappingType type, final AjaxCheckBoxPanel accountId, final AjaxCheckBoxPanel password) {
+
+        if (type != null && type.getAttributableType() != null) {
+            switch (type) {
+                case UserVirtualSchema:
+                case RoleVirtualSchema:
+                case MembershipVirtualSchema:
+                    // Virtual accountId is not permitted
+                    accountId.setReadOnly(true);
+                    accountId.setModelObject(false);
+                    break;
+
+                case Password:
+                    // AccountId cannot be derived from password.
+                    accountId.setReadOnly(true);
+                    accountId.setModelObject(false);
+                    break;
+
+                default:
+                    if (password.getModelObject()) {
+                        accountId.setReadOnly(true);
+                        accountId.setModelObject(false);
+                    } else {
+                        accountId.setReadOnly(false);
+                    }
+            }
+        }
+    }
+
+    /**
      * Get all attribute types from a selected attribute type.
      *
      * @param entity entity.
@@ -567,12 +555,10 @@ public class ResourceMappingPanel extends Panel {
         final List<IntMappingType> res = new ArrayList<IntMappingType>();
 
         if (entity != null) {
-            final EnumSet types = IntMappingType.getAttributeTypes(
-                    AttributableType.valueOf(entity.toString()));
+            final EnumSet types = IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.toString()));
 
             for (Object type : types) {
-                res.add(IntMappingType.valueOf(
-                        type.toString()));
+                res.add(IntMappingType.valueOf(type.toString()));
             }
         }
 

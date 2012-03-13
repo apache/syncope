@@ -121,13 +121,10 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//span[text()='endpoint']\");",
                 "30000");
-        
+
         selenium.click("//div[2]/form/div[2]/div[3]/span/span/div[2]/a/img");
 
         selenium.waitForCondition(
-                "selenium.isElementPresent("
-                + "\"//div/ul/li/span[contains(text(),"
-                + "'Successful connecting to resource')]\");",
-                "30000");
+                "selenium.isElementPresent(\"//div/ul/li/span[contains(text(), 'Successful connection')]\");", "30000");
     }
 }

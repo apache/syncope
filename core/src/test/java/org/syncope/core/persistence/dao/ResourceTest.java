@@ -102,8 +102,7 @@ public class ResourceTest extends AbstractTest {
 
         resource.addMapping(accountId);
 
-        ConnInstance connector =
-                resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
 
         resource.setConnector(connector);
 
@@ -122,8 +121,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
-        ConnInstance connector =
-                resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
 
         resource.setConnector(connector);
 
@@ -131,6 +129,29 @@ public class ResourceTest extends AbstractTest {
         accountId.setResource(resource);
         accountId.setAccountid(true);
         accountId.setIntMappingType(IntMappingType.UserSchema);
+
+        resource.addMapping(accountId);
+
+        // save the resource
+        ExternalResource actual = resourceDAO.save(resource);
+
+        assertNotNull(actual);
+    }
+
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidAccountIdMapping() {
+
+        ExternalResource resource = new ExternalResource();
+        resource.setName("ws-target-resource-basic-save-invalid");
+
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+
+        resource.setConnector(connector);
+
+        SchemaMapping accountId = new SchemaMapping();
+        accountId.setResource(resource);
+        accountId.setAccountid(true);
+        accountId.setIntMappingType(IntMappingType.UserVirtualSchema);
 
         resource.addMapping(accountId);
 
