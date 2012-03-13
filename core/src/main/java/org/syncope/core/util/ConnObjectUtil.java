@@ -379,7 +379,7 @@ public class ConnObjectUtil {
                         LOG.debug("Retrieved remotye object {}", connectorObject);
                     }
                 }
-            } catch (NotFoundException e) {
+            } catch (Exception e) {
                 LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);
             }
         }
