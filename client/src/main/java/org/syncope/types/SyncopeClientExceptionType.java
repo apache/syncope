@@ -26,6 +26,9 @@ public enum SyncopeClientExceptionType {
     DataIntegrityViolation(
     "Syncope.DataIntegrityViolation",
     "Syncope.DataIntegrityViolation.name"),
+    ExistingResource(
+    "Syncope.ExistingResource",
+    "Syncope.ExistingResource.name"),
     GenericPersistence(
     "Syncope.GenericPersistence",
     "Syncope.GenericPersistence.cause"),
@@ -125,9 +128,6 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
-    ResourceExist(
-    "Syncope.ResourceExist",
-    "Syncope.ResourceExist.name"),
     Scheduling(
     "Syncope.Scheduling",
     "Syncope.Scheduling.message"),
