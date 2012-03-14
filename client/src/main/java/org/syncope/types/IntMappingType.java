@@ -96,7 +96,7 @@ public enum IntMappingType {
     /**
      * User attribute types.
      */
-    enum UserMappingType {
+    private enum UserMappingType {
 
         UserSchema,
         UserDerivedSchema,
@@ -104,6 +104,7 @@ public enum IntMappingType {
         SyncopeUserId,
         Password,
         Username;
+
     }
 
     /**
@@ -114,6 +115,7 @@ public enum IntMappingType {
         RoleSchema,
         RoleDerivedSchema,
         RoleVirtualSchema;
+
     }
 
     /**
@@ -124,5 +126,6 @@ public enum IntMappingType {
         MembershipSchema,
         MembershipDerivedSchema,
         MembershipVirtualSchema;
+
     }
 }

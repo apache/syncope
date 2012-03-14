@@ -32,18 +32,15 @@ import org.syncope.core.workflow.ActivitiUserWorkflowAdapter;
 @Component
 public class ActivitiWorkflowLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ActivitiWorkflowLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActivitiWorkflowLoader.class);
 
     @Autowired
     private RepositoryService repositoryService;
 
     public void load() {
-        List<ProcessDefinition> processes = repositoryService.
-                createProcessDefinitionQuery().processDefinitionKey(
-                ActivitiUserWorkflowAdapter.WF_PROCESS_ID).list();
-        LOG.debug(ActivitiUserWorkflowAdapter.WF_PROCESS_ID
-                + " Activiti processes in repository: {}", processes);
+        List<ProcessDefinition> processes = repositoryService.createProcessDefinitionQuery().
+                processDefinitionKey(ActivitiUserWorkflowAdapter.WF_PROCESS_ID).list();
+        LOG.debug(ActivitiUserWorkflowAdapter.WF_PROCESS_ID + " Activiti processes in repository: {}", processes);
 
         // Only loads process definition from file if not found in repository
         if (processes.isEmpty()) {
@@ -53,16 +50,15 @@ public class ActivitiWorkflowLoader {
                         + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
 
                 repositoryService.createDeployment().addInputStream(
-                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                        wfDefinitionStream).deploy();
+                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, wfDefinitionStream).deploy();
             } finally {
-                try {
-                    if (wfDefinitionStream != null) {
+                if (wfDefinitionStream != null) {
+                    try {
                         wfDefinitionStream.close();
+                    } catch (IOException e) {
+                        LOG.error("While closing input stream for {}",
+                                ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
                     }
-                } catch (IOException e) {
-                    LOG.error("While closing input stream for {}",
-                            ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
                 }
             }
         }

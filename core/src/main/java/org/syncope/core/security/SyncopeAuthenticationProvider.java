@@ -40,8 +40,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SyncopeAuthenticationProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
 
     @Autowired
     private UserDAO userDAO;
@@ -88,50 +87,38 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         SyncopeUser user = null;
 
         if (adminUser.equals(authentication.getPrincipal())) {
-            passwordUser.setPassword(
-                    authentication.getCredentials().toString(),
-                    CipherAlgorithm.MD5, 0);
+            passwordUser.setPassword(authentication.getCredentials().toString(), CipherAlgorithm.MD5, 0);
 
-            authenticated = adminMD5Password.equalsIgnoreCase(
-                    passwordUser.getPassword());
+            authenticated = adminMD5Password.equalsIgnoreCase(passwordUser.getPassword());
         } else {
             String username;
             try {
                 username = authentication.getPrincipal().toString();
             } catch (NumberFormatException e) {
-                throw new UsernameNotFoundException(
-                        "Invalid username: " + authentication.getName(), e);
+                throw new UsernameNotFoundException("Invalid username: " + authentication.getName(), e);
             }
 
             user = userDAO.find(username);
             if (user == null) {
-                throw new UsernameNotFoundException(
-                        "Could not find user " + username);
+                throw new UsernameNotFoundException("Could not find user " + username);
             }
 
-            passwordUser.setPassword(
-                    authentication.getCredentials().toString(),
-                    user.getCipherAlgoritm(), 0);
+            passwordUser.setPassword(authentication.getCredentials().toString(), user.getCipherAlgoritm(), 0);
 
-            authenticated = user.getPassword().equalsIgnoreCase(
-                    passwordUser.getPassword());
+            authenticated = user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
         }
 
         Authentication result;
 
         if ((user == null || !user.getSuspended()) && authenticated) {
             UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(
-                    authentication.getPrincipal(),
-                    null,
-                    userDetailsService.loadUserByUsername(
-                    authentication.getPrincipal().toString()).getAuthorities());
+                    new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), null,
+                    userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).getAuthorities());
             token.setDetails(authentication.getDetails());
 
             result = token;
 
-            LOG.debug("User {} authenticated with roles {}",
-                    authentication.getPrincipal(), token.getAuthorities());
+            LOG.debug("User {} authenticated with roles {}", authentication.getPrincipal(), token.getAuthorities());
 
             if (user != null) {
                 user.setLastLoginDate(new Date());
@@ -140,18 +127,14 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
 
         } else {
-            result = authentication;
-
             if (user != null && !user.getSuspended()) {
                 user.setFailedLogins(user.getFailedLogins() + 1);
                 userDAO.save(user);
             }
 
-            LOG.debug("User {} not authenticated",
-                    authentication.getPrincipal());
+            LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
-            throw new BadCredentialsException("User "
-                    + authentication.getPrincipal() + " not authenticated");
+            throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");
         }
 
         return result;

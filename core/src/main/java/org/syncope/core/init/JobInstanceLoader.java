@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.JobDetailBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -48,12 +50,12 @@ import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.ReportJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.scheduling.SyncJobActions;
+import org.syncope.core.util.ApplicationContextManager;
 
 @Component
-public class JobInstanceLoader extends AbstractLoader {
+public class JobInstanceLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            JobInstanceLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobInstanceLoader.class);
 
     @Autowired
     private SchedulerFactoryBean scheduler;
@@ -64,9 +66,13 @@ public class JobInstanceLoader extends AbstractLoader {
     @Autowired
     private ReportDAO reportDAO;
 
-    private static Long getIdFromJobName(final String name,
-            final String pattern, final int prefixLength) {
+    private DefaultListableBeanFactory getBeanFactory() {
+        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
 
+        return (DefaultListableBeanFactory) context.getBeanFactory();
+    }
+
+    private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
         Long result = null;
 
         Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
@@ -103,8 +109,7 @@ public class JobInstanceLoader extends AbstractLoader {
         return "Trigger_" + jobName;
     }
 
-    private void registerJob(final String jobName,
-            final Job jobInstance, final String cronExpression)
+    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
             throws Exception {
 
         // 0. unregister job
@@ -131,32 +136,26 @@ public class JobInstanceLoader extends AbstractLoader {
         }
     }
 
-    public void registerJob(final Task task, final String jobClassName,
-            final String cronExpression)
+    public void registerJob(final Task task, final String jobClassName, final String cronExpression)
             throws Exception {
 
         Class jobClass = Class.forName(jobClassName);
-        Job jobInstance = (Job) getBeanFactory().createBean(jobClass,
-                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        Job jobInstance = (Job) getBeanFactory().createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
         if (jobInstance instanceof SyncJob) {
-            String jobActionsClassName =
-                    ((SyncTask) task).getJobActionsClassName();
+            String jobActionsClassName = ((SyncTask) task).getJobActionsClassName();
             Class syncJobActionsClass = DefaultSyncJobActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
                 } catch (Throwable t) {
                     LOG.error("Class {} not found, reverting to {}",
-                            new Object[]{jobActionsClassName,
-                                syncJobActionsClass.getName(), t});
+                            new Object[]{jobActionsClassName, syncJobActionsClass.getName(), t});
                 }
             }
-            SyncJobActions syncJobActions =
-                    (SyncJobActions) getBeanFactory().createBean(
-                    syncJobActionsClass,
+            SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,
                     AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
             ((SyncJob) jobInstance).setActions(syncJobActions);
@@ -172,16 +171,13 @@ public class JobInstanceLoader extends AbstractLoader {
                 AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
-        registerJob(getJobName(report), jobInstance,
-                report.getCronExpression());
+        registerJob(getJobName(report), jobInstance, report.getCronExpression());
     }
 
     private void unregisterJob(final String jobName) {
         try {
-            scheduler.getScheduler().unscheduleJob(
-                    jobName, Scheduler.DEFAULT_GROUP);
-            scheduler.getScheduler().deleteJob(
-                    jobName, Scheduler.DEFAULT_GROUP);
+            scheduler.getScheduler().unscheduleJob(jobName, Scheduler.DEFAULT_GROUP);
+            scheduler.getScheduler().deleteJob(jobName, Scheduler.DEFAULT_GROUP);
         } catch (SchedulerException e) {
             LOG.error("Could not remove job " + jobName, e);
         }
@@ -199,7 +195,6 @@ public class JobInstanceLoader extends AbstractLoader {
         unregisterJob(getJobName(report));
     }
 
-    @Override
     @Transactional(readOnly = true)
     public void load() {
         // 1. jobs for SchedTasks
@@ -207,18 +202,15 @@ public class JobInstanceLoader extends AbstractLoader {
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {
-                registerJob(task, task.getJobClassName(),
-                        task.getCronExpression());
+                registerJob(task, task.getJobClassName(), task.getCronExpression());
             } catch (Exception e) {
-                LOG.error("While loading job instance for task "
-                        + task.getId(), e);
+                LOG.error("While loading job instance for task " + task.getId(), e);
             }
         }
 
         // 2. NotificationJob
         try {
-            registerJob(null, NotificationJob.class.getName(),
-                    "0 0/2 * * * ?");
+            registerJob(null, NotificationJob.class.getName(), "0 0/2 * * * ?");
         } catch (Exception e) {
             LOG.error("While loading NotificationJob instance", e);
         }
@@ -228,8 +220,7 @@ public class JobInstanceLoader extends AbstractLoader {
             try {
                 registerJob(report);
             } catch (Exception e) {
-                LOG.error("While loading job instance for report "
-                        + report.getName(), e);
+                LOG.error("While loading job instance for report " + report.getName(), e);
             }
         }
     }

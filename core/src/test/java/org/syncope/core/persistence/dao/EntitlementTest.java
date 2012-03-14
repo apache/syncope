@@ -40,16 +40,14 @@ public class EntitlementTest extends AbstractTest {
     @Test
     public void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
-        // 59 real entitlements + 9 role entitlements
-        assertEquals("did not get expected number of entitlements ",
-                74, list.size());
+        // 69 real entitlements + 9 role entitlements
+        assertEquals("did not get expected number of entitlements ", 78, list.size());
     }
 
     @Test
     public void findByName() {
         Entitlement entitlement = entitlementDAO.find("base");
-        assertNotNull("did not find expected entitlement",
-                entitlement);
+        assertNotNull("did not find expected entitlement", entitlement);
     }
 
     @Test
@@ -67,8 +65,7 @@ public class EntitlementTest extends AbstractTest {
     @Test
     public void delete() {
         Entitlement entitlement = entitlementDAO.find("base");
-        assertNotNull("did not find expected entitlement",
-                entitlement);
+        assertNotNull("did not find expected entitlement", entitlement);
 
         List<SyncopeRole> roles = roleDAO.findByEntitlement(entitlement);
         assertEquals("expected two roles", 2, roles.size());

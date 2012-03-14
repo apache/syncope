@@ -29,6 +29,9 @@ public enum SyncopeClientExceptionType {
     GenericPersistence(
     "Syncope.GenericPersistence",
     "Syncope.GenericPersistence.cause"),
+    InvalidLogger(
+    "Syncope.InvalidLogger",
+    "Syncope.InvalidLogger.message"),
     InvalidConnInstance(
     "Syncope.InvalidConnInstance",
     "Syncope.InvalidConnInstance.message"),

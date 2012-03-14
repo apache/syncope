@@ -18,7 +18,6 @@
  */
 package org.syncope.core.init;
 
-import org.syncope.core.util.ImportExport;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -35,6 +34,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeConf;
+import org.syncope.core.util.ImportExport;
 
 /**
  * If empty, load default content to Syncope database by reading from
@@ -46,8 +46,7 @@ public class ContentLoader {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ContentLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
     @Autowired
     private DataSource dataSource;
@@ -65,9 +64,7 @@ public class ContentLoader {
         ResultSet resultSet = null;
         boolean existingData = false;
         try {
-            statement = conn.createStatement(
-                    ResultSet.TYPE_SCROLL_SENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY);
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
             resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConf.class.getSimpleName());
             resultSet.last();

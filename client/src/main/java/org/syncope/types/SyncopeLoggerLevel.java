@@ -20,7 +20,7 @@ package org.syncope.types;
 
 import ch.qos.logback.classic.Level;
 
-public enum LoggerLevel {
+public enum SyncopeLoggerLevel {
 
     OFF(Level.OFF),
     ERROR(Level.ERROR),
@@ -32,7 +32,7 @@ public enum LoggerLevel {
 
     private Level level;
 
-    LoggerLevel(final Level level) {
+    SyncopeLoggerLevel(final Level level) {
         this.level = level;
     }
 
@@ -40,8 +40,8 @@ public enum LoggerLevel {
         return level;
     }
 
-    public static LoggerLevel fromLevel(final Level level) {
-        LoggerLevel result;
+    public static SyncopeLoggerLevel fromLevel(final Level level) {
+        SyncopeLoggerLevel result;
         if (level.equals(Level.OFF)) {
             result = OFF;
         } else if (level.equals(Level.ERROR)) {

@@ -57,8 +57,7 @@ public class NotificationManager {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(NotificationManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
     /**
      * Notification DAO.
@@ -107,29 +106,23 @@ public class NotificationManager {
      * @param emailSchema name of user schema containing e-mail address
      * @return notification task, fully populated
      */
-    private NotificationTask getNotificationTask(
-            final Notification notification, final SyncopeUser user,
+    private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user,
             final String emailSchema) {
 
         Set<String> recipients = new HashSet<String>();
-        for (SyncopeUser recipient : searchDAO.search(
-                notification.getRecipients())) {
+        for (SyncopeUser recipient : searchDAO.search(notification.getRecipients())) {
 
             if (recipient.getAttribute(emailSchema) == null) {
-                LOG.error("{} cannot be notified no {} attribute present",
-                        recipient, emailSchema);
+                LOG.error("{} cannot be notified no {} attribute present", recipient, emailSchema);
             } else {
-                recipients.add(recipient.getAttribute(emailSchema).
-                        getValuesAsStrings().get(0));
+                recipients.add(recipient.getAttribute(emailSchema).getValuesAsStrings().get(0));
             }
         }
         if (notification.isSelfAsRecipient()) {
             if (user.getAttribute(emailSchema) == null) {
-                LOG.error("{} cannot be notified no {} attribute present",
-                        user, emailSchema);
+                LOG.error("{} cannot be notified no {} attribute present", user, emailSchema);
             } else {
-                recipients.add(user.getAttribute(emailSchema).
-                        getValuesAsStrings().get(0));
+                recipients.add(user.getAttribute(emailSchema).getValuesAsStrings().get(0));
             }
         }
 
@@ -143,23 +136,16 @@ public class NotificationManager {
         for (AbstractAttr attr : user.getAttributes()) {
             List<String> values = attr.getValuesAsStrings();
             model.put(attr.getSchema().getName(),
-                    values.isEmpty()
-                    ? ""
-                    : (values.size() == 1
-                    ? values.iterator().next() : values));
+                    values.isEmpty() ? "" : (values.size() == 1 ? values.iterator().next() : values));
         }
 
         String htmlBody;
         String textBody;
         try {
-            htmlBody =
-                    VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                    "mailTemplates/" + notification.getTemplate() + ".html.vm",
-                    model);
-            textBody =
-                    VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                    "mailTemplates/" + notification.getTemplate() + ".txt.vm",
-                    model);
+            htmlBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                    "mailTemplates/" + notification.getTemplate() + ".html.vm", model);
+            textBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                    "mailTemplates/" + notification.getTemplate() + ".txt.vm", model);
         } catch (VelocityException e) {
             LOG.error("Could not get mail body", e);
 

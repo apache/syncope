@@ -24,9 +24,7 @@ public class ApplicationContextManager {
 
     private static ConfigurableApplicationContext ctx;
 
-    public static void setApplicationContext(
-            final ConfigurableApplicationContext applicationContext) {
-
+    public static void setApplicationContext(final ConfigurableApplicationContext applicationContext) {
         ctx = applicationContext;
     }
 

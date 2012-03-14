@@ -31,8 +31,7 @@ public class SLF4JLogger implements LogSpi {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SLF4JLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SLF4JLogger.class);
 
     @Override
     public final void log(final Class<?> clazz,

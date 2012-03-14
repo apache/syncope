@@ -26,15 +26,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ApplicationContextProvider implements ApplicationContextAware {
 
     /**
-     *  Wiring the ApplicationContext into a static method.
+     * Wiring the ApplicationContext into a static method.
+     *
      * @param ctx Spring application context
-     * @throws BeansException  if thrown by application context methods
+     * @throws BeansException if thrown by application context methods
      */
     @Override
     public void setApplicationContext(final ApplicationContext ctx)
             throws BeansException {
 
-        ApplicationContextManager.setApplicationContext(
-                (ConfigurableApplicationContext) ctx);
+        ApplicationContextManager.setApplicationContext((ConfigurableApplicationContext) ctx);
     }
 }

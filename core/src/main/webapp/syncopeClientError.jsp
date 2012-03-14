@@ -21,8 +21,7 @@
 <%@page import="org.slf4j.Logger"%>
 <%@page import="org.syncope.core.rest.controller.AbstractController"%>
 
-<%!    static final Logger LOG =
-            LoggerFactory.getLogger(AbstractController.class);%>
+<%!    static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);%>
 
 <%
     Throwable ex = pageContext.getErrorData().getThrowable();
@@ -32,65 +31,49 @@
     int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
     if (ex instanceof InvalidEntityException) {
-        SyncopeClientExceptionType exType =
-                SyncopeClientExceptionType.valueOf("Invalid"
-                + ((InvalidEntityException) ex).getEntityClassSimpleName());
+        SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf(
+                "Invalid" + ((InvalidEntityException) ex).getEntityClassSimpleName());
 
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                exType.getHeaderValue());
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
         for (Map.Entry<Class, Set<EntityViolationType>> violation :
                 ((InvalidEntityException) ex).getViolations().entrySet()) {
 
             for (EntityViolationType violationType : violation.getValue()) {
-                response.addHeader(
-                        exType.getElementHeaderName(),
-                        violation.getClass().getSimpleName() + ": "
-                        + violationType);
+                response.addHeader(exType.getElementHeaderName(),
+                        violation.getClass().getSimpleName() + ": " + violationType);
             }
         }
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof NotFoundException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.NotFound.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.NotFound.getElementHeaderName(),
-                ex.getMessage());
+        response.setHeader(SyncopeClientExceptionType.NotFound.getElementHeaderName(), ex.getMessage());
 
         statusCode = HttpServletResponse.SC_NOT_FOUND;
     } else if (ex instanceof WorkflowException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.Workflow.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.Workflow.getElementHeaderName(),
-                ex.getCause().getMessage());
+        response.setHeader(SyncopeClientExceptionType.Workflow.getElementHeaderName(), ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.Workflow.getHeaderValue());
         response.setHeader(
                 SyncopeClientExceptionType.Workflow.getElementHeaderName(), "Currently unavailable. Please try later.");
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof PropagationException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.Propagation.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.Propagation.getElementHeaderName(),
+        response.setHeader(SyncopeClientExceptionType.Propagation.getElementHeaderName(),
                 ((PropagationException) ex).getResourceName());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof SyncopeClientCompositeErrorException) {
-        for (SyncopeClientException sce :
-                ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
-
+        for (SyncopeClientException sce : ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
             response.addHeader(
                     SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
@@ -99,60 +82,44 @@
             }
         }
 
-        statusCode = ((SyncopeClientCompositeErrorException) ex).getStatusCode().
-                value();
+        statusCode = ((SyncopeClientCompositeErrorException) ex).getStatusCode().value();
     } else if (ex instanceof MissingConfKeyException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, SyncopeClientExceptionType.NotFound.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.NotFound.getElementHeaderName(),
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.NotFound.getHeaderValue());
+        response.setHeader(SyncopeClientExceptionType.NotFound.getElementHeaderName(),
                 ((MissingConfKeyException) ex).getConfKey());
 
         statusCode = HttpServletResponse.SC_NOT_FOUND;
     } else if (ex instanceof InvalidSearchConditionException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.InvalidSearchCondition.getHeaderValue());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof UnauthorizedRoleException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.UnauthorizedRole.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.UnauthorizedRole.getElementHeaderName(),
-                ex.getMessage());
+        response.setHeader(SyncopeClientExceptionType.UnauthorizedRole.getElementHeaderName(), ex.getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
-    } else if (ex instanceof DataIntegrityViolationException
-            || ex instanceof JpaSystemException) {
-
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+    } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.DataIntegrityViolation.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.DataIntegrityViolation.getElementHeaderName(),
-                ex.getCause() == null ? ex.getMessage() : ex.getCause().
-                getMessage());
+        response.setHeader(SyncopeClientExceptionType.DataIntegrityViolation.getElementHeaderName(),
+                ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof PersistenceException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
+        response.setHeader(SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
                 ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof ConfigurationException) {
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.InvalidExternalResource.getElementHeaderName(),
-                ex.getCause() == null ? ex.getMessage() : ex.getCause().
-                getMessage());
+        response.setHeader(SyncopeClientExceptionType.InvalidExternalResource.getElementHeaderName(),
+                ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     }

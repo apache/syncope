@@ -36,11 +36,9 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(AbstractActivitiDelegate.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractActivitiDelegate.class);
 
-    protected static final ConfigurableApplicationContext CONTEXT =
-            ApplicationContextManager.getApplicationContext();
+    protected static final ConfigurableApplicationContext CONTEXT = ApplicationContextManager.getApplicationContext();
 
     protected TaskService taskService;
 

@@ -45,17 +45,15 @@ under the License.
 
     <!-- Use JNDI datasource as default but, when not available, revert to
          local datasource, using different properties for execution and testing -->
-  <bean id="dataSource"
-          class="org.springframework.jndi.JndiObjectFactoryBean">
+  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
     <property name="defaultObject" ref="localDataSource"/>
   </bean>
-  <bean id="localDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+  <bean id="localDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="${jpa.driverClassName}"/>
     <property name="url" value="${jpa.url}"/>
     <property name="username" value="${jpa.username}"/>
     <property name="password" value="${jpa.password}"/>
-    <property name="initialSize" value="10"/>
   </bean>
 
   <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
@@ -68,5 +66,5 @@ under the License.
   <tx:annotation-driven/>
 
   <bean id="validator"
-          class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+        class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 </beans>

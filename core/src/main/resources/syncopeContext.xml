@@ -41,13 +41,34 @@ under the License.
   <bean class="org.syncope.core.util.ApplicationContextProvider"/>
 
   <context:component-scan base-package="org.syncope.core.init"/>
+  <context:component-scan base-package="org.syncope.core.audit"/>
   <context:component-scan base-package="org.syncope.core.util"/>
-    
-  <bean id="propagationManager"
-          class="org.syncope.core.propagation.PropagationManager"/>
 
-  <bean id="notificationManager"
-          class="org.syncope.core.notification.NotificationManager"/>
+  <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="enabled" value="true"/>
+    <property name="databasePopulator">
+      <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+        <property name="continueOnError" value="true"/>
+        <property name="ignoreFailedDrops" value="true"/>
+        <property name="sqlScriptEncoding" value="UTF-8"/>
+        <property name="scripts">
+          <array>
+            <value type="org.springframework.core.io.Resource">
+              classpath:/quartz/${quartz.sql}
+            </value>
+            <value type="org.springframework.core.io.Resource">
+              classpath:/logback/${logback.sql}
+            </value>
+          </array>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="propagationManager" class="org.syncope.core.propagation.PropagationManager"/>
+  <bean id="notificationManager" class="org.syncope.core.notification.NotificationManager"/>
+  <bean id="auditManager" class="org.syncope.core.audit.AuditManager"/>
           
   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
     <property name="cache" value="512"/>

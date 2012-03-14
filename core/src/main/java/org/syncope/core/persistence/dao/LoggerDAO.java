@@ -21,15 +21,18 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.SyncopeLogger;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.types.SyncopeLoggerType;
 
 public interface LoggerDAO extends DAO {
 
     SyncopeLogger find(String name);
 
-    List<SyncopeLogger> findAll();
+    List<SyncopeLogger> findAll(SyncopeLoggerType type);
 
     SyncopeLogger save(SyncopeLogger logger)
             throws InvalidEntityException;
 
     void delete(String name);
+
+    void delete(SyncopeLogger logger);
 }

@@ -19,7 +19,7 @@
 package org.syncope.client.to;
 
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.types.LoggerLevel;
+import org.syncope.types.SyncopeLoggerLevel;
 
 public class LoggerTO extends AbstractBaseBean {
 
@@ -27,13 +27,13 @@ public class LoggerTO extends AbstractBaseBean {
 
     private String name;
 
-    private LoggerLevel level;
+    private SyncopeLoggerLevel level;
 
-    public LoggerLevel getLevel() {
+    public SyncopeLoggerLevel getLevel() {
         return level;
     }
 
-    public void setLevel(final LoggerLevel level) {
+    public void setLevel(final SyncopeLoggerLevel level) {
         this.level = level;
     }
 

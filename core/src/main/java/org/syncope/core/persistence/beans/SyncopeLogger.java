@@ -23,7 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import org.syncope.types.LoggerLevel;
+import org.syncope.types.SyncopeLoggerLevel;
+import org.syncope.types.SyncopeLoggerType;
 
 @Entity
 public class SyncopeLogger extends AbstractBaseBean {
@@ -34,15 +35,19 @@ public class SyncopeLogger extends AbstractBaseBean {
     @Column(name = "logName")
     private String name;
 
-    @Column(name = "logLevel")
+    @Column(name = "logLevel", nullable = false)
     @Enumerated(EnumType.STRING)
-    private LoggerLevel level;
+    private SyncopeLoggerLevel level;
 
-    public LoggerLevel getLevel() {
+    @Column(name = "logType", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SyncopeLoggerType type;
+
+    public SyncopeLoggerLevel getLevel() {
         return level;
     }
 
-    public void setLevel(final LoggerLevel level) {
+    public void setLevel(final SyncopeLoggerLevel level) {
         this.level = level;
     }
 
@@ -52,5 +57,13 @@ public class SyncopeLogger extends AbstractBaseBean {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public SyncopeLoggerType getType() {
+        return type;
+    }
+
+    public void setType(SyncopeLoggerType type) {
+        this.type = type;
     }
 }

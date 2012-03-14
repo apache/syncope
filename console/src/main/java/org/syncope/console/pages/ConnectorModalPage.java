@@ -369,7 +369,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
                     ((Resources) callerPageRef.getPage()).setModalResult(false);
-                    LOG.error("While creating or updating connector {}", conn);
+                    LOG.error("While creating or updating connector {}", conn, e);
                 }
             }
 

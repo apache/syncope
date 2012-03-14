@@ -30,6 +30,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
@@ -53,13 +54,10 @@ public class ConfigurationModalPage extends BaseModalPage {
      * @param configurationTO
      * @param createFlag true for CREATE and false for UPDATE operation
      */
-    public ConfigurationModalPage(final PageReference callPageRef,
-            final ModalWindow window,
-            final ConfigurationTO configurationTO,
-            final boolean createFlag) {
+    public ConfigurationModalPage(final PageReference callPageRef, final ModalWindow window,
+            final ConfigurationTO configurationTO, final boolean createFlag) {
 
-        Form form = new Form("form", new CompoundPropertyModel(
-                configurationTO));
+        Form form = new Form("form", new CompoundPropertyModel(configurationTO));
 
         final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key", new PropertyModel(configurationTO, "key"));
         form.add(key);
@@ -71,46 +69,36 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(value);
         value.addRequiredLabel();
 
-        submit = new IndicatingAjaxButton(
-                "apply", new Model<String>(getString("submit"))) {
+        submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                boolean res = false;
-
-                if (createFlag) {
-                    res = configurationsRestClient.createConfiguration(
-                            configurationTO);
-
-                    if (!res) {
-                        error(getString("error_insert"));
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                try {
+                    if (createFlag) {
+                        configurationsRestClient.createConfiguration(configurationTO);
+                    } else {
+                        configurationsRestClient.updateConfiguration(configurationTO);
                     }
-                } else {
-                    res = configurationsRestClient.updateConfiguration(
-                            configurationTO);
 
-                    if (!res) {
-                        error(getString("error_updating"));
-                    }
-                }
-
-                if (res) {
-                    Configuration callerPage =
-                            (Configuration) callPageRef.getPage();
+                    Configuration callerPage = (Configuration) callPageRef.getPage();
                     callerPage.setModalResult(true);
 
                     window.close(target);
+                } catch (SyncopeClientCompositeErrorException e) {
+                    if (createFlag) {
+                        error(getString("error_insert"));
+                    } else {
+                        error(getString("error_updating"));
+                    }
+                    target.add(feedbackPanel);
+                    LOG.error("While creating or updating configuration {}", configurationTO, e);
                 }
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
-
+            protected void onError(final AjaxRequestTarget target, final Form form) {
                 target.add(feedbackPanel);
             }
         };
@@ -119,8 +107,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                 ? xmlRolesReader.getAllAllowedRoles("Configuration", "create")
                 : xmlRolesReader.getAllAllowedRoles("Configuration", "update");
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);
 

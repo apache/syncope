@@ -20,6 +20,8 @@ under the License.
 -->
 <configuration>
 
+  <include resource="audit.xml"/>
+
   <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${log.directory}/core.log</file>
     <append>true</append>

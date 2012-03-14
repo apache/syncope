@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.syncope.core.init;
+package org.syncope.types;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.util.ApplicationContextManager;
+public enum SyncopeLoggerType {
 
-public abstract class AbstractLoader {
+    LOG(""),
+    AUDIT("syncope.audit");
 
-    protected DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
+    private String prefix;
 
-        return (DefaultListableBeanFactory) context.getBeanFactory();
+    SyncopeLoggerType(final String prefix) {
+        this.prefix = prefix;
     }
 
-    public abstract void load();
+    public String getPrefix() {
+        return prefix;
+    }
 }

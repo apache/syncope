@@ -22,29 +22,10 @@ under the License.
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-  <bean id="quartzDbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
-    <property name="dataSource" ref="dataSource"/>
-    <property name="enabled" value="true"/>
-    <property name="databasePopulator">
-      <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
-        <property name="continueOnError" value="true"/>
-        <property name="ignoreFailedDrops" value="true"/>
-        <property name="sqlScriptEncoding" value="UTF-8"/>
-        <property name="scripts">
-          <array>
-            <value type="org.springframework.core.io.Resource">
-              classpath:/quartz/${quartz.sql}
-            </value>
-          </array>
-        </property>
-      </bean>
-    </property>
-  </bean>
     
   <bean id="scheduler"
-          class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
-          lazy-init="false" depends-on="quartzDbInitializer">
+        class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        lazy-init="false" depends-on="nonJPAdbInitializer">
     <property name="autoStartup" value="true"/>
     <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
     <property name="waitForJobsToCompleteOnShutdown" value="true"/>

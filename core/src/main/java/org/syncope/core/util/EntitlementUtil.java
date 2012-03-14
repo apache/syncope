@@ -29,22 +29,15 @@ import org.syncope.core.persistence.beans.Entitlement;
 
 public class EntitlementUtil {
 
-    private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN =
-            Pattern.compile("^ROLE_([\\d])+");
+    private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN = Pattern.compile("^ROLE_([\\d])+");
 
     public static Set<String> getOwnedEntitlementNames() {
         final Set<String> result = new HashSet<String>();
 
         final SecurityContext ctx = SecurityContextHolder.getContext();
 
-        if (ctx != null
-                && ctx.getAuthentication() != null
-                && ctx.getAuthentication().getAuthorities() != null) {
-
-            for (GrantedAuthority authority :
-                    SecurityContextHolder.getContext().
-                    getAuthentication().getAuthorities()) {
-
+        if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
+            for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
                 result.add(authority.getAuthority());
             }
         }
@@ -65,8 +58,7 @@ public class EntitlementUtil {
 
         if (isRoleEntitlement(entitlementName)) {
             try {
-                result = Long.valueOf(entitlementName.substring(
-                        entitlementName.indexOf("_") + 1));
+                result = Long.valueOf(entitlementName.substring(entitlementName.indexOf("_") + 1));
             } catch (Throwable t) {
             }
         }
@@ -77,10 +69,9 @@ public class EntitlementUtil {
     public static Set<Long> getRoleIds(final Set<String> entitlements) {
         Set<Long> result = new HashSet<Long>();
 
-        Long roleId;
         for (String entitlement : entitlements) {
             if (isRoleEntitlement(entitlement)) {
-                roleId = getRoleId(entitlement);
+                Long roleId = getRoleId(entitlement);
                 if (roleId != null) {
                     result.add(roleId);
                 }

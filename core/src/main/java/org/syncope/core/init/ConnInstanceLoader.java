@@ -28,12 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
+import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.ConnBundleManager;
 import org.syncope.types.ConnConfProperty;
 
@@ -41,10 +44,9 @@ import org.syncope.types.ConnConfProperty;
  * Load ConnId connector instances.
  */
 @Component
-public class ConnInstanceLoader extends AbstractLoader {
+public class ConnInstanceLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ConnInstanceLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnInstanceLoader.class);
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -52,9 +54,14 @@ public class ConnInstanceLoader extends AbstractLoader {
     @Autowired
     private ConnBundleManager connBundleManager;
 
+    private DefaultListableBeanFactory getBeanFactory() {
+        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+
+        return (DefaultListableBeanFactory) context.getBeanFactory();
+    }
+
     private String getBeanName(final ExternalResource resource) {
-        return String.format("connInstance-%d-%s",
-                resource.getConnector().getId(), resource.getName());
+        return String.format("connInstance-%d-%s", resource.getConnector().getId(), resource.getName());
     }
 
     /**
@@ -62,8 +69,7 @@ public class ConnInstanceLoader extends AbstractLoader {
      *
      * @param resource the resource.
      * @return live connector bran for given resource
-     * @throws BeansException in case the connector is not registered in the
-     * context
+     * @throws BeansException in case the connector is not registered in the context
      */
     public ConnectorFacadeProxy getConnector(final ExternalResource resource)
             throws BeansException, NotFoundException {
@@ -74,16 +80,13 @@ public class ConnInstanceLoader extends AbstractLoader {
             registerConnector(resource);
         }
 
-        return (ConnectorFacadeProxy) getBeanFactory().getBean(
-                getBeanName(resource));
+        return (ConnectorFacadeProxy) getBeanFactory().getBean(getBeanName(resource));
     }
 
-    public ConnectorFacadeProxy createConnectorBean(
-            final ExternalResource resource)
+    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource)
             throws NotFoundException {
 
-        final Set<ConnConfProperty> configuration =
-                new HashSet<ConnConfProperty>();
+        final Set<ConnConfProperty> configuration = new HashSet<ConnConfProperty>();
 
         // to be used to control managed prop (needed by overridden mechanism)
         final Set<String> propertyNames = new HashSet<String>();
@@ -110,21 +113,19 @@ public class ConnInstanceLoader extends AbstractLoader {
     }
 
     /**
-     * Create connector bean starting from connector instance and configuration
-     * properties. This method has to be used to create a connector instance
-     * without any linked external resource.
+     * Create connector bean starting from connector instance and configuration properties. This method must be used to
+     * create a connector instance without any linked external resource.
+     *
      * @param connInstance connector instance.
      * @param configuration configuration properties.
      * @return connector facade proxy.
      * @throws NotFoundException when not able to fetch all the required data.
      */
-    public ConnectorFacadeProxy createConnectorBean(
-            final ConnInstance connInstance,
+    public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
             final Set<ConnConfProperty> configuration)
             throws NotFoundException {
 
-        final ConnInstance connInstanceClone =
-                (ConnInstance) SerializationUtils.clone(connInstance);
+        final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(connInstance);
 
         connInstanceClone.setConfiguration(configuration);
 
@@ -151,7 +152,6 @@ public class ConnInstanceLoader extends AbstractLoader {
         getBeanFactory().destroySingleton(id);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public void load() {
         // This is needed to avoid encoding problems when sending error
@@ -161,21 +161,14 @@ public class ConnInstanceLoader extends AbstractLoader {
         // Next load all resource-specific connectors.
         for (ExternalResource resource : resourceDAO.findAll()) {
             try {
-                LOG.info("Registering resource-connector pair {}-{}",
-                        resource, resource.getConnector());
+                LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
                 registerConnector(resource);
-            } catch (NotFoundException e) {
-                LOG.error(String.format(
-                        "While registering resource-connector pair %s-%s",
-                        resource, resource.getConnector()), e);
-            } catch (RuntimeException e) {
-                LOG.error(String.format(
-                        "While registering resource-connector pair %s-%s",
-                        resource, resource.getConnector()), e);
+            } catch (Exception e) {
+                LOG.error("While registering resource-connector pair {}-{}",
+                        new Object[]{resource, resource.getConnector(), e});
             }
         }
 
-        LOG.info("Done loading {} connectors.", getBeanFactory().getBeansOfType(
-                ConnectorFacadeProxy.class).size());
+        LOG.info("Done loading {} connectors.", getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class).size());
     }
 }

@@ -31,8 +31,7 @@ import org.springframework.web.context.ServletContextAware;
  * Take care of all initializations needed by Syncope to run up and safe.
  */
 @Component
-public class SpringContextInitializer implements ServletContextAware,
-        BeanFactoryAware, InitializingBean {
+public class SpringContextInitializer implements ServletContextAware, BeanFactoryAware, InitializingBean {
 
     @Autowired
     private ConnInstanceLoader connInstanceLoader;

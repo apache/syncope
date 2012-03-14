@@ -24,14 +24,21 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.syncope.client.to.LoggerTO;
-import org.syncope.types.LoggerLevel;
+import org.syncope.types.SyncopeLoggerLevel;
 
 public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<LoggerTO> loggers = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "logger/list", LoggerTO[].class));
+        List<LoggerTO> loggers =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        assertNotNull(loggers);
+        assertFalse(loggers.isEmpty());
+        for (LoggerTO logger : loggers) {
+            assertNotNull(logger);
+        }
+
+        loggers = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -41,19 +48,17 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void setLevel() {
-        List<LoggerTO> loggers = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "logger/list", LoggerTO[].class));
+        List<LoggerTO> loggers = Arrays.asList(
+                restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         int startSize = loggers.size();
 
         LoggerTO logger = restTemplate.postForObject(
-                BASE_URL + "logger/set/{name}/{level}",
-                null, LoggerTO.class, "TEST", "INFO");
+                BASE_URL + "logger/log/{name}/{level}", null, LoggerTO.class, "TEST", "INFO");
         assertNotNull(logger);
-        assertEquals(LoggerLevel.INFO, logger.getLevel());
+        assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
 
-        loggers = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "logger/list", LoggerTO[].class));
+        loggers = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertEquals(startSize + 1, loggers.size());
     }

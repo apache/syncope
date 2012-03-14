@@ -28,7 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeLogger;
 import org.syncope.core.persistence.dao.LoggerDAO;
-import org.syncope.types.LoggerLevel;
+import org.syncope.types.SyncopeLoggerLevel;
+import org.syncope.types.SyncopeLoggerType;
 
 @Component
 public class LoggerLoader {
@@ -38,40 +39,41 @@ public class LoggerLoader {
 
     @Transactional
     public void load() {
-        Map<String, SyncopeLogger> syncopeLoggers =
-                new HashMap<String, SyncopeLogger>();
-        for (SyncopeLogger syncopeLogger : loggerDAO.findAll()) {
-            syncopeLoggers.put(syncopeLogger.getName(), syncopeLogger);
+        Map<String, SyncopeLogger> loggerLogs = new HashMap<String, SyncopeLogger>();
+        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(SyncopeLoggerType.LOG)) {
+            loggerLogs.put(syncopeLogger.getName(), syncopeLogger);
+        }
+
+        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(SyncopeLoggerType.AUDIT)) {
+            loggerLogs.put(syncopeLogger.getName(), syncopeLogger);
         }
 
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 
         /*
-         * Traverse all defined Logback loggers: if there is a matching
-         * SyncopeLogger, set Logback level accordingly, otherwise create a
-         * SyncopeLogger instance with given name and level.
+         * Traverse all defined Logback loggers: if there is a matching SyncopeLogger, set Logback level accordingly,
+         * otherwise create a SyncopeLogger instance with given name and level.
          */
         for (Logger logger : lc.getLoggerList()) {
             if (logger.getLevel() != null) {
-                if (syncopeLoggers.containsKey(logger.getName())) {
-                    logger.setLevel(syncopeLoggers.get(logger.getName()).
-                            getLevel().getLevel());
-                    syncopeLoggers.remove(logger.getName());
+                if (loggerLogs.containsKey(logger.getName())) {
+                    logger.setLevel(loggerLogs.get(logger.getName()).getLevel().getLevel());
+                    loggerLogs.remove(logger.getName());
                 } else {
                     SyncopeLogger syncopeLogger = new SyncopeLogger();
                     syncopeLogger.setName(logger.getName());
-                    syncopeLogger.setLevel(
-                            LoggerLevel.fromLevel(logger.getLevel()));
+                    syncopeLogger.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
+                    syncopeLogger.setType(logger.getName().startsWith(SyncopeLoggerType.AUDIT.getPrefix())
+                            ? SyncopeLoggerType.AUDIT : SyncopeLoggerType.LOG);
                     loggerDAO.save(syncopeLogger);
                 }
             }
         }
 
         /*
-         * Foreach SyncopeLogger not found in Logback, create a new Logback
-         * logger with given name and level.
+         * Foreach SyncopeLogger not found in Logback, create a new Logback logger with given name and level.
          */
-        for (SyncopeLogger syncopeLogger : syncopeLoggers.values()) {
+        for (SyncopeLogger syncopeLogger : loggerLogs.values()) {
             Logger logger = lc.getLogger(syncopeLogger.getName());
             logger.setLevel(syncopeLogger.getLevel().getLevel());
         }

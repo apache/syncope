@@ -85,8 +85,6 @@ under the License.
   <Entitlement name="TASK_READ"/>
   <Entitlement name="TASK_UPDATE"/>
   <Entitlement name="TASK_DELETE"/>
-  <Entitlement name="LOGGER_LIST"/>
-  <Entitlement name="LOGGER_SET_LEVEL"/>
   <Entitlement name="POLICY_CREATE"/>
   <Entitlement name="POLICY_LIST"/>
   <Entitlement name="POLICY_READ"/>
@@ -113,5 +111,11 @@ under the License.
   <Entitlement name="REPORT_UPDATE"/>
   <Entitlement name="REPORT_DELETE"/>
   <Entitlement name="REPORT_EXECUTE"/>
+  <Entitlement name="LOG_LIST"/>
+  <Entitlement name="LOG_SET_LEVEL"/>
+  <Entitlement name="LOG_DELETE"/>
+  <Entitlement name="AUDIT_LIST"/>
+  <Entitlement name="AUDIT_SET_LEVEL"/>
+  <Entitlement name="AUDIT_DELETE"/>
     
 </dataset>

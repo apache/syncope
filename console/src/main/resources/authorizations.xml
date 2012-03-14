@@ -124,6 +124,20 @@ under the License.
       <entitlement>REPORT_EXECUTE</entitlement>
     </action>
   </page>
+  
+  <page id="Audit">
+    <action id="list">
+      <entitlement>AUDIT_LIST</entitlement>
+    </action>
+        
+    <action id="setLevel">
+      <entitlement>AUDIT_SET_LEVEL</entitlement>
+    </action>
+
+    <action id="delete">
+      <entitlement>AUDIT_DELETE</entitlement>
+    </action>
+  </page>
 
   <page id="Connectors">
     <action id="list">
@@ -195,12 +209,16 @@ under the License.
       <entitlement>CONFIGURATION_DELETE</entitlement>
     </action>
 
-    <action id="loggerList">
-      <entitlement>LOGGER_LIST</entitlement>
+    <action id="logList">
+      <entitlement>LOG_LIST</entitlement>
     </action>
         
-    <action id="loggerSetLevel">
-      <entitlement>LOGGER_SET_LEVEL</entitlement>
+    <action id="logSetLevel">
+      <entitlement>LOG_SET_LEVEL</entitlement>
+    </action>
+
+    <action id="logDelete">
+      <entitlement>LOG_DELETE</entitlement>
     </action>
         
     <action id="workflowDefRead">

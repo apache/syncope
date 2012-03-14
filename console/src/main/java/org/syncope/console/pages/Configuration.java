@@ -76,8 +76,8 @@ import org.syncope.console.rest.NotificationRestClient;
 import org.syncope.console.rest.WorkflowRestClient;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
 import org.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.syncope.types.LoggerLevel;
 import org.syncope.types.PolicyType;
+import org.syncope.types.SyncopeLoggerLevel;
 
 /**
  * Configurations WebPage.
@@ -146,26 +146,21 @@ public class Configuration extends BasePage {
         // Workflow definition stuff
         final WorkflowDefinitionTO workflowDef = wfRestClient.getDefinition();
 
-        WebMarkupContainer workflowDefContainer =
-                new WebMarkupContainer("workflowDefContainer");
+        WebMarkupContainer workflowDefContainer = new WebMarkupContainer("workflowDefContainer");
 
-        Form wfForm = new Form("workflowDefForm",
-                new CompoundPropertyModel(workflowDef));
+        Form wfForm = new Form("workflowDefForm", new CompoundPropertyModel(workflowDef));
 
         TextArea<WorkflowDefinitionTO> workflowDefArea =
                 new TextArea<WorkflowDefinitionTO>("workflowDefArea",
-                new PropertyModel<WorkflowDefinitionTO>(
-                workflowDef, "xmlDefinition"));
+                new PropertyModel<WorkflowDefinitionTO>(workflowDef, "xmlDefinition"));
         wfForm.add(workflowDefArea);
 
-        IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model<String>(getString("submit"))) {
+        IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 try {
                     wfRestClient.updateDefinition(workflowDef);
@@ -177,74 +172,54 @@ public class Configuration extends BasePage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "workflowDefUpdate"));
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefUpdate"));
         wfForm.add(submit);
 
         workflowDefContainer.add(wfForm);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                workflowDefContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "workflowDefRead"));
+        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
         add(workflowDefContainer);
 
         // Logger stuff
-        PropertyListView coreLoggerList =
-                new LoggerPropertyList(null,
-                "corelogger",
-                confRestClient.getLoggers());
-        WebMarkupContainer coreLoggerContainer =
-                new WebMarkupContainer("coreLoggerContainer");
+        PropertyListView coreLoggerList = new LoggerPropertyList(null, "corelogger", confRestClient.listLogs());
+        WebMarkupContainer coreLoggerContainer = new WebMarkupContainer("coreLoggerContainer");
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                coreLoggerContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "loggerList"));
+        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "logList"));
         add(coreLoggerContainer);
 
-        ConsoleLoggerController consoleLoggerController =
-                new ConsoleLoggerController();
-        PropertyListView consoleLoggerList =
-                new LoggerPropertyList(
-                consoleLoggerController,
-                "consolelogger",
+        ConsoleLoggerController consoleLoggerController = new ConsoleLoggerController();
+        PropertyListView consoleLoggerList = new LoggerPropertyList(consoleLoggerController, "consolelogger",
                 consoleLoggerController.getLoggers());
-        WebMarkupContainer consoleLoggerContainer =
-                new WebMarkupContainer("consoleLoggerContainer");
+        WebMarkupContainer consoleLoggerContainer = new WebMarkupContainer("consoleLoggerContainer");
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                consoleLoggerContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "loggerList"));
+        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "logList"));
         add(consoleLoggerContainer);
     }
 
     private void setupSyncopeConf() {
-        confPaginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_CONFIGURATION_PAGINATOR_ROWS);
+        confPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS);
 
         List<IColumn> confColumns = new ArrayList<IColumn>();
 
-        confColumns.add(new PropertyColumn(new ResourceModel("key"),
-                "key", "key"));
+        confColumns.add(new PropertyColumn(new ResourceModel("key"), "key", "key"));
 
-        confColumns.add(new PropertyColumn(new ResourceModel("value"),
-                "value", "value"));
+        confColumns.add(new PropertyColumn(new ResourceModel("value"), "value", "value"));
 
-        confColumns.add(new AbstractColumn<ConfigurationTO>(
-                new ResourceModel("actions", "")) {
+        confColumns.add(new AbstractColumn<ConfigurationTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -254,39 +229,31 @@ public class Configuration extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    final String componentId,
-                    final IModel<ConfigurationTO> model) {
+            public void populateItem(final Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    final String componentId, final IModel<ConfigurationTO> model) {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        editConfigWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editConfigWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new ConfigurationModalPage(
-                                                Configuration.this.
-                                                getPageReference(),
-                                                editConfigWin,
-                                                configurationTO, false);
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new ConfigurationModalPage(Configuration.this.getPageReference(),
+                                        editConfigWin, configurationTO, false);
+                            }
+                        });
 
                         editConfigWin.show(target);
                     }
@@ -294,14 +261,12 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            confRestClient.deleteConfiguration(
-                                    configurationTO.getKey());
+                            confRestClient.deleteConfiguration(configurationTO.getKey());
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
@@ -319,8 +284,7 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable confTable =
-                new AjaxFallbackDefaultDataTable("syncopeconf", confColumns,
+        final AjaxFallbackDefaultDataTable confTable = new AjaxFallbackDefaultDataTable("syncopeconf", confColumns,
                 new SyncopeConfProvider(), confPaginatorRows);
 
         confContainer = new WebMarkupContainer("confContainer");
@@ -352,13 +316,11 @@ public class Configuration extends BasePage {
 
                 createConfigWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new ConfigurationModalPage(
-                                Configuration.this.getPageReference(),
+                        return new ConfigurationModalPage(Configuration.this.getPageReference(),
                                 createConfigWin, new ConfigurationTO(), true);
                     }
                 });
@@ -367,8 +329,7 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createConfigurationLink, ENABLE,
+        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "create"));
         add(createConfigurationLink);
 
@@ -382,10 +343,8 @@ public class Configuration extends BasePage {
                     HttpResourceStream stream = new HttpResourceStream(
                             baseURL + "configuration/dbexport", restTemplate);
 
-                    ResourceStreamRequestHandler rsrh =
-                            new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null
-                            ? "content.xml" : stream.getFilename());
+                    ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
+                    rsrh.setFileName(stream.getFilename() == null ? "content.xml" : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
@@ -395,16 +354,14 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                dbExportLink, ENABLE,
+        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "read"));
         add(dbExportLink);
 
         Form confPaginatorForm = new Form("confPaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "confPaginatorRows"),
-                prefMan.getPaginatorChoices());
+                new PropertyModel(this, "confPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -412,9 +369,7 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_CONFIGURATION_PAGINATOR_ROWS,
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS,
                         String.valueOf(confPaginatorRows));
                 confTable.setItemsPerPage(confPaginatorRows);
 
@@ -431,19 +386,13 @@ public class Configuration extends BasePage {
                 Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
 
         List<IColumn> notificationCols = new ArrayList<IColumn>();
-        notificationCols.add(new PropertyColumn(new ResourceModel("id"),
-                "id", "id"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("events"),
-                "events", "events"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("subject"),
-                "subject", "subject"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("template"),
-                "template", "template"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("traceLevel"),
-                "traceLevel", "traceLevel"));
+        notificationCols.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        notificationCols.add(new PropertyColumn(new ResourceModel("events"), "events", "events"));
+        notificationCols.add(new PropertyColumn(new ResourceModel("subject"), "subject", "subject"));
+        notificationCols.add(new PropertyColumn(new ResourceModel("template"), "template", "template"));
+        notificationCols.add(new PropertyColumn(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
 
-        notificationCols.add(new AbstractColumn<NotificationTO>(
-                new ResourceModel("actions", "")) {
+        notificationCols.add(new AbstractColumn<NotificationTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -453,39 +402,31 @@ public class Configuration extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<NotificationTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<NotificationTO>> cellItem, final String componentId,
                     final IModel<NotificationTO> model) {
 
                 final NotificationTO notificationTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        editNotificationWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editNotificationWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new NotificationModalPage(
-                                                Configuration.this.
-                                                getPageReference(),
-                                                editNotificationWin,
-                                                notificationTO, false);
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new NotificationModalPage(Configuration.this.getPageReference(),
+                                        editNotificationWin, notificationTO, false);
+                            }
+                        });
 
                         editNotificationWin.show(target);
                     }
@@ -493,14 +434,12 @@ public class Configuration extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            notificationRestClient.deleteNotification(
-                                    notificationTO.getId());
+                            notificationRestClient.deleteNotification(notificationTO.getId());
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting a notification", e);
                             error(e.getMessage());
@@ -518,10 +457,8 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable notificationTable =
-                new AjaxFallbackDefaultDataTable("notificationTable",
-                notificationCols,
-                new NotificationProvider(), notificationPaginatorRows);
+        final AjaxFallbackDefaultDataTable notificationTable = new AjaxFallbackDefaultDataTable("notificationTable",
+                notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
         notificationContainer.add(notificationTable);
@@ -542,37 +479,29 @@ public class Configuration extends BasePage {
         setWindowClosedCallback(createNotificationWin, notificationContainer);
         setWindowClosedCallback(editNotificationWin, notificationContainer);
 
-        AjaxLink createNotificationLink =
-                new AjaxLink("createNotificationLink") {
+        AjaxLink createNotificationLink = new AjaxLink("createNotificationLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                createNotificationWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
-
-                        createNotificationWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
-
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
-
-                                    @Override
-                                    public Page createPage() {
-                                        return new NotificationModalPage(
-                                                Configuration.this.
-                                                getPageReference(),
-                                                createNotificationWin,
-                                                new NotificationTO(), true);
-                                    }
-                                });
-
-                        createNotificationWin.show(target);
+                    public Page createPage() {
+                        return new NotificationModalPage(Configuration.this.getPageReference(),
+                                createNotificationWin, new NotificationTO(), true);
                     }
-                };
+                });
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createNotificationLink, ENABLE,
+                createNotificationWin.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Notification", "create"));
         add(createNotificationLink);
 
@@ -588,9 +517,7 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_NOTIFICATION_PAGINATOR_ROWS,
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS,
                         String.valueOf(notificationPaginatorRows));
                 notificationTable.setItemsPerPage(notificationPaginatorRows);
 
@@ -612,14 +539,11 @@ public class Configuration extends BasePage {
         public SyncopeConfProvider() {
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<ConfigurationTO>(this);
+            comparator = new SortableDataProviderComparator<ConfigurationTO>(this);
         }
 
         @Override
-        public Iterator<ConfigurationTO> iterator(final int first,
-                final int count) {
-
+        public Iterator<ConfigurationTO> iterator(final int first, final int count) {
             List<ConfigurationTO> list = confRestClient.getAllConfigurations();
 
             Collections.sort(list, comparator);
@@ -633,13 +557,11 @@ public class Configuration extends BasePage {
         }
 
         @Override
-        public IModel<ConfigurationTO> model(
-                final ConfigurationTO configuration) {
+        public IModel<ConfigurationTO> model(final ConfigurationTO configuration) {
 
             return new AbstractReadOnlyModel<ConfigurationTO>() {
 
-                private static final long serialVersionUID =
-                        774694801558497248L;
+                private static final long serialVersionUID = 774694801558497248L;
 
                 @Override
                 public ConfigurationTO getObject() {
@@ -659,16 +581,12 @@ public class Configuration extends BasePage {
         public NotificationProvider() {
             //Default sorting
             setSort("id", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<NotificationTO>(this);
+            comparator = new SortableDataProviderComparator<NotificationTO>(this);
         }
 
         @Override
-        public Iterator<NotificationTO> iterator(final int first,
-                final int count) {
-
-            List<NotificationTO> list =
-                    notificationRestClient.getAllNotifications();
+        public Iterator<NotificationTO> iterator(final int first, final int count) {
+            List<NotificationTO> list = notificationRestClient.getAllNotifications();
 
             Collections.sort(list, comparator);
 
@@ -681,13 +599,11 @@ public class Configuration extends BasePage {
         }
 
         @Override
-        public IModel<NotificationTO> model(
-                final NotificationTO notification) {
+        public IModel<NotificationTO> model(final NotificationTO notification) {
 
             return new AbstractReadOnlyModel<NotificationTO>() {
 
-                private static final long serialVersionUID =
-                        774694801558497248L;
+                private static final long serialVersionUID = 774694801558497248L;
 
                 @Override
                 public NotificationTO getObject() {
@@ -703,8 +619,7 @@ public class Configuration extends BasePage {
 
         private final ConsoleLoggerController consoleLoggerController;
 
-        public LoggerPropertyList(
-                final ConsoleLoggerController consoleLoggerController,
+        public LoggerPropertyList(final ConsoleLoggerController consoleLoggerController,
                 final String id, final List<? extends LoggerTO> list) {
 
             super(id, list);
@@ -715,20 +630,18 @@ public class Configuration extends BasePage {
         protected void populateItem(final ListItem<LoggerTO> item) {
             item.add(new Label("name"));
 
-            DropDownChoice<LoggerLevel> level =
-                    new DropDownChoice<LoggerLevel>("level");
-            level.setModel(new IModel<LoggerLevel>() {
+            DropDownChoice<SyncopeLoggerLevel> level = new DropDownChoice<SyncopeLoggerLevel>("level");
+            level.setModel(new IModel<SyncopeLoggerLevel>() {
 
-                private static final long serialVersionUID =
-                        -2350428186089596562L;
+                private static final long serialVersionUID = -2350428186089596562L;
 
                 @Override
-                public LoggerLevel getObject() {
+                public SyncopeLoggerLevel getObject() {
                     return item.getModelObject().getLevel();
                 }
 
                 @Override
-                public void setObject(final LoggerLevel object) {
+                public void setObject(final SyncopeLoggerLevel object) {
                     item.getModelObject().setLevel(object);
                 }
 
@@ -736,29 +649,26 @@ public class Configuration extends BasePage {
                 public void detach() {
                 }
             });
-            level.setChoices(Arrays.asList(LoggerLevel.values()));
+            level.setChoices(Arrays.asList(SyncopeLoggerLevel.values()));
             level.setOutputMarkupId(true);
-            level.add(new AjaxFormComponentUpdatingBehavior(
-                    "onchange") {
+            level.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    boolean result = getId().equals("corelogger")
-                            ? confRestClient.setLoggerLevel(
-                            item.getModelObject().getName(),
-                            item.getModelObject().getLevel())
-                            : consoleLoggerController.setLoggerLevel(
-                            item.getModelObject().getName(),
-                            item.getModelObject().getLevel());
+                    try {
+                        if (getId().equals("corelogger")) {
+                            confRestClient.setLogLevel(item.getModelObject().getName(),
+                                    item.getModelObject().getLevel());
+                        } else {
+                            consoleLoggerController.setLogLevel(item.getModelObject().getName(),
+                                    item.getModelObject().getLevel());
+                        }
 
-                    if (result) {
                         info(getString("operation_succeded"));
-                    } else {
+                    } catch (SyncopeClientCompositeErrorException e) {
                         info(getString("operation_error"));
-
                     }
 
                     target.add(feedbackPanel);
@@ -766,8 +676,7 @@ public class Configuration extends BasePage {
             });
 
             MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE,
-                    xmlRolesReader.getAllAllowedRoles(
-                    "Configuration", "loggerSetLevel"));
+                    xmlRolesReader.getAllAllowedRoles("Configuration", "logSetLevel"));
 
             item.add(level);
         }
@@ -778,16 +687,13 @@ public class Configuration extends BasePage {
         private static final long serialVersionUID = -1550459341476431714L;
 
         public List<LoggerTO> getLoggers() {
-            LoggerContext lc =
-                    (LoggerContext) LoggerFactory.getILoggerFactory();
-            List<LoggerTO> result =
-                    new ArrayList<LoggerTO>(lc.getLoggerList().size());
-            LoggerTO loggerTO;
+            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+            List<LoggerTO> result = new ArrayList<LoggerTO>(lc.getLoggerList().size());
             for (Logger logger : lc.getLoggerList()) {
                 if (logger.getLevel() != null) {
-                    loggerTO = new LoggerTO();
+                    LoggerTO loggerTO = new LoggerTO();
                     loggerTO.setName(logger.getName());
-                    loggerTO.setLevel(LoggerLevel.fromLevel(logger.getLevel()));
+                    loggerTO.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
                     result.add(loggerTO);
                 }
             }
@@ -795,11 +701,8 @@ public class Configuration extends BasePage {
             return result;
         }
 
-        public boolean setLoggerLevel(final String name,
-                final LoggerLevel level) {
-
-            LoggerContext lc =
-                    (LoggerContext) LoggerFactory.getILoggerFactory();
+        public boolean setLogLevel(final String name, final SyncopeLoggerLevel level) {
+            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             Logger logger = lc.getLogger(name);
             if (logger != null) {
                 logger.setLevel(level.getLevel());
