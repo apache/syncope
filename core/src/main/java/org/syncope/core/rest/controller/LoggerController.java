@@ -37,8 +37,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.SyncopeLogger;
 import org.syncope.core.persistence.dao.LoggerDAO;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.LoggerSubCategory;
+import org.syncope.types.AuditElements.Result;
 import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.types.SyncopeLoggerLevel;
 import org.syncope.types.SyncopeLoggerType;
@@ -46,6 +50,9 @@ import org.syncope.types.SyncopeLoggerType;
 @Controller
 @RequestMapping("/logger")
 public class LoggerController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private LoggerDAO loggerDAO;
@@ -57,6 +64,9 @@ public class LoggerController extends AbstractController {
             BeanUtils.copyProperties(syncopeLogger, loggerTO);
             result.add(loggerTO);
         }
+
+        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success,
+                "Successfully listed all loggers (" + type + "): " + result.size());
 
         return result;
     }
@@ -108,6 +118,10 @@ public class LoggerController extends AbstractController {
 
         LoggerTO result = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, result);
+
+        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
+                String.format("Successfully set level %s to logger %s (%s)", level, name, expectedType));
+
         return result;
     }
 
@@ -140,6 +154,9 @@ public class LoggerController extends AbstractController {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = lc.getLogger(name);
         logger.setLevel(Level.OFF);
+
+        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
+                String.format("Successfully deleted logger %s (%s)", name, expectedType));
     }
 
     @PreAuthorize("hasRole('LOG_DELETE')")

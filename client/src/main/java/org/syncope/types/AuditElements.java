@@ -55,6 +55,20 @@ public class AuditElements {
                 result = EnumSet.allOf(AuthenticationSubCategory.class);
                 break;
 
+            case configuration:
+                result = EnumSet.allOf(ConfigurationSubCategory.class);
+                break;
+
+            case connector:
+                result = EnumSet.allOf(ConnectorSubCategory.class);
+                break;
+
+
+            case logger:
+                result = EnumSet.allOf(LoggerSubCategory.class);
+                break;
+
+
             default:
                 result = null;
         }
@@ -66,6 +80,42 @@ public class AuditElements {
 
         login,
         getEntitlements
+
+    }
+
+    public enum ConfigurationSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        getMailTemplates,
+        getValidators,
+        dbExport
+
+    }
+
+    public enum ConnectorSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        getBundles,
+        getSchemaNames,
+        getConfigurationProperties,
+        check,
+        readConnectorBean
+
+    }
+
+    public enum LoggerSubCategory {
+
+        list,
+        setLevel,
+        delete
 
     }
 }

@@ -30,9 +30,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.types.CipherAlgorithm;
+import org.syncope.types.AuditElements.AuthenticationSubCategory;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.Result;
 
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
@@ -41,6 +45,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private UserDAO userDAO;
@@ -118,7 +125,10 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             result = token;
 
-            LOG.debug("User {} authenticated with roles {}", authentication.getPrincipal(), token.getAuthorities());
+            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.success,
+                    "Successfully authenticated, with roles: " + token.getAuthorities());
+            LOG.debug("User {} successfully authenticated, with roles {}",
+                    authentication.getPrincipal(), token.getAuthorities());
 
             if (user != null) {
                 user.setLastLoginDate(new Date());
@@ -132,6 +142,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 userDAO.save(user);
             }
 
+            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.failure,
+                    "User " + authentication.getPrincipal() + " not authenticated");
             LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
             throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");

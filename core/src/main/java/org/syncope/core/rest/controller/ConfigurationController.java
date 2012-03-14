@@ -41,16 +41,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 import org.syncope.core.util.ImportExport;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.ConfigurationSubCategory;
+import org.syncope.types.AuditElements.Result;
 
 @Controller
 @RequestMapping("/configuration")
 public class ConfigurationController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private ConfDAO confDAO;
@@ -74,6 +81,9 @@ public class ConfigurationController extends AbstractController {
         SyncopeConf conf = configurationDataBinder.createSyncopeConfiguration(configurationTO);
         conf = confDAO.save(conf);
 
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.create, Result.success,
+                "Successfully created conf: " + conf.getKey());
+
         response.setStatus(HttpServletResponse.SC_CREATED);
 
         return configurationDataBinder.getConfigurationTO(conf);
@@ -86,6 +96,9 @@ public class ConfigurationController extends AbstractController {
 
         confDAO.find(key);
         confDAO.delete(key);
+
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.delete, Result.success,
+                "Successfully deleted conf: " + key);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
@@ -97,6 +110,9 @@ public class ConfigurationController extends AbstractController {
         for (SyncopeConf configuration : configurations) {
             configurationTOs.add(configurationDataBinder.getConfigurationTO(configuration));
         }
+
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.list, Result.success,
+                "Successfully listed all confs: " + configurationTOs.size());
 
         return configurationTOs;
     }
@@ -111,11 +127,17 @@ public class ConfigurationController extends AbstractController {
         try {
             SyncopeConf conf = confDAO.find(key);
             result = configurationDataBinder.getConfigurationTO(conf);
+
+            auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.success,
+                    "Successfully read conf: " + key);
         } catch (MissingConfKeyException e) {
             LOG.error("Could not find configuration key '" + key + "', returning null");
 
             result = new ConfigurationTO();
             result.setKey(key);
+
+            auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.failure,
+                    "Could not read conf: " + key);
         }
 
         return result;
@@ -128,11 +150,13 @@ public class ConfigurationController extends AbstractController {
             @RequestBody final ConfigurationTO configurationTO)
             throws MissingConfKeyException {
 
-        SyncopeConf syncopeConfiguration = confDAO.find(configurationTO.getKey());
+        SyncopeConf conf = confDAO.find(configurationTO.getKey());
+        conf.setValue(configurationTO.getValue());
 
-        syncopeConfiguration.setValue(configurationTO.getValue());
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.update, Result.success,
+                "Successfully updated conf: " + conf.getKey());
 
-        return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
+        return configurationDataBinder.getConfigurationTO(conf);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
@@ -161,6 +185,9 @@ public class ConfigurationController extends AbstractController {
         } catch (IOException e) {
             LOG.error("While searching for class implementing {}", Validator.class.getName(), e);
         }
+
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.getValidators, Result.success,
+                "Successfully listed all validators: " + validators.size());
 
         return new ModelAndView().addObject(validators);
     }
@@ -194,6 +221,9 @@ public class ConfigurationController extends AbstractController {
         // Only templates available both as HTML and TEXT are considered
         htmlTemplates.retainAll(textTemplates);
 
+        auditManager.audit(Category.configuration, ConfigurationSubCategory.getMailTemplates, Result.success,
+                "Successfully listed all mail templates: " + htmlTemplates.size());
+
         return new ModelAndView().addObject(htmlTemplates);
     }
 
@@ -207,9 +237,13 @@ public class ConfigurationController extends AbstractController {
         try {
             importExport.export(response.getOutputStream());
 
-            LOG.debug("Default content successfully exported");
+            auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
+                    "Successfully exported database content");
+            LOG.debug("Databse content successfully exported");
         } catch (Throwable t) {
-            LOG.error("While exporting content", t);
+            auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.failure,
+                    "Could not export database content");
+            LOG.error("While exporting database content", t);
         }
     }
 }

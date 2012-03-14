@@ -48,6 +48,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -57,6 +58,9 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.util.ConnBundleManager;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.ConnectorSubCategory;
+import org.syncope.types.AuditElements.Result;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -64,6 +68,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/connector")
 public class ConnInstanceController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -92,7 +99,12 @@ public class ConnInstanceController extends AbstractController {
 
         try {
             connInstance = connInstanceDAO.save(connInstance);
+            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.success,
+                    "Successfully created connector instance: " + connInstance.getDisplayName());
         } catch (Throwable t) {
+            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
+                    "Could not create connector instance: " + connectorTO.getDisplayName());
+
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -119,13 +131,18 @@ public class ConnInstanceController extends AbstractController {
 
         try {
             connInstance = connInstanceDAO.save(connInstance);
-        } catch (RuntimeException e) {
+            auditManager.audit(Category.connector, ConnectorSubCategory.update, Result.success,
+                    "Successfully update connector instance: " + connInstance.getDisplayName());
+        } catch (Throwable t) {
+            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
+                    "Could not update connector instance: " + connectorTO.getDisplayName());
+
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
             SyncopeClientException invalidConnInstance =
                     new SyncopeClientException(SyncopeClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.addElement(e.getMessage());
+            invalidConnInstance.addElement(t.getMessage());
 
             scce.addException(invalidConnInstance);
             throw scce;
@@ -159,6 +176,8 @@ public class ConnInstanceController extends AbstractController {
         }
 
         connInstanceDAO.delete(connectorId);
+        auditManager.audit(Category.connector, ConnectorSubCategory.delete, Result.success,
+                "Successfully deleted connector instance: " + connectorId);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_LIST')")
@@ -183,6 +202,9 @@ public class ConnInstanceController extends AbstractController {
             }
         }
 
+        auditManager.audit(Category.connector, ConnectorSubCategory.list, Result.success,
+                "Successfully listed all connectors: " + connInstanceTOs.size());
+
         return connInstanceTOs;
     }
 
@@ -193,10 +215,12 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
-
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connectorId + "'");
         }
+
+        auditManager.audit(Category.connector, ConnectorSubCategory.read, Result.success,
+                "Successfully read connector: " + connInstance.getDisplayName());
 
         return binder.getConnInstanceTO(connInstance);
     }
@@ -276,6 +300,9 @@ public class ConnInstanceController extends AbstractController {
             }
         }
 
+        auditManager.audit(Category.connector, ConnectorSubCategory.getBundles, Result.success,
+                "Successfully listed all bundles: " + connectorBundleTOs.size());
+
         return connectorBundleTOs;
     }
 
@@ -288,7 +315,6 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException {
 
         final ConnInstance connInstance = connInstanceDAO.find(connectorTO.getId());
-
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connectorTO.getId() + "'");
         }
@@ -308,6 +334,10 @@ public class ConnInstanceController extends AbstractController {
 
         Collections.sort(result);
 
+        auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
+                "Successfully listed all schema names (" + result.size()
+                + ") for connector " + connInstance.getDisplayName());
+
         return result;
     }
 
@@ -317,11 +347,18 @@ public class ConnInstanceController extends AbstractController {
     public List<ConnConfProperty> getConfigurationProperties(@PathVariable("connectorId") final Long connectorId)
             throws NotFoundException {
 
-        final ConnInstance connector = connInstanceDAO.find(connectorId);
-        if (connector == null) {
+        final ConnInstance connInstance = connInstanceDAO.find(connectorId);
+        if (connInstance == null) {
             throw new NotFoundException("Connector '" + connectorId + "'");
         }
-        return new ArrayList<ConnConfProperty>(connector.getConfiguration());
+
+        List<ConnConfProperty> result = new ArrayList<ConnConfProperty>(connInstance.getConfiguration());
+
+        auditManager.audit(Category.connector, ConnectorSubCategory.getConfigurationProperties, Result.success,
+                "Successfully listed all conf properties (" + result.size()
+                + ") for connector " + connInstance.getDisplayName());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -333,13 +370,22 @@ public class ConnInstanceController extends AbstractController {
         final ConnectorFacadeProxy connector =
                 new ConnectorFacadeProxy(binder.getConnInstance(connectorTO), bundleManager);
 
+        boolean result;
         try {
             connector.test();
-            return new ModelAndView().addObject(true);
+            result = true;
+
+            auditManager.audit(Category.connector, ConnectorSubCategory.check, Result.success,
+                    "Successfully checked connector: " + connectorTO);
         } catch (Exception ex) {
+            auditManager.audit(Category.connector, ConnectorSubCategory.check, Result.failure,
+                    "Unsuccessful check for connector: " + connectorTO);
+
             LOG.error("Test connection failure {}", ex);
-            return new ModelAndView().addObject(false);
+            result = false;
         }
+
+        return new ModelAndView().addObject(result);
     }
 
     /**
@@ -384,13 +430,14 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
-
         if (resource == null) {
-            LOG.error("Could not find resource '" + resourceName + "'");
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
         final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
+
+        auditManager.audit(Category.connector, ConnectorSubCategory.readConnectorBean, Result.success,
+                "Successfully read connector for resource: " + resourceName);
 
         return binder.getConnInstanceTO(connector.getActiveConnInstance());
     }
