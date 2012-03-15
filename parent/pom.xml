@@ -646,33 +646,6 @@ under the License.
     </repository>
 
   </repositories>
-    
-  <pluginRepositories>
-
-    <pluginRepository>
-      <id>main</id>
-      <url>http://repo1.maven.org/maven2/</url>
-    </pluginRepository>
-
-    <pluginRepository>
-      <id>apache.snapshots</id>
-      <name>Apache Snapshot Repository</name>
-      <url>http://repository.apache.org/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </pluginRepository>
-
-    <pluginRepository>
-      <id>sonatype-public</id>
-      <name>Sonatype public repository</name>
-      <url>http://oss.sonatype.org/content/groups/public</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-
-  </pluginRepositories>
 
   <build>
     <defaultGoal>package</defaultGoal>
