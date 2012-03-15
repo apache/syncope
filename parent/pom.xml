@@ -663,6 +663,21 @@ under the License.
           </configuration>
         </plugin>
         <plugin>
+          <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+          <artifactId>maven-java-formatter-plugin</artifactId>
+          <version>0.3.1</version>
+          <configuration>
+            <configFile>org/syncope/java-formatter.xml</configFile>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.syncope</groupId>
+              <artifactId>syncope-quality</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
           <groupId>org.codehaus.groovy.maven</groupId>
           <artifactId>gmaven-plugin</artifactId>
           <version>1.0</version>
