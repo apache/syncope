@@ -50,8 +50,7 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
 
             @Override
             protected IAjaxCallDecorator getAjaxCallDecorator() {
-                return new CancelEventIfNoAjaxDecorator(
-                        AjaxDecoratedCheckbox.this.getAjaxCallDecorator());
+                return new CancelEventIfNoAjaxDecorator(AjaxDecoratedCheckbox.this.getAjaxCallDecorator());
             }
         });
     }

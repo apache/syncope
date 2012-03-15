@@ -79,16 +79,13 @@ import org.syncope.types.TraceLevel;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = {
-    Throwable.class
-})
+@Transactional(rollbackFor = { Throwable.class })
 public class PropagationManager {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(PropagationManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
 
     /**
      * Connector instance loader.
@@ -138,8 +135,7 @@ public class PropagationManager {
     @Autowired
     private JexlUtil jexlUtil;
 
-    private SyncopeUser getSyncopeUser(final Long userId)
-            throws NotFoundException {
+    private SyncopeUser getSyncopeUser(final Long userId) throws NotFoundException {
 
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
@@ -158,11 +154,8 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getCreateTaskIds(
-            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password,
-            final List<AttributeTO> vAttrs)
-            throws NotFoundException {
+    public List<PropagationTask> getCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
+            final String password, final List<AttributeTO> vAttrs) throws NotFoundException {
 
         return getCreateTaskIds(wfResult, password, vAttrs, null);
     }
@@ -177,11 +170,8 @@ public class PropagationManager {
      * @return list of propagation tasks.
      * @throws NotFoundException if userId is not found.
      */
-    public List<PropagationTask> getCreateTaskIds(
-            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password,
-            final List<AttributeTO> vAttrs,
-            final Set<String> syncResourceNames)
+    public List<PropagationTask> getCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
+            final String password, final List<AttributeTO> vAttrs, final Set<String> syncResourceNames)
             throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
@@ -211,14 +201,10 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getUpdateTaskIds(
-            final SyncopeUser user,
-            final Boolean enable,
-            final Set<String> syncResourceNames)
-            throws NotFoundException {
+    public List<PropagationTask> getUpdateTaskIds(final SyncopeUser user, final Boolean enable,
+            final Set<String> syncResourceNames) throws NotFoundException {
 
-        return getUpdateTaskIds(
-                user, // SyncopeUser to be updated on external resources
+        return getUpdateTaskIds(user, // SyncopeUser to be updated on external resources
                 null, // no propagation by resources
                 null, // no password
                 null, // no virtual attributes to be managed
@@ -234,8 +220,7 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
+    public List<PropagationTask> getUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
             throws NotFoundException {
 
         return getUpdateTaskIds(wfResult, null, null, null, null);
@@ -251,11 +236,8 @@ public class PropagationManager {
      * @return list of propagation tasks.
      * @throws NotFoundException if userId is not found.
      */
-    public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password,
-            final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated)
+    public List<PropagationTask> getUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
+            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated)
             throws NotFoundException {
 
         return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
@@ -273,41 +255,25 @@ public class PropagationManager {
      * @return list of propagation tasks.
      * @throws NotFoundException if userId is not found.
      */
-    public List<PropagationTask> getUpdateTaskIds(
-            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password,
-            final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated,
-            final Set<String> syncResourceNames)
-            throws NotFoundException {
+    public List<PropagationTask> getUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
+            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
+            final Set<String> syncResourceNames) throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
 
-        return getUpdateTaskIds(
-                user,
-                wfResult.getPropByRes(),
-                password,
-                vAttrsToBeRemoved,
-                vAttrsToBeUpdated,
-                wfResult.getResult().getValue(),
-                syncResourceNames);
+        return getUpdateTaskIds(user, wfResult.getPropByRes(), password, vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult
+                .getResult().getValue(), syncResourceNames);
     }
 
-    private List<PropagationTask> getUpdateTaskIds(
-            final SyncopeUser user,
-            final PropagationByResource propByRes,
-            final String password,
-            final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable,
-            final Set<String> syncResourceNames)
-            throws NotFoundException {
+    private List<PropagationTask> getUpdateTaskIds(final SyncopeUser user, final PropagationByResource propByRes,
+            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable, final Set<String> syncResourceNames) throws NotFoundException {
 
-        PropagationByResource localPropByRes = userDataBinder.fillVirtual(
-                user,
-                vAttrsToBeRemoved == null ? Collections.EMPTY_SET : vAttrsToBeRemoved,
-                vAttrsToBeUpdated == null ? Collections.EMPTY_SET : vAttrsToBeUpdated,
-                AttributableUtil.getInstance(AttributableType.USER));
+        PropagationByResource localPropByRes = userDataBinder.fillVirtual(user, vAttrsToBeRemoved == null
+                ? Collections.EMPTY_SET
+                : vAttrsToBeRemoved, vAttrsToBeUpdated == null
+                ? Collections.EMPTY_SET
+                : vAttrsToBeUpdated, AttributableUtil.getInstance(AttributableType.USER));
 
         if (propByRes != null && !propByRes.isEmpty()) {
             localPropByRes.merge(propByRes);
@@ -333,8 +299,7 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      */
-    public List<PropagationTask> getDeleteTaskIds(final Long userId)
-            throws NotFoundException {
+    public List<PropagationTask> getDeleteTaskIds(final Long userId) throws NotFoundException {
 
         return getDeleteTaskIds(userId, null);
     }
@@ -349,8 +314,7 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      */
-    public List<PropagationTask> getDeleteTaskIds(final Long userId,
-            final String syncResourceName)
+    public List<PropagationTask> getDeleteTaskIds(final Long userId, final String syncResourceName)
             throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(userId);
@@ -373,11 +337,8 @@ public class PropagationManager {
      * @return account link + prepare attributes
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
-    private Map.Entry<String, Attribute> prepareAttribute(
-            final SchemaMapping mapping,
-            final SyncopeUser user,
-            final String password)
-            throws ClassNotFoundException {
+    private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
+            final String password) throws ClassNotFoundException {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
@@ -397,25 +358,23 @@ public class PropagationManager {
             default:
         }
 
-        final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
-                SchemaMappingUtil.getIntValues(mapping, attributables, password, schemaDAO);
+        final Entry<AbstractSchema, List<AbstractAttrValue>> entry = SchemaMappingUtil.getIntValues(mapping,
+                attributables, password, schemaDAO);
 
         final List<AbstractAttrValue> values = entry.getValue();
         final AbstractSchema schema = entry.getKey();
-        final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
+        final SchemaType schemaType = schema == null
+                ? SchemaType.String
+                : schema.getType();
 
         final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
 
-        LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + extAttrName
-                + "\n* is accountId " + mapping.isAccountid()
-                + "\n* is password "
+        LOG.debug("Define mapping for: " + "\n* ExtAttrName " + extAttrName + "\n* is accountId "
+                + mapping.isAccountid() + "\n* is password "
                 + (mapping.isPassword() || mapping.getIntMappingType().equals(IntMappingType.Password))
-                + "\n* mandatory condition " + mapping.getMandatoryCondition()
-                + "\n* Schema " + mapping.getIntAttrName()
-                + "\n* IntMappingType " + mapping.getIntMappingType().toString()
-                + "\n* ClassType " + schemaType.getClassName()
-                + "\n* Values " + values);
+                + "\n* mandatory condition " + mapping.getMandatoryCondition() + "\n* Schema "
+                + mapping.getIntAttrName() + "\n* IntMappingType " + mapping.getIntMappingType().toString()
+                + "\n* ClassType " + schemaType.getClassName() + "\n* Values " + values);
 
         List<Object> objValues = new ArrayList<Object>();
 
@@ -435,16 +394,15 @@ public class PropagationManager {
 
         } else if (mapping.isPassword()) {
 
-            res = new DefaultMapEntry(
-                    null, AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
+            res = new DefaultMapEntry(null, AttributeBuilder.buildPassword(objValues.iterator().next().toString()
+                    .toCharArray()));
 
         } else {
             if (schema != null && schema.isMultivalue()) {
                 res = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
 
             } else {
-                res = new DefaultMapEntry(null,
-                        objValues.isEmpty()
+                res = new DefaultMapEntry(null, objValues.isEmpty()
                         ? AttributeBuilder.build(extAttrName)
                         : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
@@ -462,13 +420,11 @@ public class PropagationManager {
      * @param resource target resource
      * @return account link + prepared attributes
      */
-    private Map.Entry<String, Set<Attribute>> prepareAttributes(
-            final SyncopeUser user, final String password, final Boolean enable, final ExternalResource resource) {
+    private Map.Entry<String, Set<Attribute>> prepareAttributes(final SyncopeUser user, final String password,
+            final Boolean enable, final ExternalResource resource) {
 
-        LOG.debug("Preparing resource attributes for {}"
-                + " on resource {}"
-                + " with attributes {}",
-                new Object[]{user, resource, user.getAttributes()});
+        LOG.debug("Preparing resource attributes for {}" + " on resource {}" + " with attributes {}", new Object[] {
+                user, resource, user.getAttributes() });
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -485,8 +441,8 @@ public class PropagationManager {
                 }
 
                 if (preparedAttribute.getValue() != null) {
-                    final Attribute alreadyAdded = AttributeUtil.find(
-                            preparedAttribute.getValue().getName(), attributes);
+                    final Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(),
+                            attributes);
 
                     if (alreadyAdded == null) {
                         attributes.add(preparedAttribute.getValue());
@@ -496,9 +452,7 @@ public class PropagationManager {
                         Set values = new HashSet(alreadyAdded.getValue());
                         values.addAll(preparedAttribute.getValue().getValue());
 
-                        attributes.add(AttributeBuilder.build(
-                                preparedAttribute.getValue().getName(),
-                                values));
+                        attributes.add(AttributeBuilder.build(preparedAttribute.getValue().getName(), values));
                     }
 
                 }
@@ -514,8 +468,7 @@ public class PropagationManager {
         }
 
         // Evaluate AccountLink expression
-        String evalAccountLink =
-                jexlUtil.evaluate(resource.getAccountLink(), user);
+        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), user);
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
@@ -548,10 +501,7 @@ public class PropagationManager {
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> provision(
-            final SyncopeUser user,
-            final String password,
-            final Boolean enable,
+    protected List<PropagationTask> provision(final SyncopeUser user, final String password, final Boolean enable,
             final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
@@ -593,8 +543,7 @@ public class PropagationManager {
         return tasks;
     }
 
-    public void execute(final List<PropagationTask> tasks)
-            throws PropagationException {
+    public void execute(final List<PropagationTask> tasks) throws PropagationException {
         execute(tasks, null);
     }
 
@@ -605,9 +554,7 @@ public class PropagationManager {
      * @throws PropagationException if propagation goes wrong: propagation is interrupted as soon as the result of the
      * communication with a primary resource is in error
      */
-    public void execute(
-            final List<PropagationTask> tasks,
-            final PropagationHandler handler)
+    public void execute(final List<PropagationTask> tasks, final PropagationHandler handler)
             throws PropagationException {
 
         for (PropagationTask task : tasks) {
@@ -621,18 +568,14 @@ public class PropagationManager {
             // communication with a primary resource is in error
             PropagationTaskExecStatus execStatus;
             try {
-                execStatus = PropagationTaskExecStatus.valueOf(
-                        execution.getStatus());
+                execStatus = PropagationTaskExecStatus.valueOf(execution.getStatus());
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected execution status found {}",
-                        execution.getStatus());
+                LOG.error("Unexpected execution status found {}", execution.getStatus());
                 execStatus = PropagationTaskExecStatus.FAILURE;
             }
-            if (task.getResource().isPropagationPrimary()
-                    && !execStatus.isSuccessful()) {
+            if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
 
-                throw new PropagationException(task.getResource().getName(),
-                        execution.getMessage());
+                throw new PropagationException(task.getResource().getName(), execution.getMessage());
             }
         }
     }
@@ -644,38 +587,27 @@ public class PropagationManager {
      * @param execution to be decide wether to store or not
      * @return true if execution has to be store, false otherwise
      */
-    private boolean hasToBeregistered(final PropagationTask task,
-            final TaskExec execution) {
+    private boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
 
         boolean result;
 
-        final boolean failed = !PropagationTaskExecStatus.valueOf(
-                execution.getStatus()).isSuccessful();
+        final boolean failed = !PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful();
 
         switch (task.getPropagationOperation()) {
 
             case CREATE:
-                result = (failed
-                        && task.getResource().getCreateTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getCreateTraceLevel()
-                        == TraceLevel.ALL;
+                result = (failed && task.getResource().getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getCreateTraceLevel() == TraceLevel.ALL;
                 break;
 
             case UPDATE:
-                result = (failed
-                        && task.getResource().getUpdateTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getUpdateTraceLevel()
-                        == TraceLevel.ALL;
+                result = (failed && task.getResource().getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getUpdateTraceLevel() == TraceLevel.ALL;
                 break;
 
             case DELETE:
-                result = (failed
-                        && task.getResource().getDeleteTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getDeleteTraceLevel()
-                        == TraceLevel.ALL;
+                result = (failed && task.getResource().getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getDeleteTraceLevel() == TraceLevel.ALL;
                 break;
 
             default:
@@ -702,8 +634,7 @@ public class PropagationManager {
      * @param handler propagation handler.
      * @return TaskExecution.
      */
-    public TaskExec execute(
-            final PropagationTask task, final PropagationHandler handler) {
+    public TaskExec execute(final PropagationTask task, final PropagationHandler handler) {
         final Date startDate = new Date();
 
         TaskExec execution = new TaskExec();
@@ -718,17 +649,13 @@ public class PropagationManager {
         ConnectorObject after = null;
 
         try {
-            final ConnInstance connInstance =
-                    task.getResource().getConnector();
+            final ConnInstance connInstance = task.getResource().getConnector();
 
-            final ConnectorFacadeProxy connector =
-                    connLoader.getConnector(task.getResource());
+            final ConnectorFacadeProxy connector = connLoader.getConnector(task.getResource());
 
             if (connector == null) {
-                final String msg = String.format(
-                        "Connector instance bean for resource %s and "
-                        + "connInstance %s not found",
-                        task.getResource(), connInstance);
+                final String msg = String.format("Connector instance bean for resource %s and "
+                        + "connInstance %s not found", task.getResource(), connInstance);
 
                 throw new NoSuchBeanDefinitionException(msg);
             }
@@ -741,21 +668,17 @@ public class PropagationManager {
                     case CREATE:
                     case UPDATE:
                         // set of attributes to be propagated
-                        final Set<Attribute> attributes =
-                                new HashSet<Attribute>(task.getAttributes());
+                        final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
 
                         if (before != null) {
 
                             // 1. check if rename is really required
-                            final Name newName = (Name) AttributeUtil.find(
-                                    Name.NAME, attributes);
+                            final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
 
                             LOG.debug("Rename required with value {}", newName);
 
-                            if (newName != null
-                                    && newName.equals(before.getName())
-                                    && !before.getUid().getUidValue().equals(
-                                    newName.getNameValue())) {
+                            if (newName != null && newName.equals(before.getName())
+                                    && !before.getUid().getUidValue().equals(newName.getNameValue())) {
 
                                 LOG.debug("Remote object name unchanged");
                                 attributes.remove(newName);
@@ -764,59 +687,41 @@ public class PropagationManager {
                             LOG.debug("Attributes to be replaced {}", attributes);
 
                             // 2. update with a new "normalized" attribute set
-                            connector.update(
-                                    task.getPropagationMode(),
-                                    ObjectClass.ACCOUNT,
-                                    before.getUid(),
-                                    attributes,
-                                    null,
-                                    propagationAttempted);
+                            connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, before.getUid(),
+                                    attributes, null, propagationAttempted);
                         } else {
                             // 1. get accountId
                             final String accountId = task.getAccountId();
 
                             // 2. get name
-                            final Name name = (Name) AttributeUtil.find(
-                                    Name.NAME, attributes);
+                            final Name name = (Name) AttributeUtil.find(Name.NAME, attributes);
 
                             // 3. check if:
                             //      * accountId is not blank;
                             //      * accountId is not equal to Name.
                             if (StringUtils.hasText(accountId)
-                                    && (name == null
-                                    || !accountId.equals(name.getNameValue()))) {
+                                    && (name == null || !accountId.equals(name.getNameValue()))) {
 
                                 // 3.a retrieve uid
-                                final Uid uid = (Uid) AttributeUtil.find(
-                                        Uid.NAME, attributes);
+                                final Uid uid = (Uid) AttributeUtil.find(Uid.NAME, attributes);
 
                                 // 3.b add Uid if not provided
                                 if (uid == null) {
-                                    attributes.add(AttributeBuilder.build(
-                                            Uid.NAME,
-                                            Collections.singleton(accountId)));
+                                    attributes.add(AttributeBuilder.build(Uid.NAME, Collections.singleton(accountId)));
                                 }
                             }
 
                             // 4. provision entry
-                            connector.create(
-                                    task.getPropagationMode(),
-                                    ObjectClass.ACCOUNT,
-                                    attributes,
-                                    null,
+                            connector.create(task.getPropagationMode(), ObjectClass.ACCOUNT, attributes, null,
                                     propagationAttempted);
                         }
                         break;
 
                     case DELETE:
                         if (before == null) {
-                            LOG.debug("{} not found on external resource:"
-                                    + " ignoring delete", task.getAccountId());
+                            LOG.debug("{} not found on external resource:" + " ignoring delete", task.getAccountId());
                         } else {
-                            connector.delete(task.getPropagationMode(),
-                                    ObjectClass.ACCOUNT,
-                                    before.getUid(),
-                                    null,
+                            connector.delete(task.getPropagationMode(), ObjectClass.ACCOUNT, before.getUid(), null,
                                     propagationAttempted);
                         }
                         break;
@@ -824,8 +729,7 @@ public class PropagationManager {
                     default:
                 }
 
-                execution.setStatus(
-                        task.getPropagationMode() == PropagationMode.ONE_PHASE
+                execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.SUCCESS.name()
                         : PropagationTaskExecStatus.SUBMITTED.name());
 
@@ -840,8 +744,7 @@ public class PropagationManager {
             }
 
         } catch (Throwable t) {
-            LOG.error("Exception during provision on resource "
-                    + task.getResource().getName(), t);
+            LOG.error("Exception during provision on resource " + task.getResource().getName(), t);
 
             if (t instanceof ConnectorException && t.getCause() != null) {
                 taskExecutionMessage = t.getCause().getMessage();
@@ -853,16 +756,14 @@ public class PropagationManager {
             }
 
             try {
-                execution.setStatus(
-                        task.getPropagationMode() == PropagationMode.ONE_PHASE
+                execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.FAILURE.name()
                         : PropagationTaskExecStatus.UNSUBMITTED.name());
             } catch (Throwable wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            propagationAttempted.add(
-                    task.getPropagationOperation().name().toLowerCase());
+            propagationAttempted.add(task.getPropagationOperation().name().toLowerCase());
         } finally {
             LOG.debug("Update execution for {}", task);
 
@@ -885,11 +786,8 @@ public class PropagationManager {
         }
 
         if (handler != null) {
-            handler.handle(
-                    task.getResource().getName(),
-                    PropagationTaskExecStatus.valueOf(execution.getStatus()),
-                    before,
-                    after);
+            handler.handle(task.getResource().getName(), PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                    before, after);
         }
 
         return execution;
@@ -903,20 +801,14 @@ public class PropagationManager {
      * @param latest 'FALSE' to retrieve object using old accountId if not null.
      * @return remote connector object.
      */
-    private ConnectorObject getRemoteObject(
-            final ConnectorFacadeProxy connector,
-            final PropagationTask task,
+    private ConnectorObject getRemoteObject(final ConnectorFacadeProxy connector, final PropagationTask task,
             final boolean latest) {
         try {
 
-            return connector.getObject(
-                    task.getPropagationMode(),
-                    task.getPropagationOperation(),
-                    ObjectClass.ACCOUNT,
+            return connector.getObject(task.getPropagationMode(), task.getPropagationOperation(), ObjectClass.ACCOUNT,
                     new Uid(latest || task.getOldAccountId() == null
-                    ? task.getAccountId()
-                    : task.getOldAccountId()),
-                    connector.getOperationOptions(task.getResource()));
+                            ? task.getAccountId()
+                            : task.getOldAccountId()), connector.getOperationOptions(task.getResource()));
 
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);

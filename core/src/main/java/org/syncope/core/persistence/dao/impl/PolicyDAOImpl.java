@@ -29,8 +29,7 @@ import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.types.PolicyType;
 
 @Repository
-public class PolicyDAOImpl extends AbstractDAOImpl
-        implements PolicyDAO {
+public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
 
     @Override
     public Policy find(final Long id) {
@@ -39,8 +38,7 @@ public class PolicyDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<? extends Policy> find(final PolicyType type) {
-        final Query query = entityManager.createQuery(
-                "SELECT e FROM Policy e WHERE e.type=:type");
+        final Query query = entityManager.createQuery("SELECT e FROM Policy e WHERE e.type=:type");
         query.setParameter("type", type);
 
         return query.getResultList();
@@ -50,21 +48,24 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     public PasswordPolicy getGlobalPasswordPolicy() {
         List<? extends Policy> policies = find(PolicyType.GLOBAL_PASSWORD);
         return policies == null || policies.isEmpty()
-                ? null : (PasswordPolicy) policies.get(0);
+                ? null
+                : (PasswordPolicy) policies.get(0);
     }
 
     @Override
     public AccountPolicy getGlobalAccountPolicy() {
         List<? extends Policy> policies = find(PolicyType.GLOBAL_ACCOUNT);
         return policies == null || policies.isEmpty()
-                ? null : (AccountPolicy) policies.get(0);
+                ? null
+                : (AccountPolicy) policies.get(0);
     }
 
     @Override
     public SyncPolicy getGlobalSyncPolicy() {
         List<? extends Policy> policies = find(PolicyType.GLOBAL_SYNC);
         return policies == null || policies.isEmpty()
-                ? null : (SyncPolicy) policies.get(0);
+                ? null
+                : (SyncPolicy) policies.get(0);
     }
 
     @Override

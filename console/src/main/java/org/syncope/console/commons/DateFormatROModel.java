@@ -36,8 +36,8 @@ public class DateFormatROModel implements IModel<String> {
     @Override
     public String getObject() {
         return model.getObject() == null
-                ? "" : SyncopeSession.get().getDateFormat().
-                format((Date) model.getObject());
+                ? ""
+                : SyncopeSession.get().getDateFormat().format((Date) model.getObject());
     }
 
     @Override

@@ -28,26 +28,18 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.types.EntityViolationType;
 
-public class USchemaValidator extends AbstractValidator
-        implements ConstraintValidator<USchemaCheck, Object> {
+public class USchemaValidator extends AbstractValidator implements ConstraintValidator<USchemaCheck, Object> {
 
     @Transient
-    private static List<String> PERMITTED_USCHEMA_NAMES =
-            Arrays.asList(new String[]{
-                "failedLogins",
-                "username",
-                "password",
-                "lastLoginDate",
-                "creationDate",
-                "changePwdDate"});
+    private static List<String> PERMITTED_USCHEMA_NAMES = Arrays.asList(new String[] { "failedLogins", "username",
+            "password", "lastLoginDate", "creationDate", "changePwdDate" });
 
     @Override
     public void initialize(final USchemaCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final Object object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final Object object, final ConstraintValidatorContext context) {
 
         EntityViolationType violation = null;
 
@@ -78,10 +70,8 @@ public class USchemaValidator extends AbstractValidator
             LOG.error("Error saving schema", e);
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    violation.toString()).
-                    addNode(object.toString()).
-                    addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(violation.toString()).addNode(object.toString())
+                    .addConstraintViolation();
 
             return false;
         }

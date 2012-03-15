@@ -26,15 +26,14 @@ import org.syncope.client.to.ReportTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 @Component
-public class ReportRestClient extends AbstractBaseRestClient
-        implements ExecutionRestClient {
+public class ReportRestClient extends AbstractBaseRestClient implements ExecutionRestClient {
 
     public List<String> getReportletConfClasses() {
         List<String> reportletClasses = null;
 
         try {
-            reportletClasses = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "report/reportletConfClasses.json", String[].class));
+            reportletClasses = Arrays.asList(restTemplate.getForObject(baseURL + "report/reportletConfClasses.json",
+                    String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting available reportlet classes", e);
         }
@@ -42,29 +41,24 @@ public class ReportRestClient extends AbstractBaseRestClient
     }
 
     public List<ReportTO> list() {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "report/list", ReportTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "report/list", ReportTO[].class));
     }
 
     public List<ReportTO> list(final int page, final int size) {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "report/list/{page}/{size}.json",
-                ReportTO[].class, page, size));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "report/list/{page}/{size}.json", ReportTO[].class,
+                page, size));
     }
 
     public int count() {
-        return restTemplate.getForObject(
-                baseURL + "report/count.json", Integer.class);
+        return restTemplate.getForObject(baseURL + "report/count.json", Integer.class);
     }
 
     public ReportTO create(final ReportTO reportTO) {
-        return restTemplate.postForObject(
-                baseURL + "report/create", reportTO, ReportTO.class);
+        return restTemplate.postForObject(baseURL + "report/create", reportTO, ReportTO.class);
     }
 
     public ReportTO update(final ReportTO reportTO) {
-        return restTemplate.postForObject(
-                baseURL + "report/update", reportTO, ReportTO.class);
+        return restTemplate.postForObject(baseURL + "report/update", reportTO, ReportTO.class);
     }
 
     /**
@@ -73,8 +67,7 @@ public class ReportRestClient extends AbstractBaseRestClient
      * @param reportId report to delete
      */
     public void delete(final Long reportId) {
-        restTemplate.delete(
-                baseURL + "report/delete/{reportId}", reportId);
+        restTemplate.delete(baseURL + "report/delete/{reportId}", reportId);
     }
 
     /**
@@ -84,9 +77,7 @@ public class ReportRestClient extends AbstractBaseRestClient
      */
     @Override
     public void startExecution(final Long reportId) {
-        restTemplate.postForObject(
-                baseURL + "report/execute/{reportId}",
-                null, ReportExecTO.class, reportId);
+        restTemplate.postForObject(baseURL + "report/execute/{reportId}", null, ReportExecTO.class, reportId);
     }
 
     /**
@@ -96,8 +87,7 @@ public class ReportRestClient extends AbstractBaseRestClient
      */
     @Override
     public void deleteExecution(final Long reportExecId) {
-        restTemplate.delete(baseURL
-                + "report/execution/delete/{execId}", reportExecId);
+        restTemplate.delete(baseURL + "report/execution/delete/{execId}", reportExecId);
     }
 
     /**
@@ -107,9 +97,6 @@ public class ReportRestClient extends AbstractBaseRestClient
      */
     @Override
     public List<ReportExecTO> listExecutions() {
-        return Arrays.asList(
-                restTemplate.getForObject(
-                baseURL + "report/execution/list",
-                ReportExecTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "report/execution/list", ReportExecTO[].class));
     }
 }

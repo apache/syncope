@@ -179,315 +179,172 @@ public class Schema extends BasePage {
     public Schema(PageParameters parameters) {
         super(parameters);
 
-        userSchemasContainer =
-                new WebMarkupContainer("userSchemasContainer");
+        userSchemasContainer = new WebMarkupContainer("userSchemasContainer");
 
-        userDerivedSchemasContainer =
-                new WebMarkupContainer("userDerivedSchemasContainer");
+        userDerivedSchemasContainer = new WebMarkupContainer("userDerivedSchemasContainer");
 
-        userVirtualSchemasContainer =
-                new WebMarkupContainer("userVirtualSchemasContainer");
+        userVirtualSchemasContainer = new WebMarkupContainer("userVirtualSchemasContainer");
 
-        roleSchemasContainer =
-                new WebMarkupContainer("roleSchemasContainer");
+        roleSchemasContainer = new WebMarkupContainer("roleSchemasContainer");
 
-        roleDerivedSchemasContainer =
-                new WebMarkupContainer("roleDerivedSchemasContainer");
+        roleDerivedSchemasContainer = new WebMarkupContainer("roleDerivedSchemasContainer");
 
-        roleVirtualSchemasContainer =
-                new WebMarkupContainer("roleVirtualSchemasContainer");
+        roleVirtualSchemasContainer = new WebMarkupContainer("roleVirtualSchemasContainer");
 
-        membershipSchemaContainer =
-                new WebMarkupContainer("membershipSchemaContainer");
+        membershipSchemaContainer = new WebMarkupContainer("membershipSchemaContainer");
 
-        membershipDerivedSchemaContainer =
-                new WebMarkupContainer("membershipDerivedSchemaContainer");
+        membershipDerivedSchemaContainer = new WebMarkupContainer("membershipDerivedSchemaContainer");
 
-        membershipVirtualSchemaContainer =
-                new WebMarkupContainer("membershipVirtualSchemaContainer");
+        membershipVirtualSchemaContainer = new WebMarkupContainer("membershipVirtualSchemaContainer");
 
         add(createRoleSchemaWin = new ModalWindow("createRoleSchemaWin"));
         add(editRoleSchemaWin = new ModalWindow("editRoleSchemaWin"));
 
-        add(createRoleDerivedSchemaWin =
-                new ModalWindow("createRoleDerivedSchemaWin"));
+        add(createRoleDerivedSchemaWin = new ModalWindow("createRoleDerivedSchemaWin"));
 
-        add(createRoleVirtualSchemaWin =
-                new ModalWindow("createRoleVirtualSchemaWin"));
+        add(createRoleVirtualSchemaWin = new ModalWindow("createRoleVirtualSchemaWin"));
 
-        add(editRoleDerivedSchemaWin =
-                new ModalWindow("editRoleDerivedSchemaWin"));
+        add(editRoleDerivedSchemaWin = new ModalWindow("editRoleDerivedSchemaWin"));
 
-        add(editRoleVirtualSchemaWin =
-                new ModalWindow("editRoleVirtualSchemaWin"));
+        add(editRoleVirtualSchemaWin = new ModalWindow("editRoleVirtualSchemaWin"));
 
         add(createUserSchemaWin = new ModalWindow("createUserSchemaWin"));
 
         add(editUserSchemaWin = new ModalWindow("editUserSchemaWin"));
 
-        add(createUserDerivedSchemaWin = new ModalWindow(
-                "createUserDerSchemaWin"));
-        add(createUserVirtualSchemaWin = new ModalWindow(
-                "createUserVirSchemaWin"));
+        add(createUserDerivedSchemaWin = new ModalWindow("createUserDerSchemaWin"));
+        add(createUserVirtualSchemaWin = new ModalWindow("createUserVirSchemaWin"));
 
-        add(editUserDerivedSchemaWin = new ModalWindow(
-                "editUserDerSchemaWin"));
-        add(editUserVirtualSchemaWin = new ModalWindow(
-                "editUserVirSchemaWin"));
+        add(editUserDerivedSchemaWin = new ModalWindow("editUserDerSchemaWin"));
+        add(editUserVirtualSchemaWin = new ModalWindow("editUserVirSchemaWin"));
 
-        add(createMembershipSchemaWin = new ModalWindow(
-                "createMembershipSchemaWin"));
-        add(editMembershipSchemaWin = new ModalWindow(
-                "editMembershipSchemaWin"));
+        add(createMembershipSchemaWin = new ModalWindow("createMembershipSchemaWin"));
+        add(editMembershipSchemaWin = new ModalWindow("editMembershipSchemaWin"));
 
-        add(createMembershipDerivedSchemaWin = new ModalWindow(
-                "createMembershipDerSchemaWin"));
-        add(createMembershipVirtualSchemaWin = new ModalWindow(
-                "createMembershipVirSchemaWin"));
+        add(createMembershipDerivedSchemaWin = new ModalWindow("createMembershipDerSchemaWin"));
+        add(createMembershipVirtualSchemaWin = new ModalWindow("createMembershipVirSchemaWin"));
 
-        add(editMembershipDerivedSchemaWin = new ModalWindow(
-                "editMembershipDerSchemaWin"));
-        add(editMembershipVirtualSchemaWin = new ModalWindow(
-                "editMembershipVirSchemaWin"));
+        add(editMembershipDerivedSchemaWin = new ModalWindow("editMembershipDerSchemaWin"));
+        add(editMembershipVirtualSchemaWin = new ModalWindow("editMembershipVirSchemaWin"));
 
-        rolePageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
+        rolePageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
 
-        roleDerPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+        roleDerPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
 
-        roleVirPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
+        roleVirPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
 
-        userSchemaPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
+        userSchemaPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
 
-        userDerSchemaPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+        userDerSchemaPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
 
-        userVirSchemaPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
+        userVirSchemaPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
 
-        membershipPageRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+        membershipPageRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
 
-        membershipDerPageRows = prefMan.getPaginatorRows(
-                getRequest(),
+        membershipDerPageRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
 
-        membershipVirPageRows = prefMan.getPaginatorRows(
-                getRequest(),
+        membershipVirPageRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
 
-        final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
-                "Schema", "create");
+        final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
 
-        final String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
-                "Schema", "read");
+        final String allowedReadRoles = xmlRolesReader.getAllAllowedRoles("Schema", "read");
 
-        final String allowedDeleteRoles = xmlRolesReader.getAllAllowedRoles(
-                "Schema", "delete");
+        final String allowedDeleteRoles = xmlRolesReader.getAllAllowedRoles("Schema", "delete");
 
-        List<IColumn> rolesColumns = getColumnsForSchema(
-                roleSchemasContainer,
-                editRoleSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                Constants.SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedCreateRoles);
+        List<IColumn> rolesColumns = getColumnsForSchema(roleSchemasContainer, editRoleSchemaWin,
+                AttributableType.ROLE, SchemaModalPageFactory.SchemaType.NORMAL, Constants.SCHEMA_FIELDS,
+                allowedReadRoles, allowedCreateRoles);
 
-        final AjaxFallbackDefaultDataTable tableRoles =
-                new AjaxFallbackDefaultDataTable("datatable", rolesColumns,
+        final AjaxFallbackDefaultDataTable tableRoles = new AjaxFallbackDefaultDataTable("datatable", rolesColumns,
                 new SchemaProvider(SchemaType.RoleSchema), rolePageRows);
 
-        add(getPaginatorForm(
-                roleSchemasContainer,
-                tableRoles,
-                "RolesPaginatorForm",
-                "rolePageRows",
+        add(getPaginatorForm(roleSchemasContainer, tableRoles, "RolesPaginatorForm", "rolePageRows",
                 Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsRolesDer = getColumnsForSchema(
-                roleDerivedSchemasContainer,
-                editRoleDerivedSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                Constants.DERIVED_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsRolesDer = getColumnsForSchema(roleDerivedSchemasContainer, editRoleDerivedSchemaWin,
+                AttributableType.ROLE, SchemaModalPageFactory.SchemaType.DERIVED, Constants.DERIVED_SCHEMA_FIELDS,
+                allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableRolesDer =
-                new AjaxFallbackDefaultDataTable("datatable", columnsRolesDer,
-                new DerivedSchemaProvider(SchemaDerivedType.RoleDerivedSchema),
-                roleDerPageRows);
+        final AjaxFallbackDefaultDataTable tableRolesDer = new AjaxFallbackDefaultDataTable("datatable",
+                columnsRolesDer, new DerivedSchemaProvider(SchemaDerivedType.RoleDerivedSchema), roleDerPageRows);
 
-        add(getPaginatorForm(
-                roleDerivedSchemasContainer,
-                tableRolesDer,
-                "RolesDerPaginatorForm",
-                "roleDerPageRows",
+        add(getPaginatorForm(roleDerivedSchemasContainer, tableRolesDer, "RolesDerPaginatorForm", "roleDerPageRows",
                 Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsRolesVir = getColumnsForSchema(
-                roleVirtualSchemasContainer,
-                editRoleVirtualSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                Constants.VIRTUAL_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsRolesVir = getColumnsForSchema(roleVirtualSchemasContainer, editRoleVirtualSchemaWin,
+                AttributableType.ROLE, SchemaModalPageFactory.SchemaType.VIRTUAL, Constants.VIRTUAL_SCHEMA_FIELDS,
+                allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableRolesVir =
-                new AjaxFallbackDefaultDataTable("datatable", columnsRolesVir,
-                new VirtualSchemaProvider(SchemaVirtualType.RoleVirtualSchema),
-                roleVirPageRows);
+        final AjaxFallbackDefaultDataTable tableRolesVir = new AjaxFallbackDefaultDataTable("datatable",
+                columnsRolesVir, new VirtualSchemaProvider(SchemaVirtualType.RoleVirtualSchema), roleVirPageRows);
 
-        add(getPaginatorForm(
-                roleVirtualSchemasContainer,
-                tableRolesVir,
-                "RolesVirPaginatorForm",
-                "roleVirPageRows",
+        add(getPaginatorForm(roleVirtualSchemasContainer, tableRolesVir, "RolesVirPaginatorForm", "roleVirPageRows",
                 Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> userColumns = getColumnsForSchema(
-                userSchemasContainer,
-                editUserSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                Constants.SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedCreateRoles);
+        List<IColumn> userColumns = getColumnsForSchema(userSchemasContainer, editUserSchemaWin, AttributableType.USER,
+                SchemaModalPageFactory.SchemaType.NORMAL, Constants.SCHEMA_FIELDS, allowedReadRoles, allowedCreateRoles);
 
-        final AjaxFallbackDefaultDataTable tableUsers =
-                new AjaxFallbackDefaultDataTable("datatable", userColumns,
+        final AjaxFallbackDefaultDataTable tableUsers = new AjaxFallbackDefaultDataTable("datatable", userColumns,
                 new SchemaProvider(SchemaType.UserSchema), userSchemaPageRows);
 
         tableUsers.setMarkupId("tableUsers");
 
-        add(getPaginatorForm(
-                userSchemasContainer,
-                tableUsers,
-                "UsersPaginatorForm",
-                "userSchemaPageRows",
+        add(getPaginatorForm(userSchemasContainer, tableUsers, "UsersPaginatorForm", "userSchemaPageRows",
                 Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsUsersDer = getColumnsForSchema(
-                userDerivedSchemasContainer,
-                editUserDerivedSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                Constants.DERIVED_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsUsersDer = getColumnsForSchema(userDerivedSchemasContainer, editUserDerivedSchemaWin,
+                AttributableType.USER, SchemaModalPageFactory.SchemaType.DERIVED, Constants.DERIVED_SCHEMA_FIELDS,
+                allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableUsersDer =
-                new AjaxFallbackDefaultDataTable("datatable", columnsUsersDer,
-                new DerivedSchemaProvider(SchemaDerivedType.UserDerivedSchema),
-                userDerSchemaPageRows);
+        final AjaxFallbackDefaultDataTable tableUsersDer = new AjaxFallbackDefaultDataTable("datatable",
+                columnsUsersDer, new DerivedSchemaProvider(SchemaDerivedType.UserDerivedSchema), userDerSchemaPageRows);
 
-        add(getPaginatorForm(
-                userDerivedSchemasContainer,
-                tableUsersDer,
-                "UsersDerPaginatorForm",
-                "userDerSchemaPageRows",
-                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS));
+        add(getPaginatorForm(userDerivedSchemasContainer, tableUsersDer, "UsersDerPaginatorForm",
+                "userDerSchemaPageRows", Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsUsersVir = getColumnsForSchema(
-                userVirtualSchemasContainer,
-                editUserVirtualSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                Constants.VIRTUAL_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsUsersVir = getColumnsForSchema(userVirtualSchemasContainer, editUserVirtualSchemaWin,
+                AttributableType.USER, SchemaModalPageFactory.SchemaType.VIRTUAL, Constants.VIRTUAL_SCHEMA_FIELDS,
+                allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableUsersVir =
-                new AjaxFallbackDefaultDataTable("datatable", columnsUsersVir,
-                new VirtualSchemaProvider(SchemaVirtualType.UserVirtualSchema),
-                userVirSchemaPageRows);
+        final AjaxFallbackDefaultDataTable tableUsersVir = new AjaxFallbackDefaultDataTable("datatable",
+                columnsUsersVir, new VirtualSchemaProvider(SchemaVirtualType.UserVirtualSchema), userVirSchemaPageRows);
 
-        add(getPaginatorForm(
-                userVirtualSchemasContainer,
-                tableUsersVir,
-                "UsersVirPaginatorForm",
-                "userVirSchemaPageRows",
-                Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS));
+        add(getPaginatorForm(userVirtualSchemasContainer, tableUsersVir, "UsersVirPaginatorForm",
+                "userVirSchemaPageRows", Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> membershipsColumns = getColumnsForSchema(
-                membershipSchemaContainer,
-                editMembershipSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                Constants.SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedCreateRoles);
+        List<IColumn> membershipsColumns = getColumnsForSchema(membershipSchemaContainer, editMembershipSchemaWin,
+                AttributableType.MEMBERSHIP, SchemaModalPageFactory.SchemaType.NORMAL, Constants.SCHEMA_FIELDS,
+                allowedReadRoles, allowedCreateRoles);
 
-        final AjaxFallbackDefaultDataTable tableMemberships =
-                new AjaxFallbackDefaultDataTable(
-                "datatable", membershipsColumns,
-                new SchemaProvider(SchemaType.MembershipSchema),
-                membershipPageRows);
+        final AjaxFallbackDefaultDataTable tableMemberships = new AjaxFallbackDefaultDataTable("datatable",
+                membershipsColumns, new SchemaProvider(SchemaType.MembershipSchema), membershipPageRows);
 
-        add(getPaginatorForm(
-                membershipSchemaContainer,
-                tableMemberships,
-                "MembershipPaginatorForm",
-                "membershipPageRows",
-                Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS));
+        add(getPaginatorForm(membershipSchemaContainer, tableMemberships, "MembershipPaginatorForm",
+                "membershipPageRows", Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsMembershipsDer = getColumnsForSchema(
-                membershipDerivedSchemaContainer,
-                editMembershipDerivedSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                Constants.DERIVED_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsMembershipsDer = getColumnsForSchema(membershipDerivedSchemaContainer,
+                editMembershipDerivedSchemaWin, AttributableType.MEMBERSHIP, SchemaModalPageFactory.SchemaType.DERIVED,
+                Constants.DERIVED_SCHEMA_FIELDS, allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableMembershipsDer =
-                new AjaxFallbackDefaultDataTable("datatable",
-                columnsMembershipsDer,
-                new DerivedSchemaProvider(
-                SchemaDerivedType.MembershipDerivedSchema),
+        final AjaxFallbackDefaultDataTable tableMembershipsDer = new AjaxFallbackDefaultDataTable("datatable",
+                columnsMembershipsDer, new DerivedSchemaProvider(SchemaDerivedType.MembershipDerivedSchema),
                 membershipDerPageRows);
 
-        add(getPaginatorForm(
-                membershipDerivedSchemaContainer,
-                tableMembershipsDer,
-                "MembershipDerPaginatorForm",
-                "membershipDerPageRows",
-                Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS));
+        add(getPaginatorForm(membershipDerivedSchemaContainer, tableMembershipsDer, "MembershipDerPaginatorForm",
+                "membershipDerPageRows", Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS));
 
-        List<IColumn> columnsMembershipsVir = getColumnsForSchema(
-                membershipVirtualSchemaContainer,
-                editMembershipVirtualSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                Constants.VIRTUAL_SCHEMA_FIELDS,
-                allowedReadRoles,
-                allowedDeleteRoles);
+        List<IColumn> columnsMembershipsVir = getColumnsForSchema(membershipVirtualSchemaContainer,
+                editMembershipVirtualSchemaWin, AttributableType.MEMBERSHIP, SchemaModalPageFactory.SchemaType.VIRTUAL,
+                Constants.VIRTUAL_SCHEMA_FIELDS, allowedReadRoles, allowedDeleteRoles);
 
-        final AjaxFallbackDefaultDataTable tableMembershipsVir =
-                new AjaxFallbackDefaultDataTable("datatable",
-                columnsMembershipsVir,
-                new VirtualSchemaProvider(
-                SchemaVirtualType.MembershipVirtualSchema),
+        final AjaxFallbackDefaultDataTable tableMembershipsVir = new AjaxFallbackDefaultDataTable("datatable",
+                columnsMembershipsVir, new VirtualSchemaProvider(SchemaVirtualType.MembershipVirtualSchema),
                 membershipVirPageRows);
 
-        add(getPaginatorForm(
-                membershipVirtualSchemaContainer,
-                tableMembershipsVir,
-                "MembershipVirPaginatorForm",
-                "membershipVirPageRows",
-                Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS));
+        add(getPaginatorForm(membershipVirtualSchemaContainer, tableMembershipsVir, "MembershipVirPaginatorForm",
+                "membershipVirPageRows", Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS));
 
         roleSchemasContainer.add(tableRoles);
         roleSchemasContainer.setOutputMarkupId(true);
@@ -594,8 +451,7 @@ public class Schema extends BasePage {
         editMembershipSchemaWin.setInitialWidth(WIN_WIDTH);
         editMembershipSchemaWin.setCookieName("modal-14");
 
-        createMembershipDerivedSchemaWin.setCssClassName(
-                ModalWindow.CSS_CLASS_GRAY);
+        createMembershipDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createMembershipDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
         createMembershipDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         createMembershipDerivedSchemaWin.setCookieName("modal-15");
@@ -604,14 +460,12 @@ public class Schema extends BasePage {
         editMembershipSchemaWin.setInitialWidth(WIN_WIDTH);
         editMembershipSchemaWin.setCookieName("modal-16");
 
-        createMembershipVirtualSchemaWin.setCssClassName(
-                ModalWindow.CSS_CLASS_GRAY);
+        createMembershipVirtualSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createMembershipVirtualSchemaWin.setInitialWidth(WIN_WIDTH);
         createMembershipVirtualSchemaWin.setInitialHeight(WIN_HEIGHT);
         createMembershipVirtualSchemaWin.setCookieName("modal-17");
 
-        editMembershipVirtualSchemaWin.setCssClassName(
-                ModalWindow.CSS_CLASS_GRAY);
+        editMembershipVirtualSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editMembershipVirtualSchemaWin.setInitialWidth(WIN_WIDTH);
         editMembershipVirtualSchemaWin.setInitialHeight(WIN_HEIGHT);
         editMembershipVirtualSchemaWin.setCookieName("modal-18");
@@ -620,123 +474,71 @@ public class Schema extends BasePage {
 
         setWindowClosedCallback(editUserSchemaWin, userSchemasContainer);
 
-        setWindowClosedCallback(createUserDerivedSchemaWin,
-                userDerivedSchemasContainer);
+        setWindowClosedCallback(createUserDerivedSchemaWin, userDerivedSchemasContainer);
 
-        setWindowClosedCallback(createUserVirtualSchemaWin,
-                userVirtualSchemasContainer);
+        setWindowClosedCallback(createUserVirtualSchemaWin, userVirtualSchemasContainer);
 
-        setWindowClosedCallback(editUserDerivedSchemaWin,
-                userDerivedSchemasContainer);
+        setWindowClosedCallback(editUserDerivedSchemaWin, userDerivedSchemasContainer);
 
-        setWindowClosedCallback(editUserVirtualSchemaWin,
-                userVirtualSchemasContainer);
+        setWindowClosedCallback(editUserVirtualSchemaWin, userVirtualSchemasContainer);
 
         setWindowClosedCallback(createRoleSchemaWin, roleSchemasContainer);
 
         setWindowClosedCallback(editRoleSchemaWin, roleSchemasContainer);
 
-        setWindowClosedCallback(createRoleDerivedSchemaWin,
-                roleDerivedSchemasContainer);
+        setWindowClosedCallback(createRoleDerivedSchemaWin, roleDerivedSchemasContainer);
 
-        setWindowClosedCallback(createRoleVirtualSchemaWin,
-                roleVirtualSchemasContainer);
+        setWindowClosedCallback(createRoleVirtualSchemaWin, roleVirtualSchemasContainer);
 
-        setWindowClosedCallback(editRoleDerivedSchemaWin,
-                roleDerivedSchemasContainer);
+        setWindowClosedCallback(editRoleDerivedSchemaWin, roleDerivedSchemasContainer);
 
-        setWindowClosedCallback(editRoleVirtualSchemaWin,
-                roleVirtualSchemasContainer);
+        setWindowClosedCallback(editRoleVirtualSchemaWin, roleVirtualSchemasContainer);
 
-        setWindowClosedCallback(createMembershipSchemaWin,
-                membershipSchemaContainer);
+        setWindowClosedCallback(createMembershipSchemaWin, membershipSchemaContainer);
 
-        setWindowClosedCallback(editMembershipSchemaWin,
-                membershipSchemaContainer);
+        setWindowClosedCallback(editMembershipSchemaWin, membershipSchemaContainer);
 
-        setWindowClosedCallback(createMembershipDerivedSchemaWin,
-                membershipDerivedSchemaContainer);
+        setWindowClosedCallback(createMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
 
-        setWindowClosedCallback(createMembershipVirtualSchemaWin,
-                membershipVirtualSchemaContainer);
+        setWindowClosedCallback(createMembershipVirtualSchemaWin, membershipVirtualSchemaContainer);
 
-        setWindowClosedCallback(editMembershipDerivedSchemaWin,
-                membershipDerivedSchemaContainer);
+        setWindowClosedCallback(editMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
 
-        setWindowClosedCallback(editMembershipVirtualSchemaWin,
-                membershipVirtualSchemaContainer);
+        setWindowClosedCallback(editMembershipVirtualSchemaWin, membershipVirtualSchemaContainer);
 
-        add(getCreateSchemaWindow(
-                createRoleSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                "createRoleSchemaWinLink",
-                "createRoleSchemaWin",
+        add(getCreateSchemaWindow(createRoleSchemaWin, AttributableType.ROLE, SchemaModalPageFactory.SchemaType.NORMAL,
+                "createRoleSchemaWinLink", "createRoleSchemaWin", allowedCreateRoles));
+
+        add(getCreateSchemaWindow(createRoleDerivedSchemaWin, AttributableType.ROLE,
+                SchemaModalPageFactory.SchemaType.DERIVED, "createRoleDerivedSchemaWinLink",
+                "createRoleDerivedSchemaWin", allowedCreateRoles));
+
+        add(getCreateSchemaWindow(createRoleVirtualSchemaWin, AttributableType.ROLE,
+                SchemaModalPageFactory.SchemaType.VIRTUAL, "createRoleVirtualSchemaWinLink",
+                "createRoleVirtualSchemaWin", allowedCreateRoles));
+
+        add(getCreateSchemaWindow(createUserSchemaWin, AttributableType.USER, SchemaModalPageFactory.SchemaType.NORMAL,
+                "createUserSchemaWinLink", "createUserSchemaModalWin", allowedCreateRoles));
+
+        add(getCreateSchemaWindow(createUserDerivedSchemaWin, AttributableType.USER,
+                SchemaModalPageFactory.SchemaType.DERIVED, "createUserDerSchemaWinLink", "createUserDerSchemaModalWin",
                 allowedCreateRoles));
 
-        add(getCreateSchemaWindow(
-                createRoleDerivedSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                "createRoleDerivedSchemaWinLink",
-                "createRoleDerivedSchemaWin",
+        add(getCreateSchemaWindow(createUserVirtualSchemaWin, AttributableType.USER,
+                SchemaModalPageFactory.SchemaType.VIRTUAL, "createUserVirSchemaWinLink", "createUserVirSchemaModalWin",
                 allowedCreateRoles));
 
-        add(getCreateSchemaWindow(
-                createRoleVirtualSchemaWin,
-                AttributableType.ROLE,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                "createRoleVirtualSchemaWinLink",
-                "createRoleVirtualSchemaWin",
-                allowedCreateRoles));
+        add(getCreateSchemaWindow(createMembershipSchemaWin, AttributableType.MEMBERSHIP,
+                SchemaModalPageFactory.SchemaType.NORMAL, "createMembershipSchemaWinLink",
+                "createMembershipSchemaModalWin", allowedCreateRoles));
 
-        add(getCreateSchemaWindow(
-                createUserSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                "createUserSchemaWinLink",
-                "createUserSchemaModalWin",
-                allowedCreateRoles));
+        add(getCreateSchemaWindow(createMembershipDerivedSchemaWin, AttributableType.MEMBERSHIP,
+                SchemaModalPageFactory.SchemaType.DERIVED, "createMembershipDerSchemaWinLink",
+                "createMembershipDerivedSchemaWin", allowedCreateRoles));
 
-        add(getCreateSchemaWindow(
-                createUserDerivedSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                "createUserDerSchemaWinLink",
-                "createUserDerSchemaModalWin",
-                allowedCreateRoles));
-
-        add(getCreateSchemaWindow(
-                createUserVirtualSchemaWin,
-                AttributableType.USER,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                "createUserVirSchemaWinLink",
-                "createUserVirSchemaModalWin",
-                allowedCreateRoles));
-
-        add(getCreateSchemaWindow(
-                createMembershipSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.NORMAL,
-                "createMembershipSchemaWinLink",
-                "createMembershipSchemaModalWin",
-                allowedCreateRoles));
-
-        add(getCreateSchemaWindow(
-                createMembershipDerivedSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.DERIVED,
-                "createMembershipDerSchemaWinLink",
-                "createMembershipDerivedSchemaWin",
-                allowedCreateRoles));
-
-        add(getCreateSchemaWindow(
-                createMembershipVirtualSchemaWin,
-                AttributableType.MEMBERSHIP,
-                SchemaModalPageFactory.SchemaType.VIRTUAL,
-                "createMembershipVirSchemaWinLink",
-                "createMembershipVirtualSchemaWin",
-                allowedCreateRoles));
+        add(getCreateSchemaWindow(createMembershipVirtualSchemaWin, AttributableType.MEMBERSHIP,
+                SchemaModalPageFactory.SchemaType.VIRTUAL, "createMembershipVirSchemaWinLink",
+                "createMembershipVirtualSchemaWin", allowedCreateRoles));
     }
 
     private class SchemaProvider extends SortableDataProvider<SchemaTO> {
@@ -799,8 +601,7 @@ public class Schema extends BasePage {
         }
     }
 
-    private class DerivedSchemaProvider
-            extends SortableDataProvider<DerivedSchemaTO> {
+    private class DerivedSchemaProvider extends SortableDataProvider<DerivedSchemaTO> {
 
         private static final long serialVersionUID = -8518694430295937917L;
 
@@ -814,8 +615,7 @@ public class Schema extends BasePage {
 
             //Default sorting
             setSort("name", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<DerivedSchemaTO>(this);
+            comparator = new SortableDataProviderComparator<DerivedSchemaTO>(this);
         }
 
         @Override
@@ -853,8 +653,7 @@ public class Schema extends BasePage {
         }
     }
 
-    private class VirtualSchemaProvider
-            extends SortableDataProvider<VirtualSchemaTO> {
+    private class VirtualSchemaProvider extends SortableDataProvider<VirtualSchemaTO> {
 
         private static final long serialVersionUID = -5431560608852987760L;
 
@@ -868,8 +667,7 @@ public class Schema extends BasePage {
 
             //Default sorting
             setSort("name", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<VirtualSchemaTO>(this);
+            comparator = new SortableDataProviderComparator<VirtualSchemaTO>(this);
         }
 
         @Override
@@ -908,20 +706,15 @@ public class Schema extends BasePage {
     }
 
     private <T extends AbstractSchemaModalPage> List<IColumn> getColumnsForSchema(
-            final WebMarkupContainer webContainer,
-            final ModalWindow modalWindow,
-            final AttributableType attributableType,
-            final SchemaModalPageFactory.SchemaType schemaType,
-            final String[] fields,
-            final String readPermissions,
-            final String deletePermissions) {
+            final WebMarkupContainer webContainer, final ModalWindow modalWindow,
+            final AttributableType attributableType, final SchemaModalPageFactory.SchemaType schemaType,
+            final String[] fields, final String readPermissions, final String deletePermissions) {
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
         for (String field : fields) {
             columns.add(new PropertyColumn(new ResourceModel(field), field, field));
         }
-
 
         columns.add(new AbstractColumn<AbstractBaseBean>(new ResourceModel("actions", "")) {
 
@@ -933,9 +726,7 @@ public class Schema extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<AbstractBaseBean>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<AbstractBaseBean>> cellItem, final String componentId,
                     final IModel<AbstractBaseBean> model) {
 
                 final AbstractBaseBean schemaTO = model.getObject();
@@ -954,11 +745,10 @@ public class Schema extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                AbstractSchemaModalPage page =
-                                        SchemaModalPageFactory.getSchemaModalPage(attributableType, schemaType);
+                                AbstractSchemaModalPage page = SchemaModalPageFactory.getSchemaModalPage(
+                                        attributableType, schemaType);
 
-                                page.setSchemaModalPage(Schema.this.getPageReference(), modalWindow,
-                                        schemaTO, false);
+                                page.setSchemaModalPage(Schema.this.getPageReference(), modalWindow, schemaTO, false);
 
                                 return page;
                             }
@@ -970,18 +760,19 @@ public class Schema extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         switch (schemaType) {
                             case DERIVED:
-                                restClient.deleteDerivedSchema(attributableType, ((DerivedSchemaTO) schemaTO).getName());
+                                restClient
+                                        .deleteDerivedSchema(attributableType, ((DerivedSchemaTO) schemaTO).getName());
                                 break;
                             case VIRTUAL:
-                                restClient.deleteVirtualSchema(attributableType, ((VirtualSchemaTO) schemaTO).getName());
+                                restClient
+                                        .deleteVirtualSchema(attributableType, ((VirtualSchemaTO) schemaTO).getName());
                                 break;
                             default:
                                 restClient.deleteSchema(attributableType, ((SchemaTO) schemaTO).getName());
@@ -1002,20 +793,13 @@ public class Schema extends BasePage {
         return columns;
     }
 
-    private Form getPaginatorForm(
-            final WebMarkupContainer webContainer,
-            final AjaxFallbackDefaultDataTable dataTable,
-            final String formname,
-            final String rowname,
-            final String rowsPerPagePrefName) {
+    private Form getPaginatorForm(final WebMarkupContainer webContainer, final AjaxFallbackDefaultDataTable dataTable,
+            final String formname, final String rowname, final String rowsPerPagePrefName) {
 
         Form usersPaginatorForm = new Form(formname);
 
-        final DropDownChoice rowChooser = new DropDownChoice(
-                "rowsChooser",
-                new PropertyModel(this, rowname),
-                prefMan.getPaginatorChoices(),
-                new SelectChoiceRenderer());
+        final DropDownChoice rowChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, rowname), prefMan
+                .getPaginatorChoices(), new SelectChoiceRenderer());
 
         rowChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -1035,13 +819,9 @@ public class Schema extends BasePage {
         return usersPaginatorForm;
     }
 
-    private <T extends AbstractSchemaModalPage> AjaxLink getCreateSchemaWindow(
-            final ModalWindow createSchemaWin,
-            final AttributableType attributableType,
-            final SchemaModalPageFactory.SchemaType schemaType,
-            final String winLinkName,
-            final String winName,
-            final String createPermissions) {
+    private <T extends AbstractSchemaModalPage> AjaxLink getCreateSchemaWindow(final ModalWindow createSchemaWin,
+            final AttributableType attributableType, final SchemaModalPageFactory.SchemaType schemaType,
+            final String winLinkName, final String winName, final String createPermissions) {
 
         AjaxLink createSchemaWinLink = new IndicatingAjaxLink(winLinkName) {
 
@@ -1056,8 +836,8 @@ public class Schema extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        AbstractSchemaModalPage page = SchemaModalPageFactory.getSchemaModalPage(
-                                attributableType, schemaType);
+                        AbstractSchemaModalPage page = SchemaModalPageFactory.getSchemaModalPage(attributableType,
+                                schemaType);
 
                         page.setSchemaModalPage(Schema.this.getPageReference(), new ModalWindow(winName), null, true);
 
@@ -1069,8 +849,7 @@ public class Schema extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createSchemaWinLink, ENABLE, createPermissions);
+        MetaDataRoleAuthorizationStrategy.authorize(createSchemaWinLink, ENABLE, createPermissions);
 
         return createSchemaWinLink;
     }

@@ -115,8 +115,7 @@ public class ResourceTest extends AbstractTest {
         schemaMappingTO.setPassword(false);
         schemaMappingTO.setMandatoryCondition("false");
 
-        List<SchemaMappingTO> schemaMappingTOs =
-                new ArrayList<SchemaMappingTO>();
+        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
         schemaMappingTOs.add(schemaMappingTO);
 
         ResourceTO resourceTO = new ResourceTO();
@@ -258,8 +257,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
 
         // Get tasks
-        List<PropagationTask> propagationTasks = taskDAO.findAll(resource,
-                PropagationTask.class);
+        List<PropagationTask> propagationTasks = taskDAO.findAll(resource, PropagationTask.class);
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource

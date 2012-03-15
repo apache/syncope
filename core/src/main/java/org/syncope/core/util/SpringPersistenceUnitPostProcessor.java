@@ -34,8 +34,7 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
  * Add to JPA persistence context all beans labeled as @Entity from given location. This is needed only when using
  * LocalContainerEntityManagerFactoryBean with non-standard persistence.xml (currently JBoss-only).
  */
-public class SpringPersistenceUnitPostProcessor
-        implements PersistenceUnitPostProcessor {
+public class SpringPersistenceUnitPostProcessor implements PersistenceUnitPostProcessor {
 
     /**
      * Logger.
@@ -48,12 +47,13 @@ public class SpringPersistenceUnitPostProcessor
     private String[] locations;
 
     public void setLocations(final String[] locations) {
-        this.locations = locations == null ? new String[0] : locations.clone();
+        this.locations = locations == null
+                ? new String[0]
+                : locations.clone();
     }
 
     @Override
-    public void postProcessPersistenceUnitInfo(
-            final MutablePersistenceUnitInfo mpui) {
+    public void postProcessPersistenceUnitInfo(final MutablePersistenceUnitInfo mpui) {
 
         if (locations.length == 0) {
             LOG.warn("No locations provided");

@@ -55,14 +55,12 @@ public class Tasks extends BasePage {
     }
 
     @Override
-    public void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
+    public void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
 
         super.setWindowClosedCallback(window, container);
     }
 
-    public static class TaskExecutionsProvider
-            extends SortableDataProvider<TaskExecTO> {
+    public static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
 
         private static final long serialVersionUID = -5401263348984206145L;
 
@@ -80,8 +78,7 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public Iterator<TaskExecTO> iterator(final int first,
-                final int count) {
+        public Iterator<TaskExecTO> iterator(final int first, final int count) {
 
             List<TaskExecTO> list = getTaskDB();
 
@@ -96,8 +93,7 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public IModel<TaskExecTO> model(
-                final TaskExecTO taskExecution) {
+        public IModel<TaskExecTO> model(final TaskExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<TaskExecTO>() {
                 private static final long serialVersionUID = 7485475149862342421L;
@@ -114,8 +110,7 @@ public class Tasks extends BasePage {
         }
     }
 
-    public static class TasksProvider<T extends TaskTO>
-            extends SortableDataProvider<T> {
+    public static class TasksProvider<T extends TaskTO> extends SortableDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -129,10 +124,7 @@ public class Tasks extends BasePage {
 
         private Class<T> reference;
 
-        public TasksProvider(
-                final TaskRestClient restClient,
-                final int paginatorRows,
-                final String id,
+        public TasksProvider(final TaskRestClient restClient, final int paginatorRows, final String id,
                 final Class<T> reference) {
 
             super();
@@ -150,30 +142,22 @@ public class Tasks extends BasePage {
         public Iterator<T> iterator(final int first, final int count) {
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : (List<T>) restClient.listTasks(
-                    reference, (first / paginatorRows) + 1, paginatorRows)) {
+            for (T task : (List<T>) restClient.listTasks(reference, (first / paginatorRows) + 1, paginatorRows)) {
 
-                if (task instanceof SchedTaskTO
-                        && ((SchedTaskTO) task).getLastExec() == null
-                        && task.getExecutions() != null
-                        && !task.getExecutions().isEmpty()) {
+                if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
+                        && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
 
-                    Collections.sort(task.getExecutions(),
-                            new Comparator<TaskExecTO>() {
+                    Collections.sort(task.getExecutions(), new Comparator<TaskExecTO>() {
 
-                                @Override
-                                public int compare(
-                                        final TaskExecTO left,
-                                        final TaskExecTO right) {
+                        @Override
+                        public int compare(final TaskExecTO left, final TaskExecTO right) {
 
-                                    return left.getStartDate().
-                                            compareTo(right.getStartDate());
-                                }
-                            });
+                            return left.getStartDate().compareTo(right.getStartDate());
+                        }
+                    });
 
-                    ((SchedTaskTO) task).setLastExec(
-                            task.getExecutions().get(
-                            task.getExecutions().size() - 1).getStartDate());
+                    ((SchedTaskTO) task).setLastExec(task.getExecutions().get(task.getExecutions().size() - 1)
+                            .getStartDate());
                 }
                 tasks.add(task);
             }

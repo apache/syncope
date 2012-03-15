@@ -49,10 +49,7 @@ public class RoleModalPage extends BaseModalPage {
 
     private RoleTO originalRoleTO;
 
-    public RoleModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            final RoleTO roleTO) {
+    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
 
         super();
 
@@ -63,38 +60,33 @@ public class RoleModalPage extends BaseModalPage {
 
         final Form form = new Form("RoleForm");
 
-        add(new Label("displayName",
-                roleTO.getId() != 0 ? roleTO.getDisplayName() : ""));
+        add(new Label("displayName", roleTO.getId() != 0
+                ? roleTO.getDisplayName()
+                : ""));
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        final RoleAttributesPanel attributesPanel =
-                new RoleAttributesPanel("attributesPanel", form, roleTO);
+        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
 
         form.add(attributesPanel);
 
-        final AjaxButton submit = new IndicatingAjaxButton(
-                "submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
                 try {
-                    final List<String> entitlementList =
-                            new ArrayList<String>(
-                            attributesPanel.getEntitlementsPalette().
-                            getModelCollection());
+                    final List<String> entitlementList = new ArrayList<String>(attributesPanel.getEntitlementsPalette()
+                            .getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
                     if (createFlag) {
                         roleRestClient.createRole(roleTO);
                     } else {
-                        RoleMod roleMod = AttributableOperations.diff(
-                                roleTO, originalRoleTO);
+                        RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
 
                         // update role just if it is changed
                         if (!roleMod.isEmpty()) {
@@ -111,16 +103,16 @@ public class RoleModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Roles", createFlag ? "create" : "update"));
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
+                createFlag
+                        ? "create"
+                        : "update"));
 
         form.add(submit);
 

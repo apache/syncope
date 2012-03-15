@@ -58,22 +58,18 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(final String username)
-            throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException, DataAccessException {
 
-        Set<SimpleGrantedAuthority> authorities =
-                new HashSet<SimpleGrantedAuthority>();
+        Set<SimpleGrantedAuthority> authorities = new HashSet<SimpleGrantedAuthority>();
         if (adminUser.equals(username)) {
             for (Entitlement entitlement : entitlementDAO.findAll()) {
-                authorities.add(
-                        new SimpleGrantedAuthority(entitlement.getName()));
+                authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
             }
         } else {
             final SyncopeUser user = userDAO.find(username);
 
             if (user == null) {
-                throw new UsernameNotFoundException(
-                        "Could not find any user with id " + username);
+                throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
             // Give entitlements based on roles owned by user,
@@ -84,13 +80,11 @@ public class SyncopeUserDetailsService implements UserDetailsService {
             }
             for (SyncopeRole role : roles) {
                 for (Entitlement entitlement : role.getEntitlements()) {
-                    authorities.add(
-                            new SimpleGrantedAuthority(entitlement.getName()));
+                    authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
                 }
             }
         }
 
-        return new User(username, "<PASSWORD_PLACEHOLDER>",
-                true, true, true, true, authorities);
+        return new User(username, "<PASSWORD_PLACEHOLDER>", true, true, true, true, authorities);
     }
 }

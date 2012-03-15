@@ -38,20 +38,17 @@ import org.syncope.client.to.WorkflowFormPropertyTO;
 public class JSONTest {
 
     @Test
-    public void testSearchCondition()
-            throws IOException {
+    public void testSearchCondition() throws IOException {
 
-        final AttributeCond usernameCond =
-                new AttributeCond(AttributeCond.Type.LIKE);
+        final AttributeCond usernameCond = new AttributeCond(AttributeCond.Type.LIKE);
         usernameCond.setSchema("username");
         usernameCond.setExpression("%o%");
 
         final MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleName("root");
 
-        final NodeCond searchCondition = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameCond),
-                NodeCond.getLeafCond(membershipCond));
+        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond), NodeCond
+                .getLeafCond(membershipCond));
 
         assertTrue(searchCondition.checkValidity());
 
@@ -65,8 +62,7 @@ public class JSONTest {
     }
 
     @Test
-    public void testLists()
-            throws IOException {
+    public void testLists() throws IOException {
 
         List<SchemaTO> schemas = new ArrayList<SchemaTO>();
         SchemaTO schemaTO = new SchemaTO();
@@ -81,16 +77,14 @@ public class JSONTest {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, schemas);
 
-        List<SchemaTO> unserializedSchemas = Arrays.asList(
-                mapper.readValue(writer.toString(), SchemaTO[].class));
+        List<SchemaTO> unserializedSchemas = Arrays.asList(mapper.readValue(writer.toString(), SchemaTO[].class));
         for (SchemaTO unserializedSchema : unserializedSchemas) {
             assertNotNull(unserializedSchema);
         }
     }
 
     @Test
-    public void testMap()
-            throws IOException {
+    public void testMap() throws IOException {
 
         WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
         prop.putEnumValue("key1", "value1");
@@ -101,14 +95,12 @@ public class JSONTest {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, prop);
 
-        WorkflowFormPropertyTO unserializedProp = mapper.readValue(
-                writer.toString(), WorkflowFormPropertyTO.class);
+        WorkflowFormPropertyTO unserializedProp = mapper.readValue(writer.toString(), WorkflowFormPropertyTO.class);
         assertEquals(prop, unserializedProp);
     }
 
     @Test
-    public void testReportletConfImplementations()
-            throws IOException {
+    public void testReportletConfImplementations() throws IOException {
 
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");

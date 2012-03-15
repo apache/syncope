@@ -53,13 +53,11 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
     }
 
     @Override
-    public void setBeanFactory(final BeanFactory beanFactory)
-            throws BeansException {
+    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
     }
 
     @Override
-    public void afterPropertiesSet()
-            throws Exception {
+    public void afterPropertiesSet() throws Exception {
 
         contentLoader.load();
         connInstanceLoader.load();

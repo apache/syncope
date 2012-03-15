@@ -213,8 +213,7 @@ public class ResourceTO extends AbstractBaseBean {
         return connConfProperties;
     }
 
-    public void setConnectorConfigurationProperties(
-            final Set<ConnConfProperty> connConfProperties) {
+    public void setConnectorConfigurationProperties(final Set<ConnConfProperty> connConfProperties) {
         this.connConfProperties = connConfProperties;
     }
 

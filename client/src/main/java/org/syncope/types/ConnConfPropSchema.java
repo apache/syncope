@@ -20,8 +20,7 @@ package org.syncope.types;
 
 import org.syncope.client.AbstractBaseBean;
 
-public class ConnConfPropSchema extends AbstractBaseBean
-        implements Comparable<ConnConfPropSchema> {
+public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<ConnConfPropSchema> {
 
     private static final long serialVersionUID = -1976365781005801296L;
 

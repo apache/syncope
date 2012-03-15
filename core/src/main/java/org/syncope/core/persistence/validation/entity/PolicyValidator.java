@@ -31,8 +31,7 @@ import org.syncope.types.EntityViolationType;
 import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.SyncPolicySpec;
 
-public class PolicyValidator extends AbstractValidator
-        implements ConstraintValidator<PolicyCheck, Policy> {
+public class PolicyValidator extends AbstractValidator implements ConstraintValidator<PolicyCheck, Policy> {
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -42,43 +41,32 @@ public class PolicyValidator extends AbstractValidator
     }
 
     @Override
-    public boolean isValid(
-            final Policy object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final Policy object, final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
 
         if (object.getSpecification() != null
-                && ((object instanceof PasswordPolicy
-                && !(object.getSpecification() instanceof PasswordPolicySpec))
-                || ((object instanceof AccountPolicy
-                && !(object.getSpecification() instanceof AccountPolicySpec)))
-                || ((object instanceof SyncPolicy
-                && !(object.getSpecification() instanceof SyncPolicySpec))))) {
+                && ((object instanceof PasswordPolicy && !(object.getSpecification() instanceof PasswordPolicySpec))
+                        || ((object instanceof AccountPolicy && !(object.getSpecification() instanceof AccountPolicySpec))) || ((object instanceof SyncPolicy && !(object
+                        .getSpecification() instanceof SyncPolicySpec))))) {
 
-            context.buildConstraintViolationWithTemplate(
-                    "Invalid policy specification").
-                    addNode(EntityViolationType.valueOf(
-                    "Invalid" + object.getClass().getSimpleName()).name()).
-                    addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Invalid policy specification").addNode(
+                    EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()).name())
+                    .addConstraintViolation();
 
             return false;
         }
 
         switch (object.getType()) {
             case GLOBAL_PASSWORD:
-                
+
                 // just one GLOBAL_PASSWORD policy
-                final PasswordPolicy passwordPolicy =
-                        policyDAO.getGlobalPasswordPolicy();
+                final PasswordPolicy passwordPolicy = policyDAO.getGlobalPasswordPolicy();
 
-                if (passwordPolicy != null
-                        && !passwordPolicy.getId().equals(object.getId())) {
+                if (passwordPolicy != null && !passwordPolicy.getId().equals(object.getId())) {
 
-                    context.buildConstraintViolationWithTemplate(
-                            "Password policy already exists").addNode(
-                            EntityViolationType.InvalidPasswordPolicy.name()).
-                            addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("Password policy already exists").addNode(
+                            EntityViolationType.InvalidPasswordPolicy.name()).addConstraintViolation();
 
                     return false;
                 }
@@ -90,16 +78,12 @@ public class PolicyValidator extends AbstractValidator
             case GLOBAL_ACCOUNT:
 
                 // just one GLOBAL_ACCOUNT policy
-                final AccountPolicy accountPolicy =
-                        policyDAO.getGlobalAccountPolicy();
+                final AccountPolicy accountPolicy = policyDAO.getGlobalAccountPolicy();
 
-                if (accountPolicy != null
-                        && !accountPolicy.getId().equals(object.getId())) {
+                if (accountPolicy != null && !accountPolicy.getId().equals(object.getId())) {
 
-                    context.buildConstraintViolationWithTemplate(
-                            "Global Account policy already exists").addNode(
-                            EntityViolationType.InvalidAccountPolicy.name()).
-                            addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("Global Account policy already exists").addNode(
+                            EntityViolationType.InvalidAccountPolicy.name()).addConstraintViolation();
 
                     return false;
                 }
@@ -111,16 +95,12 @@ public class PolicyValidator extends AbstractValidator
             case GLOBAL_SYNC:
 
                 // just one GLOBAL_SYNC policy
-                final SyncPolicy syncPolicy =
-                        policyDAO.getGlobalSyncPolicy();
+                final SyncPolicy syncPolicy = policyDAO.getGlobalSyncPolicy();
 
-                if (syncPolicy != null
-                        && !syncPolicy.getId().equals(object.getId())) {
+                if (syncPolicy != null && !syncPolicy.getId().equals(object.getId())) {
 
-                    context.buildConstraintViolationWithTemplate(
-                            "Global Sync policy already exists").addNode(
-                            EntityViolationType.InvalidSyncPolicy.name()).
-                            addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("Global Sync policy already exists").addNode(
+                            EntityViolationType.InvalidSyncPolicy.name()).addConstraintViolation();
 
                     return false;
                 }

@@ -78,14 +78,12 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 : searchDAO.count(adminRoleIds, conf.getMatchingCond());
     }
 
-    private void doExtractResources(final ContentHandler handler,
-            final AbstractAttributableTO attributableTO)
+    private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)
             throws SAXException {
 
         if (attributableTO.getResources().isEmpty()) {
-            LOG.debug("No resources found for {}[{}]",
-                    attributableTO.getClass().getSimpleName(),
-                    attributableTO.getId());
+            LOG.debug("No resources found for {}[{}]", attributableTO.getClass().getSimpleName(), attributableTO
+                    .getId());
         } else {
             AttributesImpl atts = new AttributesImpl();
             handler.startElement("", "", "resources", null);
@@ -102,11 +100,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
     }
 
-    private void doExtractAttributes(final ContentHandler handler,
-            final AbstractAttributableTO attributableTO,
-            final Collection<String> attrs,
-            final Collection<String> derAttrs,
-            final Collection<String> virAttrs)
+    private void doExtractAttributes(final ContentHandler handler, final AbstractAttributableTO attributableTO,
+            final Collection<String> attrs, final Collection<String> derAttrs, final Collection<String> virAttrs)
             throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -123,15 +118,12 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 if (attrMap.containsKey(attrName)) {
                     for (String value : attrMap.get(attrName).getValues()) {
                         handler.startElement("", "", "value", null);
-                        handler.characters(
-                                value.toCharArray(), 0, value.length());
+                        handler.characters(value.toCharArray(), 0, value.length());
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{
-                                attrName,
-                                attributableTO.getClass().getSimpleName(),
-                                attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
                 }
 
                 handler.endElement("", "", "attribute");
@@ -140,8 +132,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttributeTO> derAttrMap =
-                    attributableTO.getDerivedAttributeMap();
+            Map<String, AttributeTO> derAttrMap = attributableTO.getDerivedAttributeMap();
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
@@ -153,15 +144,12 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 if (derAttrMap.containsKey(attrName)) {
                     for (String value : derAttrMap.get(attrName).getValues()) {
                         handler.startElement("", "", "value", null);
-                        handler.characters(
-                                value.toCharArray(), 0, value.length());
+                        handler.characters(value.toCharArray(), 0, value.length());
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{
-                                attrName,
-                                attributableTO.getClass().getSimpleName(),
-                                attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -170,8 +158,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttributeTO> virAttrMap =
-                    attributableTO.getVirtualAttributeMap();
+            Map<String, AttributeTO> virAttrMap = attributableTO.getVirtualAttributeMap();
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {
@@ -183,15 +170,12 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 if (virAttrMap.containsKey(attrName)) {
                     for (String value : virAttrMap.get(attrName).getValues()) {
                         handler.startElement("", "", "value", null);
-                        handler.characters(
-                                value.toCharArray(), 0, value.length());
+                        handler.characters(value.toCharArray(), 0, value.length());
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{
-                                attrName,
-                                attributableTO.getClass().getSimpleName(),
-                                attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
                 }
 
                 handler.endElement("", "", "virtualAttribute");
@@ -233,19 +217,22 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
                     case creationDate:
                         type = XSD_DATETIME;
-                        value = user.getCreationDate() == null ? ""
+                        value = user.getCreationDate() == null
+                                ? ""
                                 : DATE_FORMAT.get().format(user.getCreationDate());
                         break;
 
                     case lastLoginDate:
                         type = XSD_DATETIME;
-                        value = user.getLastLoginDate() == null ? ""
+                        value = user.getLastLoginDate() == null
+                                ? ""
                                 : DATE_FORMAT.get().format(user.getLastLoginDate());
                         break;
 
                     case changePwdDate:
                         type = XSD_DATETIME;
-                        value = user.getChangePwdDate() == null ? ""
+                        value = user.getChangePwdDate() == null
+                                ? ""
                                 : DATE_FORMAT.get().format(user.getChangePwdDate());
                         break;
 
@@ -286,20 +273,16 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     atts.addAttribute("", "", "roleName", XSD_STRING, String.valueOf(memb.getRoleName()));
                     handler.startElement("", "", "membership", atts);
 
-                    doExtractAttributes(handler, memb,
-                            memb.getAttributeMap().keySet(),
-                            memb.getDerivedAttributeMap().keySet(),
-                            memb.getVirtualAttributeMap().keySet());
+                    doExtractAttributes(handler, memb, memb.getAttributeMap().keySet(), memb.getDerivedAttributeMap()
+                            .keySet(), memb.getVirtualAttributeMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
                         Membership actualMemb = user.getMembership(memb.getRoleId());
                         if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for role {} for user {}",
-                                    memb.getRoleId(), user);
+                            LOG.warn("Unexpected: cannot find membership for role {} for user {}", memb.getRoleId(),
+                                    user);
                         } else {
-                            doExtractResources(handler,
-                                    roleDataBinder.getRoleTO(
-                                    actualMemb.getSyncopeRole()));
+                            doExtractResources(handler, roleDataBinder.getRoleTO(actualMemb.getSyncopeRole()));
                         }
                     }
 
@@ -318,8 +301,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     }
 
     @Override
-    protected void doExtract(final ContentHandler handler)
-            throws SAXException, ReportException {
+    protected void doExtract(final ContentHandler handler) throws SAXException, ReportException {
 
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedUsers(i));

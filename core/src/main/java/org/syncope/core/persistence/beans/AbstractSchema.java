@@ -147,15 +147,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
         if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
-                Constructor validatorConstructor =
-                        Class.forName(getValidatorClass()).getConstructor(
-                        new Class[]{getClass().getSuperclass()});
-                validator =
-                        (AbstractValidator) validatorConstructor.newInstance(
-                        this);
+                Constructor validatorConstructor = Class.forName(getValidatorClass()).getConstructor(
+                        new Class[] { getClass().getSuperclass() });
+                validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
-                LOG.error("Could not instantiate validator of type "
-                        + getValidatorClass()
+                LOG.error("Could not instantiate validator of type " + getValidatorClass()
                         + ", reverting to AttributeBasicValidator", e);
             }
         }
@@ -185,8 +181,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public String getConversionPattern() {
         if (!getType().isConversionPatternNeeded()) {
-            LOG.debug("Conversion pattern is not needed: {}'s type is {}",
-                    this, getType());
+            LOG.debug("Conversion pattern is not needed: {}'s type is {}", this, getType());
         }
 
         return conversionPattern;
@@ -194,8 +189,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setConversionPattern(final String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
-            LOG.warn("Conversion pattern will be ignored: "
-                    + "this attribute type is " + getType());
+            LOG.warn("Conversion pattern will be ignored: " + "this attribute type is " + getType());
         }
 
         this.conversionPattern = conversionPattern;

@@ -29,27 +29,24 @@ import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 
 @Repository
-public class TaskExecDAOImpl extends AbstractDAOImpl
-        implements TaskExecDAO {
+public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
 
     @Override
     public TaskExec find(final Long id) {
         return entityManager.find(TaskExec.class, id);
     }
 
-    private <T extends Task> TaskExec findLatest(final T task,
-            final String field) {
+    private <T extends Task> TaskExec findLatest(final T task, final String field) {
 
-        Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + TaskExec.class.getSimpleName() + " e "
-                + "WHERE e.task=:task "
-                + "ORDER BY e." + field + " DESC");
+        Query query = entityManager.createQuery("SELECT e " + "FROM " + TaskExec.class.getSimpleName() + " e "
+                + "WHERE e.task=:task " + "ORDER BY e." + field + " DESC");
         query.setParameter("task", task);
         query.setMaxResults(1);
 
         List<TaskExec> result = query.getResultList();
         return result == null || result.isEmpty()
-                ? null : result.iterator().next();
+                ? null
+                : result.iterator().next();
     }
 
     @Override
@@ -64,13 +61,11 @@ public class TaskExecDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends Task> List<TaskExec> findAll(Class<T> reference) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(
-                TaskExec.class.getSimpleName()).append(" e WHERE e.task IN (").
-                append("SELECT t FROM ").append(reference.getSimpleName()).
-                append(" t");
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(TaskExec.class.getSimpleName()).append(
+                " e WHERE e.task IN (").append("SELECT t FROM ").append(reference.getSimpleName()).append(" t");
         if (SchedTask.class.equals(reference)) {
-            queryString.append(" WHERE t.id NOT IN (SELECT t.id FROM ").
-                    append(SyncTask.class.getSimpleName()).append(" t) ");
+            queryString.append(" WHERE t.id NOT IN (SELECT t.id FROM ").append(SyncTask.class.getSimpleName()).append(
+                    " t) ");
         }
         queryString.append(')');
 
@@ -88,7 +83,7 @@ public class TaskExecDAOImpl extends AbstractDAOImpl
      * @return the same entity, updated
      */
     @Override
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public TaskExec save(final TaskExec execution) {
         return entityManager.merge(execution);
     }

@@ -36,8 +36,7 @@ public class LoggerDAOImpl extends AbstractDAOImpl implements LoggerDAO {
 
     @Override
     public List<SyncopeLogger> findAll(final SyncopeLoggerType type) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeLogger.class.getSimpleName() + " e "
+        Query query = entityManager.createQuery("SELECT e FROM " + SyncopeLogger.class.getSimpleName() + " e "
                 + "WHERE e.type=:type");
         query.setParameter("type", type);
         return query.getResultList();

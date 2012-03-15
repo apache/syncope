@@ -29,8 +29,7 @@ public interface LoggerDAO extends DAO {
 
     List<SyncopeLogger> findAll(SyncopeLoggerType type);
 
-    SyncopeLogger save(SyncopeLogger logger)
-            throws InvalidEntityException;
+    SyncopeLogger save(SyncopeLogger logger) throws InvalidEntityException;
 
     void delete(String name);
 

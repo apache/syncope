@@ -48,24 +48,18 @@ public class StatusPanel extends Panel {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(StatusPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     @SpringBean
     private StatusUtils statusUtils;
 
-    public <T extends AbstractAttributableTO> StatusPanel(
-            final String id,
-            final UserTO userTO,
+    public <T extends AbstractAttributableTO> StatusPanel(final String id, final UserTO userTO,
             final List<StatusBean> selectedResources) {
         this(id, userTO, selectedResources, true);
     }
 
-    public <T extends AbstractAttributableTO> StatusPanel(
-            final String id,
-            final UserTO userTO,
-            final List<StatusBean> selectedResources,
-            final boolean enabled) {
+    public <T extends AbstractAttributableTO> StatusPanel(final String id, final UserTO userTO,
+            final List<StatusBean> selectedResources, final boolean enabled) {
 
         super(id);
 
@@ -87,114 +81,91 @@ public class StatusPanel extends Panel {
         final Fragment headerCheckFrag;
 
         if (enabled) {
-            headerCheckFrag = new Fragment(
-                    "headerCheck", "headerCheckFrag", this);
-            headerCheckFrag.add(
-                    new CheckGroupSelector("groupselector", group));
+            headerCheckFrag = new Fragment("headerCheck", "headerCheckFrag", this);
+            headerCheckFrag.add(new CheckGroupSelector("groupselector", group));
         } else {
-            headerCheckFrag = new Fragment(
-                    "headerCheck", "emptyCheckFrag", this);
+            headerCheckFrag = new Fragment("headerCheck", "emptyCheckFrag", this);
         }
 
         add(headerCheckFrag);
 
-        final ListView<StatusBean> resources =
-                new ListView<StatusBean>("resources", statuses) {
+        final ListView<StatusBean> resources = new ListView<StatusBean>("resources", statuses) {
 
-                    private static final long serialVersionUID =
-                            4949588177564901031L;
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<StatusBean> item) {
+                final Image image;
+                final String alt, title;
+                boolean checkVisibility = true;
+
+                switch (item.getModelObject().getStatus()) {
+                    case ACTIVE:
+                        image = new Image("icon", "statuses/active.png");
+                        alt = "active icon";
+                        title = "Enabled";
+                        break;
+                    case UNDEFINED:
+                        image = new Image("icon", "statuses/undefined.png");
+                        checkVisibility = false;
+                        alt = "undefined icon";
+                        title = "Undefined status";
+                        break;
+                    case USER_NOT_FOUND:
+                        image = new Image("icon", "statuses/usernotfound.png");
+                        checkVisibility = false;
+                        alt = "notfound icon";
+                        title = "User not found";
+                        break;
+                    default:
+                        image = new Image("icon", "statuses/inactive.png");
+                        alt = "inactive icon";
+                        title = "Disabled";
+                }
+
+                image.add(new Behavior() {
+
+                    private static final long serialVersionUID = 1469628524240283489L;
 
                     @Override
-                    protected void populateItem(
-                            final ListItem<StatusBean> item) {
-                        final Image image;
-                        final String alt, title;
-                        boolean checkVisibility = true;
-
-                        switch (item.getModelObject().getStatus()) {
-                            case ACTIVE:
-                                image = new Image(
-                                        "icon", "statuses/active.png");
-                                alt = "active icon";
-                                title = "Enabled";
-                                break;
-                            case UNDEFINED:
-                                image = new Image(
-                                        "icon", "statuses/undefined.png");
-                                checkVisibility = false;
-                                alt = "undefined icon";
-                                title = "Undefined status";
-                                break;
-                            case USER_NOT_FOUND:
-                                image = new Image(
-                                        "icon", "statuses/usernotfound.png");
-                                checkVisibility = false;
-                                alt = "notfound icon";
-                                title = "User not found";
-                                break;
-                            default:
-                                image = new Image(
-                                        "icon", "statuses/inactive.png");
-                                alt = "inactive icon";
-                                title = "Disabled";
-                        }
-
-                        image.add(new Behavior() {
-
-                            private static final long serialVersionUID =
-                                    1469628524240283489L;
-
-                            @Override
-                            public void onComponentTag(
-                                    final Component component,
-                                    final ComponentTag tag) {
-                                tag.put("alt", alt);
-                                tag.put("title", title);
-                            }
-                        });
-
-                        final Fragment checkFrag;
-
-                        if (!enabled) {
-                            checkFrag = new Fragment(
-                                    "rowCheck",
-                                    "emptyCheckFrag",
-                                    group.getParent());
-                        } else {
-                            final Check check = new Check(
-                                    "check", item.getModel(), group);
-
-                            check.setEnabled(checkVisibility);
-                            check.setVisible(checkVisibility);
-
-                            checkFrag = new Fragment(
-                                    "rowCheck",
-                                    "rowCheckFrag",
-                                    getParent());
-
-                            checkFrag.add(check);
-                        }
-
-                        item.add(checkFrag);
-
-                        item.add(new Label("resource", new ResourceModel(
-                                item.getModelObject().getResourceName(),
-                                item.getModelObject().getResourceName())));
-
-                        if (StringUtils.isNotBlank(
-                                item.getModelObject().getAccountLink())) {
-
-                            item.add(new Label("accountLink", new ResourceModel(
-                                    item.getModelObject().getAccountLink(),
-                                    item.getModelObject().getAccountLink())));
-
-                        } else {
-                            item.add(new Label("accountLink", ""));
-                        }
-
-                        item.add(image);
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("alt", alt);
+                        tag.put("title", title);
                     }
-                };
+                });
+
+                final Fragment checkFrag;
+
+                if (!enabled) {
+                    checkFrag = new Fragment("rowCheck", "emptyCheckFrag", group.getParent());
+                } else {
+                    final Check check = new Check("check", item.getModel(), group);
+
+                    check.setEnabled(checkVisibility);
+                    check.setVisible(checkVisibility);
+
+                    checkFrag = new Fragment("rowCheck", "rowCheckFrag", getParent());
+
+                    checkFrag.add(check);
+                }
+
+                item.add(checkFrag);
+
+                item.add(new Label("resource", new ResourceModel(item.getModelObject().getResourceName(), item
+                        .getModelObject().getResourceName())));
+
+                if (StringUtils.isNotBlank(item.getModelObject().getAccountLink())) {
+
+                    item.add(new Label("accountLink", new ResourceModel(item.getModelObject().getAccountLink(), item
+                            .getModelObject().getAccountLink())));
+
+                } else {
+                    item.add(new Label("accountLink", ""));
+                }
+
+                item.add(image);
+            }
+        };
 
         resources.setReuseItems(true);
 

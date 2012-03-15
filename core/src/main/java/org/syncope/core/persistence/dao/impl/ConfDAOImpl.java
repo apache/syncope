@@ -29,8 +29,7 @@ import org.syncope.core.persistence.dao.ConfDAO;
 public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
-    public SyncopeConf find(final String name)
-            throws MissingConfKeyException {
+    public SyncopeConf find(final String name) throws MissingConfKeyException {
 
         SyncopeConf result = find(name, null);
         if (result == null) {
@@ -42,8 +41,7 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public SyncopeConf find(final String name, final String defaultValue) {
-        SyncopeConf syncopeConf =
-                entityManager.find(SyncopeConf.class, name);
+        SyncopeConf syncopeConf = entityManager.find(SyncopeConf.class, name);
 
         if (syncopeConf == null && defaultValue != null) {
             syncopeConf = new SyncopeConf();
@@ -56,14 +54,12 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public List<SyncopeConf> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeConf e");
+        Query query = entityManager.createQuery("SELECT e FROM SyncopeConf e");
         return query.getResultList();
     }
 
     @Override
-    public SyncopeConf save(
-            final SyncopeConf syncopeConfiguration) {
+    public SyncopeConf save(final SyncopeConf syncopeConfiguration) {
 
         return entityManager.merge(syncopeConfiguration);
     }

@@ -37,56 +37,44 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SyncopeClientErrorHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeClientErrorHandler.class);
 
-    public static final HttpStatus[] MANAGED_STATUSES = new HttpStatus[]{
-        HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND};
+    public static final HttpStatus[] MANAGED_STATUSES = new HttpStatus[] { HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND };
 
     @Override
-    public void handleError(final ClientHttpResponse response)
-            throws IOException {
+    public void handleError(final ClientHttpResponse response) throws IOException {
 
         if (!ArrayUtils.contains(MANAGED_STATUSES, response.getStatusCode())) {
             super.handleError(response);
         }
 
-        List<String> exceptionTypesInHeaders = response.getHeaders().get(
-                EXCEPTION_TYPE_HEADER);
+        List<String> exceptionTypesInHeaders = response.getHeaders().get(EXCEPTION_TYPE_HEADER);
         if (exceptionTypesInHeaders == null) {
             LOG.debug("No " + EXCEPTION_TYPE_HEADER + " provided");
 
             return;
         }
 
-        SyncopeClientCompositeErrorException compositeException =
-                new SyncopeClientCompositeErrorException(
-                response.getStatusCode());
+        SyncopeClientCompositeErrorException compositeException = new SyncopeClientCompositeErrorException(response
+                .getStatusCode());
 
         Set<String> handledExceptions = new HashSet<String>();
         for (String exceptionTypeAsString : exceptionTypesInHeaders) {
             SyncopeClientExceptionType exceptionType = null;
             try {
-                exceptionType = SyncopeClientExceptionType.getFromHeaderValue(
-                        exceptionTypeAsString);
+                exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exceptionTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of "
-                        + EXCEPTION_TYPE_HEADER + ": " + exceptionTypeAsString,
-                        e);
+                LOG.error("Unexpected value of " + EXCEPTION_TYPE_HEADER + ": " + exceptionTypeAsString, e);
             }
             if (exceptionType != null) {
                 handledExceptions.add(exceptionTypeAsString);
 
-                SyncopeClientException clientException =
-                        new SyncopeClientException();
+                SyncopeClientException clientException = new SyncopeClientException();
                 clientException.setType(exceptionType);
-                if (response.getHeaders().get(
-                        exceptionType.getElementHeaderName()) != null
-                        && !response.getHeaders().get(
-                        exceptionType.getElementHeaderName()).isEmpty()) {
+                if (response.getHeaders().get(exceptionType.getElementHeaderName()) != null
+                        && !response.getHeaders().get(exceptionType.getElementHeaderName()).isEmpty()) {
 
-                    clientException.setElements(response.getHeaders().get(
-                            exceptionType.getElementHeaderName()));
+                    clientException.setElements(response.getHeaders().get(exceptionType.getElementHeaderName()));
                 }
 
                 compositeException.addException(clientException);

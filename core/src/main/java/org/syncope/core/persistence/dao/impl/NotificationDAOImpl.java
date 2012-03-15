@@ -26,8 +26,7 @@ import org.syncope.core.persistence.dao.NotificationDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 @Repository
-public class NotificationDAOImpl extends AbstractDAOImpl
-        implements NotificationDAO {
+public class NotificationDAOImpl extends AbstractDAOImpl implements NotificationDAO {
 
     @Override
     public Notification find(final Long id) {
@@ -36,14 +35,12 @@ public class NotificationDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<Notification> findAll() {
-        Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + Notification.class.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e " + "FROM " + Notification.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public Notification save(final Notification notification)
-            throws InvalidEntityException {
+    public Notification save(final Notification notification) throws InvalidEntityException {
 
         return entityManager.merge(notification);
     }

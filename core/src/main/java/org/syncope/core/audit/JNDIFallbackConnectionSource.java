@@ -132,8 +132,7 @@ public class JNDIFallbackConnectionSource extends ContextAwareBase implements Co
     }
 
     @Override
-    public Connection getConnection()
-            throws SQLException {
+    public Connection getConnection() throws SQLException {
 
         chooseDelegate();
         return delegate.getConnection();

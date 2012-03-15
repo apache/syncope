@@ -67,8 +67,7 @@ public class ImportExport extends DefaultHandler {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ImportExport.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImportExport.class);
 
     private final static String ROOT_ELEMENT = "dataset";
 
@@ -106,8 +105,7 @@ public class ImportExport extends DefaultHandler {
         return schema;
     }
 
-    private void setParameters(final String tableName, final Attributes atts,
-            final Query query) {
+    private void setParameters(final String tableName, final Attributes atts, final Query query) {
 
         Map<String, Integer> colTypes = new HashMap<String, Integer>();
 
@@ -118,9 +116,8 @@ public class ImportExport extends DefaultHandler {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM " + tableName);
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                colTypes.put(
-                        rs.getMetaData().getColumnName(i + 1).toUpperCase(),
-                        rs.getMetaData().getColumnType(i + 1));
+                colTypes
+                        .put(rs.getMetaData().getColumnName(i + 1).toUpperCase(), rs.getMetaData().getColumnType(i + 1));
             }
         } catch (SQLException e) {
             LOG.error("While", e);
@@ -145,8 +142,7 @@ public class ImportExport extends DefaultHandler {
         for (int i = 0; i < atts.getLength(); i++) {
             Integer colType = colTypes.get(atts.getQName(i).toUpperCase());
             if (colType == null) {
-                LOG.warn("No column type found for {}",
-                        atts.getQName(i).toUpperCase());
+                LOG.warn("No column type found for {}", atts.getQName(i).toUpperCase());
                 colType = Types.VARCHAR;
             }
 
@@ -157,8 +153,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.TINYINT:
                 case Types.SMALLINT:
                     try {
-                        query.setParameter(i + 1,
-                                Integer.valueOf(atts.getValue(i)));
+                        query.setParameter(i + 1, Integer.valueOf(atts.getValue(i)));
                     } catch (NumberFormatException e) {
                         LOG.error("Unparsable Integer '{}'", atts.getValue(i));
                         query.setParameter(i + 1, atts.getValue(i));
@@ -168,8 +163,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.DECIMAL:
                 case Types.BIGINT:
                     try {
-                        query.setParameter(i + 1,
-                                Long.valueOf(atts.getValue(i)));
+                        query.setParameter(i + 1, Long.valueOf(atts.getValue(i)));
                     } catch (NumberFormatException e) {
                         LOG.error("Unparsable Long '{}'", atts.getValue(i));
                         query.setParameter(i + 1, atts.getValue(i));
@@ -178,8 +172,7 @@ public class ImportExport extends DefaultHandler {
 
                 case Types.DOUBLE:
                     try {
-                        query.setParameter(i + 1,
-                                Double.valueOf(atts.getValue(i)));
+                        query.setParameter(i + 1, Double.valueOf(atts.getValue(i)));
                     } catch (NumberFormatException e) {
                         LOG.error("Unparsable Double '{}'", atts.getValue(i));
                         query.setParameter(i + 1, atts.getValue(i));
@@ -188,8 +181,7 @@ public class ImportExport extends DefaultHandler {
 
                 case Types.FLOAT:
                     try {
-                        query.setParameter(i + 1,
-                                Float.valueOf(atts.getValue(i)));
+                        query.setParameter(i + 1, Float.valueOf(atts.getValue(i)));
                     } catch (NumberFormatException e) {
                         LOG.error("Unparsable Float '{}'", atts.getValue(i));
                         query.setParameter(i + 1, atts.getValue(i));
@@ -201,8 +193,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.TIMESTAMP:
                     try {
                         query.setParameter(i + 1,
-                                DateUtils.parseDate(atts.getValue(i),
-                                SyncopeConstants.DATE_PATTERNS),
+                                DateUtils.parseDate(atts.getValue(i), SyncopeConstants.DATE_PATTERNS),
                                 TemporalType.TIMESTAMP);
                     } catch (ParseException e) {
                         LOG.error("Unparsable Date '{}'", atts.getValue(i));
@@ -213,7 +204,8 @@ public class ImportExport extends DefaultHandler {
                 case Types.BIT:
                 case Types.BOOLEAN:
                     query.setParameter(i + 1, "1".equals(atts.getValue(i))
-                            ? Boolean.TRUE : Boolean.FALSE);
+                            ? Boolean.TRUE
+                            : Boolean.FALSE);
                     break;
 
                 default:
@@ -223,8 +215,7 @@ public class ImportExport extends DefaultHandler {
     }
 
     @Override
-    public void startElement(final String uri, final String localName,
-            final String qName, final Attributes atts)
+    public void startElement(final String uri, final String localName, final String qName, final Attributes atts)
             throws SAXException {
 
         // skip root element
@@ -232,8 +223,7 @@ public class ImportExport extends DefaultHandler {
             return;
         }
 
-        StringBuilder queryString =
-                new StringBuilder("INSERT INTO ").append(qName).append('(');
+        StringBuilder queryString = new StringBuilder("INSERT INTO ").append(qName).append('(');
 
         StringBuilder values = new StringBuilder();
 
@@ -252,8 +242,7 @@ public class ImportExport extends DefaultHandler {
         query.executeUpdate();
     }
 
-    private void doExportTable(final TransformerHandler handler,
-            final Connection conn, final String tableName)
+    private void doExportTable(final TransformerHandler handler, final Connection conn, final String tableName)
             throws SQLException, SAXException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -296,16 +285,13 @@ public class ImportExport extends DefaultHandler {
         }
     }
 
-    private List<String> sortByForeignKeys(final Connection conn,
-            final Set<String> tableNames)
+    private List<String> sortByForeignKeys(final Connection conn, final Set<String> tableNames)
             throws SQLException, CycleInMultiParentTreeException {
 
-        MultiParentNode<String> root =
-                new MultiParentNode<String>(ROOT_ELEMENT);
+        MultiParentNode<String> root = new MultiParentNode<String>(ROOT_ELEMENT);
 
         for (String tableName : tableNames) {
-            MultiParentNode<String> node =
-                    MultiParentNodeOp.findInTree(root, tableName);
+            MultiParentNode<String> node = MultiParentNodeOp.findInTree(root, tableName);
             if (node == null) {
                 node = new MultiParentNode<String>(tableName);
                 root.addChild(node);
@@ -313,13 +299,11 @@ public class ImportExport extends DefaultHandler {
 
             ResultSet rs = null;
             try {
-                rs = conn.getMetaData().getExportedKeys(
-                        conn.getCatalog(), readSchema(), tableName);
+                rs = conn.getMetaData().getExportedKeys(conn.getCatalog(), readSchema(), tableName);
                 while (rs.next()) {
                     String fkTableName = rs.getString("FKTABLE_NAME");
                     if (!tableName.equals(fkTableName)) {
-                        MultiParentNode<String> fkNode =
-                                MultiParentNodeOp.findInTree(root, fkTableName);
+                        MultiParentNode<String> fkNode = MultiParentNodeOp.findInTree(root, fkTableName);
                         if (fkNode == null) {
                             fkNode = new MultiParentNode<String>(fkTableName);
                             root.addChild(fkNode);
@@ -347,12 +331,10 @@ public class ImportExport extends DefaultHandler {
     }
 
     public void export(final OutputStream os)
-            throws SAXException, TransformerConfigurationException,
-            CycleInMultiParentTreeException {
+            throws SAXException, TransformerConfigurationException, CycleInMultiParentTreeException {
 
         StreamResult streamResult = new StreamResult(os);
-        SAXTransformerFactory transformerFactory =
-                (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();
@@ -366,21 +348,18 @@ public class ImportExport extends DefaultHandler {
         ResultSet rs = null;
         try {
             // first read all tables...
-            rs = conn.getMetaData().getTables(
-                    null, null, null, new String[]{"TABLE"});
+            rs = conn.getMetaData().getTables(null, null, null, new String[] { "TABLE" });
             Set<String> tableNames = new HashSet<String>();
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
                 // these tables must be ignored
-                if (!tableName.toUpperCase().startsWith("QRTZ_")
-                        && !tableName.toUpperCase().equals("ACT_GE_PROPERTY")) {
+                if (!tableName.toUpperCase().startsWith("QRTZ_") && !tableName.toUpperCase().equals("ACT_GE_PROPERTY")) {
 
                     tableNames.add(tableName);
                 }
             }
             // then sort tables based on foreign keys and dump
-            for (String tableName :
-                    sortByForeignKeys(conn, tableNames)) {
+            for (String tableName : sortByForeignKeys(conn, tableNames)) {
 
                 doExportTable(handler, conn, tableName);
             }

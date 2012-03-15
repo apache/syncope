@@ -39,8 +39,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {
-        "id", "resources"};
+    private static final String[] IGNORE_PROPERTIES = { "id", "resources" };
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -48,16 +47,13 @@ public class ConnInstanceDataBinder {
     @Autowired
     private ConnBundleManager connBundleManager;
 
-    public ConnInstance getConnInstance(
-            final ConnInstanceTO connectorInstanceTO)
+    public ConnInstance getConnInstance(final ConnInstanceTO connectorInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException =
-                new SyncopeClientCompositeErrorException(
+        SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        SyncopeClientException requiredValuesMissing =
-                new SyncopeClientException(
+        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (connectorInstanceTO.getBundleName() == null) {
@@ -72,15 +68,13 @@ public class ConnInstanceDataBinder {
             requiredValuesMissing.addElement("connectorname");
         }
 
-        if (connectorInstanceTO.getConfiguration() == null
-                || connectorInstanceTO.getConfiguration().isEmpty()) {
+        if (connectorInstanceTO.getConfiguration() == null || connectorInstanceTO.getConfiguration().isEmpty()) {
             requiredValuesMissing.addElement("configuration");
         }
 
         ConnInstance connectorInstance = new ConnInstance();
 
-        BeanUtils.copyProperties(
-                connectorInstanceTO, connectorInstance, IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(connectorInstanceTO, connectorInstance, IGNORE_PROPERTIES);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -96,17 +90,13 @@ public class ConnInstanceDataBinder {
         return connectorInstance;
     }
 
-    public ConnInstance updateConnInstance(
-            final long connInstanceId,
-            final ConnInstanceTO connInstanceTO)
+    public ConnInstance updateConnInstance(final long connInstanceId, final ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException =
-                new SyncopeClientCompositeErrorException(
+        SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        SyncopeClientException requiredValuesMissing =
-                new SyncopeClientException(
+        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceId == 0) {
@@ -127,8 +117,7 @@ public class ConnInstanceDataBinder {
             connInstance.setConnectorName(connInstanceTO.getConnectorName());
         }
 
-        if (connInstanceTO.getConfiguration() != null
-                && !connInstanceTO.getConfiguration().isEmpty()) {
+        if (connInstanceTO.getConfiguration() != null && !connInstanceTO.getConfiguration().isEmpty()) {
 
             connInstance.setConfiguration(connInstanceTO.getConfiguration());
         }
@@ -152,18 +141,16 @@ public class ConnInstanceDataBinder {
         return connInstance;
     }
 
-    public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance)
-            throws NotFoundException {
+    public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) throws NotFoundException {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setId(connInstance.getId() != null ? connInstance.getId().longValue() : 0L);
+        connInstanceTO.setId(connInstance.getId() != null
+                ? connInstance.getId().longValue()
+                : 0L);
 
         // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties =
-                connBundleManager.getConfigurationProperties(
-                connInstance.getBundleName(),
-                connInstance.getVersion(),
-                connInstance.getConnectorName());
+        ConfigurationProperties properties = connBundleManager.getConfigurationProperties(connInstance.getBundleName(),
+                connInstance.getVersion(), connInstance.getConnectorName());
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
@@ -186,8 +173,8 @@ public class ConnInstanceDataBinder {
                 property.setSchema(connConfPropSchema);
                 connInstanceTO.addConfiguration(property);
             } else {
-                connInstanceToConfMap.get(propName).getSchema().
-                        setDisplayName(configurationProperty.getDisplayName(propName));
+                connInstanceToConfMap.get(propName).getSchema().setDisplayName(
+                        configurationProperty.getDisplayName(propName));
             }
         }
         return connInstanceTO;

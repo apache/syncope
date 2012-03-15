@@ -49,8 +49,7 @@ public class MAttr extends AbstractAttr {
     @JoinColumn(name = "schema_name")
     private MSchema schema;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "attribute")
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<MAttrValue> values;
 
@@ -89,19 +88,16 @@ public class MAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean addValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
 
         attributeValue.setAttribute(this);
         return values.add((MAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean removeValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
 
-        boolean result = values.remove(
-                (MAttrValue) attributeValue);
+        boolean result = values.remove((MAttrValue) attributeValue);
         attributeValue.setAttribute(null);
         return result;
     }
@@ -112,16 +108,14 @@ public class MAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setValues(
-            final List<T> attributeValues) {
+    public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
 
         this.values.clear();
         if (attributeValues != null && !attributeValues.isEmpty()) {
             for (T mav : attributeValues) {
                 mav.setAttribute(this);
             }
-            this.values.addAll(
-                    (List<MAttrValue>) attributeValues);
+            this.values.addAll((List<MAttrValue>) attributeValues);
         }
     }
 
@@ -131,8 +125,7 @@ public class MAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setUniqueValue(
-            final T uniqueAttributeValue) {
+    public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
 
         this.uniqueValue = (MAttrUniqueValue) uniqueAttributeValue;
     }

@@ -56,8 +56,7 @@ public class SelectOption implements Serializable {
             return false;
         }
 
-        return (keyValue == null && ((SelectOption) obj).keyValue == null)
-                || keyValue != null
+        return (keyValue == null && ((SelectOption) obj).keyValue == null) || keyValue != null
                 && keyValue.equals(((SelectOption) obj).keyValue);
     }
 

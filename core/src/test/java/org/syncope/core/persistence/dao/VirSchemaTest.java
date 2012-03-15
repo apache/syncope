@@ -40,42 +40,35 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UVirSchema> list =
-                virSchemaDAO.findAll(UVirSchema.class);
+        List<UVirSchema> list = virSchemaDAO.findAll(UVirSchema.class);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByName() {
-        UVirSchema attributeSchema =
-                virSchemaDAO.find("virtualdata", UVirSchema.class);
-        assertNotNull("did not find expected virtual attribute schema",
-                attributeSchema);
+        UVirSchema attributeSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        assertNotNull("did not find expected virtual attribute schema", attributeSchema);
     }
 
     @Test
     public void save() {
-        UVirSchema virtualAttributeSchema =
-                new UVirSchema();
+        UVirSchema virtualAttributeSchema = new UVirSchema();
         virtualAttributeSchema.setName("virtual");
 
         virSchemaDAO.save(virtualAttributeSchema);
 
-        UVirSchema actual =
-                virSchemaDAO.find("virtual", UVirSchema.class);
+        UVirSchema actual = virSchemaDAO.find("virtual", UVirSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(virtualAttributeSchema, actual);
     }
 
     @Test
     public void delete() {
-        UVirSchema attributeSchema =
-                virSchemaDAO.find("virtualdata", UVirSchema.class);
+        UVirSchema attributeSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
 
         virSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
-        UVirSchema actual =
-                virSchemaDAO.find("virtualdata", UVirSchema.class);
+        UVirSchema actual = virSchemaDAO.find("virtualdata", UVirSchema.class);
         assertNull("delete did not work", actual);
     }
 }

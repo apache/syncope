@@ -32,16 +32,14 @@ import org.slf4j.LoggerFactory;
  */
 public class XMLSerializer {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(XMLSerializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
 
     public static String serialize(final Object object) {
         String result = null;
 
         XStream xstream = new XStream();
         try {
-            result = URLEncoder.encode(
-                    xstream.toXML(object), "UTF-8");
+            result = URLEncoder.encode(xstream.toXML(object), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             LOG.error("During serialization", e);
         }
@@ -49,15 +47,13 @@ public class XMLSerializer {
         return result;
     }
 
-    public static <T extends Object> T deserialize(
-            final String serialized) {
+    public static <T extends Object> T deserialize(final String serialized) {
 
         T result = null;
 
         XStream xstream = new XStream();
         try {
-            result = (T) xstream.fromXML(
-                    URLDecoder.decode(serialized, "UTF-8"));
+            result = (T) xstream.fromXML(URLDecoder.decode(serialized, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOG.error("During deserialization", e);
         }

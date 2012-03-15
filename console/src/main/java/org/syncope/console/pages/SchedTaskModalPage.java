@@ -35,10 +35,7 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
 
     private static final long serialVersionUID = -2501860242590060867L;
 
-    public SchedTaskModalPage(
-            final ModalWindow window,
-            final SchedTaskTO taskTO,
-            final PageReference callerPageRef) {
+    public SchedTaskModalPage(final ModalWindow window, final SchedTaskTO taskTO, final PageReference callerPageRef) {
 
         super(window, taskTO, callerPageRef);
 
@@ -57,8 +54,7 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
         className.setChoices(classNames.getObject());
         className.addRequiredLabel();
         className.setEnabled(taskTO.getId() == 0);
-        className.setStyleShet(
-                "ui-widget-content ui-corner-all long_dynamicsize");
+        className.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(className);
     }
 }

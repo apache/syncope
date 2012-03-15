@@ -27,8 +27,7 @@ import org.xml.sax.SAXException;
 public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
 
     @Override
-    public void doExtract(final ContentHandler handler)
-            throws SAXException, ReportException {
+    public void doExtract(final ContentHandler handler) throws SAXException, ReportException {
 
         if (StringUtils.hasText(conf.getStringField())) {
             handler.startElement("", "", "string", null);

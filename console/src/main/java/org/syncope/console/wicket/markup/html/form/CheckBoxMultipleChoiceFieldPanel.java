@@ -30,8 +30,7 @@ public class CheckBoxMultipleChoiceFieldPanel extends AbstractFieldPanel {
 
     private final CheckBoxMultipleChoice field;
 
-    public CheckBoxMultipleChoiceFieldPanel(final String id, final IModel<Collection> model,
-            final IModel<List> choices) {
+    public CheckBoxMultipleChoiceFieldPanel(final String id, final IModel<Collection> model, final IModel<List> choices) {
 
         super(id, model);
 

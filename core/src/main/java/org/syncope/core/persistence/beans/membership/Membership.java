@@ -39,11 +39,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {
-    "syncopeUser_id",
-    "syncopeRole_id"
-}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "syncopeUser_id", "syncopeRole_id" }))
 public class Membership extends AbstractAttributable {
 
     private static final long serialVersionUID = 5030106264797289469L;
@@ -124,19 +120,15 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
-            T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
 
-        return derivedAttributes.add(
-                (MDerAttr) derivedAttribute);
+        return derivedAttributes.add((MDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
-            T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
 
-        return derivedAttributes.remove(
-                (MDerAttr) derivedAttribute);
+        return derivedAttributes.remove((MDerAttr) derivedAttribute);
     }
 
     @Override
@@ -145,23 +137,19 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setDerivedAttributes(
-            List<? extends AbstractDerAttr> derivedAttributes) {
+    public void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes) {
 
-        this.derivedAttributes =
-                (List<MDerAttr>) derivedAttributes;
+        this.derivedAttributes = (List<MDerAttr>) derivedAttributes;
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(
-            T virtualAttribute) {
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
 
         return virtualAttributes.add((MVirAttr) virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(
-            T virtualAttribute) {
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
 
         return virtualAttributes.remove((MVirAttr) virtualAttribute);
     }
@@ -172,8 +160,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setVirtualAttributes(
-            List<? extends AbstractVirAttr> virtualAttributes) {
+    public void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes) {
 
         this.virtualAttributes = (List<MVirAttr>) virtualAttributes;
     }
@@ -204,8 +191,6 @@ public class Membership extends AbstractAttributable {
 
     @Override
     public String toString() {
-        return "Membership[" + "id=" + id
-                + ", " + syncopeUser
-                + ", " + syncopeRole + ']';
+        return "Membership[" + "id=" + id + ", " + syncopeUser + ", " + syncopeRole + ']';
     }
 }

@@ -119,8 +119,8 @@ public class ReportModalPage extends BaseModalPage {
         setupProfile();
         setupExecutions();
 
-        final CrontabContainer crontab = new CrontabContainer("crontab",
-                new PropertyModel<String>(reportTO, "cronExpression"), reportTO.getCronExpression());
+        final CrontabContainer crontab = new CrontabContainer("crontab", new PropertyModel<String>(reportTO,
+                "cronExpression"), reportTO.getCronExpression());
         form.add(crontab);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
@@ -131,7 +131,8 @@ public class ReportModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
                 ReportTO reportTO = (ReportTO) form.getModelObject();
                 reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
-                        ? crontab.getCronExpression() : null);
+                        ? crontab.getCronExpression()
+                        : null);
 
                 try {
                     if (reportTO.getId() > 0) {
@@ -156,13 +157,12 @@ public class ReportModalPage extends BaseModalPage {
             }
         };
 
-
         if (reportTO.getId() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Reports", "update"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+                    "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Reports", "create"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+                    "create"));
         }
 
         form.add(submit);
@@ -208,16 +208,16 @@ public class ReportModalPage extends BaseModalPage {
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"),
-                new PropertyModel<String>(reportTO, "id"));
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(reportTO,
+                "id"));
         id.setEnabled(false);
         profile.add(id);
 
         final Label nameLabel = new Label("nameLabel", new ResourceModel("name"));
         profile.add(nameLabel);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
-                new PropertyModel<String>(reportTO, "name"));
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
+                reportTO, "name"));
         profile.add(name);
 
         final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
@@ -234,8 +234,7 @@ public class ReportModalPage extends BaseModalPage {
                 new PropertyModel<List<? extends ReportletConf>>(reportTO, "reportletConfs"),
                 new IChoiceRenderer<ReportletConf>() {
 
-                    private static final long serialVersionUID =
-                            1048000918946220007L;
+                    private static final long serialVersionUID = 1048000918946220007L;
 
                     @Override
                     public Object getDisplayValue(final ReportletConf object) {
@@ -275,8 +274,8 @@ public class ReportModalPage extends BaseModalPage {
                         public Page createPage() {
                             modalReportletConfOldName = reportlets.getSelectedItem().getName();
                             modalReportletConf = null;
-                            return new ReportletConfModalPage(reportlets.getSelectedItem(),
-                                    reportletConfWin, ReportModalPage.this.getPageReference());
+                            return new ReportletConfModalPage(reportlets.getSelectedItem(), reportletConfWin,
+                                    ReportModalPage.this.getPageReference());
                         }
                     });
                     reportletConfWin.show(target);
@@ -297,8 +296,8 @@ public class ReportModalPage extends BaseModalPage {
                     public Page createPage() {
                         modalReportletConfOldName = null;
                         modalReportletConf = null;
-                        return new ReportletConfModalPage(null,
-                                reportletConfWin, ReportModalPage.this.getPageReference());
+                        return new ReportletConfModalPage(null, reportletConfWin, ReportModalPage.this
+                                .getPageReference());
                     }
                 });
                 reportletConfWin.show(target);
@@ -320,8 +319,7 @@ public class ReportModalPage extends BaseModalPage {
 
                     @Override
                     public CharSequence preDecorateScript(final CharSequence script) {
-                        return script
-                                + reportlets.getEditOnClickJS();
+                        return script + reportlets.getEditOnClickJS();
                     }
                 };
             }
@@ -342,10 +340,8 @@ public class ReportModalPage extends BaseModalPage {
 
                     @Override
                     public CharSequence preDecorateScript(final CharSequence script) {
-                        return "if (confirm('" + getString("confirmDelete") + "')) {"
-                                + script
-                                + reportlets.getRemoveOnClickJS()
-                                + "}";
+                        return "if (confirm('" + getString("confirmDelete") + "')) {" + script
+                                + reportlets.getRemoveOnClickJS() + "}";
                     }
                 };
             }
@@ -370,13 +366,12 @@ public class ReportModalPage extends BaseModalPage {
         reportExecExportWin.setInitialWidth(EXEC_EXPORT_WIN_WIDTH);
         reportExecExportWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-            private static final long serialVersionUID =
-                    8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                AjaxExportDownloadBehavior behavior = new AjaxExportDownloadBehavior(
-                        ReportModalPage.this.exportFormat, ReportModalPage.this.exportExecId);
+                AjaxExportDownloadBehavior behavior = new AjaxExportDownloadBehavior(ReportModalPage.this.exportFormat,
+                        ReportModalPage.this.exportExecId);
                 executions.add(behavior);
                 behavior.initiate(target);
             }
@@ -398,9 +393,7 @@ public class ReportModalPage extends BaseModalPage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ReportExecTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<ReportExecTO>> cellItem, final String componentId,
                     final IModel<ReportExecTO> model) {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
@@ -424,37 +417,33 @@ public class ReportModalPage extends BaseModalPage {
                         });
                         reportExecMessageWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Reports", "read",
-                        StringUtils.hasText(model.getObject().getMessage()));
+                }, ActionLink.ActionType.EDIT, "Reports", "read", StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        reportExecExportWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        reportExecExportWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID = -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        ReportModalPage.this.exportExecId = model.getObject().getId();
-                                        return new ReportExecResultDownloadModalPage(
-                                                reportExecExportWin, ReportModalPage.this.getPageReference());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                ReportModalPage.this.exportExecId = model.getObject().getId();
+                                return new ReportExecResultDownloadModalPage(reportExecExportWin, ReportModalPage.this
+                                        .getPageReference());
+                            }
+                        });
                         reportExecExportWin.show(target);
                     }
-                }, ActionLink.ActionType.EXPORT, "Reports", "read",
-                        ReportExecStatus.SUCCESS.name().equals(model.getObject().getStatus()));
+                }, ActionLink.ActionType.EXPORT, "Reports", "read", ReportExecStatus.SUCCESS.name().equals(
+                        model.getObject().getStatus()));
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -477,8 +466,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("executionsTable", columns,
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
     }
@@ -506,8 +494,7 @@ public class ReportModalPage extends BaseModalPage {
         }
 
         @Override
-        public Iterator<ReportExecTO> iterator(final int first,
-                final int count) {
+        public Iterator<ReportExecTO> iterator(final int first, final int count) {
 
             List<ReportExecTO> list = reportTO.getExecutions();
 
@@ -555,8 +542,7 @@ public class ReportModalPage extends BaseModalPage {
 
         private void createResourceStream() {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append(baseURL).
-                    append("report/execution/export/").append(exportExecId);
+            urlBuilder.append(baseURL).append("report/execution/export/").append(exportExecId);
             if (exportFormat != null) {
                 urlBuilder.append("?fmt=").append(exportFormat);
             }
@@ -576,7 +562,9 @@ public class ReportModalPage extends BaseModalPage {
         @Override
         protected String getFileName() {
             createResourceStream();
-            return stream == null ? null : stream.getFilename();
+            return stream == null
+                    ? null
+                    : stream.getFilename();
         }
 
         @Override

@@ -31,18 +31,14 @@ import org.syncope.client.to.WorkflowFormTO;
 public class ApprovalRestClient extends AbstractBaseRestClient {
 
     public List<WorkflowFormTO> getForms() {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "user/workflow/form/list", WorkflowFormTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "user/workflow/form/list", WorkflowFormTO[].class));
     }
 
     public WorkflowFormTO claimForm(final String taskId) {
-        return restTemplate.getForObject(
-                baseURL + "user/workflow/form/claim/{taskId}",
-                WorkflowFormTO.class, taskId);
+        return restTemplate.getForObject(baseURL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
     }
 
     public void submitForm(final WorkflowFormTO form) {
-        restTemplate.postForObject(baseURL + "user/workflow/form/submit",
-                form, UserTO.class);
+        restTemplate.postForObject(baseURL + "user/workflow/form/submit", form, UserTO.class);
     }
 }

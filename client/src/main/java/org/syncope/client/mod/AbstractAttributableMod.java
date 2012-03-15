@@ -93,8 +93,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeUpdated;
     }
 
-    public void setAttributesToBeUpdated(
-            Set<AttributeMod> attributesToBeUpdated) {
+    public void setAttributesToBeUpdated(Set<AttributeMod> attributesToBeUpdated) {
 
         this.attributesToBeUpdated = attributesToBeUpdated;
     }
@@ -111,8 +110,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded;
     }
 
-    public void setDerivedAttributesToBeAdded(
-            Set<String> derivedAttributesToBeAdded) {
+    public void setDerivedAttributesToBeAdded(Set<String> derivedAttributesToBeAdded) {
 
         this.derivedAttributesToBeAdded = derivedAttributesToBeAdded;
     }
@@ -129,8 +127,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeRemoved;
     }
 
-    public void setDerivedAttributesToBeRemoved(
-            Set<String> derivedAttributesToBeRemoved) {
+    public void setDerivedAttributesToBeRemoved(Set<String> derivedAttributesToBeRemoved) {
 
         this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
@@ -139,32 +136,27 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeRemoved;
     }
 
-    public boolean addVirtualAttributeToBeRemoved(
-            String virtualAttributeToBeRemoved) {
+    public boolean addVirtualAttributeToBeRemoved(String virtualAttributeToBeRemoved) {
 
         return virtualAttributesToBeRemoved.add(virtualAttributeToBeRemoved);
     }
 
-    public boolean removeVirtualAttributeToBeRemoved(
-            String virtualAttributeToBeRemoved) {
+    public boolean removeVirtualAttributeToBeRemoved(String virtualAttributeToBeRemoved) {
 
         return virtualAttributesToBeRemoved.remove(virtualAttributeToBeRemoved);
     }
 
-    public void setVirtualAttributesToBeRemoved(
-            Set<String> virtualAttributesToBeRemoved) {
+    public void setVirtualAttributesToBeRemoved(Set<String> virtualAttributesToBeRemoved) {
 
         this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
     }
 
-    public boolean addVirtualAttributeToBeUpdated(
-            AttributeMod virtualAttributeToBeUpdated) {
+    public boolean addVirtualAttributeToBeUpdated(AttributeMod virtualAttributeToBeUpdated) {
 
         return virtualAttributesToBeUpdated.add(virtualAttributeToBeUpdated);
     }
 
-    public boolean removeVirtualAttributeToBeUpdated(
-            AttributeMod virtualAttributeToBeUpdated) {
+    public boolean removeVirtualAttributeToBeUpdated(AttributeMod virtualAttributeToBeUpdated) {
 
         return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
     }
@@ -173,8 +165,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeUpdated;
     }
 
-    public void setVirtualAttributesToBeUpdated(
-            Set<AttributeMod> virtualAttributesToBeUpdated) {
+    public void setVirtualAttributesToBeUpdated(Set<AttributeMod> virtualAttributesToBeUpdated) {
 
         this.virtualAttributesToBeUpdated = virtualAttributesToBeUpdated;
     }
@@ -212,13 +203,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     public boolean isEmpty() {
-        return attributesToBeUpdated.isEmpty()
-                && attributesToBeRemoved.isEmpty()
-                && derivedAttributesToBeAdded.isEmpty()
-                && derivedAttributesToBeRemoved.isEmpty()
-                && virtualAttributesToBeUpdated.isEmpty()
-                && virtualAttributesToBeRemoved.isEmpty()
-                && resourcesToBeAdded.isEmpty()
-                && resourcesToBeRemoved.isEmpty();
+        return attributesToBeUpdated.isEmpty() && attributesToBeRemoved.isEmpty()
+                && derivedAttributesToBeAdded.isEmpty() && derivedAttributesToBeRemoved.isEmpty()
+                && virtualAttributesToBeUpdated.isEmpty() && virtualAttributesToBeRemoved.isEmpty()
+                && resourcesToBeAdded.isEmpty() && resourcesToBeRemoved.isEmpty();
     }
 }

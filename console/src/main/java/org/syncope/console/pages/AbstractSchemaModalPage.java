@@ -41,11 +41,8 @@ abstract public class AbstractSchemaModalPage extends BaseModalPage {
         this.kind = kind;
     }
 
-    abstract public void setSchemaModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            AbstractBaseBean schema,
-            final boolean createFlag);
+    abstract public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+            AbstractBaseBean schema, final boolean createFlag);
 
     public AttributableType getKind() {
         return kind;

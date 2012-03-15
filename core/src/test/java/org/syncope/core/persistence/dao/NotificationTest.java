@@ -64,17 +64,14 @@ public class NotificationTest extends AbstractTest {
         Notification notification = new Notification();
         notification.addEvent("save");
 
-        AttributeCond fullnameLeafCond1 =
-                new AttributeCond(AttributeCond.Type.LIKE);
+        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
         fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 =
-                new AttributeCond(AttributeCond.Type.LIKE);
+        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(
-                NodeCond.getLeafCond(fullnameLeafCond1),
-                NodeCond.getLeafCond(fullnameLeafCond2));
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond
+                .getLeafCond(fullnameLeafCond2));
 
         notification.setAbout(about);
 
@@ -110,7 +107,6 @@ public class NotificationTest extends AbstractTest {
         notification.setSender("syncope@syncope-idm.org");
         notification.setSubject("Test notification");
         notification.setTemplate("test");
-
 
         Map<Class, Set<EntityViolationType>> violations;
         try {

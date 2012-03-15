@@ -38,33 +38,26 @@ public class ResourcesPanel extends Panel {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    final IModel<List<String>> allResources =
-            new LoadableDetachableModel<List<String>>() {
+    final IModel<List<String>> allResources = new LoadableDetachableModel<List<String>>() {
 
-                private static final long serialVersionUID =
-                        5275935387613157437L;
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                @Override
-                protected List<String> load() {
-                    final List<String> resourceNames =
-                            new ArrayList<String>();
+        @Override
+        protected List<String> load() {
+            final List<String> resourceNames = new ArrayList<String>();
 
-                    for (ResourceTO resourceTO :
-                            resourceRestClient.getAllResources()) {
-                        resourceNames.add(resourceTO.getName());
-                    }
-                    return resourceNames;
-                }
-            };
+            for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+                resourceNames.add(resourceTO.getName());
+            }
+            return resourceNames;
+        }
+    };
 
-    public <T extends AbstractAttributableTO> ResourcesPanel(
-            final String id, final T entityTO) {
+    public <T extends AbstractAttributableTO> ResourcesPanel(final String id, final T entityTO) {
         super(id);
 
-        final AjaxPalettePanel resourcesPalette = new AjaxPalettePanel(
-                "resourcesPalette",
-                new PropertyModel(entityTO, "resources"),
-                new ListModel<String>(allResources.getObject()));
+        final AjaxPalettePanel resourcesPalette = new AjaxPalettePanel("resourcesPalette", new PropertyModel(entityTO,
+                "resources"), new ListModel<String>(allResources.getObject()));
 
         add(resourcesPalette);
     }

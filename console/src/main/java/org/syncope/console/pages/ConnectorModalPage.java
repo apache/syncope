@@ -78,16 +78,8 @@ public class ConnectorModalPage extends BaseModalPage {
     // GuardedByteArray is not in classpath
     private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    private static final List<Class> NUMBER = Arrays.asList(new Class[]{
-                Integer.class,
-                Double.class,
-                Long.class,
-                Float.class,
-                Number.class,
-                Integer.TYPE,
-                Long.TYPE,
-                Double.TYPE,
-                Float.TYPE});
+    private static final List<Class> NUMBER = Arrays.asList(new Class[] { Integer.class, Double.class, Long.class,
+            Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE });
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -108,18 +100,18 @@ public class ConnectorModalPage extends BaseModalPage {
         super();
 
         selectedCapabilities = new ArrayList(connectorTO.getId() == 0
-                ? EnumSet.noneOf(ConnectorCapability.class) : connectorTO.getCapabilities());
+                ? EnumSet.noneOf(ConnectorCapability.class)
+                : connectorTO.getCapabilities());
 
-        final IModel<List<ConnectorCapability>> capabilities =
-                new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities = new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-                    private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<ConnectorCapability> load() {
-                        return Arrays.asList(ConnectorCapability.values());
-                    }
-                };
+            @Override
+            protected List<ConnectorCapability> load() {
+                return Arrays.asList(ConnectorCapability.values());
+            }
+        };
 
         final IModel<List<ConnBundleTO>> bundles = new LoadableDetachableModel<List<ConnBundleTO>>() {
 
@@ -144,19 +136,18 @@ public class ConnectorModalPage extends BaseModalPage {
         displayName.setOutputMarkupId(true);
         displayName.addRequiredLabel();
 
-        final AjaxTextFieldPanel version = new AjaxTextFieldPanel("version", "version",
-                new PropertyModel<String>(connectorTO, "version"));
+        final AjaxTextFieldPanel version = new AjaxTextFieldPanel("version", "version", new PropertyModel<String>(
+                connectorTO, "version"));
         displayName.setOutputMarkupId(true);
         version.setEnabled(false);
 
-        final AjaxDropDownChoicePanel<ConnBundleTO> bundle = new AjaxDropDownChoicePanel<ConnBundleTO>(
-                "bundle", "bundle", new Model<ConnBundleTO>(bundleTO));
+        final AjaxDropDownChoicePanel<ConnBundleTO> bundle = new AjaxDropDownChoicePanel<ConnBundleTO>("bundle",
+                "bundle", new Model<ConnBundleTO>(bundleTO));
         bundle.setStyleShet("long_dynamicsize");
         bundle.setChoices(bundles.getObject());
         bundle.setChoiceRenderer(new ChoiceRenderer<ConnBundleTO>() {
 
-            private static final long serialVersionUID =
-                    -1945543182376191187L;
+            private static final long serialVersionUID = -1945543182376191187L;
 
             @Override
             public Object getDisplayValue(final ConnBundleTO object) {
@@ -174,8 +165,7 @@ public class ConnectorModalPage extends BaseModalPage {
         bundle.setRequired(true);
         bundle.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -221,15 +211,14 @@ public class ConnectorModalPage extends BaseModalPage {
         final ListView<ConnConfProperty> view = new ListView<ConnConfProperty>("connectorProperties",
                 new PropertyModel(this, "properties")) {
 
-            private static final long serialVersionUID =
-                    9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<ConnConfProperty> item) {
                 final ConnConfProperty property = item.getModelObject();
 
-                final Label label = new Label("connPropAttrSchema",
-                        property.getSchema().getDisplayName() == null || property.getSchema().getDisplayName().isEmpty()
+                final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName() == null
+                        || property.getSchema().getDisplayName().isEmpty()
                         ? property.getSchema().getName()
                         : property.getSchema().getDisplayName());
 
@@ -254,8 +243,8 @@ public class ConnectorModalPage extends BaseModalPage {
                     Class propertySchemaClass;
 
                     try {
-                        propertySchemaClass = ClassUtils.forName(property.getSchema().getType(),
-                                ClassUtils.getDefaultClassLoader());
+                        propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils
+                                .getDefaultClassLoader());
                     } catch (Exception e) {
                         LOG.error("Error parsing attribute type", e);
                         propertySchemaClass = String.class;
@@ -288,8 +277,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         property.getValues().add(null);
                     }
 
-                    item.add(new MultiValueSelectorPanel<String>("panel",
-                            new PropertyModel<List<String>>(property, "values"), field));
+                    item.add(new MultiValueSelectorPanel<String>("panel", new PropertyModel<List<String>>(property,
+                            "values"), field));
                 } else {
                     if (required) {
                         field.addRequiredLabel();
@@ -321,25 +310,24 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(propertiesContainer);
         connectorPropForm.add(view);
 
-        final AjaxLink check =
-                new IndicatingAjaxLink("check", new ResourceModel("check")) {
+        final AjaxLink check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        connectorTO.setBundleName(bundleTO.getBundleName());
-                        connectorTO.setVersion(bundleTO.getVersion());
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                connectorTO.setBundleName(bundleTO.getBundleName());
+                connectorTO.setVersion(bundleTO.getVersion());
 
-                        if (restClient.check(connectorTO).booleanValue()) {
-                            info(getString("success_connection"));
-                        } else {
-                            error(getString("error_connection"));
-                        }
+                if (restClient.check(connectorTO).booleanValue()) {
+                    info(getString("success_connection"));
+                } else {
+                    error(getString("error_connection"));
+                }
 
-                        target.add(feedbackPanel);
-                    }
-                };
+                target.add(feedbackPanel);
+            }
+        };
 
         connectorPropForm.add(check);
 
@@ -355,7 +343,8 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 // Set the model object's capabilites to capabilitiesPalette's converted Set
                 conn.setCapabilities(selectedCapabilities.isEmpty()
-                        ? EnumSet.noneOf(ConnectorCapability.class) : EnumSet.copyOf(selectedCapabilities));
+                        ? EnumSet.noneOf(ConnectorCapability.class)
+                        : EnumSet.copyOf(selectedCapabilities));
                 try {
                     if (connectorTO.getId() == 0) {
                         restClient.create(conn);
@@ -391,8 +380,8 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(bundle);
         connectorForm.add(version);
 
-        capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
-                new PropertyModel(this, "selectedCapabilities"), capabilities);
+        capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette", new PropertyModel(this,
+                "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
         connectorForm.add(submit);
@@ -405,8 +394,7 @@ public class ConnectorModalPage extends BaseModalPage {
         // Manage bundle and connector beans
         // -------------------------------------
 
-        if (connTO != null
-                && StringUtils.isNotBlank(connTO.getBundleName())
+        if (connTO != null && StringUtils.isNotBlank(connTO.getBundleName())
                 && StringUtils.isNotBlank(connTO.getVersion())) {
 
             for (ConnBundleTO to : bundles) {

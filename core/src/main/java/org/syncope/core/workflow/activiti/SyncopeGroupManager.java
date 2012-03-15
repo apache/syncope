@@ -33,8 +33,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 
-public class SyncopeGroupManager extends GroupManager
-        implements SyncopeSession {
+public class SyncopeGroupManager extends GroupManager implements SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -79,8 +78,7 @@ public class SyncopeGroupManager extends GroupManager
     }
 
     @Override
-    public List<Group> findGroupByQueryCriteria(final Object query,
-            final Page page) {
+    public List<Group> findGroupByQueryCriteria(final Object query, final Page page) {
 
         throw new UnsupportedOperationException();
     }

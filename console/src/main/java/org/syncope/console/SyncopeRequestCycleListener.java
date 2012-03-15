@@ -39,48 +39,38 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SyncopeRequestCycleListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeRequestCycleListener.class);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IRequestHandler onException(final RequestCycle cycle,
-            final Exception e) {
+    public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
 
         LOG.error("Exception found", e);
 
         final Page errorPage;
         PageParameters errorParameters = new PageParameters();
-        errorParameters.add("errorTitle",
-                new StringResourceModel("alert", null).getString());
+        errorParameters.add("errorTitle", new StringResourceModel("alert", null).getString());
 
         if (e instanceof UnauthorizedInstantiationException) {
-            errorParameters.add("errorMessage", new StringResourceModel(
-                    "unauthorizedInstantiationException", null).getString());
+            errorParameters.add("errorMessage", new StringResourceModel("unauthorizedInstantiationException", null)
+                    .getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e instanceof HttpClientErrorException) {
-            errorParameters.add("errorMessage",
-                    new StringResourceModel("httpClientException", null).
-                    getString());
+            errorParameters.add("errorMessage", new StringResourceModel("httpClientException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
-        } else if (e instanceof PageExpiredException
-                || !(SyncopeSession.get()).isAuthenticated()) {
+        } else if (e instanceof PageExpiredException || !(SyncopeSession.get()).isAuthenticated()) {
 
-            errorParameters.add("errorMessage",
-                    new StringResourceModel("pageExpiredException", null).
-                    getString());
+            errorParameters.add("errorMessage", new StringResourceModel("pageExpiredException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e.getCause() != null && e.getCause().getCause() != null
                 && e.getCause().getCause() instanceof RestClientException) {
 
-            errorParameters.add("errorMessage",
-                    new StringResourceModel("restClientException", null).
-                    getString());
+            errorParameters.add("errorMessage", new StringResourceModel("restClientException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else {

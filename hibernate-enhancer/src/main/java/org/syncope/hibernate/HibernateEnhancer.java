@@ -47,36 +47,27 @@ public final class HibernateEnhancer {
     private HibernateEnhancer() {
     }
 
-    public static void main(final String[] args)
-            throws Exception {
+    public static void main(final String[] args) throws Exception {
 
         if (args.length != 1) {
-            throw new IllegalArgumentException(
-                    "Expecting classpath as single argument");
+            throw new IllegalArgumentException("Expecting classpath as single argument");
         }
 
         ClassPool classPool = ClassPool.getDefault();
         classPool.appendClassPath(args[0]);
 
-        PathMatchingResourcePatternResolver resResolver =
-                new PathMatchingResourcePatternResolver(
-                classPool.getClassLoader());
-        CachingMetadataReaderFactory cachingMetadataReaderFactory =
-                new CachingMetadataReaderFactory();
+        PathMatchingResourcePatternResolver resResolver = new PathMatchingResourcePatternResolver(classPool
+                .getClassLoader());
+        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
 
-        for (Resource resource : resResolver.getResources(
-                "classpath*:org/syncope/core/**/*.class")) {
+        for (Resource resource : resResolver.getResources("classpath*:org/syncope/core/**/*.class")) {
 
-            MetadataReader metadataReader =
-                    cachingMetadataReaderFactory.getMetadataReader(resource);
-            if (metadataReader.getAnnotationMetadata().
-                    isAnnotated(Entity.class.getName())) {
+            MetadataReader metadataReader = cachingMetadataReaderFactory.getMetadataReader(resource);
+            if (metadataReader.getAnnotationMetadata().isAnnotated(Entity.class.getName())) {
 
-                Class entity = Class.forName(
-                        metadataReader.getClassMetadata().getClassName());
+                Class entity = Class.forName(metadataReader.getClassMetadata().getClassName());
                 classPool.appendClassPath(new ClassClassPath(entity));
-                CtClass ctClass =
-                        ClassPool.getDefault().get(entity.getName());
+                CtClass ctClass = ClassPool.getDefault().get(entity.getName());
                 if (ctClass.isFrozen()) {
                     ctClass.defrost();
                 }
@@ -85,18 +76,14 @@ public final class HibernateEnhancer {
 
                 for (Field field : entity.getDeclaredFields()) {
                     if (field.isAnnotationPresent(Lob.class)) {
-                        AnnotationsAttribute typeAttr =
-                                new AnnotationsAttribute(
-                                constPool, AnnotationsAttribute.visibleTag);
-                        Annotation typeAnnot = new Annotation(
-                                "org.hibernate.annotations.Type", constPool);
-                        typeAnnot.addMemberValue("type", new StringMemberValue(
-                                "org.hibernate.type.StringClobType",
+                        AnnotationsAttribute typeAttr = new AnnotationsAttribute(constPool,
+                                AnnotationsAttribute.visibleTag);
+                        Annotation typeAnnot = new Annotation("org.hibernate.annotations.Type", constPool);
+                        typeAnnot.addMemberValue("type", new StringMemberValue("org.hibernate.type.StringClobType",
                                 constPool));
                         typeAttr.addAnnotation(typeAnnot);
 
-                        CtField lobField = ctClass.getDeclaredField(field.
-                                getName());
+                        CtField lobField = ctClass.getDeclaredField(field.getName());
                         lobField.getFieldInfo().addAttribute(typeAttr);
                     }
                 }

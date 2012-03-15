@@ -49,8 +49,7 @@ public class RAttr extends AbstractAttr {
     @JoinColumn(name = "schema_name")
     private RSchema schema;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "attribute")
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<RAttrValue> values;
 
@@ -89,15 +88,13 @@ public class RAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean addValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
 
         return values.add((RAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean removeValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
 
         return values.remove((RAttrValue) attributeValue);
     }
@@ -108,8 +105,7 @@ public class RAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setValues(
-            final List<T> attributeValues) {
+    public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
 
         this.values.clear();
         if (attributeValues != null && !attributeValues.isEmpty()) {
@@ -126,8 +122,7 @@ public class RAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setUniqueValue(
-            final T uniqueAttributeValue) {
+    public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
 
         this.uniqueValue = (RAttrUniqueValue) uniqueAttributeValue;
     }

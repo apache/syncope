@@ -37,8 +37,7 @@ public class RoleTreeBuilder {
 
     private RoleTOComparator comparator = new RoleTOComparator();
 
-    private List<RoleTO> getChildRoles(final long parentRoleId,
-            final List<RoleTO> roles) {
+    private List<RoleTO> getChildRoles(final long parentRoleId, final List<RoleTO> roles) {
 
         List<RoleTO> result = new ArrayList<RoleTO>();
         for (RoleTO role : roles) {
@@ -51,8 +50,7 @@ public class RoleTreeBuilder {
         return result;
     }
 
-    private void populateSubtree(final DefaultMutableTreeNode subRoot,
-            final List<RoleTO> roles) {
+    private void populateSubtree(final DefaultMutableTreeNode subRoot, final List<RoleTO> roles) {
 
         RoleTO role = (RoleTO) subRoot.getUserObject();
 
@@ -69,16 +67,14 @@ public class RoleTreeBuilder {
     }
 
     public TreeModel build(final List<RoleTO> roles) {
-        DefaultMutableTreeNode fakeroot =
-                new DefaultMutableTreeNode(new FakeRootRoleTO());
+        DefaultMutableTreeNode fakeroot = new DefaultMutableTreeNode(new FakeRootRoleTO());
 
         populateSubtree(fakeroot, roles);
 
         return new DefaultTreeModel(fakeroot);
     }
 
-    private static class RoleTOComparator
-            implements Comparator<RoleTO>, Serializable {
+    private static class RoleTOComparator implements Comparator<RoleTO>, Serializable {
 
         private static final long serialVersionUID = 7085057398406518811L;
 

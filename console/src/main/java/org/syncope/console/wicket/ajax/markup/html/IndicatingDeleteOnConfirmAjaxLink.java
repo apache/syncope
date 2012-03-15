@@ -43,9 +43,7 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends IndicatingAja
 
             @Override
             public CharSequence preDecorateScript(final CharSequence script) {
-                return "if (confirm('"
-                        + getString("confirmDelete") + "'))"
-                        + "{" + script + "}";
+                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "}";
             }
         };
     }

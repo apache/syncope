@@ -41,18 +41,15 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     private ResourceDAO resourceDAO;
 
     @Override
-    public <T extends AbstractDerSchema> T find(final String name,
-            final Class<T> reference) {
+    public <T extends AbstractDerSchema> T find(final String name, final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractDerSchema> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractDerSchema> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -62,22 +59,18 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     }
 
     @Override
-    public void delete(final String name,
-            final AttributableUtil attributableUtil) {
+    public void delete(final String name, final AttributableUtil attributableUtil) {
 
-        final AbstractDerSchema derivedSchema =
-                find(name, attributableUtil.derivedSchemaClass());
+        final AbstractDerSchema derivedSchema = find(name, attributableUtil.derivedSchemaClass());
 
         if (derivedSchema == null) {
             return;
         }
 
-        List<? extends AbstractDerAttr> attributes = getAttributes(
-                derivedSchema,
-                attributableUtil.derivedAttributeClass());
+        List<? extends AbstractDerAttr> attributes = getAttributes(derivedSchema, attributableUtil
+                .derivedAttributeClass());
 
-        final Set<Long> derivedAttributeIds =
-                new HashSet<Long>(attributes.size());
+        final Set<Long> derivedAttributeIds = new HashSet<Long>(attributes.size());
 
         Class attributeClass = null;
 
@@ -90,20 +83,18 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
             derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(
-                name, attributableUtil.derivedIntMappingType());
+        resourceDAO.deleteMappings(name, attributableUtil.derivedIntMappingType());
 
         entityManager.remove(derivedSchema);
     }
 
     @Override
-    public <T extends AbstractDerAttr> List<T> getAttributes(
-            final AbstractDerSchema derivedSchema, final Class<T> reference) {
+    public <T extends AbstractDerAttr> List<T> getAttributes(final AbstractDerSchema derivedSchema,
+            final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e"
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
                 + " WHERE e.derivedSchema=:schema");
-        
+
         query.setParameter("schema", derivedSchema);
 
         return query.getResultList();

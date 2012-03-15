@@ -94,8 +94,7 @@ public class ReportJob implements StatefulJob {
     }
 
     @Override
-    public void execute(final JobExecutionContext context)
-            throws JobExecutionException {
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
 
         Report report = reportDAO.find(reportId);
         if (report == null) {
@@ -128,14 +127,14 @@ public class ReportJob implements StatefulJob {
             // streaming SAX handler in a compressed byte array stream
             handler.setResult(new StreamResult(zos));
         } catch (Exception e) {
-            throw new JobExecutionException(
-                    "While configuring for SAX generation", e, true);
+            throw new JobExecutionException("While configuring for SAX generation", e, true);
         }
 
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
-        ConfigurableListableBeanFactory beanFactory = ApplicationContextManager.getApplicationContext().getBeanFactory();
+        ConfigurableListableBeanFactory beanFactory = ApplicationContextManager.getApplicationContext()
+                .getBeanFactory();
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
@@ -149,7 +148,8 @@ public class ReportJob implements StatefulJob {
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<Reportlet> reportletClass = dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
+                Class<Reportlet> reportletClass = dataBinder
+                        .findReportletClassHavingConfClass(reportletConf.getClass());
                 if (reportletClass != null) {
                     Reportlet autowired = (Reportlet) beanFactory.createBean(reportletClass,
                             AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
@@ -162,12 +162,11 @@ public class ReportJob implements StatefulJob {
                         execution.setStatus(ReportExecStatus.FAILURE);
 
                         Throwable t = e instanceof ReportException
-                                ? e.getCause() : e;
+                                ? e.getCause()
+                                : e;
                         exceptionWriter.write(t.getMessage() + "\n\n");
                         t.printStackTrace(new PrintWriter(exceptionWriter));
-                        reportExecutionMessage.append(
-                                exceptionWriter.toString()).
-                                append("\n==================\n");
+                        reportExecutionMessage.append(exceptionWriter.toString()).append("\n==================\n");
                     }
                 }
             }

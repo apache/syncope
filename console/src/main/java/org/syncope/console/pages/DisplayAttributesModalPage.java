@@ -60,9 +60,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      */
     private static final int MAX_SELECTIONS = 9;
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
-                "attributes", "derivedAttributes", "virtualAttributes",
-                "serialVersionUID", "memberships", "resources", "password"});
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] { "attributes", "derivedAttributes",
+            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password" });
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -73,90 +72,82 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    final private IModel<List<String>> dnames =
-            new LoadableDetachableModel<List<String>>() {
+    final private IModel<List<String>> dnames = new LoadableDetachableModel<List<String>>() {
 
-                private static final long serialVersionUID = 5275935387613157437L;
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                @Override
-                protected List<String> load() {
+        @Override
+        protected List<String> load() {
 
-                    final List<String> details = new ArrayList<String>();
+            final List<String> details = new ArrayList<String>();
 
-                    Class<?> clazz = UserTO.class;
+            Class<?> clazz = UserTO.class;
 
-                    // loop on class and all superclasses searching for field
-                    while (clazz != null && clazz != Object.class) {
-                        for (Field field : clazz.getDeclaredFields()) {
-                            if (!ATTRIBUTES_NOTINCLUDED.contains(field.getName())) {
-                                details.add(field.getName());
-                            }
-                        }
-                        clazz = clazz.getSuperclass();
+            // loop on class and all superclasses searching for field
+            while (clazz != null && clazz != Object.class) {
+                for (Field field : clazz.getDeclaredFields()) {
+                    if (!ATTRIBUTES_NOTINCLUDED.contains(field.getName())) {
+                        details.add(field.getName());
                     }
-
-                    Collections.reverse(details);
-                    return details;
                 }
-            };
+                clazz = clazz.getSuperclass();
+            }
 
-    final private IModel<List<String>> names =
-            new LoadableDetachableModel<List<String>>() {
+            Collections.reverse(details);
+            return details;
+        }
+    };
 
-                private static final long serialVersionUID =
-                        5275935387613157437L;
+    final private IModel<List<String>> names = new LoadableDetachableModel<List<String>>() {
 
-                @Override
-                protected List<String> load() {
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                    List<String> schemas =
-                            schemaRestClient.getSchemaNames(AttributableType.USER);
+        @Override
+        protected List<String> load() {
 
-                    if (schemas == null) {
-                        schemas = new ArrayList<String>();
-                    }
+            List<String> schemas = schemaRestClient.getSchemaNames(AttributableType.USER);
 
-                    return schemas;
-                }
-            };
+            if (schemas == null) {
+                schemas = new ArrayList<String>();
+            }
 
-    final private IModel<List<String>> dsnames =
-            new LoadableDetachableModel<List<String>>() {
+            return schemas;
+        }
+    };
 
-                private static final long serialVersionUID =
-                        5275935387613157437L;
+    final private IModel<List<String>> dsnames = new LoadableDetachableModel<List<String>>() {
 
-                @Override
-                protected List<String> load() {
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                    List<String> schemas = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+        @Override
+        protected List<String> load() {
 
-                    if (schemas == null) {
-                        schemas = new ArrayList<String>();
-                    }
+            List<String> schemas = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
 
-                    return schemas;
-                }
-            };
+            if (schemas == null) {
+                schemas = new ArrayList<String>();
+            }
 
-    final private IModel<List<String>> vsnames =
-            new LoadableDetachableModel<List<String>>() {
+            return schemas;
+        }
+    };
 
-                private static final long serialVersionUID =
-                        5275935387613157437L;
+    final private IModel<List<String>> vsnames = new LoadableDetachableModel<List<String>>() {
 
-                @Override
-                protected List<String> load() {
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                    List<String> schemas = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+        @Override
+        protected List<String> load() {
 
-                    if (schemas == null) {
-                        schemas = new ArrayList<String>();
-                    }
+            List<String> schemas = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
 
-                    return schemas;
-                }
-            };
+            if (schemas == null) {
+                schemas = new ArrayList<String>();
+            }
+
+            return schemas;
+        }
+    };
 
     private final List<String> userDetails;
 
@@ -166,171 +157,131 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedDerSchemas;
 
-    public DisplayAttributesModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window) {
+    public DisplayAttributesModalPage(final PageReference callerPageRef, final ModalWindow window) {
 
         super();
 
         final Form form = new Form("form");
         form.setModel(new CompoundPropertyModel(this));
 
-        userDetails = prefMan.getList(
-                getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
+        userDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
 
-        selectedSchemas = prefMan.getList(
-                getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
+        selectedSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
-        selectedVirSchemas = prefMan.getList(
-                getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW);
+        selectedVirSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW);
 
-        selectedDerSchemas = prefMan.getList(
-                getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
+        selectedDerSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
 
-        final CheckGroup dgroup = new CheckGroup(
-                "dCheckGroup", new PropertyModel(this, "userDetails"));
+        final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "userDetails"));
         form.add(dgroup);
 
-        final ListView<String> details =
-                new ListView<String>("details", dnames) {
+        final ListView<String> details = new ListView<String>("details", dnames) {
 
-                    private static final long serialVersionUID = 9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
-                    @Override
-                    protected void populateItem(ListItem<String> item) {
-                        item.add(new Check("dcheck", item.getModel()));
-                        item.add(new Label("dname", new ResourceModel(
-                                item.getModelObject(),
-                                item.getModelObject())));
-                    }
-                };
+            @Override
+            protected void populateItem(ListItem<String> item) {
+                item.add(new Check("dcheck", item.getModel()));
+                item.add(new Label("dname", new ResourceModel(item.getModelObject(), item.getModelObject())));
+            }
+        };
         dgroup.add(details);
 
         if (names.getObject() != null && !names.getObject().isEmpty()) {
-            final Fragment fragment =
-                    new Fragment("schemas", "sfragment", form);
+            final Fragment fragment = new Fragment("schemas", "sfragment", form);
             form.add(fragment);
 
-            final CheckGroup sgroup = new CheckGroup(
-                    "sCheckGroup", new PropertyModel(this, "selectedSchemas"));
+            final CheckGroup sgroup = new CheckGroup("sCheckGroup", new PropertyModel(this, "selectedSchemas"));
             fragment.add(sgroup);
 
-            final ListView<String> schemas =
-                    new ListView<String>("schemas", names) {
+            final ListView<String> schemas = new ListView<String>("schemas", names) {
 
-                        private static final long serialVersionUID = 9101744072914090143L;
+                private static final long serialVersionUID = 9101744072914090143L;
 
-                        @Override
-                        protected void populateItem(ListItem<String> item) {
-                            item.add(new Check("scheck", item.getModel()));
-                            item.add(new Label("sname", new ResourceModel(
-                                    item.getModelObject(),
-                                    item.getModelObject())));
-                        }
-                    };
+                @Override
+                protected void populateItem(ListItem<String> item) {
+                    item.add(new Check("scheck", item.getModel()));
+                    item.add(new Label("sname", new ResourceModel(item.getModelObject(), item.getModelObject())));
+                }
+            };
             sgroup.add(schemas);
         } else {
-            final Fragment fragment =
-                    new Fragment("schemas", "emptyFragment", form);
+            final Fragment fragment = new Fragment("schemas", "emptyFragment", form);
             form.add(fragment);
 
             selectedSchemas.clear();
         }
 
         if (vsnames.getObject() != null && !vsnames.getObject().isEmpty()) {
-            final Fragment fragment =
-                    new Fragment("vschemas", "vsfragment", form);
+            final Fragment fragment = new Fragment("vschemas", "vsfragment", form);
             form.add(fragment);
 
-            final CheckGroup vsgroup = new CheckGroup(
-                    "vsCheckGroup",
-                    new PropertyModel(this, "selectedVirSchemas"));
+            final CheckGroup vsgroup = new CheckGroup("vsCheckGroup", new PropertyModel(this, "selectedVirSchemas"));
             fragment.add(vsgroup);
 
-            final ListView<String> virSchemas =
-                    new ListView<String>("virSchemas", vsnames) {
+            final ListView<String> virSchemas = new ListView<String>("virSchemas", vsnames) {
 
-                        private static final long serialVersionUID = 9101744072914090143L;
+                private static final long serialVersionUID = 9101744072914090143L;
 
-                        @Override
-                        protected void populateItem(ListItem<String> item) {
-                            item.add(new Check("vscheck", item.getModel()));
-                            item.add(new Label("vsname", new ResourceModel(
-                                    item.getModelObject(),
-                                    item.getModelObject())));
-                        }
-                    };
+                @Override
+                protected void populateItem(ListItem<String> item) {
+                    item.add(new Check("vscheck", item.getModel()));
+                    item.add(new Label("vsname", new ResourceModel(item.getModelObject(), item.getModelObject())));
+                }
+            };
             vsgroup.add(virSchemas);
         } else {
-            final Fragment fragment =
-                    new Fragment("vschemas", "emptyFragment", form);
+            final Fragment fragment = new Fragment("vschemas", "emptyFragment", form);
             form.add(fragment);
 
             selectedVirSchemas.clear();
         }
 
         if (dsnames.getObject() != null && !dsnames.getObject().isEmpty()) {
-            final Fragment fragment =
-                    new Fragment("dschemas", "dsfragment", form);
+            final Fragment fragment = new Fragment("dschemas", "dsfragment", form);
             form.add(fragment);
 
-            final CheckGroup dsgroup = new CheckGroup(
-                    "dsCheckGroup",
-                    new PropertyModel(this, "selectedDerSchemas"));
+            final CheckGroup dsgroup = new CheckGroup("dsCheckGroup", new PropertyModel(this, "selectedDerSchemas"));
             fragment.add(dsgroup);
 
-            final ListView<String> derSchemas =
-                    new ListView<String>("derSchemas", dsnames) {
+            final ListView<String> derSchemas = new ListView<String>("derSchemas", dsnames) {
 
-                        private static final long serialVersionUID = 9101744072914090143L;
+                private static final long serialVersionUID = 9101744072914090143L;
 
-                        @Override
-                        protected void populateItem(ListItem<String> item) {
-                            item.add(new Check("dscheck", item.getModel()));
-                            item.add(new Label("dsname", new ResourceModel(
-                                    item.getModelObject(),
-                                    item.getModelObject())));
-                        }
-                    };
+                @Override
+                protected void populateItem(ListItem<String> item) {
+                    item.add(new Check("dscheck", item.getModel()));
+                    item.add(new Label("dsname", new ResourceModel(item.getModelObject(), item.getModelObject())));
+                }
+            };
             dsgroup.add(derSchemas);
         } else {
-            final Fragment fragment =
-                    new Fragment("dschemas", "emptyFragment", form);
+            final Fragment fragment = new Fragment("dschemas", "emptyFragment", form);
             form.add(fragment);
 
             selectedDerSchemas.clear();
         }
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "submit", new ResourceModel("submit")) {
+        final IndicatingAjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
-                if (userDetails.size()
-                        + selectedSchemas.size()
-                        + selectedVirSchemas.size()
-                        + selectedDerSchemas.size() > MAX_SELECTIONS) {
+                if (userDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
                     error(getString("tooMuchSelections"));
                     onError(target, form);
                 } else {
-                    final Map<String, List<String>> prefs =
-                            new HashMap<String, List<String>>();
+                    final Map<String, List<String>> prefs = new HashMap<String, List<String>>();
 
-                    prefs.put(Constants.PREF_USERS_DETAILS_VIEW,
-                            userDetails);
+                    prefs.put(Constants.PREF_USERS_DETAILS_VIEW, userDetails);
 
-                    prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW,
-                            selectedSchemas);
+                    prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedSchemas);
 
-                    prefs.put(Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW,
-                            selectedVirSchemas);
+                    prefs.put(Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW, selectedVirSchemas);
 
-                    prefs.put(Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW,
-                            selectedDerSchemas);
+                    prefs.put(Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW, selectedDerSchemas);
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 

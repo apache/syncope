@@ -20,5 +20,7 @@ package org.syncope.types;
 
 public enum PropagationOperation {
 
-    CREATE, UPDATE, DELETE
+    CREATE,
+    UPDATE,
+    DELETE
 }

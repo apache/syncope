@@ -32,8 +32,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.util.AttributableUtil;
 
 @Repository
-public class SchemaDAOImpl extends AbstractDAOImpl
-        implements SchemaDAO {
+public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
 
     @Autowired
     private AttrDAO attributeDAO;
@@ -42,28 +41,23 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     private ResourceDAO resourceDAO;
 
     @Override
-    public <T extends AbstractSchema> T find(final String name,
-            final Class<T> reference) {
+    public <T extends AbstractSchema> T find(final String name, final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractSchema> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractSchema> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
 
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractAttr> List<T> getAttributes(
-            final AbstractSchema schema, final Class<T> reference) {
+    public <T extends AbstractAttr> List<T> getAttributes(final AbstractSchema schema, final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e"
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
                 + " WHERE e.schema=:schema");
         query.setParameter("schema", schema);
 
@@ -76,16 +70,14 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(final String name,
-            final AttributableUtil attributableUtil) {
+    public void delete(final String name, final AttributableUtil attributableUtil) {
 
         AbstractSchema schema = find(name, attributableUtil.schemaClass());
         if (schema == null) {
             return;
         }
 
-        List<? extends AbstractAttr> attributes = getAttributes(schema,
-                attributableUtil.attributeClass());
+        List<? extends AbstractAttr> attributes = getAttributes(schema, attributableUtil.attributeClass());
 
         Set<Long> attributeIds = new HashSet<Long>(attributes.size());
         for (AbstractAttr attribute : attributes) {

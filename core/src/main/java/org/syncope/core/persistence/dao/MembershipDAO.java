@@ -32,8 +32,7 @@ public interface MembershipDAO extends DAO {
 
     List<Membership> findAll();
 
-    Membership save(Membership membership)
-            throws InvalidEntityException;
+    Membership save(Membership membership) throws InvalidEntityException;
 
     void delete(Long id);
 }

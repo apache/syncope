@@ -36,14 +36,11 @@ public abstract class AbstractDAOImpl implements DAO {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(AbstractDAOImpl.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractDAOImpl.class);
 
-    private String CACHE_STORE_MODE =
-            "javax.persistence.cache.storeMode";
+    private String CACHE_STORE_MODE = "javax.persistence.cache.storeMode";
 
-    private String CACHE_RETRIEVE_MODE =
-            "javax.persistence.cache.retrieveMode";
+    private String CACHE_RETRIEVE_MODE = "javax.persistence.cache.retrieveMode";
 
     @Value("#{entityManager}")
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
@@ -51,27 +48,25 @@ public abstract class AbstractDAOImpl implements DAO {
 
     protected CacheRetrieveMode getCacheRetrieveMode() {
         return entityManager.getProperties().containsKey(CACHE_RETRIEVE_MODE)
-                ? (CacheRetrieveMode) entityManager.getProperties().get(
-                CACHE_RETRIEVE_MODE) : CacheRetrieveMode.BYPASS;
+                ? (CacheRetrieveMode) entityManager.getProperties().get(CACHE_RETRIEVE_MODE)
+                : CacheRetrieveMode.BYPASS;
     }
 
     protected void setCacheRetrieveMode(final CacheRetrieveMode retrieveMode) {
         if (retrieveMode != null) {
-            entityManager.getProperties().
-                    put(CACHE_RETRIEVE_MODE, retrieveMode);
+            entityManager.getProperties().put(CACHE_RETRIEVE_MODE, retrieveMode);
         }
     }
 
     protected CacheStoreMode getCacheStoreMode() {
         return entityManager.getProperties().containsKey(CACHE_STORE_MODE)
-                ? (CacheStoreMode) entityManager.getProperties().get(
-                CACHE_STORE_MODE) : CacheStoreMode.BYPASS;
+                ? (CacheStoreMode) entityManager.getProperties().get(CACHE_STORE_MODE)
+                : CacheStoreMode.BYPASS;
     }
 
     protected void setCacheStoreMode(final CacheStoreMode storeMode) {
         if (storeMode != null) {
-            entityManager.getProperties().
-                    put(CACHE_STORE_MODE, storeMode);
+            entityManager.getProperties().put(CACHE_STORE_MODE, storeMode);
         }
     }
 

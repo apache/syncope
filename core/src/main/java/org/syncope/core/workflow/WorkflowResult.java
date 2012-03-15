@@ -34,20 +34,14 @@ public class WorkflowResult<T> {
 
     private Set<String> performedTasks;
 
-    public WorkflowResult(
-            final T result,
-            final PropagationByResource propByRes, 
-            final String performedTask) {
+    public WorkflowResult(final T result, final PropagationByResource propByRes, final String performedTask) {
 
         this.result = result;
         this.propByRes = propByRes;
         this.performedTasks = Collections.singleton(performedTask);
     }
 
-    public WorkflowResult(
-            final T result,
-            final PropagationByResource propByRes,
-            final Set<String> performedTasks) {
+    public WorkflowResult(final T result, final PropagationByResource propByRes, final Set<String> performedTasks) {
 
         this.result = result;
         this.propByRes = propByRes;
@@ -90,7 +84,6 @@ public class WorkflowResult<T> {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this,
-                ToStringStyle.MULTI_LINE_STYLE);
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

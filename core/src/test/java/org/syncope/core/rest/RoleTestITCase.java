@@ -45,12 +45,10 @@ public class RoleTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            restTemplate.postForObject(BASE_URL + "role/create",
-                    newRoleTO, RoleTO.class);
+            restTemplate.postForObject(BASE_URL + "role/create", newRoleTO, RoleTO.class);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(
-                    SyncopeClientExceptionType.InvalidSyncopeRole);
+            t = sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
         }
         assertNotNull(t);
     }
@@ -74,8 +72,7 @@ public class RoleTestITCase extends AbstractTest {
         icon.setSchema("icon");
         icon.addValue("anIcon");
 
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create",
-                roleTO, RoleTO.class);
+        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         roleTO.setId(actual.getId());
 
@@ -97,13 +94,11 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setParent(8L);
         roleTO.setPasswordPolicy(4L);
 
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create",
-                roleTO, RoleTO.class);
+        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         assertNotNull(actual);
 
-        actual = restTemplate.getForObject(BASE_URL
-                + "role/read/{roleId}.json", RoleTO.class, actual.getId());
+        actual = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, actual.getId());
 
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
@@ -120,8 +115,7 @@ public class RoleTestITCase extends AbstractTest {
 
         restTemplate.delete(BASE_URL + "role/delete/{roleId}", 5);
         try {
-            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json",
-                    RoleTO.class, 2);
+            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 2);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -129,9 +123,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<RoleTO> roleTOs = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
-                + "role/list.json", RoleTO[].class));
+        List<RoleTO> roleTOs = Arrays.asList(restTemplate.getForObject(BASE_URL + "role/list.json", RoleTO[].class));
         assertNotNull(roleTOs);
         assertTrue(roleTOs.size() >= 8);
         for (RoleTO roleTO : roleTOs) {
@@ -141,8 +133,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void parent() {
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL
-                + "role/parent/{roleId}.json", RoleTO.class, 7);
+        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/parent/{roleId}.json", RoleTO.class, 7);
 
         assertNotNull(roleTO);
         assertEquals(roleTO.getId(), 6L);
@@ -150,8 +141,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL
-                + "role/read/{roleId}.json", RoleTO.class, 1);
+        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 1);
 
         assertNotNull(roleTO);
         assertNotNull(roleTO.getAttributes());
@@ -178,8 +168,7 @@ public class RoleTestITCase extends AbstractTest {
         icon.addValue("anIcon");
         roleTO.addAttribute(icon);
 
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create",
-                roleTO, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         assertEquals(1, roleTO.getAttributes().size());
 
@@ -201,8 +190,7 @@ public class RoleTestITCase extends AbstractTest {
         // change password policy inheritance
         roleMod.setInheritPasswordPolicy(Boolean.FALSE);
 
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update",
-                roleMod, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
 
         assertEquals("finalRole", roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());
@@ -225,8 +213,7 @@ public class RoleTestITCase extends AbstractTest {
         rvirtualdata.setSchema("rvirtualdata");
         roleTO.addVirtualAttribute(rvirtualdata);
 
-        roleTO = restTemplate.postForObject(
-                BASE_URL + "role/create", roleTO, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getVirtualAttributes().size());
@@ -235,8 +222,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(roleTO.getId());
         roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
 
-        roleTO = restTemplate.postForObject(
-                BASE_URL + "role/update", roleMod, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
 
         assertNotNull(roleTO);
         assertTrue(roleTO.getVirtualAttributes().isEmpty());
@@ -252,8 +238,7 @@ public class RoleTestITCase extends AbstractTest {
         deriveddata.setSchema("rderivedschema");
         roleTO.addDerivedAttribute(deriveddata);
 
-        roleTO = restTemplate.postForObject(
-                BASE_URL + "role/create", roleTO, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getDerivedAttributes().size());
@@ -262,8 +247,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(roleTO.getId());
         roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
 
-        roleTO = restTemplate.postForObject(
-                BASE_URL + "role/update", roleMod, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
 
         assertNotNull(roleTO);
         assertTrue(roleTO.getDerivedAttributes().isEmpty());
@@ -279,8 +263,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = new RoleTO();
         roleTO.setName("torename");
 
-        RoleTO actual = restTemplate.postForObject(
-                BASE_URL + "role/create", roleTO, RoleTO.class);
+        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         assertNotNull(actual);
         assertEquals("torename", actual.getName());
@@ -290,8 +273,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(actual.getId());
         roleMod.setName("renamed");
 
-        actual = restTemplate.postForObject(
-                BASE_URL + "role/update", roleMod, RoleTO.class);
+        actual = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
 
         assertNotNull(actual);
         assertEquals("renamed", actual.getName());

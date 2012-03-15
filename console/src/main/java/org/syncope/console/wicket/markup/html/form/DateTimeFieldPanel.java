@@ -47,21 +47,15 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private Form form = null;
 
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new ThreadLocal<SimpleDateFormat>() {
+    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat(
-                            SyncopeConstants.DEFAULT_DATE_PATTERN);
-                }
-            };
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        }
+    };
 
-    public DateTimeFieldPanel(
-            final String id,
-            final String name,
-            final IModel<Date> model,
-            final String datePattern) {
+    public DateTimeFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
 
         super(id, name, model);
 
@@ -148,7 +142,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
                 throw new IllegalArgumentException("argument dateTimeComponent cannot be null");
             }
 
-            dateTimeComponents = new FormComponent[]{dateTimeComponent};
+            dateTimeComponents = new FormComponent[] { dateTimeComponent };
         }
 
         @Override
@@ -165,9 +159,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
         public void validate(final Form form) {
             final DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
-            if (!(dateTimeField.getDate() != null
-                    && dateTimeField.getHours() != null
-                    && dateTimeField.getMinutes() != null)) {
+            if (!(dateTimeField.getDate() != null && dateTimeField.getHours() != null && dateTimeField.getMinutes() != null)) {
 
                 ValidationError ve = new ValidationError();
                 ve.setVariables(DateTimeFormValidator.this.variablesMap());
@@ -290,13 +282,21 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     @Override
     public FieldPanel setStyleShet(String classes) {
-        field.get("date").add(AttributeModifier.replace("class", (classes != null ? classes : "") + " date_size"));
+        field.get("date").add(AttributeModifier.replace("class", (classes != null
+                ? classes
+                : "") + " date_size"));
 
-        field.get("hours").add(AttributeModifier.replace("class", classes != null ? classes : ""));
+        field.get("hours").add(AttributeModifier.replace("class", classes != null
+                ? classes
+                : ""));
 
-        field.get("minutes").add(AttributeModifier.replace("class", classes != null ? classes : ""));
+        field.get("minutes").add(AttributeModifier.replace("class", classes != null
+                ? classes
+                : ""));
 
-        field.get("amOrPmChoice").add(AttributeModifier.replace("class", classes != null ? classes : ""));
+        field.get("amOrPmChoice").add(AttributeModifier.replace("class", classes != null
+                ? classes
+                : ""));
 
         return this;
     }

@@ -80,8 +80,6 @@ public class AttributeCond extends AbstractBaseBean {
     }
 
     public final boolean checkValidity() {
-        return type != null && schema != null
-                && (type == Type.ISNULL || type == Type.ISNOTNULL
-                || expression != null);
+        return type != null && schema != null && (type == Type.ISNULL || type == Type.ISNOTNULL || expression != null);
     }
 }

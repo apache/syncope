@@ -75,8 +75,7 @@ public class ConnInstanceTest extends AbstractTest {
         List<ExternalResource> resources = connInstance.getResources();
         assertNotNull(resources);
         assertEquals(1, resources.size());
-        assertEquals(
-                "ws-target-resource-nopropagation", resources.get(0).getName());
+        assertEquals("ws-target-resource-nopropagation", resources.get(0).getName());
 
         connInstance.addCapability(ConnectorCapability.SEARCH);
 
@@ -87,7 +86,6 @@ public class ConnInstanceTest extends AbstractTest {
         resources = connInstance.getResources();
         assertNotNull(resources);
         assertEquals(1, resources.size());
-        assertEquals(
-                "ws-target-resource-nopropagation", resources.get(0).getName());
+        assertEquals("ws-target-resource-nopropagation", resources.get(0).getName());
     }
 }

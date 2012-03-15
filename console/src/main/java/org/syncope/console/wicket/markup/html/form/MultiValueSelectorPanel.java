@@ -39,18 +39,12 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
     private WebMarkupContainer container;
 
-    public MultiValueSelectorPanel(
-            final String id,
-            final IModel<List<E>> model,
-            final FieldPanel panelTemplate) {
+    public MultiValueSelectorPanel(final String id, final IModel<List<E>> model, final FieldPanel panelTemplate) {
 
         this(id, model, panelTemplate, false);
     }
 
-    public MultiValueSelectorPanel(
-            final String id,
-            final IModel<List<E>> model,
-            final FieldPanel panelTemplate,
+    public MultiValueSelectorPanel(final String id, final IModel<List<E>> model, final FieldPanel panelTemplate,
             final boolean eventTemplate) {
 
         super(id, model);
@@ -77,8 +71,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                         private static final long serialVersionUID = -1107858522700306810L;
 
                         @Override
-                        protected void onUpdate(
-                                final AjaxRequestTarget target) {
+                        protected void onUpdate(final AjaxRequestTarget target) {
 
                             send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                         }

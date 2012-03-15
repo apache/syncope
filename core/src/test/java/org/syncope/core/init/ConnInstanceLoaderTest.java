@@ -50,8 +50,8 @@ public class ConnInstanceLoaderTest extends AbstractTest {
 
         // Remove any other connector instance bean set up by
         // standard ConnInstanceLoader.load()
-        for (String bean : ApplicationContextManager.getApplicationContext().
-                getBeanNamesForType(ConnectorFacadeProxy.class)) {
+        for (String bean : ApplicationContextManager.getApplicationContext().getBeanNamesForType(
+                ConnectorFacadeProxy.class)) {
 
             cil.unregisterConnector(bean);
         }
@@ -61,8 +61,7 @@ public class ConnInstanceLoaderTest extends AbstractTest {
     public void load() {
         cil.load();
 
-        assertEquals(resourceDAO.findAll().size(),
-                ApplicationContextManager.getApplicationContext().
-                getBeanNamesForType(ConnectorFacadeProxy.class).length);
+        assertEquals(resourceDAO.findAll().size(), ApplicationContextManager.getApplicationContext()
+                .getBeanNamesForType(ConnectorFacadeProxy.class).length);
     }
 }

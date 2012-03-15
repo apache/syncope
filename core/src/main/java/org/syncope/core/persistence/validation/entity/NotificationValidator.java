@@ -23,17 +23,15 @@ import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.Notification;
 import org.syncope.types.EntityViolationType;
 
-public class NotificationValidator extends AbstractValidator
-        implements ConstraintValidator<NotificationCheck, Notification> {
+public class NotificationValidator extends AbstractValidator implements
+        ConstraintValidator<NotificationCheck, Notification> {
 
     @Override
     public void initialize(final NotificationCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(
-            final Notification value,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final Notification value, final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
 
@@ -43,24 +41,19 @@ public class NotificationValidator extends AbstractValidator
             isValid = false;
 
             context.buildConstraintViolationWithTemplate("No events").addNode(
-                    EntityViolationType.InvalidNotification.toString()).
-                    addNode("events").addConstraintViolation();
+                    EntityViolationType.InvalidNotification.toString()).addNode("events").addConstraintViolation();
         }
         if (!value.getAbout().checkValidity()) {
             isValid = false;
 
-            context.buildConstraintViolationWithTemplate(
-                    "Invalid about search condition").addNode(
-                    EntityViolationType.InvalidNotification.toString()).
-                    addNode("about").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Invalid about search condition").addNode(
+                    EntityViolationType.InvalidNotification.toString()).addNode("about").addConstraintViolation();
         }
         if (!value.getRecipients().checkValidity()) {
             isValid = false;
 
-            context.buildConstraintViolationWithTemplate(
-                    "Invalid recipients search condition").addNode(
-                    EntityViolationType.InvalidNotification.toString()).
-                    addNode("recipients").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Invalid recipients search condition").addNode(
+                    EntityViolationType.InvalidNotification.toString()).addNode("recipients").addConstraintViolation();
         }
 
         return isValid;

@@ -35,8 +35,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
  * Console client for invoking Rest Tasks services.
  */
 @Component
-public class TaskRestClient extends AbstractBaseRestClient
-        implements ExecutionRestClient {
+public class TaskRestClient extends AbstractBaseRestClient implements ExecutionRestClient {
 
     /**
      * Return a list of job classes.
@@ -86,20 +85,16 @@ public class TaskRestClient extends AbstractBaseRestClient
         List<T> result = Collections.EMPTY_LIST;
 
         if (PropagationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(
-                    baseURL + "task/propagation/list/{page}/{size}.json",
-                    PropagationTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
+                    + "task/propagation/list/{page}/{size}.json", PropagationTaskTO[].class, page, size));
         } else if (NotificationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(
-                    baseURL + "task/notification/list/{page}/{size}.json",
-                    NotificationTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
+                    + "task/notification/list/{page}/{size}.json", NotificationTaskTO[].class, page, size));
         } else if (SchedTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(
-                    baseURL + "task/sched/list/{page}/{size}.json",
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL + "task/sched/list/{page}/{size}.json",
                     SchedTaskTO[].class, page, size));
         } else if (SyncTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(
-                    baseURL + "task/sync/list/{page}/{size}.json",
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL + "task/sync/list/{page}/{size}.json",
                     SyncTaskTO[].class, page, size));
         }
 
@@ -152,8 +147,8 @@ public class TaskRestClient extends AbstractBaseRestClient
      * @param taskId task id
      */
     public void startExecution(final Long taskId, boolean dryRun) {
-        restTemplate.postForObject(
-                baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId, dryRun);
+        restTemplate.postForObject(baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId,
+                dryRun);
     }
 
     /**

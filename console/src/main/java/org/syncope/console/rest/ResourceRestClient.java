@@ -34,9 +34,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
         List<ResourceTO> resources = null;
 
         try {
-            resources = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "resource/list.json",
-                    ResourceTO[].class));
+            resources = Arrays.asList(restTemplate.getForObject(baseURL + "resource/list.json", ResourceTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all resources", e);
         }
@@ -45,17 +43,14 @@ public class ResourceRestClient extends AbstractBaseRestClient {
     }
 
     public void create(final ResourceTO resourceTO) {
-        restTemplate.postForObject(baseURL
-                + "resource/create", resourceTO, ResourceTO.class);
+        restTemplate.postForObject(baseURL + "resource/create", resourceTO, ResourceTO.class);
     }
 
     public ResourceTO read(final String name) {
         ResourceTO resourceTO = null;
 
         try {
-            resourceTO = restTemplate.getForObject(
-                    baseURL + "resource/read/" + name + ".json",
-                    ResourceTO.class);
+            resourceTO = restTemplate.getForObject(baseURL + "resource/read/" + name + ".json", ResourceTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a resource", e);
         }
@@ -63,13 +58,10 @@ public class ResourceRestClient extends AbstractBaseRestClient {
     }
 
     public void update(final ResourceTO resourceTO) {
-        restTemplate.postForObject(
-                baseURL + "resource/update.json", resourceTO,
-                ResourceTO.class);
+        restTemplate.postForObject(baseURL + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     public void delete(final String name) {
-        restTemplate.delete(baseURL
-                + "resource/delete/{resourceName}.json", name);
+        restTemplate.delete(baseURL + "resource/delete/{resourceName}.json", name);
     }
 }

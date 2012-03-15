@@ -65,8 +65,8 @@ public class LoggerController extends AbstractController {
             result.add(loggerTO);
         }
 
-        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success,
-                "Successfully listed all loggers (" + type + "): " + result.size());
+        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success, "Successfully listed all loggers ("
+                + type + "): " + result.size());
 
         return result;
     }
@@ -102,7 +102,8 @@ public class LoggerController extends AbstractController {
             syncopeLogger = new SyncopeLogger();
             syncopeLogger.setName(name);
             syncopeLogger.setType(name.startsWith(SyncopeLoggerType.AUDIT.getPrefix())
-                    ? SyncopeLoggerType.AUDIT : SyncopeLoggerType.LOG);
+                    ? SyncopeLoggerType.AUDIT
+                    : SyncopeLoggerType.LOG);
         }
 
         if (expectedType != syncopeLogger.getType()) {
@@ -119,8 +120,8 @@ public class LoggerController extends AbstractController {
         LoggerTO result = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, result);
 
-        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
-                String.format("Successfully set level %s to logger %s (%s)", level, name, expectedType));
+        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
+                "Successfully set level %s to logger %s (%s)", level, name, expectedType));
 
         return result;
     }
@@ -137,8 +138,7 @@ public class LoggerController extends AbstractController {
         return setLevel(name, level, SyncopeLoggerType.AUDIT);
     }
 
-    private void delete(final String name, final SyncopeLoggerType expectedType)
-            throws NotFoundException {
+    private void delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
 
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
@@ -155,22 +155,20 @@ public class LoggerController extends AbstractController {
         Logger logger = lc.getLogger(name);
         logger.setLevel(Level.OFF);
 
-        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
-                String.format("Successfully deleted logger %s (%s)", name, expectedType));
+        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
+                "Successfully deleted logger %s (%s)", name, expectedType));
     }
 
     @PreAuthorize("hasRole('LOG_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/log/delete/{name}")
-    public void deleteLog(@PathVariable("name") final String name)
-            throws NotFoundException {
+    public void deleteLog(@PathVariable("name") final String name) throws NotFoundException {
 
         delete(name, SyncopeLoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/audit/delete/{name}")
-    public void deleteAudit(@PathVariable("name") final String name)
-            throws NotFoundException {
+    public void deleteAudit(@PathVariable("name") final String name) throws NotFoundException {
 
         delete(name, SyncopeLoggerType.AUDIT);
     }

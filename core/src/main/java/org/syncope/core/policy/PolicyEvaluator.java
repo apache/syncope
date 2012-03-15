@@ -37,11 +37,9 @@ public class PolicyEvaluator {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            PolicyEvaluator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PolicyEvaluator.class);
 
-    public <T extends AbstractPolicySpec> T evaluate(
-            final Policy policy, final AbstractAttributable attributable) {
+    public <T extends AbstractPolicySpec> T evaluate(final Policy policy, final AbstractAttributable attributable) {
 
         T result = null;
 
@@ -53,39 +51,29 @@ public class PolicyEvaluator {
                 case PASSWORD:
                 case GLOBAL_PASSWORD:
                     final PasswordPolicySpec pspec = policy.getSpecification();
-                    final PasswordPolicySpec passwordPolicy =
-                            new PasswordPolicySpec();
+                    final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
 
-                    BeanUtils.copyProperties(
-                            pspec,
-                            passwordPolicy,
-                            new String[]{"schemasNotPermitted"});
+                    BeanUtils.copyProperties(pspec, passwordPolicy, new String[] { "schemasNotPermitted" });
 
                     for (String schema : pspec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
                         if (attribute != null) {
                             values = attribute.getValuesAsStrings();
                             if (values != null && !values.isEmpty()) {
-                                passwordPolicy.getWordsNotPermitted().add(
-                                        values.get(0));
+                                passwordPolicy.getWordsNotPermitted().add(values.get(0));
                             }
                         }
                     }
 
                     // Password history verification and update
-                    final String password =
-                            ((SyncopeUser) attributable).getPassword();
+                    final String password = ((SyncopeUser) attributable).getPassword();
 
-                    final List<String> passwordHistory =
-                            ((SyncopeUser) attributable).getPasswordHistory();
+                    final List<String> passwordHistory = ((SyncopeUser) attributable).getPasswordHistory();
 
-                    if (((SyncopeUser) attributable).verifyPasswordHistory(
-                            ((SyncopeUser) attributable).getClearPassword(),
-                            pspec.getHistoryLength())) {
+                    if (((SyncopeUser) attributable).verifyPasswordHistory(((SyncopeUser) attributable)
+                            .getClearPassword(), pspec.getHistoryLength())) {
 
-                        passwordPolicy.getWordsNotPermitted().
-                                add(((SyncopeUser) attributable).
-                                getClearPassword());
+                        passwordPolicy.getWordsNotPermitted().add(((SyncopeUser) attributable).getClearPassword());
                     } else {
 
                         if (pspec.getHistoryLength() > 0 && password != null) {
@@ -93,8 +81,7 @@ public class PolicyEvaluator {
                         }
 
                         if (pspec.getHistoryLength() < passwordHistory.size()) {
-                            for (int i = 0; i < passwordHistory.size()
-                                    - pspec.getHistoryLength(); i++) {
+                            for (int i = 0; i < passwordHistory.size() - pspec.getHistoryLength(); i++) {
 
                                 passwordHistory.remove(i);
                             }
@@ -106,21 +93,16 @@ public class PolicyEvaluator {
                 case ACCOUNT:
                 case GLOBAL_ACCOUNT:
                     final AccountPolicySpec spec = policy.getSpecification();
-                    final AccountPolicySpec accountPolicy =
-                            new AccountPolicySpec();
+                    final AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
-                    BeanUtils.copyProperties(
-                            spec,
-                            accountPolicy,
-                            new String[]{"schemasNotPermitted"});
+                    BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
 
                     for (String schema : spec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
                         if (attribute != null) {
                             values = attribute.getValuesAsStrings();
                             if (values != null && !values.isEmpty()) {
-                                accountPolicy.getWordsNotPermitted().add(
-                                        values.get(0));
+                                accountPolicy.getWordsNotPermitted().add(values.get(0));
                             }
                         }
                     }

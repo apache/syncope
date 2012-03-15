@@ -35,14 +35,12 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * Get all Roles.
      * @return SchemaTOs
      */
-    public List<RoleTO> getAllRoles()
-            throws SyncopeClientCompositeErrorException {
+    public List<RoleTO> getAllRoles() throws SyncopeClientCompositeErrorException {
 
         List<RoleTO> roles = null;
 
         try {
-            roles = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "role/list.json", RoleTO[].class));
+            roles = Arrays.asList(restTemplate.getForObject(baseURL + "role/list.json", RoleTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While listing all roles", e);
         }
@@ -55,8 +53,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @param roleTO
      */
     public void createRole(RoleTO roleTO) {
-        restTemplate.postForObject(
-                baseURL + "role/create", roleTO, RoleTO.class);
+        restTemplate.postForObject(baseURL + "role/create", roleTO, RoleTO.class);
     }
 
     /**
@@ -68,8 +65,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
         RoleTO roleTO = null;
 
         try {
-            roleTO = restTemplate.getForObject(
-                    baseURL + "role/read/{roleId}.json", RoleTO.class, id);
+            roleTO = restTemplate.getForObject(baseURL + "role/read/{roleId}.json", RoleTO.class, id);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a role", e);
         }
@@ -82,8 +78,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @return true is the opertion ends succesfully, false otherwise
      */
     public void updateRole(RoleMod roleMod) {
-        restTemplate.postForObject(
-                baseURL + "role/update", roleMod, RoleTO.class);
+        restTemplate.postForObject(baseURL + "role/update", roleMod, RoleTO.class);
     }
 
     /**

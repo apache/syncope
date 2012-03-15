@@ -33,8 +33,7 @@ public abstract class BaseModalPage extends WebPage {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            BasePage.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
     private static final long serialVersionUID = -1443079028368471943L;
 

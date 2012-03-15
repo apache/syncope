@@ -43,16 +43,13 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
 
     protected CrontabContainer crontab;
 
-    public AbstractSchedTaskModalPage(
-            final ModalWindow window,
-            final SchedTaskTO taskTO,
+    public AbstractSchedTaskModalPage(final ModalWindow window, final SchedTaskTO taskTO,
             final PageReference callerPageRef) {
 
         super(taskTO);
 
-        crontab = new CrontabContainer("crontab",
-                new PropertyModel<String>(taskTO, "cronExpression"),
-                taskTO.getCronExpression());
+        crontab = new CrontabContainer("crontab", new PropertyModel<String>(taskTO, "cronExpression"), taskTO
+                .getCronExpression());
         form.add(crontab);
 
         final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
@@ -65,20 +62,17 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("apply")) {
+        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
-                taskTO.setCronExpression(
-                        !StringUtils.hasText(taskTO.getCronExpression())
-                        ? null : crontab.getCronExpression());
+                taskTO.setCronExpression(!StringUtils.hasText(taskTO.getCronExpression())
+                        ? null
+                        : crontab.getCronExpression());
 
                 try {
                     if (taskTO.getId() > 0) {
@@ -106,20 +100,18 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
         };
 
-
         if (taskTO.getId() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Tasks", "update"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+                    "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+                    "create"));
         }
 
         form.add(submit);

@@ -28,8 +28,7 @@ public interface AttrDAO extends DAO {
 
     <T extends AbstractAttr> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttr> T save(T attribute)
-            throws InvalidEntityException;
+    <T extends AbstractAttr> T save(T attribute) throws InvalidEntityException;
 
     <T extends AbstractAttr> void delete(Long id, Class<T> reference);
 

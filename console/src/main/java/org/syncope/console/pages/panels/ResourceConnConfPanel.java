@@ -63,34 +63,23 @@ public class ResourceConnConfPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(ResourceConnConfPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ResourceConnConfPanel.class);
 
     /**
      * GuardedString is not in classpath.
      */
-    private static final String GUARDED_STRING =
-            "org.identityconnectors.common.security.GuardedString";
+    private static final String GUARDED_STRING = "org.identityconnectors.common.security.GuardedString";
 
     /**
      * GuardedByteArray is not in classpath.
      */
-    private static final String GUARDED_BYTE_ARRAY =
-            "org.identityconnectors.common.security.GuardedByteArray";
+    private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
     /**
      * Number java types.
      */
-    private static final List<Class> NUMBER = Arrays.asList(new Class[]{
-                Integer.class,
-                Double.class,
-                Long.class,
-                Float.class,
-                Number.class,
-                Integer.TYPE,
-                Long.TYPE,
-                Double.TYPE,
-                Float.TYPE});
+    private static final List<Class> NUMBER = Arrays.asList(new Class[] { Integer.class, Double.class, Long.class,
+            Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE });
 
     @SpringBean
     private ConnectorRestClient connRestClient;
@@ -105,10 +94,7 @@ public class ResourceConnConfPanel extends Panel {
 
     private ResourceTO resourceTO;
 
-    public ResourceConnConfPanel(
-            final String id,
-            final ResourceTO resourceTO,
-            final boolean createFlag) {
+    public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
 
         super(id);
         setOutputMarkupId(true);
@@ -118,31 +104,24 @@ public class ResourceConnConfPanel extends Panel {
 
         connConfProperties = getConnConfProperties();
 
-        connConfPropContainer =
-                new WebMarkupContainer("connectorPropertiesContainer");
+        connConfPropContainer = new WebMarkupContainer("connectorPropertiesContainer");
         connConfPropContainer.setOutputMarkupId(true);
         add(connConfPropContainer);
 
         check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
 
-            private static final long serialVersionUID =
-                    -4199438518229098169L;
+            private static final long serialVersionUID = -4199438518229098169L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                ConnInstanceTO connectorTO =
-                        connRestClient.read(
-                        resourceTO.getConnectorId());
+                ConnInstanceTO connectorTO = connRestClient.read(resourceTO.getConnectorId());
 
-                connectorTO.setConfiguration(
-                        ConnConfPropUtils.joinConnInstanceProperties(
-                        connectorTO.getConfigurationMap(),
-                        ConnConfPropUtils.getConnConfPropertyMap(
-                        resourceTO.getConnConfProperties())));
+                connectorTO.setConfiguration(ConnConfPropUtils.joinConnInstanceProperties(connectorTO
+                        .getConfigurationMap(), ConnConfPropUtils.getConnConfPropertyMap(resourceTO
+                        .getConnConfProperties())));
 
-                if (connRestClient.check(
-                        connectorTO).booleanValue()) {
+                if (connRestClient.check(connectorTO).booleanValue()) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
@@ -158,9 +137,8 @@ public class ResourceConnConfPanel extends Panel {
         /*
          * the list of overridable connector properties
          */
-        connConfPropContainer.add(new ListView<ConnConfProperty>(
-                "connectorProperties",
-                new PropertyModel(this, "connConfProperties")) {
+        connConfPropContainer.add(new ListView<ConnConfProperty>("connectorProperties", new PropertyModel(this,
+                "connConfProperties")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -168,8 +146,7 @@ public class ResourceConnConfPanel extends Panel {
             protected void populateItem(final ListItem<ConnConfProperty> item) {
                 final ConnConfProperty property = item.getModelObject();
 
-                final Label label = new Label("connPropAttrSchema",
-                        property.getSchema().getDisplayName() == null
+                final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName() == null
                         || property.getSchema().getDisplayName().isEmpty()
                         ? property.getSchema().getName()
                         : property.getSchema().getDisplayName());
@@ -182,10 +159,8 @@ public class ResourceConnConfPanel extends Panel {
 
                 boolean isArray = false;
 
-                if (GUARDED_STRING.equalsIgnoreCase(
-                        property.getSchema().getType())
-                        || GUARDED_BYTE_ARRAY.equalsIgnoreCase(
-                        property.getSchema().getType())) {
+                if (GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
+                        || GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
                     field = new AjaxPasswordFieldPanel("panel", label.getDefaultModelObjectAsString(), new Model());
                     ((PasswordTextField) field.getField()).setResetPassword(false);
@@ -196,17 +171,16 @@ public class ResourceConnConfPanel extends Panel {
                     Class propertySchemaClass;
 
                     try {
-                        propertySchemaClass = ClassUtils.forName(
-                                property.getSchema().getType(),
-                                ClassUtils.getDefaultClassLoader());
+                        propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils
+                                .getDefaultClassLoader());
                     } catch (Exception e) {
                         LOG.error("Error parsing attribute type", e);
                         propertySchemaClass = String.class;
                     }
 
                     if (NUMBER.contains(propertySchemaClass)) {
-                        field = new AjaxNumberFieldPanel("panel", label.getDefaultModelObjectAsString(),
-                                new Model(), ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
+                        field = new AjaxNumberFieldPanel("panel", label.getDefaultModelObjectAsString(), new Model(),
+                                ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
 
                         required = property.getSchema().isRequired();
                     } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
@@ -231,12 +205,8 @@ public class ResourceConnConfPanel extends Panel {
                         property.getValues().add(null);
                     }
 
-                    final MultiValueSelectorPanel multiFields =
-                            new MultiValueSelectorPanel<String>(
-                            "panel",
-                            new PropertyModel<List<String>>(property, "values"),
-                            field,
-                            true);
+                    final MultiValueSelectorPanel multiFields = new MultiValueSelectorPanel<String>("panel",
+                            new PropertyModel<List<String>>(property, "values"), field, true);
 
                     item.add(multiFields);
                 } else {
@@ -244,20 +214,15 @@ public class ResourceConnConfPanel extends Panel {
                         field.addRequiredLabel();
                     }
 
-                    field.getField().add(
-                            new AjaxFormComponentUpdatingBehavior("onchange") {
+                    field.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                                private static final long serialVersionUID =
-                                        -1107858522700306810L;
+                        private static final long serialVersionUID = -1107858522700306810L;
 
-                                @Override
-                                protected void onUpdate(
-                                        final AjaxRequestTarget target) {
-                                    send(getPage(), Broadcast.BREADTH,
-                                            new ConnConfModEvent(
-                                            target, connConfProperties));
-                                }
-                            });
+                        @Override
+                        protected void onUpdate(final AjaxRequestTarget target) {
+                            send(getPage(), Broadcast.BREADTH, new ConnConfModEvent(target, connConfProperties));
+                        }
+                    });
 
                     field.setNewModel(property.getValues());
                     item.add(field);
@@ -285,8 +250,7 @@ public class ResourceConnConfPanel extends Panel {
             final Long connectorId = resourceTO.getConnectorId();
 
             if (connectorId != null && connectorId > 0) {
-                for (ConnConfProperty property :
-                        connRestClient.getConnectorProperties(connectorId)) {
+                for (ConnConfProperty property : connRestClient.getConnectorProperties(connectorId)) {
 
                     if (property.isOverridable()) {
                         props.add(property);
@@ -302,8 +266,7 @@ public class ResourceConnConfPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof DetailsModEvent) {
             // connectro change: update properties and forward event
-            final AjaxRequestTarget target =
-                    ((ResourceEvent) event.getPayload()).getTarget();
+            final AjaxRequestTarget target = ((ResourceEvent) event.getPayload()).getTarget();
 
             connConfProperties = getConnConfProperties();
             check.setEnabled(!connConfProperties.isEmpty());
@@ -311,16 +274,13 @@ public class ResourceConnConfPanel extends Panel {
             target.add(connConfPropContainer);
 
             // get configuration properties and send a new event
-            send(getPage(), Broadcast.BREADTH,
-                    new ConnConfModEvent(target, connConfProperties));
+            send(getPage(), Broadcast.BREADTH, new ConnConfModEvent(target, connConfProperties));
 
         } else if (event.getPayload() instanceof MultiValueSelectorEvent) {
             // multi value connector property change: forward event
-            final AjaxRequestTarget target =
-                    ((MultiValueSelectorEvent) event.getPayload()).getTarget();
+            final AjaxRequestTarget target = ((MultiValueSelectorEvent) event.getPayload()).getTarget();
 
-            send(getPage(), Broadcast.BREADTH,
-                    new ConnConfModEvent(target, connConfProperties));
+            send(getPage(), Broadcast.BREADTH, new ConnConfModEvent(target, connConfProperties));
         }
     }
 
@@ -337,9 +297,7 @@ public class ResourceConnConfPanel extends Panel {
          * @param target request target.
          * @param target connector configuration properties.
          */
-        public ConnConfModEvent(
-                final AjaxRequestTarget target,
-                final List<ConnConfProperty> conf) {
+        public ConnConfModEvent(final AjaxRequestTarget target, final List<ConnConfProperty> conf) {
             super(target);
             this.configuration = conf;
         }

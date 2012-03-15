@@ -40,10 +40,7 @@ public class StatusModalPage extends BaseModalPage {
     @SpringBean
     private UserRestClient userRestClient;
 
-    public StatusModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            final UserTO userTO) {
+    public StatusModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
 
         super();
 
@@ -52,19 +49,15 @@ public class StatusModalPage extends BaseModalPage {
 
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
-        final StatusPanel statusPanel =
-                new StatusPanel("statuspanel", userTO, statuses);
+        final StatusPanel statusPanel = new StatusPanel("statuspanel", userTO, statuses);
         form.add(statusPanel);
 
-        final AjaxButton disable = new IndicatingAjaxButton(
-                "disable", new ResourceModel("disable", "Disable")) {
+        final AjaxButton disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 try {
                     userRestClient.suspend(userTO.getId(), statuses);
@@ -82,22 +75,18 @@ public class StatusModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
         };
 
-        final AjaxButton enable = new IndicatingAjaxButton(
-                "enable", new ResourceModel("enable", "Enable")) {
+        final AjaxButton enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 try {
                     userRestClient.reactivate(userTO.getId(), statuses);
@@ -113,8 +102,7 @@ public class StatusModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }

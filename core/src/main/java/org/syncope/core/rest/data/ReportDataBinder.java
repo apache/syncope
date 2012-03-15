@@ -51,14 +51,11 @@ public class ReportDataBinder {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ReportDataBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = {
-        "id", "reportlets", "executions", "latestExecStatus"};
+    private static final String[] IGNORE_REPORT_PROPERTIES = { "id", "reportlets", "executions", "latestExecStatus" };
 
-    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = {
-        "id", "report", "execResult"};
+    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = { "id", "report", "execResult" };
 
     @Autowired
     private ReportExecDAO reportExecDAO;
@@ -78,8 +75,8 @@ public class ReportDataBinder {
                 ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
                 try {
-                    Class reportletClass =
-                            ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
+                    Class reportletClass = ClassUtils.forName(metadata.getClassName(), ClassUtils
+                            .getDefaultClassLoader());
                     Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(reportletClass);
                     if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
                         reportletClasses.add(reportletClass);
@@ -135,19 +132,18 @@ public class ReportDataBinder {
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         reportTO.setLatestExecStatus(latestExec == null
-                ? "" : latestExec.getStatus());
+                ? ""
+                : latestExec.getStatus());
 
         for (ReportExec reportExec : report.getExecs()) {
             reportTO.addExecution(getReportExecTO(reportExec));
         }
 
-        String triggerName = JobInstanceLoader.getTriggerName(
-                JobInstanceLoader.getJobName(report));
+        String triggerName = JobInstanceLoader.getTriggerName(JobInstanceLoader.getJobName(report));
 
         Trigger trigger;
         try {
-            trigger = scheduler.getScheduler().getTrigger(triggerName,
-                    Scheduler.DEFAULT_GROUP);
+            trigger = scheduler.getScheduler().getTrigger(triggerName, Scheduler.DEFAULT_GROUP);
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
             trigger = null;
@@ -164,8 +160,7 @@ public class ReportDataBinder {
     public ReportExecTO getReportExecTO(final ReportExec execution) {
         ReportExecTO executionTO = new ReportExecTO();
         executionTO.setId(execution.getId());
-        BeanUtils.copyProperties(execution, executionTO,
-                IGNORE_REPORT_EXECUTION_PROPERTIES);
+        BeanUtils.copyProperties(execution, executionTO, IGNORE_REPORT_EXECUTION_PROPERTIES);
         if (execution.getId() != null) {
             executionTO.setId(execution.getId());
         }

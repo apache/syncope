@@ -39,7 +39,7 @@ public interface PolicyDAO extends DAO {
 
     List<Policy> findAll();
 
-     <T extends Policy> T save(T policy);
+    <T extends Policy> T save(T policy);
 
     void delete(Long id);
 }

@@ -37,9 +37,7 @@ public class EntitlementRestClient extends AbstractBaseRestClient {
         List<String> entitlements = null;
 
         try {
-            entitlements = Arrays.asList(
-                    restTemplate.getForObject(
-                    baseURL + "auth/allentitlements.json",
+            entitlements = Arrays.asList(restTemplate.getForObject(baseURL + "auth/allentitlements.json",
                     String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all the entitlements", e);

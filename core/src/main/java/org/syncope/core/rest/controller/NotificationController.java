@@ -45,11 +45,8 @@ public class NotificationController extends AbstractController {
     private NotificationDataBinder binder;
 
     @PreAuthorize("hasRole('NOTIFICATION_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/{notificationId}")
-    public NotificationTO read(
-            @PathVariable("notificationId") Long notificationId)
-            throws NotFoundException {
+    @RequestMapping(method = RequestMethod.GET, value = "/read/{notificationId}")
+    public NotificationTO read(@PathVariable("notificationId") Long notificationId) throws NotFoundException {
 
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
@@ -62,15 +59,12 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list")
-    public List<NotificationTO> list()
-            throws NotFoundException {
+    @RequestMapping(method = RequestMethod.GET, value = "/list")
+    public List<NotificationTO> list() throws NotFoundException {
 
         List<Notification> notifications = notificationDAO.findAll();
 
-        List<NotificationTO> notificationTOs =
-                new ArrayList<NotificationTO>();
+        List<NotificationTO> notificationTOs = new ArrayList<NotificationTO>();
         for (Notification notification : notifications) {
             notificationTOs.add(binder.getNotificationTO(notification));
         }
@@ -79,14 +73,11 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
-    public NotificationTO create(final HttpServletResponse response,
-            @RequestBody final NotificationTO notificationTO)
+    @RequestMapping(method = RequestMethod.POST, value = "/create")
+    public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO)
             throws NotFoundException {
 
-        LOG.debug("Notification create called with parameter {}",
-                notificationTO);
+        LOG.debug("Notification create called with parameter {}", notificationTO);
 
         Notification notification = binder.createNotification(notificationTO);
         notification = notificationDAO.save(notification);
@@ -96,20 +87,14 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
-    public NotificationTO update(
-            @RequestBody final NotificationTO notificationTO)
-            throws NotFoundException {
+    @RequestMapping(method = RequestMethod.POST, value = "/update")
+    public NotificationTO update(@RequestBody final NotificationTO notificationTO) throws NotFoundException {
 
-        LOG.debug("ConnNotificationtor update called with parameter {}",
-                notificationTO);
+        LOG.debug("ConnNotificationtor update called with parameter {}", notificationTO);
 
-        Notification notification =
-                notificationDAO.find(notificationTO.getId());
+        Notification notification = notificationDAO.find(notificationTO.getId());
         if (notification == null) {
-            LOG.error("Could not find notification '"
-                    + notificationTO.getId() + "'");
+            LOG.error("Could not find notification '" + notificationTO.getId() + "'");
 
             throw new NotFoundException(String.valueOf(notificationTO.getId()));
         }
@@ -121,11 +106,8 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{notificationId}")
-    public void delete(
-            @PathVariable("notificationId") final Long notificationId)
-            throws NotFoundException {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{notificationId}")
+    public void delete(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
 
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {

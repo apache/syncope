@@ -61,8 +61,7 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     }
 
     @Override
-    public void writeValue(final JsonGenerator jgen, final Object value,
-            final SerializationConfig config)
+    public void writeValue(final JsonGenerator jgen, final Object value, final SerializationConfig config)
             throws IOException, JsonGenerationException, JsonMappingException {
 
         super.writeValue(jgen, unwrapMap(value), config);

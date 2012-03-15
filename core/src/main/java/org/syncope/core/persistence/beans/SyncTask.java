@@ -95,7 +95,7 @@ public class SyncTask extends SchedTask {
     public UserTO getUserTemplate() {
         return userTemplate == null
                 ? new UserTO()
-                : XMLSerializer.<UserTO>deserialize(userTemplate);
+                : XMLSerializer.<UserTO> deserialize(userTemplate);
     }
 
     public void setUserTemplate(final UserTO userTemplate) {

@@ -30,11 +30,9 @@ public interface SchemaDAO extends DAO {
 
     <T extends AbstractSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttr> List<T> getAttributes(
-            AbstractSchema schema, Class<T> reference);
+    <T extends AbstractAttr> List<T> getAttributes(AbstractSchema schema, Class<T> reference);
 
-    <T extends AbstractSchema> T save(T schema)
-            throws InvalidEntityException;
+    <T extends AbstractSchema> T save(T schema) throws InvalidEntityException;
 
     void delete(String name, AttributableUtil attributableUtil);
 }

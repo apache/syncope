@@ -27,14 +27,13 @@ public interface TaskExecDAO extends DAO {
 
     TaskExec find(Long id);
 
-     <T extends Task> TaskExec findLatestStarted(T task);
+    <T extends Task> TaskExec findLatestStarted(T task);
 
-     <T extends Task> TaskExec findLatestEnded(T task);
+    <T extends Task> TaskExec findLatestEnded(T task);
 
-     <T extends Task> List<TaskExec> findAll(Class<T> reference);
+    <T extends Task> List<TaskExec> findAll(Class<T> reference);
 
-    TaskExec save(TaskExec execution)
-            throws InvalidEntityException;
+    TaskExec save(TaskExec execution) throws InvalidEntityException;
 
     void delete(Long id);
 

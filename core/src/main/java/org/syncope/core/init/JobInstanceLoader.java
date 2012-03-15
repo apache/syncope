@@ -109,8 +109,7 @@ public class JobInstanceLoader {
         return "Trigger_" + jobName;
     }
 
-    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
-            throws Exception {
+    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression) throws Exception {
 
         // 0. unregister job
         unregisterJob(jobName);
@@ -136,8 +135,7 @@ public class JobInstanceLoader {
         }
     }
 
-    public void registerJob(final Task task, final String jobClassName, final String cronExpression)
-            throws Exception {
+    public void registerJob(final Task task, final String jobClassName, final String cronExpression) throws Exception {
 
         Class jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) getBeanFactory().createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
@@ -151,8 +149,8 @@ public class JobInstanceLoader {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
                 } catch (Throwable t) {
-                    LOG.error("Class {} not found, reverting to {}",
-                            new Object[]{jobActionsClassName, syncJobActionsClass.getName(), t});
+                    LOG.error("Class {} not found, reverting to {}", new Object[] { jobActionsClassName,
+                            syncJobActionsClass.getName(), t });
                 }
             }
             SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,
@@ -164,11 +162,10 @@ public class JobInstanceLoader {
         registerJob(getJobName(task), jobInstance, cronExpression);
     }
 
-    public void registerJob(final Report report)
-            throws Exception {
+    public void registerJob(final Report report) throws Exception {
 
-        Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class,
-                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE,
+                false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
         registerJob(getJobName(report), jobInstance, report.getCronExpression());

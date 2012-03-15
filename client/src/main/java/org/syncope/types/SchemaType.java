@@ -38,8 +38,6 @@ public enum SchemaType {
     }
 
     public boolean isConversionPatternNeeded() {
-        return this == SchemaType.Date
-                || this == SchemaType.Double
-                || this == SchemaType.Long;
+        return this == SchemaType.Date || this == SchemaType.Double || this == SchemaType.Long;
     }
 }

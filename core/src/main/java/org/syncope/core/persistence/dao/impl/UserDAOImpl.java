@@ -54,8 +54,7 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 
 @Repository
-public class UserDAOImpl extends AbstractDAOImpl
-        implements UserDAO {
+public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -71,9 +70,8 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser find(final Long id) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.id = :id", SyncopeUser.class);
+        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
+                + " e " + "WHERE e.id = :id", SyncopeUser.class);
         query.setParameter("id", id);
 
         SyncopeUser result = null;
@@ -87,9 +85,8 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser find(final String username) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.username = :username", SyncopeUser.class);
+        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
+                + " e " + "WHERE e.username = :username", SyncopeUser.class);
         query.setParameter("username", username);
 
         SyncopeUser result = null;
@@ -103,9 +100,8 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser findByWorkflowId(final String workflowId) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
-                + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
+        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
+                + " e " + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
         query.setParameter("workflowId", workflowId);
 
         return query.getSingleResult();
@@ -124,8 +120,7 @@ public class UserDAOImpl extends AbstractDAOImpl
      * expression.
      */
     @Override
-    public List<SyncopeUser> findByDerAttrValue(
-            final String schemaName, final String value)
+    public List<SyncopeUser> findByDerAttrValue(final String schemaName, final String value)
             throws InvalidSearchConditionException {
 
         UDerSchema schema = derSchemaDAO.find(schemaName, UDerSchema.class);
@@ -144,9 +139,8 @@ public class UserDAOImpl extends AbstractDAOImpl
                 querystring.append(" AND a.owner_id IN ( ");
             }
 
-            querystring.append("SELECT a.owner_id ").
-                    append("FROM UAttr a, UAttrValue v, USchema s ").
-                    append("WHERE ").append(clause);
+            querystring.append("SELECT a.owner_id ").append("FROM UAttr a, UAttrValue v, USchema s ").append("WHERE ")
+                    .append(clause);
 
             if (subquery) {
                 querystring.append(')');
@@ -155,8 +149,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         LOG.debug("Execute query {}", querystring);
 
-        final Query query = entityManager.createNativeQuery(
-                querystring.toString());
+        final Query query = entityManager.createNativeQuery(querystring.toString());
 
         final List<SyncopeUser> result = new ArrayList<SyncopeUser>();
 
@@ -172,8 +165,7 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> findByAttrValue(final String schemaName,
-            final UAttrValue attrValue) {
+    public List<SyncopeUser> findByAttrValue(final String schemaName, final UAttrValue attrValue) {
 
         USchema schema = schemaDAO.find(schemaName, USchema.class);
         if (schema == null) {
@@ -182,30 +174,23 @@ public class UserDAOImpl extends AbstractDAOImpl
         }
 
         final String entityName = schema.isUniqueConstraint()
-                ? UAttrUniqueValue.class.getName() : UAttrValue.class.getName();
+                ? UAttrUniqueValue.class.getName()
+                : UAttrValue.class.getName();
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.name = :schemaName "
-                + " AND (e.stringValue IS NOT NULL"
-                + " AND e.stringValue = :stringValue)"
-                + " OR (e.booleanValue IS NOT NULL"
-                + " AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL"
-                + " AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL"
-                + " AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL"
-                + " AND e.doubleValue = :doubleValue)");
+        Query query = entityManager.createQuery("SELECT e FROM " + entityName + " e"
+                + " WHERE e.attribute.schema.name = :schemaName " + " AND (e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)" + " OR (e.booleanValue IS NOT NULL"
+                + " AND e.booleanValue = :booleanValue)" + " OR (e.dateValue IS NOT NULL"
+                + " AND e.dateValue = :dateValue)" + " OR (e.longValue IS NOT NULL" + " AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL" + " AND e.doubleValue = :doubleValue)");
 
         query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrValue.getStringValue());
-        query.setParameter("booleanValue",
-                attrValue.getBooleanValue() == null ? null
+        query.setParameter("booleanValue", attrValue.getBooleanValue() == null
+                ? null
                 : attrValue.getBooleanAsInteger(attrValue.getBooleanValue()));
         if (attrValue.getDateValue() != null) {
-            query.setParameter("dateValue",
-                    attrValue.getDateValue(), TemporalType.TIMESTAMP);
+            query.setParameter("dateValue", attrValue.getDateValue(), TemporalType.TIMESTAMP);
         } else {
             query.setParameter("dateValue", null);
         }
@@ -214,8 +199,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         List<SyncopeUser> result = new ArrayList<SyncopeUser>();
         SyncopeUser user;
-        for (AbstractAttrValue value :
-                (List<AbstractAttrValue>) query.getResultList()) {
+        for (AbstractAttrValue value : (List<AbstractAttrValue>) query.getResultList()) {
 
             user = (SyncopeUser) value.getAttribute().getOwner();
             if (!result.contains(user)) {
@@ -227,8 +211,7 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public SyncopeUser findByAttrUniqueValue(final String schemaName,
-            final UAttrValue attrUniqueValue) {
+    public SyncopeUser findByAttrUniqueValue(final String schemaName, final UAttrValue attrUniqueValue) {
 
         USchema schema = schemaDAO.find(schemaName, USchema.class);
         if (schema == null) {
@@ -236,19 +219,19 @@ public class UserDAOImpl extends AbstractDAOImpl
             return null;
         }
         if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'",
-                    schemaName);
+            LOG.error("This schema has not unique constraint: '{}'", schemaName);
             return null;
         }
 
         List<SyncopeUser> result = findByAttrValue(schemaName, attrUniqueValue);
-        return result.isEmpty() ? null : result.iterator().next();
+        return result.isEmpty()
+                ? null
+                : result.iterator().next();
     }
 
     @Override
     public List<SyncopeUser> findByResource(final ExternalResource resource) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
+        Query query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources");
         query.setParameter("resource", resource);
 
@@ -256,17 +239,14 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     private StringBuilder getFindAllQuery(final Set<Long> adminRoles) {
-        final StringBuilder queryString = new StringBuilder(
-                "SELECT id FROM SyncopeUser WHERE id NOT IN (");
+        final StringBuilder queryString = new StringBuilder("SELECT id FROM SyncopeUser WHERE id NOT IN (");
 
         if (adminRoles == null || adminRoles.isEmpty()) {
             queryString.append("SELECT syncopeUser_id AS id FROM Membership");
         } else {
-            queryString.append("SELECT syncopeUser_id FROM Membership M1 ").
-                    append("WHERE syncopeRole_id IN (");
-            queryString.append("SELECT syncopeRole_id FROM Membership M2 ").
-                    append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
-                    append("AND syncopeRole_id NOT IN (");
+            queryString.append("SELECT syncopeUser_id FROM Membership M1 ").append("WHERE syncopeRole_id IN (");
+            queryString.append("SELECT syncopeRole_id FROM Membership M2 ").append(
+                    "WHERE M2.syncopeUser_id=M1.syncopeUser_id ").append("AND syncopeRole_id NOT IN (");
 
             queryString.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
             boolean firstRole = true;
@@ -294,13 +274,13 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public final List<SyncopeUser> findAll(final Set<Long> adminRoles,
-            final int page, final int itemsPerPage) {
+    public final List<SyncopeUser> findAll(final Set<Long> adminRoles, final int page, final int itemsPerPage) {
 
-        final Query query = entityManager.createNativeQuery(
-                getFindAllQuery(adminRoles).toString());
+        final Query query = entityManager.createNativeQuery(getFindAllQuery(adminRoles).toString());
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0
+                ? 0
+                : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -320,15 +300,13 @@ public class UserDAOImpl extends AbstractDAOImpl
             }
         }
 
-        List<SyncopeUser> result =
-                new ArrayList<SyncopeUser>(userIds.size());
+        List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
         for (Object userId : userIds) {
             user = find(((Number) userId).longValue());
             if (user == null) {
-                LOG.error("Could not find user with id {}, "
-                        + "even though returned by the native query", userId);
+                LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
             } else {
                 result.add(user);
             }
@@ -343,8 +321,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         queryString.insert(0, "SELECT COUNT(id) FROM (");
         queryString.append(") count_user_id");
 
-        Query countQuery =
-                entityManager.createNativeQuery(queryString.toString());
+        Query countQuery = entityManager.createNativeQuery(queryString.toString());
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }
@@ -400,8 +377,7 @@ public class UserDAOImpl extends AbstractDAOImpl
      * @return where clauses to use to build the query.
      * @throws InvalidSearchConditionException in case of errors retrieving identifiers.
      */
-    private Set<String> getWhereClause(
-            final String expression, final String value)
+    private Set<String> getWhereClause(final String expression, final String value)
             throws InvalidSearchConditionException {
         final Parser parser = new Parser(new StringReader(expression));
 
@@ -413,12 +389,10 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         // Get schema names and literals
         Token token;
-        while ((token = parser.getNextToken()) != null
-                && StringUtils.hasText(token.toString())) {
+        while ((token = parser.getNextToken()) != null && StringUtils.hasText(token.toString())) {
 
             if (token.kind == ParserConstants.STRING_LITERAL) {
-                literals.add(token.toString().
-                        substring(1, token.toString().length() - 1));
+                literals.add(token.toString().substring(1, token.toString().length() - 1));
             }
 
             if (token.kind == ParserConstants.IDENTIFIER) {
@@ -460,8 +434,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous jexl expression resolution.");
-            throw new InvalidSearchConditionException(
-                    "literals and values have different size");
+            throw new InvalidSearchConditionException("literals and values have different size");
         }
 
         // clauses to be used with INTERSECTed queries
@@ -483,8 +456,7 @@ public class UserDAOImpl extends AbstractDAOImpl
                 schema = schemaDAO.find(identifiers.get(i), USchema.class);
                 if (schema == null) {
                     LOG.error("Invalid schema name '{}'", identifiers.get(i));
-                    throw new InvalidSearchConditionException(
-                            "Invalid schema name " + identifiers.get(i));
+                    throw new InvalidSearchConditionException("Invalid schema name " + identifiers.get(i));
                 }
 
                 // clear builder
@@ -493,8 +465,7 @@ public class UserDAOImpl extends AbstractDAOImpl
                 bld.append("(");
 
                 // set schema name
-                bld.append("s.name = '").
-                        append(identifiers.get(i)).append("'");
+                bld.append("s.name = '").append(identifiers.get(i)).append("'");
 
                 bld.append(" AND ");
 
@@ -507,24 +478,19 @@ public class UserDAOImpl extends AbstractDAOImpl
                 // use a value clause different for eanch different schema type
                 switch (schema.getType()) {
                     case Boolean:
-                        bld.append("v.booleanValue = '").
-                                append(attrValues.get(i)).append("'");
+                        bld.append("v.booleanValue = '").append(attrValues.get(i)).append("'");
                         break;
                     case Long:
-                        bld.append("v.longValue = ").
-                                append(attrValues.get(i));
+                        bld.append("v.longValue = ").append(attrValues.get(i));
                         break;
                     case Double:
-                        bld.append("v.doubleValue = ").
-                                append(attrValues.get(i));
+                        bld.append("v.doubleValue = ").append(attrValues.get(i));
                         break;
                     case Date:
-                        bld.append("v.dateValue = '").
-                                append(attrValues.get(i)).append("'");
+                        bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
                         break;
                     default:
-                        bld.append("v.stringValue = '").
-                                append(attrValues.get(i)).append("'");
+                        bld.append("v.stringValue = '").append(attrValues.get(i)).append("'");
                 }
 
                 bld.append(")");
@@ -547,9 +513,7 @@ public class UserDAOImpl extends AbstractDAOImpl
      * @param literals literals/tokens.
      * @return
      */
-    private List<String> split(
-            final String attrValue,
-            final List<String> literals) {
+    private List<String> split(final String attrValue, final List<String> literals) {
 
         final List<String> attrValues = new ArrayList<String>();
 
@@ -557,11 +521,9 @@ public class UserDAOImpl extends AbstractDAOImpl
             attrValues.add(attrValue);
         } else {
 
-            for (String token :
-                    attrValue.split(Pattern.quote(literals.get(0)))) {
+            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
 
-                attrValues.addAll(
-                        split(token, literals.subList(1, literals.size())));
+                attrValues.addAll(split(token, literals.subList(1, literals.size())));
             }
         }
 

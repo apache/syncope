@@ -80,20 +80,21 @@ public class ApprovalModalPage extends BaseModalPage {
             protected void populateItem(final ListItem<WorkflowFormPropertyTO> item) {
                 final WorkflowFormPropertyTO prop = item.getModelObject();
 
-                Label label = new Label("key", prop.getName() == null ? prop.getId() : prop.getName());
+                Label label = new Label("key", prop.getName() == null
+                        ? prop.getId()
+                        : prop.getName());
                 item.add(label);
 
                 FieldPanel field;
                 switch (prop.getType()) {
                     case Boolean:
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
-                                new String[]{"Yes", "No"}));
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(), new Model(
+                                Boolean.valueOf(prop.getValue()))).setChoices(Arrays
+                                .asList(new String[] { "Yes", "No" }));
                         break;
 
                     case Date:
-                        SimpleDateFormat df =
-                                StringUtils.isNotBlank(prop.getDatePattern())
+                        SimpleDateFormat df = StringUtils.isNotBlank(prop.getDatePattern())
                                 ? new SimpleDateFormat(prop.getDatePattern())
                                 : new SimpleDateFormat();
                         Date parsedDate = null;
@@ -101,21 +102,20 @@ public class ApprovalModalPage extends BaseModalPage {
                             try {
                                 parsedDate = df.parse(prop.getValue());
                             } catch (ParseException e) {
-                                LOG.error("Unparsable date: {}",
-                                        prop.getValue(), e);
+                                LOG.error("Unparsable date: {}", prop.getValue(), e);
                             }
                         }
 
-                        field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(parsedDate), df.toLocalizedPattern());
+                        field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(), new Model(
+                                parsedDate), df.toLocalizedPattern());
                         break;
 
                     case Enum:
-                        MapChoiceRenderer<String, String> enumCR =
-                                new MapChoiceRenderer<String, String>(prop.getEnumValues());
+                        MapChoiceRenderer<String, String> enumCR = new MapChoiceRenderer<String, String>(prop
+                                .getEnumValues());
 
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(), new Model(
+                                prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
 
                             private static final long serialVersionUID = -858521070366432018L;
 
@@ -127,8 +127,8 @@ public class ApprovalModalPage extends BaseModalPage {
                         break;
 
                     case Long:
-                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(Long.valueOf(prop.getValue())), Long.class);
+                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(), new Model(Long
+                                .valueOf(prop.getValue())), Long.class);
                         break;
 
                     case String:
@@ -203,8 +203,8 @@ public class ApprovalModalPage extends BaseModalPage {
         form.add(propView);
         form.add(submit);
 
-        MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Approval", "submit"));
+        MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getAllAllowedRoles("Approval",
+                "submit"));
 
         add(form);
     }

@@ -39,30 +39,24 @@ public class WorkflowController extends AbstractController {
     private UserWorkflowAdapter wfAdapter;
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/definition")
+    @RequestMapping(method = RequestMethod.GET, value = "/definition")
     @Transactional(readOnly = true)
-    public WorkflowDefinitionTO getDefinition()
-            throws WorkflowException {
+    public WorkflowDefinitionTO getDefinition() throws WorkflowException {
 
         return wfAdapter.getDefinition();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.PUT,
-    value = "/definition")
-    public void updateDefinition(
-            @RequestBody final WorkflowDefinitionTO definition)
+    @RequestMapping(method = RequestMethod.PUT, value = "/definition")
+    public void updateDefinition(@RequestBody final WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException {
 
         wfAdapter.updateDefinition(definition);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/tasks")
-    public ModelAndView getDefinedTasks()
-            throws WorkflowException {
+    @RequestMapping(method = RequestMethod.GET, value = "/tasks")
+    public ModelAndView getDefinedTasks() throws WorkflowException {
 
         return new ModelAndView().addObject(wfAdapter.getDefinedTasks());
     }

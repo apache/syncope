@@ -35,8 +35,7 @@ import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.PolicyType;
 
 @Component
-public class AccountPolicyEnforcer
-        extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
+public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
 
     @Autowired
     private UserWorkflowAdapter wfAdapter;
@@ -54,10 +53,7 @@ public class AccountPolicyEnforcer
     private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
 
     @Override
-    public void enforce(
-            final AccountPolicySpec policy,
-            final PolicyType type,
-            final SyncopeUser user)
+    public void enforce(final AccountPolicySpec policy, final PolicyType type, final SyncopeUser user)
             throws AccountPolicyException, PolicyEnforceException {
 
         if (user.getUsername() == null) {
@@ -69,14 +65,12 @@ public class AccountPolicyEnforcer
         }
 
         // check min length
-        if (policy.getMinLength() > 0
-                && policy.getMinLength() > user.getUsername().length()) {
+        if (policy.getMinLength() > 0 && policy.getMinLength() > user.getUsername().length()) {
             throw new AccountPolicyException("Username too short");
         }
 
         // check max length
-        if (policy.getMaxLength() > 0
-                && policy.getMaxLength() < user.getUsername().length()) {
+        if (policy.getMaxLength() > 0 && policy.getMaxLength() < user.getUsername().length()) {
             throw new AccountPolicyException("Username too long");
         }
 
@@ -88,10 +82,8 @@ public class AccountPolicyEnforcer
         }
 
         // check syntax
-        if ((policy.isAllLowerCase()
-                && !LCPATTERN.matcher(user.getUsername()).matches())
-                || (policy.isAllUpperCase()
-                && !UCPATTERN.matcher(user.getUsername()).matches())
+        if ((policy.isAllLowerCase() && !LCPATTERN.matcher(user.getUsername()).matches())
+                || (policy.isAllUpperCase() && !UCPATTERN.matcher(user.getUsername()).matches())
                 || !PATTERN.matcher(user.getUsername()).matches()) {
             throw new AccountPolicyException("Invalid username syntax");
         }
@@ -111,13 +103,10 @@ public class AccountPolicyEnforcer
         }
 
         // check for subsequent failed logins
-        if (user.getFailedLogins() != null
-                && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries()
-                && !user.getSuspended()) {
+        if (user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
+                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.getSuspended()) {
             try {
-                LOG.debug("User {}:{} is over to max failed logins",
-                        user.getId(), user.getUsername());
+                LOG.debug("User {}:{} is over to max failed logins", user.getId(), user.getUsername());
 
                 // reduce failed logins number to avoid multiple request
                 user.setFailedLogins(user.getFailedLogins() - 1);
@@ -127,18 +116,15 @@ public class AccountPolicyEnforcer
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                            new WorkflowResult<Map.Entry<Long, Boolean>>(
-                            new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
-                            updated.getPropByRes(),
-                            updated.getPerformedTasks()));
+                    final List<PropagationTask> tasks = propagationManager
+                            .getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated
+                                    .getResult(), Boolean.FALSE), updated.getPropByRes(), updated.getPerformedTasks()));
 
                     propagationManager.execute(tasks);
                 }
 
                 if (LOG.isDebugEnabled()) {
-                    final UserTO savedTO =
-                            userDataBinder.getUserTO(updated.getResult());
+                    final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
                     LOG.debug("About to return suspended user\n{}", savedTO);
                 }
             } catch (Exception e) {

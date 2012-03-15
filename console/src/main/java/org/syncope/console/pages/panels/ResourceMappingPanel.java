@@ -71,8 +71,7 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(ResourceMappingPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
 
     /**
      * Schema rest client.
@@ -158,9 +157,8 @@ public class ResourceMappingPanel extends Panel {
 
         initResourceSchemaNames();
 
-        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink",
-                new ResourceModel("accountLink", "accountLink").getObject(),
-                new PropertyModel<String>(resourceTO, "accountLink"));
+        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink", new ResourceModel("accountLink",
+                "accountLink").getObject(), new PropertyModel<String>(resourceTO, "accountLink"));
         add(accountLink);
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
@@ -180,7 +178,8 @@ public class ResourceMappingPanel extends Panel {
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
                 final AttributableType entity = mappingTO.getIntMappingType() == null
-                        ? null : mappingTO.getIntMappingType().getAttributableType();
+                        ? null
+                        : mappingTO.getIntMappingType().getAttributableType();
 
                 attrTypes = getAttributeTypes(entity);
 
@@ -213,10 +212,7 @@ public class ResourceMappingPanel extends Panel {
                             @Override
                             public CharSequence preDecorateScript(final CharSequence script) {
 
-                                return "if (confirm('"
-                                        + getString("confirmDelete")
-                                        + "'))"
-                                        + "{" + script + "} "
+                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
                                         + "else {this.checked = false;}";
                             }
                         };
@@ -270,14 +266,12 @@ public class ResourceMappingPanel extends Panel {
                 final FieldPanel extAttrName;
 
                 if (schemaNames.isEmpty()) {
-                    extAttrName = new AjaxTextFieldPanel("extAttrName",
-                            new ResourceModel("extAttrNames", "extAttrNames").getObject(),
-                            new PropertyModel<String>(mappingTO, "extAttrName"));
+                    extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
+                            "extAttrNames").getObject(), new PropertyModel<String>(mappingTO, "extAttrName"));
 
                 } else {
-                    extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName",
-                            new ResourceModel("extAttrNames", "extAttrNames").getObject(),
-                            new PropertyModel(mappingTO, "extAttrName"));
+                    extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName", new ResourceModel("extAttrNames",
+                            "extAttrNames").getObject(), new PropertyModel(mappingTO, "extAttrName"));
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
 
@@ -289,19 +283,18 @@ public class ResourceMappingPanel extends Panel {
                 extAttrName.setStyleShet(fieldStyle);
                 item.add(extAttrName);
 
-                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
-                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel(mappingTO, "mandatoryCondition"));
+                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition", new ResourceModel(
+                        "mandatoryCondition", "mandatoryCondition").getObject(), new PropertyModel(mappingTO,
+                        "mandatoryCondition"));
 
-                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
+                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
 
                 mandatory.setStyleShet(shortFieldStyle);
 
                 item.add(mandatory);
 
-                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
-                        new ResourceModel("accountId", "accountId").getObject(),
-                        new PropertyModel(mappingTO, "accountid"));
+                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId", new ResourceModel("accountId",
+                        "accountId").getObject(), new PropertyModel(mappingTO, "accountid"));
 
                 accountId.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
 
@@ -318,9 +311,8 @@ public class ResourceMappingPanel extends Panel {
 
                 item.add(accountId);
 
-                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
-                        new ResourceModel("password", "password").getObject(),
-                        new PropertyModel(mappingTO, "password"));
+                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password", new ResourceModel("password",
+                        "password").getObject(), new PropertyModel(mappingTO, "password"));
 
                 password.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
 
@@ -362,8 +354,7 @@ public class ResourceMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addMappingBtn = new IndicatingAjaxButton(
-                "addUserSchemaMappingBtn", new ResourceModel("add")) {
+        addMappingBtn = new IndicatingAjaxButton("addUserSchemaMappingBtn", new ResourceModel("add")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -515,8 +506,8 @@ public class ResourceMappingPanel extends Panel {
      * @param accountId accountId checkbox.
      * @param password password checkbox.
      */
-    private void setAccountId(
-            final IntMappingType type, final AjaxCheckBoxPanel accountId, final AjaxCheckBoxPanel password) {
+    private void setAccountId(final IntMappingType type, final AjaxCheckBoxPanel accountId,
+            final AjaxCheckBoxPanel password) {
 
         if (type != null && type.getAttributableType() != null) {
             switch (type) {

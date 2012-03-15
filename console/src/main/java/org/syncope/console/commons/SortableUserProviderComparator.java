@@ -27,8 +27,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.UserTO;
 
-public class SortableUserProviderComparator
-        extends SortableDataProviderComparator<UserTO> {
+public class SortableUserProviderComparator extends SortableDataProviderComparator<UserTO> {
 
     private static final Set<String> inlineProps;
 
@@ -39,8 +38,7 @@ public class SortableUserProviderComparator
         inlineProps.add("token");
     }
 
-    public SortableUserProviderComparator(
-            final SortableDataProvider<UserTO> provider) {
+    public SortableUserProviderComparator(final SortableDataProvider<UserTO> provider) {
 
         super(provider);
     }
@@ -51,8 +49,7 @@ public class SortableUserProviderComparator
             return super.compare(o1, o2);
         }
 
-        return super.compare(new AttrModel(o1.getAttributeMap()),
-                new AttrModel(o2.getAttributeMap()));
+        return super.compare(new AttrModel(o1.getAttributeMap()), new AttrModel(o2.getAttributeMap()));
     }
 
     private class AttrModel extends AbstractReadOnlyModel<Comparable> {
@@ -69,8 +66,7 @@ public class SortableUserProviderComparator
         public Comparable getObject() {
             Comparable result = null;
 
-            List<String> values = attrMap.get(
-                    provider.getSort().getProperty()).getValues();
+            List<String> values = attrMap.get(provider.getSort().getProperty()).getValues();
             if (values != null && !values.isEmpty()) {
                 result = values.iterator().next();
             }

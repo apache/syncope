@@ -29,8 +29,7 @@ public interface EntitlementDAO extends DAO {
 
     List<Entitlement> findAll();
 
-    Entitlement save(Entitlement entitlement)
-            throws InvalidEntityException;
+    Entitlement save(Entitlement entitlement) throws InvalidEntityException;
 
     Entitlement saveEntitlementRole(SyncopeRole role);
 

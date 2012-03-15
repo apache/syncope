@@ -43,8 +43,7 @@ public class ResourceSecurityPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(ResourceSecurityPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ResourceSecurityPanel.class);
 
     private static final long serialVersionUID = -7982691107029848579L;
 
@@ -70,8 +69,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO :
-                        policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -85,8 +83,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO :
-                        policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -100,16 +97,14 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO :
-                        policyRestClient.getPolicies(PolicyType.SYNC)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
             }
         };
 
-        final WebMarkupContainer securityContainer =
-                new WebMarkupContainer("security");
+        final WebMarkupContainer securityContainer = new WebMarkupContainer("security");
 
         securityContainer.setOutputMarkupId(true);
         add(securityContainer);
@@ -118,14 +113,12 @@ public class ResourceSecurityPanel extends Panel {
         // Password policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
-                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
-                new PropertyModel(resourceTO, "passwordPolicy"));
+                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel(resourceTO,
+                        "passwordPolicy"));
 
-        passwordPolicy.setChoiceRenderer(
-                new PolicyRenderer(PolicyType.PASSWORD));
+        passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
-        passwordPolicy.setChoices(
-                new ArrayList<Long>(passwordPolicies.getObject().keySet()));
+        passwordPolicy.setChoices(new ArrayList<Long>(passwordPolicies.getObject().keySet()));
 
         ((DropDownChoice) passwordPolicy.getField()).setNullValid(true);
 
@@ -136,14 +129,12 @@ public class ResourceSecurityPanel extends Panel {
         // Account policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
-                new ResourceModel("accountPolicy", "accountPolicy").getObject(),
-                new PropertyModel(resourceTO, "accountPolicy"));
+                new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel(resourceTO,
+                        "accountPolicy"));
 
-        accountPolicy.setChoiceRenderer(
-                new PolicyRenderer(PolicyType.ACCOUNT));
+        accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
-        accountPolicy.setChoices(
-                new ArrayList<Long>(accountPolicies.getObject().keySet()));
+        accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
 
         ((DropDownChoice) accountPolicy.getField()).setNullValid(true);
 
@@ -156,11 +147,9 @@ public class ResourceSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
                 new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel(resourceTO, "syncPolicy"));
 
-        syncPolicy.setChoiceRenderer(
-                new PolicyRenderer(PolicyType.SYNC));
+        syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
 
-        syncPolicy.setChoices(
-                new ArrayList<Long>(syncPolicies.getObject().keySet()));
+        syncPolicy.setChoices(new ArrayList<Long>(syncPolicies.getObject().keySet()));
 
         ((DropDownChoice) syncPolicy.getField()).setNullValid(true);
 
@@ -198,7 +187,9 @@ public class ResourceSecurityPanel extends Panel {
 
         @Override
         public String getIdValue(Long object, int index) {
-            return String.valueOf(object != null ? object : 0L);
+            return String.valueOf(object != null
+                    ? object
+                    : 0L);
         }
     };
 }

@@ -41,16 +41,12 @@ public class MembershipModalPage extends BaseModalPage {
 
     private AjaxButton submit;
 
-    public MembershipModalPage(
-            final PageReference pageRef,
-            final ModalWindow window,
-            final MembershipTO membershipTO,
+    public MembershipModalPage(final PageReference pageRef, final ModalWindow window, final MembershipTO membershipTO,
             final boolean templateMode) {
 
         final Form form = new Form("MembershipForm");
 
-        final UserTO userTO =
-                ((UserModalPage) pageRef.getPage()).getUserTO();
+        final UserTO userTO = ((UserModalPage) pageRef.getPage()).getUserTO();
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
@@ -59,8 +55,7 @@ public class MembershipModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 userTO.removeMembership(membershipTO);
                 userTO.addMembership(membershipTO);
@@ -71,8 +66,7 @@ public class MembershipModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(
-                    final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -81,16 +75,14 @@ public class MembershipModalPage extends BaseModalPage {
         String allowedRoles = userTO.getId() == 0
                 ? xmlRolesReader.getAllAllowedRoles("Users", "create")
                 : xmlRolesReader.getAllAllowedRoles("Users", "update");
-        MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
-                allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, allowedRoles);
 
         form.add(submit);
 
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attributes", membershipTO, form,
-                templateMode));
+        form.add(new AttributesPanel("attributes", membershipTO, form, templateMode));
         //--------------------------------
 
         //--------------------------------
@@ -102,8 +94,7 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO,
-                templateMode));
+        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO, templateMode));
         //--------------------------------
 
         add(form);

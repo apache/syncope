@@ -34,21 +34,17 @@ public final class ConnConfPropUtils {
     private ConnConfPropUtils() {
     }
 
-    public static Set<ConnConfProperty> joinConnInstanceProperties(
-            final Map<String, ConnConfProperty> connectorProp,
+    public static Set<ConnConfProperty> joinConnInstanceProperties(final Map<String, ConnConfProperty> connectorProp,
             final Map<String, ConnConfProperty> resourceProp) {
 
         connectorProp.putAll(resourceProp);
         return new HashSet<ConnConfProperty>(connectorProp.values());
     }
 
-    public static Map<String, ConnConfProperty> getConnConfPropertyMap(
-            final Set<ConnConfProperty> properties) {
+    public static Map<String, ConnConfProperty> getConnConfPropertyMap(final Set<ConnConfProperty> properties) {
 
-        final Map<String, ConnConfProperty> prop =
-                new HashMap<String, ConnConfProperty>();
-        for (Iterator<ConnConfProperty> item =
-                properties.iterator(); item.hasNext();) {
+        final Map<String, ConnConfProperty> prop = new HashMap<String, ConnConfProperty>();
+        for (Iterator<ConnConfProperty> item = properties.iterator(); item.hasNext();) {
             ConnConfProperty property = item.next();
             prop.put(property.getSchema().getName(), property);
         }

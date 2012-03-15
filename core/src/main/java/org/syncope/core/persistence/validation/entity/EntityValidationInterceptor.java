@@ -39,8 +39,7 @@ public class EntityValidationInterceptor {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            EntityValidationInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityValidationInterceptor.class);
 
     @Autowired
     private Validator validator;
@@ -53,15 +52,12 @@ public class EntityValidationInterceptor {
      * @throws Throwable if anything goes wrong
      */
     @Around("execution(* org.syncope.core.persistence.dao..*.save(..))")
-    public final Object save(final ProceedingJoinPoint pjp)
-            throws Throwable {
+    public final Object save(final ProceedingJoinPoint pjp) throws Throwable {
 
-        Set<ConstraintViolation<Object>> violations =
-                validator.validate(pjp.getArgs()[0]);
+        Set<ConstraintViolation<Object>> violations = validator.validate(pjp.getArgs()[0]);
         if (!violations.isEmpty()) {
             LOG.error("Bean validation errors found: {}", violations);
-            throw new InvalidEntityException(
-                    pjp.getArgs()[0].getClass().getSimpleName(), violations);
+            throw new InvalidEntityException(pjp.getArgs()[0].getClass().getSimpleName(), violations);
         }
 
         return pjp.proceed();

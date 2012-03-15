@@ -25,22 +25,18 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.dao.AttrValueDAO;
 
 @Repository
-public class AttrValueDAOImpl extends AbstractDAOImpl
-        implements AttrValueDAO {
+public class AttrValueDAOImpl extends AbstractDAOImpl implements AttrValueDAO {
 
     @Override
-    public <T extends AbstractAttrValue> T find(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractAttrValue> T find(final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractAttrValue> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractAttrValue> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -50,8 +46,7 @@ public class AttrValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractAttrValue> void delete(final Long id,
-            final Class<T> reference) {
+    public <T extends AbstractAttrValue> void delete(final Long id, final Class<T> reference) {
 
         T attributeValue = find(id, reference);
         if (attributeValue == null) {
@@ -62,8 +57,7 @@ public class AttrValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractAttrValue> void delete(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> void delete(final T attributeValue) {
 
         if (attributeValue.getAttribute() != null) {
             attributeValue.getAttribute().removeValue(attributeValue);

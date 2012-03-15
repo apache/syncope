@@ -26,14 +26,12 @@ public class ResourceTestITCase extends AbstractTest {
     public void browseCreateModal() {
         selenium.click("css=img[alt=\"Resources\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[3]/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
-                "30000");
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("css=a.w_close");
     }
@@ -42,25 +40,20 @@ public class ResourceTestITCase extends AbstractTest {
     public void browseEditModal() {
         selenium.click("css=img[alt=\"Resources\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
-                "30000");
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[2]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//tbody/tr\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//tbody/tr\");", "30000");
 
         selenium.click("//tbody/tr[2]/td/input");
 
-        assertTrue(selenium.getConfirmation().matches(
-                "^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 
         selenium.click("name=apply");
     }
@@ -69,27 +62,23 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         selenium.click("css=img[alt=\"Resources\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//tr[3]/td[4]/span/span[9]/a");
 
-        assertTrue(selenium.getConfirmation().matches(
-                "^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
 
     @Test
     public void checkSecurityTab() {
         selenium.click("css=img[alt=\"Resources\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
-                "30000");
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[4]/a");
 
@@ -106,21 +95,17 @@ public class ResourceTestITCase extends AbstractTest {
     public void checkConnection() {
         selenium.click("css=img[alt=\"Resources\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//"
-                + "*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
+        selenium
+                .click("//*[@id=\"users-contain\"]//" + "*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");",
-                "30000");
+                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[3]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//span[text()='endpoint']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//span[text()='endpoint']\");", "30000");
 
         selenium.click("//div[2]/form/div[2]/div[3]/span/span/div[2]/a/img");
 

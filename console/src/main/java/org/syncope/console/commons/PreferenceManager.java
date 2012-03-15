@@ -44,17 +44,14 @@ public class PreferenceManager {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            PreferenceManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
-    private static final TypeReference MAP_TYPE_REF =
-            new TypeReference<Map<String, String>>() {
-            };
+    private static final TypeReference MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
+    };
 
-    private static final List<Integer> PAGINATOR_CHOICES =
-            Arrays.asList(new Integer[]{10, 25, 50});
+    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
 
     @Autowired
     private ObjectMapper mapper;
@@ -83,8 +80,7 @@ public class PreferenceManager {
         return prefs;
     }
 
-    private String setPrefs(final Map<String, String> prefs)
-            throws IOException {
+    private String setPrefs(final Map<String, String> prefs) throws IOException {
 
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, prefs);
@@ -95,13 +91,11 @@ public class PreferenceManager {
     public String get(final Request request, final String key) {
         String result = null;
 
-        Cookie prefCookie = ((WebRequest) request).getCookie(
-                Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
 
         if (prefCookie != null) {
 
-            final Map<String, String> prefs = getPrefs(new String(
-                    Base64.decodeBase64(prefCookie.getValue().getBytes())));
+            final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes())));
 
             result = prefs.get(key);
 
@@ -112,8 +106,7 @@ public class PreferenceManager {
         return result;
     }
 
-    public Integer getPaginatorRows(final Request request,
-            final String key) {
+    public Integer getPaginatorRows(final Request request, final String key) {
 
         Integer result = getPaginatorChoices().get(0);
 
@@ -143,30 +136,25 @@ public class PreferenceManager {
         return result;
     }
 
-    public void set(final Request request, final Response response,
-            final Map<String, List<String>> prefs) {
+    public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
 
-        Cookie prefCookie =
-                ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<String, String>();
 
         if (prefCookie == null || !StringUtils.hasText(prefCookie.getValue())) {
             prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, null);
         } else {
-            current.putAll(getPrefs(new String(Base64.decodeBase64(
-                    prefCookie.getValue().getBytes()))));
+            current.putAll(getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
         for (Entry<String, List<String>> entry : prefs.entrySet()) {
-            current.put(entry.getKey(), StringUtils.collectionToDelimitedString(
-                    entry.getValue(), ";"));
+            current.put(entry.getKey(), StringUtils.collectionToDelimitedString(entry.getValue(), ";"));
         }
 
         try {
-            prefCookie.setValue(new String(
-                    Base64.encodeBase64(setPrefs(current).getBytes())));
+            prefCookie.setValue(new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not set preferences " + current, e);
         }
@@ -175,27 +163,23 @@ public class PreferenceManager {
         ((WebResponse) response).addCookie(prefCookie);
     }
 
-    public void set(final Request request, final Response response,
-            final String key, final String value) {
+    public void set(final Request request, final Response response, final String key, final String value) {
 
-        Cookie prefCookie =
-                ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
 
         final Map<String, String> prefs = new HashMap<String, String>();
 
         if (prefCookie == null || !StringUtils.hasText(prefCookie.getValue())) {
             prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, null);
         } else {
-            prefs.putAll(getPrefs(new String(Base64.decodeBase64(
-                    prefCookie.getValue().getBytes()))));
+            prefs.putAll(getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
         prefs.put(key, value);
 
         try {
-            prefCookie.setValue(new String(
-                    Base64.encodeBase64(setPrefs(prefs).getBytes())));
+            prefCookie.setValue(new String(Base64.encodeBase64(setPrefs(prefs).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not set preferences " + prefs, e);
         }
@@ -204,15 +188,12 @@ public class PreferenceManager {
         ((WebResponse) response).addCookie(prefCookie);
     }
 
-    public void setList(final Request request, final Response response,
-            final String key, final List<String> values) {
+    public void setList(final Request request, final Response response, final String key, final List<String> values) {
 
-        set(request, response,
-                key, StringUtils.collectionToDelimitedString(values, ";"));
+        set(request, response, key, StringUtils.collectionToDelimitedString(values, ";"));
     }
 
-    public void setList(final Request request, final Response response,
-            final Map<String, List<String>> prefs) {
+    public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {
 
         set(request, response, prefs);
     }

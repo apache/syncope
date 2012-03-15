@@ -38,8 +38,7 @@ public class NotificationTaskModalPage extends TaskModalPage {
         sender.setEnabled(false);
         profile.add(sender);
 
-        final ListMultipleChoice<String> recipients =
-                new ListMultipleChoice<String>("recipients",
+        final ListMultipleChoice<String> recipients = new ListMultipleChoice<String>("recipients",
                 new ArrayList<String>(((NotificationTaskTO) taskTO).getRecipients()));
         recipients.setMaxRows(5);
         recipients.setEnabled(false);

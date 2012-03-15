@@ -41,8 +41,7 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO)
-            throws UnauthorizedRoleException, WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -53,9 +52,7 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(
-            UserTO userTO,
-            boolean disablePwdPolicyCheck)
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**
@@ -68,10 +65,7 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(
-            UserTO userTO,
-            boolean disablePwdPolicyCheck,
-            final Boolean enabled)
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**
@@ -121,8 +115,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> suspend(Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> suspend(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Suspend an user.
@@ -132,8 +125,7 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> suspend(SyncopeUser user)
-            throws UnauthorizedRoleException, WorkflowException;
+    WorkflowResult<Long> suspend(SyncopeUser user) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Reactivate an user.
@@ -144,8 +136,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> reactivate(Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> reactivate(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Delete an user.
@@ -155,8 +146,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    void delete(Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    void delete(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
 
     /**
      * Get workflow definition.
@@ -164,8 +154,7 @@ public interface UserWorkflowAdapter {
      * @return workflow definition as XML
      * @throws WorkflowException workflow exception
      */
-    WorkflowDefinitionTO getDefinition()
-            throws WorkflowException;
+    WorkflowDefinitionTO getDefinition() throws WorkflowException;
 
     /**
      * Update workflow definition.
@@ -174,8 +163,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException definition not found exception
      * @throws WorkflowException workflow exception
      */
-    void updateDefinition(WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException;
+    void updateDefinition(WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException;
 
     /**
      * Get list of defined tasks in workflow.
@@ -183,8 +171,7 @@ public interface UserWorkflowAdapter {
      * @return list of defined tasks in workflow
      * @throws WorkflowException workflow exception
      */
-    List<String> getDefinedTasks()
-            throws WorkflowException;
+    List<String> getDefinedTasks() throws WorkflowException;
 
     /**
      * Get all defined forms for current workflow process instances.
@@ -201,8 +188,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException definition not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO getForm(String workflowId)
-            throws NotFoundException, WorkflowException;
+    WorkflowFormTO getForm(String workflowId) throws NotFoundException, WorkflowException;
 
     /**
      * Claim a form for a given user.
@@ -213,8 +199,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO claimForm(String taskId, String username)
-            throws NotFoundException, WorkflowException;
+    WorkflowFormTO claimForm(String taskId, String username) throws NotFoundException, WorkflowException;
 
     /**
      * Submit a form.

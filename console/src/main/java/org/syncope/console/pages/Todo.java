@@ -109,28 +109,19 @@ public class Todo extends BasePage {
     private void setupApproval() {
         approvalContainer = new WebMarkupContainer("approvalContainer");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                approvalContainer, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(approvalContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Approval", "list"));
 
-        approvalPaginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_APPROVAL_PAGINATOR_ROWS);
+        approvalPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_APPROVAL_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("taskId"),
-                "taskId", "taskId"));
-        columns.add(new PropertyColumn(new ResourceModel("key"),
-                "key", "key"));
-        columns.add(new PropertyColumn(new ResourceModel("description"),
-                "description", "description"));
-        columns.add(new DatePropertyColumn(new ResourceModel("createTime"),
-                "createTime", "createTime"));
-        columns.add(new DatePropertyColumn(new ResourceModel("dueDate"),
-                "dueDate", "dueDate"));
-        columns.add(new PropertyColumn(new ResourceModel("owner"),
-                "owner", "owner"));
-        columns.add(new AbstractColumn<WorkflowFormTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new PropertyColumn(new ResourceModel("taskId"), "taskId", "taskId"));
+        columns.add(new PropertyColumn(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
+        columns.add(new DatePropertyColumn(new ResourceModel("createTime"), "createTime", "createTime"));
+        columns.add(new DatePropertyColumn(new ResourceModel("dueDate"), "dueDate", "dueDate"));
+        columns.add(new PropertyColumn(new ResourceModel("owner"), "owner", "owner"));
+        columns.add(new AbstractColumn<WorkflowFormTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -140,20 +131,16 @@ public class Todo extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<WorkflowFormTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<WorkflowFormTO>> cellItem, final String componentId,
                     final IModel<WorkflowFormTO> model) {
 
                 final WorkflowFormTO formTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -170,37 +157,30 @@ public class Todo extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        editApprovalWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editApprovalWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new ApprovalModalPage(
-                                                Todo.this.getPageReference(),
-                                                editApprovalWin, formTO);
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new ApprovalModalPage(Todo.this.getPageReference(), editApprovalWin, formTO);
+                            }
+                        });
 
                         editApprovalWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Approval", "read",
-                        SyncopeSession.get().getUserId().equals(
+                }, ActionLink.ActionType.EDIT, "Approval", "read", SyncopeSession.get().getUserId().equals(
                         formTO.getOwner()));
 
                 cellItem.add(panel);
             }
         });
 
-        final AjaxFallbackDefaultDataTable approvalTable =
-                new AjaxFallbackDefaultDataTable("approvalTable", columns,
+        final AjaxFallbackDefaultDataTable approvalTable = new AjaxFallbackDefaultDataTable("approvalTable", columns,
                 new ApprovalProvider(), approvalPaginatorRows);
 
         approvalContainer.add(approvalTable);
@@ -210,13 +190,11 @@ public class Todo extends BasePage {
 
         Form approvalPaginatorForm = new Form("approvalPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                approvalPaginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Approval", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "approvalPaginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "approvalPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -224,10 +202,8 @@ public class Todo extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_APPROVAL_PAGINATOR_ROWS,
-                        String.valueOf(approvalPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_APPROVAL_PAGINATOR_ROWS, String
+                        .valueOf(approvalPaginatorRows));
                 approvalTable.setItemsPerPage(approvalPaginatorRows);
 
                 target.add(approvalContainer);
@@ -248,21 +224,16 @@ public class Todo extends BasePage {
     private void setupUserRequest() {
         userRequestContainer = new WebMarkupContainer("userRequestContainer");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                userRequestContainer, RENDER,
-                xmlRolesReader.getAllAllowedRoles("UserRequest", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(userRequestContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "UserRequest", "list"));
 
-        userRequestPaginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_USER_REQUEST_PAGINATOR_ROWS);
+        userRequestPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USER_REQUEST_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("id"),
-                "id", "id"));
-        columns.add(new PropertyColumn(new ResourceModel("type"),
-                "type", "type"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("type"), "type", "type"));
         columns.add(new UserRequestColumn("user"));
-        columns.add(new AbstractColumn<UserRequestTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<UserRequestTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -272,37 +243,29 @@ public class Todo extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserRequestTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<UserRequestTO>> cellItem, final String componentId,
                     final IModel<UserRequestTO> model) {
 
                 final UserRequestTO request = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        editUserRequestWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editUserRequestWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new UserRequestModalPage(
-                                                Todo.this.getPageReference(),
-                                                editUserRequestWin,
-                                                model.getObject());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new UserRequestModalPage(Todo.this.getPageReference(), editUserRequestWin, model
+                                        .getObject());
+                            }
+                        });
 
                         editUserRequestWin.show(target);
                     }
@@ -311,16 +274,13 @@ public class Todo extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            userRestClient.delete(
-                                    model.getObject().getUserId());
-                            userRequestRestClient.delete(
-                                    model.getObject().getId());
+                            userRestClient.delete(model.getObject().getUserId());
+                            userRequestRestClient.delete(model.getObject().getId());
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting an user", e);
                             error(e.getMessage());
@@ -337,8 +297,7 @@ public class Todo extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -361,9 +320,8 @@ public class Todo extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable userRequestTable =
-                new AjaxFallbackDefaultDataTable("userRequestTable", columns,
-                new UserRequestProvider(), userRequestPaginatorRows);
+        final AjaxFallbackDefaultDataTable userRequestTable = new AjaxFallbackDefaultDataTable("userRequestTable",
+                columns, new UserRequestProvider(), userRequestPaginatorRows);
 
         userRequestContainer.add(userRequestTable);
         userRequestContainer.setOutputMarkupId(true);
@@ -372,13 +330,11 @@ public class Todo extends BasePage {
 
         Form userRequestPaginatorForm = new Form("userRequestPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                userRequestPaginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("UserRequest", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(userRequestPaginatorForm, RENDER, xmlRolesReader
+                .getAllAllowedRoles("UserRequest", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "userRequestPaginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "userRequestPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -386,10 +342,8 @@ public class Todo extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_USER_REQUEST_PAGINATOR_ROWS,
-                        String.valueOf(userRequestPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_USER_REQUEST_PAGINATOR_ROWS, String
+                        .valueOf(userRequestPaginatorRows));
                 userRequestTable.setItemsPerPage(userRequestPaginatorRows);
 
                 target.add(userRequestContainer);
@@ -407,8 +361,7 @@ public class Todo extends BasePage {
         setWindowClosedCallback(editUserRequestWin, userRequestContainer);
     }
 
-    private class ApprovalProvider
-            extends SortableDataProvider<WorkflowFormTO> {
+    private class ApprovalProvider extends SortableDataProvider<WorkflowFormTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -417,13 +370,11 @@ public class Todo extends BasePage {
         public ApprovalProvider() {
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<WorkflowFormTO>(this);
+            comparator = new SortableDataProviderComparator<WorkflowFormTO>(this);
         }
 
         @Override
-        public Iterator<WorkflowFormTO> iterator(final int first,
-                final int count) {
+        public Iterator<WorkflowFormTO> iterator(final int first, final int count) {
 
             List<WorkflowFormTO> list = approvalRestClient.getForms();
 
@@ -438,13 +389,11 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public IModel<WorkflowFormTO> model(
-                final WorkflowFormTO configuration) {
+        public IModel<WorkflowFormTO> model(final WorkflowFormTO configuration) {
 
             return new AbstractReadOnlyModel<WorkflowFormTO>() {
 
-                private static final long serialVersionUID =
-                        -2566070996511906708L;
+                private static final long serialVersionUID = -2566070996511906708L;
 
                 @Override
                 public WorkflowFormTO getObject() {
@@ -454,8 +403,7 @@ public class Todo extends BasePage {
         }
     }
 
-    private class UserRequestProvider
-            extends SortableDataProvider<UserRequestTO> {
+    private class UserRequestProvider extends SortableDataProvider<UserRequestTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -464,13 +412,11 @@ public class Todo extends BasePage {
         public UserRequestProvider() {
             //Default sorting
             setSort("id", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<UserRequestTO>(this);
+            comparator = new SortableDataProviderComparator<UserRequestTO>(this);
         }
 
         @Override
-        public Iterator<UserRequestTO> iterator(final int first,
-                final int count) {
+        public Iterator<UserRequestTO> iterator(final int first, final int count) {
 
             List<UserRequestTO> list = userRequestRestClient.list();
 
@@ -485,13 +431,11 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public IModel<UserRequestTO> model(
-                final UserRequestTO userRequestTO) {
+        public IModel<UserRequestTO> model(final UserRequestTO userRequestTO) {
 
             return new AbstractReadOnlyModel<UserRequestTO>() {
 
-                private static final long serialVersionUID =
-                        -2566070996511906708L;
+                private static final long serialVersionUID = -2566070996511906708L;
 
                 @Override
                 public UserRequestTO getObject() {
@@ -510,9 +454,8 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public void populateItem(
-                final Item<ICellPopulator<UserRequestTO>> cellItem,
-                final String componentId, final IModel<UserRequestTO> rowModel) {
+        public void populateItem(final Item<ICellPopulator<UserRequestTO>> cellItem, final String componentId,
+                final IModel<UserRequestTO> rowModel) {
 
             String label = "";
             switch (rowModel.getObject().getType()) {
@@ -524,8 +467,7 @@ public class Todo extends BasePage {
                     break;
 
                 case UPDATE:
-                    label = String.valueOf(
-                            rowModel.getObject().getUserMod().getId());
+                    label = String.valueOf(rowModel.getObject().getUserMod().getId());
                     break;
 
                 case DELETE:

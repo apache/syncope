@@ -28,31 +28,26 @@ import org.syncope.core.persistence.dao.DerAttrDAO;
 public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
 
     @Override
-    public <T extends AbstractDerAttr> T find(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractDerAttr> T find(final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractDerAttr> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractDerAttr> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractDerAttr> T save(
-            final T derivedAttribute) {
+    public <T extends AbstractDerAttr> T save(final T derivedAttribute) {
 
         return entityManager.merge(derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractDerAttr> void delete(final Long id, final Class<T> reference) {
 
         T derivedAttribute = find(id, reference);
         if (derivedAttribute == null) {
@@ -63,12 +58,10 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
-            final T derivedAttribute) {
+    public <T extends AbstractDerAttr> void delete(final T derivedAttribute) {
 
         if (derivedAttribute.getOwner() != null) {
-            derivedAttribute.getOwner().
-                    removeDerivedAttribute(derivedAttribute);
+            derivedAttribute.getOwner().removeDerivedAttribute(derivedAttribute);
         }
 
         entityManager.remove(derivedAttribute);

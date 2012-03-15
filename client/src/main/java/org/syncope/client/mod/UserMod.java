@@ -92,10 +92,7 @@ public class UserMod extends AbstractAttributableMod {
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty()
-                && password == null
-                && username == null
-                && membershipsToBeAddeded.isEmpty()
+        return super.isEmpty() && password == null && username == null && membershipsToBeAddeded.isEmpty()
                 && membershipsToBeRemoved.isEmpty();
     }
 }

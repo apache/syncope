@@ -37,14 +37,12 @@ public class UserTemplateModalPage extends UserModalPage {
 
     private SyncTaskTO syncTaskTO;
 
-    public UserTemplateModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
+    public UserTemplateModalPage(final PageReference callerPageRef, final ModalWindow window,
             final SyncTaskTO syncTaskTO) {
 
         super(callerPageRef, window, syncTaskTO.getUserTemplate() == null
-                ? new UserTO() : syncTaskTO.getUserTemplate(),
-                Mode.TEMPLATE, true);
+                ? new UserTO()
+                : syncTaskTO.getUserTemplate(), Mode.TEMPLATE, true);
 
         this.syncTaskTO = syncTaskTO;
 

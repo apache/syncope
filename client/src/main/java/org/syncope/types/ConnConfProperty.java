@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
-public class ConnConfProperty extends AbstractBaseBean
-        implements Comparable<ConnConfProperty> {
+public class ConnConfProperty extends AbstractBaseBean implements Comparable<ConnConfProperty> {
 
     private static final long serialVersionUID = -8391413960221862238L;
 

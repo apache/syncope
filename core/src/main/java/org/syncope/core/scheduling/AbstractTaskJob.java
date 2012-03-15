@@ -54,8 +54,7 @@ public abstract class AbstractTaskJob implements StatefulJob {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractTaskJob.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTaskJob.class);
 
     /**
      * Task DAO.
@@ -89,8 +88,7 @@ public abstract class AbstractTaskJob implements StatefulJob {
     }
 
     @Override
-    public final void execute(final JobExecutionContext context)
-            throws JobExecutionException {
+    public final void execute(final JobExecutionContext context) throws JobExecutionException {
 
         task = taskDAO.find(taskId);
         if (task == null) {
@@ -102,9 +100,7 @@ public abstract class AbstractTaskJob implements StatefulJob {
         execution.setTask(task);
 
         try {
-            execution.setMessage(doExecute(
-                    context.getMergedJobDataMap().
-                    getBoolean(DRY_RUN_JOBDETAIL_KEY)));
+            execution.setMessage(doExecute(context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY)));
 
             execution.setStatus(Status.SUCCESS.name());
         } catch (JobExecutionException e) {
@@ -130,8 +126,7 @@ public abstract class AbstractTaskJob implements StatefulJob {
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(boolean dryRun)
-            throws JobExecutionException;
+    protected abstract String doExecute(boolean dryRun) throws JobExecutionException;
 
     /**
      * Template method to determine whether this job's task execution has

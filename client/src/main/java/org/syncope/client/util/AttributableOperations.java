@@ -52,30 +52,22 @@ public final class AttributableOperations {
         return (T) SerializationUtils.clone(original);
     }
 
-    private static void populate(
-            final Map<String, AttributeTO> updatedAttrs,
-            final Map<String, AttributeTO> originalAttrs,
-            final AbstractAttributableMod result) {
+    private static void populate(final Map<String, AttributeTO> updatedAttrs,
+            final Map<String, AttributeTO> originalAttrs, final AbstractAttributableMod result) {
         populate(updatedAttrs, originalAttrs, result, false);
     }
 
-    private static void populate(
-            final Map<String, AttributeTO> updatedAttrs,
-            final Map<String, AttributeTO> originalAttrs,
-            final AbstractAttributableMod result,
-            final boolean virtuals) {
+    private static void populate(final Map<String, AttributeTO> updatedAttrs,
+            final Map<String, AttributeTO> originalAttrs, final AbstractAttributableMod result, final boolean virtuals) {
 
         for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
             AttributeMod mod = new AttributeMod();
             mod.setSchema(entry.getKey());
 
-            Set<String> updatedValues = new HashSet<String>(
-                    entry.getValue().getValues());
+            Set<String> updatedValues = new HashSet<String>(entry.getValue().getValues());
 
-            Set<String> originalValues =
-                    originalAttrs.containsKey(entry.getKey())
-                    ? new HashSet<String>(
-                    originalAttrs.get(entry.getKey()).getValues())
+            Set<String> originalValues = originalAttrs.containsKey(entry.getKey())
+                    ? new HashSet<String>(originalAttrs.get(entry.getKey()).getValues())
                     : Collections.EMPTY_SET;
 
             if (!updatedValues.equals(originalValues)) {
@@ -86,16 +78,14 @@ public final class AttributableOperations {
 
                     if (!mod.isEmpty()) {
                         if (virtuals) {
-                            result.addVirtualAttributeToBeRemoved(
-                                    mod.getSchema());
+                            result.addVirtualAttributeToBeRemoved(mod.getSchema());
                         } else {
                             result.addAttributeToBeRemoved(mod.getSchema());
                         }
                     }
                 }
 
-                mod.setValuesToBeRemoved(
-                        new ArrayList<String>(originalValues));
+                mod.setValuesToBeRemoved(new ArrayList<String>(originalValues));
 
                 if (!mod.isEmpty()) {
                     if (virtuals) {
@@ -108,15 +98,12 @@ public final class AttributableOperations {
         }
     }
 
-    private static void diff(
-            final AbstractAttributableTO updated,
-            final AbstractAttributableTO original,
+    private static void diff(final AbstractAttributableTO updated, final AbstractAttributableTO original,
             final AbstractAttributableMod result) {
 
         // 1. check same id
         if (updated.getId() != original.getId()) {
-            throw new IllegalArgumentException(
-                    "AttributableTO's id must be the same");
+            throw new IllegalArgumentException("AttributableTO's id must be the same");
         }
         result.setId(updated.getId());
 
@@ -124,15 +111,13 @@ public final class AttributableOperations {
         Map<String, AttributeTO> updatedAttrs = updated.getAttributeMap();
         Map<String, AttributeTO> originalAttrs = original.getAttributeMap();
 
-        Set<String> originalAttrNames =
-                new HashSet<String>(originalAttrs.keySet());
+        Set<String> originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
         result.setAttributesToBeRemoved(originalAttrNames);
 
         Set<String> emptyUpdatedAttrs = new HashSet<String>();
         for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
-            if (entry.getValue().getValues() == null
-                    || entry.getValue().getValues().isEmpty()) {
+            if (entry.getValue().getValues() == null || entry.getValue().getValues().isEmpty()) {
 
                 emptyUpdatedAttrs.add(entry.getKey());
             }
@@ -189,15 +174,13 @@ public final class AttributableOperations {
         diff(updated, original, result);
 
         // 1. password
-        if (original.getPassword() != null
-                && !original.getPassword().equals(updated.getPassword())) {
+        if (original.getPassword() != null && !original.getPassword().equals(updated.getPassword())) {
 
             result.setPassword(updated.getPassword());
         }
 
         // 2. username
-        if (original.getUsername() != null
-                && !original.getUsername().equals(updated.getUsername())) {
+        if (original.getUsername() != null && !original.getUsername().equals(updated.getUsername())) {
 
             result.setUsername(updated.getUsername());
         }
@@ -211,11 +194,9 @@ public final class AttributableOperations {
             membMod.setRole(entry.getValue().getRoleId());
 
             if (originalMembs.containsKey(entry.getKey())) {
-                diff(entry.getValue(), originalMembs.get(entry.getKey()),
-                        membMod);
+                diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod);
             } else {
-                for (AttributeTO attr :
-                        entry.getValue().getAttributes()) {
+                for (AttributeTO attr : entry.getValue().getAttributes()) {
 
                     AttributeMod attrMod = new AttributeMod();
                     attrMod.setSchema(attr.getSchema());
@@ -226,13 +207,11 @@ public final class AttributableOperations {
                         membMod.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
-                for (AttributeTO attr :
-                        entry.getValue().getDerivedAttributes()) {
+                for (AttributeTO attr : entry.getValue().getDerivedAttributes()) {
 
                     membMod.addDerivedAttributeToBeAdded(attr.getSchema());
                 }
-                for (AttributeTO attr :
-                        entry.getValue().getVirtualAttributes()) {
+                for (AttributeTO attr : entry.getValue().getVirtualAttributes()) {
 
                     AttributeMod attrMod = new AttributeMod();
                     attrMod.setSchema(attr.getSchema());
@@ -275,10 +254,8 @@ public final class AttributableOperations {
         result.setInheritAccountPolicy(updated.isInheritAccountPolicy());
         result.setInheritPasswordPolicy(updated.isInheritPasswordPolicy());
         result.setInheritAttributes(updated.isInheritAttributes());
-        result.setInheritDerivedAttributes(
-                updated.isInheritDerivedAttributes());
-        result.setInheritVirtualAttributes(
-                updated.isInheritVirtualAttributes());
+        result.setInheritDerivedAttributes(updated.isInheritDerivedAttributes());
+        result.setInheritVirtualAttributes(updated.isInheritVirtualAttributes());
 
         // 2. policies
         ReferenceMod refAccountPolicy = new ReferenceMod();
@@ -295,10 +272,8 @@ public final class AttributableOperations {
         }
 
         // 4. entitlements
-        Set<String> updatedEnts = new HashSet<String>(
-                updated.getEntitlements());
-        Set<String> originalEnts = new HashSet<String>(
-                original.getEntitlements());
+        Set<String> updatedEnts = new HashSet<String>(updated.getEntitlements());
+        Set<String> originalEnts = new HashSet<String>(original.getEntitlements());
         if (!updatedEnts.equals(originalEnts)) {
             result.setEntitlements(updated.getEntitlements());
         }
@@ -306,10 +281,8 @@ public final class AttributableOperations {
         return result;
     }
 
-    private static List<AttributeTO> getUpdateValues(
-            final Map<String, AttributeTO> attrs,
-            final Set<String> attrsToBeRemoved,
-            final Set<AttributeMod> attrsToBeUpdated) {
+    private static List<AttributeTO> getUpdateValues(final Map<String, AttributeTO> attrs,
+            final Set<String> attrsToBeRemoved, final Set<AttributeMod> attrsToBeUpdated) {
 
         for (String attrName : attrsToBeRemoved) {
             attrs.remove(attrName);
@@ -331,19 +304,17 @@ public final class AttributableOperations {
         return new ArrayList(attrs.values());
     }
 
-    private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(
-            final T to, final K mod, final T result) {
+    private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(final T to,
+            final K mod, final T result) {
 
         // 1. check same id
         if (to.getId() != mod.getId()) {
-            throw new IllegalArgumentException(
-                    "AttributableTO and AttributableMod ids must be the same");
+            throw new IllegalArgumentException("AttributableTO and AttributableMod ids must be the same");
         }
 
         // 2. attributes
-        result.setAttributes(getUpdateValues(to.getAttributeMap(),
-                mod.getAttributesToBeRemoved(),
-                mod.getAttributesToBeUpdated()));
+        result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(), mod
+                .getAttributesToBeUpdated()));
 
         // 3. derived attributes
         Map<String, AttributeTO> attrs = to.getDerivedAttributeMap();
@@ -359,9 +330,7 @@ public final class AttributableOperations {
         result.setDerivedAttributes(new ArrayList(attrs.values()));
 
         // 4. virtual attributes
-        result.setVirtualAttributes(
-                getUpdateValues(to.getVirtualAttributeMap(),
-                mod.getVirtualAttributesToBeRemoved(),
+        result.setVirtualAttributes(getUpdateValues(to.getVirtualAttributeMap(), mod.getVirtualAttributesToBeRemoved(),
                 mod.getVirtualAttributesToBeUpdated()));
 
         // 5. resources

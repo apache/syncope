@@ -42,9 +42,7 @@ public class ApacheDSRootDseServlet extends HttpServlet {
     private static final long serialVersionUID = 1514567335969002735L;
 
     @Override
-    protected void doGet(final HttpServletRequest req,
-            final HttpServletResponse resp)
-            throws ServletException {
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException {
 
         try {
             resp.setContentType("text/plain");
@@ -55,11 +53,10 @@ public class ApacheDSRootDseServlet extends HttpServlet {
             DirContext ctx = new InitialDirContext(this.createEnv());
 
             SearchControls ctls = new SearchControls();
-            ctls.setReturningAttributes(new String[]{"*", "+"});
+            ctls.setReturningAttributes(new String[] { "*", "+" });
             ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-            NamingEnumeration<SearchResult> result = ctx.search("",
-                    "(objectClass=*)", ctls);
+            NamingEnumeration<SearchResult> result = ctx.search("", "(objectClass=*)", ctls);
             if (result.hasMore()) {
                 SearchResult entry = result.next();
                 Attributes as = entry.getAttributes();
@@ -87,14 +84,12 @@ public class ApacheDSRootDseServlet extends HttpServlet {
     private Hashtable<Object, Object> createEnv() {
         // Fetch directory service from servlet context
         ServletContext servletContext = this.getServletContext();
-        DirectoryService directoryService = (DirectoryService) servletContext.
-                getAttribute(DirectoryService.JNDI_KEY);
+        DirectoryService directoryService = (DirectoryService) servletContext.getAttribute(DirectoryService.JNDI_KEY);
 
         Hashtable<Object, Object> env = new Hashtable<Object, Object>();
         env.put(DirectoryService.JNDI_KEY, directoryService);
         env.put(Context.PROVIDER_URL, "");
-        env.put(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.
-                getName());
+        env.put(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
 
         env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
         env.put(Context.SECURITY_CREDENTIALS, "secret");

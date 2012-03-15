@@ -44,8 +44,8 @@ public class RoleTabPanel extends Panel {
 
     private RoleTO roleTO;
 
-    public RoleTabPanel(final String id, final RoleTO roleTO,
-            final ModalWindow window, final PageReference callerPageRef) {
+    public RoleTabPanel(final String id, final RoleTO roleTO, final ModalWindow window,
+            final PageReference callerPageRef) {
 
         super(id);
 
@@ -53,10 +53,8 @@ public class RoleTabPanel extends Panel {
 
         final Form form = new Form("RoleForm");
 
-        final TreeActionLinkPanel actionLink =
-                new TreeActionLinkPanel("actionLink", roleTO.getId(),
-                new CompoundPropertyModel(roleTO),
-                window, callerPageRef);
+        final TreeActionLinkPanel actionLink = new TreeActionLinkPanel("actionLink", roleTO.getId(),
+                new CompoundPropertyModel(roleTO), window, callerPageRef);
 
         this.add(actionLink);
         this.add(new Label("displayName", roleTO.getDisplayName()));
@@ -64,42 +62,35 @@ public class RoleTabPanel extends Panel {
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
 
-        final RoleAttributesPanel attributesPanel =
-                new RoleAttributesPanel("attributesPanel", form, roleTO);
+        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
 
         attributesPanel.setEnabled(false);
 
         form.add(attributesPanel);
 
-        final WebMarkupContainer userListContainer =
-                new WebMarkupContainer("userListContainer");
+        final WebMarkupContainer userListContainer = new WebMarkupContainer("userListContainer");
 
         userListContainer.setOutputMarkupId(true);
         userListContainer.setEnabled(true);
-        userListContainer.add(new ResultSetPanel("userList",
-                true, null, callerPageRef));
-        userListContainer.add(new IndicatingAjaxButton(
-                "search", new ResourceModel("search")) {
+        userListContainer.add(new ResultSetPanel("userList", true, null, callerPageRef));
+        userListContainer.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 final MembershipCond membershipCond = new MembershipCond();
                 membershipCond.setRoleName(roleTO.getName());
                 NodeCond cond = NodeCond.getLeafCond(membershipCond);
 
-                userListContainer.replace(new ResultSetPanel("userList",
-                        true, cond, callerPageRef));
+                userListContainer.replace(new ResultSetPanel("userList", true, cond, callerPageRef));
 
                 target.add(userListContainer);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
             }
         });
 

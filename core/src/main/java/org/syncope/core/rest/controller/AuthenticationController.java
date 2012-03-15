@@ -43,8 +43,7 @@ public class AuthenticationController extends AbstractController {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/allentitlements")
+    @RequestMapping(method = RequestMethod.GET, value = "/allentitlements")
     public List<String> listEntitlements() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
         List<String> result = new ArrayList<String>(entitlements.size());
@@ -55,8 +54,7 @@ public class AuthenticationController extends AbstractController {
         return result;
     }
 
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/entitlements")
+    @RequestMapping(method = RequestMethod.GET, value = "/entitlements")
     public Set<String> getEntitlements() {
         Set<String> result = EntitlementUtil.getOwnedEntitlementNames();
 

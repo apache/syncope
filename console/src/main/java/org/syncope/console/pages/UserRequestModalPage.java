@@ -47,19 +47,14 @@ public class UserRequestModalPage extends UserModalPage {
 
     private UserRequestTO userRequestTO;
 
-    public UserRequestModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            final UserTO userTO) {
+    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
 
         super(callerPageRef, window, userTO, Mode.SELF, false);
 
         setupEditPanel();
     }
 
-    public UserRequestModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
+    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window,
             final UserRequestTO userRequestTO) {
 
         super(callerPageRef, window, null, Mode.SELF, false);
@@ -72,12 +67,9 @@ public class UserRequestModalPage extends UserModalPage {
                 break;
 
             case UPDATE:
-                this.initialUserTO =
-                        userRestClient.read(userRequestTO.getUserMod().getId());
+                this.initialUserTO = userRestClient.read(userRequestTO.getUserMod().getId());
 
-                userTO = AttributableOperations.apply(
-                        initialUserTO,
-                        userRequestTO.getUserMod());
+                userTO = AttributableOperations.apply(initialUserTO, userRequestTO.getUserMod());
                 break;
 
             case DELETE:
@@ -89,23 +81,20 @@ public class UserRequestModalPage extends UserModalPage {
         setupEditPanel();
     }
 
-    public UserRequestModalPage(
-            final ModalWindow window,
-            final UserTO userTO) {
+    public UserRequestModalPage(final ModalWindow window, final UserTO userTO) {
 
         super(window, userTO, Mode.SELF);
     }
 
     @Override
-    protected void submitAction(
-            final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form form) {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
             requestRestClient.requestCreate(updatedUserTO);
         } else {
-            final UserMod userMod = AttributableOperations.diff(
-                    updatedUserTO, userRestClient.read(updatedUserTO.getId()));
+            final UserMod userMod = AttributableOperations.diff(updatedUserTO, userRestClient.read(updatedUserTO
+                    .getId()));
 
             // update user just if it is changed
             if (!userMod.isEmpty()) {
@@ -115,8 +104,7 @@ public class UserRequestModalPage extends UserModalPage {
     }
 
     @Override
-    protected void closeAction(
-            final AjaxRequestTarget target, final Form form) {
+    protected void closeAction(final AjaxRequestTarget target, final Form form) {
         setResponsePage(new UserRequestModalPage(window, userTO));
     }
 }

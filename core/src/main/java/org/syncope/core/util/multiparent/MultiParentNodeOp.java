@@ -25,8 +25,7 @@ public class MultiParentNodeOp {
     private MultiParentNodeOp() {
     }
 
-    public static <T> MultiParentNode<T> findInTree(
-            final MultiParentNode<T> parent, final T object) {
+    public static <T> MultiParentNode<T> findInTree(final MultiParentNode<T> parent, final T object) {
 
         if (parent.getObject().equals(object)) {
             return parent;
@@ -42,8 +41,7 @@ public class MultiParentNodeOp {
         return null;
     }
 
-    public static <T> void traverseTree(final MultiParentNode<T> parent,
-            final List<T> objects) {
+    public static <T> void traverseTree(final MultiParentNode<T> parent, final List<T> objects) {
 
         for (MultiParentNode<T> child : parent.getChildren()) {
             traverseTree(child, objects);

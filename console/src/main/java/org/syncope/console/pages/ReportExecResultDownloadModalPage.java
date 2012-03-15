@@ -32,11 +32,9 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 3163146190501510888L;
 
-    public ReportExecResultDownloadModalPage(final ModalWindow window,
-            final PageReference callerPageRef) {
+    public ReportExecResultDownloadModalPage(final ModalWindow window, final PageReference callerPageRef) {
 
-        final AjaxDropDownChoicePanel<ReportExecExportFormat> format =
-                new AjaxDropDownChoicePanel<ReportExecExportFormat>(
+        final AjaxDropDownChoicePanel<ReportExecExportFormat> format = new AjaxDropDownChoicePanel<ReportExecExportFormat>(
                 "format", "format", new Model<ReportExecExportFormat>());
 
         format.setChoices(Arrays.asList(ReportExecExportFormat.values()));
@@ -51,23 +49,19 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
             }
 
             @Override
-            public String getIdValue(final ReportExecExportFormat object,
-                    final int index) {
+            public String getIdValue(final ReportExecExportFormat object, final int index) {
 
                 return object.name();
             }
         });
 
-        format.getField().add(new AjaxFormComponentUpdatingBehavior(
-                "onchange") {
+        format.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            private static final long serialVersionUID =
-                    -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                ((ReportModalPage) callerPageRef.getPage()).setExportFormat(
-                        format.getField().getInput());
+                ((ReportModalPage) callerPageRef.getPage()).setExportFormat(format.getField().getInput());
                 window.close(target);
             }
         });

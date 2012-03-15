@@ -28,28 +28,23 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-    "classpath:applicationContext.xml"
-})
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
 public abstract class AbstractTest extends SeleneseTestCase {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractTest.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
     protected static final String ADMIN = "admin";
 
     protected static final String PASSWORD = "password";
 
-    protected static final String BASE_URL =
-            "http://localhost:9080/syncope-console/";
+    protected static final String BASE_URL = "http://localhost:9080/syncope-console/";
 
     @Override
     @Before
-    public void setUp()
-            throws Exception {
+    public void setUp() throws Exception {
 
         super.setUp(BASE_URL, "*firefox");
 
@@ -58,15 +53,12 @@ public abstract class AbstractTest extends SeleneseTestCase {
         selenium.type("name=password", PASSWORD);
         selenium.click("name=:submit");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//img[@alt='Logout']\");",
-                "60000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//img[@alt='Logout']\");", "60000");
     }
 
     @Override
     @After
-    public void tearDown()
-            throws Exception {
+    public void tearDown() throws Exception {
 
         selenium.click("css=img[alt=\"Logout\"]");
         selenium.stop();

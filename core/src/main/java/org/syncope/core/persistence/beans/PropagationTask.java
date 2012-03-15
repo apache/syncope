@@ -97,7 +97,7 @@ public class PropagationTask extends Task {
     }
 
     public Set<Attribute> getAttributes() {
-        return XMLSerializer.<Set<Attribute>>deserialize(xmlAttributes);
+        return XMLSerializer.<Set<Attribute>> deserialize(xmlAttributes);
     }
 
     public void setAttributes(final Set<Attribute> attributes) {
@@ -116,8 +116,7 @@ public class PropagationTask extends Task {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(
-            PropagationOperation propagationOperation) {
+    public void setPropagationOperation(PropagationOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }

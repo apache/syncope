@@ -81,25 +81,16 @@ public class NotificationTasks extends Panel {
 
         add(window = new ModalWindow("taskWin"));
 
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequest(),
-                Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
 
         List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("sender"), "sender", "sender"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("recipients"), "recipients", "recipients"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("subject"), "subject", "subject"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("latestExecStatus"),
-                "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("sender"), "sender", "sender"));
+        columns.add(new PropertyColumn(new ResourceModel("recipients"), "recipients", "recipients"));
+        columns.add(new PropertyColumn(new ResourceModel("subject"), "subject", "subject"));
+        columns.add(new PropertyColumn(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 
@@ -111,15 +102,12 @@ public class NotificationTasks extends Panel {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<TaskTO>> cellItem, final String componentId,
                     final IModel<TaskTO> model) {
 
                 final TaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
@@ -130,8 +118,7 @@ public class NotificationTasks extends Panel {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -182,11 +169,8 @@ public class NotificationTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table =
-                new AjaxFallbackDefaultDataTable<TaskTO>(
-                "datatable", columns, new TasksProvider(restClient,
-                paginatorRows, getId(), NotificationTaskTO.class),
-                paginatorRows);
+        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>("datatable",
+                columns, new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class), paginatorRows);
 
         container = new WebMarkupContainer("container");
         container.add(table);
@@ -194,22 +178,20 @@ public class NotificationTasks extends Panel {
 
         add(container);
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(getPage().get("feedback"));
-                            operationResult = false;
-                        }
-                    }
-                });
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(container);
+                if (operationResult) {
+                    info(getString("operation_succeded"));
+                    target.add(getPage().get("feedback"));
+                    operationResult = false;
+                }
+            }
+        });
 
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
@@ -218,8 +200,7 @@ public class NotificationTasks extends Panel {
 
         Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -229,8 +210,7 @@ public class NotificationTasks extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                        Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
 

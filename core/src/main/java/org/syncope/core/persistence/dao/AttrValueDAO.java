@@ -28,8 +28,7 @@ public interface AttrValueDAO extends DAO {
 
     <T extends AbstractAttrValue> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttrValue> T save(T attributeValue)
-            throws InvalidEntityException;
+    <T extends AbstractAttrValue> T save(T attributeValue) throws InvalidEntityException;
 
     <T extends AbstractAttrValue> void delete(Long id, Class<T> reference);
 

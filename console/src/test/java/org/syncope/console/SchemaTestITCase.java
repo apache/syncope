@@ -26,41 +26,33 @@ public class SchemaTestITCase extends AbstractTest {
     public void create() {
         selenium.click("css=img[alt=\"Schema\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[3]/div/div/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//*[@id='_wicket_window_0']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@id='_wicket_window_0']\");", "30000");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//*[@name='name:textField']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@name='name:textField']\");", "30000");
 
         selenium.select("name=type:dropDownChoiceField", "value=0");
         selenium.type("name=name:textField", "newschema");
         selenium.click("name=apply");
 
-        selenium.waitForCondition(
-                "selenium.isTextPresent(\"newschema\");", "30000");
+        selenium.waitForCondition("selenium.isTextPresent(\"newschema\");", "30000");
     }
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Schema\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='membership']/ul/li[3]/a/span");
 
         selenium.click("//table/tbody/tr/td[3]/span/span[9]/a");
 
-        assertTrue(selenium.getConfirmation().matches(
-                "^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
 }

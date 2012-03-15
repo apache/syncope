@@ -47,17 +47,15 @@ public class AuthenticationTestITCase extends AbstractTest {
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
-        Set<String> allEntitlements = new HashSet<String>(
-                Arrays.asList(anonymousRestTemplate().getForObject(
+        Set<String> allEntitlements = new HashSet<String>(Arrays.asList(anonymousRestTemplate().getForObject(
                 BASE_URL + "auth/allentitlements.json", String[].class)));
         assertNotNull(allEntitlements);
         assertFalse(allEntitlements.isEmpty());
 
         // 2. as admin, read own entitlements
         super.setupRestTemplate();
-        Set<String> adminEntitlements = new HashSet<String>(
-                Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "auth/entitlements.json", String[].class)));
+        Set<String> adminEntitlements = new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "auth/entitlements.json", String[].class)));
 
         assertEquals(allEntitlements, adminEntitlements);
     }
@@ -70,8 +68,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         authRoleTO.setParent(8L);
         authRoleTO.addEntitlement("SCHEMA_READ");
 
-        authRoleTO = restTemplate.postForObject(BASE_URL + "role/create",
-                authRoleTO, RoleTO.class);
+        authRoleTO = restTemplate.postForObject(BASE_URL + "role/create", authRoleTO, RoleTO.class);
         assertNotNull(authRoleTO);
 
         // 1. create a schema (as admin)
@@ -80,8 +77,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/user/create", schemaTO, SchemaTO.class);
+        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -95,34 +91,26 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = restTemplate.getForObject(BASE_URL
-                + "schema/user/read/authTestSchema.json", SchemaTO.class);
+        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json", SchemaTO.class);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        schemaTO = restTemplate.getForObject(BASE_URL
-                + "schema/user/read/authTestSchema.json", SchemaTO.class);
+        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json", SchemaTO.class);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         HttpClientErrorException exception = null;
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/role/update", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/role/update", schemaTO, SchemaTO.class);
         } catch (HttpClientErrorException e) {
             exception = e;
         }
@@ -132,8 +120,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getLastLoginDate());
@@ -152,36 +139,26 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        UserTO readUserTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+        UserTO readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
         assertNotNull(readUserTO);
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials("user2", "password"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
 
         SyncopeClientException exception = null;
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(
-                    SyncopeClientExceptionType.UnauthorizedRole);
+            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
         }
         assertNotNull(exception);
 
@@ -201,27 +178,20 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        AttributeCond isNullCond = new AttributeCond(
-                AttributeCond.Type.ISNOTNULL);
+        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
         NodeCond searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        List<UserTO> matchedUsers = Arrays.asList(
-                restTemplate.postForObject(BASE_URL + "user/search",
-                searchCondition, UserTO[].class));
+        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
+                UserTO[].class));
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
         Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
@@ -230,14 +200,11 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials("user2", "password"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
 
-        matchedUsers = Arrays.asList(
-                restTemplate.postForObject(BASE_URL + "user/search",
-                searchCondition, UserTO[].class));
+        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
+                UserTO[].class));
         assertNotNull(matchedUsers);
         userIds = new HashSet<Long>(matchedUsers.size());
         for (UserTO user : matchedUsers) {
@@ -251,8 +218,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkFailedLogins() {
-        UserTO userTO =
-                UserTestITCase.getSampleTO("checkFailedLogin@syncope-idm.org");
+        UserTO userTO = UserTestITCase.getSampleTO("checkFailedLogin@syncope-idm.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -262,22 +228,16 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        UserTO readUserTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        UserTO readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO
+                .getId());
 
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
@@ -285,18 +245,13 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "wrongpwd1"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
 
         Throwable t = null;
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
             assertNotNull(readUserTO);
         } catch (Exception e) {
             t = e;
@@ -306,9 +261,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
             assertNotNull(readUserTO);
         } catch (Exception e) {
             t = e;
@@ -317,22 +270,15 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
 
-        readUserTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        readUserTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
@@ -340,8 +286,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkUserSuspension() {
-        UserTO userTO =
-                UserTestITCase.getSampleTO("checkSuspension@syncope-idm.org");
+        UserTO userTO = UserTestITCase.getSampleTO("checkSuspension@syncope-idm.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -351,22 +296,15 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -374,18 +312,13 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "wrongpwd1"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
 
         Throwable t = null;
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -394,9 +327,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -405,9 +336,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -418,25 +347,18 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
         assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
 
         // last authentication before suspension
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "wrongpwd1"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -447,9 +369,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -458,16 +378,11 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // check for authentication
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, userTO.getId());
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
             assertNotNull(userTO);
         } catch (Exception e) {
             t = e;
@@ -479,21 +394,15 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "password123"));
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/read/{userId}.json",
-                UserTO.class, userTO.getId());
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
         assertEquals(Integer.valueOf(0), userTO.getFailedLogins());

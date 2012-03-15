@@ -73,8 +73,7 @@ public class ConnectorFacadeProxy {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ConnectorFacadeProxy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorFacadeProxy.class);
 
     /**
      * Connector facade wrapped instance.
@@ -100,26 +99,21 @@ public class ConnectorFacadeProxy {
      * @see ConfigurationProperties
      * @see ConnectorFacade
      */
-    public ConnectorFacadeProxy(
-            final ConnInstance connInstance,
-            final ConnBundleManager connBundleManager)
+    public ConnectorFacadeProxy(final ConnInstance connInstance, final ConnBundleManager connBundleManager)
             throws NotFoundException {
 
         this.activeConnInstance = connInstance;
 
         // specify a connector.
-        ConnectorKey key = new ConnectorKey(
-                connInstance.getBundleName(),
-                connInstance.getVersion(),
-                connInstance.getConnectorName());
+        ConnectorKey key = new ConnectorKey(connInstance.getBundleName(), connInstance.getVersion(), connInstance
+                .getConnectorName());
 
         if (key == null) {
             throw new NotFoundException("Connector Key");
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: " + key.getBundleName()
-                    + "\nBundle version: " + key.getBundleVersion()
+            LOG.debug("\nBundle name: " + key.getBundleName() + "\nBundle version: " + key.getBundleVersion()
                     + "\nBundle class: " + key.getConnectorName());
         }
 
@@ -151,8 +145,7 @@ public class ConnectorFacadeProxy {
         // Print out what the properties are (not necessary)
         if (LOG.isDebugEnabled()) {
             for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: {}\nProperty Type: {}",
-                        properties.getProperty(propName).getName(),
+                LOG.debug("\nProperty Name: {}\nProperty Type: {}", properties.getProperty(propName).getName(),
                         properties.getProperty(propName).getType());
             }
         }
@@ -187,27 +180,20 @@ public class ConnectorFacadeProxy {
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
      * @return Uid for created user
      */
-    public Uid create(
-            final PropagationMode propagationMode,
-            final ObjectClass objectClass,
-            final Set<Attribute> attrs,
-            final OperationOptions options,
-            final Set<String> propagationAttempted) {
+    public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
+            final OperationOptions options, final Set<String> propagationAttempted) {
 
         Uid result = null;
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.ONE_PHASE_CREATE)
-                : activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.TWO_PHASES_CREATE)) {
+                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
+                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE)) {
 
             propagationAttempted.add("create");
 
             result = connector.create(objectClass, attrs, options);
         } else {
-            LOG.info("Create was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
+            LOG.info("Create was attempted, although the " + "connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
 
@@ -225,29 +211,22 @@ public class ConnectorFacadeProxy {
      * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
      * @return Uid for created user
      */
-    public Uid update(final PropagationMode propagationMode,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final Set<Attribute> attrs,
-            final OperationOptions options,
-            final Set<String> propagationAttempted) {
+    public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
+            final Set<Attribute> attrs, final OperationOptions options, final Set<String> propagationAttempted) {
 
         Uid result = null;
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.ONE_PHASE_UPDATE)
-                : activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.TWO_PHASES_UPDATE)) {
+                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
+                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE)) {
 
             propagationAttempted.add("update");
 
-            result = connector.update(
-                    objectClass, uid, attrs, options);
+            result = connector.update(objectClass, uid, attrs, options);
         } else {
             LOG.info("Update for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
-                    uid.getUidValue(), activeConnInstance.getCapabilities());
+                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance
+                    .getCapabilities());
         }
 
         return result;
@@ -262,25 +241,20 @@ public class ConnectorFacadeProxy {
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if deletion is actually performed (based on connector instance's capabilities)
      */
-    public void delete(final PropagationMode propagationMode,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options,
-            final Set<String> propagationAttempted) {
+    public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
+            final OperationOptions options, final Set<String> propagationAttempted) {
 
         if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.ONE_PHASE_DELETE)
-                : activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.TWO_PHASES_DELETE)) {
+                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_DELETE)
+                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_DELETE)) {
 
             propagationAttempted.add("delete");
 
             connector.delete(objectClass, uid, options);
         } else {
             LOG.info("Delete for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
-                    uid.getUidValue(), activeConnInstance.getCapabilities());
+                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance
+                    .getCapabilities());
         }
     }
 
@@ -290,17 +264,12 @@ public class ConnectorFacadeProxy {
      * @param token to be passed to the underlying connector
      * @param handler to be used to handle deltas.
      */
-    public void sync(
-            final SyncToken token,
-            final SyncResultsHandler handler,
-            final OperationOptions options) {
+    public void sync(final SyncToken token, final SyncResultsHandler handler, final OperationOptions options) {
 
-        if (activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.SYNC)) {
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
             connector.sync(ObjectClass.ACCOUNT, token, handler, options);
         } else {
-            LOG.info("Sync was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
+            LOG.info("Sync was attempted, although the " + "connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
     }
@@ -313,13 +282,11 @@ public class ConnectorFacadeProxy {
     public SyncToken getLatestSyncToken() {
         SyncToken result = null;
 
-        if (activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.SYNC)) {
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
             result = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
         } else {
             LOG.info("getLatestSyncToken was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
-                    activeConnInstance.getCapabilities());
+                    + "connector only has these capabilities: {}. No action.", activeConnInstance.getCapabilities());
         }
 
         return result;
@@ -333,10 +300,7 @@ public class ConnectorFacadeProxy {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    public ConnectorObject getObject(
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options) {
+    public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
         return getObject(null, null, objectClass, uid, options);
     }
@@ -352,43 +316,30 @@ public class ConnectorFacadeProxy {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    public ConnectorObject getObject(
-            final PropagationMode propagationMode,
-            final PropagationOperation operationType,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options) {
+    public ConnectorObject getObject(final PropagationMode propagationMode, final PropagationOperation operationType,
+            final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
         ConnectorObject result = null;
 
-        if (activeConnInstance.getCapabilities().contains(
-                ConnectorCapability.SEARCH)) {
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (operationType == null) {
                 result = connector.getObject(objectClass, uid, options);
             } else {
                 switch (operationType) {
                     case CREATE:
-                        if (propagationMode == null
-                                || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(
-                                ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().contains(
-                                ConnectorCapability.TWO_PHASES_CREATE))) {
+                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
+                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
+                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE))) {
 
-                            result = connector.getObject(
-                                    objectClass, uid, options);
+                            result = connector.getObject(objectClass, uid, options);
                         }
                         break;
                     case UPDATE:
-                        if (propagationMode == null
-                                || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(
-                                ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().contains(
-                                ConnectorCapability.TWO_PHASES_UPDATE))) {
+                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
+                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
+                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
 
-                            result = connector.getObject(
-                                    objectClass, uid, options);
+                            result = connector.getObject(objectClass, uid, options);
                         }
                         break;
                     default:
@@ -396,8 +347,7 @@ public class ConnectorFacadeProxy {
                 }
             }
         } else {
-            LOG.info("Search was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.",
+            LOG.info("Search was attempted, although the " + "connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
 
@@ -412,9 +362,7 @@ public class ConnectorFacadeProxy {
      * @param handler to be used to handle deltas.
      * @param options ConnId's OperationOptions.
      */
-    public void getAllObjects(
-            final ObjectClass objectClass,
-            final SyncResultsHandler handler,
+    public void getAllObjects(final ObjectClass objectClass, final SyncResultsHandler handler,
             final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
@@ -447,17 +395,13 @@ public class ConnectorFacadeProxy {
      * @param attributeName attribute to read
      * @return attribute (if present)
      */
-    public Attribute getObjectAttribute(
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options,
+    public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
 
         Attribute attribute = null;
 
         try {
-            final ConnectorObject object =
-                    connector.getObject(objectClass, uid, options);
+            final ConnectorObject object = connector.getObject(objectClass, uid, options);
 
             attribute = object.getAttributeByName(attributeName);
         } catch (NullPointerException e) {
@@ -476,9 +420,7 @@ public class ConnectorFacadeProxy {
      * @param attributeNames attributes to read
      * @return attributes (if present)
      */
-    public Set<Attribute> getObjectAttributes(
-            final ObjectClass objectClass,
-            final Uid uid,
+    public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
 
         final Set<Attribute> attributes = new HashSet<Attribute>();
@@ -511,11 +453,10 @@ public class ConnectorFacadeProxy {
         try {
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall || (!Name.NAME.equals(attrInfo.getName())
-                            && !OperationalAttributes.PASSWORD_NAME.equals(
-                            attrInfo.getName())
-                            && !OperationalAttributes.ENABLE_NAME.equals(
-                            attrInfo.getName()))) {
+                    if (showall
+                            || (!Name.NAME.equals(attrInfo.getName())
+                                    && !OperationalAttributes.PASSWORD_NAME.equals(attrInfo.getName()) && !OperationalAttributes.ENABLE_NAME
+                                    .equals(attrInfo.getName()))) {
 
                         resourceSchemaNames.add(attrInfo.getName());
                     }
@@ -545,9 +486,8 @@ public class ConnectorFacadeProxy {
 
     @Override
     public String toString() {
-        return "ConnectorFacadeProxy{"
-                + "connector=" + connector
-                + "capabitilies=" + activeConnInstance.getCapabilities() + '}';
+        return "ConnectorFacadeProxy{" + "connector=" + connector + "capabitilies="
+                + activeConnInstance.getCapabilities() + '}';
     }
 
     /**
@@ -559,16 +499,15 @@ public class ConnectorFacadeProxy {
         return activeConnInstance;
     }
 
-    public OperationOptions getOperationOptions(
-            final ExternalResource resource) {
+    public OperationOptions getOperationOptions(final ExternalResource resource) {
 
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
-        final Set<String> attributesToGet = new HashSet<String>(
-                Arrays.asList(new String[]{Name.NAME, Uid.NAME, OperationalAttributes.ENABLE_NAME}));
+        final Set<String> attributesToGet = new HashSet<String>(Arrays.asList(new String[] { Name.NAME, Uid.NAME,
+                OperationalAttributes.ENABLE_NAME }));
 
         for (SchemaMapping mapping : resource.getMappings()) {
             final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
@@ -591,8 +530,8 @@ public class ConnectorFacadeProxy {
 
         if (values != null && !values.isEmpty()) {
             try {
-                final Class propertySchemaClass =
-                        ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
+                final Class propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils
+                        .getDefaultClassLoader());
 
                 if (GuardedString.class.equals(propertySchemaClass)) {
                     value = new GuardedString((values.get(0).toString()).toCharArray());
@@ -600,7 +539,8 @@ public class ConnectorFacadeProxy {
                     value = new GuardedByteArray((byte[]) values.get(0));
                 } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
                     value = values.get(0) != null && !values.get(0).toString().isEmpty()
-                            ? values.get(0).toString().charAt(0) : null;
+                            ? values.get(0).toString().charAt(0)
+                            : null;
                 } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
                     value = Integer.parseInt(values.get(0).toString());
                 } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
@@ -616,7 +556,7 @@ public class ConnectorFacadeProxy {
                 } else if (File.class.equals(propertySchemaClass)) {
                     value = new File(values.get(0).toString());
                 } else if (String[].class.equals(propertySchemaClass)) {
-                    value = values.toArray(new String[]{});
+                    value = values.toArray(new String[] {});
                 } else {
                     value = values.get(0).toString();
                 }

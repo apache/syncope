@@ -85,32 +85,22 @@ public class PropagationTasks extends Panel {
 
         add(window = new ModalWindow("taskWin"));
 
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequest(),
-                Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
 
         List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("resource"), "resource", "resource"));
+        columns.add(new PropertyColumn(new ResourceModel("resource"), "resource", "resource"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("accountId"), "accountId", "accountId"));
+        columns.add(new PropertyColumn(new ResourceModel("accountId"), "accountId", "accountId"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("propagationMode"),
-                "propagationMode", "propagationMode"));
+        columns.add(new PropertyColumn(new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("propagationOperation"),
-                "propagationOperation", "propagationOperation"));
+        columns.add(new PropertyColumn(new ResourceModel("propagationOperation"), "propagationOperation",
+                "propagationOperation"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("latestExecStatus"),
-                "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 
@@ -122,15 +112,12 @@ public class PropagationTasks extends Panel {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<TaskTO>> cellItem, final String componentId,
                     final IModel<TaskTO> model) {
 
                 final TaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
@@ -141,8 +128,7 @@ public class PropagationTasks extends Panel {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -193,11 +179,8 @@ public class PropagationTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table =
-                new AjaxFallbackDefaultDataTable<TaskTO>(
-                "datatable", columns, new TasksProvider(restClient,
-                paginatorRows, getId(), PropagationTaskTO.class),
-                paginatorRows);
+        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>("datatable",
+                columns, new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class), paginatorRows);
 
         container = new WebMarkupContainer("container");
         container.add(table);
@@ -205,22 +188,20 @@ public class PropagationTasks extends Panel {
 
         add(container);
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(getPage().get("feedback"));
-                            operationResult = false;
-                        }
-                    }
-                });
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(container);
+                if (operationResult) {
+                    info(getString("operation_succeded"));
+                    target.add(getPage().get("feedback"));
+                    operationResult = false;
+                }
+            }
+        });
 
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
@@ -229,8 +210,7 @@ public class PropagationTasks extends Panel {
 
         Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -240,8 +220,7 @@ public class PropagationTasks extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                        Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
 

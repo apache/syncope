@@ -47,8 +47,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     private List<User> result;
 
-    public SyncopeUserQueryImpl(final UserDAO userDAO,
-            final RoleDAO roleDAO, final EntitlementDAO entitlementDAO) {
+    public SyncopeUserQueryImpl(final UserDAO userDAO, final RoleDAO roleDAO, final EntitlementDAO entitlementDAO) {
 
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
@@ -164,8 +163,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
             result = new ArrayList<User>();
-            for (SyncopeUser user : userDAO.findAll(
-                    EntitlementUtil.getRoleIds(entitlementDAO.findAll()))) {
+            for (SyncopeUser user : userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()))) {
 
                 result.add(fromSyncopeUser(user));
             }
@@ -201,8 +199,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     }
 
     @Override
-    public List<User> listPage(final int firstResult,
-            final int maxResults) {
+    public List<User> listPage(final int firstResult, final int maxResults) {
         throw new UnsupportedOperationException();
     }
 }

@@ -34,7 +34,9 @@ public class PasswordPolicyTO extends PolicyTO {
     public PasswordPolicyTO(boolean global) {
         super();
 
-        this.type = global ? PolicyType.GLOBAL_PASSWORD : PolicyType.PASSWORD;
+        this.type = global
+                ? PolicyType.GLOBAL_PASSWORD
+                : PolicyType.PASSWORD;
     }
 
     public void setSpecification(final PasswordPolicySpec specification) {

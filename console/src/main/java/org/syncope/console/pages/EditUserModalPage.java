@@ -43,10 +43,7 @@ public class EditUserModalPage extends UserModalPage {
 
     private UserTO initialUserTO = null;
 
-    public EditUserModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            final UserTO userTO) {
+    public EditUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
 
         super(callerPageRef, window, userTO, Mode.ADMIN, true);
 
@@ -58,31 +55,25 @@ public class EditUserModalPage extends UserModalPage {
         if (userTO.getId() != 0) {
             final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
-            form.addOrReplace(new StatusPanel(
-                    "statuspanel", userTO, statuses, false));
+            form.addOrReplace(new StatusPanel("statuspanel", userTO, statuses, false));
 
-            form.addOrReplace(
-                    new AccountInformationPanel("accountinformation", userTO));
+            form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));
         }
     }
 
-    public EditUserModalPage(
-            final ModalWindow window,
-            final UserTO userTO) {
+    public EditUserModalPage(final ModalWindow window, final UserTO userTO) {
         super(window, userTO, Mode.ADMIN);
     }
 
     @Override
-    protected void submitAction(
-            final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form form) {
 
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
             userTO = userRestClient.create(updatedUserTO);
         } else {
-            final UserMod userMod = AttributableOperations.diff(
-                    updatedUserTO, initialUserTO);
+            final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
 
             // update user just if it is changed
             if (!userMod.isEmpty()) {
@@ -93,8 +84,7 @@ public class EditUserModalPage extends UserModalPage {
     }
 
     @Override
-    protected void closeAction(
-            final AjaxRequestTarget target, final Form form) {
+    protected void closeAction(final AjaxRequestTarget target, final Form form) {
         setResponsePage(new EditUserModalPage(window, userTO));
     }
 }

@@ -25,8 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.syncope.types.SyncopeClientExceptionType;
 
-public class SyncopeClientCompositeErrorException
-        extends HttpClientErrorException {
+public class SyncopeClientCompositeErrorException extends HttpClientErrorException {
 
     private Set<SyncopeClientException> exceptions;
 
@@ -43,13 +42,11 @@ public class SyncopeClientCompositeErrorException
         return getException(exceptionType) != null;
     }
 
-    public SyncopeClientException getException(
-            SyncopeClientExceptionType exceptionType) {
+    public SyncopeClientException getException(SyncopeClientExceptionType exceptionType) {
 
         boolean found = false;
         SyncopeClientException syncopeClientException = null;
-        for (Iterator<SyncopeClientException> itor = exceptions.iterator();
-                itor.hasNext() && !found;) {
+        for (Iterator<SyncopeClientException> itor = exceptions.iterator(); itor.hasNext() && !found;) {
 
             syncopeClientException = itor.next();
             if (syncopeClientException.getType().equals(exceptionType)) {
@@ -57,7 +54,9 @@ public class SyncopeClientCompositeErrorException
             }
         }
 
-        return found ? syncopeClientException : null;
+        return found
+                ? syncopeClientException
+                : null;
     }
 
     public Set<SyncopeClientException> getExceptions() {
@@ -66,8 +65,7 @@ public class SyncopeClientCompositeErrorException
 
     public boolean addException(SyncopeClientException exception) {
         if (exception.getType() == null) {
-            throw new IllegalArgumentException(exception
-                    + " does not have the right "
+            throw new IllegalArgumentException(exception + " does not have the right "
                     + SyncopeClientExceptionType.class.getName() + " set");
         }
 

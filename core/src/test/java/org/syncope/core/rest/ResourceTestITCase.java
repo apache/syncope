@@ -48,8 +48,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(100L);
 
-        restTemplate.postForObject(BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+        restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
     }
 
     @Test
@@ -80,17 +79,13 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setAccountid(false);
         resourceTO.addMapping(schemaMappingTO);
 
-        ResourceTO actual = restTemplate.postForObject(
-                BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
 
         assertNotNull(actual);
 
         // check the existence
 
-        actual = restTemplate.getForObject(
-                BASE_URL + "resource/read/{resourceName}.json",
-                ResourceTO.class,
+        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
 
         assertNotNull(actual);
@@ -132,21 +127,17 @@ public class ResourceTestITCase extends AbstractTest {
         p.setSchema(schema);
         p.setValues(Collections.singletonList("http://invalidurl/"));
 
-        Set<ConnConfProperty> connectorConfigurationProperties =
-                new HashSet<ConnConfProperty>(Arrays.asList(p));
+        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
 
-        resourceTO.setConnectorConfigurationProperties(
-                connectorConfigurationProperties);
+        resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL
-                + "resource/create.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
 
         assertNotNull(actual);
 
         // check the existence
 
-        actual = restTemplate.getForObject(BASE_URL
-                + "resource/read/{resourceName}.json", ResourceTO.class,
+        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
 
         assertNotNull(actual);
@@ -165,9 +156,7 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
-        ResourceTO actual = restTemplate.postForObject(
-                BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
 
         assertNotNull(actual);
     }
@@ -191,25 +180,21 @@ public class ResourceTestITCase extends AbstractTest {
         // missing intAttrName ...
         resourceTO.addMapping(schemaMappingTO);
 
-
         Throwable t = null;
 
         try {
 
-            restTemplate.postForObject(
-                    BASE_URL + "resource/create.json",
-                    resourceTO, ResourceTO.class);
+            restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
 
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
 
-            SyncopeClientException requiredValueMissing = e.getException(
-                    SyncopeClientExceptionType.RequiredValuesMissing);
+            SyncopeClientException requiredValueMissing = e
+                    .getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(requiredValueMissing);
             assertNotNull(requiredValueMissing.getElements());
             assertEquals(1, requiredValueMissing.getElements().size());
-            assertEquals("intAttrName",
-                    requiredValueMissing.getElements().iterator().next());
+            assertEquals("intAttrName", requiredValueMissing.getElements().iterator().next());
         }
         assertNotNull(t);
     }
@@ -233,9 +218,7 @@ public class ResourceTestITCase extends AbstractTest {
         // missing extAttrName ...
         resourceTO.addMapping(schemaMappingTO);
 
-        restTemplate.postForObject(
-                BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+        restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
     }
 
     @Test
@@ -254,17 +237,13 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
-        ResourceTO actual = restTemplate.postForObject(
-                BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
 
         assertNotNull(actual);
 
         // check the existence
 
-        actual = restTemplate.getForObject(
-                BASE_URL + "resource/read/{resourceName}.json",
-                ResourceTO.class,
+        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
 
         assertNotNull(actual);
@@ -279,8 +258,7 @@ public class ResourceTestITCase extends AbstractTest {
 
             resourceTO.setName("resourcenotfound");
 
-            restTemplate.postForObject(BASE_URL + "resource/update.json",
-                    resourceTO, ResourceTO.class);
+            restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -294,8 +272,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(101L);
 
-        List<SchemaMappingTO> schemaMappingTOs =
-                new ArrayList<SchemaMappingTO>();
+        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
 
         // Update with an existing and already assigned mapping
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
@@ -322,9 +299,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setMappings(schemaMappingTOs);
 
-        ResourceTO actual = restTemplate.postForObject(
-                BASE_URL + "resource/update.json",
-                resourceTO, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
 
         assertNotNull(actual);
 
@@ -340,9 +315,7 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void deleteWithException() {
         try {
-            restTemplate.delete(
-                    BASE_URL + "resource/delete/{resourceName}.json",
-                    "resourcenotfound");
+            restTemplate.delete(BASE_URL + "resource/delete/{resourceName}.json", "resourcenotfound");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -352,16 +325,13 @@ public class ResourceTestITCase extends AbstractTest {
     public void updateResetSyncToken() {
         // pre condition: sync token is set
         String resourceName = "ws-target-resource-update-resetsynctoken";
-        ResourceTO pre = restTemplate.getForObject(
-                BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, resourceName);
+        ResourceTO pre = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
+                resourceName);
         assertNotNull(pre.getSyncToken());
 
         pre.setSyncToken(null);
 
-        ResourceTO actual = restTemplate.postForObject(
-                BASE_URL + "resource/update.json",
-                pre, ResourceTO.class);
+        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", pre, ResourceTO.class);
 
         // check that the synctoken has been reset
         assertNull(actual.getSyncToken());
@@ -371,15 +341,10 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
-        restTemplate.delete(
-                BASE_URL + "resource/delete/{resourceName}.json",
-                resourceName);
+        restTemplate.delete(BASE_URL + "resource/delete/{resourceName}.json", resourceName);
 
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "resource/read/{resourceName}.json",
-                    ResourceTO.class,
-                    resourceName);
+            restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class, resourceName);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -387,9 +352,8 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ResourceTO> actuals = Arrays.asList(
-                restTemplate.getForObject(
-                BASE_URL + "resource/list.json", ResourceTO[].class));
+        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(BASE_URL + "resource/list.json",
+                ResourceTO[].class));
         assertNotNull(actuals);
         assertFalse(actuals.isEmpty());
         for (ResourceTO resourceTO : actuals) {
@@ -399,9 +363,8 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void listByType() {
-        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "resource/list.json?connInstanceId=105",
-                ResourceTO[].class));
+        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "resource/list.json?connInstanceId=105", ResourceTO[].class));
 
         assertNotNull(actuals);
         assertEquals(1, actuals.size());
@@ -410,8 +373,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        ResourceTO actual = restTemplate.getForObject(
-                BASE_URL + "/resource/read/{resourceName}.json",
+        ResourceTO actual = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
                 ResourceTO.class, "resource-testdb");
 
         assertNotNull(actual);

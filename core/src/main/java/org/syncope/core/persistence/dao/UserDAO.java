@@ -34,13 +34,11 @@ public interface UserDAO extends DAO {
 
     SyncopeUser findByWorkflowId(String workflowId);
 
-    List<SyncopeUser> findByDerAttrValue(String schemaName, String value)
-            throws InvalidSearchConditionException;
+    List<SyncopeUser> findByDerAttrValue(String schemaName, String value) throws InvalidSearchConditionException;
 
     List<SyncopeUser> findByAttrValue(String schemaName, UAttrValue attrValue);
 
-    SyncopeUser findByAttrUniqueValue(String schemaName,
-            UAttrValue attrUniqueValue);
+    SyncopeUser findByAttrUniqueValue(String schemaName, UAttrValue attrUniqueValue);
 
     List<SyncopeUser> findByResource(ExternalResource resource);
 
@@ -50,8 +48,7 @@ public interface UserDAO extends DAO {
 
     int count(Set<Long> adminRoles);
 
-    SyncopeUser save(SyncopeUser user)
-            throws InvalidEntityException;
+    SyncopeUser save(SyncopeUser user) throws InvalidEntityException;
 
     void delete(Long id);
 

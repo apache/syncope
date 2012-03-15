@@ -38,27 +38,23 @@ public abstract class AbstractBaseBean implements Serializable {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractBaseBean.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseBean.class);
 
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new ThreadLocal<SimpleDateFormat>() {
+    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat(
-                            SyncopeConstants.DEFAULT_DATE_PATTERN);
-                }
-            };
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        }
+    };
 
-    protected static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT =
-            new ThreadLocal<DecimalFormat>() {
+    protected static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = new ThreadLocal<DecimalFormat>() {
 
-                @Override
-                protected DecimalFormat initialValue() {
-                    return new DecimalFormat();
-                }
-            };
+        @Override
+        protected DecimalFormat initialValue() {
+            return new DecimalFormat();
+        }
+    };
 
     private static final long serialVersionUID = -9017214159540857901L;
 
@@ -81,7 +77,9 @@ public abstract class AbstractBaseBean implements Serializable {
      * @return the integer corresponding to the property param
      */
     public final Integer getBooleanAsInteger(final Boolean value) {
-        return Boolean.TRUE.equals(value) ? 1 : 0;
+        return Boolean.TRUE.equals(value)
+                ? 1
+                : 0;
     }
 
     /**
@@ -90,20 +88,17 @@ public abstract class AbstractBaseBean implements Serializable {
     private String[] getExcludeFields() {
         Set<String> excludeFields = new HashSet<String>();
 
-        PropertyDescriptor[] propertyDescriptors =
-                BeanUtils.getPropertyDescriptors(getClass());
+        PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(getClass());
         for (int i = 0; i < propertyDescriptors.length; i++) {
 
-            if (propertyDescriptors[i].getPropertyType().isInstance(
-                    Collections.EMPTY_SET)
-                    || propertyDescriptors[i].getPropertyType().isInstance(
-                    Collections.EMPTY_LIST)) {
+            if (propertyDescriptors[i].getPropertyType().isInstance(Collections.EMPTY_SET)
+                    || propertyDescriptors[i].getPropertyType().isInstance(Collections.EMPTY_LIST)) {
 
                 excludeFields.add(propertyDescriptors[i].getName());
             }
         }
 
-        return excludeFields.toArray(new String[]{});
+        return excludeFields.toArray(new String[] {});
     }
 
     @Override
@@ -123,8 +118,7 @@ public abstract class AbstractBaseBean implements Serializable {
             method = BeanUtils.findMethod(getClass(), "getName");
         }
 
-        StringBuffer result = new StringBuffer().append(
-                getClass().getSimpleName()).append("[");
+        StringBuffer result = new StringBuffer().append(getClass().getSimpleName()).append("[");
         if (method != null) {
             try {
                 result.append(method.invoke(this));

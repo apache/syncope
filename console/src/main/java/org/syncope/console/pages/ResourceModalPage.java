@@ -46,10 +46,7 @@ public class ResourceModalPage extends BaseModalPage {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    public ResourceModalPage(
-            final PageReference pageref,
-            final ModalWindow window,
-            final ResourceTO resourceTO,
+    public ResourceModalPage(final PageReference pageref, final ModalWindow window, final ResourceTO resourceTO,
             final boolean createFlag) {
 
         super();
@@ -81,17 +78,14 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(new ResourceSecurityPanel("security", resourceTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("submit", "submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit", "submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
-                final ResourceTO resourceTO =
-                        (ResourceTO) form.getDefaultModelObject();
+                final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
 
                 int accountIdCount = 0;
 
@@ -102,9 +96,7 @@ public class ResourceModalPage extends BaseModalPage {
                 }
 
                 if (accountIdCount == 0 || accountIdCount > 1) {
-                    error(new ResourceModel(
-                            "accountIdValidation", "accountIdValidation").
-                            getObject());
+                    error(new ResourceModel("accountIdValidation", "accountIdValidation").getObject());
                     target.add(feedbackPanel);
                 } else {
                     try {
@@ -120,16 +112,14 @@ public class ResourceModalPage extends BaseModalPage {
 
                     } catch (Exception e) {
                         LOG.error("Failuer managing resource {}", resourceTO);
-                        error(new ResourceModel("error", "error").getObject()
-                                + ":" + e.getMessage());
+                        error(new ResourceModel("error", "error").getObject() + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -138,9 +128,10 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(submit);
         add(form);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Resources", createFlag ? "create" : "update"));
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
+                createFlag
+                        ? "create"
+                        : "update"));
     }
 
     /**

@@ -23,7 +23,6 @@ import org.activiti.engine.delegate.DelegateExecution;
 public class Reactivate extends AbstractActivitiDelegate {
 
     @Override
-    protected void doExecute(final DelegateExecution execution)
-            throws Exception {
+    protected void doExecute(final DelegateExecution execution) throws Exception {
     }
 }

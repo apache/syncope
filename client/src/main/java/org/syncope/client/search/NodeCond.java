@@ -24,7 +24,10 @@ public class NodeCond extends AbstractBaseBean {
 
     public enum Type {
 
-        LEAF, NOT_LEAF, AND, OR
+        LEAF,
+        NOT_LEAF,
+        AND,
+        OR
     }
 
     private Type type;
@@ -101,8 +104,7 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
-    public static NodeCond getAndCond(final NodeCond leftCond,
-            final NodeCond rightCond) {
+    public static NodeCond getAndCond(final NodeCond leftCond, final NodeCond rightCond) {
 
         NodeCond nodeCond = new NodeCond();
 
@@ -113,8 +115,7 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
-    public static NodeCond getOrCond(final NodeCond leftCond,
-            final NodeCond rightCond) {
+    public static NodeCond getOrCond(final NodeCond leftCond, final NodeCond rightCond) {
 
         NodeCond nodeCond = new NodeCond();
 
@@ -189,32 +190,19 @@ public class NodeCond extends AbstractBaseBean {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                return (syncopeUserCond != null
-                        && attributeCond == null
-                        && membershipCond == null
-                        && resourceCond == null
-                        && syncopeUserCond.checkValidity())
-                        || (syncopeUserCond == null
-                        && attributeCond != null
-                        && membershipCond == null
-                        && resourceCond == null
-                        && attributeCond.checkValidity())
-                        || (syncopeUserCond == null
-                        && attributeCond == null
-                        && membershipCond != null
-                        && resourceCond == null
-                        && membershipCond.checkValidity())
-                        || (syncopeUserCond == null
-                        && attributeCond == null
-                        && membershipCond == null
-                        && resourceCond != null
-                        && resourceCond.checkValidity());
+                return (syncopeUserCond != null && attributeCond == null && membershipCond == null
+                        && resourceCond == null && syncopeUserCond.checkValidity())
+                        || (syncopeUserCond == null && attributeCond != null && membershipCond == null
+                                && resourceCond == null && attributeCond.checkValidity())
+                        || (syncopeUserCond == null && attributeCond == null && membershipCond != null
+                                && resourceCond == null && membershipCond.checkValidity())
+                        || (syncopeUserCond == null && attributeCond == null && membershipCond == null
+                                && resourceCond != null && resourceCond.checkValidity());
             case AND:
             case OR:
                 return (leftNodeCond == null || rightNodeCond == null)
                         ? false
-                        : leftNodeCond.checkValidity()
-                        && rightNodeCond.checkValidity();
+                        : leftNodeCond.checkValidity() && rightNodeCond.checkValidity();
             default:
                 return false;
         }

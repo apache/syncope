@@ -28,8 +28,7 @@ public abstract class AbstractBaseRestClient {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractBaseRestClient.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseRestClient.class);
 
     @Autowired
     protected RestTemplate restTemplate;

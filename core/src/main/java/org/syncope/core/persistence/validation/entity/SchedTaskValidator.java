@@ -26,16 +26,14 @@ import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.scheduling.AbstractTaskJob;
 import org.syncope.types.EntityViolationType;
 
-public class SchedTaskValidator extends AbstractValidator
-        implements ConstraintValidator<SchedTaskCheck, SchedTask> {
+public class SchedTaskValidator extends AbstractValidator implements ConstraintValidator<SchedTaskCheck, SchedTask> {
 
     @Override
     public void initialize(final SchedTaskCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final SchedTask object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final SchedTask object, final ConstraintValidatorContext context) {
 
         boolean isValid = true;
 
@@ -51,27 +49,20 @@ public class SchedTaskValidator extends AbstractValidator
             isValid = false;
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    EntityViolationType.InvalidSchedTask.toString()).
-                    addNode(object
-                    + ".jobClassName is not valid").
-                    addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSchedTask.toString()).addNode(
+                    object + ".jobClassName is not valid").addConstraintViolation();
         }
 
         if (isValid && object.getCronExpression() != null) {
             try {
                 new CronExpression(object.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '"
-                        + object.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + object.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidSchedTask.toString()).
-                        addNode(object + ".cronExpression=="
-                        + object.getCronExpression()).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSchedTask.toString()).addNode(
+                        object + ".cronExpression==" + object.getCronExpression()).addConstraintViolation();
             }
         }
 

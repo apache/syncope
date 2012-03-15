@@ -22,7 +22,6 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public interface Validator {
 
-    <T extends AbstractAttrValue> void validate(String value,
-            T attributeValue)
+    <T extends AbstractAttrValue> void validate(String value, T attributeValue)
             throws ParsingValidationException, InvalidAttrValueException;
 }

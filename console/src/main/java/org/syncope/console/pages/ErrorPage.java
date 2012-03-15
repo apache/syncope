@@ -33,10 +33,8 @@ public class ErrorPage extends BasePage {
     public ErrorPage(final PageParameters parameters) {
         super(parameters);
 
-        add(new Label("errorTitle", new Model<String>(
-                parameters.get("errorTitle").toString())));
-        add(new Label("errorMessage", new Model<String>(
-                parameters.get("errorMessage").toString())));
+        add(new Label("errorTitle", new Model<String>(parameters.get("errorTitle").toString())));
+        add(new Label("errorMessage", new Model<String>(parameters.get("errorMessage").toString())));
 
         add(new BookmarkablePageLink("home", getApplication().getHomePage()));
     }

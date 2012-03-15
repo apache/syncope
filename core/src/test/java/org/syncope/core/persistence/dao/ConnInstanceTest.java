@@ -52,20 +52,16 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertNotNull("findById did not work", connectorInstance);
 
-        assertEquals("invalid connector name",
-                WebServiceConnector.class.getName(),
-                connectorInstance.getConnectorName());
+        assertEquals("invalid connector name", WebServiceConnector.class.getName(), connectorInstance
+                .getConnectorName());
 
-        assertEquals("invalid bundle name", "org.connid.bundles.soap",
-                connectorInstance.getBundleName());
+        assertEquals("invalid bundle name", "org.connid.bundles.soap", connectorInstance.getBundleName());
 
-        assertEquals("invalid bundle version",
-                connidSoapVersion, connectorInstance.getVersion());
+        assertEquals("invalid bundle version", connidSoapVersion, connectorInstance.getVersion());
     }
 
     @Test
-    public void save()
-            throws ClassNotFoundException {
+    public void save() throws ClassNotFoundException {
 
         ConnInstance connectorInstance = new ConnInstance();
 
@@ -76,8 +72,7 @@ public class ConnInstanceTest extends AbstractTest {
         connectorInstance.setConnectorName("WebService");
 
         // set bundle name
-        connectorInstance.setBundleName(
-                "org.syncope.core.persistence.test.util");
+        connectorInstance.setBundleName("org.syncope.core.persistence.test.util");
 
         connectorInstance.setDisplayName("New");
 
@@ -114,16 +109,12 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertTrue("save did not work", actual.getId() > 100L);
 
-        assertEquals("save did not work for \"name\" attribute",
-                "WebService",
-                actual.getConnectorName());
+        assertEquals("save did not work for \"name\" attribute", "WebService", actual.getConnectorName());
 
-        assertEquals("save did not work for \"bundle name\" attribute",
-                "org.syncope.core.persistence.test.util",
+        assertEquals("save did not work for \"bundle name\" attribute", "org.syncope.core.persistence.test.util",
                 actual.getBundleName());
 
-        assertEquals("save did not work for \"majorVersion\" attribute",
-                "1.0", connectorInstance.getVersion());
+        assertEquals("save did not work for \"majorVersion\" attribute", "1.0", connectorInstance.getVersion());
 
         assertEquals("New", actual.getDisplayName());
 

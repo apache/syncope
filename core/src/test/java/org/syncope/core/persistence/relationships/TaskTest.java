@@ -83,10 +83,8 @@ public class TaskTest extends AbstractTest {
         task.setAccountId("one@two.com");
 
         Set<Attribute> attributes = new HashSet<Attribute>();
-        attributes.add(AttributeBuilder.build("testAttribute", "testValue1",
-                "testValue2"));
-        attributes.add(
-                AttributeBuilder.buildPassword("password".toCharArray()));
+        attributes.add(AttributeBuilder.build("testAttribute", "testValue1", "testValue2"));
+        attributes.add(AttributeBuilder.buildPassword("password".toCharArray()));
         task.setAttributes(attributes);
 
         task = taskDAO.save(task);
@@ -98,8 +96,7 @@ public class TaskTest extends AbstractTest {
         taskDAO.flush();
 
         resource = resourceDAO.find("ws-target-resource-1");
-        assertTrue(taskDAO.findAll(resource, PropagationTask.class).
-                contains(task));
+        assertTrue(taskDAO.findAll(resource, PropagationTask.class).contains(task));
     }
 
     @Test
@@ -170,7 +167,6 @@ public class TaskTest extends AbstractTest {
         assertNull(taskExecDAO.find(1L));
 
         PropagationTask task = taskDAO.find(1L);
-        assertEquals(task.getExecs().size(),
-                executionNumber - 1);
+        assertEquals(task.getExecs().size(), executionNumber - 1);
     }
 }

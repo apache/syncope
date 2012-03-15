@@ -64,8 +64,8 @@ public class ConfigurationModalPage extends BaseModalPage {
         key.setEnabled(createFlag);
         key.addRequiredLabel();
 
-        final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value",
-                new PropertyModel(configurationTO, "value"));
+        final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value", new PropertyModel(configurationTO,
+                "value"));
         form.add(value);
         value.addRequiredLabel();
 

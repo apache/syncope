@@ -28,8 +28,7 @@ public interface VirAttrDAO extends DAO {
 
     <T extends AbstractVirAttr> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractVirAttr> T save(T virtualAttribute)
-            throws InvalidEntityException;
+    <T extends AbstractVirAttr> T save(T virtualAttribute) throws InvalidEntityException;
 
     <T extends AbstractVirAttr> void delete(Long id, Class<T> reference);
 

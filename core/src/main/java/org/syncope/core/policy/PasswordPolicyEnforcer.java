@@ -24,8 +24,7 @@ import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PolicyType;
 
 @Component
-public class PasswordPolicyEnforcer
-        extends PolicyEnforcer<PasswordPolicySpec, String> {
+public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, String> {
 
     private static final Pattern DIGIT = Pattern.compile(".*\\d+.*");
 
@@ -50,10 +49,7 @@ public class PasswordPolicyEnforcer
     private static final Pattern LASTNONALPHANUMERIC = Pattern.compile(".*\\W");
 
     @Override
-    public void enforce(
-            final PasswordPolicySpec policy,
-            final PolicyType type,
-            final String password)
+    public void enforce(final PasswordPolicySpec policy, final PolicyType type, final String password)
             throws PasswordPolicyException, PolicyEnforceException {
 
         if (password == null) {
@@ -65,13 +61,11 @@ public class PasswordPolicyEnforcer
         }
 
         // check length
-        if (policy.getMinLength() > 0
-                && policy.getMinLength() > password.length()) {
+        if (policy.getMinLength() > 0 && policy.getMinLength() > password.length()) {
             throw new PasswordPolicyException("Password too short");
         }
 
-        if (policy.getMaxLength() > 0
-                && policy.getMaxLength() < password.length()) {
+        if (policy.getMaxLength() > 0 && policy.getMaxLength() < password.length()) {
             throw new PasswordPolicyException("Password too long");
         }
 
@@ -83,23 +77,18 @@ public class PasswordPolicyEnforcer
         }
 
         // check digits occurrence
-        if (policy.isDigitRequired()
-                && !checkForDigit(password)) {
+        if (policy.isDigitRequired() && !checkForDigit(password)) {
             throw new PasswordPolicyException("Password must contain digit(s)");
         }
 
         // check lowercase alphabetic characters occurrence
-        if (policy.isLowercaseRequired()
-                && !checkForLowercase(password)) {
-            throw new PasswordPolicyException(
-                    "Password must contain lowercase alphabetic character(s)");
+        if (policy.isLowercaseRequired() && !checkForLowercase(password)) {
+            throw new PasswordPolicyException("Password must contain lowercase alphabetic character(s)");
         }
 
         // check uppercase alphabetic characters occurrence
-        if (policy.isUppercaseRequired()
-                && !checkForUppercase(password)) {
-            throw new PasswordPolicyException(
-                    "Password must contain uppercase alphabetic character(s)");
+        if (policy.isUppercaseRequired() && !checkForUppercase(password)) {
+            throw new PasswordPolicyException("Password must contain uppercase alphabetic character(s)");
         }
 
         // check prefix
@@ -117,94 +106,67 @@ public class PasswordPolicyEnforcer
         }
 
         // check digit first occurrence
-        if (policy.isMustStartWithDigit()
-                && !checkForFirstDigit(password)) {
-            throw new PasswordPolicyException(
-                    "Password must start with a digit");
+        if (policy.isMustStartWithDigit() && !checkForFirstDigit(password)) {
+            throw new PasswordPolicyException("Password must start with a digit");
         }
 
-        if (policy.isMustntStartWithDigit()
-                && checkForFirstDigit(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't start with a digit");
+        if (policy.isMustntStartWithDigit() && checkForFirstDigit(password)) {
+            throw new PasswordPolicyException("Password mustn't start with a digit");
         }
 
         // check digit last occurrence
-        if (policy.isMustEndWithDigit()
-                && !checkForLastDigit(password)) {
+        if (policy.isMustEndWithDigit() && !checkForLastDigit(password)) {
             throw new PasswordPolicyException("Password must end with a digit");
         }
 
-        if (policy.isMustntEndWithDigit()
-                && checkForLastDigit(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't end with a digit");
+        if (policy.isMustntEndWithDigit() && checkForLastDigit(password)) {
+            throw new PasswordPolicyException("Password mustn't end with a digit");
         }
 
         // check alphanumeric characters occurence
-        if (policy.isAlphanumericRequired()
-                && !checkForAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must contain alphanumeric character(s)");
+        if (policy.isAlphanumericRequired() && !checkForAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must contain alphanumeric character(s)");
         }
 
         // check non alphanumeric characters occurence
-        if (policy.isNonAlphanumericRequired()
-                && !checkForNonAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must contain non-alphanumeric character(s)");
+        if (policy.isNonAlphanumericRequired() && !checkForNonAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must contain non-alphanumeric character(s)");
         }
 
         // check alphanumeric character first occurrence
-        if (policy.isMustStartWithAlpha()
-                && !checkForFirstAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must start with an alphanumeric character");
+        if (policy.isMustStartWithAlpha() && !checkForFirstAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must start with an alphanumeric character");
         }
 
-        if (policy.isMustntStartWithAlpha()
-                && checkForFirstAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't start with an alphanumeric character");
+        if (policy.isMustntStartWithAlpha() && checkForFirstAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password mustn't start with an alphanumeric character");
         }
 
         // check alphanumeric character last occurrence
-        if (policy.isMustEndWithAlpha()
-                && !checkForLastAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must end with an alphanumeric character");
+        if (policy.isMustEndWithAlpha() && !checkForLastAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must end with an alphanumeric character");
         }
 
-        if (policy.isMustntEndWithAlpha()
-                && checkForLastAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't end with an alphanumeric character");
+        if (policy.isMustntEndWithAlpha() && checkForLastAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password mustn't end with an alphanumeric character");
         }
 
         // check non alphanumeric character first occurrence
-        if (policy.isMustStartWithNonAlpha()
-                && !checkForFirstNonAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must start with a non-alphanumeric character");
+        if (policy.isMustStartWithNonAlpha() && !checkForFirstNonAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must start with a non-alphanumeric character");
         }
 
-        if (policy.isMustntStartWithNonAlpha()
-                && checkForFirstNonAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't start with a non-alphanumeric character");
+        if (policy.isMustntStartWithNonAlpha() && checkForFirstNonAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password mustn't start with a non-alphanumeric character");
         }
 
         // check non alphanumeric character last occurrence
-        if (policy.isMustEndWithNonAlpha()
-                && !checkForLastNonAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password must end with a non-alphanumeric character");
+        if (policy.isMustEndWithNonAlpha() && !checkForLastNonAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password must end with a non-alphanumeric character");
         }
 
-        if (policy.isMustntEndWithNonAlpha()
-                && checkForLastNonAlphanumeric(password)) {
-            throw new PasswordPolicyException(
-                    "Password mustn't end with a non-alphanumeric character");
+        if (policy.isMustntEndWithNonAlpha() && checkForLastNonAlphanumeric(password)) {
+            throw new PasswordPolicyException("Password mustn't end with a non-alphanumeric character");
         }
     }
 

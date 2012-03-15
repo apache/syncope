@@ -25,11 +25,9 @@ import org.syncope.core.workflow.ActivitiUserWorkflowAdapter;
 public class Delete extends AbstractActivitiDelegate {
 
     @Override
-    protected void doExecute(final DelegateExecution execution)
-            throws Exception {
+    protected void doExecute(final DelegateExecution execution) throws Exception {
 
-        SyncopeUser user = (SyncopeUser) execution.getVariable(
-                ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
         // do something with SyncopeUser...
 

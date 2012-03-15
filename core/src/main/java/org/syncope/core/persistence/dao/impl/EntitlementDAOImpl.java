@@ -29,8 +29,7 @@ import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.util.EntitlementUtil;
 
 @Repository
-public class EntitlementDAOImpl extends AbstractDAOImpl
-        implements EntitlementDAO {
+public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDAO {
 
     @Autowired
     private RoleDAO roleDAO;
@@ -55,8 +54,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
     @Override
     public Entitlement saveEntitlementRole(final SyncopeRole role) {
         Entitlement roleEnt = new Entitlement();
-        roleEnt.setName(EntitlementUtil.getEntitlementNameFromRoleId(
-                role.getId()));
+        roleEnt.setName(EntitlementUtil.getEntitlementNameFromRoleId(role.getId()));
         roleEnt.setDescription("Entitlement for managing role " + role.getId());
 
         return save(roleEnt);

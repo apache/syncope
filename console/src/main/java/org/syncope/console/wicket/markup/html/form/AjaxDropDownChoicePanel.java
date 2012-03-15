@@ -32,10 +32,7 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable 
 
     private static final long serialVersionUID = -4716376580659196095L;
 
-    public AjaxDropDownChoicePanel(
-            final String id,
-            final String name,
-            final IModel<T> model) {
+    public AjaxDropDownChoicePanel(final String id, final String name, final IModel<T> model) {
 
         super(id, name, model);
 

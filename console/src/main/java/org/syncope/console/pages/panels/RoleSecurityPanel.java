@@ -45,8 +45,7 @@ public class RoleSecurityPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(RoleSecurityPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RoleSecurityPanel.class);
 
     private static final long serialVersionUID = -7982691107029848579L;
 
@@ -57,8 +56,7 @@ public class RoleSecurityPanel extends Panel {
 
     IModel<Map<Long, String>> accountPolicies = null;
 
-    public <T extends AbstractAttributableTO> RoleSecurityPanel(
-            final String id, final T entityTO) {
+    public <T extends AbstractAttributableTO> RoleSecurityPanel(final String id, final T entityTO) {
 
         super(id);
 
@@ -71,8 +69,7 @@ public class RoleSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO :
-                        policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -86,16 +83,14 @@ public class RoleSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO :
-                        policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
             }
         };
 
-        final WebMarkupContainer securityContainer =
-                new WebMarkupContainer("security");
+        final WebMarkupContainer securityContainer = new WebMarkupContainer("security");
 
         securityContainer.setOutputMarkupId(true);
         add(securityContainer);
@@ -106,11 +101,9 @@ public class RoleSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
                 "passwordPolicy", new PropertyModel(entityTO, "passwordPolicy"));
 
-        passwordPolicy.setChoiceRenderer(
-                new PolicyRenderer(PolicyType.PASSWORD));
+        passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
-        passwordPolicy.setChoices(
-                new ArrayList<Long>(passwordPolicies.getObject().keySet()));
+        passwordPolicy.setChoices(new ArrayList<Long>(passwordPolicies.getObject().keySet()));
 
         ((DropDownChoice) passwordPolicy.getField()).setNullValid(true);
 
@@ -121,20 +114,16 @@ public class RoleSecurityPanel extends Panel {
 
         passwordPolicy.setReadOnly(inhPasswordPolicy.getModelObject());
 
-        inhPasswordPolicy.getField().add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+        inhPasswordPolicy.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                    private static final long serialVersionUID =
-                            -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        passwordPolicy.setReadOnly(
-                                inhPasswordPolicy.getModelObject());
-                        target.add(passwordPolicy);
-                    }
-                });
-
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                passwordPolicy.setReadOnly(inhPasswordPolicy.getModelObject());
+                target.add(passwordPolicy);
+            }
+        });
 
         securityContainer.add(inhPasswordPolicy);
         // -------------------------------
@@ -157,18 +146,16 @@ public class RoleSecurityPanel extends Panel {
                 "inheritAccountPolicy", new PropertyModel<Boolean>(entityTO, "inheritAccountPolicy"));
         accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
 
-        inhAccountPolicy.getField().add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+        inhAccountPolicy.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                    private static final long serialVersionUID =
-                            -1107858522700306810L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
-                        target.add(accountPolicy);
-                    }
-                });
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
+                target.add(accountPolicy);
+            }
+        });
 
         securityContainer.add(inhAccountPolicy);
         // -------------------------------
@@ -199,7 +186,9 @@ public class RoleSecurityPanel extends Panel {
 
         @Override
         public String getIdValue(Long object, int index) {
-            return String.valueOf(object != null ? object : 0L);
+            return String.valueOf(object != null
+                    ? object
+                    : 0L);
         }
     };
 }

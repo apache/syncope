@@ -28,8 +28,7 @@ public interface NotificationDAO extends DAO {
 
     List<Notification> findAll();
 
-    Notification save(Notification notification)
-            throws InvalidEntityException;
+    Notification save(Notification notification) throws InvalidEntityException;
 
     void delete(Long id);
 }

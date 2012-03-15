@@ -82,7 +82,6 @@ public class AttributeMod extends AbstractBaseBean {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return valuesToBeAdded.isEmpty()
-                && valuesToBeRemoved.isEmpty();
+        return valuesToBeAdded.isEmpty() && valuesToBeRemoved.isEmpty();
     }
 }

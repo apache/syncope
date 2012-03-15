@@ -26,25 +26,21 @@ public class AccessTestITCase extends AbstractTest {
     public void clickAround() {
         selenium.click("css=img[alt=\"Schema\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='user']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='user']\");", "30000");
 
         selenium.click("//div[@id='user']/ul/li[2]/a/span");
         selenium.click("//div[@id='user']/ul/li[3]/a/span");
 
         selenium.click("link=Role");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='role']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='role']\");", "30000");
 
         selenium.click("//div[@id='role']/ul/li/a/span");
         selenium.click("//div[@id='role']/ul/li[2]/a/span");
         selenium.click("//div[@id='role']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='membership']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='membership']\");", "30000");
 
         selenium.click("//div[@id='membership']/ul/li[2]/a/span");
         selenium.click("//div[@id='membership']/ul/li[3]/a/span");
@@ -67,22 +63,16 @@ public class AccessTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Configuration\"]");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[@id='tabs']/ul/li[2]/a/span\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[2]/a/span\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[@id='tabs']/ul/li[3]/a/span\");",
-                "30000");
-        
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[3]/a/span\");", "30000");
+
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
 
         selenium.click("css=img[alt=\"Tasks\"]");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[@id='tabs']/ul/li[2]/a/span\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[2]/a/span\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");

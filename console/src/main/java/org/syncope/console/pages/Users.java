@@ -55,12 +55,10 @@ public class Users extends BasePage {
         editModalWin.setCookieName("edit-modal");
         add(editModalWin);
 
-        final ResultSetPanel searchResult = new ResultSetPanel("searchResult",
-                true, null, getPageReference());
+        final ResultSetPanel searchResult = new ResultSetPanel("searchResult", true, null, getPageReference());
         add(searchResult);
 
-        final ResultSetPanel listResult = new ResultSetPanel("listResult",
-                false, null, getPageReference());
+        final ResultSetPanel listResult = new ResultSetPanel("listResult", false, null, getPageReference());
         add(listResult);
 
         // create new user
@@ -72,22 +70,19 @@ public class Users extends BasePage {
             public void onClick(final AjaxRequestTarget target) {
                 editModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new EditUserModalPage(
-                                Users.this.getPageReference(),
-                                editModalWin, new UserTO());
+                        return new EditUserModalPage(Users.this.getPageReference(), editModalWin, new UserTO());
                     }
                 });
 
                 editModalWin.show(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users",
+                "create"));
         add(createLink);
 
         setWindowClosedReloadCallback(editModalWin);
@@ -98,14 +93,12 @@ public class Users extends BasePage {
         final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
         searchForm.add(searchPanel);
 
-        searchForm.add(new IndicatingAjaxButton(
-                "search", new ResourceModel("search")) {
+        searchForm.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 final NodeCond searchCond = searchPanel.buildSearchCond();
                 LOG.debug("Node condition " + searchCond);
@@ -117,17 +110,14 @@ public class Users extends BasePage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(searchPanel.getSearchFeedback());
             }
         });
     }
 
-    private void doSearch(final AjaxRequestTarget target,
-            final NodeCond searchCond,
-            final ResultSetPanel resultsetPanel) {
+    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond, final ResultSetPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.checkValidity()) {
             error(getString("search_error"));

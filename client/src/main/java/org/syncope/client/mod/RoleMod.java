@@ -54,8 +54,7 @@ public class RoleMod extends AbstractAttributableMod {
         return inheritAttributes;
     }
 
-    public void setInheritAttributes(
-            final Boolean inheritAttributes) {
+    public void setInheritAttributes(final Boolean inheritAttributes) {
         this.inheritAttributes = inheritAttributes;
     }
 
@@ -63,8 +62,7 @@ public class RoleMod extends AbstractAttributableMod {
         return inheritDerivedAttributes;
     }
 
-    public void setInheritDerivedAttributes(
-            final Boolean inheritDerivedAttributes) {
+    public void setInheritDerivedAttributes(final Boolean inheritDerivedAttributes) {
         this.inheritDerivedAttributes = inheritDerivedAttributes;
     }
 
@@ -72,8 +70,7 @@ public class RoleMod extends AbstractAttributableMod {
         return inheritVirtualAttributes;
     }
 
-    public void setInheritVirtualAttributes(
-            final Boolean inheritVirtualAttributes) {
+    public void setInheritVirtualAttributes(final Boolean inheritVirtualAttributes) {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
@@ -139,15 +136,8 @@ public class RoleMod extends AbstractAttributableMod {
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty()
-                && name == null
-                && inheritAccountPolicy == null
-                && inheritPasswordPolicy == null
-                && inheritAttributes == null
-                && inheritDerivedAttributes == null
-                && inheritVirtualAttributes == null
-                && accountPolicy == null
-                && passwordPolicy == null
-                && entitlements.isEmpty();
+        return super.isEmpty() && name == null && inheritAccountPolicy == null && inheritPasswordPolicy == null
+                && inheritAttributes == null && inheritDerivedAttributes == null && inheritVirtualAttributes == null
+                && accountPolicy == null && passwordPolicy == null && entitlements.isEmpty();
     }
 }

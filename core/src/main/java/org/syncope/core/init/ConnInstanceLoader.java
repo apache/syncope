@@ -71,8 +71,7 @@ public class ConnInstanceLoader {
      * @return live connector bran for given resource
      * @throws BeansException in case the connector is not registered in the context
      */
-    public ConnectorFacadeProxy getConnector(final ExternalResource resource)
-            throws BeansException, NotFoundException {
+    public ConnectorFacadeProxy getConnector(final ExternalResource resource) throws BeansException, NotFoundException {
 
         // Try to re-create connector bean from underlying resource
         // (useful for managing failover scenarios)
@@ -83,8 +82,7 @@ public class ConnInstanceLoader {
         return (ConnectorFacadeProxy) getBeanFactory().getBean(getBeanName(resource));
     }
 
-    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource)
-            throws NotFoundException {
+    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource) throws NotFoundException {
 
         final Set<ConnConfProperty> configuration = new HashSet<ConnConfProperty>();
 
@@ -122,8 +120,7 @@ public class ConnInstanceLoader {
      * @throws NotFoundException when not able to fetch all the required data.
      */
     public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
-            final Set<ConnConfProperty> configuration)
-            throws NotFoundException {
+            final Set<ConnConfProperty> configuration) throws NotFoundException {
 
         final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(connInstance);
 
@@ -132,8 +129,7 @@ public class ConnInstanceLoader {
         return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
     }
 
-    public void registerConnector(final ExternalResource resource)
-            throws NotFoundException {
+    public void registerConnector(final ExternalResource resource) throws NotFoundException {
 
         final ConnectorFacadeProxy connector = createConnectorBean(resource);
         LOG.debug("Connector to be registered: {}", connector);
@@ -164,8 +160,8 @@ public class ConnInstanceLoader {
                 LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
                 registerConnector(resource);
             } catch (Exception e) {
-                LOG.error("While registering resource-connector pair {}-{}",
-                        new Object[]{resource, resource.getConnector(), e});
+                LOG.error("While registering resource-connector pair {}-{}", new Object[] { resource,
+                        resource.getConnector(), e });
             }
         }
 

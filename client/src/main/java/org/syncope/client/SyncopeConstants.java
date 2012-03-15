@@ -20,12 +20,8 @@ package org.syncope.client;
 
 public class SyncopeConstants {
 
-    public final static String[] DATE_PATTERNS = {
-        "yyyy-MM-dd'T'HH:mm:ssZ",
-        "EEE, dd MMM yyyy HH:mm:ss z",
-        "yyyy-MM-dd'T'HH:mm:ssz",
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy-MM-dd"};
+    public final static String[] DATE_PATTERNS = { "yyyy-MM-dd'T'HH:mm:ssZ", "EEE, dd MMM yyyy HH:mm:ss z",
+            "yyyy-MM-dd'T'HH:mm:ssz", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd" };
 
     public static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 

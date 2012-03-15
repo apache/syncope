@@ -60,14 +60,11 @@ public class TaskDataBinder {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            TaskDataBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {
-        "latestExecStatus", "executions", "resource", "user"};
+    private static final String[] IGNORE_TASK_PROPERTIES = { "latestExecStatus", "executions", "resource", "user" };
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
-        "id", "task"};
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
 
     @Autowired
     private TaskExecDAO taskExecDAO;
@@ -81,19 +78,16 @@ public class TaskDataBinder {
     @Autowired
     private JexlUtil jexlUtil;
 
-    private void checkJexl(final AbstractAttributableTO attributableTO,
-            final SyncopeClientException sce) {
+    private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
 
         for (AttributeTO attrTO : attributableTO.getAttributes()) {
-            if (!attrTO.getValues().isEmpty()
-                    && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
 
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
         for (AttributeTO attrTO : attributableTO.getVirtualAttributes()) {
-            if (!attrTO.getValues().isEmpty()
-                    && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
 
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }
@@ -105,16 +99,13 @@ public class TaskDataBinder {
             UserTO template = taskTO.getUserTemplate();
 
             // 1. validate JEXL expressions in user template
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidSyncTask);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidSyncTask);
 
-            if (StringUtils.isNotBlank(template.getUsername())
-                    && !jexlUtil.isExpressionValid(template.getUsername())) {
+            if (StringUtils.isNotBlank(template.getUsername()) && !jexlUtil.isExpressionValid(template.getUsername())) {
 
                 sce.addElement("Invalid JEXL: " + template.getUsername());
             }
-            if (StringUtils.isNotBlank(template.getPassword())
-                    && !jexlUtil.isExpressionValid(template.getPassword())) {
+            if (StringUtils.isNotBlank(template.getPassword()) && !jexlUtil.isExpressionValid(template.getPassword())) {
 
                 sce.addElement("Invalid JEXL: " + template.getPassword());
             }
@@ -126,8 +117,7 @@ public class TaskDataBinder {
             }
 
             if (!sce.isEmpty()) {
-                SyncopeClientCompositeErrorException scce =
-                        new SyncopeClientCompositeErrorException(
+                SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
                         HttpStatus.BAD_REQUEST);
                 scce.addException(sce);
                 throw scce;
@@ -146,9 +136,7 @@ public class TaskDataBinder {
         task.setJobActionsClassName(taskTO.getJobActionsClassName());
     }
 
-    public SchedTask createSchedTask(final SchedTaskTO taskTO,
-            final TaskUtil taskUtil)
-            throws NotFoundException {
+    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) throws NotFoundException {
 
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
@@ -161,11 +149,9 @@ public class TaskDataBinder {
             case SYNC:
                 SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
-                ExternalResource resource = resourceDAO.find(syncTaskTO.
-                        getResource());
+                ExternalResource resource = resourceDAO.find(syncTaskTO.getResource());
                 if (resource == null) {
-                    throw new NotFoundException("Resource "
-                            + syncTaskTO.getResource());
+                    throw new NotFoundException("Resource " + syncTaskTO.getResource());
                 }
                 ((SyncTask) task).setResource(resource);
 
@@ -176,8 +162,7 @@ public class TaskDataBinder {
         return task;
     }
 
-    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO,
-            final TaskUtil taskUtil) {
+    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
 
         task.setCronExpression(taskTO.getCronExpression());
 
@@ -188,8 +173,7 @@ public class TaskDataBinder {
 
     public TaskExecTO getTaskExecTO(final TaskExec execution) {
         TaskExecTO executionTO = new TaskExecTO();
-        BeanUtils.copyProperties(execution, executionTO,
-                IGNORE_TASK_EXECUTION_PROPERTIES);
+        BeanUtils.copyProperties(execution, executionTO, IGNORE_TASK_EXECUTION_PROPERTIES);
         if (execution.getId() != null) {
             executionTO.setId(execution.getId());
         }
@@ -199,13 +183,11 @@ public class TaskDataBinder {
     }
 
     private void setExecTime(final SchedTaskTO taskTO, final Task task) {
-        String triggerName = JobInstanceLoader.getTriggerName(
-                JobInstanceLoader.getJobName(task));
+        String triggerName = JobInstanceLoader.getTriggerName(JobInstanceLoader.getJobName(task));
 
         Trigger trigger;
         try {
-            trigger = scheduler.getScheduler().getTrigger(triggerName,
-                    Scheduler.DEFAULT_GROUP);
+            trigger = scheduler.getScheduler().getTrigger(triggerName, Scheduler.DEFAULT_GROUP);
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
             trigger = null;
@@ -223,7 +205,8 @@ public class TaskDataBinder {
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
         taskTO.setLatestExecStatus(latestExec == null
-                ? "" : latestExec.getStatus());
+                ? ""
+                : latestExec.getStatus());
 
         for (TaskExec execution : task.getExecs()) {
             taskTO.addExecution(getTaskExecTO(execution));
@@ -231,11 +214,9 @@ public class TaskDataBinder {
 
         switch (taskUtil) {
             case PROPAGATION:
-                ((PropagationTaskTO) taskTO).setResource(
-                        ((PropagationTask) task).getResource().getName());
+                ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
                 if (((PropagationTask) task).getSyncopeUser() != null) {
-                    ((PropagationTaskTO) taskTO).setUser(
-                            ((PropagationTask) task).getSyncopeUser().getId());
+                    ((PropagationTaskTO) taskTO).setUser(((PropagationTask) task).getSyncopeUser().getId());
                 }
                 break;
 
@@ -246,8 +227,7 @@ public class TaskDataBinder {
             case SYNC:
                 setExecTime((SchedTaskTO) taskTO, task);
 
-                ((SyncTaskTO) taskTO).setResource(
-                        ((SyncTask) task).getResource().getName());
+                ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
                 break;
 
             case NOTIFICATION:

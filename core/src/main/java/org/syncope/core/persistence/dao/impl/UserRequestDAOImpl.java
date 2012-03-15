@@ -27,9 +27,8 @@ import org.syncope.core.persistence.dao.UserRequestDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 @Repository
-@Transactional(noRollbackFor = {Throwable.class})
-public class UserRequestDAOImpl extends AbstractDAOImpl
-        implements UserRequestDAO {
+@Transactional(noRollbackFor = { Throwable.class })
+public class UserRequestDAOImpl extends AbstractDAOImpl implements UserRequestDAO {
 
     @Override
     @Transactional(readOnly = true)
@@ -40,14 +39,12 @@ public class UserRequestDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public List<UserRequest> findAll() {
-        Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + UserRequest.class.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e " + "FROM " + UserRequest.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public UserRequest save(UserRequest userRequest)
-            throws InvalidEntityException {
+    public UserRequest save(UserRequest userRequest) throws InvalidEntityException {
 
         return entityManager.merge(userRequest);
     }

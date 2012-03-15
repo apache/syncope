@@ -75,8 +75,7 @@ public class PropagationTaskTO extends TaskTO {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(
-            PropagationOperation propagationOperation) {
+    public void setPropagationOperation(PropagationOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }

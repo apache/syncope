@@ -39,11 +39,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private final String datePattern;
 
-    public DateTextFieldPanel(
-            final String id,
-            final String name,
-            final IModel<Date> model,
-            final String datePattern) {
+    public DateTextFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
 
         super(id, name, model);
 
@@ -52,17 +48,15 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
         field = DateTextField.forDatePattern("field", model, datePattern);
 
         if (!isReadOnly()) {
-            field.add(
-                    new AjaxFormComponentUpdatingBehavior("onchange") {
+            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                        private static final long serialVersionUID =
-                                -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
-                        @Override
-                        protected void onUpdate(AjaxRequestTarget art) {
-                            // nothing to do
-                        }
-                    });
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                }
+            });
         }
 
         field.add(getDatePicker());
@@ -95,8 +89,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
         IModel<Date> model = new Model() {
 
-            private static final long serialVersionUID =
-                    6799404673615637845L;
+            private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
             public Serializable getObject() {
@@ -106,8 +99,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
                     if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         try {
-                            date = formatter.parse(
-                                    (String) item.getModelObject());
+                            date = formatter.parse((String) item.getModelObject());
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
@@ -128,8 +120,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
                 if (object != null) {
                     if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
-                        item.setModelObject(
-                                (String) formatter.format((Date) object));
+                        item.setModelObject((String) formatter.format((Date) object));
                     } else if (item.getModelObject() instanceof Date) {
                         // Don't parse anything
                         item.setModelObject((Date) object);
@@ -153,15 +144,13 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
             private static final long serialVersionUID = 527651414610325237L;
 
-            private final DateFormat formatter =
-                    new SimpleDateFormat(datePattern);
+            private final DateFormat formatter = new SimpleDateFormat(datePattern);
 
             @Override
             public Serializable getObject() {
                 Date date = null;
 
-                if (list != null && !list.isEmpty()
-                        && StringUtils.hasText(list.get(0).toString())) {
+                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
                     try {
                         // Parse string using datePattern
                         date = formatter.parse(list.get(0).toString());

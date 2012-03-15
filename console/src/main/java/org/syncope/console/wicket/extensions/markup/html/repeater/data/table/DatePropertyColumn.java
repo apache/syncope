@@ -33,23 +33,21 @@ public class DatePropertyColumn<T> extends PropertyColumn<T> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 
-    public DatePropertyColumn(final IModel<String> displayModel,
-            final String sortProperty, final String propertyExpression) {
+    public DatePropertyColumn(final IModel<String> displayModel, final String sortProperty,
+            final String propertyExpression) {
 
         super(displayModel, sortProperty, propertyExpression);
     }
 
     @Override
-    public void populateItem(final Item<ICellPopulator<T>> item,
-            final String componentId, final IModel<T> rowModel) {
+    public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
 
         IModel date = (IModel<Date>) createLabelModel(rowModel);
 
         String convertedDate = "";
 
         if (date.getObject() != null) {
-            convertedDate = SyncopeSession.get().
-                    getDateFormat().format(date.getObject());
+            convertedDate = SyncopeSession.get().getDateFormat().format(date.getObject());
             item.add(new Label(componentId, convertedDate));
         } else {
             item.add(new Label(componentId, convertedDate));

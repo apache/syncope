@@ -96,27 +96,18 @@ public class Reports extends BasePage {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                reportContainer, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Reports", "list"));
 
-        paginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_REPORT_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("id"),
-                "id", "id"));
-        columns.add(new PropertyColumn(new ResourceModel("name"),
-                "name", "name"));
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("lastExec"), "lastExec", "lastExec"));
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("nextExec"), "nextExec", "nextExec"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("latestExecStatus"),
-                "latestExecStatus", "latestExecStatus"));
-        columns.add(new AbstractColumn<ReportTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+        columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new AbstractColumn<ReportTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -126,34 +117,27 @@ public class Reports extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ReportTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<ReportTO>> cellItem, final String componentId,
                     final IModel<ReportTO> model) {
 
                 final ReportTO reportTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new ReportModalPage(
-                                        window, reportTO,
-                                        Reports.this.getPageReference());
+                                return new ReportModalPage(window, reportTO, Reports.this.getPageReference());
                             }
                         });
 
@@ -163,8 +147,7 @@ public class Reports extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -182,8 +165,7 @@ public class Reports extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -202,8 +184,7 @@ public class Reports extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable reportTable =
-                new AjaxFallbackDefaultDataTable("reportTable", columns,
+        final AjaxFallbackDefaultDataTable reportTable = new AjaxFallbackDefaultDataTable("reportTable", columns,
                 new ReportProvider(), paginatorRows);
 
         reportContainer.add(reportTable);
@@ -213,12 +194,10 @@ public class Reports extends BasePage {
 
         Form paginatorForm = new Form("paginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                paginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+                "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -227,10 +206,8 @@ public class Reports extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_REPORT_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_REPORT_PAGINATOR_ROWS, String
+                        .valueOf(paginatorRows));
                 reportTable.setItemsPerPage(paginatorRows);
 
                 target.add(reportContainer);
@@ -248,13 +225,11 @@ public class Reports extends BasePage {
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new ReportModalPage(window, new ReportTO(),
-                                Reports.this.getPageReference());
+                        return new ReportModalPage(window, new ReportTO(), Reports.this.getPageReference());
                     }
                 });
 
@@ -262,14 +237,13 @@ public class Reports extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Reports", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+                "create"));
 
         add(createLink);
     }
 
-    private class ReportProvider
-            extends SortableDataProvider<ReportTO> {
+    private class ReportProvider extends SortableDataProvider<ReportTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -278,16 +252,13 @@ public class Reports extends BasePage {
         public ReportProvider() {
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<ReportTO>(this);
+            comparator = new SortableDataProviderComparator<ReportTO>(this);
         }
 
         @Override
-        public Iterator<ReportTO> iterator(final int first,
-                final int count) {
+        public Iterator<ReportTO> iterator(final int first, final int count) {
 
-            List<ReportTO> list = reportRestClient.list(
-                    (first / paginatorRows) + 1, paginatorRows);
+            List<ReportTO> list = reportRestClient.list((first / paginatorRows) + 1, paginatorRows);
 
             Collections.sort(list, comparator);
 
@@ -304,8 +275,7 @@ public class Reports extends BasePage {
 
             return new AbstractReadOnlyModel<ReportTO>() {
 
-                private static final long serialVersionUID =
-                        4921104837546595602L;
+                private static final long serialVersionUID = 4921104837546595602L;
 
                 @Override
                 public ReportTO getObject() {

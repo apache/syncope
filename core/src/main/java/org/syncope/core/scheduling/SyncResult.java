@@ -88,8 +88,7 @@ public class SyncResult {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this,
-                ToStringStyle.SHORT_PREFIX_STYLE).toString();
+        return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
 
     /**
@@ -101,19 +100,16 @@ public class SyncResult {
         if (level == TraceLevel.SUMMARY) {
             // No per entry log in this case.
             return null;
-        } else if (level == TraceLevel.FAILURES
-                && status == Status.FAILURE) {
+        } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
 
             // only report failures
-            return String.format("Failed %s (id/name): %d/%s with message: %s",
-                    operation, userId, username, message);
+            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, userId, username, message);
         } else {
             // All
-            return String.format("%s %s (id/ name): %d/ %s %s", operation,
-                    status,
-                    userId, username,
-                    StringUtils.isEmpty(message) ? "" : "with message: "
-                    + message);
+            return String.format("%s %s (id/ name): %d/ %s %s", operation, status, userId, username, StringUtils
+                    .isEmpty(message)
+                    ? ""
+                    : "with message: " + message);
         }
     }
 
@@ -124,9 +120,7 @@ public class SyncResult {
      * @param level trace level
      * @return report as string
      */
-    public static String reportSetOfSynchronizationResult(
-            final Collection<SyncResult> results,
-            final TraceLevel level) {
+    public static String reportSetOfSynchronizationResult(final Collection<SyncResult> results, final TraceLevel level) {
 
         StringBuilder sb = new StringBuilder();
         for (SyncResult sr : results) {

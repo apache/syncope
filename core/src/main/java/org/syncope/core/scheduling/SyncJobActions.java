@@ -36,8 +36,7 @@ public interface SyncJobActions {
      * @param task synchronization task to be executed.
      * @throws JobExecutionException in case of generic failure.
      */
-    void beforeAll(final SyncTask task)
-            throws JobExecutionException;
+    void beforeAll(final SyncTask task) throws JobExecutionException;
 
     /**
      * Action to be executed before to create a synchronized user locally.
@@ -47,8 +46,7 @@ public interface SyncJobActions {
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
-            throws JobExecutionException;
+    SyncDelta beforeCreate(final SyncDelta delta, final UserTO user) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user locally.
@@ -70,8 +68,7 @@ public interface SyncJobActions {
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    SyncDelta beforeDelete(final SyncDelta delta, final UserTO user)
-            throws JobExecutionException;
+    SyncDelta beforeDelete(final SyncDelta delta, final UserTO user) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user synchronization.
@@ -82,8 +79,7 @@ public interface SyncJobActions {
      * @return synchronization information.
      * @throws JobExecutionException in case of generic failure.
      */
-    SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result)
-            throws JobExecutionException;
+    SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result) throws JobExecutionException;
 
     /**
      * Action to be executed after the synchronization task completion.
@@ -92,6 +88,5 @@ public interface SyncJobActions {
      * @param results synchronization result.
      * @throws JobExecutionException in case of generic failure.
      */
-    void afterAll(final SyncTask task, final List<SyncResult> results)
-            throws JobExecutionException;
+    void afterAll(final SyncTask task, final List<SyncResult> results) throws JobExecutionException;
 }

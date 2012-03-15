@@ -89,8 +89,7 @@ public class ConnInstanceController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ConnInstanceTO create(final HttpServletResponse response,
-            @RequestBody final ConnInstanceTO connectorTO)
+    public ConnInstanceTO create(final HttpServletResponse response, @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         LOG.debug("ConnInstance create called with configuration {}", connectorTO);
@@ -105,11 +104,10 @@ public class ConnInstanceController extends AbstractController {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not create connector instance: " + connectorTO.getDisplayName());
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-            SyncopeClientException invalidConnInstance =
-                    new SyncopeClientException(SyncopeClientExceptionType.InvalidConnInstance);
+            SyncopeClientException invalidConnInstance = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidConnInstance);
             invalidConnInstance.addElement(t.getMessage());
 
             scce.addException(invalidConnInstance);
@@ -137,11 +135,10 @@ public class ConnInstanceController extends AbstractController {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not update connector instance: " + connectorTO.getDisplayName());
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-            SyncopeClientException invalidConnInstance =
-                    new SyncopeClientException(SyncopeClientExceptionType.InvalidConnInstance);
+            SyncopeClientException invalidConnInstance = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidConnInstance);
             invalidConnInstance.addElement(t.getMessage());
 
             scce.addException(invalidConnInstance);
@@ -153,8 +150,7 @@ public class ConnInstanceController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{connectorId}")
-    public void delete(@PathVariable("connectorId") Long connectorId)
-            throws NotFoundException {
+    public void delete(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
         if (connInstance == null) {
@@ -162,11 +158,10 @@ public class ConnInstanceController extends AbstractController {
         }
 
         if (!connInstance.getResources().isEmpty()) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-            SyncopeClientException invalidConnInstance =
-                    new SyncopeClientException(SyncopeClientExceptionType.ExistingResource);
+            SyncopeClientException invalidConnInstance = new SyncopeClientException(
+                    SyncopeClientExceptionType.ExistingResource);
             for (ExternalResource resource : connInstance.getResources()) {
                 invalidConnInstance.addElement(resource.getName());
             }
@@ -211,8 +206,7 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{connectorId}")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(@PathVariable("connectorId") Long connectorId)
-            throws NotFoundException {
+    public ConnInstanceTO read(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
         if (connInstance == null) {
@@ -257,10 +251,8 @@ public class ConnInstanceController extends AbstractController {
 
                 ConnectorKey key = bundle.getConnectorKey();
 
-                LOG.debug("\nBundle name: {}"
-                        + "\nBundle version: {}"
-                        + "\nBundle class: {}",
-                        new Object[]{key.getBundleName(), key.getBundleVersion(), key.getConnectorName()});
+                LOG.debug("\nBundle name: {}" + "\nBundle version: {}" + "\nBundle class: {}", new Object[] {
+                        key.getBundleName(), key.getBundleVersion(), key.getConnectorName() });
 
                 connectorBundleTO.setBundleName(key.getBundleName());
                 connectorBundleTO.setConnectorName(key.getConnectorName());
@@ -320,8 +312,8 @@ public class ConnInstanceController extends AbstractController {
         }
 
         // consider the possibility to receive overridden properties only
-        final Set<ConnConfProperty> conf =
-                mergeConnConfProperties(connectorTO.getConfiguration(), connInstance.getConfiguration());
+        final Set<ConnConfProperty> conf = mergeConnConfProperties(connectorTO.getConfiguration(), connInstance
+                .getConfiguration());
 
         // We cannot use Spring bean because this method could be used during
         // resource definition or modification: bean couldn't exist or bean
@@ -329,14 +321,14 @@ public class ConnInstanceController extends AbstractController {
         // This is the reason why we should take a "not mature" connector
         // facade proxy to ask for schema names.
 
-        final List<String> result = new ArrayList<String>(
-                connLoader.createConnectorBean(connInstance, conf).getSchema(showall));
+        final List<String> result = new ArrayList<String>(connLoader.createConnectorBean(connInstance, conf).getSchema(
+                showall));
 
         Collections.sort(result);
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
-                "Successfully listed all schema names (" + result.size()
-                + ") for connector " + connInstance.getDisplayName());
+                "Successfully listed all schema names (" + result.size() + ") for connector "
+                        + connInstance.getDisplayName());
 
         return result;
     }
@@ -355,8 +347,8 @@ public class ConnInstanceController extends AbstractController {
         List<ConnConfProperty> result = new ArrayList<ConnConfProperty>(connInstance.getConfiguration());
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getConfigurationProperties, Result.success,
-                "Successfully listed all conf properties (" + result.size()
-                + ") for connector " + connInstance.getDisplayName());
+                "Successfully listed all conf properties (" + result.size() + ") for connector "
+                        + connInstance.getDisplayName());
 
         return result;
     }
@@ -367,8 +359,8 @@ public class ConnInstanceController extends AbstractController {
     public ModelAndView check(final HttpServletResponse response, @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        final ConnectorFacadeProxy connector =
-                new ConnectorFacadeProxy(binder.getConnInstance(connectorTO), bundleManager);
+        final ConnectorFacadeProxy connector = new ConnectorFacadeProxy(binder.getConnInstance(connectorTO),
+                bundleManager);
 
         boolean result;
         try {
@@ -395,8 +387,7 @@ public class ConnInstanceController extends AbstractController {
      * @param secondary secondary set.
      * @return merged set.
      */
-    private Set<ConnConfProperty> mergeConnConfProperties(
-            final Set<ConnConfProperty> primary,
+    private Set<ConnConfProperty> mergeConnConfProperties(final Set<ConnConfProperty> primary,
             final Set<ConnConfProperty> secondary) {
 
         final Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
@@ -426,8 +417,7 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
     @Transactional(readOnly = true)
-    public ConnInstanceTO readConnectorBean(@PathVariable("resourceName") String resourceName)
-            throws NotFoundException {
+    public ConnInstanceTO readConnectorBean(@PathVariable("resourceName") String resourceName) throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {

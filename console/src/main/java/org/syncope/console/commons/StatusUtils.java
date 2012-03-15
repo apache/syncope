@@ -40,8 +40,7 @@ public class StatusUtils {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(StatusUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
     @Autowired
     private UserRestClient userRestClient;
@@ -72,7 +71,9 @@ public class StatusUtils {
 
             String objectId = null;
 
-            switch (accountId != null ? accountId.getKey() : IntMappingType.SyncopeUserId) {
+            switch (accountId != null
+                    ? accountId.getKey()
+                    : IntMappingType.SyncopeUserId) {
 
                 case SyncopeUserId:
                     objectId = String.valueOf(userTO.getId());
@@ -82,29 +83,24 @@ public class StatusUtils {
                     break;
                 case UserSchema:
                     AttributeTO attributeTO = userTO.getAttributeMap().get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
+                    objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
+                            ? attributeTO.getValues().get(0)
+                            : null;
                     break;
                 case UserDerivedSchema:
-                    attributeTO = userTO.getDerivedAttributeMap().
-                            get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
+                    attributeTO = userTO.getDerivedAttributeMap().get(accountId.getValue());
+                    objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
+                            ? attributeTO.getValues().get(0)
+                            : null;
                     break;
                 case UserVirtualSchema:
-                    attributeTO = userTO.getVirtualAttributeMap().
-                            get(accountId.getValue());
-                    objectId =
-                            attributeTO != null
-                            && attributeTO.getValues() != null
+                    attributeTO = userTO.getVirtualAttributeMap().get(accountId.getValue());
+                    objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0) : null;
+                            ? attributeTO.getValues().get(0)
+                            : null;
                     break;
                 default:
             }
@@ -125,8 +121,7 @@ public class StatusUtils {
         return statuses;
     }
 
-    public StatusBean getRemoteStatus(
-            final ConnObjectTO objectTO) {
+    public StatusBean getRemoteStatus(final ConnObjectTO objectTO) {
 
         final StatusBean statusBean = new StatusBean();
 
@@ -136,8 +131,8 @@ public class StatusUtils {
             final StatusUtils.Status status = enabled == null
                     ? StatusUtils.Status.UNDEFINED
                     : enabled
-                    ? StatusUtils.Status.ACTIVE
-                    : StatusUtils.Status.SUSPENDED;
+                            ? StatusUtils.Status.ACTIVE
+                            : StatusUtils.Status.SUSPENDED;
 
             final String accountLink = getAccountLink(objectTO);
 
@@ -155,30 +150,32 @@ public class StatusUtils {
 
         final AttributeTO status = attributeTOs.get(STATUSATTR);
 
-        return status != null && status.getValues() != null
-                && !status.getValues().isEmpty() ? Boolean.parseBoolean(status.getValues().get(0)) : null;
+        return status != null && status.getValues() != null && !status.getValues().isEmpty()
+                ? Boolean.parseBoolean(status.getValues().get(0))
+                : null;
     }
 
     public String getAccountLink(final ConnObjectTO objectTO) {
         final String NAME = "__NAME__";
 
         final Map<String, AttributeTO> attributeTOs = objectTO != null
-                ? objectTO.getAttributeMap() : Collections.EMPTY_MAP;
+                ? objectTO.getAttributeMap()
+                : Collections.EMPTY_MAP;
 
         final AttributeTO name = attributeTOs.get(NAME);
 
-        return name != null && name.getValues() != null
-                && !name.getValues().isEmpty() ? (String) name.getValues().get(0) : null;
+        return name != null && name.getValues() != null && !name.getValues().isEmpty()
+                ? (String) name.getValues().get(0)
+                : null;
     }
 
-    public Map.Entry<IntMappingType, String> getAccountId(
-            final ResourceTO resourceTO) {
+    public Map.Entry<IntMappingType, String> getAccountId(final ResourceTO resourceTO) {
         Map.Entry<IntMappingType, String> accountId = null;
 
         for (SchemaMappingTO mapping : resourceTO.getMappings()) {
             if (mapping.isAccountid()) {
-                accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
-                        mapping.getIntMappingType(), mapping.getIntAttrName());
+                accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(mapping.getIntMappingType(), mapping
+                        .getIntAttrName());
             }
         }
 

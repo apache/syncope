@@ -50,18 +50,15 @@ public class AttrTest extends AbstractTest {
     @Test
     public void findAll() {
         List<UAttr> list = attrDAO.findAll(UAttr.class);
-        assertEquals("did not get expected number of attributes ",
-                9, list.size());
+        assertEquals("did not get expected number of attributes ", 9, list.size());
     }
 
     @Test
     public void findById() {
         UAttr attribute = attrDAO.find(100L, UAttr.class);
-        assertNotNull("did not find expected attribute schema",
-                attribute);
+        assertNotNull("did not find expected attribute schema", attribute);
         attribute = attrDAO.find(200L, UAttr.class);
-        assertNotNull("did not find expected attribute schema",
-                attribute);
+        assertNotNull("did not find expected attribute schema", attribute);
     }
 
     @Test
@@ -74,8 +71,7 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public void save()
-            throws ClassNotFoundException {
+    public void save() throws ClassNotFoundException {
 
         SyncopeUser user = userDAO.find(1L);
 
@@ -111,15 +107,13 @@ public class AttrTest extends AbstractTest {
         }
         assertNull(iee);
 
-        UAttr actual = attrDAO.find(attribute.getId(),
-                UAttr.class);
+        UAttr actual = attrDAO.find(attribute.getId(), UAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attribute, actual);
     }
 
     @Test
-    public void checkForEnumType()
-            throws ClassNotFoundException {
+    public void checkForEnumType() throws ClassNotFoundException {
 
         SyncopeUser user = userDAO.find(1L);
 
@@ -161,12 +155,10 @@ public class AttrTest extends AbstractTest {
 
     @Test
     public void validateAndSave() {
-        final USchema emailSchema =
-                userSchemaDAO.find("email", USchema.class);
+        final USchema emailSchema = userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
 
-        final USchema fullnameSchema =
-                userSchemaDAO.find("fullname", USchema.class);
+        final USchema fullnameSchema = userSchemaDAO.find("fullname", USchema.class);
         assertNotNull(fullnameSchema);
 
         UAttr attribute = new UAttr();
@@ -200,7 +192,6 @@ public class AttrTest extends AbstractTest {
         attrDAO.delete(attribute.getId(), UAttr.class);
 
         USchema schema = userSchemaDAO.find(attrSchemaName, USchema.class);
-        assertNotNull("user attribute schema deleted when deleting values",
-                schema);
+        assertNotNull("user attribute schema deleted when deleting values", schema);
     }
 }

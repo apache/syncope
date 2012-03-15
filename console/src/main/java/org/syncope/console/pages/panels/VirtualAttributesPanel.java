@@ -55,53 +55,47 @@ public class VirtualAttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    public <T extends AbstractAttributableTO> VirtualAttributesPanel(
-            final String id, final T entityTO, final boolean templateMode) {
+    public <T extends AbstractAttributableTO> VirtualAttributesPanel(final String id, final T entityTO,
+            final boolean templateMode) {
 
         super(id);
 
         setOutputMarkupId(true);
 
-        final IModel<List<String>> virtualSchemaNames =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> virtualSchemaNames = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        if (entityTO instanceof RoleTO) {
-                            return schemaRestClient.getVirtualSchemaNames(AttributableType.ROLE);
-                        } else if (entityTO instanceof UserTO) {
-                            return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
-                        } else {
-                            return schemaRestClient.getVirtualSchemaNames(AttributableType.MEMBERSHIP);
-                        }
-                    }
-                };
+            @Override
+            protected List<String> load() {
+                if (entityTO instanceof RoleTO) {
+                    return schemaRestClient.getVirtualSchemaNames(AttributableType.ROLE);
+                } else if (entityTO instanceof UserTO) {
+                    return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+                } else {
+                    return schemaRestClient.getVirtualSchemaNames(AttributableType.MEMBERSHIP);
+                }
+            }
+        };
 
-        final WebMarkupContainer attributesContainer =
-                new WebMarkupContainer("virAttrContainer");
+        final WebMarkupContainer attributesContainer = new WebMarkupContainer("virAttrContainer");
 
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new IndicatingAjaxButton(
-                "addAttributeBtn", new ResourceModel("addAttributeBtn")) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn", new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 entityTO.addVirtualAttribute(new AttributeTO());
                 target.add(attributesContainer);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(attributesContainer);
             }
@@ -109,10 +103,8 @@ public class VirtualAttributesPanel extends Panel {
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
 
-        ListView<AttributeTO> attributes = new ListView<AttributeTO>(
-                "attributes",
-                new PropertyModel<List<? extends AttributeTO>>(
-                entityTO, "virtualAttributes")) {
+        ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "virtualAttributes")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -120,11 +112,9 @@ public class VirtualAttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
-                item.add(new AjaxDecoratedCheckbox(
-                        "toRemove", new Model(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
 
-                    private static final long serialVersionUID =
-                            7170946748485726506L;
+                    private static final long serialVersionUID = 7170946748485726506L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -134,34 +124,25 @@ public class VirtualAttributesPanel extends Panel {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID =
-                                    -7927968187160354605L;
+                            private static final long serialVersionUID = -7927968187160354605L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
+                            public CharSequence preDecorateScript(final CharSequence script) {
 
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "} "
+                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
                                         + "else {this.checked = false;}";
                             }
                         };
                     }
                 });
 
-                final DropDownChoice<String> schemaChoice =
-                        new DropDownChoice<String>(
-                        "schema",
-                        new PropertyModel<String>(attributeTO, "schema"),
-                        virtualSchemaNames,
+                final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
+                        new PropertyModel<String>(attributeTO, "schema"), virtualSchemaNames,
                         new ChoiceRenderer<String>() {
 
-                            private static final long serialVersionUID =
-                                    3109256773218160485L;
+                            private static final long serialVersionUID = 3109256773218160485L;
 
                             @Override
                             public Object getDisplayValue(final String object) {
@@ -171,20 +152,16 @@ public class VirtualAttributesPanel extends Panel {
                             }
                         });
 
-                schemaChoice.add(
-                        new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget art) {
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget art) {
 
-                                attributeTO.setSchema(
-                                        schemaChoice.getModelObject());
-                            }
-                        });
+                        attributeTO.setSchema(schemaChoice.getModelObject());
+                    }
+                });
 
                 schemaChoice.setOutputMarkupId(true);
                 schemaChoice.setRequired(true);
@@ -197,9 +174,8 @@ public class VirtualAttributesPanel extends Panel {
                 if (templateMode) {
                     item.add(new AjaxTextFieldPanel("values", "values", new Model()));
                 } else {
-                    item.add(new MultiValueSelectorPanel("values",
-                            new PropertyModel<List<String>>(attributeTO, "values"),
-                            new AjaxTextFieldPanel("panel", "values", new Model(null))));
+                    item.add(new MultiValueSelectorPanel("values", new PropertyModel<List<String>>(attributeTO,
+                            "values"), new AjaxTextFieldPanel("panel", "values", new Model(null))));
                 }
             }
         };

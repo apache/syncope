@@ -45,12 +45,10 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/user/create", schemaTO, SchemaTO.class);
+        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
 
-        newSchemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/membership/create", schemaTO, SchemaTO.class);
+        newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/membership/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
     }
 
@@ -61,17 +59,14 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.String);
 
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/user/create", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidUSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
 
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().
-                    contains(EntityViolationType.InvalidUSchema.name()));
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidUSchema.name()));
         }
     }
 
@@ -82,17 +77,14 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Enum);
 
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/role/create", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/role/create", schemaTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidRSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
 
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().
-                    contains(
+            assertTrue(sce.getElements().iterator().next().contains(
                     EntityViolationType.InvalidSchemaTypeSpecification.name()));
         }
     }
@@ -104,17 +96,14 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Enum);
 
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/user/create", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidUSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
 
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().
-                    contains(
+            assertTrue(sce.getElements().iterator().next().contains(
                     EntityViolationType.InvalidSchemaTypeSpecification.name()));
         }
     }
@@ -124,8 +113,7 @@ public class SchemaTestITCase extends AbstractTest {
         restTemplate.delete(BASE_URL + "schema/user/delete/cool.json");
         SchemaTO firstname = null;
         try {
-            firstname = restTemplate.getForObject(BASE_URL
-                    + "schema/user/read/cool.json", SchemaTO.class);
+            firstname = restTemplate.getForObject(BASE_URL + "schema/user/read/cool.json", SchemaTO.class);
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -134,24 +122,21 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<SchemaTO> userSchemas = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
-                + "schema/user/list.json", SchemaTO[].class));
+        List<SchemaTO> userSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL + "schema/user/list.json",
+                SchemaTO[].class));
         assertFalse(userSchemas.isEmpty());
         for (SchemaTO schemaTO : userSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> roleSchemas = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
-                + "schema/role/list.json", SchemaTO[].class));
+        List<SchemaTO> roleSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL + "schema/role/list.json",
+                SchemaTO[].class));
         assertFalse(roleSchemas.isEmpty());
         for (SchemaTO schemaTO : roleSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> membershipSchemas = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
+        List<SchemaTO> membershipSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "schema/membership/list.json", SchemaTO[].class));
         assertFalse(membershipSchemas.isEmpty());
         for (SchemaTO schemaTO : membershipSchemas) {
@@ -161,22 +146,18 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchemaTO schemaTO = restTemplate.getForObject(BASE_URL
-                + "schema/role/read/icon.json", SchemaTO.class);
+        SchemaTO schemaTO = restTemplate.getForObject(BASE_URL + "schema/role/read/icon.json", SchemaTO.class);
         assertNotNull(schemaTO);
 
-        SchemaTO updatedTO = restTemplate.postForObject(BASE_URL
-                + "schema/role/update", schemaTO, SchemaTO.class);
+        SchemaTO updatedTO = restTemplate.postForObject(BASE_URL + "schema/role/update", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(SchemaType.Date);
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/role/update", updatedTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/role/update", updatedTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidRSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
             assertNotNull(sce);
         }
     }
@@ -187,29 +168,24 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setName("schema_issue258");
         schemaTO.setType(SchemaType.Double);
 
-        schemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/user/create", schemaTO, SchemaTO.class);
+        schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO(
-                "issue258@syncope-idm.org");
+        UserTO userTO = UserTestITCase.getSampleTO("issue258@syncope-idm.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1.2");
         userTO.addAttribute(attrTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
         schemaTO.setType(SchemaType.Long);
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/user/update", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/user/update", schemaTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidUSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
         }
     }
@@ -221,19 +197,16 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setUniqueConstraint(true);
         schemaTO.setType(SchemaType.Long);
 
-        schemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/user/create", schemaTO, SchemaTO.class);
+        schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO(
-                "issue259@syncope-idm.org");
+        UserTO userTO = UserTestITCase.getSampleTO("issue259@syncope-idm.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1");
         userTO.addAttribute(attrTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
         UserTO newUserTO = AttributableOperations.clone(userTO);
@@ -243,8 +216,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         UserMod userMod = AttributableOperations.diff(newUserTO, userTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/update",
-                userMod, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
         assertNotNull(userTO);
     }
 
@@ -255,29 +227,24 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
-        schemaTO = restTemplate.postForObject(BASE_URL
-                + "schema/user/create", schemaTO, SchemaTO.class);
+        schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO(
-                "issue260@syncope-idm.org");
+        UserTO userTO = UserTestITCase.getSampleTO("issue260@syncope-idm.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1.2");
         userTO.addAttribute(attrTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
         schemaTO.setUniqueConstraint(false);
         try {
-            restTemplate.postForObject(BASE_URL
-                    + "schema/user/update", schemaTO, SchemaTO.class);
+            restTemplate.postForObject(BASE_URL + "schema/user/update", schemaTO, SchemaTO.class);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
-            SyncopeClientException sce = scce.getException(
-                    SyncopeClientExceptionType.InvalidUSchema);
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
         }
     }

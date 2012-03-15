@@ -64,7 +64,8 @@ public class LoggerLoader {
                     syncopeLogger.setName(logger.getName());
                     syncopeLogger.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
                     syncopeLogger.setType(logger.getName().startsWith(SyncopeLoggerType.AUDIT.getPrefix())
-                            ? SyncopeLoggerType.AUDIT : SyncopeLoggerType.LOG);
+                            ? SyncopeLoggerType.AUDIT
+                            : SyncopeLoggerType.LOG);
                     loggerDAO.save(syncopeLogger);
                 }
             }

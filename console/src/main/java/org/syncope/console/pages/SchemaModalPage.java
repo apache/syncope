@@ -60,39 +60,35 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
     }
 
     @Override
-    public void setSchemaModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            AbstractBaseBean schemaTO,
-            final boolean createFlag) {
+    public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+            AbstractBaseBean schemaTO, final boolean createFlag) {
 
-        final SchemaTO schema =
-                schemaTO == null ? new SchemaTO() : (SchemaTO) schemaTO;
+        final SchemaTO schema = schemaTO == null
+                ? new SchemaTO()
+                : (SchemaTO) schemaTO;
 
         final Form schemaForm = new Form("form");
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
-                new PropertyModel<String>(schema, "name"));
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
+                schema, "name"));
         name.addRequiredLabel();
         name.setEnabled(createFlag);
 
         final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
-        final IModel<List<String>> validatorsList =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        return restClient.getAllValidatorClasses();
-                    }
-                };
+            @Override
+            protected List<String> load() {
+                return restClient.getAllValidatorClasses();
+            }
+        };
 
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<String>("validatorClass",
                 getString("validatorClass"), new PropertyModel(schema, "validatorClass"));
@@ -122,12 +118,10 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (SchemaType.Enum.ordinal()
-                        == Integer.parseInt(type.getField().getValue())) {
+                if (SchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
                     enumerationValues.addRequiredLabel();
                     enumerationValues.setEnabled(Boolean.TRUE);
-                    enumerationValues.setModelObject(
-                            ((SchemaTO) schema).getEnumerationValues());
+                    enumerationValues.setModelObject(((SchemaTO) schema).getEnumerationValues());
                 } else {
                     enumerationValues.removeRequiredLabel();
                     enumerationValues.setEnabled(Boolean.FALSE);
@@ -138,42 +132,37 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
         });
 
-        final AutoCompleteTextField mandatoryCondition =
-                new AutoCompleteTextField("mandatoryCondition") {
+        final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
 
-                    private static final long serialVersionUID =
-                            -2428903969518079100L;
+            private static final long serialVersionUID = -2428903969518079100L;
 
-                    @Override
-                    protected Iterator getChoices(String input) {
-                        List<String> choices = new ArrayList<String>();
+            @Override
+            protected Iterator getChoices(String input) {
+                List<String> choices = new ArrayList<String>();
 
-                        if (Strings.isEmpty(input)) {
-                            choices = Collections.emptyList();
-                            return choices.iterator();
-                        }
+                if (Strings.isEmpty(input)) {
+                    choices = Collections.emptyList();
+                    return choices.iterator();
+                }
 
-                        if ("true".startsWith(input.toLowerCase())) {
-                            choices.add("true");
-                        } else if ("false".startsWith(input.toLowerCase())) {
-                            choices.add("false");
-                        }
+                if ("true".startsWith(input.toLowerCase())) {
+                    choices.add("true");
+                } else if ("false".startsWith(input.toLowerCase())) {
+                    choices.add("false");
+                }
 
+                return choices.iterator();
+            }
+        };
 
-                        return choices.iterator();
-                    }
-                };
+        mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-        mandatoryCondition.add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+            private static final long serialVersionUID = -1107858522700306810L;
 
-                    private static final long serialVersionUID =
-                            -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget art) {
-                    }
-                });
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+            }
+        });
 
         final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
                 new PropertyModel<Boolean>(schema, "multivalue"));
@@ -184,14 +173,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
-        final AjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
@@ -208,8 +195,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                         restClient.updateSchema(kind, schemaTO);
                     }
                     if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(
-                                true);
+                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -220,8 +206,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -230,15 +215,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         String allowedRoles;
 
         if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                    "create");
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
         } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                    "update");
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "update");
         }
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
         schemaForm.add(conversionPattern);

@@ -70,12 +70,10 @@ public class UserSearchPanel extends Panel {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(UserSearchPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserSearchPanel.class);
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
-                "attributes", "derivedAttributes", "virtualAttributes",
-                "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] { "attributes", "derivedAttributes",
+            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap" });
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -158,16 +156,15 @@ public class UserSearchPanel extends Panel {
         }
     };
 
-    final private IModel<List<AttributeCond.Type>> attributeTypes =
-            new LoadableDetachableModel<List<AttributeCond.Type>>() {
+    final private IModel<List<AttributeCond.Type>> attributeTypes = new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
-                private static final long serialVersionUID = 5275935387613157437L;
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                @Override
-                protected List<AttributeCond.Type> load() {
-                    return Arrays.asList(AttributeCond.Type.values());
-                }
-            };
+        @Override
+        protected List<AttributeCond.Type> load() {
+            return Arrays.asList(AttributeCond.Type.values());
+        }
+    };
 
     final private IModel<List<FilterType>> filterTypes = new LoadableDetachableModel<List<FilterType>>() {
 
@@ -236,8 +233,7 @@ public class UserSearchPanel extends Panel {
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 SearchCondWrapper conditionWrapper = new SearchCondWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
@@ -296,7 +292,8 @@ public class UserSearchPanel extends Panel {
                 wrappers.add(getSearchCondWrapper(searchCond.getLeftNodeCond()));
                 SearchCondWrapper wrapper = getSearchCondWrapper(searchCond.getRightNodeCond());
                 wrapper.setOperationType(searchCond.getType() == NodeCond.Type.AND
-                        ? OperationType.AND : OperationType.OR);
+                        ? OperationType.AND
+                        : OperationType.OR);
                 wrappers.add(wrapper);
                 break;
 
@@ -352,14 +349,10 @@ public class UserSearchPanel extends Panel {
             return null;
         }
 
-        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}",
-                new Object[]{
-                    searchConditionWrapper.getFilterName(),
-                    searchConditionWrapper.getFilterType(),
-                    searchConditionWrapper.getFilterValue(),
-                    searchConditionWrapper.getOperationType(),
-                    searchConditionWrapper.getType(),
-                    searchConditionWrapper.isNotOperator()});
+        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[] {
+                searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
+                searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
+                searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator() });
 
         NodeCond nodeCond = null;
 
@@ -413,7 +406,7 @@ public class UserSearchPanel extends Panel {
                 break;
 
             default:
-            // nothing to do
+                // nothing to do
         }
 
         LOG.debug("Processed condition {}", nodeCond);
@@ -465,8 +458,8 @@ public class UserSearchPanel extends Panel {
             });
             item.add(notOperator);
 
-            final DropDownChoice<AttributeCond.Type> type = new DropDownChoice<AttributeCond.Type>(
-                    "type", new PropertyModel<AttributeCond.Type>(searchCondition, "type"), attributeTypes);
+            final DropDownChoice<AttributeCond.Type> type = new DropDownChoice<AttributeCond.Type>("type",
+                    new PropertyModel<AttributeCond.Type>(searchCondition, "type"), attributeTypes);
             type.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID = -1107858522700306810L;
@@ -477,8 +470,8 @@ public class UserSearchPanel extends Panel {
             });
             item.add(type);
 
-            final DropDownChoice<String> filterNameChooser = new DropDownChoice<String>(
-                    "filterName", new PropertyModel<String>(searchCondition, "filterName"), (IModel) null);
+            final DropDownChoice<String> filterNameChooser = new DropDownChoice<String>("filterName",
+                    new PropertyModel<String>(searchCondition, "filterName"), (IModel) null);
             filterNameChooser.setOutputMarkupId(true);
             filterNameChooser.setRequired(required);
             filterNameChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -491,8 +484,8 @@ public class UserSearchPanel extends Panel {
             });
             item.add(filterNameChooser);
 
-            final TextField<String> filterValue = new TextField<String>("filterValue",
-                    new PropertyModel<String>(searchCondition, "filterValue"));
+            final TextField<String> filterValue = new TextField<String>("filterValue", new PropertyModel<String>(
+                    searchCondition, "filterValue"));
             filterValue.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID = -1107858522700306810L;

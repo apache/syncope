@@ -34,27 +34,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-    "classpath:syncopeContext.xml",
-    "classpath:persistenceContext.xml",
-    "classpath:schedulingContext.xml",
-    "classpath:workflowContext.xml"
-})
+@ContextConfiguration(locations = { "classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
+        "classpath:schedulingContext.xml", "classpath:workflowContext.xml" })
 public abstract class AbstractTest {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractTest.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
     protected static String connidSoapVersion;
 
     protected static String bundlesDirectory;
 
-    private void logTableContent(final Connection conn,
-            final String tableName)
-            throws SQLException {
+    private void logTableContent(final Connection conn, final String tableName) throws SQLException {
 
         LOG.debug("Table: " + tableName);
 
@@ -67,10 +60,8 @@ public abstract class AbstractTest {
             final StringBuilder row = new StringBuilder();
             while (rs.next()) {
                 for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                    row.append(rs.getMetaData().getColumnLabel(i + 1)).
-                            append("=").
-                            append(rs.getString(i + 1)).
-                            append(" ");
+                    row.append(rs.getMetaData().getColumnLabel(i + 1)).append("=").append(rs.getString(i + 1)).append(
+                            " ");
                 }
 
                 LOG.debug(row.toString());
@@ -89,8 +80,7 @@ public abstract class AbstractTest {
     public void setUpIdentityConnectorsBundles() {
         Properties props = new java.util.Properties();
         try {
-            InputStream propStream =
-                    getClass().getResourceAsStream("/bundles.properties");
+            InputStream propStream = getClass().getResourceAsStream("/bundles.properties");
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");

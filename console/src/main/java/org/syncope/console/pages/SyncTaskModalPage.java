@@ -43,32 +43,25 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    public SyncTaskModalPage(
-            final ModalWindow window,
-            final SyncTaskTO taskTO,
-            final PageReference callerPageRef) {
+    public SyncTaskModalPage(final ModalWindow window, final SyncTaskTO taskTO, final PageReference callerPageRef) {
 
         super(window, taskTO, callerPageRef);
 
-        final IModel<List<String>> allResources =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> allResources = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        final List<String> resourceNames =
-                                new ArrayList<String>();
+            @Override
+            protected List<String> load() {
+                final List<String> resourceNames = new ArrayList<String>();
 
-                        for (ResourceTO resourceTO :
-                                resourceRestClient.getAllResources()) {
+                for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
 
-                            resourceNames.add(resourceTO.getName());
-                        }
-                        return resourceNames;
-                    }
-                };
+                    resourceNames.add(resourceTO.getName());
+                }
+                return resourceNames;
+            }
+        };
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<String>("resource",
                 getString("resourceName"), new PropertyModel(taskTO, "resource"));
@@ -93,8 +86,7 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
                 "jobActionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "jobActionsClassName"));
         actionsClassName.setChoices(classNames.getObject());
-        actionsClassName.setStyleShet(
-                "ui-widget-content ui-corner-all long_dynamicsize");
+        actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);
 
         final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel("performCreate", getString("creates"),

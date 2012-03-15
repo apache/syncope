@@ -25,8 +25,7 @@ import org.syncope.core.persistence.beans.SyncopeConf;
 @Component
 public class ConfigurationDataBinder {
 
-    public SyncopeConf createSyncopeConfiguration(
-            final ConfigurationTO configurationTO) {
+    public SyncopeConf createSyncopeConfiguration(final ConfigurationTO configurationTO) {
 
         SyncopeConf syncopeConfiguration = new SyncopeConf();
         syncopeConfiguration.setKey(configurationTO.getKey());
@@ -35,8 +34,7 @@ public class ConfigurationDataBinder {
         return syncopeConfiguration;
     }
 
-    public ConfigurationTO getConfigurationTO(
-            final SyncopeConf syncopeConfiguration) {
+    public ConfigurationTO getConfigurationTO(final SyncopeConf syncopeConfiguration) {
 
         ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey(syncopeConfiguration.getKey());

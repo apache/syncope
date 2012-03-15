@@ -29,8 +29,7 @@ public class AlwaysTrueValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(AbstractAttrValue attributeValue)
-            throws InvalidAttrValueException {
+    protected void doValidate(AbstractAttrValue attributeValue) throws InvalidAttrValueException {
 
         Boolean value = attributeValue.getValue();
         if (!value) {

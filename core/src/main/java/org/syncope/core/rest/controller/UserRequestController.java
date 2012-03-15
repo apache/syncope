@@ -49,8 +49,7 @@ public class UserRequestController {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(UserRequestController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserRequestController.class);
 
     @Autowired
     private ConfDAO confDAO;
@@ -62,11 +61,9 @@ public class UserRequestController {
     private UserRequestDataBinder dataBinder;
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/self")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/self")
     @Transactional(readOnly = true)
-    public UserTO read()
-            throws NotFoundException {
+    public UserTO read() throws NotFoundException {
 
         return dataBinder.getAuthUserTO();
     }
@@ -77,19 +74,15 @@ public class UserRequestController {
         return Boolean.valueOf(createRequestAllowed.getValue());
     }
 
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/create/allowed")
+    @RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
     @Transactional(readOnly = true)
     public ModelAndView isCreateAllowed() {
 
-        return new ModelAndView().addObject(
-                isCreateAllowedByConf());
+        return new ModelAndView().addObject(isCreateAllowedByConf());
     }
 
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
-    public UserRequestTO create(@RequestBody final UserTO userTO)
-            throws UnauthorizedRoleException {
+    @RequestMapping(method = RequestMethod.POST, value = "/create")
+    public UserRequestTO create(@RequestBody final UserTO userTO) throws UnauthorizedRoleException {
 
         if (!isCreateAllowedByConf()) {
             LOG.error("Create requests are not allowed");
@@ -112,10 +105,8 @@ public class UserRequestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
-    public UserRequestTO update(@RequestBody final UserMod userMod)
-            throws NotFoundException, UnauthorizedRoleException {
+    @RequestMapping(method = RequestMethod.POST, value = "/update")
+    public UserRequestTO update(@RequestBody final UserMod userMod) throws NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("Request user update called with {}", userMod);
 
@@ -132,10 +123,8 @@ public class UserRequestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/delete")
-    public UserRequestTO delete(@RequestBody final Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
+    @RequestMapping(method = RequestMethod.POST, value = "/delete")
+    public UserRequestTO delete(@RequestBody final Long userId) throws NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("Request user delete called with {}", userId);
 
@@ -152,8 +141,7 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_LIST')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/list")
     @Transactional(readOnly = true)
     public List<UserRequestTO> list() {
         List<UserRequestTO> result = new ArrayList<UserRequestTO>();
@@ -166,11 +154,9 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/{requestId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/{requestId}")
     @Transactional(readOnly = true)
-    public UserRequestTO read(@PathVariable("requestId") final Long requestId)
-            throws NotFoundException {
+    public UserRequestTO read(@PathVariable("requestId") final Long requestId) throws NotFoundException {
 
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
@@ -181,10 +167,8 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/deleteRequest/{requestId}")
-    public void deleteRequest(@PathVariable("requestId") final Long requestId)
-            throws NotFoundException {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/deleteRequest/{requestId}")
+    public void deleteRequest(@PathVariable("requestId") final Long requestId) throws NotFoundException {
 
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {

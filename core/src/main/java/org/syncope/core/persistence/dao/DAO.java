@@ -22,7 +22,7 @@ import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 public interface DAO {
 
-     <T extends AbstractBaseBean> void refresh(T entity);
+    <T extends AbstractBaseBean> void refresh(T entity);
 
     void detach(Object object);
 

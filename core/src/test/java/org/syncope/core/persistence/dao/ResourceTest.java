@@ -43,8 +43,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void findById() {
-        ExternalResource resource =
-                resourceDAO.find("ws-target-resource-1");
+        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
 
         assertNotNull("findById did not work", resource);
 
@@ -52,15 +51,11 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull("connector not found", connector);
 
-        assertEquals("invalid connector name",
-                WebServiceConnector.class.getName(),
-                connector.getConnectorName());
+        assertEquals("invalid connector name", WebServiceConnector.class.getName(), connector.getConnectorName());
 
-        assertEquals("invalid bundle name", "org.connid.bundles.soap",
-                connector.getBundleName());
+        assertEquals("invalid bundle name", "org.connid.bundles.soap", connector.getBundleName());
 
-        assertEquals("invalid bundle version",
-                connidSoapVersion, connector.getVersion());
+        assertEquals("invalid bundle version", connidSoapVersion, connector.getVersion());
 
         Set<SchemaMapping> mappings = resource.getMappings();
         assertNotNull("mappings not found", mappings);
@@ -167,8 +162,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
-        ConnInstance connector =
-                resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
 
         resource.setConnector(connector);
 
@@ -196,8 +190,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
-        ConnInstance connector =
-                resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
 
         resource.setConnector(connector);
 
@@ -235,13 +228,12 @@ public class ResourceTest extends AbstractTest {
         for (SchemaMapping schemaMapping : actual.getMappings()) {
 
             if ("icon".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
-                assertTrue(IntMappingType.contains(
-                        AttributableType.ROLE, schemaMapping.getIntMappingType().toString()));
+                assertTrue(IntMappingType.contains(AttributableType.ROLE, schemaMapping.getIntMappingType().toString()));
             }
 
             if ("mderiveddata".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
-                assertTrue(IntMappingType.contains(
-                        AttributableType.MEMBERSHIP, schemaMapping.getIntMappingType().toString()));
+                assertTrue(IntMappingType.contains(AttributableType.MEMBERSHIP, schemaMapping.getIntMappingType()
+                        .toString()));
             }
         }
     }

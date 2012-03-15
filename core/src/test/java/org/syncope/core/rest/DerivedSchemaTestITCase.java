@@ -30,8 +30,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<DerivedSchemaTO> derivedSchemas = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
+        List<DerivedSchemaTO> derivedSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "derivedSchema/user/list.json", DerivedSchemaTO[].class));
         assertFalse(derivedSchemas.isEmpty());
         for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
@@ -41,8 +40,8 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        DerivedSchemaTO derivedSchemaTO = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/read/cn.json", DerivedSchemaTO.class);
+        DerivedSchemaTO derivedSchemaTO = restTemplate.getForObject(BASE_URL + "derivedSchema/user/read/cn.json",
+                DerivedSchemaTO.class);
         assertNotNull(derivedSchemaTO);
     }
 
@@ -52,14 +51,11 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        DerivedSchemaTO actual = restTemplate.postForObject(BASE_URL
-                + "derivedSchema/user/create.json",
-                schema,
+        DerivedSchemaTO actual = restTemplate.postForObject(BASE_URL + "derivedSchema/user/create.json", schema,
                 DerivedSchemaTO.class);
         assertNotNull(actual);
 
-        actual = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/read/" + actual.getName() + ".json",
+        actual = restTemplate.getForObject(BASE_URL + "derivedSchema/user/read/" + actual.getName() + ".json",
                 DerivedSchemaTO.class);
         assertNotNull(actual);
         assertEquals(actual.getExpression(), "derived_sx + '_' + derived_dx");
@@ -67,20 +63,15 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        DerivedSchemaTO schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/role/read/rderiveddata.json",
+        DerivedSchemaTO schema = restTemplate.getForObject(BASE_URL + "derivedSchema/role/read/rderiveddata.json",
                 DerivedSchemaTO.class);
         assertNotNull(schema);
 
-        restTemplate.delete(
-                BASE_URL + "derivedSchema/role/delete/{schema}",
-                schema.getName());
+        restTemplate.delete(BASE_URL + "derivedSchema/role/delete/{schema}", schema.getName());
 
         Throwable t = null;
         try {
-            restTemplate.getForObject(BASE_URL
-                    + "derivedSchema/role/read/rderiveddata.json",
-                    DerivedSchemaTO.class);
+            restTemplate.getForObject(BASE_URL + "derivedSchema/role/read/rderiveddata.json", DerivedSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -90,22 +81,18 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        DerivedSchemaTO schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/membership/read/mderiveddata.json",
-                DerivedSchemaTO.class);
+        DerivedSchemaTO schema = restTemplate.getForObject(
+                BASE_URL + "derivedSchema/membership/read/mderiveddata.json", DerivedSchemaTO.class);
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
 
         schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-        schema = restTemplate.postForObject(BASE_URL
-                + "derivedSchema/membership/update.json",
-                schema,
+        schema = restTemplate.postForObject(BASE_URL + "derivedSchema/membership/update.json", schema,
                 DerivedSchemaTO.class);
         assertNotNull(schema);
 
-        schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/membership/read/mderiveddata.json",
+        schema = restTemplate.getForObject(BASE_URL + "derivedSchema/membership/read/mderiveddata.json",
                 DerivedSchemaTO.class);
         assertNotNull(schema);
         assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());

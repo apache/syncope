@@ -26,19 +26,16 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 public class EmailAddressValidator extends AbstractValidator {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
-            Pattern.CASE_INSENSITIVE);
+            "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$", Pattern.CASE_INSENSITIVE);
 
     public EmailAddressValidator(final AbstractSchema schema) {
         super(schema);
     }
 
     @Override
-    protected void doValidate(final AbstractAttrValue attributeValue)
-            throws InvalidAttrValueException {
+    protected void doValidate(final AbstractAttrValue attributeValue) throws InvalidAttrValueException {
 
-        Matcher matcher = EMAIL_PATTERN.matcher(
-                (CharSequence) attributeValue.getValue());
+        Matcher matcher = EMAIL_PATTERN.matcher((CharSequence) attributeValue.getValue());
         if (!matcher.matches()) {
             throw new InvalidAttrValueException(attributeValue);
         }

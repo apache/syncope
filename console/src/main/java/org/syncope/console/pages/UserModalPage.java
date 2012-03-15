@@ -65,12 +65,8 @@ public abstract class UserModalPage extends BaseModalPage {
 
     private final boolean resetPassword;
 
-    public UserModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            final UserTO userTO,
-            final Mode mode,
-            final boolean resetPassword) {
+    public UserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO,
+            final Mode mode, final boolean resetPassword) {
 
         super();
 
@@ -85,10 +81,7 @@ public abstract class UserModalPage extends BaseModalPage {
         add(fragment);
     }
 
-    public UserModalPage(
-            final ModalWindow window,
-            final UserTO userTO,
-            final Mode mode) {
+    public UserModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
 
         super();
 
@@ -102,8 +95,8 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment.setOutputMarkupId(true);
         add(fragment);
 
-        final UserManagementResultPanel result = new UserManagementResultPanel(
-                "userModalPageResult", window, mode, userTO);
+        final UserManagementResultPanel result = new UserManagementResultPanel("userModalPageResult", window, mode,
+                userTO);
         result.setOutputMarkupId(true);
 
         fragment.add(result);
@@ -120,10 +113,12 @@ public abstract class UserModalPage extends BaseModalPage {
     protected Form setupEditPanel() {
 
         fragment.add(new Label("id", userTO.getId() == 0
-                ? "" : userTO.getUsername()));
+                ? ""
+                : userTO.getUsername()));
 
         fragment.add(new Label("new", userTO.getId() == 0
-                ? new ResourceModel("new") : new Model("")));
+                ? new ResourceModel("new")
+                : new Model("")));
 
         final Form form = new Form("UserForm");
         form.setModel(new CompoundPropertyModel(userTO));
@@ -131,19 +126,17 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // User details
         //--------------------------------
-        form.add(new UserDetailsPanel(
-                "details", userTO, form, resetPassword, mode == Mode.TEMPLATE));
-        
+        form.add(new UserDetailsPanel("details", userTO, form, resetPassword, mode == Mode.TEMPLATE));
+
         form.add(new Label("statuspanel", ""));
-        
+
         form.add(new Label("accountinformation", ""));
         //--------------------------------
 
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel(
-                "attributes", userTO, form, mode == Mode.TEMPLATE));
+        form.add(new AttributesPanel("attributes", userTO, form, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -155,8 +148,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes panel
         //--------------------------------
-        form.add(new VirtualAttributesPanel(
-                "virtualAttributes", userTO, mode == Mode.TEMPLATE));
+        form.add(new VirtualAttributesPanel("virtualAttributes", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -177,8 +169,7 @@ public abstract class UserModalPage extends BaseModalPage {
             String allowedRoles = userTO.getId() == 0
                     ? xmlRolesReader.getAllAllowedRoles("Users", "create")
                     : xmlRolesReader.getAllAllowedRoles("Users", "update");
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    submit, RENDER, allowedRoles);
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, allowedRoles);
         }
 
         fragment.add(form);
@@ -193,8 +184,7 @@ public abstract class UserModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 try {
                     submitAction(target, form);
@@ -213,17 +203,14 @@ public abstract class UserModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
         };
     }
 
-    protected abstract void submitAction(
-            final AjaxRequestTarget target, final Form form);
+    protected abstract void submitAction(final AjaxRequestTarget target, final Form form);
 
-    protected abstract void closeAction(
-            final AjaxRequestTarget target, final Form form);
+    protected abstract void closeAction(final AjaxRequestTarget target, final Form form);
 }

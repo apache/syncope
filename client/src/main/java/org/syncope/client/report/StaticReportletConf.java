@@ -49,11 +49,15 @@ public class StaticReportletConf extends AbstractReportletConf {
     }
 
     public Date getDateField() {
-        return dateField == null ? null : new Date(dateField.getTime());
+        return dateField == null
+                ? null
+                : new Date(dateField.getTime());
     }
 
     public void setDateField(Date dateField) {
-        this.dateField = dateField == null ? null : new Date(dateField.getTime());
+        this.dateField = dateField == null
+                ? null
+                : new Date(dateField.getTime());
     }
 
     public Double getDoubleField() {

@@ -64,8 +64,7 @@ public class UserManagementResultPanel extends Panel {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(UserManagementResultPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserManagementResultPanel.class);
 
     /**
      * Status management utilities.
@@ -81,10 +80,7 @@ public class UserManagementResultPanel extends Panel {
      * @param mode operation mode.
      * @param userTO User TO.
      */
-    public UserManagementResultPanel(
-            final String id,
-            final ModalWindow window,
-            final UserModalPage.Mode mode,
+    public UserManagementResultPanel(final String id, final ModalWindow window, final UserModalPage.Mode mode,
             final UserTO userTO) {
 
         super(id);
@@ -92,15 +88,13 @@ public class UserManagementResultPanel extends Panel {
         // shortcut to retrieve fragments inside inner classes
         final Panel panel = this;
 
-        final WebMarkupContainer container =
-                new WebMarkupContainer("container");
+        final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
-        final Fragment fragment = new Fragment("userModalResultFrag",
-                mode == UserModalPage.Mode.SELF
-                ? "userModalSelfResultFrag" : "userModalPropagationResultFrag",
-                this);
+        final Fragment fragment = new Fragment("userModalResultFrag", mode == UserModalPage.Mode.SELF
+                ? "userModalSelfResultFrag"
+                : "userModalPropagationResultFrag", this);
 
         fragment.setOutputMarkupId(true);
         container.add(fragment);
@@ -117,30 +111,25 @@ public class UserManagementResultPanel extends Panel {
             propagations.addAll(userTO.getPropagationTOs());
 
             fragment.add(new Label("userInfo", userTO.getUsername() != null
-                    ? userTO.getUsername() : String.valueOf(userTO.getId())));
+                    ? userTO.getUsername()
+                    : String.valueOf(userTO.getId())));
 
-            final ListView<PropagationTO> propRes = new ListView<PropagationTO>(
-                    "resources", propagations) {
+            final ListView<PropagationTO> propRes = new ListView<PropagationTO>("resources", propagations) {
 
-                private static final long serialVersionUID =
-                        -1020475259727720708L;
+                private static final long serialVersionUID = -1020475259727720708L;
 
                 @Override
                 protected void populateItem(final ListItem item) {
-                    final PropagationTO propTO =
-                            (PropagationTO) item.getDefaultModelObject();
+                    final PropagationTO propTO = (PropagationTO) item.getDefaultModelObject();
 
                     final ListView attributes = getConnObjectView(propTO);
 
                     final Fragment attrhead;
 
-                    if (attributes.getModelObject() != null
-                            && !attributes.getModelObject().isEmpty()) {
-                        attrhead = new Fragment(
-                                "attrhead", "attrHeadFrag", panel);
+                    if (attributes.getModelObject() != null && !attributes.getModelObject().isEmpty()) {
+                        attrhead = new Fragment("attrhead", "attrHeadFrag", panel);
                     } else {
-                        attrhead = new Fragment(
-                                "attrhead", "emptyAttrHeadFrag", panel);
+                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", panel);
                     }
 
                     item.add(attrhead);
@@ -148,9 +137,9 @@ public class UserManagementResultPanel extends Panel {
 
                     attrhead.add(new Label("resource", propTO.getResourceName()));
 
-                    attrhead.add(new Label("propagation",
-                            propTO.getStatus() != null
-                            ? propTO.getStatus().toString() : "UNDEFINED"));
+                    attrhead.add(new Label("propagation", propTO.getStatus() != null
+                            ? propTO.getStatus().toString()
+                            : "UNDEFINED"));
 
                     final Image image;
                     final String alt, title;
@@ -171,13 +160,10 @@ public class UserManagementResultPanel extends Panel {
 
                     image.add(new Behavior() {
 
-                        private static final long serialVersionUID =
-                                1469628524240283489L;
+                        private static final long serialVersionUID = 1469628524240283489L;
 
                         @Override
-                        public void onComponentTag(
-                                final Component component,
-                                final ComponentTag tag) {
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
                             tag.put("alt", alt);
                             tag.put("title", title);
                         }
@@ -191,8 +177,7 @@ public class UserManagementResultPanel extends Panel {
 
         final AjaxLink close = new IndicatingAjaxLink("close") {
 
-            private static final long serialVersionUID =
-                    -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
@@ -213,8 +198,7 @@ public class UserManagementResultPanel extends Panel {
         final ConnObjectTO after = propTO.getAfter();
 
         // sorted in reversed presentation order
-        final List<String> head = Arrays.asList(new String[]{
-                    "__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__"});
+        final List<String> head = Arrays.asList(new String[] { "__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__" });
 
         final Map<String, AttributeTO> beforeAttrMap;
 
@@ -262,11 +246,9 @@ public class UserManagementResultPanel extends Panel {
                     beforeValue = getStatusIcon("beforeValue", before);
                     afterValue = getStatusIcon("afterValue", after);
                 } else {
-                    beforeValue = getLabelValue(
-                            "beforeValue", name, beforeAttrMap);
+                    beforeValue = getLabelValue("beforeValue", name, beforeAttrMap);
 
-                    afterValue = getLabelValue(
-                            "afterValue", name, afterAttrMap);
+                    afterValue = getLabelValue("afterValue", name, afterAttrMap);
                 }
 
                 item.add(new Label("attrName", new ResourceModel(name, name)));
@@ -285,42 +267,34 @@ public class UserManagementResultPanel extends Panel {
      * @param attrMap remote attributes map.
      * @return fragment.
      */
-    private Fragment getLabelValue(
-            final String id,
-            final String attrName,
-            final Map<String, AttributeTO> attrMap) {
+    private Fragment getLabelValue(final String id, final String attrName, final Map<String, AttributeTO> attrMap) {
         final String value;
 
         final AttributeTO attr = attrMap.get(attrName);
 
-        if (attr != null
-                && attr.getValues() != null
-                && !attr.getValues().isEmpty()) {
+        if (attr != null && attr.getValues() != null && !attr.getValues().isEmpty()) {
 
             if ("__PASSWORD__".equals(attrName)) {
                 value = "********";
             } else {
                 value = attr.getValues().size() > 1
-                        ? attr.getValues().toString() : attr.getValues().get(0);
+                        ? attr.getValues().toString()
+                        : attr.getValues().get(0);
             }
 
         } else {
             value = "";
         }
 
-        Component label = new Label("value", value).add(
-                new Behavior() {
+        Component label = new Label("value", value).add(new Behavior() {
 
-                    private static final long serialVersionUID =
-                            1469628524240283489L;
+            private static final long serialVersionUID = 1469628524240283489L;
 
-                    @Override
-                    public void onComponentTag(
-                            final Component component,
-                            final ComponentTag tag) {
-                        tag.put("title", value);
-                    }
-                });
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+                tag.put("title", value);
+            }
+        });
 
         final Fragment frag = new Fragment(id, "attrValueFrag", this);
         frag.add(label);
@@ -335,9 +309,7 @@ public class UserManagementResultPanel extends Panel {
      * @param objectTO connector object TO.
      * @return fragment.
      */
-    private Fragment getStatusIcon(
-            final String id,
-            final ConnObjectTO objectTO) {
+    private Fragment getStatusIcon(final String id, final ConnObjectTO objectTO) {
         final Image image;
         final String alt, title;
 
@@ -363,13 +335,10 @@ public class UserManagementResultPanel extends Panel {
         if (image != null) {
             image.add(new Behavior() {
 
-                private static final long serialVersionUID =
-                        1469628524240283489L;
+                private static final long serialVersionUID = 1469628524240283489L;
 
                 @Override
-                public void onComponentTag(
-                        final Component component,
-                        final ComponentTag tag) {
+                public void onComponentTag(final Component component, final ComponentTag tag) {
                     tag.put("alt", alt);
                     tag.put("title", title);
                     tag.put("width", "12px");

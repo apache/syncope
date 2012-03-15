@@ -40,13 +40,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 
-public class HttpResourceStream extends AbstractResourceStream
-        implements IFixedLocationResourceStream {
+public class HttpResourceStream extends AbstractResourceStream implements IFixedLocationResourceStream {
 
     private static final long serialVersionUID = 5811207817876330189L;
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(HttpResourceStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpResourceStream.class);
 
     private final URI uri;
 
@@ -58,8 +56,7 @@ public class HttpResourceStream extends AbstractResourceStream
 
     private transient String filename;
 
-    public HttpResourceStream(final String uri, final RestTemplate restTemplate)
-            throws URISyntaxException {
+    public HttpResourceStream(final String uri, final RestTemplate restTemplate) throws URISyntaxException {
 
         this.uri = new URI(Args.notNull(uri, "uri"));
         this.restTemplate = Args.notNull(restTemplate, "restTemplate");
@@ -72,9 +69,8 @@ public class HttpResourceStream extends AbstractResourceStream
         entity.setContentLength(0);
         entity.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        BasicHttpResponse response = new BasicHttpResponse(
-                new ProtocolVersion("HTTP", 1, 1), 400,
-                "Exception: " + errorMessage);
+        BasicHttpResponse response = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 400, "Exception: "
+                + errorMessage);
         response.setEntity(entity);
 
         response.addHeader("Content-Disposition", "attachment; filename=error");
@@ -90,17 +86,15 @@ public class HttpResourceStream extends AbstractResourceStream
         HttpGet getMethod = new HttpGet(this.uri);
         HttpResponse response;
         try {
-            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                    getRequestFactory()).getHttpClient().execute(getMethod);
+            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
+                    getMethod);
         } catch (Exception e) {
-            LOG.error("Unexpected exception while executing HTTP method to {}",
-                    this.uri, e);
+            LOG.error("Unexpected exception while executing HTTP method to {}", this.uri, e);
             response = buildFakeResponse(e.getMessage());
         }
         if (response.getStatusLine().getStatusCode() != 200) {
             LOG.error("Unsuccessful HTTP method to {}", this.uri);
-            response = buildFakeResponse("HTTP status "
-                    + response.getStatusLine().getStatusCode());
+            response = buildFakeResponse("HTTP status " + response.getStatusLine().getStatusCode());
         }
 
         responseEntity = response.getEntity();
@@ -120,8 +114,7 @@ public class HttpResourceStream extends AbstractResourceStream
     }
 
     @Override
-    public InputStream getInputStream()
-            throws ResourceStreamNotFoundException {
+    public InputStream getInputStream() throws ResourceStreamNotFoundException {
 
         try {
             execute();
@@ -132,8 +125,7 @@ public class HttpResourceStream extends AbstractResourceStream
     }
 
     @Override
-    public void close()
-            throws IOException {
+    public void close() throws IOException {
         // Nothing needed here, because we are using HttpComponents HttpClient
     }
 
@@ -147,7 +139,8 @@ public class HttpResourceStream extends AbstractResourceStream
         execute();
 
         return contentType == null
-                ? MediaType.APPLICATION_OCTET_STREAM_VALUE : contentType;
+                ? MediaType.APPLICATION_OCTET_STREAM_VALUE
+                : contentType;
     }
 
     public String getFilename() {

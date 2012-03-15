@@ -37,8 +37,8 @@ import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.EntityViolationType;
 import org.syncope.types.PasswordPolicySpec;
 
-public class SyncopeUserValidator extends AbstractValidator
-        implements ConstraintValidator<SyncopeUserCheck, SyncopeUser> {
+public class SyncopeUserValidator extends AbstractValidator implements
+        ConstraintValidator<SyncopeUserCheck, SyncopeUser> {
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -57,8 +57,7 @@ public class SyncopeUserValidator extends AbstractValidator
     }
 
     @Override
-    public boolean isValid(final SyncopeUser object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final SyncopeUser object, final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
 
@@ -84,8 +83,8 @@ public class SyncopeUserValidator extends AbstractValidator
         } catch (Exception e) {
             LOG.debug("Invalid password");
 
-            context.buildConstraintViolationWithTemplate(
-                    e.getMessage()).addNode(EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
+                    EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
 
             return false;
         } finally {
@@ -112,8 +111,8 @@ public class SyncopeUserValidator extends AbstractValidator
         } catch (Exception e) {
             LOG.debug("Invalid username");
 
-            context.buildConstraintViolationWithTemplate(
-                    e.getMessage()).addNode(EntityViolationType.InvalidUsername.toString()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
+                    EntityViolationType.InvalidUsername.toString()).addConstraintViolation();
 
             return false;
         }

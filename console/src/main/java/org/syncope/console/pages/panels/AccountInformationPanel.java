@@ -27,59 +27,56 @@ import org.syncope.console.SyncopeSession;
 
 public class AccountInformationPanel extends Panel {
 
-    public <T extends AbstractAttributableTO> AccountInformationPanel(
-            final String id,
-            final UserTO userTO) {
+    public <T extends AbstractAttributableTO> AccountInformationPanel(final String id, final UserTO userTO) {
 
         super(id);
 
         // ------------------------
         // Creation date
         // ------------------------
-        add(new Label("creationDate", new Model(
-                userTO.getCreationDate() != null
-                ? SyncopeSession.get().getDateFormat().format(
-                userTO.getCreationDate()) : "")));
+        add(new Label("creationDate", new Model(userTO.getCreationDate() != null
+                ? SyncopeSession.get().getDateFormat().format(userTO.getCreationDate())
+                : "")));
         // ------------------------
 
         // ------------------------
         // Change password date
         // ------------------------
-        add(new Label("changePwdDate", new Model(
-                userTO.getChangePwdDate() != null
-                ? SyncopeSession.get().getDateFormat().format(
-                userTO.getChangePwdDate()) : "")));
+        add(new Label("changePwdDate", new Model(userTO.getChangePwdDate() != null
+                ? SyncopeSession.get().getDateFormat().format(userTO.getChangePwdDate())
+                : "")));
         // ------------------------
 
         // ------------------------
         // Last login date
         // ------------------------
-        add(new Label("lastLoginDate", new Model(
-                userTO.getLastLoginDate() != null
-                ? SyncopeSession.get().getDateFormat().format(
-                userTO.getLastLoginDate()) : "")));
+        add(new Label("lastLoginDate", new Model(userTO.getLastLoginDate() != null
+                ? SyncopeSession.get().getDateFormat().format(userTO.getLastLoginDate())
+                : "")));
         // ------------------------
 
         // ------------------------
         // Failed logins
         // ------------------------
         add(new Label("failedLogins", new Model(userTO.getFailedLogins() != null
-                ? userTO.getFailedLogins() : "")));
+                ? userTO.getFailedLogins()
+                : "")));
         // ------------------------
 
         // ------------------------
         // Token
         // ------------------------
-        add(new Label("token", new Model(
-                userTO.getToken() != null ? userTO.getToken() : "")));
+        add(new Label("token", new Model(userTO.getToken() != null
+                ? userTO.getToken()
+                : "")));
         // ------------------------
 
         // ------------------------
         // Token expire time
         // ------------------------
-        add(new Label("tokenExpireTime", new Model(
-                userTO.getTokenExpireTime() != null
-                ? userTO.getTokenExpireTime() : "")));
+        add(new Label("tokenExpireTime", new Model(userTO.getTokenExpireTime() != null
+                ? userTO.getTokenExpireTime()
+                : "")));
         // ------------------------
     }
 }

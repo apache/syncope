@@ -70,7 +70,9 @@ public class AttributeTO extends AbstractBaseBean {
      * @return wether the operation succeeded or not
      */
     public boolean addValue(final String value) {
-        return value == null || isReadonly() ? false : values.add(value);
+        return value == null || isReadonly()
+                ? false
+                : values.add(value);
     }
 
     /**
@@ -78,7 +80,9 @@ public class AttributeTO extends AbstractBaseBean {
      * @return wether the operation succeeded or not
      */
     public boolean removeValue(final String value) {
-        return value == null || isReadonly() ? false : values.remove(value);
+        return value == null || isReadonly()
+                ? false
+                : values.remove(value);
     }
 
     /**

@@ -24,16 +24,14 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.types.EntityViolationType;
 import org.syncope.types.SchemaType;
 
-public class SchemaValidator extends AbstractValidator
-        implements ConstraintValidator<SchemaCheck, AbstractSchema> {
+public class SchemaValidator extends AbstractValidator implements ConstraintValidator<SchemaCheck, AbstractSchema> {
 
     @Override
     public void initialize(final SchemaCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final AbstractSchema object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final AbstractSchema object, final ConstraintValidatorContext context) {
 
         boolean isValid = false;
         EntityViolationType violation = null;
@@ -42,27 +40,23 @@ public class SchemaValidator extends AbstractValidator
             if (object == null) {
                 isValid = true;
             } else {
-                isValid = object.getType() == null
-                        || !object.getType().equals(SchemaType.Enum)
+                isValid = object.getType() == null || !object.getType().equals(SchemaType.Enum)
                         || object.getEnumerationValues() != null;
 
                 if (!isValid) {
-                    violation =
-                            EntityViolationType.InvalidSchemaTypeSpecification;
+                    violation = EntityViolationType.InvalidSchemaTypeSpecification;
 
-                    throw new Exception(object
-                            + " miss enumeration values");
+                    throw new Exception(object + " miss enumeration values");
                 }
 
                 isValid = object.isMultivalue()
-                        ? !object.isUniqueConstraint() : true;
+                        ? !object.isUniqueConstraint()
+                        : true;
 
                 if (!isValid) {
-                    violation =
-                            EntityViolationType.MultivalueAndUniqueConstraint;
+                    violation = EntityViolationType.MultivalueAndUniqueConstraint;
 
-                    throw new Exception(object
-                            + " cannot be multivalue and have "
+                    throw new Exception(object + " cannot be multivalue and have "
                             + "unique constraint at the same time");
                 }
             }
@@ -72,10 +66,8 @@ public class SchemaValidator extends AbstractValidator
             LOG.error("Error saving schema", e);
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    violation.toString()).
-                    addNode(object.toString()).
-                    addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(violation.toString()).addNode(object.toString())
+                    .addConstraintViolation();
 
             return false;
         }

@@ -47,8 +47,7 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
     protected ConfDAO confDAO;
 
     @Override
-    public final void execute(final DelegateExecution execution)
-            throws Exception {
+    public final void execute(final DelegateExecution execution) throws Exception {
 
         taskService = CONTEXT.getBean(TaskService.class);
 
@@ -58,6 +57,5 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
         doExecute(execution);
     }
 
-    protected abstract void doExecute(DelegateExecution execution)
-            throws Exception;
+    protected abstract void doExecute(DelegateExecution execution) throws Exception;
 }

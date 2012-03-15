@@ -29,32 +29,26 @@ import org.syncope.client.to.UserTO;
 public class UserRequestRestClient extends AbstractBaseRestClient {
 
     public UserTO readProfile() {
-        return restTemplate.getForObject(
-                baseURL + "user/request/read/self", UserTO.class);
+        return restTemplate.getForObject(baseURL + "user/request/read/self", UserTO.class);
     }
 
     public List<UserRequestTO> list() {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "user/request/list", UserRequestTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseURL + "user/request/list", UserRequestTO[].class));
     }
 
     public void delete(final Long requestId) {
-        restTemplate.delete(baseURL + "user/request/deleteRequest/{requestId}",
-                requestId);
+        restTemplate.delete(baseURL + "user/request/deleteRequest/{requestId}", requestId);
     }
 
     public UserRequestTO requestCreate(final UserTO userTO) {
-        return restTemplate.postForObject(baseURL + "user/request/create",
-                userTO, UserRequestTO.class);
+        return restTemplate.postForObject(baseURL + "user/request/create", userTO, UserRequestTO.class);
     }
 
     public UserRequestTO requestUpdate(final UserMod userMod) {
-        return restTemplate.postForObject(baseURL + "user/request/update",
-                userMod, UserRequestTO.class);
+        return restTemplate.postForObject(baseURL + "user/request/update", userMod, UserRequestTO.class);
     }
 
     public UserRequestTO requestDelete(final Long userId) {
-        return restTemplate.postForObject(baseURL + "user/request/delete/",
-                userId, UserRequestTO.class);
+        return restTemplate.postForObject(baseURL + "user/request/delete/", userId, UserRequestTO.class);
     }
 }

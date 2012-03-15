@@ -32,8 +32,7 @@ public interface ResourceDAO extends DAO {
 
     List<ExternalResource> findAllByPriority();
 
-    ExternalResource save(ExternalResource resource)
-            throws InvalidEntityException;
+    ExternalResource save(ExternalResource resource) throws InvalidEntityException;
 
     List<SchemaMapping> findAllMappings();
 

@@ -77,7 +77,6 @@ public class MembershipMod extends AbstractAttributableMod {
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty()
-                && role == 0;
+        return super.isEmpty() && role == 0;
     }
 }

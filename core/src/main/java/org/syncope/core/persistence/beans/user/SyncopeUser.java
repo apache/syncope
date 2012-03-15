@@ -80,8 +80,7 @@ public class SyncopeUser extends AbstractAttributable {
 
     static {
         try {
-            keySpec = new SecretKeySpec(ArrayUtils.subarray(
-                    "1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
+            keySpec = new SecretKeySpec(ArrayUtils.subarray("1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
         }
@@ -173,10 +172,7 @@ public class SyncopeUser extends AbstractAttributable {
      * Provisioning external resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-    @JoinColumn(name = "user_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "resource_name"))
+    @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "resource_name"))
     private Set<ExternalResource> resources;
 
     public SyncopeUser() {
@@ -213,12 +209,10 @@ public class SyncopeUser extends AbstractAttributable {
     public Membership getMembership(final Long syncopeRoleId) {
         Membership result = null;
         Membership membership;
-        for (Iterator<Membership> itor = getMemberships().iterator();
-                result == null && itor.hasNext();) {
+        for (Iterator<Membership> itor = getMemberships().iterator(); result == null && itor.hasNext();) {
 
             membership = itor.next();
-            if (membership.getSyncopeRole() != null && syncopeRoleId.equals(
-                    membership.getSyncopeRole().getId())) {
+            if (membership.getSyncopeRole() != null && syncopeRoleId.equals(membership.getSyncopeRole().getId())) {
 
                 result = membership;
             }
@@ -284,8 +278,7 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = null;
     }
 
-    public void setPassword(final String password,
-            final CipherAlgorithm cipherAlgoritm, final int historySize) {
+    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
 
         // clear password
         clearPassword = password;
@@ -323,15 +316,13 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
-            final T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derivedAttribute) {
 
         return derivedAttributes.add((UDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
-            T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
 
         return derivedAttributes.remove((UDerAttr) derivedAttribute);
     }
@@ -408,12 +399,12 @@ public class SyncopeUser extends AbstractAttributable {
 
     public Date getTokenExpireTime() {
         return tokenExpireTime == null
-                ? null : new Date(tokenExpireTime.getTime());
+                ? null
+                : new Date(tokenExpireTime.getTime());
     }
 
     public boolean checkToken(final String token) {
-        return this.token == null || (this.token.equals(token)
-                && tokenExpireTime.after(new Date()));
+        return this.token == null || (this.token.equals(token) && tokenExpireTime.after(new Date()));
     }
 
     public CipherAlgorithm getCipherAlgoritm() {
@@ -429,25 +420,33 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Date getChangePwdDate() {
-        return changePwdDate == null ? null : new Date(changePwdDate.getTime());
+        return changePwdDate == null
+                ? null
+                : new Date(changePwdDate.getTime());
     }
 
     public void setChangePwdDate(final Date changePwdDate) {
         this.changePwdDate = changePwdDate == null
-                ? null : new Date(changePwdDate.getTime());
+                ? null
+                : new Date(changePwdDate.getTime());
     }
 
     public Date getCreationDate() {
-        return creationDate == null ? null : new Date(creationDate.getTime());
+        return creationDate == null
+                ? null
+                : new Date(creationDate.getTime());
     }
 
     public void setCreationDate(final Date creationDate) {
         this.creationDate = creationDate == null
-                ? null : new Date(creationDate.getTime());
+                ? null
+                : new Date(creationDate.getTime());
     }
 
     public Integer getFailedLogins() {
-        return failedLogins != null ? failedLogins : 0;
+        return failedLogins != null
+                ? failedLogins
+                : 0;
     }
 
     public void setFailedLogins(final Integer failedLogins) {
@@ -455,12 +454,15 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Date getLastLoginDate() {
-        return lastLoginDate == null ? null : new Date(lastLoginDate.getTime());
+        return lastLoginDate == null
+                ? null
+                : new Date(lastLoginDate.getTime());
     }
 
     public void setLastLoginDate(final Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate == null
-                ? null : new Date(lastLoginDate.getTime());
+                ? null
+                : new Date(lastLoginDate.getTime());
     }
 
     public String getUsername() {
@@ -479,22 +481,18 @@ public class SyncopeUser extends AbstractAttributable {
         return isBooleanAsInteger(suspended);
     }
 
-    private String encodePassword(
-            final String password, final CipherAlgorithm cipherAlgoritm)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException,
-            NoSuchPaddingException, InvalidKeyException,
+    private String encodePassword(final String password, final CipherAlgorithm cipherAlgoritm)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
         String encodedPassword = null;
 
         if (password != null) {
-            if (cipherAlgoritm == null
-                    || cipherAlgoritm == CipherAlgorithm.AES) {
+            if (cipherAlgoritm == null || cipherAlgoritm == CipherAlgorithm.AES) {
 
                 final byte[] cleartext = password.getBytes("UTF8");
 
-                final Cipher cipher = Cipher.getInstance(
-                        CipherAlgorithm.AES.getAlgorithm());
+                final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
 
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
@@ -502,8 +500,7 @@ public class SyncopeUser extends AbstractAttributable {
 
                 encodedPassword = new String(Base64.encode(encoded));
             } else {
-                MessageDigest algorithm = MessageDigest.getInstance(
-                        cipherAlgoritm.getAlgorithm());
+                MessageDigest algorithm = MessageDigest.getInstance(cipherAlgoritm.getAlgorithm());
 
                 algorithm.reset();
                 algorithm.update(password.getBytes());
@@ -526,18 +523,17 @@ public class SyncopeUser extends AbstractAttributable {
         return encodedPassword;
     }
 
-    public boolean verifyPasswordHistory(final String password,
-            final int size) {
+    public boolean verifyPasswordHistory(final String password, final int size) {
 
         boolean res = false;
 
         if (size > 0) {
             try {
-                res = passwordHistory.subList(
-                        size >= passwordHistory.size() ? 0
-                        : passwordHistory.size() - size,
-                        passwordHistory.size()).contains(cipherAlgorithm != null
-                        ? encodePassword(password, cipherAlgorithm) : password);
+                res = passwordHistory.subList(size >= passwordHistory.size()
+                        ? 0
+                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm != null
+                        ? encodePassword(password, cipherAlgorithm)
+                        : password);
             } catch (Throwable t) {
                 LOG.error("Error evaluating password history", t);
             }

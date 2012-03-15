@@ -25,8 +25,7 @@ public class EditProfileTestITCase extends AbstractTest {
 
     @Override
     @Before
-    public void setUp()
-            throws Exception {
+    public void setUp() throws Exception {
 
         super.setUp(BASE_URL, "*firefox");
     }
@@ -39,9 +38,8 @@ public class EditProfileTestITCase extends AbstractTest {
 
         selenium.click("//div/span/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//span[contains(text(),'Attributes')]\");",
-                "30000");
+        selenium
+                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
         selenium.click("css=a.w_close");
 
@@ -69,9 +67,8 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.click("id=username");
         selenium.click("//span[@id='editProfile']/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//span[contains(text(),'Attributes')]\");",
-                "30000");
+        selenium
+                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
         assertTrue(selenium.isElementPresent("//input[@value='user1']"));
 

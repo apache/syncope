@@ -32,20 +32,15 @@ import org.springframework.web.client.RestTemplate;
 import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-    "classpath:restClientContext.xml",
-    "classpath:testJDBCContext.xml"
-})
+@ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
 public abstract class AbstractTest {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractTest.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
-    protected static final String BASE_URL =
-            "http://localhost:9080/syncope/rest/";
+    protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
     @Autowired
     protected RestTemplate restTemplate;
@@ -59,12 +54,9 @@ public abstract class AbstractTest {
 
     @Before
     public void setupRestTemplate() {
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).
-                getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(),
-                new UsernamePasswordCredentials("admin", "password"));
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("admin", "password"));
     }
 }

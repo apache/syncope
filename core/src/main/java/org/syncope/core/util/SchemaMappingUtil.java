@@ -94,8 +94,8 @@ public class SchemaMappingUtil {
         return name;
     }
 
-    public static Set<SchemaMapping> getMappings(
-            final Collection<SchemaMapping> mappings, final String intAttrName, final IntMappingType type) {
+    public static Set<SchemaMapping> getMappings(final Collection<SchemaMapping> mappings, final String intAttrName,
+            final IntMappingType type) {
 
         final Set<SchemaMapping> result = new HashSet<SchemaMapping>();
 
@@ -122,7 +122,9 @@ public class SchemaMappingUtil {
     }
 
     public static String getIntAttrName(final SchemaMapping mapping, final IntMappingType type) {
-        return type == mapping.getIntMappingType() ? getIntAttrName(mapping) : null;
+        return type == mapping.getIntMappingType()
+                ? getIntAttrName(mapping)
+                : null;
     }
 
     /**
@@ -133,11 +135,8 @@ public class SchemaMappingUtil {
      * @param password password.
      * @return schema and attribute values.
      */
-    public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(
-            final SchemaMapping mapping,
-            final List<AbstractAttributable> attributables,
-            final String password,
-            final SchemaDAO schemaDAO) {
+    public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final SchemaMapping mapping,
+            final List<AbstractAttributable> attributables, final String password, final SchemaDAO schemaDAO) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mapping.getIntMappingType());
 
@@ -149,23 +148,21 @@ public class SchemaMappingUtil {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                schema = schemaDAO.find(
-                        mapping.getIntAttrName(),
-                        SchemaMappingUtil.getIntMappingTypeClass(mapping.getIntMappingType()));
+                schema = schemaDAO.find(mapping.getIntAttrName(), SchemaMappingUtil.getIntMappingTypeClass(mapping
+                        .getIntMappingType()));
 
                 for (AbstractAttributable attributable : attributables) {
                     final UAttr attr = attributable.getAttribute(mapping.getIntAttrName());
 
                     if (attr != null && attr.getValues() != null) {
                         values.addAll(schema.isUniqueConstraint()
-                                ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
+                                ? Collections.singletonList(attr.getUniqueValue())
+                                : attr.getValues());
                     }
 
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{attr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}", new Object[] { attr, mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values });
                 }
 
                 break;
@@ -185,11 +182,9 @@ public class SchemaMappingUtil {
                         }
                     }
 
-                    LOG.debug("Retrieved virtual attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{virAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved virtual attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}", new Object[] { virAttr, mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values });
                 }
                 break;
 
@@ -197,22 +192,17 @@ public class SchemaMappingUtil {
             case RoleDerivedSchema:
             case MembershipDerivedSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(
-                            mapping.getIntAttrName());
+                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(mapping.getIntAttrName());
 
                     if (derAttr != null) {
                         AbstractAttrValue attrValue = new UAttrValue();
-                        attrValue.setStringValue(
-                                derAttr.getValue(attributable.getAttributes()));
+                        attrValue.setStringValue(derAttr.getValue(attributable.getAttributes()));
                         values.add(attrValue);
                     }
 
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            new Object[]{derAttr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}", new Object[] { derAttr, mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values });
                 }
                 break;
 
@@ -250,13 +240,12 @@ public class SchemaMappingUtil {
         return new DefaultMapEntry(schema, values);
     }
 
-    public static List<String> getIntValueAsStrings(
-            final AbstractAttributable attributable, final SchemaMapping mapping) {
+    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable, final SchemaMapping mapping) {
         return getIntValueAsStrings(attributable, mapping, null);
     }
 
-    public static List<String> getIntValueAsStrings(
-            final AbstractAttributable attributable, final SchemaMapping mapping, String clearPassword) {
+    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable,
+            final SchemaMapping mapping, String clearPassword) {
 
         List<String> value = new ArrayList<String>();
 
@@ -376,10 +365,12 @@ public class SchemaMappingUtil {
      * @param mappings collection of SchemaMapping.
      * @return accountId internal value.
      */
-    public static final String getAccountIdValue(
-            final AbstractAttributable attributable, final Collection<SchemaMapping> mappings) {
+    public static final String getAccountIdValue(final AbstractAttributable attributable,
+            final Collection<SchemaMapping> mappings) {
         final List<String> values = getIntValueAsStrings(attributable, getAccountIdMapping(mappings));
-        return values == null || values.isEmpty() ? null : values.get(0);
+        return values == null || values.isEmpty()
+                ? null
+                : values.get(0);
     }
 
     /**
@@ -391,7 +382,9 @@ public class SchemaMappingUtil {
      */
     public static final String getAccountIdValue(final AbstractAttributable attributable, final SchemaMapping mapping) {
         final List<String> values = getIntValueAsStrings(attributable, mapping);
-        return values == null || values.isEmpty() ? null : values.get(0);
+        return values == null || values.isEmpty()
+                ? null
+                : values.get(0);
     }
 
     public static class SchemaMappingsWrapper {

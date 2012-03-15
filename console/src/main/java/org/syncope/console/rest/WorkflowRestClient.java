@@ -25,18 +25,13 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 @Component
 public class WorkflowRestClient extends AbstractBaseRestClient {
 
-    public WorkflowDefinitionTO getDefinition()
-            throws SyncopeClientCompositeErrorException {
+    public WorkflowDefinitionTO getDefinition() throws SyncopeClientCompositeErrorException {
 
-        return restTemplate.getForObject(baseURL
-                + "workflow/definition.json",
-                WorkflowDefinitionTO.class);
+        return restTemplate.getForObject(baseURL + "workflow/definition.json", WorkflowDefinitionTO.class);
     }
 
-    public void updateDefinition(final WorkflowDefinitionTO workflowDef)
-            throws SyncopeClientCompositeErrorException {
+    public void updateDefinition(final WorkflowDefinitionTO workflowDef) throws SyncopeClientCompositeErrorException {
 
-        restTemplate.put(baseURL
-                + "/workflow/definition.json", workflowDef);
+        restTemplate.put(baseURL + "/workflow/definition.json", workflowDef);
     }
 }

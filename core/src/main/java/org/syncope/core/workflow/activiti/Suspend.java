@@ -23,7 +23,6 @@ import org.activiti.engine.delegate.DelegateExecution;
 public class Suspend extends AbstractActivitiDelegate {
 
     @Override
-    protected void doExecute(final DelegateExecution execution)
-            throws Exception {
+    protected void doExecute(final DelegateExecution execution) throws Exception {
     }
 }

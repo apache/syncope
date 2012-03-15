@@ -18,7 +18,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.syncope.types.SchemaType;

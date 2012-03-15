@@ -154,14 +154,17 @@ public class SyncJob extends AbstractTaskJob {
     private List<Long> findExistingUsers(final SyncDelta delta) {
         final SyncTask syncTask = (SyncTask) this.task;
 
-        final String uid =
-                delta.getPreviousUid() == null ? delta.getUid().getUidValue() : delta.getPreviousUid().getUidValue();
+        final String uid = delta.getPreviousUid() == null
+                ? delta.getUid().getUidValue()
+                : delta.getPreviousUid().getUidValue();
 
         // ---------------------------------
         // Get sync policy specification
         // ---------------------------------
         final SyncPolicy policy = syncTask.getResource().getSyncPolicy();
-        final SyncPolicySpec policySpec = policy != null ? (SyncPolicySpec) policy.getSpecification() : null;
+        final SyncPolicySpec policySpec = policy != null
+                ? (SyncPolicySpec) policy.getSpecification()
+                : null;
         // ---------------------------------
 
         final List<Long> result = new ArrayList<Long>();
@@ -175,9 +178,8 @@ public class SyncJob extends AbstractTaskJob {
             final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
             for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-                extValues.put(
-                        SchemaMappingUtil.getIntAttrName(mapping),
-                        object.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping)));
+                extValues.put(SchemaMappingUtil.getIntAttrName(mapping), object.getAttributeByName(SchemaMappingUtil
+                        .getExtAttrName(mapping)));
             }
 
             // search user by attributes specified into the policy
@@ -194,7 +196,8 @@ public class SyncJob extends AbstractTaskJob {
                 } else {
                     type = AttributeCond.Type.EQ;
                     expression = value.getValue().size() > 1
-                            ? value.getValue().toString() : value.getValue().get(0).toString();
+                            ? value.getValue().toString()
+                            : value.getValue().get(0).toString();
                 }
 
                 NodeCond nodeCond;
@@ -218,11 +221,13 @@ public class SyncJob extends AbstractTaskJob {
                     nodeCond = NodeCond.getLeafCond(cond);
                 }
 
-                searchCondition = searchCondition != null ? NodeCond.getAndCond(searchCondition, nodeCond) : nodeCond;
+                searchCondition = searchCondition != null
+                        ? NodeCond.getAndCond(searchCondition, nodeCond)
+                        : nodeCond;
             }
 
-            List<SyncopeUser> users =
-                    userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition);
+            List<SyncopeUser> users = userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                    searchCondition);
             for (SyncopeUser user : users) {
                 result.add(user.getId());
             }
@@ -230,8 +235,8 @@ public class SyncJob extends AbstractTaskJob {
             final SyncopeUser found;
             List<SyncopeUser> users;
 
-            final SchemaMapping accountIdMap =
-                    SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
+            final SchemaMapping accountIdMap = SchemaMappingUtil.getAccountIdMapping(syncTask.getResource()
+                    .getMappings());
 
             switch (accountIdMap.getIntMappingType()) {
                 case Username:
@@ -276,8 +281,7 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
-    private SyncResult createUser(SyncDelta delta, final boolean dryRun)
-            throws JobExecutionException {
+    private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
 
         final SyncResult result = new SyncResult();
         result.setOperation(Operation.CREATE);
@@ -298,24 +302,21 @@ public class SyncJob extends AbstractTaskJob {
                 // Check for status synchronization ...
                 // --------------------------
                 if (((SyncTask) this.task).isSyncStatus()) {
-                    Attribute status =
-                            AttributeUtil.find(OperationalAttributes.ENABLE_NAME, delta.getObject().getAttributes());
+                    Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, delta.getObject()
+                            .getAttributes());
 
                     if (status != null) {
-                        enabled = status != null
-                                && status.getValue() != null
-                                && !status.getValue().isEmpty() ? (Boolean) status.getValue().get(0) : null;
+                        enabled = status != null && status.getValue() != null && !status.getValue().isEmpty()
+                                ? (Boolean) status.getValue().get(0)
+                                : null;
                     }
                 }
                 // --------------------------
 
                 WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
 
-                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
-                        created,
-                        userTO.getPassword(),
-                        userTO.getVirtualAttributes(),
-                        Collections.singleton(((SyncTask) this.task).getResource().getName()));
+                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(), userTO
+                        .getVirtualAttributes(), Collections.singleton(((SyncTask) this.task).getResource().getName()));
 
                 propagationManager.execute(tasks);
 
@@ -338,9 +339,8 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
-    private void updateUsers(
-            SyncDelta delta, final List<Long> users, final boolean dryRun, final List<SyncResult> results)
-            throws JobExecutionException {
+    private void updateUsers(SyncDelta delta, final List<Long> users, final boolean dryRun,
+            final List<SyncResult> results) throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
@@ -367,12 +367,10 @@ public class SyncJob extends AbstractTaskJob {
                     if (!dryRun) {
                         WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
 
-                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                                updated,
-                                userMod.getPassword(),
-                                userMod.getVirtualAttributesToBeRemoved(),
-                                userMod.getVirtualAttributesToBeUpdated(),
-                                Collections.singleton(((SyncTask) this.task).getResource().getName()));
+                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated, userMod
+                                .getPassword(), userMod.getVirtualAttributesToBeRemoved(), userMod
+                                .getVirtualAttributesToBeUpdated(), Collections.singleton(((SyncTask) this.task)
+                                .getResource().getName()));
 
                         propagationManager.execute(tasks);
                         userTO = userDataBinder.getUserTO(updated.getResult().getKey());
@@ -395,9 +393,8 @@ public class SyncJob extends AbstractTaskJob {
         }
     }
 
-    private void deleteUsers(
-            SyncDelta delta, final List<Long> users, final boolean dryRun, final List<SyncResult> results)
-            throws JobExecutionException {
+    private void deleteUsers(SyncDelta delta, final List<Long> users, final boolean dryRun,
+            final List<SyncResult> results) throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
@@ -419,8 +416,8 @@ public class SyncJob extends AbstractTaskJob {
 
                 if (!dryRun) {
                     try {
-                        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(
-                                userId, ((SyncTask) this.task).getResource().getName());
+                        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId,
+                                ((SyncTask) this.task).getResource().getName());
                         propagationManager.execute(tasks);
                     } catch (Exception e) {
                         LOG.error("Could not propagate user " + userId, e);
@@ -453,8 +450,8 @@ public class SyncJob extends AbstractTaskJob {
      * @param dryRun dry run?
      * @return report as string
      */
-    private String createReport(final List<SyncResult> syncResults,
-            final TraceLevel syncTraceLevel, final boolean dryRun) {
+    private String createReport(final List<SyncResult> syncResults, final TraceLevel syncTraceLevel,
+            final boolean dryRun) {
 
         if (syncTraceLevel == TraceLevel.NONE) {
             return null;
@@ -517,14 +514,10 @@ public class SyncJob extends AbstractTaskJob {
 
         // Summary, also to be included for FAILURE and ALL, so create it
         // anyway.
-        report.append("Users [created/failures]: ").
-                append(created.size()).append('/').append(createdFailed.size()).
-                append(' ').
-                append("[updated/failures]: ").
-                append(updated.size()).append('/').append(updatedFailed.size()).
-                append(' ').
-                append("[deleted/ failures]: ").
-                append(deleted.size()).append('/').append(deletedFailed.size());
+        report.append("Users [created/failures]: ").append(created.size()).append('/').append(createdFailed.size())
+                .append(' ').append("[updated/failures]: ").append(updated.size()).append('/').append(
+                        updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
+                .append('/').append(deletedFailed.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
@@ -545,10 +538,12 @@ public class SyncJob extends AbstractTaskJob {
 
         // Succeeded, only if on 'ALL' level
         if (syncTraceLevel == TraceLevel.ALL) {
-            report.append("\n\nCreated:\n").
-                    append(SyncResult.reportSetOfSynchronizationResult(created, syncTraceLevel)).
-                    append("\nUpdated:\n").append(SyncResult.reportSetOfSynchronizationResult(updated, syncTraceLevel)).
-                    append("\nDeleted:\n").append(SyncResult.reportSetOfSynchronizationResult(deleted, syncTraceLevel));
+            report.append("\n\nCreated:\n")
+                    .append(SyncResult.reportSetOfSynchronizationResult(created, syncTraceLevel))
+                    .append("\nUpdated:\n")
+                    .append(SyncResult.reportSetOfSynchronizationResult(updated, syncTraceLevel))
+                    .append("\nDeleted:\n")
+                    .append(SyncResult.reportSetOfSynchronizationResult(deleted, syncTraceLevel));
         }
 
         return report.toString();
@@ -558,8 +553,7 @@ public class SyncJob extends AbstractTaskJob {
      * Used to simulate authentication in order to perform updates through AbstractUserWorkflowAdapter.
      */
     private void setupSecurity() {
-        final List<GrantedAuthority> authorities =
-                new ArrayList<GrantedAuthority>();
+        final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
         for (Entitlement entitlement : entitlementDAO.findAll()) {
             authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
@@ -572,8 +566,7 @@ public class SyncJob extends AbstractTaskJob {
     }
 
     @Override
-    protected String doExecute(final boolean dryRun)
-            throws JobExecutionException {
+    protected String doExecute(final boolean dryRun) throws JobExecutionException {
 
         // get all entitlements to perform updates
         if (EntitlementUtil.getOwnedEntitlementNames().isEmpty()) {
@@ -590,8 +583,7 @@ public class SyncJob extends AbstractTaskJob {
         try {
             connector = connInstanceLoader.getConnector(syncTask.getResource());
         } catch (Exception e) {
-            final String msg = String.format(
-                    "Connector instance bean for resource %s and connInstance %s not found",
+            final String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
                     syncTask.getResource(), syncTask.getResource().getConnector());
 
             throw new JobExecutionException(msg, e);
@@ -603,9 +595,9 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());
         }
 
-        LOG.debug("Execute synchronization with token {}",
-                syncTask.getResource().getSyncToken() != null
-                ? syncTask.getResource().getSyncToken().getValue() : null);
+        LOG.debug("Execute synchronization with token {}", syncTask.getResource().getSyncToken() != null
+                ? syncTask.getResource().getSyncToken().getValue()
+                : null);
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
@@ -614,49 +606,41 @@ public class SyncJob extends AbstractTaskJob {
         try {
             final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
 
-            final ConflictResolutionAction conflictResolutionAction =
-                    syncPolicy != null && syncPolicy.getSpecification() != null
+            final ConflictResolutionAction conflictResolutionAction = syncPolicy != null
+                    && syncPolicy.getSpecification() != null
                     ? ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction()
                     : ConflictResolutionAction.IGNORE;
 
             if (syncTask.isFullReconciliation()) {
-                connector.getAllObjects(
-                        ObjectClass.ACCOUNT,
-                        new SyncResultsHandler() {
+                connector.getAllObjects(ObjectClass.ACCOUNT, new SyncResultsHandler() {
 
-                            @Override
-                            public boolean handle(final SyncDelta delta) {
-                                try {
+                    @Override
+                    public boolean handle(final SyncDelta delta) {
+                        try {
 
-                                    return results.addAll(
-                                            handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
+                            return results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
 
-                                } catch (JobExecutionException e) {
-                                    LOG.error("Reconciliation failed", e);
-                                    return false;
-                                }
-                            }
-                        },
-                        connector.getOperationOptions(syncTask.getResource()));
+                        } catch (JobExecutionException e) {
+                            LOG.error("Reconciliation failed", e);
+                            return false;
+                        }
+                    }
+                }, connector.getOperationOptions(syncTask.getResource()));
             } else {
-                connector.sync(
-                        syncTask.getResource().getSyncToken(),
-                        new SyncResultsHandler() {
+                connector.sync(syncTask.getResource().getSyncToken(), new SyncResultsHandler() {
 
-                            @Override
-                            public boolean handle(final SyncDelta delta) {
-                                try {
+                    @Override
+                    public boolean handle(final SyncDelta delta) {
+                        try {
 
-                                    return results.addAll(
-                                            handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
+                            return results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
 
-                                } catch (JobExecutionException e) {
-                                    LOG.error("Synchronization failed", e);
-                                    return false;
-                                }
-                            }
-                        },
-                        connector.getOperationOptions(syncTask.getResource()));
+                        } catch (JobExecutionException e) {
+                            LOG.error("Synchronization failed", e);
+                            return false;
+                        }
+                    }
+                }, connector.getOperationOptions(syncTask.getResource()));
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
@@ -692,12 +676,8 @@ public class SyncJob extends AbstractTaskJob {
      * @return list of synchronization results.
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected final List<SyncResult> handleDelta(
-            final SyncTask syncTask,
-            final SyncDelta delta,
-            final ConflictResolutionAction conflictResolutionAction,
-            final boolean dryRun)
-            throws JobExecutionException {
+    protected final List<SyncResult> handleDelta(final SyncTask syncTask, final SyncDelta delta,
+            final ConflictResolutionAction conflictResolutionAction, final boolean dryRun) throws JobExecutionException {
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
@@ -782,8 +762,8 @@ public class SyncJob extends AbstractTaskJob {
 
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
-        return (Status.valueOf(execution.getStatus()) == Status.FAILURE
-                && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+        return (Status.valueOf(execution.getStatus()) == Status.FAILURE && syncTask.getResource().getSyncTraceLevel()
+                .ordinal() >= TraceLevel.FAILURES.ordinal())
                 || syncTask.getResource().getSyncTraceLevel() == TraceLevel.ALL;
     }
 }

@@ -36,8 +36,8 @@ public class AuditManager {
             final AuditElements.Result result) {
 
         StringBuilder loggerName = new StringBuilder();
-        loggerName.append(SyncopeLoggerType.AUDIT.getPrefix()).append('.').
-                append(category.name()).append('.').append(subcategory.name()).append('.').append(result.name());
+        loggerName.append(SyncopeLoggerType.AUDIT.getPrefix()).append('.').append(category.name()).append('.').append(
+                subcategory.name()).append('.').append(result.name());
         return loggerName.toString();
     }
 
@@ -51,9 +51,9 @@ public class AuditManager {
             final AuditElements.Result result, final String message, final Throwable t) {
 
         if (category == null || subcategory == null || result == null) {
-            LOG.error("Invalid request: some null items {} {} {}", new Object[]{category, subcategory, result});
+            LOG.error("Invalid request: some null items {} {} {}", new Object[] { category, subcategory, result });
         } else if (!AuditElements.getSubCategories(category).contains(subcategory)) {
-            LOG.error("Invalid request: {} does not belong to {}", new Object[]{subcategory, category});
+            LOG.error("Invalid request: {} does not belong to {}", new Object[] { subcategory, category });
         } else {
             StringBuilder auditMessage = new StringBuilder();
 

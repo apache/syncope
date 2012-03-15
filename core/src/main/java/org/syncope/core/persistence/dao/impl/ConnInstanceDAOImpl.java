@@ -32,8 +32,7 @@ import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 
 @Repository
-public class ConnInstanceDAOImpl extends AbstractDAOImpl
-        implements ConnInstanceDAO {
+public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstanceDAO {
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -48,8 +47,7 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<ConnInstance> findAll() {
-        Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + ConnInstance.class.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e " + "FROM " + ConnInstance.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -75,9 +73,8 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        Set<String> resourceNames =
-                new HashSet<String>(connInstance.getResources().size());
-        for (ExternalResource resource: connInstance.getResources()) {
+        Set<String> resourceNames = new HashSet<String>(connInstance.getResources().size());
+        for (ExternalResource resource : connInstance.getResources()) {
             resourceNames.add(resource.getName());
         }
         for (String resourceName : resourceNames) {

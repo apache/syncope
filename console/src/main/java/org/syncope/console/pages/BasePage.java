@@ -54,8 +54,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            BasePage.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
     private static final long serialVersionUID = 1571997737305598502L;
 
@@ -97,8 +96,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     }
 
     private void pageSetup() {
-        ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader, true, version);
+        ((SyncopeApplication) getApplication()).setupNavigationPane(this, xmlRolesReader, true, version);
 
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);
@@ -109,12 +107,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         if (kindLink != null) {
             kindLink.add(new Behavior() {
 
-                private static final long serialVersionUID =
-                        1469628524240283489L;
+                private static final long serialVersionUID = 1469628524240283489L;
 
                 @Override
-                public void onComponentTag(final Component component,
-                        final ComponentTag tag) {
+                public void onComponentTag(final Component component, final ComponentTag tag) {
 
                     tag.put("class", kind);
                 }
@@ -124,23 +120,19 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             if (kindIcon != null) {
                 kindIcon.add(new Behavior() {
 
-                    private static final long serialVersionUID =
-                            1469628524240283489L;
+                    private static final long serialVersionUID = 1469628524240283489L;
 
                     @Override
-                    public void onComponentTag(final Component component,
-                            final ComponentTag tag) {
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
 
-                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX
-                                + kind + SyncopeApplication.IMG_SUFFIX);
+                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX + kind + SyncopeApplication.IMG_SUFFIX);
                     }
                 });
             }
         }
 
         // Modal window for editing user profile
-        final ModalWindow editProfileModalWin =
-                new ModalWindow("editProfileModal");
+        final ModalWindow editProfileModalWin = new ModalWindow("editProfileModal");
         editProfileModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editProfileModalWin.setInitialHeight(EDIT_PROFILE_WIN_HEIGHT);
         editProfileModalWin.setInitialWidth(EDIT_PROFILE_WIN_WIDTH);
@@ -151,45 +143,35 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         Fragment editProfileFrag;
         if ("admin".equals(SyncopeSession.get().getUserId())) {
-            editProfileFrag =
-                    new Fragment("editProfile", "adminEmptyFrag", this);
+            editProfileFrag = new Fragment("editProfile", "adminEmptyFrag", this);
         } else {
             final UserTO userTO = SyncopeSession.get().isAuthenticated()
                     ? profileRestClient.readProfile()
                     : new UserTO();
 
-            editProfileFrag =
-                    new Fragment("editProfile", "editProfileFrag", this);
+            editProfileFrag = new Fragment("editProfile", "editProfileFrag", this);
 
-            AjaxLink editProfileLink =
-                    new IndicatingAjaxLink("link") {
+            AjaxLink editProfileLink = new IndicatingAjaxLink("link") {
 
-                        private static final long serialVersionUID =
-                                -7978723352517770644L;
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                         @Override
-                        public void onClick(final AjaxRequestTarget target) {
-                            editProfileModalWin.setPageCreator(
-                                    new ModalWindow.PageCreator() {
-
-                                        @Override
-                                        public Page createPage() {
-                                            return new UserRequestModalPage(
-                                                    BasePage.this.
-                                                    getPageReference(),
-                                                    editProfileModalWin,
-                                                    userTO);
-                                        }
-                                    });
-
-                            editProfileModalWin.show(target);
+                        public Page createPage() {
+                            return new UserRequestModalPage(BasePage.this.getPageReference(), editProfileModalWin,
+                                    userTO);
                         }
-                    };
-            editProfileLink.add(
-                    new Label("linkTitle", getString("editProfile")));
+                    });
 
-            Panel panel = new LinkPanel("editProfile",
-                    new ResourceModel("editProfile"));
+                    editProfileModalWin.show(target);
+                }
+            };
+            editProfileLink.add(new Label("linkTitle", getString("editProfile")));
+
+            Panel panel = new LinkPanel("editProfile", new ResourceModel("editProfile"));
             panel.add(editProfileLink);
             editProfileFrag.add(panel);
         }
@@ -219,24 +201,21 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
      * @param window window
      * @param container container
      */
-    protected void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
+    protected void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (isModalResult()) {
-                            info(getString("operation_succeded"));
-                            target.add(feedbackPanel);
-                            setModalResult(false);
-                        }
-                    }
-                });
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(container);
+                if (isModalResult()) {
+                    info(getString("operation_succeded"));
+                    target.add(feedbackPanel);
+                    setModalResult(false);
+                }
+            }
+        });
     }
 }

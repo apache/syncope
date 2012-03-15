@@ -77,8 +77,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         StringBuilder modelStringBuffer = new StringBuilder();
         Collection<T> modelCollection = getPalette().getModelCollection();
         if (modelCollection == null) {
-            throw new WicketRuntimeException(
-                    "Expected getPalette().getModelCollection() to return a non-null value."
+            throw new WicketRuntimeException("Expected getPalette().getModelCollection() to return a non-null value."
                     + " Please make sure you have model object assigned to the palette");
         }
         Iterator<T> selection = modelCollection.iterator();
@@ -146,7 +145,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         Collection<? extends T> choices = getPalette().getChoices();
 
         if (choices.size() - ids.length == 0) {
-            return Collections.<T>emptyList().iterator();
+            return Collections.<T> emptyList().iterator();
         }
 
         List<T> unselected = new ArrayList<T>(Math.max(1, choices.size() - ids.length));

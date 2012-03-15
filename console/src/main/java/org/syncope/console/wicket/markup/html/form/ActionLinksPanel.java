@@ -56,216 +56,162 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelExport", "emptyFragment", this));
     }
 
-    public void add(
-            final ActionLink link,
-            final ActionLink.ActionType type,
-            final String pageId,
-            final String actionId) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId, final String actionId) {
 
-        add(link, type,
-                xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
+        add(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
     }
 
-    public void add(
-            final ActionLink link,
-            final ActionLink.ActionType type,
-            final String pageId,
-            final String actionId,
-            final boolean enabled) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId,
+            final String actionId, final boolean enabled) {
 
-        add(link, type,
-                xmlRolesReader.getAllAllowedRoles(pageId, actionId), enabled);
+        add(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), enabled);
     }
 
-    public void add(
-            final ActionLink link,
-            final ActionLink.ActionType type,
-            final String roles) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles) {
 
         add(link, type, roles, true);
     }
 
-    public void add(
-            final ActionLink link,
-            final ActionLink.ActionType type,
-            final String roles,
-            final boolean enabled) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles, final boolean enabled) {
 
         Fragment fragment = null;
 
         switch (type) {
             case CLAIM:
-                fragment = new Fragment(
-                        "panelClaim", "fragmentClaim", this);
+                fragment = new Fragment("panelClaim", "fragmentClaim", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("claimLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("claimLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case CREATE:
-                fragment = new Fragment(
-                        "panelCreate", "fragmentCreate", this);
+                fragment = new Fragment("panelCreate", "fragmentCreate", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("createLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("createLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
 
             case EDIT:
-                fragment = new Fragment(
-                        "panelEdit", "fragmentEdit", this);
+                fragment = new Fragment("panelEdit", "fragmentEdit", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("editLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("editLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case TEMPLATE:
-                fragment = new Fragment(
-                        "panelTemplate", "fragmentTemplate", this);
+                fragment = new Fragment("panelTemplate", "fragmentTemplate", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("templateLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("templateLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case SEARCH:
-                fragment = new Fragment(
-                        "panelSearch", "fragmentSearch", this);
+                fragment = new Fragment("panelSearch", "fragmentSearch", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("searchLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("searchLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case EXECUTE:
-                fragment = new Fragment(
-                        "panelExecute", "fragmentExecute", this);
+                fragment = new Fragment("panelExecute", "fragmentExecute", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("executeLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("executeLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case DRYRUN:
-                fragment = new Fragment(
-                        "panelDryRun", "fragmentDryRun", this);
+                fragment = new Fragment("panelDryRun", "fragmentDryRun", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("dryRunLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("dryRunLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             case DELETE:
-                fragment = new Fragment(
-                        "panelDelete", "fragmentDelete", this);
+                fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
-                fragment.addOrReplace(
-                        new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
+                fragment.addOrReplace(new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
 
                 break;
             case EXPORT:
-                fragment = new Fragment(
-                        "panelExport", "fragmentExport", this);
+                fragment = new Fragment("panelExport", "fragmentExport", this);
 
-                fragment.addOrReplace(
-                        new IndicatingAjaxLink("exportLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("exportLink") {
 
-                            private static final long serialVersionUID =
-                                    -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(
-                                    final AjaxRequestTarget target) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
 
-                                link.onClick(target);
-                            }
-                        });
+                        link.onClick(target);
+                    }
+                });
                 break;
             default:
-            // do nothink
+                // do nothink
         }
 
         if (fragment != null) {
             fragment.setEnabled(enabled);
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    fragment, ENABLE, roles);
+            MetaDataRoleAuthorizationStrategy.authorize(fragment, ENABLE, roles);
             super.addOrReplace(fragment);
         }
     }
@@ -273,45 +219,36 @@ public class ActionLinksPanel extends Panel {
     public void remove(ActionLink.ActionType type) {
         switch (type) {
             case CLAIM:
-                super.addOrReplace(
-                        new Fragment("panelClaim", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelClaim", "emptyFragment", this));
                 break;
 
             case CREATE:
-                super.addOrReplace(
-                        new Fragment("panelCreate", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelCreate", "emptyFragment", this));
                 break;
 
             case EDIT:
-                super.addOrReplace(
-                        new Fragment("panelEdit", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
                 break;
             case TEMPLATE:
-                super.addOrReplace(
-                        new Fragment("panelTemplate", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelTemplate", "emptyFragment", this));
                 break;
             case SEARCH:
-                super.addOrReplace(
-                        new Fragment("panelSearch", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelSearch", "emptyFragment", this));
                 break;
             case EXECUTE:
-                super.addOrReplace(
-                        new Fragment("panelExecute", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelExecute", "emptyFragment", this));
                 break;
             case DRYRUN:
-                super.addOrReplace(
-                        new Fragment("panelDryRun", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelDryRun", "emptyFragment", this));
                 break;
             case DELETE:
-                super.addOrReplace(
-                        new Fragment("panelDelete", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelDelete", "emptyFragment", this));
                 break;
             case EXPORT:
-                super.addOrReplace(
-                        new Fragment("panelExport", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelExport", "emptyFragment", this));
                 break;
             default:
-            // do nothink
+                // do nothink
         }
     }
 }

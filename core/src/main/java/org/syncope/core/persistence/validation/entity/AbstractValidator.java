@@ -26,7 +26,6 @@ public abstract class AbstractValidator {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractValidator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
 }

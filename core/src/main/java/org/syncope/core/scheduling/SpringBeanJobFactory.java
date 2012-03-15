@@ -31,16 +31,14 @@ import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 
-public class SpringBeanJobFactory
-        extends org.springframework.scheduling.quartz.SpringBeanJobFactory {
+public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.SpringBeanJobFactory {
 
     private String[] ignoredUnknownProperties;
 
     private SchedulerContext schedulerContext;
 
     @Override
-    public void setIgnoredUnknownProperties(
-            final String[] ignoredUnknownProperties) {
+    public void setIgnoredUnknownProperties(final String[] ignoredUnknownProperties) {
 
         super.setIgnoredUnknownProperties(ignoredUnknownProperties);
         this.ignoredUnknownProperties = ignoredUnknownProperties;
@@ -59,43 +57,34 @@ public class SpringBeanJobFactory
      * {@inheritDoc}
      */
     @Override
-    protected Object createJobInstance(final TriggerFiredBundle bundle)
-            throws Exception {
+    protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
 
-        final ApplicationContext ctx =
-                ((ConfigurableApplicationContext) schedulerContext.get(
-                "applicationContext"));
+        final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
 
         // Try to re-create job bean from underlying task (useful for managing
         // failover scenarios)
         if (!ctx.containsBean(bundle.getJobDetail().getName())) {
-            Long taskId = JobInstanceLoader.getTaskIdFromJobName(
-                    bundle.getJobDetail().getName());
+            Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getName());
             if (taskId != null) {
                 TaskDAO taskDAO = ctx.getBean(TaskDAO.class);
                 SchedTask task = taskDAO.find(taskId);
 
-                JobInstanceLoader jobInstanceLoader =
-                        ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerJob(task,
-                        task.getJobClassName(), task.getCronExpression());
+                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
+                jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
             }
 
-            Long reportId = JobInstanceLoader.getReportIdFromJobName(
-                    bundle.getJobDetail().getName());
+            Long reportId = JobInstanceLoader.getReportIdFromJobName(bundle.getJobDetail().getName());
             if (reportId != null) {
                 ReportDAO reportDAO = ctx.getBean(ReportDAO.class);
                 Report report = reportDAO.find(reportId);
 
-                JobInstanceLoader jobInstanceLoader =
-                        ctx.getBean(JobInstanceLoader.class);
+                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
                 jobInstanceLoader.registerJob(report);
             }
         }
 
         final Object job = ctx.getBean(bundle.getJobDetail().getName());
-        final BeanWrapper wrapper =
-                PropertyAccessorFactory.forBeanPropertyAccess(job);
+        final BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
         if (isEligibleForPropertyPopulation(wrapper.getWrappedInstance())) {
             final MutablePropertyValues pvs = new MutablePropertyValues();
             if (this.schedulerContext != null) {
@@ -107,8 +96,7 @@ public class SpringBeanJobFactory
                 wrapper.setPropertyValues(pvs, true);
             } else {
                 for (String propName : this.ignoredUnknownProperties) {
-                    if (pvs.contains(propName)
-                            && !wrapper.isWritableProperty(propName)) {
+                    if (pvs.contains(propName) && !wrapper.isWritableProperty(propName)) {
 
                         pvs.removePropertyValue(propName);
                     }

@@ -45,11 +45,8 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
     }
 
     @Override
-    public void setSchemaModalPage(
-            final PageReference callerPageRef,
-            final ModalWindow window,
-            AbstractBaseBean schema,
-            final boolean createFlag) {
+    public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+            AbstractBaseBean schema, final boolean createFlag) {
 
         if (schema == null) {
             schema = new VirtualSchemaTO();
@@ -59,23 +56,20 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"),
-                new PropertyModel<String>(schema, "name"));
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
+                schema, "name"));
         name.addRequiredLabel();
 
         name.setEnabled(createFlag);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("submit")) {
+        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
-                VirtualSchemaTO schemaTO =
-                        (VirtualSchemaTO) form.getDefaultModelObject();
+                VirtualSchemaTO schemaTO = (VirtualSchemaTO) form.getDefaultModelObject();
 
                 try {
                     if (createFlag) {
@@ -84,8 +78,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                         restClient.updateVirtualSchema(kind, schemaTO);
                     }
                     if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(
-                                true);
+                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -96,8 +89,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -106,15 +98,12 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         String allowedRoles;
 
         if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                    "create");
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
         } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                    "update");
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "update");
         }
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
 

@@ -45,23 +45,20 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<SyncopeUser> list = userDAO.findAll(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
+        List<SyncopeUser> list = userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertEquals("did not get expected number of users ", 4, list.size());
     }
 
     @Test
     public void count() {
-        Integer count = userDAO.count(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
+        Integer count = userDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertNotNull(count);
         assertEquals(4, count.intValue());
     }
 
     @Test
     public void findAllByPageAndSize() {
-        Set<Long> allRoleIds =
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll());
+        Set<Long> allRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
         // get first page
         List<SyncopeUser> list = userDAO.findAll(allRoleIds, 1, 2);
@@ -81,22 +78,18 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findByDerAttributeValue()
-            throws InvalidSearchConditionException {
-        final List<SyncopeUser> list = userDAO.findByDerAttrValue(
-                "cn", "Doe, John");
+    public void findByDerAttributeValue() throws InvalidSearchConditionException {
+        final List<SyncopeUser> list = userDAO.findByDerAttrValue("cn", "Doe, John");
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
     @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrValue()
-            throws InvalidSearchConditionException {
+    public void findByInvalidDerAttrValue() throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
     }
 
     @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrExpression()
-            throws InvalidSearchConditionException {
+    public void findByInvalidDerAttrExpression() throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
     }
 
@@ -105,8 +98,7 @@ public class UserTest extends AbstractTest {
         final UAttrValue fullnameValue = new UAttrValue();
         fullnameValue.setStringValue("chicchiricco");
 
-        final List<SyncopeUser> list = userDAO.findByAttrValue(
-                "fullname", fullnameValue);
+        final List<SyncopeUser> list = userDAO.findByAttrValue("fullname", fullnameValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
@@ -115,8 +107,7 @@ public class UserTest extends AbstractTest {
         final UAttrValue coolValue = new UAttrValue();
         coolValue.setBooleanValue(true);
 
-        final List<SyncopeUser> list = userDAO.findByAttrValue(
-                "cool", coolValue);
+        final List<SyncopeUser> list = userDAO.findByAttrValue("cool", coolValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 

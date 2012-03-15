@@ -103,15 +103,15 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public boolean addProperty(final WorkflowFormPropertyTO property) {
         return properties.contains(property)
-                ? true : properties.add(property);
+                ? true
+                : properties.add(property);
     }
 
     public boolean removeProperty(final WorkflowFormPropertyTO property) {
         return properties.remove(property);
     }
 
-    public void setProperties(
-            final Collection<WorkflowFormPropertyTO> properties) {
+    public void setProperties(final Collection<WorkflowFormPropertyTO> properties) {
 
         this.properties.clear();
         if (properties != null) {
@@ -121,8 +121,7 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, WorkflowFormPropertyTO> getPropertiesAsMap() {
-        Map<String, WorkflowFormPropertyTO> props =
-                new HashMap<String, WorkflowFormPropertyTO>();
+        Map<String, WorkflowFormPropertyTO> props = new HashMap<String, WorkflowFormPropertyTO>();
         for (WorkflowFormPropertyTO prop : getProperties()) {
             props.put(prop.getId(), prop);
         }

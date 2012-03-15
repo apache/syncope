@@ -31,8 +31,7 @@ import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 
 @Repository
-public class MembershipDAOImpl extends AbstractDAOImpl
-        implements MembershipDAO {
+public class MembershipDAOImpl extends AbstractDAOImpl implements MembershipDAO {
 
     @Autowired
     private UserDAO userDAO;
@@ -55,11 +54,9 @@ public class MembershipDAOImpl extends AbstractDAOImpl
 
         try {
             result = (Membership) query.getSingleResult();
-        }
-        catch (NoResultException e) {
+        } catch (NoResultException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("No membership was found for user "
-                        + user + " and role " + role);
+                LOG.debug("No membership was found for user " + user + " and role " + role);
             }
         }
 

@@ -65,11 +65,10 @@ public abstract class Policy extends AbstractBaseBean {
     }
 
     public <T extends AbstractPolicySpec> T getSpecification() {
-        return XMLSerializer.<T>deserialize(specification);
+        return XMLSerializer.<T> deserialize(specification);
     }
 
-    public <T extends AbstractPolicySpec> void setSpecification(
-            final T policy) {
+    public <T extends AbstractPolicySpec> void setSpecification(final T policy) {
 
         specification = XMLSerializer.serialize(policy);
     }

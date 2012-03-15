@@ -80,8 +80,7 @@ public class SchedTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public SchedTasks(final String id,
-            final PageReference callerPageRef) {
+    public SchedTasks(final String id, final PageReference callerPageRef) {
 
         super(id);
 
@@ -96,34 +95,23 @@ public class SchedTasks extends Panel {
         window.setCookieName("view-task-win");
         add(window);
 
-        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(
-                window, container);
+        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(window, container);
 
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequest(),
-                Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SchedTaskTO>> columns =
-                new ArrayList<IColumn<SchedTaskTO>>();
+        List<IColumn<SchedTaskTO>> columns = new ArrayList<IColumn<SchedTaskTO>>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("class"), "jobClassName", "jobClassName"));
+        columns.add(new PropertyColumn(new ResourceModel("class"), "jobClassName", "jobClassName"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("lastExec"), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("latestExecStatus"),
-                "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<SchedTaskTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<SchedTaskTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -133,33 +121,27 @@ public class SchedTasks extends Panel {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<SchedTaskTO>> cellItem, final String componentId,
                     final IModel<SchedTaskTO> model) {
 
                 final SchedTaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new SchedTaskModalPage(
-                                        window, taskTO, callerPageRef);
+                                return new SchedTaskModalPage(window, taskTO, callerPageRef);
                             }
                         });
 
@@ -169,8 +151,7 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -188,8 +169,7 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -207,8 +187,7 @@ public class SchedTasks extends Panel {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -227,17 +206,14 @@ public class SchedTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SchedTaskTO> table =
-                new AjaxFallbackDefaultDataTable<SchedTaskTO>(
-                "datatable", columns, new TasksProvider(
-                restClient, paginatorRows, getId(), SchedTaskTO.class),
+        final AjaxFallbackDefaultDataTable<SchedTaskTO> table = new AjaxFallbackDefaultDataTable<SchedTaskTO>(
+                "datatable", columns, new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
                 paginatorRows);
         container.add(table);
 
         Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -246,8 +222,7 @@ public class SchedTasks extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
+                prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
@@ -267,13 +242,11 @@ public class SchedTasks extends Panel {
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new SchedTaskModalPage(window,
-                                new SchedTaskTO(), callerPageRef);
+                        return new SchedTaskModalPage(window, new SchedTaskTO(), callerPageRef);
                     }
                 });
 
@@ -281,8 +254,8 @@ public class SchedTasks extends Panel {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+                "create"));
 
         add(createLink);
     }

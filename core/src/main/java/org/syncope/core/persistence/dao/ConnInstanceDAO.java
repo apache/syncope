@@ -28,8 +28,7 @@ public interface ConnInstanceDAO extends DAO {
 
     List<ConnInstance> findAll();
 
-    ConnInstance save(ConnInstance connector)
-            throws InvalidEntityException;
+    ConnInstance save(ConnInstance connector) throws InvalidEntityException;
 
     void delete(Long id);
 }

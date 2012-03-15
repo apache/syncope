@@ -39,8 +39,7 @@ public class RoleAttributesPanel extends Panel {
 
     final Palette<String> entitlementsPalette;
 
-    public RoleAttributesPanel(final String id,
-            final Form form, final RoleTO roleTO) {
+    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
 
         super(id);
 
@@ -73,8 +72,7 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO,
-                false));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));
@@ -96,16 +94,12 @@ public class RoleAttributesPanel extends Panel {
         this.add(new ResourcesPanel("resources", roleTO));
         //--------------------------------
 
-        ListModel<String> selectedEntitlements =
-                new ListModel<String>(roleTO.getEntitlements());
+        ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());
 
-        ListModel<String> availableEntitlements =
-                new ListModel<String>(
-                entitlementRestClient.getAllEntitlements());
+        ListModel<String> availableEntitlements = new ListModel<String>(entitlementRestClient.getAllEntitlements());
 
-        entitlementsPalette = new Palette(
-                "entitlementsPalette", selectedEntitlements,
-                availableEntitlements, new SelectChoiceRenderer(), 20, false);
+        entitlementsPalette = new Palette("entitlementsPalette", selectedEntitlements, availableEntitlements,
+                new SelectChoiceRenderer(), 20, false);
 
         this.add(entitlementsPalette);
     }

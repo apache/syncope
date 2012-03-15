@@ -55,8 +55,7 @@ public class NotificationJob implements StatefulJob {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            NotificationJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
 
     /**
      * Task DAO.
@@ -88,16 +87,15 @@ public class NotificationJob implements StatefulJob {
         smtpHost = confDAO.find("smtp.host", "").getValue();
         smtpPort = 25;
         try {
-            smtpPort = Integer.valueOf(
-                    confDAO.find("smtp.port", "25").getValue());
+            smtpPort = Integer.valueOf(confDAO.find("smtp.port", "25").getValue());
         } catch (NumberFormatException e) {
             LOG.error("Invalid SMTP port, reverting to 25", e);
         }
         smtpUsername = confDAO.find("smtp.username", "").getValue();
         smtpPassword = confDAO.find("smtp.password", "").getValue();
 
-        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]",
-                new Object[]{smtpHost, smtpPort, smtpUsername});
+        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]", new Object[] { smtpHost, smtpPort,
+                smtpUsername });
     }
 
     public TaskExec executeSingle(final NotificationTask task) {
@@ -107,38 +105,25 @@ public class NotificationJob implements StatefulJob {
         execution.setTask(task);
         execution.setStartDate(new Date());
 
-        if (StringUtils.isBlank(smtpHost)
-                || StringUtils.isBlank(task.getSender())
-                || StringUtils.isBlank(task.getSubject())
-                || task.getRecipients().isEmpty()
-                || StringUtils.isBlank(task.getHtmlBody())
-                || StringUtils.isBlank(task.getTextBody())) {
+        if (StringUtils.isBlank(smtpHost) || StringUtils.isBlank(task.getSender())
+                || StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
+                || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
-            String message = "Could not fetch all required information for "
-                    + "sending e-mails:\n"
-                    + smtpHost + ":" + smtpPort + "\n"
-                    + task.getRecipients() + "\n"
-                    + task.getSender() + "\n"
-                    + task.getSubject() + "\n"
-                    + task.getHtmlBody() + "\n"
-                    + task.getTextBody();
+            String message = "Could not fetch all required information for " + "sending e-mails:\n" + smtpHost + ":"
+                    + smtpPort + "\n" + task.getRecipients() + "\n" + task.getSender() + "\n" + task.getSubject()
+                    + "\n" + task.getHtmlBody() + "\n" + task.getTextBody();
             LOG.error(message);
 
             execution.setStatus(Status.NOT_SENT.name());
 
-            if (task.getTraceLevel().ordinal()
-                    >= TraceLevel.FAILURES.ordinal()) {
+            if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
 
                 execution.setMessage(message);
             }
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("About to send e-mails:\n"
-                        + smtpHost + ":" + smtpPort + "\n"
-                        + task.getRecipients() + "\n"
-                        + task.getSender() + "\n"
-                        + task.getSubject() + "\n"
-                        + task.getHtmlBody() + "\n"
+                LOG.debug("About to send e-mails:\n" + smtpHost + ":" + smtpPort + "\n" + task.getRecipients() + "\n"
+                        + task.getSender() + "\n" + task.getSubject() + "\n" + task.getHtmlBody() + "\n"
                         + task.getTextBody() + "\n");
             }
 
@@ -155,8 +140,7 @@ public class NotificationJob implements StatefulJob {
                     }
 
                     MimeMessage message = sender.createMimeMessage();
-                    MimeMessageHelper helper =
-                            new MimeMessageHelper(message, true);
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
                     helper.setTo(to);
                     helper.setFrom(task.getSender());
@@ -170,20 +154,14 @@ public class NotificationJob implements StatefulJob {
                     StringBuilder report = new StringBuilder();
                     switch (task.getTraceLevel()) {
                         case ALL:
-                            report.append("FROM: ").
-                                    append(task.getSender()).append('\n').
-                                    append("TO: ").append(to).append('\n').
-                                    append("SUBJECT: ").
-                                    append(task.getSubject()).append('\n').
-                                    append('\n').
-                                    append(task.getTextBody()).append('\n').
-                                    append('\n').
-                                    append(task.getHtmlBody()).append('\n');
+                            report.append("FROM: ").append(task.getSender()).append('\n').append("TO: ").append(to)
+                                    .append('\n').append("SUBJECT: ").append(task.getSubject()).append('\n').append(
+                                            '\n').append(task.getTextBody()).append('\n').append('\n').append(
+                                            task.getHtmlBody()).append('\n');
                             break;
 
                         case SUMMARY:
-                            report.append("E-mail sent to ").
-                                    append(to).append('\n');
+                            report.append("E-mail sent to ").append(to).append('\n');
                             break;
 
                         case FAILURES:
@@ -201,8 +179,7 @@ public class NotificationJob implements StatefulJob {
                     exceptionWriter.write(t.getMessage() + "\n\n");
                     t.printStackTrace(new PrintWriter(exceptionWriter));
 
-                    if (task.getTraceLevel().ordinal()
-                            >= TraceLevel.FAILURES.ordinal()) {
+                    if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
 
                         execution.setMessage(exceptionWriter.toString());
                     }
@@ -220,13 +197,11 @@ public class NotificationJob implements StatefulJob {
     }
 
     @Override
-    public void execute(final JobExecutionContext context)
-            throws JobExecutionException {
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
 
         LOG.debug("Waking up...");
 
-        for (NotificationTask task : taskDAO.findWithoutExecs(
-                NotificationTask.class)) {
+        for (NotificationTask task : taskDAO.findWithoutExecs(NotificationTask.class)) {
 
             executeSingle(task);
         }
@@ -239,9 +214,8 @@ public class NotificationJob implements StatefulJob {
 
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
-        return (Status.valueOf(execution.getStatus()) == Status.NOT_SENT
-                && task.getTraceLevel().ordinal()
-                >= TraceLevel.FAILURES.ordinal())
+        return (Status.valueOf(execution.getStatus()) == Status.NOT_SENT && task.getTraceLevel().ordinal() >= TraceLevel.FAILURES
+                .ordinal())
                 || task.getTraceLevel() == TraceLevel.ALL;
     }
 }

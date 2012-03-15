@@ -36,8 +36,7 @@ public abstract class AbstractValidator implements Validator, Serializable {
     /*
      * Logger
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractValidator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
     protected final AbstractSchema schema;
 
@@ -46,16 +45,14 @@ public abstract class AbstractValidator implements Validator, Serializable {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void validate(final String value,
-            T attributeValue)
+    public <T extends AbstractAttrValue> void validate(final String value, T attributeValue)
             throws ParsingValidationException, InvalidAttrValueException {
 
         parseValue(value, attributeValue);
         doValidate(attributeValue);
     }
 
-    private <T extends AbstractAttrValue> void parseValue(final String value,
-            final T attributeValue)
+    private <T extends AbstractAttrValue> void parseValue(final String value, final T attributeValue)
             throws ParsingValidationException {
 
         Exception exception = null;
@@ -76,9 +73,8 @@ public abstract class AbstractValidator implements Validator, Serializable {
                     if (schema.getFormatter() == null) {
                         attributeValue.setLongValue(Long.valueOf(value));
                     } else {
-                        attributeValue.setLongValue(Long.valueOf(
-                                ((DecimalFormat) schema.getFormatter()).parse(
-                                value).longValue()));
+                        attributeValue.setLongValue(Long.valueOf(((DecimalFormat) schema.getFormatter()).parse(value)
+                                .longValue()));
                     }
                 } catch (Exception pe) {
                     exception = pe;
@@ -90,8 +86,7 @@ public abstract class AbstractValidator implements Validator, Serializable {
                     if (schema.getFormatter() == null) {
                         attributeValue.setDoubleValue(Double.valueOf(value));
                     } else {
-                        attributeValue.setDoubleValue(Double.valueOf(
-                                ((DecimalFormat) schema.getFormatter()).parse(
+                        attributeValue.setDoubleValue(Double.valueOf(((DecimalFormat) schema.getFormatter()).parse(
                                 value).doubleValue()));
                     }
                 } catch (Exception pe) {
@@ -102,12 +97,10 @@ public abstract class AbstractValidator implements Validator, Serializable {
             case Date:
                 try {
                     if (schema.getFormatter() == null) {
-                        attributeValue.setDateValue(DateUtils.parseDate(
-                                value, SyncopeConstants.DATE_PATTERNS));
+                        attributeValue.setDateValue(DateUtils.parseDate(value, SyncopeConstants.DATE_PATTERNS));
                     } else {
-                        attributeValue.setDateValue(new Date(
-                                ((DateFormat) schema.getFormatter()).parse(
-                                value).getTime()));
+                        attributeValue.setDateValue(new Date(((DateFormat) schema.getFormatter()).parse(value)
+                                .getTime()));
                     }
                 } catch (Exception pe) {
                     exception = pe;
@@ -118,12 +111,9 @@ public abstract class AbstractValidator implements Validator, Serializable {
         }
 
         if (exception != null) {
-            throw new ParsingValidationException("While trying to parse '"
-                    + value + "'", exception);
+            throw new ParsingValidationException("While trying to parse '" + value + "'", exception);
         }
     }
 
-    protected abstract <T extends AbstractAttrValue> void doValidate(
-            T attributeValue)
-            throws InvalidAttrValueException;
+    protected abstract <T extends AbstractAttrValue> void doValidate(T attributeValue) throws InvalidAttrValueException;
 }

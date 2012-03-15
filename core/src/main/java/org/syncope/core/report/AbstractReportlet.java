@@ -34,8 +34,7 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(AbstractReportlet.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractReportlet.class);
 
     protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
@@ -56,13 +55,11 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
         this.conf = conf;
     }
 
-    protected abstract void doExtract(ContentHandler handler)
-            throws SAXException, ReportException;
+    protected abstract void doExtract(ContentHandler handler) throws SAXException, ReportException;
 
     @Override
     @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler)
-            throws SAXException, ReportException {
+    public void extract(final ContentHandler handler) throws SAXException, ReportException {
 
         if (conf == null) {
             throw new ReportException(new IllegalArgumentException("No configuration provided"));

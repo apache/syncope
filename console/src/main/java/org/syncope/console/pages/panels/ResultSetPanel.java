@@ -79,8 +79,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(ResultSetPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResultSetPanel.class);
 
     /**
      * Edit modal window height.
@@ -188,11 +187,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
      */
     private final BasePage page;
 
-    public <T extends AbstractAttributableTO> ResultSetPanel(
-            final String id,
-            final boolean filtered,
-            final NodeCond searchCond,
-            final PageReference callerRef) {
+    public <T extends AbstractAttributableTO> ResultSetPanel(final String id, final boolean filtered,
+            final NodeCond searchCond, final PageReference callerRef) {
         super(id);
 
         setOutputMarkupId(true);
@@ -243,19 +239,15 @@ public class ResultSetPanel extends Panel implements IEventSource {
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                displaymodal.setPageCreator(
-                        new ModalWindow.PageCreator() {
+                displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
-                            @Override
-                            public Page createPage() {
-                                return new DisplayAttributesModalPage(
-                                        page.getPageReference(),
-                                        displaymodal);
-                            }
-                        });
+                    @Override
+                    public Page createPage() {
+                        return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
+                    }
+                });
 
                 displaymodal.show(target);
             }
@@ -268,8 +260,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
-            public void onComponentTag(
-                    final Component component, final ComponentTag tag) {
+            public void onComponentTag(final Component component, final ComponentTag tag) {
 
                 if (resultTable.getRowCount() > rows) {
                     tag.remove("class");
@@ -281,8 +272,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
         });
 
-        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Users", "changeView"));
 
         container.add(displayAttrsLink);
         // ---------------------------
@@ -293,10 +284,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
         final Form paginatorForm = new Form("paginator");
         container.add(paginatorForm);
 
-        final DropDownChoice<Integer> rowsChooser =
-                new DropDownChoice<Integer>("rowsChooser",
-                new PropertyModel(this, "rows"),
-                preferences.getPaginatorChoices());
+        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>("rowsChooser", new PropertyModel(this,
+                "rows"), preferences.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -304,9 +293,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                preferences.set(getRequest(), getResponse(),
-                        Constants.PREF_USERS_PAGINATOR_ROWS,
-                        String.valueOf(rows));
+                preferences.set(getRequest(), getResponse(), Constants.PREF_USERS_PAGINATOR_ROWS, String.valueOf(rows));
 
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
@@ -322,8 +309,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         setWindowClosedReloadCallback(displaymodal);
     }
 
-    public void search(
-            final NodeCond searchCond, final AjaxRequestTarget target) {
+    public void search(final NodeCond searchCond, final AjaxRequestTarget target) {
 
         this.filter = searchCond;
         dataProvider.setSearchCond(filter);
@@ -332,20 +318,18 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
     private void updateResultTable(final boolean create) {
         // Requires preferences/container attributes not null ...
-        rows = preferences.getPaginatorRows(
-                getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+        rows = preferences.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
 
         dataProvider = new UserDataProvider(userRestClient, rows, filtered);
         dataProvider.setSearchCond(filter);
 
         final int currentPage = resultTable != null
                 ? (create
-                ? resultTable.getPageCount() - 1
-                : resultTable.getCurrentPage())
+                        ? resultTable.getPageCount() - 1
+                        : resultTable.getCurrentPage())
                 : 0;
 
-        resultTable = new AjaxFallbackDefaultDataTable<UserTO>(
-                "resultTable", getColumns(), dataProvider, rows);
+        resultTable = new AjaxFallbackDefaultDataTable<UserTO>("resultTable", getColumns(), dataProvider, rows);
 
         resultTable.setCurrentPage(currentPage);
 
@@ -357,8 +341,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private List<IColumn<UserTO>> getColumns() {
         final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
 
-        for (String name : preferences.getList(getRequest(),
-                Constants.PREF_USERS_DETAILS_VIEW)) {
+        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
 
             Field field = null;
 
@@ -369,49 +352,36 @@ public class ResultSetPanel extends Panel implements IEventSource {
                 try {
                     field = AbstractAttributableTO.class.getDeclaredField(name);
                 } catch (Exception aae) {
-                    LOG.error("Error retrieving AbstractAttributableTO field {}",
-                            name, aae);
+                    LOG.error("Error retrieving AbstractAttributableTO field {}", name, aae);
                 }
             }
 
             if ("token".equalsIgnoreCase(name)) {
                 columns.add(new TokenColumn("token"));
             } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<UserTO>(
-                        new ResourceModel(name, name), name, name));
+                columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn(
-                        new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn(new ResourceModel(name, name), name, name));
             }
         }
 
-        for (String name : preferences.getList(getRequest(),
-                Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(
-                    name, UserAttrColumn.SchemaType.schema));
+        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
+            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.schema));
         }
 
-        for (String name : preferences.getList(getRequest(),
-                Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(
-                    name, UserAttrColumn.SchemaType.derivedSchema));
+        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
+            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.derivedSchema));
         }
 
-        for (String name : preferences.getList(getRequest(),
-                Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(
-                    name, UserAttrColumn.SchemaType.virtualSchema));
+        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
+            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.virtualSchema));
         }
 
         // Add defaults in case of empty selections
         if (columns.isEmpty()) {
-            columns.add(new PropertyColumn(
-                    new ResourceModel("id", "id"), "id", "id"));
-            columns.add(new PropertyColumn(
-                    new ResourceModel("username", "username"),
-                    "username", "username"));
-            columns.add(new PropertyColumn(
-                    new ResourceModel("status", "status"), "status", "status"));
+            columns.add(new PropertyColumn(new ResourceModel("id", "id"), "id", "id"));
+            columns.add(new PropertyColumn(new ResourceModel("username", "username"), "username", "username"));
+            columns.add(new PropertyColumn(new ResourceModel("status", "status"), "status", "status"));
         }
 
         columns.add(new AbstractColumn<UserTO>(new ResourceModel("actions", "")) {
@@ -424,35 +394,26 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
                     final IModel<UserTO> model) {
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        statusmodal.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new StatusModalPage(
-                                                page.getPageReference(),
-                                                statusmodal,
-                                                model.getObject());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new StatusModalPage(page.getPageReference(), statusmodal, model.getObject());
+                            }
+                        });
 
                         statusmodal.show(target);
                     }
@@ -460,25 +421,19 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        editmodal.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editmodal.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new EditUserModalPage(
-                                                page.getPageReference(),
-                                                editmodal,
-                                                model.getObject());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new EditUserModalPage(page.getPageReference(), editmodal, model.getObject());
+                            }
+                        });
 
                         editmodal.show(target);
                     }
@@ -486,29 +441,24 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            final UserTO userTO = userRestClient.delete(
-                                    model.getObject().getId());
+                            final UserTO userTO = userRestClient.delete(model.getObject().getId());
 
                             page.setModalResult(true);
 
-                            editmodal.setPageCreator(
-                                    new ModalWindow.PageCreator() {
+                            editmodal.setPageCreator(new ModalWindow.PageCreator() {
 
-                                        private static final long serialVersionUID =
-                                                -7834632442532690940L;
+                                private static final long serialVersionUID = -7834632442532690940L;
 
-                                        @Override
-                                        public Page createPage() {
-                                            return new EditUserModalPage(
-                                                    editmodal, userTO);
-                                        }
-                                    });
+                                @Override
+                                public Page createPage() {
+                                    return new EditUserModalPage(editmodal, userTO);
+                                }
+                            });
 
                             editmodal.show(target);
 

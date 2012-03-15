@@ -37,8 +37,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void listByType() {
-        List<SyncPolicyTO> policyTOs = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "policy/{kind}/list",
+        List<SyncPolicyTO> policyTOs = Arrays.asList(restTemplate.getForObject(BASE_URL + "policy/{kind}/list",
                 SyncPolicyTO[].class, PolicyType.SYNC.toString()));
 
         assertNotNull(policyTOs);
@@ -47,28 +46,25 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        SyncPolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 1L);
+        SyncPolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 1L);
 
         assertNotNull(policyTO);
     }
 
     @Test
     public void getGlobalPasswordPolicy() {
-        PasswordPolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/password/global/read",
+        PasswordPolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/password/global/read",
                 PasswordPolicyTO.class);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
-        assertEquals(8, ((PasswordPolicySpec) policyTO.getSpecification()).
-                getMinLength());
+        assertEquals(8, ((PasswordPolicySpec) policyTO.getSpecification()).getMinLength());
     }
 
     @Test
     public void getGlobalAccountPolicy() {
-        AccountPolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/account/global/read", AccountPolicyTO.class);
+        AccountPolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/account/global/read",
+                AccountPolicyTO.class);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
@@ -82,13 +78,10 @@ public class PolicyTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            restTemplate.postForObject(
-                    BASE_URL + "policy/password/create",
-                    policy, PasswordPolicyTO.class);
+            restTemplate.postForObject(BASE_URL + "policy/password/create", policy, PasswordPolicyTO.class);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(
-                    SyncopeClientExceptionType.InvalidPasswordPolicy);
+            t = sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy);
         }
         assertNotNull(t);
     }
@@ -100,13 +93,10 @@ public class PolicyTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            restTemplate.postForObject(
-                    BASE_URL + "policy/sync/create",
-                    policy, PasswordPolicyTO.class);
+            restTemplate.postForObject(BASE_URL + "policy/sync/create", policy, PasswordPolicyTO.class);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(
-                    SyncopeClientExceptionType.InvalidSyncPolicy);
+            t = sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy);
         }
         assertNotNull(t);
     }
@@ -117,8 +107,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(new SyncPolicySpec());
         policy.setDescription("Sync policy");
 
-        SyncPolicyTO policyTO = restTemplate.postForObject(
-                BASE_URL + "policy/sync/create", policy, SyncPolicyTO.class);
+        SyncPolicyTO policyTO = restTemplate.postForObject(BASE_URL + "policy/sync/create", policy, SyncPolicyTO.class);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -127,46 +116,37 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void update() {
         // get global password
-        PasswordPolicyTO globalPolicy = restTemplate.getForObject(
-                BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
+        PasswordPolicyTO globalPolicy = restTemplate.getForObject(BASE_URL + "policy/read/{id}",
+                PasswordPolicyTO.class, 2L);
 
         PasswordPolicyTO policy = new PasswordPolicyTO();
         policy.setDescription("A simple password policy");
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        policy = restTemplate.postForObject(
-                BASE_URL + "policy/password/create",
-                policy, PasswordPolicyTO.class);
+        policy = restTemplate.postForObject(BASE_URL + "policy/password/create", policy, PasswordPolicyTO.class);
 
         // read new password policy
-        policy = restTemplate.getForObject(
-                BASE_URL + "policy/read/{id}",
-                PasswordPolicyTO.class, policy.getId());
+        policy = restTemplate.getForObject(BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, policy.getId());
 
         assertNotNull("find to update did not work", policy);
 
-        PasswordPolicySpec policySpec =
-                ((PasswordPolicyTO) policy).getSpecification();
+        PasswordPolicySpec policySpec = ((PasswordPolicyTO) policy).getSpecification();
         policySpec.setMaxLength(22);
         policy.setSpecification(policySpec);
 
         // update new password policy
-        policy = restTemplate.postForObject(BASE_URL + "policy/password/update",
-                policy, PasswordPolicyTO.class);
+        policy = restTemplate.postForObject(BASE_URL + "policy/password/update", policy, PasswordPolicyTO.class);
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
-        assertEquals(22,
-                ((PasswordPolicyTO) policy).getSpecification().getMaxLength());
-        assertEquals(8,
-                ((PasswordPolicyTO) policy).getSpecification().getMinLength());
+        assertEquals(22, ((PasswordPolicyTO) policy).getSpecification().getMaxLength());
+        assertEquals(8, ((PasswordPolicyTO) policy).getSpecification().getMinLength());
     }
 
     @Test
     public void delete() {
-        final PolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
+        final PolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
 
         assertNotNull("find to delete did not work", policyTO);
 
@@ -174,8 +154,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
+            restTemplate.getForObject(BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }

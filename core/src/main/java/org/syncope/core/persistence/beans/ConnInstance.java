@@ -86,7 +86,7 @@ public class ConnInstance extends AbstractBaseBean {
     /**
      * External resources associated to the connector.
      */
-    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "connector")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy = "connector")
     private List<ExternalResource> resources;
 
     public ConnInstance() {
@@ -119,9 +119,7 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result =
-                XMLSerializer.<HashSet<ConnConfProperty>>deserialize(
-                xmlConfiguration);
+        Set<ConnConfProperty> result = XMLSerializer.<HashSet<ConnConfProperty>> deserialize(xmlConfiguration);
         if (result == null) {
             result = Collections.emptySet();
         }
@@ -129,8 +127,7 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        xmlConfiguration = XMLSerializer.serialize(
-                new HashSet<ConnConfProperty>(configuration));
+        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(configuration));
     }
 
     public Long getId() {

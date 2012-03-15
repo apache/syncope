@@ -51,8 +51,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    public PolicyModalPage(
-            final ModalWindow window, final T policyTO) {
+    public PolicyModalPage(final ModalWindow window, final T policyTO) {
 
         super();
 
@@ -63,15 +62,13 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         final AjaxTextFieldPanel policyid = new AjaxTextFieldPanel("id", "id",
                 new PropertyModel<String>(policyTO, "id"));
         policyid.setEnabled(false);
-        policyid.setStyleShet(
-                "ui-widget-content ui-corner-all short_fixedsize");
+        policyid.setStyleShet("ui-widget-content ui-corner-all short_fixedsize");
         form.add(policyid);
 
         final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
                 new PropertyModel<String>(policyTO, "description"));
         description.addRequiredLabel();
-        description.setStyleShet(
-                "ui-widget-content ui-corner-all medium_dynamicsize");
+        description.setStyleShet("ui-widget-content ui-corner-all medium_dynamicsize");
         form.add(description);
 
         final AjaxDropDownChoicePanel<PolicyType> type = new AjaxDropDownChoicePanel<PolicyType>("type", "type",
@@ -80,20 +77,17 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[]{
-                            PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT }));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[]{
-                            PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD }));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[]{
-                            PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_SYNC, PolicyType.SYNC }));
 
             default:
         }
@@ -107,15 +101,12 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(new PolicyBeanPanel("panel", policy));
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("apply")) {
+        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 setPolicySpecification(policyTO, policy);
 
@@ -136,8 +127,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(getPage().get("feedback"));
             }
@@ -175,26 +165,22 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         return spec;
     }
 
-    private void setPolicySpecification(
-            final PolicyTO policyTO, final AbstractPolicySpec specification) {
+    private void setPolicySpecification(final PolicyTO policyTO, final AbstractPolicySpec specification) {
 
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                ((AccountPolicyTO) policyTO).setSpecification(
-                        (AccountPolicySpec) specification);
+                ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) specification);
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                ((PasswordPolicyTO) policyTO).setSpecification(
-                        (PasswordPolicySpec) specification);
+                ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) specification);
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                ((SyncPolicyTO) policyTO).setSpecification(
-                        (SyncPolicySpec) specification);
+                ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) specification);
 
             default:
         }

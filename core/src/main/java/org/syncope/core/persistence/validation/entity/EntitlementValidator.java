@@ -25,19 +25,17 @@ import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.types.EntityViolationType;
 
-public class EntitlementValidator extends AbstractValidator
-        implements ConstraintValidator<EntitlementCheck, Entitlement> {
+public class EntitlementValidator extends AbstractValidator implements
+        ConstraintValidator<EntitlementCheck, Entitlement> {
 
-    private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN =
-            Pattern.compile("^ROLE_([\\d])+");
+    private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN = Pattern.compile("^ROLE_([\\d])+");
 
     @Override
     public void initialize(final EntitlementCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final Entitlement object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final Entitlement object, final ConstraintValidatorContext context) {
 
         boolean isValid = false;
 
@@ -47,20 +45,16 @@ public class EntitlementValidator extends AbstractValidator
             if (object.getName() == null) {
                 isValid = false;
             } else {
-                Matcher matcher = ROLE_ENTITLEMENT_NAME_PATTERN.matcher(
-                        object.getName());
+                Matcher matcher = ROLE_ENTITLEMENT_NAME_PATTERN.matcher(object.getName());
                 isValid = !matcher.matches();
             }
 
             if (!isValid) {
-                LOG.error(object + " cannot have name "
-                        + "starting by ROLE_");
+                LOG.error(object + " cannot have name " + "starting by ROLE_");
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidEntitlementName.toString()).
-                        addNode(object.toString()).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidEntitlementName.toString())
+                        .addNode(object.toString()).addConstraintViolation();
             }
         }
 

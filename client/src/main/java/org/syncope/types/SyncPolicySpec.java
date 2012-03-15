@@ -45,8 +45,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         }
     }
 
-    public void setConflictResolutionAction(
-            final ConflictResolutionAction conflictResolutionAction) {
+    public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
@@ -57,8 +56,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return alternativeSearchAttrs;
     }
 
-    public void setAlternativeSearchAttrs(
-            final List<String> alternativeSearchAttrs) {
+    public void setAlternativeSearchAttrs(final List<String> alternativeSearchAttrs) {
         this.alternativeSearchAttrs = alternativeSearchAttrs;
     }
 }

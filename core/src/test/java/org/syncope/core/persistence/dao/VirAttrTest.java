@@ -56,24 +56,18 @@ public class VirAttrTest extends AbstractTest {
     @Test
     public void findAll() {
         List<UVirAttr> list = virAttrDAO.findAll(UVirAttr.class);
-        assertEquals(
-                "did not get expected number of derived attributes ",
-                1, list.size());
+        assertEquals("did not get expected number of derived attributes ", 1, list.size());
     }
 
     @Test
     public void findById() {
         UVirAttr attribute = virAttrDAO.find(100L, UVirAttr.class);
-        assertNotNull(
-                "did not find expected attribute schema",
-                attribute);
+        assertNotNull("did not find expected attribute schema", attribute);
     }
 
     @Test
-    public void saveUVirAttribute()
-            throws ClassNotFoundException {
-        UVirSchema virtualSchema =
-                virSchemaDAO.find("virtualdata", UVirSchema.class);
+    public void saveUVirAttribute() throws ClassNotFoundException {
+        UVirSchema virtualSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
         assertNotNull(virtualSchema);
 
         SyncopeUser owner = userDAO.find(3L);
@@ -85,15 +79,13 @@ public class VirAttrTest extends AbstractTest {
 
         virtualAttribute = virAttrDAO.save(virtualAttribute);
 
-        UVirAttr actual = virAttrDAO.find(
-                virtualAttribute.getId(), UVirAttr.class);
+        UVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), UVirAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(virtualAttribute, actual);
     }
 
     @Test
-    public void saveMVirAttribute()
-            throws ClassNotFoundException {
+    public void saveMVirAttribute() throws ClassNotFoundException {
 
         MVirSchema virtualSchema = new MVirSchema();
         virtualSchema.setName("mvirtualdata");
@@ -107,15 +99,13 @@ public class VirAttrTest extends AbstractTest {
 
         virtualAttribute = virAttrDAO.save(virtualAttribute);
 
-        MVirAttr actual = virAttrDAO.find(
-                virtualAttribute.getId(), MVirAttr.class);
+        MVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), MVirAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(virtualAttribute, actual);
     }
 
     @Test
-    public void saveRVirAttribute()
-            throws ClassNotFoundException {
+    public void saveRVirAttribute() throws ClassNotFoundException {
 
         RVirSchema virtualSchema = new RVirSchema();
         virtualSchema.setName("rvirtualdata");
@@ -129,8 +119,7 @@ public class VirAttrTest extends AbstractTest {
 
         virtualAttribute = virAttrDAO.save(virtualAttribute);
 
-        RVirAttr actual = virAttrDAO.find(
-                virtualAttribute.getId(), RVirAttr.class);
+        RVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), RVirAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(virtualAttribute, actual);
     }
@@ -145,12 +134,8 @@ public class VirAttrTest extends AbstractTest {
         UVirAttr actual = virAttrDAO.find(100L, UVirAttr.class);
         assertNull("delete did not work", actual);
 
-        UVirSchema attributeSchema =
-                virSchemaDAO.find(attributeSchemaName,
-                UVirSchema.class);
+        UVirSchema attributeSchema = virSchemaDAO.find(attributeSchemaName, UVirSchema.class);
 
-        assertNotNull("user virtual attribute schema deleted "
-                + "when deleting values",
-                attributeSchema);
+        assertNotNull("user virtual attribute schema deleted " + "when deleting values", attributeSchema);
     }
 }

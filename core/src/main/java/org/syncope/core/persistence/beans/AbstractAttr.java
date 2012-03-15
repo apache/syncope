@@ -34,8 +34,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract Long getId();
 
-    public <T extends AbstractAttrValue> T addValue(final String value,
-            final AttributableUtil attributableUtil)
+    public <T extends AbstractAttrValue> T addValue(final String value, final AttributableUtil attributableUtil)
             throws InvalidAttrValueException {
 
         T attrValue;
@@ -72,11 +71,9 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
 
-    public abstract <T extends AbstractAttrValue> boolean addValue(
-            T attrValue);
+    public abstract <T extends AbstractAttrValue> boolean addValue(T attrValue);
 
-    public abstract <T extends AbstractAttrValue> boolean removeValue(
-            T attrValue);
+    public abstract <T extends AbstractAttrValue> boolean removeValue(T attrValue);
 
     public List<String> getValuesAsStrings() {
         List<String> result;
@@ -94,11 +91,9 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttrValue> List<T> getValues();
 
-    public abstract <T extends AbstractAttrValue> void setValues(
-            List<T> attributeValues);
+    public abstract <T extends AbstractAttrValue> void setValues(List<T> attributeValues);
 
     public abstract <T extends AbstractAttrValue> T getUniqueValue();
 
-    public abstract <T extends AbstractAttrValue> void setUniqueValue(
-            T uniqueAttributeValue);
+    public abstract <T extends AbstractAttrValue> void setUniqueValue(T uniqueAttributeValue);
 }

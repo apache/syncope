@@ -49,9 +49,7 @@ import org.syncope.core.workflow.WorkflowResult;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = {
-    Throwable.class
-})
+@Transactional(rollbackFor = { Throwable.class })
 public class NotificationManager {
 
     /**
@@ -135,17 +133,20 @@ public class NotificationManager {
         final Map<String, Object> model = new HashMap<String, Object>();
         for (AbstractAttr attr : user.getAttributes()) {
             List<String> values = attr.getValuesAsStrings();
-            model.put(attr.getSchema().getName(),
-                    values.isEmpty() ? "" : (values.size() == 1 ? values.iterator().next() : values));
+            model.put(attr.getSchema().getName(), values.isEmpty()
+                    ? ""
+                    : (values.size() == 1
+                            ? values.iterator().next()
+                            : values));
         }
 
         String htmlBody;
         String textBody;
         try {
-            htmlBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                    "mailTemplates/" + notification.getTemplate() + ".html.vm", model);
-            textBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                    "mailTemplates/" + notification.getTemplate() + ".txt.vm", model);
+            htmlBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
+                    + notification.getTemplate() + ".html.vm", model);
+            textBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
+                    + notification.getTemplate() + ".txt.vm", model);
         } catch (VelocityException e) {
             LOG.error("Could not get mail body", e);
 
@@ -164,8 +165,7 @@ public class NotificationManager {
      * @param wfResult workflow result
      * @throws NotFoundException if user contained in the workflow result cannot be found
      */
-    public void createTasks(final WorkflowResult<Long> wfResult)
-            throws NotFoundException {
+    public void createTasks(final WorkflowResult<Long> wfResult) throws NotFoundException {
 
         SyncopeUser user = userDAO.find(wfResult.getResult());
         if (user == null) {

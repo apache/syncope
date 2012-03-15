@@ -54,8 +54,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findWithoutExecs() {
-        List<PropagationTask> tasks =
-                taskDAO.findWithoutExecs(PropagationTask.class);
+        List<PropagationTask> tasks = taskDAO.findWithoutExecs(PropagationTask.class);
         assertNotNull(tasks);
         assertEquals(3, tasks.size());
     }
@@ -97,10 +96,8 @@ public class TaskTest extends AbstractTest {
         task.setAccountId("one@two.com");
 
         Set<Attribute> attributes = new HashSet<Attribute>();
-        attributes.add(AttributeBuilder.build("testAttribute", "testValue1",
-                "testValue2"));
-        attributes.add(
-                AttributeBuilder.buildPassword("password".toCharArray()));
+        attributes.add(AttributeBuilder.build("testAttribute", "testValue1", "testValue2"));
+        attributes.add(AttributeBuilder.buildPassword("password".toCharArray()));
         task.setAttributes(attributes);
 
         task = taskDAO.save(task);
@@ -174,7 +171,6 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.find(resource.getName());
         assertNotNull(resource);
-        assertFalse(taskDAO.findAll(resource, PropagationTask.class).
-                contains(task));
+        assertFalse(taskDAO.findAll(resource, PropagationTask.class).contains(task));
     }
 }

@@ -43,10 +43,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     private UserRestClient restClient;
 
-    public UserDataProvider(
-            final UserRestClient restClient,
-            final int paginatorRows,
-            final boolean filtered) {
+    public UserDataProvider(final UserRestClient restClient, final int paginatorRows, final boolean filtered) {
 
         super();
 
@@ -71,8 +68,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
         if (filtered) {
             users = filter == null
                     ? Collections.EMPTY_LIST
-                    : restClient.search(filter, (first / paginatorRows) + 1,
-                    paginatorRows);
+                    : restClient.search(filter, (first / paginatorRows) + 1, paginatorRows);
         } else {
             users = restClient.list((first / paginatorRows) + 1, paginatorRows);
         }
@@ -84,7 +80,9 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
     @Override
     public int size() {
         if (filtered) {
-            return filter == null ? 0 : restClient.searchCount(filter);
+            return filter == null
+                    ? 0
+                    : restClient.searchCount(filter);
         } else {
             return restClient.count();
         }

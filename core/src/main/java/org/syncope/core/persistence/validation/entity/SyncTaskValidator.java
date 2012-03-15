@@ -25,8 +25,7 @@ import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.EntityViolationType;
 
-public class SyncTaskValidator extends AbstractValidator
-        implements ConstraintValidator<SyncTaskCheck, SyncTask> {
+public class SyncTaskValidator extends AbstractValidator implements ConstraintValidator<SyncTaskCheck, SyncTask> {
 
     private final SchedTaskValidator schedV;
 
@@ -41,8 +40,7 @@ public class SyncTaskValidator extends AbstractValidator
     }
 
     @Override
-    public boolean isValid(final SyncTask object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final SyncTask object, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
@@ -57,20 +55,16 @@ public class SyncTaskValidator extends AbstractValidator
                     LOG.error("Resource is null");
 
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.InvalidSyncTask.toString()).
-                            addNode(object + ".resource is NULL").
-                            addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSyncTask.toString())
+                            .addNode(object + ".resource is NULL").addConstraintViolation();
                 }
 
                 if (StringUtils.isNotBlank(object.getJobActionsClassName())) {
                     Class syncJobActionsClass = null;
                     boolean isAssignable = false;
                     try {
-                        syncJobActionsClass =
-                                Class.forName(object.getJobActionsClassName());
-                        isAssignable = SyncJobActions.class.isAssignableFrom(
-                                syncJobActionsClass);
+                        syncJobActionsClass = Class.forName(object.getJobActionsClassName());
+                        isAssignable = SyncJobActions.class.isAssignableFrom(syncJobActionsClass);
                     } catch (Throwable t) {
                         LOG.error("Invalid SyncJobActions specified", t);
                         isValid = false;
@@ -80,11 +74,8 @@ public class SyncTaskValidator extends AbstractValidator
                         isValid = false;
 
                         context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate(
-                                EntityViolationType.InvalidSyncTask.toString()).
-                                addNode(object
-                                + ".syncJobActionsClassName is not valid").
-                                addConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSyncTask.toString())
+                                .addNode(object + ".syncJobActionsClassName is not valid").addConstraintViolation();
                     }
                 }
             }

@@ -56,8 +56,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getDerivedAttributeMap() {
-        Map<String, AttributeTO> result =
-                new HashMap<String, AttributeTO>(derivedAttributes.size());
+        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(derivedAttributes.size());
         for (AttributeTO attributeTO : derivedAttributes) {
             result.put(attributeTO.getSchema(), attributeTO);
         }
@@ -67,8 +66,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getVirtualAttributeMap() {
-        Map<String, AttributeTO> result =
-                new HashMap<String, AttributeTO>(virtualAttributes.size());
+        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(virtualAttributes.size());
         for (AttributeTO attributeTO : virtualAttributes) {
             result.put(attributeTO.getSchema(), attributeTO);
         }
@@ -88,8 +86,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return derivedAttributes;
     }
 
-    public void setDerivedAttributes(
-            final List<AttributeTO> derivedAttributes) {
+    public void setDerivedAttributes(final List<AttributeTO> derivedAttributes) {
 
         this.derivedAttributes = derivedAttributes;
     }

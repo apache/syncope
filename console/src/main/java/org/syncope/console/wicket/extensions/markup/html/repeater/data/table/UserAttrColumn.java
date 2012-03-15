@@ -43,9 +43,7 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
 
     private final SchemaType schemaType;
 
-    public UserAttrColumn(
-            final String name,
-            final SchemaType schemaType) {
+    public UserAttrColumn(final String name, final SchemaType schemaType) {
 
         super(new ResourceModel(name, name), name);
         this.name = name;
@@ -53,9 +51,7 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
     }
 
     @Override
-    public void populateItem(
-            final Item<ICellPopulator<UserTO>> cellItem,
-            final String componentId,
+    public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
             final IModel<UserTO> rowModel) {
 
         List<String> values = null;
@@ -63,26 +59,21 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
         switch (schemaType) {
             case schema:
                 if (rowModel.getObject().getAttributeMap().containsKey(name)) {
-                    values = rowModel.getObject().getAttributeMap().
-                            get(name).getValues();
+                    values = rowModel.getObject().getAttributeMap().get(name).getValues();
                 }
                 break;
 
             case virtualSchema:
-                if (rowModel.getObject().getVirtualAttributeMap().
-                        containsKey(name)) {
+                if (rowModel.getObject().getVirtualAttributeMap().containsKey(name)) {
 
-                    values = rowModel.getObject().getVirtualAttributeMap().
-                            get(name).getValues();
+                    values = rowModel.getObject().getVirtualAttributeMap().get(name).getValues();
                 }
                 break;
 
             case derivedSchema:
-                if (rowModel.getObject().getDerivedAttributeMap().
-                        containsKey(name)) {
+                if (rowModel.getObject().getDerivedAttributeMap().containsKey(name)) {
 
-                    values = rowModel.getObject().getDerivedAttributeMap().
-                            get(name).getValues();
+                    values = rowModel.getObject().getDerivedAttributeMap().get(name).getValues();
                 }
                 break;
 
@@ -93,11 +84,9 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
             cellItem.add(new Label(componentId, ""));
         } else {
             if (values.size() == 1) {
-                cellItem.add(
-                        new Label(componentId, values.get(0)));
+                cellItem.add(new Label(componentId, values.get(0)));
             } else {
-                cellItem.add(
-                        new Label(componentId, values.toString()));
+                cellItem.add(new Label(componentId, values.toString()));
             }
         }
     }

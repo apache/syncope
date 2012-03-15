@@ -26,8 +26,7 @@ import org.syncope.core.workflow.ActivitiUserWorkflowAdapter;
 public class Create extends AbstractActivitiDelegate {
 
     @Override
-    protected void doExecute(final DelegateExecution execution)
-            throws Exception {
+    protected void doExecute(final DelegateExecution execution) throws Exception {
 
         UserTO userTO = (UserTO) execution.getVariable(ActivitiUserWorkflowAdapter.USER_TO);
 

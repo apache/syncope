@@ -40,7 +40,6 @@ public class WelcomePage extends WebPage {
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
 
-        ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader, false, version);
+        ((SyncopeApplication) getApplication()).setupNavigationPane(this, xmlRolesReader, false, version);
     }
 }

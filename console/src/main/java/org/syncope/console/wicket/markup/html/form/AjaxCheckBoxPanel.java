@@ -31,10 +31,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     private static final long serialVersionUID = 5664138233103884310L;
 
-    public AjaxCheckBoxPanel(
-            final String id,
-            final String name,
-            final IModel<Boolean> model) {
+    public AjaxCheckBoxPanel(final String id, final String name, final IModel<Boolean> model) {
 
         super(id, name, model);
 
@@ -44,8 +41,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
@@ -76,8 +72,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             public Serializable getObject() {
                 Boolean value = null;
 
-                if (list != null && !list.isEmpty()
-                        && StringUtils.hasText(list.get(0).toString())) {
+                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
 
                     value = "true".equalsIgnoreCase(list.get(0).toString());
                 }

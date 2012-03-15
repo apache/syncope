@@ -42,8 +42,7 @@ public class H2StartStopListener implements ServletContextListener {
     /**
      * Logger.
      */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(H2StartStopListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(H2StartStopListener.class);
 
     private static final String H2_TESTDB = "h2TestDb";
 
@@ -51,23 +50,18 @@ public class H2StartStopListener implements ServletContextListener {
     public void contextInitialized(final ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
 
-        File workDir = (File) sce.getServletContext().getAttribute(
-                "javax.servlet.context.tempdir");
+        File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         try {
             Server h2TestDb = new Server();
-            h2TestDb.runTool(
-                    "-baseDir", workDir.getAbsolutePath(),
-                    "-tcp", "-tcpDaemon",
-                    "-web", "-webDaemon", "-webPort",
-                    sce.getServletContext().getInitParameter("testdb.webport"));
+            h2TestDb.runTool("-baseDir", workDir.getAbsolutePath(), "-tcp", "-tcpDaemon", "-web", "-webDaemon",
+                    "-webPort", sce.getServletContext().getInitParameter("testdb.webport"));
 
             context.setAttribute(H2_TESTDB, h2TestDb);
         } catch (SQLException e) {
             LOG.error("Could not start H2 test db", e);
         }
 
-        WebApplicationContext ctx =
-                WebApplicationContextUtils.getWebApplicationContext(context);
+        WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(context);
         DataSource datasource = ctx.getBean(DataSource.class);
 
         Connection conn = null;

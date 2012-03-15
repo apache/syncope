@@ -43,8 +43,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
             switch (type) {
                 case GLOBAL_ACCOUNT:
                     try {
-                        policy = (T) restTemplate.getForObject(
-                                baseURL + "policy/account/global/read",
+                        policy = (T) restTemplate.getForObject(baseURL + "policy/account/global/read",
                                 AccountPolicyTO.class);
                     } catch (Exception e) {
                         LOG.debug("No account policy found", e);
@@ -53,8 +52,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
                     break;
                 case GLOBAL_PASSWORD:
                     try {
-                        policy = (T) restTemplate.getForObject(
-                                baseURL + "policy/password/global/read",
+                        policy = (T) restTemplate.getForObject(baseURL + "policy/password/global/read",
                                 PasswordPolicyTO.class);
                     } catch (Exception e) {
                         LOG.debug("No password policy found", e);
@@ -63,9 +61,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
                     break;
                 case GLOBAL_SYNC:
                     try {
-                        policy = (T) restTemplate.getForObject(
-                                baseURL + "policy/sync/global/read",
-                                SyncPolicyTO.class);
+                        policy = (T) restTemplate.getForObject(baseURL + "policy/sync/global/read", SyncPolicyTO.class);
                     } catch (Exception e) {
                         LOG.debug("No password policy found", e);
                         policy = (T) new SyncPolicyTO();
@@ -114,9 +110,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
             }
 
             try {
-                policies = (T[]) restTemplate.getForObject(
-                        baseURL + "policy/" + policy + "/list",
-                        reference);
+                policies = (T[]) restTemplate.getForObject(baseURL + "policy/" + policy + "/list", reference);
             } catch (Exception ignore) {
                 LOG.debug("No policy found", ignore);
             }
@@ -128,8 +122,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
             PolicyTO globalPolicy = null;
 
             try {
-                globalPolicy = (T) restTemplate.getForObject(
-                        baseURL + "policy/" + policy + "/global/read",
+                globalPolicy = (T) restTemplate.getForObject(baseURL + "policy/" + policy + "/global/read",
                         globalReference);
             } catch (Exception ignore) {
                 LOG.warn("No global policy found", ignore);
@@ -146,49 +139,37 @@ public class PolicyRestClient extends AbstractBaseRestClient {
         return res;
     }
 
-    public <T extends PolicyTO> T createPolicy(final T policy)
-            throws InvalidPolicyType {
+    public <T extends PolicyTO> T createPolicy(final T policy) throws InvalidPolicyType {
 
         switch (policy.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/account/create",
-                        policy, AccountPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/account/create", policy, AccountPolicyTO.class);
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/password/create",
-                        policy, PasswordPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/password/create", policy,
+                        PasswordPolicyTO.class);
             case GLOBAL_SYNC:
             case SYNC:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/sync/create",
-                        policy, SyncPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/sync/create", policy, SyncPolicyTO.class);
             default:
                 throw new InvalidPolicyType("Invalid type " + policy.getType());
         }
     }
 
-    public <T extends PolicyTO> T updatePolicy(final T policy)
-            throws InvalidPolicyType {
+    public <T extends PolicyTO> T updatePolicy(final T policy) throws InvalidPolicyType {
 
         switch (policy.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/account/update",
-                        policy, AccountPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/account/update", policy, AccountPolicyTO.class);
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/password/update",
-                        policy, PasswordPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/password/update", policy,
+                        PasswordPolicyTO.class);
             case GLOBAL_SYNC:
             case SYNC:
-                return (T) restTemplate.postForObject(
-                        baseURL + "policy/sync/update",
-                        policy, SyncPolicyTO.class);
+                return (T) restTemplate.postForObject(baseURL + "policy/sync/update", policy, SyncPolicyTO.class);
             default:
                 throw new InvalidPolicyType("Invalid type " + policy.getType());
         }

@@ -64,8 +64,7 @@ public class UAttr extends AbstractAttr {
     /**
      * Values of this attribute (if schema is not UNIQUE).
      */
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "attribute")
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<UAttrValue> values;
 
@@ -110,15 +109,13 @@ public class UAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean addValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
 
         return values.add((UAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttrValue> boolean removeValue(
-            final T attributeValue) {
+    public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
 
         return values.remove((UAttrValue) attributeValue);
     }
@@ -129,8 +126,7 @@ public class UAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setValues(
-            final List<T> attributeValues) {
+    public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
 
         this.values.clear();
         if (attributeValues != null && !attributeValues.isEmpty()) {
@@ -147,8 +143,7 @@ public class UAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void setUniqueValue(
-            final T uniqueAttributeValue) {
+    public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
 
         this.uniqueValue = (UAttrUniqueValue) uniqueAttributeValue;
     }

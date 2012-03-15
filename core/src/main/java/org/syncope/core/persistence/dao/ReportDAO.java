@@ -32,8 +32,7 @@ public interface ReportDAO extends DAO {
 
     int count();
 
-    Report save(Report report)
-            throws InvalidEntityException;
+    Report save(Report report) throws InvalidEntityException;
 
     void delete(Long id);
 

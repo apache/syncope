@@ -28,27 +28,24 @@ import org.syncope.core.persistence.dao.ReportExecDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 @Repository
-public class ReportExecDAOImpl extends AbstractDAOImpl
-        implements ReportExecDAO {
+public class ReportExecDAOImpl extends AbstractDAOImpl implements ReportExecDAO {
 
     @Override
     public ReportExec find(final Long id) {
         return entityManager.find(ReportExec.class, id);
     }
 
-    private ReportExec findLatest(final Report report,
-            final String field) {
+    private ReportExec findLatest(final Report report, final String field) {
 
-        Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + ReportExec.class.getSimpleName() + " e "
-                + "WHERE e.report=:report "
-                + "ORDER BY e." + field + " DESC");
+        Query query = entityManager.createQuery("SELECT e " + "FROM " + ReportExec.class.getSimpleName() + " e "
+                + "WHERE e.report=:report " + "ORDER BY e." + field + " DESC");
         query.setParameter("report", report);
         query.setMaxResults(1);
 
         List<ReportExec> result = query.getResultList();
         return result == null || result.isEmpty()
-                ? null : result.iterator().next();
+                ? null
+                : result.iterator().next();
     }
 
     @Override
@@ -63,8 +60,7 @@ public class ReportExecDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<ReportExec> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + ReportExec.class.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + ReportExec.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -78,8 +74,7 @@ public class ReportExecDAOImpl extends AbstractDAOImpl
      */
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ReportExec save(final ReportExec execution)
-            throws InvalidEntityException {
+    public ReportExec save(final ReportExec execution) throws InvalidEntityException {
 
         return entityManager.merge(execution);
     }

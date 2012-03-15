@@ -74,7 +74,7 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * The resource type is identified by the associated connector.
      */
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
     @NotNull
     private ConnInstance connector;
 
@@ -83,8 +83,7 @@ public class ExternalResource extends AbstractBaseBean {
      *
      * List type cannot be used. Please, take a look at https://hibernate.onjira.com/browse/HHH-1718
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
-    fetch = FetchType.EAGER, mappedBy = "resource")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
     private Set<SchemaMapping> mappings;
 
@@ -173,8 +172,7 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
-        this.forceMandatoryConstraint =
-                getBooleanAsInteger(forceMandatoryConstraint);
+        this.forceMandatoryConstraint = getBooleanAsInteger(forceMandatoryConstraint);
     }
 
     public ConnInstance getConnector() {
@@ -318,12 +316,10 @@ public class ExternalResource extends AbstractBaseBean {
         this.syncPolicy = syncPolicy;
     }
 
-    public void setConnectorConfigurationProperties(
-            final Set<ConnConfProperty> properties) {
+    public void setConnectorConfigurationProperties(final Set<ConnConfProperty> properties) {
 
         // create new set to make sure it's a serializable set implementation.
-        xmlConfiguration = XMLSerializer.serialize(
-                new HashSet<ConnConfProperty>(properties));
+        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(properties));
     }
 
     public Set<ConnConfProperty> getConfiguration() {
@@ -331,7 +327,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
+            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>> deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }
@@ -347,7 +343,7 @@ public class ExternalResource extends AbstractBaseBean {
     public SyncToken getSyncToken() {
         return serializedSyncToken == null
                 ? null
-                : XMLSerializer.<SyncToken>deserialize(serializedSyncToken);
+                : XMLSerializer.<SyncToken> deserialize(serializedSyncToken);
     }
 
     public void setSerializedSyncToken(final String serializedSyncToken) {

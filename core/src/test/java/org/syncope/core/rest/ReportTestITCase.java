@@ -41,24 +41,22 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        Set<String> reportletClasses = restTemplate.getForObject(
-                BASE_URL + "report/reportletConfClasses.json", Set.class);
+        Set<String> reportletClasses = restTemplate.getForObject(BASE_URL + "report/reportletConfClasses.json",
+                Set.class);
         assertNotNull(reportletClasses);
         assertFalse(reportletClasses.isEmpty());
     }
 
     @Test
     public void count() {
-        Integer count = restTemplate.getForObject(
-                BASE_URL + "report/count.json", Integer.class);
+        Integer count = restTemplate.getForObject(BASE_URL + "report/count.json", Integer.class);
         assertNotNull(count);
         assertTrue(count > 0);
     }
 
     @Test
     public void list() {
-        List<ReportTO> reports = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "report/list", ReportTO[].class));
+        List<ReportTO> reports = Arrays.asList(restTemplate.getForObject(BASE_URL + "report/list", ReportTO[].class));
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
         for (ReportTO report : reports) {
@@ -68,8 +66,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void listExecutions() {
-        List<ReportExecTO> executions = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "report/execution/list",
+        List<ReportExecTO> executions = Arrays.asList(restTemplate.getForObject(BASE_URL + "report/execution/list",
                 ReportExecTO[].class));
         assertNotNull(executions);
         assertFalse(executions.isEmpty());
@@ -80,8 +77,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        ReportTO reportTO = restTemplate.getForObject(
-                BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
@@ -90,8 +86,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void readExecution() {
-        ReportExecTO reportExecTO = restTemplate.getForObject(
-                BASE_URL + "report/execution/read/{reportId}",
+        ReportExecTO reportExecTO = restTemplate.getForObject(BASE_URL + "report/execution/read/{reportId}",
                 ReportExecTO.class, 1);
         assertNotNull(reportExecTO);
     }
@@ -103,13 +98,11 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(
-                BASE_URL + "report/create", report, ReportTO.class);
+        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        ReportTO actual = restTemplate.getForObject(
-                BASE_URL + "report/read/{reportId}", ReportTO.class,
-                report.getId());
+        ReportTO actual = restTemplate
+                .getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, report.getId());
         assertNotNull(actual);
         assertEquals(actual, report);
     }
@@ -121,15 +114,13 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(
-                BASE_URL + "report/create", report, ReportTO.class);
+        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
         assertEquals(2, report.getReportletConfs().size());
 
         report.addReportletConf(new UserReportletConf("last"));
 
-        ReportTO updated = restTemplate.postForObject(
-                BASE_URL + "report/update", report, ReportTO.class);
+        ReportTO updated = restTemplate.postForObject(BASE_URL + "report/update", report, ReportTO.class);
         assertNotNull(updated);
         assertEquals(3, updated.getReportletConfs().size());
     }
@@ -141,16 +132,13 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(
-                BASE_URL + "report/create", report, ReportTO.class);
+        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        restTemplate.delete(
-                BASE_URL + "report/delete/{reportId}", report.getId());
+        restTemplate.delete(BASE_URL + "report/delete/{reportId}", report.getId());
 
         try {
-            restTemplate.getForObject(BASE_URL + "report/read/{reportId}",
-                    UserTO.class, report.getId());
+            restTemplate.getForObject(BASE_URL + "report/read/{reportId}", UserTO.class, report.getId());
             fail();
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
@@ -158,11 +146,9 @@ public class ReportTestITCase extends AbstractTest {
     }
 
     @Test
-    public void executeAndExport()
-            throws IOException {
+    public void executeAndExport() throws IOException {
 
-        ReportTO reportTO = restTemplate.getForObject(
-                BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
         assertNotNull(reportTO);
 
         Set<Long> preExecIds = new HashSet<Long>();
@@ -170,9 +156,8 @@ public class ReportTestITCase extends AbstractTest {
             preExecIds.add(exec.getId());
         }
 
-        ReportExecTO execution = restTemplate.postForObject(
-                BASE_URL + "report/execute/{reportId}",
-                null, ReportExecTO.class, reportTO.getId());
+        ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
+                ReportExecTO.class, reportTO.getId());
         assertNotNull(execution);
 
         int i = 0;
@@ -214,8 +199,8 @@ public class ReportTestITCase extends AbstractTest {
 
             getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
 
-            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().
-                    execute(getMethod);
+            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
+                    getMethod);
 
             i++;
         } while ((response == null || response.getStatusLine().getStatusCode() != 200) && i < maxit);
@@ -227,8 +212,7 @@ public class ReportTestITCase extends AbstractTest {
         assertFalse(export.isEmpty());
 
         // 2. HTML
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
-                + postExecIds.iterator().next() + "?fmt=HTML");
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=HTML");
         response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
                 getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
@@ -238,8 +222,7 @@ public class ReportTestITCase extends AbstractTest {
         assertFalse(export.isEmpty());
 
         // 3. PDF
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
-                + postExecIds.iterator().next() + "?fmt=PDF");
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=PDF");
         response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
                 getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
@@ -249,8 +232,7 @@ public class ReportTestITCase extends AbstractTest {
         assertFalse(export.isEmpty());
 
         // 4. RTF
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/"
-                + postExecIds.iterator().next() + "?fmt=RTF");
+        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=RTF");
         response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
                 getMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());

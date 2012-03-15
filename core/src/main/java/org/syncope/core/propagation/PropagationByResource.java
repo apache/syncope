@@ -84,8 +84,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceName target resource
      * @return wether the operation was succeful or not
      */
-    public final boolean add(final PropagationOperation type,
-            final String resourceName) {
+    public final boolean add(final PropagationOperation type, final String resourceName) {
 
         Set<String> set;
         switch (type) {
@@ -113,8 +112,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceNames target resources
      * @return wether the operation was succeful or not
      */
-    public boolean addAll(final PropagationOperation type,
-            final Set<String> resourceNames) {
+    public boolean addAll(final PropagationOperation type, final Set<String> resourceNames) {
 
         Set<String> set;
         switch (type) {
@@ -142,8 +140,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceName target resource
      * @return wether the operation was succeful or not
      */
-    public final boolean remove(final PropagationOperation type,
-            final String resourceName) {
+    public final boolean remove(final PropagationOperation type, final String resourceName) {
 
         boolean result = false;
 
@@ -200,8 +197,7 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @param resourceNames to be set
      */
-    public final void set(final PropagationOperation type,
-            final Set<String> resourceNames) {
+    public final void set(final PropagationOperation type, final Set<String> resourceNames) {
 
         switch (type) {
 
@@ -230,12 +226,9 @@ public class PropagationByResource implements Serializable {
      * @param propByRes to be merged
      */
     public final void merge(final PropagationByResource propByRes) {
-        toBeCreated.addAll(
-                propByRes.get(PropagationOperation.CREATE));
-        toBeUpdated.addAll(
-                propByRes.get(PropagationOperation.UPDATE));
-        toBeDeleted.addAll(
-                propByRes.get(PropagationOperation.DELETE));
+        toBeCreated.addAll(propByRes.get(PropagationOperation.CREATE));
+        toBeUpdated.addAll(propByRes.get(PropagationOperation.UPDATE));
+        toBeDeleted.addAll(propByRes.get(PropagationOperation.DELETE));
         oldAccountIds.putAll(propByRes.getOldAccountIds());
     }
 
@@ -246,10 +239,7 @@ public class PropagationByResource implements Serializable {
      * old account ids are present
      */
     public final boolean isEmpty() {
-        return toBeCreated.isEmpty()
-                && toBeUpdated.isEmpty()
-                && toBeDeleted.isEmpty()
-                && oldAccountIds.isEmpty();
+        return toBeCreated.isEmpty() && toBeUpdated.isEmpty() && toBeDeleted.isEmpty() && oldAccountIds.isEmpty();
     }
 
     /**
@@ -260,7 +250,7 @@ public class PropagationByResource implements Serializable {
     public Map<String, String> getOldAccountIds() {
         return oldAccountIds;
     }
-    
+
     /**
      * Fetch old account id for given resource name.
      *
@@ -277,8 +267,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceName resourceName resource name
      * @param oldAccountId old account id
      */
-    public void addOldAccountId(final String resourceName,
-            final String oldAccountId) {
+    public void addOldAccountId(final String resourceName, final String oldAccountId) {
 
         if (resourceName != null && oldAccountId != null) {
             oldAccountIds.put(resourceName, oldAccountId);
@@ -287,9 +276,7 @@ public class PropagationByResource implements Serializable {
 
     @Override
     public String toString() {
-        return "To be Created: " + toBeCreated + ";\n"
-                + "To be Updated: " + toBeUpdated + ";\n"
-                + "To be Deleted: " + toBeDeleted + ";\n"
-                + "Old account Ids: " + oldAccountIds;
+        return "To be Created: " + toBeCreated + ";\n" + "To be Updated: " + toBeUpdated + ";\n" + "To be Deleted: "
+                + toBeDeleted + ";\n" + "Old account Ids: " + oldAccountIds;
     }
 }

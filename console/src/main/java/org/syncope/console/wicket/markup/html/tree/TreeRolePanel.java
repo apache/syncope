@@ -73,21 +73,17 @@ public class TreeRolePanel extends Panel {
             }
 
             @Override
-            protected void onNodeLinkClicked(final Object node,
-                    final BaseTree baseTree, final AjaxRequestTarget target) {
+            protected void onNodeLinkClicked(final Object node, final BaseTree baseTree, final AjaxRequestTarget target) {
 
                 DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
                 RoleTO unitObject = (RoleTO) treeNode.getUserObject();
 
-                send(getPage(), Broadcast.BREADTH,
-                        new TreeNodeClickUpdate(target, unitObject.getId()));
+                send(getPage(), Broadcast.BREADTH, new TreeNodeClickUpdate(target, unitObject.getId()));
 
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                tree, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Roles", "read"));
+        MetaDataRoleAuthorizationStrategy.authorize(tree, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "read"));
 
         tree.setOutputMarkupId(true);
         tree.getTreeState().expandAll();
@@ -101,8 +97,7 @@ public class TreeRolePanel extends Panel {
 
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
 
-            final TreeNodeClickUpdate update =
-                    (TreeNodeClickUpdate) event.getPayload();
+            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
             updateTree();
 

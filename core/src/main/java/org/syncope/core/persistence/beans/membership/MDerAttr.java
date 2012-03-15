@@ -52,8 +52,7 @@ public class MDerAttr extends AbstractDerAttr {
     }
 
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(
-            T derivedSchema) {
+    public <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema) {
 
         this.derivedSchema = (MDerSchema) derivedSchema;
     }

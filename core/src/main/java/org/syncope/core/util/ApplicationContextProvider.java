@@ -32,8 +32,7 @@ public class ApplicationContextProvider implements ApplicationContextAware {
      * @throws BeansException if thrown by application context methods
      */
     @Override
-    public void setApplicationContext(final ApplicationContext ctx)
-            throws BeansException {
+    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
 
         ApplicationContextManager.setApplicationContext((ConfigurableApplicationContext) ctx);
     }

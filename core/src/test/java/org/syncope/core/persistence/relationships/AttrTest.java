@@ -80,10 +80,8 @@ public class AttrTest extends AbstractTest {
 
     @Test
     public void deleteAttributeValue() {
-        UAttrValue value =
-                attrValueDAO.find(20L, UAttrValue.class);
-        int attributeValueNumber =
-                value.getAttribute().getValues().size();
+        UAttrValue value = attrValueDAO.find(20L, UAttrValue.class);
+        int attributeValueNumber = value.getAttribute().getValues().size();
 
         attrValueDAO.delete(20L, UAttrValue.class);
 
@@ -92,8 +90,7 @@ public class AttrTest extends AbstractTest {
         assertNull(attrValueDAO.find(20L, UAttrValue.class));
 
         UAttr attribute = attrDAO.find(200L, UAttr.class);
-        assertEquals(attribute.getValues().size(),
-                attributeValueNumber - 1);
+        assertEquals(attribute.getValues().size(), attributeValueNumber - 1);
     }
 
     @Test
@@ -101,8 +98,7 @@ public class AttrTest extends AbstractTest {
         MSchema schema = new MSchema();
         schema.setType(SchemaType.Enum);
         schema.setName("color");
-        schema.setEnumerationValues(
-                "red" + AbstractSchema.enumValuesSeparator + "yellow");
+        schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
 
         MSchema actualSchema = schemaDAO.save(schema);
         assertNotNull(actualSchema);
@@ -124,9 +120,7 @@ public class AttrTest extends AbstractTest {
         assertNotNull(membership.getAttribute(schema.getName()));
         assertNotNull(membership.getAttribute(schema.getName()).getValues());
 
-        assertEquals(
-                membership.getAttribute(schema.getName()).getValues().size(),
-                1);
+        assertEquals(membership.getAttribute(schema.getName()).getValues().size(), 1);
     }
 
     public void derAttrFromSpecialAttrs() {

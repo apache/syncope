@@ -47,8 +47,7 @@ public class TreeActionLinkPanel extends Panel {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            TreeActionLinkPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TreeActionLinkPanel.class);
 
     private static final long serialVersionUID = -7292448006463567909L;
 
@@ -60,14 +59,14 @@ public class TreeActionLinkPanel extends Panel {
 
     private Fragment fragment;
 
-    public TreeActionLinkPanel(final String id, final long idRole,
-            final IModel inputModel, final ModalWindow window,
+    public TreeActionLinkPanel(final String id, final long idRole, final IModel inputModel, final ModalWindow window,
             final PageReference callerPageRef) {
 
         super(id);
 
-        fragment = new Fragment("menuPanel",
-                idRole == 0 ? "fakerootFrag" : "roleFrag", this);
+        fragment = new Fragment("menuPanel", idRole == 0
+                ? "fakerootFrag"
+                : "roleFrag", this);
 
         AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
@@ -77,15 +76,13 @@ public class TreeActionLinkPanel extends Panel {
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
-                        RoleModalPage form =
-                                new RoleModalPage(callerPageRef, window, roleTO);
+                        RoleModalPage form = new RoleModalPage(callerPageRef, window, roleTO);
                         return form;
                     }
                 });
@@ -94,8 +91,8 @@ public class TreeActionLinkPanel extends Panel {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Roles", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
+                "create"));
 
         fragment.add(createRoleLink);
 
@@ -106,15 +103,12 @@ public class TreeActionLinkPanel extends Panel {
                 public void onClick(final AjaxRequestTarget target) {
                     window.setPageCreator(new ModalWindow.PageCreator() {
 
-                        private static final long serialVersionUID =
-                                -7834632442532690940L;
+                        private static final long serialVersionUID = -7834632442532690940L;
 
                         @Override
                         public Page createPage() {
                             RoleTO roleTO = restClient.readRole(idRole);
-                            RoleModalPage form =
-                                    new RoleModalPage(callerPageRef, window,
-                                    roleTO);
+                            RoleModalPage form = new RoleModalPage(callerPageRef, window, roleTO);
                             return form;
                         }
                     });
@@ -123,13 +117,12 @@ public class TreeActionLinkPanel extends Panel {
                 }
             };
 
-            MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE,
-                    xmlRolesReader.getAllAllowedRoles("Roles", "read"));
+            MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                    "Roles", "read"));
 
             fragment.add(updateRoleLink);
 
-            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink(
-                    "dropRoleLink") {
+            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink") {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
@@ -145,8 +138,8 @@ public class TreeActionLinkPanel extends Panel {
                 }
             };
 
-            MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE,
-                    xmlRolesReader.getAllAllowedRoles("Roles", "delete"));
+            MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                    "Roles", "delete"));
 
             fragment.add(dropRoleLink);
         }

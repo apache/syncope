@@ -94,34 +94,23 @@ public class SyncTasks extends Panel {
         window.setCookieName("view-task-win");
         add(window);
 
-        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(
-                window, container);
+        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(window, container);
 
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequest(),
-                Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SyncTaskTO>> columns =
-                new ArrayList<IColumn<SyncTaskTO>>();
+        List<IColumn<SyncTaskTO>> columns = new ArrayList<IColumn<SyncTaskTO>>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("resourceName"), "resource", "resource"));
+        columns.add(new PropertyColumn(new ResourceModel("resourceName"), "resource", "resource"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("lastExec"), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("latestExecStatus"),
-                "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<SyncTaskTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<SyncTaskTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -131,15 +120,12 @@ public class SyncTasks extends Panel {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<SyncTaskTO>> cellItem, final String componentId,
                     final IModel<SyncTaskTO> model) {
 
                 final SyncTaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
@@ -150,13 +136,11 @@ public class SyncTasks extends Panel {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new SyncTaskModalPage(
-                                        window, taskTO, callerPageRef);
+                                return new SyncTaskModalPage(window, taskTO, callerPageRef);
                             }
                         });
 
@@ -173,13 +157,11 @@ public class SyncTasks extends Panel {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new UserTemplateModalPage(
-                                        callerPageRef, window, taskTO);
+                                return new UserTemplateModalPage(callerPageRef, window, taskTO);
                             }
                         });
 
@@ -244,17 +226,13 @@ public class SyncTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SyncTaskTO> table =
-                new AjaxFallbackDefaultDataTable<SyncTaskTO>(
-                "datatable", columns, new TasksProvider(
-                restClient, paginatorRows, id, SyncTaskTO.class),
-                paginatorRows);
+        final AjaxFallbackDefaultDataTable<SyncTaskTO> table = new AjaxFallbackDefaultDataTable<SyncTaskTO>(
+                "datatable", columns, new TasksProvider(restClient, paginatorRows, id, SyncTaskTO.class), paginatorRows);
         container.add(table);
 
         Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -263,8 +241,7 @@ public class SyncTasks extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS,
+                prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
@@ -285,13 +262,11 @@ public class SyncTasks extends Panel {
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new SyncTaskModalPage(
-                                window, new SyncTaskTO(), callerPageRef);
+                        return new SyncTaskModalPage(window, new SyncTaskTO(), callerPageRef);
                     }
                 });
 
@@ -299,8 +274,8 @@ public class SyncTasks extends Panel {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+                "create"));
 
         add(createLink);
     }

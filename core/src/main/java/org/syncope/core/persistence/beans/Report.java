@@ -41,14 +41,12 @@ public class Report extends AbstractBaseBean {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
-    fetch = FetchType.EAGER, mappedBy = "report")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
     private List<ReportletConfInstance> reportletConfs;
 
     private String cronExpression;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
-    mappedBy = "report")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "report")
     private List<ReportExec> executions;
 
     public Report() {
@@ -71,8 +69,7 @@ public class Report extends AbstractBaseBean {
     }
 
     public boolean addExec(ReportExec exec) {
-        return exec != null && !executions.contains(exec)
-                && executions.add(exec);
+        return exec != null && !executions.contains(exec) && executions.add(exec);
     }
 
     public boolean removeExec(ReportExec exec) {
@@ -114,12 +111,13 @@ public class Report extends AbstractBaseBean {
             }
         }
 
-        return found == null ? false : reportletConfs.remove(found);
+        return found == null
+                ? false
+                : reportletConfs.remove(found);
     }
 
     public List<ReportletConf> getReportletConfs() {
-        List<ReportletConf> result =
-                new ArrayList<ReportletConf>(reportletConfs.size());
+        List<ReportletConf> result = new ArrayList<ReportletConf>(reportletConfs.size());
 
         for (ReportletConfInstance instance : reportletConfs) {
             result.add(instance.getInstance());

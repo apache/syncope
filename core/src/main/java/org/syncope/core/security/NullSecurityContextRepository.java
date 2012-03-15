@@ -29,19 +29,16 @@ import org.springframework.security.web.context.SecurityContextRepository;
  * To be used until switching to Spring Security 3.1 which provides a similar
  * class by default.
  */
-public class NullSecurityContextRepository
-        implements SecurityContextRepository {
+public class NullSecurityContextRepository implements SecurityContextRepository {
 
     @Override
-    public final SecurityContext loadContext(
-            final HttpRequestResponseHolder requestResponseHolder) {
+    public final SecurityContext loadContext(final HttpRequestResponseHolder requestResponseHolder) {
 
         return SecurityContextHolder.createEmptyContext();
     }
 
     @Override
-    public void saveContext(final SecurityContext context,
-            final HttpServletRequest request,
+    public void saveContext(final SecurityContext context, final HttpServletRequest request,
             final HttpServletResponse response) {
     }
 

@@ -29,10 +29,8 @@ public abstract class PolicyEnforcer<T extends AbstractPolicySpec, E> {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(PolicyEnforcer.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PolicyEnforcer.class);
 
-    public abstract void enforce(
-            final T policy, final PolicyType type, final E object)
+    public abstract void enforce(final T policy, final PolicyType type, final E object)
             throws InvalidObjectException, Exception;
 }

@@ -55,17 +55,14 @@ public class JarSchemaLdifExtractor implements SchemaLdifExtractor {
      * @param outputDirectory the directory where the schema root is extracted
      * @param jarFile the JAR file
      */
-    public JarSchemaLdifExtractor(final File outputDirectory,
-            final File jarFile)
-            throws IOException {
+    public JarSchemaLdifExtractor(final File outputDirectory, final File jarFile) throws IOException {
 
         this.outputDirectory = outputDirectory;
         this.schemaDirectory = new File(outputDirectory, SCHEMA_SUBDIR);
         this.jarFile = jarFile;
 
         if (!outputDirectory.exists() && !outputDirectory.mkdir()) {
-            throw new IOException("Failed to create outputDirectory: "
-                    + outputDirectory);
+            throw new IOException("Failed to create outputDirectory: " + outputDirectory);
         }
 
         extracted = !schemaDirectory.exists();
@@ -88,22 +85,18 @@ public class JarSchemaLdifExtractor implements SchemaLdifExtractor {
      * @throws IOException if schema already extracted and on IO errors
      */
     @Override
-    public void extractOrCopy(final boolean overwrite)
-            throws IOException {
+    public void extractOrCopy(final boolean overwrite) throws IOException {
 
         if (!outputDirectory.exists() && !outputDirectory.mkdir()) {
-            throw new IOException("Could not create "
-                    + outputDirectory.getAbsolutePath());
+            throw new IOException("Could not create " + outputDirectory.getAbsolutePath());
         }
 
         if (!schemaDirectory.exists()) {
             if (!schemaDirectory.mkdir()) {
-                throw new IOException("Could not create "
-                        + schemaDirectory.getAbsolutePath());
+                throw new IOException("Could not create " + schemaDirectory.getAbsolutePath());
             }
         } else if (!overwrite) {
-            throw new IOException(I18n.err(I18n.ERR_08001, schemaDirectory.
-                    getAbsolutePath()));
+            throw new IOException(I18n.err(I18n.ERR_08001, schemaDirectory.getAbsolutePath()));
         }
 
         final Pattern pattern = Pattern.compile(".*schema/ou=schema.*\\.ldif");
@@ -120,14 +113,12 @@ public class JarSchemaLdifExtractor implements SchemaLdifExtractor {
      * @throws IOException if schema already extracted and on IO errors
      */
     @Override
-    public void extractOrCopy()
-            throws IOException {
+    public void extractOrCopy() throws IOException {
 
         extractOrCopy(false);
     }
 
-    private Set<String> getResources(final Pattern pattern)
-            throws IOException {
+    private Set<String> getResources(final Pattern pattern) throws IOException {
 
         final Set<String> result = new HashSet<String>();
 
@@ -150,12 +141,10 @@ public class JarSchemaLdifExtractor implements SchemaLdifExtractor {
      * @param resource the LDIF schema resource
      * @throws IOException if there are IO errors
      */
-    private void extractFromJar(final String resource)
-            throws IOException {
+    private void extractFromJar(final String resource) throws IOException {
 
-        final InputStream in =
-                DefaultSchemaLdifExtractor.getUniqueResourceAsStream(
-                resource, "LDIF file in schema repository");
+        final InputStream in = DefaultSchemaLdifExtractor.getUniqueResourceAsStream(resource,
+                "LDIF file in schema repository");
         try {
             final File destination = new File(outputDirectory, resource);
 
@@ -166,11 +155,9 @@ public class JarSchemaLdifExtractor implements SchemaLdifExtractor {
                 return;
             }
 
-            if (!destination.getParentFile().exists() && !destination.
-                    getParentFile().mkdirs()) {
+            if (!destination.getParentFile().exists() && !destination.getParentFile().mkdirs()) {
 
-                throw new IOException("Could not create "
-                        + destination.getParentFile().getAbsolutePath());
+                throw new IOException("Could not create " + destination.getParentFile().getAbsolutePath());
             }
 
             final FileOutputStream out = new FileOutputStream(destination);

@@ -83,8 +83,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, ConnConfProperty> getConfigurationMap() {
-        Map<String, ConnConfProperty> result =
-                new HashMap<String, ConnConfProperty>();
+        Map<String, ConnConfProperty> result = new HashMap<String, ConnConfProperty>();
         for (ConnConfProperty prop : getConfiguration()) {
             result.put(prop.getSchema().getName(), prop);
         }

@@ -63,28 +63,22 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      *
      * @throws Exception if the schema LDIF files are not found on the classpath
      */
-    private void initSchemaPartition(final ServletContext servletContext)
-            throws Exception {
+    private void initSchemaPartition(final ServletContext servletContext) throws Exception {
 
-        Pattern sharedLdapSchemaManagerPattern =
-                Pattern.compile(".*apacheds-all-.*\\.jar");
+        Pattern sharedLdapSchemaManagerPattern = Pattern.compile(".*apacheds-all-.*\\.jar");
         File found = null;
-        for (File jarFile : new File(
-                servletContext.getRealPath("/WEB-INF/lib")).listFiles()) {
+        for (File jarFile : new File(servletContext.getRealPath("/WEB-INF/lib")).listFiles()) {
 
-            if (sharedLdapSchemaManagerPattern.matcher(
-                    jarFile.getAbsolutePath()).matches()) {
+            if (sharedLdapSchemaManagerPattern.matcher(jarFile.getAbsolutePath()).matches()) {
 
                 found = jarFile;
             }
         }
         if (found == null) {
-            throw new RuntimeException(
-                    "No apache-ds-all JAR found under WEB-INF/lib");
+            throw new RuntimeException("No apache-ds-all JAR found under WEB-INF/lib");
         }
 
-        SchemaPartition schemaPartition = service.getSchemaService().
-                getSchemaPartition();
+        SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition();
@@ -93,8 +87,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File(workingDirectory, "schema");
-        SchemaLdifExtractor extractor = new JarSchemaLdifExtractor(
-                new File(workingDirectory), found);
+        SchemaLdifExtractor extractor = new JarSchemaLdifExtractor(new File(workingDirectory), found);
         extractor.extractOrCopy(true);
 
         schemaPartition.setWrappedPartition(ldifPartition);
@@ -124,15 +117,12 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @return The newly added partition
      * @throws Exception If the partition can't be added
      */
-    private Partition addPartition(final String partitionId,
-            final String partitionDn)
-            throws Exception {
+    private Partition addPartition(final String partitionId, final String partitionDn) throws Exception {
 
         // Create a new partition named 'foo'.
         JdbmPartition partition = new JdbmPartition();
         partition.setId(partitionId);
-        partition.setPartitionDir(new File(service.getWorkingDirectory(),
-                partitionId));
+        partition.setPartitionDir(new File(service.getWorkingDirectory(), partitionId));
         partition.setSuffix(partitionDn);
         service.addPartition(partition);
 
@@ -147,12 +137,10 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      */
     private void addIndex(final Partition partition, final String... attrs) {
         // Index some attributes on the apache partition
-        HashSet<Index<?, ServerEntry, Long>> indexedAttributes =
-                new HashSet<Index<?, ServerEntry, Long>>();
+        HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
 
         for (String attribute : attrs) {
-            indexedAttributes.add(
-                    new JdbmIndex<String, ServerEntry>(attribute));
+            indexedAttributes.add(new JdbmIndex<String, ServerEntry>(attribute));
         }
 
         ((JdbmPartition) partition).setIndexedAttributes(indexedAttributes);
@@ -165,9 +153,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @param workDir the directory to be used for storing the data
      * @throws Exception if there were some problems while initializing
      */
-    private void initDirectoryService(final ServletContext servletContext,
-            final File workDir)
-            throws Exception {
+    private void initDirectoryService(final ServletContext servletContext, final File workDir) throws Exception {
 
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
@@ -178,8 +164,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
 
         // then the system partition
         // this is a MANDATORY partition
-        Partition systemPartition = addPartition("system",
-                ServerDNConstants.SYSTEM_DN);
+        Partition systemPartition = addPartition("system", ServerDNConstants.SYSTEM_DN);
         service.setSystemPartition(systemPartition);
 
         // Disable the ChangeLog system
@@ -218,12 +203,10 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      */
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
-        File workDir = (File) sce.getServletContext().getAttribute(
-                "javax.servlet.context.tempdir");
+        File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         workDir = new File(workDir, "server-work");
         if (!workDir.mkdirs()) {
-            throw new RuntimeException("Could not create " + workDir.
-                    getAbsolutePath());
+            throw new RuntimeException("Could not create " + workDir.getAbsolutePath());
         }
 
         Entry result;
@@ -231,16 +214,14 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             initDirectoryService(sce.getServletContext(), workDir);
 
             server = new LdapServer();
-            server.setTransports(new TcpTransport(Integer.valueOf(
-                    sce.getServletContext().
-                    getInitParameter("testds.port"))));
+            server.setTransports(new TcpTransport(Integer.valueOf(sce.getServletContext().getInitParameter(
+                    "testds.port"))));
             server.setDirectoryService(service);
 
             server.start();
 
             // store directoryService in context to provide it to servlets etc.
-            sce.getServletContext().setAttribute(DirectoryService.JNDI_KEY,
-                    service);
+            sce.getServletContext().setAttribute(DirectoryService.JNDI_KEY, service);
 
             result = service.getAdminSession().lookup(new DN("o=isp"));
         } catch (Exception e) {
@@ -251,8 +232,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         if (result == null) {
             throw new RuntimeException("Base DN not found");
         } else {
-            sce.getServletContext().log(
-                    "ApacheDS startup completed succesfully");
+            sce.getServletContext().log("ApacheDS startup completed succesfully");
         }
     }
 
@@ -271,8 +251,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
                 service.shutdown();
             }
         } catch (Exception e) {
-            scEvent.getServletContext().log(
-                    "Fatal error in context shutdown", e);
+            scEvent.getServletContext().log("Fatal error in context shutdown", e);
             throw new RuntimeException(e);
         }
     }

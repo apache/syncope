@@ -40,8 +40,7 @@ public class Task extends AbstractBaseBean {
     @Id
     private Long id;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
-    mappedBy = "task")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<TaskExec> executions;
 
     public Task() {
@@ -55,8 +54,7 @@ public class Task extends AbstractBaseBean {
     }
 
     public boolean addExec(TaskExec exec) {
-        return exec != null && !executions.contains(exec)
-                && executions.add(exec);
+        return exec != null && !executions.contains(exec) && executions.add(exec);
     }
 
     public boolean removeExec(TaskExec exec) {

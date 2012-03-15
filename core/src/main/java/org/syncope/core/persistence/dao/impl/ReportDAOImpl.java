@@ -40,10 +40,11 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
 
     @Override
     public List<Report> findAll(final int page, final int itemsPerPage) {
-        final Query query = entityManager.createQuery(
-                "SELECT e FROM " + Report.class.getSimpleName() + " e");
+        final Query query = entityManager.createQuery("SELECT e FROM " + Report.class.getSimpleName() + " e");
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0
+                ? 0
+                : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -54,15 +55,13 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
 
     @Override
     public int count() {
-        Query countQuery = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM " + Report.class.getSimpleName());
+        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(id) FROM " + Report.class.getSimpleName());
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override
-    public Report save(final Report report)
-            throws InvalidEntityException {
+    public Report save(final Report report) throws InvalidEntityException {
 
         return entityManager.merge(report);
     }

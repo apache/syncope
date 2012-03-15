@@ -28,11 +28,7 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
 
     private static final long serialVersionUID = 238940918106696068L;
 
-    public AjaxNumberFieldPanel(
-            final String id,
-            final String name,
-            final IModel<Number> model,
-            final Class reference) {
+    public AjaxNumberFieldPanel(final String id, final String name, final IModel<Number> model, final Class reference) {
 
         super(id, name, model);
 
@@ -43,8 +39,7 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(AjaxRequestTarget art) {

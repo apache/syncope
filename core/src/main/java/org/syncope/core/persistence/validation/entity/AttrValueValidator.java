@@ -25,16 +25,15 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.types.EntityViolationType;
 
-public class AttrValueValidator extends AbstractValidator
-        implements ConstraintValidator<AttrValueCheck, AbstractAttrValue> {
+public class AttrValueValidator extends AbstractValidator implements
+        ConstraintValidator<AttrValueCheck, AbstractAttrValue> {
 
     @Override
     public void initialize(final AttrValueCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final AbstractAttrValue object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final AbstractAttrValue object, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
@@ -63,32 +62,25 @@ public class AttrValueValidator extends AbstractValidator
                 LOG.error("More than one non-null value for " + object);
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.MoreThanOneNonNull.toString()).
-                        addNode(object.toString().replaceAll("\\n", " ")).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.MoreThanOneNonNull.toString())
+                        .addNode(object.toString().replaceAll("\\n", " ")).addConstraintViolation();
             } else if (object instanceof AbstractAttrUniqueValue) {
-                AbstractSchema uniqueValueSchema =
-                        ((AbstractAttrUniqueValue) object).getSchema();
+                AbstractSchema uniqueValueSchema = ((AbstractAttrUniqueValue) object).getSchema();
                 AbstractSchema attrSchema = object.getAttribute().getSchema();
 
                 isValid = uniqueValueSchema.equals(attrSchema);
 
                 if (!isValid) {
-                    LOG.error("Unique value schema for "
-                            + object.getClass().getSimpleName()
-                            + "[" + object.getId() + "]"
-                            + " is " + uniqueValueSchema + ", while owning "
-                            + "attribute schema is " + attrSchema);
+                    LOG.error("Unique value schema for " + object.getClass().getSimpleName() + "[" + object.getId()
+                            + "]" + " is " + uniqueValueSchema + ", while owning " + "attribute schema is "
+                            + attrSchema);
 
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.valueOf("Invalid"
-                            + attrSchema.getClass().getSimpleName()).toString()).
-                            addNode(object.getClass().getSimpleName()
-                            + "[" + object.getId() + "].schema="
-                            + uniqueValueSchema
-                            + " != " + attrSchema).addConstraintViolation();
+                            EntityViolationType.valueOf("Invalid" + attrSchema.getClass().getSimpleName()).toString())
+                            .addNode(
+                                    object.getClass().getSimpleName() + "[" + object.getId() + "].schema="
+                                            + uniqueValueSchema + " != " + attrSchema).addConstraintViolation();
                 }
             }
         }

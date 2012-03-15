@@ -33,6 +33,8 @@ public class SyncPolicy extends Policy {
     public SyncPolicy(boolean global) {
         super();
 
-        this.type = global ? PolicyType.GLOBAL_SYNC : PolicyType.SYNC;
+        this.type = global
+                ? PolicyType.GLOBAL_SYNC
+                : PolicyType.SYNC;
     }
 }

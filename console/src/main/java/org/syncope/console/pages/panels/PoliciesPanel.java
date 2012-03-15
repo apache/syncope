@@ -70,8 +70,7 @@ public class PoliciesPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            PoliciesPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PoliciesPanel.class);
 
     private final static int MODAL_WIN_HEIGHT = 400;
 
@@ -88,8 +87,7 @@ public class PoliciesPanel extends Panel {
     @SpringBean
     private PreferenceManager prefMan;
 
-    final private int paginatorRows = prefMan.getPaginatorRows(
-            getWebRequest(), Constants.PREF_POLICY_PAGINATOR_ROWS);
+    final private int paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_POLICY_PAGINATOR_ROWS);
 
     protected boolean modalResult = false;
 
@@ -101,8 +99,7 @@ public class PoliciesPanel extends Panel {
         this.policyType = policyType;
 
         // Modal window for editing user attributes
-        final ModalWindow mwindow =
-                new ModalWindow("editModalWin");
+        final ModalWindow mwindow = new ModalWindow("editModalWin");
         mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         mwindow.setInitialHeight(MODAL_WIN_HEIGHT);
         mwindow.setInitialWidth(MODAL_WIN_WIDTH);
@@ -118,29 +115,23 @@ public class PoliciesPanel extends Panel {
 
         final List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
 
         columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("type")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<PolicyTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<PolicyTO>> cellItem, final String componentId,
                     final IModel<PolicyTO> model) {
 
-                cellItem.add(new Label(componentId,
-                        getString(model.getObject().getType().name())));
+                cellItem.add(new Label(componentId, getString(model.getObject().getType().name())));
             }
         });
 
-        columns.add(new AbstractColumn<PolicyTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -150,15 +141,12 @@ public class PoliciesPanel extends Panel {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<PolicyTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<PolicyTO>> cellItem, final String componentId,
                     final IModel<PolicyTO> model) {
 
                 final PolicyTO accountPolicyTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
@@ -169,14 +157,11 @@ public class PoliciesPanel extends Panel {
 
                         mwindow.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                final PolicyModalPage page =
-                                        new PolicyModalPage(
-                                        mwindow, accountPolicyTO);
+                                final PolicyModalPage page = new PolicyModalPage(mwindow, accountPolicyTO);
                                 return page;
                             }
                         });
@@ -199,11 +184,8 @@ public class PoliciesPanel extends Panel {
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
-                            LOG.error("While deleting resource {}({})",
-                                    new Object[]{
-                                        accountPolicyTO.getId(),
-                                        accountPolicyTO.getDescription()},
-                                    e);
+                            LOG.error("While deleting resource {}({})", new Object[] { accountPolicyTO.getId(),
+                                    accountPolicyTO.getDescription() }, e);
                         }
 
                         target.add(container);
@@ -215,50 +197,41 @@ public class PoliciesPanel extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable(
-                "datatable", columns, new PolicyDataProvider(), paginatorRows);
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("datatable", columns,
+                new PolicyDataProvider(), paginatorRows);
 
         container.add(table);
 
-        final IndicatingAjaxLink createButton =
-                new IndicatingAjaxLink("createLink") {
+        final IndicatingAjaxLink createButton = new IndicatingAjaxLink("createLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                mwindow.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
-
-                        mwindow.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                final PolicyModalPage page =
-                                        new PolicyModalPage(
-                                        mwindow,
-                                        getPolicyTOInstance(policyType));
-                                return page;
-                            }
-                        });
-
-                        mwindow.show(target);
+                    public Page createPage() {
+                        final PolicyModalPage page = new PolicyModalPage(mwindow, getPolicyTOInstance(policyType));
+                        return page;
                     }
-                };
+                });
+
+                mwindow.show(target);
+            }
+        };
 
         add(createButton);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createButton, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Policies", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createButton, ENABLE, xmlRolesReader.getAllAllowedRoles("Policies",
+                "create"));
 
         final Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -267,9 +240,8 @@ public class PoliciesPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_POLICY_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_POLICY_PAGINATOR_ROWS, String
+                        .valueOf(paginatorRows));
                 table.setItemsPerPage(paginatorRows);
 
                 target.add(container);
@@ -280,25 +252,20 @@ public class PoliciesPanel extends Panel {
         add(paginatorForm);
     }
 
-    private void setWindowClosedCallback(
-            final ModalWindow window,
-            final WebMarkupContainer container) {
+    private void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                    }
-                });
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(container);
+            }
+        });
     }
 
-    private class PolicyDataProvider
-            extends SortableDataProvider<PolicyTO> {
+    private class PolicyDataProvider extends SortableDataProvider<PolicyTO> {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
@@ -319,11 +286,9 @@ public class PoliciesPanel extends Panel {
         }
 
         @Override
-        public Iterator<PolicyTO> iterator(
-                final int first, final int count) {
+        public Iterator<PolicyTO> iterator(final int first, final int count) {
 
-            final List<PolicyTO> policies =
-                    policyRestClient.getPolicies(policyType);
+            final List<PolicyTO> policies = policyRestClient.getPolicies(policyType);
 
             Collections.sort(policies, comparator);
 
@@ -354,7 +319,6 @@ public class PoliciesPanel extends Panel {
             case PASSWORD:
                 policyTO = new PasswordPolicyTO();
                 break;
-
 
             case GLOBAL_SYNC:
                 policyTO = new SyncPolicyTO(true);

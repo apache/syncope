@@ -41,18 +41,15 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
     private ResourceDAO resourceDAO;
 
     @Override
-    public <T extends AbstractVirSchema> T find(final String name,
-            final Class<T> reference) {
+    public <T extends AbstractVirSchema> T find(final String name, final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractVirSchema> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractVirSchema> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -62,22 +59,18 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
     }
 
     @Override
-    public void delete(final String name,
-            final AttributableUtil attributableUtil) {
+    public void delete(final String name, final AttributableUtil attributableUtil) {
 
-        final AbstractVirSchema virtualSchema =
-                find(name, attributableUtil.virtualSchemaClass());
+        final AbstractVirSchema virtualSchema = find(name, attributableUtil.virtualSchemaClass());
 
         if (virtualSchema == null) {
             return;
         }
 
-        List<? extends AbstractVirAttr> attributes = getAttributes(
-                virtualSchema,
-                attributableUtil.virtualAttributeClass());
+        List<? extends AbstractVirAttr> attributes = getAttributes(virtualSchema, attributableUtil
+                .virtualAttributeClass());
 
-        final Set<Long> virtualAttributeIds =
-                new HashSet<Long>(attributes.size());
+        final Set<Long> virtualAttributeIds = new HashSet<Long>(attributes.size());
 
         Class attributeClass = null;
 
@@ -90,18 +83,16 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
             virtualAttributeDAO.delete(virtualAttributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(
-                name, attributableUtil.virtualIntMappingType());
+        resourceDAO.deleteMappings(name, attributableUtil.virtualIntMappingType());
 
         entityManager.remove(virtualSchema);
     }
 
     @Override
-    public <T extends AbstractVirAttr> List<T> getAttributes(
-            final AbstractVirSchema virtualSchema, final Class<T> reference) {
+    public <T extends AbstractVirAttr> List<T> getAttributes(final AbstractVirSchema virtualSchema,
+            final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e"
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
                 + " WHERE e.virtualSchema=:schema");
         query.setParameter("schema", virtualSchema);
 

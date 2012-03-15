@@ -36,10 +36,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
     private List<String> choices = Collections.EMPTY_LIST;
 
-    public AjaxTextFieldPanel(
-            final String id,
-            final String name,
-            final IModel<String> model) {
+    public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
 
         super(id, name, model);
 
@@ -49,9 +46,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
             @Override
             protected Iterator<String> getChoices(String input) {
-                final Pattern pattern = Pattern.compile(
-                        Pattern.quote(input) + ".*",
-                        Pattern.CASE_INSENSITIVE);
+                final Pattern pattern = Pattern.compile(Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
 
                 final List<String> result = new ArrayList<String>();
 

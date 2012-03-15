@@ -32,8 +32,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.TaskDAO;
 
 @Repository
-public class TaskDAOImpl extends AbstractDAOImpl
-        implements TaskDAO {
+public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
 
     @Override
     @Transactional(readOnly = true)
@@ -41,15 +40,12 @@ public class TaskDAOImpl extends AbstractDAOImpl
         return (T) entityManager.find(Task.class, id);
     }
 
-    private <T extends Task> StringBuilder buildfindAllQuery(
-            final Class<T> reference) {
+    private <T extends Task> StringBuilder buildfindAllQuery(final Class<T> reference) {
 
-        StringBuilder queryString =
-                new StringBuilder("SELECT e FROM ").append(reference.
-                getSimpleName()).append(" e ");
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e ");
         if (SchedTask.class.equals(reference)) {
-            queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").
-                    append(SyncTask.class.getSimpleName()).append(" e) ");
+            queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").append(SyncTask.class.getSimpleName()).append(
+                    " e) ");
         }
 
         return queryString;
@@ -64,8 +60,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends Task> List<T> findAll(
-            final ExternalResource resource, final Class<T> reference) {
+    public <T extends Task> List<T> findAll(final ExternalResource resource, final Class<T> reference) {
 
         StringBuilder queryString = buildfindAllQuery(reference);
         if (SchedTask.class.equals(reference)) {
@@ -87,13 +82,13 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends Task> List<T> findAll(final int page,
-            final int itemsPerPage, final Class<T> reference) {
+    public <T extends Task> List<T> findAll(final int page, final int itemsPerPage, final Class<T> reference) {
 
-        final Query query = entityManager.createQuery(
-                buildfindAllQuery(reference).toString());
+        final Query query = entityManager.createQuery(buildfindAllQuery(reference).toString());
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0
+                ? 0
+                : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -113,12 +108,10 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<PropagationTask> findAll(final ExternalResource resource,
-            final SyncopeUser user) {
+    public List<PropagationTask> findAll(final ExternalResource resource, final SyncopeUser user) {
 
         StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
-        queryString.append("WHERE e.syncopeUser=:user ").
-                append("AND e.resource=:resource");
+        queryString.append("WHERE e.syncopeUser=:user ").append("AND e.resource=:resource");
         final Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("user", user);
         query.setParameter("resource", resource);
@@ -128,14 +121,13 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends Task> int count(final Class<T> reference) {
-        Query countQuery = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM Task WHERE DTYPE=?1");
+        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(id) FROM Task WHERE DTYPE=?1");
         countQuery.setParameter(1, reference.getSimpleName());
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task> T save(final T task) {
         return entityManager.merge(task);
@@ -157,8 +149,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends Task> void deleteAll(
-            final ExternalResource resource, final Class<T> reference) {
+    public <T extends Task> void deleteAll(final ExternalResource resource, final Class<T> reference) {
 
         List<T> tasks = findAll(resource, reference);
         if (tasks != null) {

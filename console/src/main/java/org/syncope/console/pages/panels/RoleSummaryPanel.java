@@ -49,32 +49,27 @@ public class RoleSummaryPanel extends Panel {
 
     private ModalWindow window;
 
-    public RoleSummaryPanel(final String id,
-            final ModalWindow window, final PageReference callerPageRef) {
+    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef) {
 
         super(id);
 
         this.callerPageRef = callerPageRef;
         this.window = window;
 
-        fragment = new Fragment("rolePanel",
-                this.selectedNode == null
-                ? "fakerootFrag" : (this.selectedNode.getId() != 0
-                ? "roleViewPanel" : "rootPanel"), this);
+        fragment = new Fragment("rolePanel", this.selectedNode == null
+                ? "fakerootFrag"
+                : (this.selectedNode.getId() != 0
+                        ? "roleViewPanel"
+                        : "rootPanel"), this);
 
         if (this.selectedNode != null) {
             if (this.selectedNode.getId() != 0) {
-                roleTabPanel =
-                        new RoleTabPanel("nodeViewPanel",
-                        selectedNode, window, callerPageRef);
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
                 roleTabPanel.setOutputMarkupId(true);
                 fragment.add(roleTabPanel);
             } else {
-                actionLink =
-                        new TreeActionLinkPanel("actionLink",
-                        this.selectedNode.getId(),
-                        new CompoundPropertyModel(this.selectedNode),
-                        window, callerPageRef);
+                actionLink = new TreeActionLinkPanel("actionLink", this.selectedNode.getId(),
+                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
                 fragment.add(actionLink);
             }
         }
@@ -92,29 +87,22 @@ public class RoleSummaryPanel extends Panel {
 
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
 
-            final TreeNodeClickUpdate update =
-                    (TreeNodeClickUpdate) event.getPayload();
+            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
-            this.selectedNode =
-                    restClient.readRole(update.getSelectedNodeId());
+            this.selectedNode = restClient.readRole(update.getSelectedNodeId());
 
-            fragment = new Fragment("rolePanel", (update.getSelectedNodeId()
-                    != 0
-                    ? "roleViewPanel" : "rootPanel"), this);
+            fragment = new Fragment("rolePanel", (update.getSelectedNodeId() != 0
+                    ? "roleViewPanel"
+                    : "rootPanel"), this);
 
             if (update.getSelectedNodeId() != 0) {
 
-                roleTabPanel =
-                        new RoleTabPanel("nodeViewPanel",
-                        this.selectedNode, window, callerPageRef);
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, callerPageRef);
                 roleTabPanel.setOutputMarkupId(true);
                 fragment.addOrReplace(roleTabPanel);
             } else {
-                actionLink =
-                        new TreeActionLinkPanel("actionLink",
-                        update.getSelectedNodeId(),
-                        new CompoundPropertyModel(this.selectedNode),
-                        window, callerPageRef);
+                actionLink = new TreeActionLinkPanel("actionLink", update.getSelectedNodeId(),
+                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
                 actionLink.setOutputMarkupId(true);
                 fragment.addOrReplace(actionLink);
             }
@@ -130,8 +118,7 @@ public class RoleSummaryPanel extends Panel {
 
         private Long selectedNodeId;
 
-        public TreeNodeClickUpdate(final AjaxRequestTarget target,
-                final Long selectedNodeId) {
+        public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
 
             this.target = target;
             this.selectedNodeId = selectedNodeId;

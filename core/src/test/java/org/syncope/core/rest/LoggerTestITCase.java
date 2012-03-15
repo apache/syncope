@@ -30,8 +30,8 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<LoggerTO> loggers =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        List<LoggerTO> loggers = Arrays.asList(restTemplate
+                .getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -48,13 +48,13 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void setLevel() {
-        List<LoggerTO> loggers = Arrays.asList(
-                restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        List<LoggerTO> loggers = Arrays.asList(restTemplate
+                .getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         int startSize = loggers.size();
 
-        LoggerTO logger = restTemplate.postForObject(
-                BASE_URL + "logger/log/{name}/{level}", null, LoggerTO.class, "TEST", "INFO");
+        LoggerTO logger = restTemplate.postForObject(BASE_URL + "logger/log/{name}/{level}", null, LoggerTO.class,
+                "TEST", "INFO");
         assertNotNull(logger);
         assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
 

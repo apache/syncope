@@ -77,19 +77,16 @@ public abstract class TaskModalPage extends BaseModalPage {
         final TaskTO actual = taskTO.getId() == 0
                 ? taskTO
                 : taskTO instanceof PropagationTaskTO
-                ? taskRestClient.readPropagationTask(taskTO.getId())
-                : taskTO instanceof NotificationTaskTO
-                ? taskRestClient.readNotificationTask(taskTO.getId())
-                : taskTO instanceof SyncTaskTO
-                ? taskRestClient.readSchedTask(
-                SyncTaskTO.class, taskTO.getId())
-                : taskRestClient.readSchedTask(
-                SchedTaskTO.class, taskTO.getId());
+                        ? taskRestClient.readPropagationTask(taskTO.getId())
+                        : taskTO instanceof NotificationTaskTO
+                                ? taskRestClient.readNotificationTask(taskTO.getId())
+                                : taskTO instanceof SyncTaskTO
+                                        ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
+                                        : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
 
         taskTO.setExecutions(actual.getExecutions());
 
-        final ModalWindow taskExecMessageWin = new ModalWindow(
-                "taskExecMessageWin");
+        final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
         add(taskExecMessageWin);
@@ -109,8 +106,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"),
-                new PropertyModel<String>(taskTO, "id"));
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO,
+                "id"));
 
         id.setEnabled(false);
         profile.add(id);
@@ -118,17 +115,13 @@ public abstract class TaskModalPage extends BaseModalPage {
         final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
 
-        columns.add(new DatePropertyColumn(
-                new ResourceModel("endDate"), "endDate", "endDate"));
+        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("status"), "status", "status"));
+        columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new AbstractColumn<TaskExecTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskExecTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -138,50 +131,40 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<TaskExecTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<TaskExecTO>> cellItem, final String componentId,
                     final IModel<TaskExecTO> model) {
 
                 final TaskExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        taskExecMessageWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        taskExecMessageWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new ExecMessageModalPage(
-                                                model.getObject().getMessage());
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new ExecMessageModalPage(model.getObject().getMessage());
+                            }
+                        });
                         taskExecMessageWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", "read",
-                        StringUtils.hasText(model.getObject().getMessage()));
+                }, ActionLink.ActionType.EDIT, "Tasks", "read", StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            taskRestClient.deleteExecution(
-                                    taskExecutionTO.getId());
+                            taskRestClient.deleteExecution(taskExecutionTO.getId());
 
                             taskTO.removeExecution(taskExecutionTO);
 
@@ -199,8 +182,7 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("executionsTable", columns,
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new TaskExecutionsProvider(taskTO), 10);
 
         executions.add(table);
@@ -218,13 +200,11 @@ public abstract class TaskModalPage extends BaseModalPage {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<TaskExecTO>(this);
+            comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
         @Override
-        public Iterator<TaskExecTO> iterator(final int first,
-                final int count) {
+        public Iterator<TaskExecTO> iterator(final int first, final int count) {
 
             List<TaskExecTO> list = taskTO.getExecutions();
 
@@ -239,13 +219,11 @@ public abstract class TaskModalPage extends BaseModalPage {
         }
 
         @Override
-        public IModel<TaskExecTO> model(
-                final TaskExecTO taskExecution) {
+        public IModel<TaskExecTO> model(final TaskExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<TaskExecTO>() {
 
-                private static final long serialVersionUID =
-                        7485475149862342421L;
+                private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override
                 public TaskExecTO getObject() {

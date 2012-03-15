@@ -46,10 +46,8 @@ public class SchemaController extends AbstractController {
     private SchemaDataBinder schemaDataBinder;
 
     @PreAuthorize("hasRole('SCHEMA_CREATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/{kind}/create")
-    public SchemaTO create(final HttpServletResponse response,
-            @RequestBody final SchemaTO schemaTO,
+    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
+    public SchemaTO create(final HttpServletResponse response, @RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind) {
 
         AbstractSchema schema = getAttributableUtil(kind).newSchema();
@@ -61,10 +59,8 @@ public class SchemaController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/{kind}/delete/{schema}")
-    public void delete(@PathVariable("kind") final String kind,
-            @PathVariable("schema") final String schemaName)
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{kind}/delete/{schema}")
+    public void delete(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).schemaClass();
@@ -78,32 +74,26 @@ public class SchemaController extends AbstractController {
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
     }
 
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/{kind}/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<SchemaTO> list(@PathVariable("kind") final String kind) {
         AttributableUtil attributableUtil = getAttributableUtil(kind);
-        List<AbstractSchema> schemas = schemaDAO.findAll(
-                attributableUtil.schemaClass());
+        List<AbstractSchema> schemas = schemaDAO.findAll(attributableUtil.schemaClass());
 
         List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
         for (AbstractSchema schema : schemas) {
-            schemaTOs.add(schemaDataBinder.getSchemaTO(
-                    schema, attributableUtil));
+            schemaTOs.add(schemaDataBinder.getSchemaTO(schema, attributableUtil));
         }
 
         return schemaTOs;
     }
 
     @PreAuthorize("hasRole('SCHEMA_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/{kind}/read/{schema}")
-    public SchemaTO read(@PathVariable("kind") final String kind,
-            @PathVariable("schema") final String schemaName)
+    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/read/{schema}")
+    public SchemaTO read(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
         AttributableUtil attributableUtil = getAttributableUtil(kind);
-        AbstractSchema schema = schemaDAO.find(schemaName,
-                attributableUtil.schemaClass());
+        AbstractSchema schema = schemaDAO.find(schemaName, attributableUtil.schemaClass());
         if (schema == null) {
             LOG.error("Could not find schema '" + schemaName + "'");
             throw new NotFoundException("Schema '" + schemaName + "'");
@@ -113,15 +103,12 @@ public class SchemaController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/{kind}/update")
-    public SchemaTO update(@RequestBody final SchemaTO schemaTO,
-            @PathVariable("kind") final String kind)
+    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
+    public SchemaTO update(@RequestBody final SchemaTO schemaTO, @PathVariable("kind") final String kind)
             throws NotFoundException {
 
         AttributableUtil attributableUtil = getAttributableUtil(kind);
-        AbstractSchema schema = schemaDAO.find(schemaTO.getName(),
-                attributableUtil.schemaClass());
+        AbstractSchema schema = schemaDAO.find(schemaTO.getName(), attributableUtil.schemaClass());
         if (schema == null) {
             LOG.error("Could not find schema '" + schemaTO.getName() + "'");
             throw new NotFoundException("Schema '" + schemaTO.getName() + "'");

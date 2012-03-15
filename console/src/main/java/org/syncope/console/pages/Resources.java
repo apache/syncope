@@ -103,11 +103,8 @@ public class Resources extends BasePage {
 
         add(feedbackPanel);
 
-        resourcePaginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_RESOURCES_PAGINATOR_ROWS);
-        connectorPaginatorRows = prefMan.getPaginatorRows(
-                getRequest(),
-                Constants.PREF_CONNECTORS_PAGINATOR_ROWS);
+        resourcePaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_RESOURCES_PAGINATOR_ROWS);
+        connectorPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_CONNECTORS_PAGINATOR_ROWS);
 
         setupResources();
         setupConnectors();
@@ -116,17 +113,13 @@ public class Resources extends BasePage {
     private void setupResources() {
         List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("name"), "name", "name"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("propagationPrimary"),
-                "propagationPrimary", "propagationPrimary"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("propagationPriority"),
-                "propagationPriority", "propagationPriority"));
+        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn(new ResourceModel("propagationPrimary"), "propagationPrimary",
+                "propagationPrimary"));
+        columns.add(new PropertyColumn(new ResourceModel("propagationPriority"), "propagationPriority",
+                "propagationPriority"));
 
-        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("actions",
-                "")) {
+        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -136,39 +129,30 @@ public class Resources extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ResourceTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
                     final IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        editResourceWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        ResourceModalPage form =
-                                                new ResourceModalPage(
-                                                Resources.this.getPageReference(),
-                                                editResourceWin, resourceTO,
-                                                false);
-                                        return form;
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                ResourceModalPage form = new ResourceModalPage(Resources.this.getPageReference(),
+                                        editResourceWin, resourceTO, false);
+                                return form;
+                            }
+                        });
 
                         editResourceWin.show(target);
                     }
@@ -176,8 +160,7 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -189,8 +172,7 @@ public class Resources extends BasePage {
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
-                            LOG.error("While deleting resource "
-                                    + resourceTO.getName(), e);
+                            LOG.error("While deleting resource " + resourceTO.getName(), e);
                         }
 
                         target.add(feedbackPanel);
@@ -202,8 +184,7 @@ public class Resources extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("resourceDatatable", columns,
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("resourceDatatable", columns,
                 new ResourcesProvider(), resourcePaginatorRows);
 
         resourceContainer = new WebMarkupContainer("resourceContainer");
@@ -225,50 +206,41 @@ public class Resources extends BasePage {
         editResourceWin.setInitialWidth(WIN_WIDTH);
         editResourceWin.setCookieName("edit-res-modal");
 
-        AjaxLink createResourceLink =
-                new IndicatingAjaxLink("createResourceLink") {
+        AjaxLink createResourceLink = new IndicatingAjaxLink("createResourceLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
-
-                        createResourceWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
-
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
-
-                                    @Override
-                                    public Page createPage() {
-                                        final ResourceModalPage windows =
-                                                new ResourceModalPage(
-                                                Resources.this.getPageReference(),
-                                                editResourceWin,
-                                                new ResourceTO(), true);
-                                        return windows;
-                                    }
-                                });
-
-                        createResourceWin.show(target);
+                    public Page createPage() {
+                        final ResourceModalPage windows = new ResourceModalPage(Resources.this.getPageReference(),
+                                editResourceWin, new ResourceTO(), true);
+                        return windows;
                     }
-                };
+                });
 
-        MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Resources", "create"));
+                createResourceWin.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Resources", "create"));
 
         add(createResourceLink);
 
         final Form paginatorForm = new Form("resourcePaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                paginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Resources", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Resources", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "resourcePaginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "resourcePaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -276,9 +248,8 @@ public class Resources extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(),
-                        Constants.PREF_RESOURCES_PAGINATOR_ROWS,
-                        String.valueOf(resourcePaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_RESOURCES_PAGINATOR_ROWS, String
+                        .valueOf(resourcePaginatorRows));
 
                 table.setItemsPerPage(resourcePaginatorRows);
                 target.add(resourceContainer);
@@ -292,23 +263,17 @@ public class Resources extends BasePage {
     private void setupConnectors() {
         List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"),
-                "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(new ResourceModel("name"),
-                "connectorName", "connectorName"));
+        columns.add(new PropertyColumn(new ResourceModel("name"), "connectorName", "connectorName"));
 
-        columns.add(new PropertyColumn(new ResourceModel("displayName"),
-                "displayName", "displayName"));
+        columns.add(new PropertyColumn(new ResourceModel("displayName"), "displayName", "displayName"));
 
-        columns.add(new PropertyColumn(new ResourceModel("version"),
-                "version", "version"));
+        columns.add(new PropertyColumn(new ResourceModel("version"), "version", "version"));
 
-        columns.add(new PropertyColumn(new ResourceModel("bundleName"),
-                "bundleName", "bundleName"));
+        columns.add(new PropertyColumn(new ResourceModel("bundleName"), "bundleName", "bundleName"));
 
-        columns.add(new AbstractColumn<ConnInstanceTO>(
-                new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ConnInstanceTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -318,37 +283,30 @@ public class Resources extends BasePage {
             }
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<ConnInstanceTO>> cellItem,
-                    final String componentId,
+            public void populateItem(final Item<ICellPopulator<ConnInstanceTO>> cellItem, final String componentId,
                     final IModel<ConnInstanceTO> model) {
 
                 final ConnInstanceTO connectorTO = model.getObject();
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        editConnectorWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new ConnectorModalPage(
-                                                Resources.this.getPageReference(),
-                                                editConnectorWin, connectorTO);
-                                    }
-                                });
+                            @Override
+                            public Page createPage() {
+                                return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
+                                        connectorTO);
+                            }
+                        });
 
                         editConnectorWin.show(target);
                     }
@@ -356,8 +314,7 @@ public class Resources extends BasePage {
 
                 panel.add(new ActionLink() {
 
-                    private static final long serialVersionUID =
-                            -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -367,8 +324,7 @@ public class Resources extends BasePage {
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
-                            LOG.error("While deleting connector "
-                                    + connectorTO.getId(), e);
+                            LOG.error("While deleting connector " + connectorTO.getId(), e);
                         }
 
                         target.add(connectorContainer);
@@ -380,17 +336,15 @@ public class Resources extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("connectorDatatable", columns,
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("connectorDatatable", columns,
                 new ConnectorsProvider(), connectorPaginatorRows);
 
         connectorContainer = new WebMarkupContainer("connectorContainer");
         connectorContainer.add(table);
         connectorContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                connectorContainer, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Connectors", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(connectorContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Connectors", "list"));
 
         add(connectorContainer);
 
@@ -407,48 +361,41 @@ public class Resources extends BasePage {
         editConnectorWin.setInitialWidth(WIN_WIDTH);
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        AjaxLink createConnectorLink = new IndicatingAjaxLink(
-                "createConnectorLink") {
+        AjaxLink createConnectorLink = new IndicatingAjaxLink("createConnectorLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                createConnectorWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
+                createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                    private static final long serialVersionUID = -7834632442532690940L;
 
-                            @Override
-                            public Page createPage() {
-                                ConnectorModalPage form =
-                                        new ConnectorModalPage(
-                                        Resources.this.getPageReference(),
-                                        editConnectorWin, new ConnInstanceTO());
-                                return form;
-                            }
-                        });
+                    @Override
+                    public Page createPage() {
+                        ConnectorModalPage form = new ConnectorModalPage(Resources.this.getPageReference(),
+                                editConnectorWin, new ConnInstanceTO());
+                        return form;
+                    }
+                });
 
                 createConnectorWin.show(target);
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Connectors", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Connectors", "create"));
 
         add(createConnectorLink);
 
         Form paginatorForm = new Form("connectorPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                paginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Connectors", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "Connectors", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "connectorPaginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "connectorPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -456,10 +403,8 @@ public class Resources extends BasePage {
 
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_CONNECTORS_PAGINATOR_ROWS,
-                        String.valueOf(connectorPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONNECTORS_PAGINATOR_ROWS, String
+                        .valueOf(connectorPaginatorRows));
                 table.setItemsPerPage(connectorPaginatorRows);
 
                 target.add(connectorContainer);
@@ -479,8 +424,7 @@ public class Resources extends BasePage {
         public ResourcesProvider() {
             //Default sorting
             setSort("name", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<ResourceTO>(this);
+            comparator = new SortableDataProviderComparator<ResourceTO>(this);
         }
 
         @Override
@@ -501,8 +445,7 @@ public class Resources extends BasePage {
         public IModel<ResourceTO> model(final ResourceTO resource) {
             return new AbstractReadOnlyModel<ResourceTO>() {
 
-                private static final long serialVersionUID =
-                        8952474152465381634L;
+                private static final long serialVersionUID = 8952474152465381634L;
 
                 @Override
                 public ResourceTO getObject() {
@@ -525,9 +468,7 @@ public class Resources extends BasePage {
         public ConnectorsProvider() {
             //Default sorting
             setSort("id", SortOrder.ASCENDING);
-            comparator =
-                    new SortableDataProviderComparator<ConnInstanceTO>(
-                    this);
+            comparator = new SortableDataProviderComparator<ConnInstanceTO>(this);
         }
 
         @Override
@@ -545,13 +486,11 @@ public class Resources extends BasePage {
         }
 
         @Override
-        public IModel<ConnInstanceTO> model(
-                final ConnInstanceTO connector) {
+        public IModel<ConnInstanceTO> model(final ConnInstanceTO connector) {
 
             return new AbstractReadOnlyModel<ConnInstanceTO>() {
 
-                private static final long serialVersionUID =
-                        -6033068018293569398L;
+                private static final long serialVersionUID = -6033068018293569398L;
 
                 @Override
                 public ConnInstanceTO getObject() {

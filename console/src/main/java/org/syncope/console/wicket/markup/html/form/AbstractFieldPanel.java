@@ -29,14 +29,11 @@ public abstract class AbstractFieldPanel<T extends Serializable> extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractFieldPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractFieldPanel.class);
 
     private static final long serialVersionUID = 5958017546318855690L;
 
-    public AbstractFieldPanel(
-            final String id,
-            final IModel<T> model) {
+    public AbstractFieldPanel(final String id, final IModel<T> model) {
 
         super(id, model);
     }

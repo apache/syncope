@@ -27,14 +27,12 @@ public class UserTestITCase extends AbstractTest {
     public void browseCreateModal() {
         selenium.click("css=img[alt=\"Users\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//a[contains(text(),'Create new user')]");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//span[contains(text(),'Attributes')]\");",
-                "30000");
+        selenium
+                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
@@ -49,20 +47,14 @@ public class UserTestITCase extends AbstractTest {
     public void browseEditModal() {
         selenium.click("css=img[alt=\"Users\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         //Edit user3
-        selenium.click(
-                "//*[@id=\"users-contain\"]//*[span=3]/../td[4]/span/span[7]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[span=3]/../td[4]/span/span[7]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//input[@value='testUsername']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='testUsername']\");", "30000");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//input[@value='Doe']\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Doe']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
@@ -76,46 +68,37 @@ public class UserTestITCase extends AbstractTest {
     public void search() {
         selenium.click("css=img[alt=\"Users\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("link=Search");
         selenium.select("//td[3]/select", "label=MEMBERSHIP");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//td[4]/select[option='8 otherchild']\");",
-                "30000");
+        selenium
+                .waitForCondition("selenium.isElementPresent(" + "\"//td[4]/select[option='8 otherchild']\");", "30000");
 
         selenium.select("//td[4]/select", "label=8 otherchild");
         selenium.click("name=search");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//*[@id='users-contain']//*[span=1]\");",
-                "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@id='users-contain']//*[span=1]\");", "30000");
     }
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Users\"]");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click(
-                "//*[@id=\"users-contain\"]//*[span=4]/../td[4]/span/span[9]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[span=4]/../td[4]/span/span[9]/a");
 
-        assertTrue(selenium.getConfirmation().matches(
-                "^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[@id='propagation']/span\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 
         selenium.click("//span/span/div/a");
 
         // it depends on the execution order of tests: resources
         // 'ws-target-resource-delete' could have been deleted from
         // ResourceTestITCase#delete
-        selenium.waitForCondition("selenium.isTextPresent("
-                + "\"Operation executed successfully\");", "30000");
+        selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
 }

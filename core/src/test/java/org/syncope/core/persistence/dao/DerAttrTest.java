@@ -58,25 +58,19 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UDerAttr> list = derAttrDAO.findAll(
-                UDerAttr.class);
-        assertEquals("did not get expected number of derived attributes ",
-                1, list.size());
+        List<UDerAttr> list = derAttrDAO.findAll(UDerAttr.class);
+        assertEquals("did not get expected number of derived attributes ", 1, list.size());
     }
 
     @Test
     public void findById() {
-        UDerAttr attribute = derAttrDAO.find(100L,
-                UDerAttr.class);
-        assertNotNull("did not find expected attribute schema",
-                attribute);
+        UDerAttr attribute = derAttrDAO.find(100L, UDerAttr.class);
+        assertNotNull("did not find expected attribute schema", attribute);
     }
 
     @Test
-    public void saveUDerAttribute()
-            throws ClassNotFoundException {
-        UDerSchema cnSchema =
-                derSchemaDAO.find("cn", UDerSchema.class);
+    public void saveUDerAttribute() throws ClassNotFoundException {
+        UDerSchema cnSchema = derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull(cnSchema);
 
         SyncopeUser owner = userDAO.find(3L);
@@ -88,28 +82,20 @@ public class DerAttrTest extends AbstractTest {
 
         derivedAttribute = derAttrDAO.save(derivedAttribute);
 
-        UDerAttr actual = derAttrDAO.find(
-                derivedAttribute.getId(), UDerAttr.class);
+        UDerAttr actual = derAttrDAO.find(derivedAttribute.getId(), UDerAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        UAttrValue firstnameAttribute =
-                (UAttrValue) owner.getAttribute(
-                "firstname").getValues().iterator().next();
-        UAttrValue surnameAttribute =
-                (UAttrValue) owner.getAttribute(
-                "surname").getValues().iterator().next();
+        UAttrValue firstnameAttribute = (UAttrValue) owner.getAttribute("firstname").getValues().iterator().next();
+        UAttrValue surnameAttribute = (UAttrValue) owner.getAttribute("surname").getValues().iterator().next();
 
-        assertEquals(surnameAttribute.getValue() + ", "
-                + firstnameAttribute.getValue(),
-                derivedAttribute.getValue(owner.getAttributes()));
+        assertEquals(surnameAttribute.getValue() + ", " + firstnameAttribute.getValue(), derivedAttribute
+                .getValue(owner.getAttributes()));
     }
 
     @Test
-    public void saveMDerAttribute()
-            throws ClassNotFoundException {
-        MDerSchema deriveddata =
-                derSchemaDAO.find("mderiveddata", MDerSchema.class);
+    public void saveMDerAttribute() throws ClassNotFoundException {
+        MDerSchema deriveddata = derSchemaDAO.find("mderiveddata", MDerSchema.class);
         assertNotNull(deriveddata);
 
         Membership owner = membershipDAO.find(1L);
@@ -121,27 +107,19 @@ public class DerAttrTest extends AbstractTest {
 
         derivedAttribute = derAttrDAO.save(derivedAttribute);
 
-        MDerAttr actual = derAttrDAO.find(
-                derivedAttribute.getId(), MDerAttr.class);
+        MDerAttr actual = derAttrDAO.find(derivedAttribute.getId(), MDerAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        MAttrValue sx =
-                (MAttrValue) owner.getAttribute(
-                "mderived_sx").getValues().iterator().next();
-        MAttrValue dx =
-                (MAttrValue) owner.getAttribute(
-                "mderived_dx").getValues().iterator().next();
+        MAttrValue sx = (MAttrValue) owner.getAttribute("mderived_sx").getValues().iterator().next();
+        MAttrValue dx = (MAttrValue) owner.getAttribute("mderived_dx").getValues().iterator().next();
 
-        assertEquals(sx.getValue() + "-" + dx.getValue(),
-                derivedAttribute.getValue(owner.getAttributes()));
+        assertEquals(sx.getValue() + "-" + dx.getValue(), derivedAttribute.getValue(owner.getAttributes()));
     }
 
     @Test
-    public void saveRDerAttribute()
-            throws ClassNotFoundException {
-        RDerSchema deriveddata =
-                derSchemaDAO.find("rderiveddata", RDerSchema.class);
+    public void saveRDerAttribute() throws ClassNotFoundException {
+        RDerSchema deriveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNotNull(deriveddata);
 
         SyncopeRole owner = roleDAO.find(1L);
@@ -153,41 +131,27 @@ public class DerAttrTest extends AbstractTest {
 
         derivedAttribute = derAttrDAO.save(derivedAttribute);
 
-        RDerAttr actual = derAttrDAO.find(
-                derivedAttribute.getId(), RDerAttr.class);
+        RDerAttr actual = derAttrDAO.find(derivedAttribute.getId(), RDerAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        RAttrValue sx =
-                (RAttrValue) owner.getAttribute(
-                "rderived_sx").getValues().iterator().next();
-        RAttrValue dx =
-                (RAttrValue) owner.getAttribute(
-                "rderived_dx").getValues().iterator().next();
+        RAttrValue sx = (RAttrValue) owner.getAttribute("rderived_sx").getValues().iterator().next();
+        RAttrValue dx = (RAttrValue) owner.getAttribute("rderived_dx").getValues().iterator().next();
 
-        assertEquals(sx.getValue() + "-" + dx.getValue(),
-                derivedAttribute.getValue(owner.getAttributes()));
+        assertEquals(sx.getValue() + "-" + dx.getValue(), derivedAttribute.getValue(owner.getAttributes()));
     }
 
     @Test
     public void delete() {
-        UDerAttr attribute = derAttrDAO.find(100L,
-                UDerAttr.class);
-        String attributeSchemaName =
-                attribute.getDerivedSchema().getName();
+        UDerAttr attribute = derAttrDAO.find(100L, UDerAttr.class);
+        String attributeSchemaName = attribute.getDerivedSchema().getName();
 
-        derAttrDAO.delete(attribute.getId(),
-                UDerAttr.class);
+        derAttrDAO.delete(attribute.getId(), UDerAttr.class);
 
-        UDerAttr actual = derAttrDAO.find(100L,
-                UDerAttr.class);
+        UDerAttr actual = derAttrDAO.find(100L, UDerAttr.class);
         assertNull("delete did not work", actual);
 
-        UDerSchema attributeSchema =
-                derSchemaDAO.find(attributeSchemaName,
-                UDerSchema.class);
-        assertNotNull("user derived attribute schema deleted "
-                + "when deleting values",
-                attributeSchema);
+        UDerSchema attributeSchema = derSchemaDAO.find(attributeSchemaName, UDerSchema.class);
+        assertNotNull("user derived attribute schema deleted " + "when deleting values", attributeSchema);
     }
 }

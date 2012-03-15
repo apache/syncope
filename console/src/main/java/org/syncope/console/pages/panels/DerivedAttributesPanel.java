@@ -53,60 +53,52 @@ public class DerivedAttributesPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(DerivedAttributesPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DerivedAttributesPanel.class);
 
     private static final long serialVersionUID = -5387344116983102292L;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    public <T extends AbstractAttributableTO> DerivedAttributesPanel(
-            final String id, final T entityTO) {
+    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO) {
 
         super(id);
         setOutputMarkupId(true);
 
-        final IModel<List<String>> derivedSchemaNames =
-                new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> derivedSchemaNames = new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID =
-                            5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<String> load() {
-                        if (entityTO instanceof RoleTO) {
-                            return schemaRestClient.getDerivedSchemaNames(AttributableType.ROLE);
-                        } else if (entityTO instanceof UserTO) {
-                            return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
-                        } else {
-                            return schemaRestClient.getDerivedSchemaNames(AttributableType.MEMBERSHIP);
-                        }
-                    }
-                };
+            @Override
+            protected List<String> load() {
+                if (entityTO instanceof RoleTO) {
+                    return schemaRestClient.getDerivedSchemaNames(AttributableType.ROLE);
+                } else if (entityTO instanceof UserTO) {
+                    return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+                } else {
+                    return schemaRestClient.getDerivedSchemaNames(AttributableType.MEMBERSHIP);
+                }
+            }
+        };
 
-        final WebMarkupContainer attributesContainer =
-                new WebMarkupContainer("derAttrContainer");
+        final WebMarkupContainer attributesContainer = new WebMarkupContainer("derAttrContainer");
 
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new IndicatingAjaxButton(
-                "addAttributeBtn", new ResourceModel("addAttributeBtn")) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn", new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 entityTO.getDerivedAttributes().add(new AttributeTO());
                 target.add(attributesContainer);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(attributesContainer);
             }
@@ -114,23 +106,18 @@ public class DerivedAttributesPanel extends Panel {
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
 
-        final ListView<AttributeTO> attributes = new ListView<AttributeTO>(
-                "attributes",
-                new PropertyModel<List<? extends AttributeTO>>(
-                entityTO, "derivedAttributes")) {
+        final ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "derivedAttributes")) {
 
-            private static final long serialVersionUID =
-                    9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
-                item.add(new AjaxDecoratedCheckbox(
-                        "toRemove", new Model(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
 
-                    private static final long serialVersionUID =
-                            7170946748485726506L;
+                    private static final long serialVersionUID = 7170946748485726506L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -140,44 +127,33 @@ public class DerivedAttributesPanel extends Panel {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID =
-                                    -7927968187160354605L;
+                            private static final long serialVersionUID = -7927968187160354605L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
+                            public CharSequence preDecorateScript(final CharSequence script) {
 
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "} "
+                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
                                         + "else {this.checked = false;}";
                             }
                         };
                     }
                 });
 
-                final DropDownChoice<String> schemaChoice =
-                        new DropDownChoice<String>(
-                        "schema",
-                        new PropertyModel<String>(attributeTO, "schema"),
-                        derivedSchemaNames);
+                final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
+                        new PropertyModel<String>(attributeTO, "schema"), derivedSchemaNames);
 
-                schemaChoice.add(
-                        new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(
-                                    final AjaxRequestTarget art) {
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget art) {
 
-                                attributeTO.setSchema(schemaChoice.getModelObject());
-                            }
-                        });
+                        attributeTO.setSchema(schemaChoice.getModelObject());
+                    }
+                });
 
                 item.add(schemaChoice.setRequired(true));
 
@@ -188,14 +164,9 @@ public class DerivedAttributesPanel extends Panel {
                 final List<String> values = attributeTO.getValues();
 
                 if (values == null || values.isEmpty()) {
-                    item.add(new TextField(
-                            "value",
-                            new Model(null)).setVisible(Boolean.FALSE));
+                    item.add(new TextField("value", new Model(null)).setVisible(Boolean.FALSE));
                 } else {
-                    item.add(new TextField(
-                            "value",
-                            new Model(values.get(0))).setEnabled(
-                            Boolean.FALSE));
+                    item.add(new TextField("value", new Model(values.get(0))).setEnabled(Boolean.FALSE));
                 }
             }
         };

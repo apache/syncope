@@ -54,8 +54,7 @@ public class UVirAttr extends AbstractVirAttr {
     }
 
     @Override
-    public <T extends AbstractVirSchema> void setVirtualSchema(
-            T virtualSchema) {
+    public <T extends AbstractVirSchema> void setVirtualSchema(T virtualSchema) {
 
         this.virtualSchema = (UVirSchema) virtualSchema;
     }

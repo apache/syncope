@@ -87,8 +87,7 @@ public class UserTO extends AbstractAttributableTO {
 
     @JsonIgnore
     public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result = new HashMap<Long, MembershipTO>(
-                getMemberships().size());
+        Map<Long, MembershipTO> result = new HashMap<Long, MembershipTO>(getMemberships().size());
 
         for (MembershipTO membership : getMemberships()) {
             result.put(membership.getRoleId(), membership);
@@ -115,7 +114,8 @@ public class UserTO extends AbstractAttributableTO {
 
     public Date getTokenExpireTime() {
         return tokenExpireTime == null
-                ? null : new Date(tokenExpireTime.getTime());
+                ? null
+                : new Date(tokenExpireTime.getTime());
     }
 
     public void setTokenExpireTime(Date tokenExpireTime) {
@@ -171,8 +171,7 @@ public class UserTO extends AbstractAttributableTO {
     public void removePropagationTO(final String resource) {
         if (resource != null && getPropagationTOs().isEmpty()) {
 
-            final List<PropagationTO> toBeRemoved =
-                    new ArrayList<PropagationTO>();
+            final List<PropagationTO> toBeRemoved = new ArrayList<PropagationTO>();
 
             for (PropagationTO propagationTO : getPropagationTOs()) {
                 if (resource.equals(propagationTO.getResourceName())) {
@@ -188,8 +187,7 @@ public class UserTO extends AbstractAttributableTO {
         return propagationTOs;
     }
 
-    public void setPropagationTOs(
-            final List<PropagationTO> propagationTOs) {
+    public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
 
         this.propagationTOs.clear();
         this.propagationTOs.addAll(propagationTOs);
@@ -197,8 +195,7 @@ public class UserTO extends AbstractAttributableTO {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this,
-                ToStringStyle.MULTI_LINE_STYLE) {
+        return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE) {
 
             @Override
             protected boolean accept(Field f) {

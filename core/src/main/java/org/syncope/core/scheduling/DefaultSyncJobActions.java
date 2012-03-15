@@ -33,13 +33,11 @@ import org.syncope.core.persistence.beans.SyncTask;
 public class DefaultSyncJobActions implements SyncJobActions {
 
     @Override
-    public void beforeAll(final SyncTask task)
-            throws JobExecutionException {
+    public void beforeAll(final SyncTask task) throws JobExecutionException {
     }
 
     @Override
-    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
-            throws JobExecutionException {
+    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user) throws JobExecutionException {
         return delta;
     }
 
@@ -50,22 +48,17 @@ public class DefaultSyncJobActions implements SyncJobActions {
     }
 
     @Override
-    public SyncDelta beforeDelete(final SyncDelta delta, final UserTO user)
+    public SyncDelta beforeDelete(final SyncDelta delta, final UserTO user) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result)
             throws JobExecutionException {
         return delta;
     }
 
     @Override
-    public SyncDelta after(final SyncDelta delta, final UserTO user,
-            final SyncResult result)
-            throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public void afterAll(
-            final SyncTask task,
-            final List<SyncResult> results)
-            throws JobExecutionException {
+    public void afterAll(final SyncTask task, final List<SyncResult> results) throws JobExecutionException {
     }
 }

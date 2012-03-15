@@ -31,8 +31,7 @@ public class TestSyncJobActions extends DefaultSyncJobActions {
     private int counter = 0;
 
     @Override
-    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user)
-            throws JobExecutionException {
+    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user) throws JobExecutionException {
 
         AttributeTO attrTO = null;
         for (int i = 0; i < user.getAttributes().size(); i++) {

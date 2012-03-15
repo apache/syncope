@@ -105,7 +105,8 @@ public class ConnObjectUtil {
 
                 case Username:
                     userTO.setUsername(attribute == null || attribute.getValue().isEmpty()
-                            ? null : attribute.getValue().get(0).toString());
+                            ? null
+                            : attribute.getValue().get(0).toString());
                     break;
 
                 case UserSchema:
@@ -113,7 +114,8 @@ public class ConnObjectUtil {
                     attributeTO.setSchema(mapping.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
-                            ? Collections.EMPTY_LIST : attribute.getValue()) {
+                            ? Collections.EMPTY_LIST
+                            : attribute.getValue()) {
                         attributeTO.addValue(value.toString());
                     }
 
@@ -131,7 +133,8 @@ public class ConnObjectUtil {
                     attributeTO.setSchema(mapping.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
-                            ? Collections.EMPTY_LIST : attribute.getValue()) {
+                            ? Collections.EMPTY_LIST
+                            : attribute.getValue()) {
                         attributeTO.addValue(value.toString());
                     }
 
@@ -203,7 +206,8 @@ public class ConnObjectUtil {
             Attribute attribute = obj.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
 
             List<Object> values = attribute == null
-                    ? Collections.EMPTY_LIST : attribute.getValue();
+                    ? Collections.EMPTY_LIST
+                    : attribute.getValue();
 
             AttributeMod attributeMod;
             switch (mapping.getIntMappingType()) {
@@ -211,19 +215,15 @@ public class ConnObjectUtil {
                     break;
 
                 case Password:
-                    attribute = obj.getAttributeByName(
-                            OperationalAttributes.PASSWORD_NAME);
+                    attribute = obj.getAttributeByName(OperationalAttributes.PASSWORD_NAME);
 
-                    if (attribute != null && attribute.getValue() != null
-                            && !attribute.getValue().isEmpty()) {
+                    if (attribute != null && attribute.getValue() != null && !attribute.getValue().isEmpty()) {
 
-                        String password =
-                                getPassword(attribute.getValue().get(0));
+                        String password = getPassword(attribute.getValue().get(0));
                         // update password if and only if password has really 
                         // changed
                         try {
-                            if (!userDataBinder.verifyPassword(userId,
-                                    password)) {
+                            if (!userDataBinder.verifyPassword(userId, password)) {
 
                                 userMod.setPassword(password);
                             }
@@ -339,16 +339,15 @@ public class ConnObjectUtil {
         final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
-        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects =
-                new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
+        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects = new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
 
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
                 final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
 
-                final SchemaMappingUtil.SchemaMappingsWrapper mappings =
-                        new SchemaMappingUtil.SchemaMappingsWrapper(resource.getMappings());
+                final SchemaMappingUtil.SchemaMappingsWrapper mappings = new SchemaMappingUtil.SchemaMappingsWrapper(
+                        resource.getMappings());
 
                 final String accountId = SchemaMappingUtil.getAccountIdValue(owner, mappings.getAccountIdMapping());
 
@@ -369,8 +368,8 @@ public class ConnObjectUtil {
                         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
                         oob.setAttributesToGet(extAttrNames);
 
-                        final ConnectorObject connectorObject =
-                                connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
+                        final ConnectorObject connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(
+                                accountId), oob.build());
 
                         if (connectorObject != null) {
                             remoteObjects.put(mappings, connectorObject);
@@ -388,8 +387,8 @@ public class ConnObjectUtil {
             LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
 
             for (SchemaMappingUtil.SchemaMappingsWrapper mappings : remoteObjects.keySet()) {
-                Collection<SchemaMapping> virAttrMappings =
-                        mappings.getuVirMappings().get(virAttr.getVirtualSchema().getName());
+                Collection<SchemaMapping> virAttrMappings = mappings.getuVirMappings().get(
+                        virAttr.getVirtualSchema().getName());
 
                 if (virAttrMappings != null) {
                     for (SchemaMapping virAttrMapping : virAttrMappings) {
@@ -413,8 +412,7 @@ public class ConnObjectUtil {
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
 
-        Map<String, AttributeTO> currentAttrMap =
-                attributableTO.getAttributeMap();
+        Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
         for (AttributeTO attrTO : template.getAttributes()) {
             if (!currentAttrMap.containsKey(attrTO.getSchema())) {
                 attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, attrTO));
@@ -436,9 +434,7 @@ public class ConnObjectUtil {
         }
     }
 
-    private AttributeTO evaluateAttrTemplate(
-            final AbstractAttributableTO attributableTO,
-            final AttributeTO template) {
+    private AttributeTO evaluateAttrTemplate(final AbstractAttributableTO attributableTO, final AttributeTO template) {
 
         AttributeTO result = new AttributeTO();
         result.setSchema(template.getSchema());

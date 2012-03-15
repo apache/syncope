@@ -61,73 +61,60 @@ public class AttributesPanel extends Panel {
 
     private final boolean templateMode;
 
-    public <T extends AbstractAttributableTO> AttributesPanel(
-            final String id,
-            final T entityTO,
-            final Form form,
+    public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
             final boolean templateMode) {
 
         super(id);
         this.templateMode = templateMode;
 
-        final IModel<Map<String, SchemaTO>> schemas =
-                new LoadableDetachableModel<Map<String, SchemaTO>>() {
+        final IModel<Map<String, SchemaTO>> schemas = new LoadableDetachableModel<Map<String, SchemaTO>>() {
 
-                    private static final long serialVersionUID =
-                            -2012833443695917883L;
+            private static final long serialVersionUID = -2012833443695917883L;
 
-                    @Override
-                    protected Map<String, SchemaTO> load() {
-                        final List<SchemaTO> schemaTOs;
-                        if (entityTO instanceof RoleTO) {
-                            schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
-                        } else if (entityTO instanceof UserTO) {
-                            schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
-                        } else {
-                            schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
-                        }
+            @Override
+            protected Map<String, SchemaTO> load() {
+                final List<SchemaTO> schemaTOs;
+                if (entityTO instanceof RoleTO) {
+                    schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
+                } else if (entityTO instanceof UserTO) {
+                    schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
+                } else {
+                    schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
+                }
 
-                        final Map<String, SchemaTO> schemas =
-                                new HashMap<String, SchemaTO>();
+                final Map<String, SchemaTO> schemas = new HashMap<String, SchemaTO>();
 
-                        for (SchemaTO schemaTO : schemaTOs) {
-                            schemas.put(schemaTO.getName(), schemaTO);
-                        }
+                for (SchemaTO schemaTO : schemaTOs) {
+                    schemas.put(schemaTO.getName(), schemaTO);
+                }
 
-                        return schemas;
-                    }
-                };
+                return schemas;
+            }
+        };
 
         initEntityData(entityTO, schemas.getObject().values());
 
-        final ListView<AttributeTO> attributeView = new ListView<AttributeTO>(
-                "schemas", new PropertyModel<List<? extends AttributeTO>>(
-                entityTO, "attributes")) {
+        final ListView<AttributeTO> attributeView = new ListView<AttributeTO>("schemas",
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "attributes")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem item) {
-                final AttributeTO attributeTO =
-                        (AttributeTO) item.getDefaultModelObject();
+                final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
                 item.add(new Label("name", templateMode
                         ? attributeTO.getSchema() + " (JEXL)"
                         : attributeTO.getSchema()));
 
-                final FieldPanel panel = getFieldPanel(
-                        schemas.getObject().get(attributeTO.getSchema()),
-                        form, attributeTO);
+                final FieldPanel panel = getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form,
+                        attributeTO);
 
-                if (templateMode
-                        || !schemas.getObject().get(attributeTO.getSchema()).
-                        isMultivalue()) {
+                if (templateMode || !schemas.getObject().get(attributeTO.getSchema()).isMultivalue()) {
 
                     item.add(panel);
                 } else {
-                    item.add(new MultiValueSelectorPanel<String>(
-                            "panel",
-                            new PropertyModel(attributeTO, "values"),
+                    item.add(new MultiValueSelectorPanel<String>("panel", new PropertyModel(attributeTO, "values"),
                             panel));
                 }
             }
@@ -136,9 +123,7 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private List<AttributeTO> initEntityData(
-            final AbstractAttributableTO entityTO,
-            final Collection<SchemaTO> schemas) {
+    private List<AttributeTO> initEntityData(final AbstractAttributableTO entityTO, final Collection<SchemaTO> schemas) {
 
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
 
@@ -148,9 +133,7 @@ public class AttributesPanel extends Panel {
             AttributeTO attributeTO = new AttributeTO();
             attributeTO.setSchema(schema.getName());
 
-            if (attrMap.get(schema.getName()) == null
-                    || attrMap.get(schema.getName()).
-                    getValues().isEmpty()) {
+            if (attrMap.get(schema.getName()) == null || attrMap.get(schema.getName()).getValues().isEmpty()) {
 
                 List<String> values = new ArrayList<String>();
                 values.add("");
@@ -159,8 +142,7 @@ public class AttributesPanel extends Panel {
                 // is important to set readonly only after valus setting
                 attributeTO.setReadonly(schema.isReadonly());
             } else {
-                attributeTO.setValues(
-                        attrMap.get(schema.getName()).getValues());
+                attributeTO.setValues(attrMap.get(schema.getName()).getValues());
             }
             entityData.add(attributeTO);
         }
@@ -170,10 +152,7 @@ public class AttributesPanel extends Panel {
         return entityData;
     }
 
-    private FieldPanel getFieldPanel(
-            final SchemaTO schemaTO,
-            final Form form,
-            final AttributeTO attributeTO) {
+    private FieldPanel getFieldPanel(final SchemaTO schemaTO, final Form form, final AttributeTO attributeTO) {
 
         final FieldPanel panel;
 
@@ -181,10 +160,13 @@ public class AttributesPanel extends Panel {
                 ? false
                 : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
-        final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
+        final boolean readOnly = templateMode
+                ? false
+                : schemaTO.isReadonly();
 
         final SchemaType type = templateMode
-                ? SchemaType.String : schemaTO.getType();
+                ? SchemaType.String
+                : schemaTO.getType();
         switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model());
@@ -192,8 +174,7 @@ public class AttributesPanel extends Panel {
                 break;
 
             case Date:
-                final String dataPattern = schemaTO.getConversionPattern()
-                        != null
+                final String dataPattern = schemaTO.getConversionPattern() != null
                         ? schemaTO.getConversionPattern()
                         : SyncopeConstants.DEFAULT_DATE_PATTERN;
 
@@ -218,8 +199,8 @@ public class AttributesPanel extends Panel {
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model());
-                ((AjaxDropDownChoicePanel) panel).setChoices(Arrays.asList(schemaTO.getEnumerationValues().
-                        split(Schema.enumValuesSeparator)));
+                ((AjaxDropDownChoicePanel) panel).setChoices(Arrays.asList(schemaTO.getEnumerationValues().split(
+                        Schema.enumValuesSeparator)));
                 if (required) {
                     panel.addRequiredLabel();
                 }

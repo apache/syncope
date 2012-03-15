@@ -28,16 +28,14 @@ import org.syncope.core.persistence.dao.AttrDAO;
 public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
 
     @Override
-    public <T extends AbstractAttr> T find(final Long id,
-            final Class<T> reference) {
+    public <T extends AbstractAttr> T find(final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
     public <T extends AbstractAttr> List<T> findAll(final Class<T> reference) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
@@ -47,8 +45,7 @@ public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
     }
 
     @Override
-    public <T extends AbstractAttr> void delete(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractAttr> void delete(final Long id, final Class<T> reference) {
 
         T attribute = find(id, reference);
         if (attribute == null) {

@@ -26,8 +26,7 @@ public class ExecMessageModalPage extends BaseModalPage {
     private static final long serialVersionUID = 3163146190501510888L;
 
     public ExecMessageModalPage(final String message) {
-        final Label dialogContent =
-                new Label("message", new Model<String>(message));
+        final Label dialogContent = new Label("message", new Model<String>(message));
         add(dialogContent.setOutputMarkupId(true));
     }
 }

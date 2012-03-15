@@ -31,13 +31,10 @@ public class BasicValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(AbstractAttrValue attributeValue)
-            throws InvalidAttrValueException {
+    protected void doValidate(AbstractAttrValue attributeValue) throws InvalidAttrValueException {
 
         if (SchemaType.Enum.equals(schema.getType())) {
-            final String[] enumeration =
-                    schema.getEnumerationValues().split(
-                    AbstractSchema.enumValuesSeparator);
+            final String[] enumeration = schema.getEnumerationValues().split(AbstractSchema.enumValuesSeparator);
 
             final String value = attributeValue.getValueAsString();
 

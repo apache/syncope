@@ -52,8 +52,7 @@ public interface UserSearchDAO extends DAO {
      * @param itemsPerPage number of results per page
      * @return the list of users matchin the given search condition
      */
-    List<SyncopeUser> search(Set<Long> adminRoles,
-            NodeCond searchCondition, int page, int itemsPerPage);
+    List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition, int page, int itemsPerPage);
 
     /**
      * Verify if user matched the given search condition.

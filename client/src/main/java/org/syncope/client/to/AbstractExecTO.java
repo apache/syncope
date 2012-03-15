@@ -60,7 +60,9 @@ public class AbstractExecTO extends AbstractBaseBean {
     }
 
     public Date getStartDate() {
-        return startDate == null ? null : new Date(startDate.getTime());
+        return startDate == null
+                ? null
+                : new Date(startDate.getTime());
     }
 
     public void setStartDate(Date startDate) {
@@ -70,7 +72,9 @@ public class AbstractExecTO extends AbstractBaseBean {
     }
 
     public Date getEndDate() {
-        return endDate == null ? null : new Date(endDate.getTime());
+        return endDate == null
+                ? null
+                : new Date(endDate.getTime());
     }
 
     public void setEndDate(Date endDate) {

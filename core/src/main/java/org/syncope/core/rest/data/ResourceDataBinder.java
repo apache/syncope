@@ -52,11 +52,9 @@ public class ResourceDataBinder {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ResourceDataBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] MAPPING_IGNORE_PROPERTIES = {
-        "id", "resource", "syncToken"};
+    private static final String[] MAPPING_IGNORE_PROPERTIES = { "id", "resource", "syncToken" };
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -67,14 +65,12 @@ public class ResourceDataBinder {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public ExternalResource create(final ResourceTO resourceTO)
-            throws SyncopeClientCompositeErrorException {
+    public ExternalResource create(final ResourceTO resourceTO) throws SyncopeClientCompositeErrorException {
 
         return update(new ExternalResource(), resourceTO);
     }
 
-    public ExternalResource update(final ExternalResource resource,
-            final ResourceTO resourceTO)
+    public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
         if (resourceTO == null) {
@@ -84,8 +80,7 @@ public class ResourceDataBinder {
         resource.setName(resourceTO.getName());
 
         if (resourceTO.getConnectorId() != null) {
-            ConnInstance connector =
-                    connectorInstanceDAO.find(resourceTO.getConnectorId());
+            ConnInstance connector = connectorInstanceDAO.find(resourceTO.getConnectorId());
             resource.setConnector(connector);
 
             if (!connector.getResources().contains(resource)) {
@@ -93,18 +88,15 @@ public class ResourceDataBinder {
             }
         }
 
-        resource.setForceMandatoryConstraint(
-                resourceTO.isForceMandatoryConstraint());
+        resource.setForceMandatoryConstraint(resourceTO.isForceMandatoryConstraint());
 
         resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
 
         resource.setPropagationPriority(resourceTO.getPropagationPriority());
 
-        resource.setPropagationMode(
-                resourceTO.getPropagationMode());
+        resource.setPropagationMode(resourceTO.getPropagationMode());
 
-        resource.setMappings(
-                getSchemaMappings(resource, resourceTO.getMappings()));
+        resource.setMappings(getSchemaMappings(resource, resourceTO.getMappings()));
 
         resource.setAccountLink(resourceTO.getAccountLink());
 
@@ -125,9 +117,7 @@ public class ResourceDataBinder {
                 ? (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy())
                 : null);
 
-        resource.setConnectorConfigurationProperties(
-                new HashSet<ConnConfProperty>(
-                resourceTO.getConnConfProperties()));
+        resource.setConnectorConfigurationProperties(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
 
         if (resourceTO.getSyncToken() == null) {
             resource.setSerializedSyncToken(null);
@@ -136,8 +126,7 @@ public class ResourceDataBinder {
         return resource;
     }
 
-    public List<ResourceTO> getResourceTOs(
-            Collection<ExternalResource> resources) {
+    public List<ResourceTO> getResourceTOs(Collection<ExternalResource> resources) {
 
         if (resources == null) {
             return null;
@@ -165,23 +154,22 @@ public class ResourceDataBinder {
         // set the connector instance
         ConnInstance connector = resource.getConnector();
 
-        resourceTO.setConnectorId(
-                connector != null ? connector.getId() : null);
+        resourceTO.setConnectorId(connector != null
+                ? connector.getId()
+                : null);
 
         // set the mappings
         resourceTO.setMappings(getSchemaMappingTOs(resource.getMappings()));
 
         resourceTO.setAccountLink(resource.getAccountLink());
 
-        resourceTO.setForceMandatoryConstraint(
-                resource.isForceMandatoryConstraint());
+        resourceTO.setForceMandatoryConstraint(resource.isForceMandatoryConstraint());
 
         resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
 
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
 
-        resourceTO.setPropagationMode(
-                resource.getPropagationMode());
+        resourceTO.setPropagationMode(resource.getPropagationMode());
 
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
@@ -189,23 +177,24 @@ public class ResourceDataBinder {
         resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
-                ? resource.getPasswordPolicy().getId() : null);
+                ? resource.getPasswordPolicy().getId()
+                : null);
 
         resourceTO.setAccountPolicy(resource.getAccountPolicy() != null
-                ? resource.getAccountPolicy().getId() : null);
+                ? resource.getAccountPolicy().getId()
+                : null);
 
         resourceTO.setSyncPolicy(resource.getSyncPolicy() != null
-                ? resource.getSyncPolicy().getId() : null);
+                ? resource.getSyncPolicy().getId()
+                : null);
 
-        resourceTO.setConnectorConfigurationProperties(
-                resource.getConfiguration());
+        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
         resourceTO.setSyncToken(resource.getSerializedSyncToken());
 
         return resourceTO;
     }
 
-    private Set<SchemaMapping> getSchemaMappings(
-            ExternalResource resource, List<SchemaMappingTO> mappings) {
+    private Set<SchemaMapping> getSchemaMappings(ExternalResource resource, List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
@@ -227,12 +216,10 @@ public class ResourceDataBinder {
     private SchemaMapping getSchemaMapping(ExternalResource resource, SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException =
-                new SyncopeClientCompositeErrorException(
+        SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        SyncopeClientException requiredValuesMissing =
-                new SyncopeClientException(
+        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         // this control needs to be free to get schema names
@@ -268,11 +255,12 @@ public class ResourceDataBinder {
         }
 
         // no mandatory condition implies mandatory condition false
-        if (!jexlUtil.isExpressionValid(
-                mappingTO.getMandatoryCondition() != null ? mappingTO.getMandatoryCondition() : "false")) {
+        if (!jexlUtil.isExpressionValid(mappingTO.getMandatoryCondition() != null
+                ? mappingTO.getMandatoryCondition()
+                : "false")) {
 
-            SyncopeClientException invalidMandatoryCondition =
-                    new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);
+            SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidValues);
 
             invalidMandatoryCondition.addElement(mappingTO.getMandatoryCondition());
 
@@ -292,8 +280,7 @@ public class ResourceDataBinder {
         return mapping;
     }
 
-    public List<SchemaMappingTO> getSchemaMappingTOs(
-            Collection<SchemaMapping> mappings) {
+    public List<SchemaMappingTO> getSchemaMappingTOs(Collection<SchemaMapping> mappings) {
 
         if (mappings == null) {
             LOG.error("No mapping provided.");
@@ -301,8 +288,7 @@ public class ResourceDataBinder {
             return null;
         }
 
-        List<SchemaMappingTO> schemaMappingTOs =
-                new ArrayList<SchemaMappingTO>();
+        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
         for (SchemaMapping mapping : mappings) {
             LOG.debug("Asking for TO for {}", mapping);
 
@@ -323,8 +309,7 @@ public class ResourceDataBinder {
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
 
-        BeanUtils.copyProperties(
-                schemaMapping, schemaMappingTO, MAPPING_IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(schemaMapping, schemaMappingTO, MAPPING_IGNORE_PROPERTIES);
 
         schemaMappingTO.setId(schemaMapping.getId());
 

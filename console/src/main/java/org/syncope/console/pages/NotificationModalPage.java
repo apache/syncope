@@ -49,13 +49,10 @@ class NotificationModalPage extends BaseModalPage {
     @SpringBean
     private NotificationRestClient restClient;
 
-    public NotificationModalPage(final PageReference callPageRef,
-            final ModalWindow window,
-            final NotificationTO notificationTO,
-            final boolean createFlag) {
+    public NotificationModalPage(final PageReference callPageRef, final ModalWindow window,
+            final NotificationTO notificationTO, final boolean createFlag) {
 
-        Form form = new Form("form", new CompoundPropertyModel(
-                notificationTO));
+        Form form = new Form("form", new CompoundPropertyModel(notificationTO));
         form.setModel(new CompoundPropertyModel(notificationTO));
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
@@ -91,18 +88,16 @@ class NotificationModalPage extends BaseModalPage {
         final UserSearchPanel recipients = new UserSearchPanel("recipients", notificationTO.getRecipients());
         form.add(recipients);
 
-        final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient", getString("selfAsRecipient"),
-                new PropertyModel(notificationTO, "selfAsRecipient"));
+        final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
+                getString("selfAsRecipient"), new PropertyModel(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
 
-        AjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model<String>(getString("submit"))) {
+        AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(recipients.buildSearchCond());
@@ -115,8 +110,7 @@ class NotificationModalPage extends BaseModalPage {
                     }
                     info(getString("operation_succeded"));
 
-                    Configuration callerPage =
-                            (Configuration) callPageRef.getPage();
+                    Configuration callerPage = (Configuration) callPageRef.getPage();
                     callerPage.setModalResult(true);
 
                     window.close(target);
@@ -127,8 +121,7 @@ class NotificationModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -137,8 +130,7 @@ class NotificationModalPage extends BaseModalPage {
         String allowedRoles = createFlag
                 ? xmlRolesReader.getAllAllowedRoles("Notification", "create")
                 : xmlRolesReader.getAllAllowedRoles("Notification", "update");
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);
 

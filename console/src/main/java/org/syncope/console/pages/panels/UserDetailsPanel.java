@@ -40,20 +40,16 @@ public class UserDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    public <T extends AbstractAttributableTO> UserDetailsPanel(
-            final String id,
-            final UserTO userTO,
-            final Form form,
-            final boolean resetPassword,
-            final boolean templateMode) {
+    public <T extends AbstractAttributableTO> UserDetailsPanel(final String id, final UserTO userTO, final Form form,
+            final boolean resetPassword, final boolean templateMode) {
 
         super(id);
 
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel username = new AjaxTextFieldPanel("username", "username",
-                new PropertyModel<String>(userTO, "username"));
+        final FieldPanel username = new AjaxTextFieldPanel("username", "username", new PropertyModel<String>(userTO,
+                "username"));
         if (!templateMode) {
             username.addRequiredLabel();
         }
@@ -64,8 +60,7 @@ public class UserDetailsPanel extends Panel {
         // Password
         // ------------------------
         final FieldPanel password;
-        final Label confirmPasswordLabel = new Label("confirmPasswordLabel",
-                new ResourceModel("confirmPassword"));
+        final Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
         final FieldPanel confirmPassword;
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
@@ -86,23 +81,19 @@ public class UserDetailsPanel extends Panel {
             confirmPassword.setRequired(userTO.getId() == 0);
             ((PasswordTextField) confirmPassword.getField()).setResetPassword(resetPassword);
 
-            form.add(new EqualPasswordInputValidator(
-                    password.getField(), confirmPassword.getField()));
+            form.add(new EqualPasswordInputValidator(password.getField(), confirmPassword.getField()));
         }
         add(password);
         add(confirmPasswordLabel);
         add(confirmPassword);
 
-        final WebMarkupContainer mandatoryPassword =
-                new WebMarkupContainer("mandatory_pwd");
+        final WebMarkupContainer mandatoryPassword = new WebMarkupContainer("mandatory_pwd");
         mandatoryPassword.add(new Behavior() {
 
-            private static final long serialVersionUID =
-                    1469628524240283489L;
+            private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
-            public void onComponentTag(
-                    final Component component, final ComponentTag tag) {
+            public void onComponentTag(final Component component, final ComponentTag tag) {
 
                 if (userTO.getId() > 0) {
                     tag.put("style", "display:none;");

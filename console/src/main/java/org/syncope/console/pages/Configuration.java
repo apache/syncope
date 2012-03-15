@@ -150,8 +150,7 @@ public class Configuration extends BasePage {
 
         Form wfForm = new Form("workflowDefForm", new CompoundPropertyModel(workflowDef));
 
-        TextArea<WorkflowDefinitionTO> workflowDefArea =
-                new TextArea<WorkflowDefinitionTO>("workflowDefArea",
+        TextArea<WorkflowDefinitionTO> workflowDefArea = new TextArea<WorkflowDefinitionTO>("workflowDefArea",
                 new PropertyModel<WorkflowDefinitionTO>(workflowDef, "xmlDefinition"));
         wfForm.add(workflowDefArea);
 
@@ -178,14 +177,14 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefUpdate"));
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
+                "workflowDefUpdate"));
         wfForm.add(submit);
 
         workflowDefContainer.add(wfForm);
 
-        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "workflowDefRead"));
         add(workflowDefContainer);
 
         // Logger stuff
@@ -194,8 +193,8 @@ public class Configuration extends BasePage {
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "logList"));
+        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "logList"));
         add(coreLoggerContainer);
 
         ConsoleLoggerController consoleLoggerController = new ConsoleLoggerController();
@@ -205,8 +204,8 @@ public class Configuration extends BasePage {
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "logList"));
+        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "logList"));
         add(consoleLoggerContainer);
     }
 
@@ -229,8 +228,8 @@ public class Configuration extends BasePage {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    final String componentId, final IModel<ConfigurationTO> model) {
+            public void populateItem(final Item<ICellPopulator<ConfigurationTO>> cellItem, final String componentId,
+                    final IModel<ConfigurationTO> model) {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
@@ -245,13 +244,12 @@ public class Configuration extends BasePage {
 
                         editConfigWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new ConfigurationModalPage(Configuration.this.getPageReference(),
-                                        editConfigWin, configurationTO, false);
+                                return new ConfigurationModalPage(Configuration.this.getPageReference(), editConfigWin,
+                                        configurationTO, false);
                             }
                         });
 
@@ -306,8 +304,7 @@ public class Configuration extends BasePage {
         setWindowClosedCallback(createConfigWin, confContainer);
         setWindowClosedCallback(editConfigWin, confContainer);
 
-        AjaxLink createConfigurationLink = new AjaxLink(
-                "createConfigurationLink") {
+        AjaxLink createConfigurationLink = new AjaxLink("createConfigurationLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -320,8 +317,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new ConfigurationModalPage(Configuration.this.getPageReference(),
-                                createConfigWin, new ConfigurationTO(), true);
+                        return new ConfigurationModalPage(Configuration.this.getPageReference(), createConfigWin,
+                                new ConfigurationTO(), true);
                     }
                 });
 
@@ -329,8 +326,8 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "create"));
         add(createConfigurationLink);
 
         Link dbExportLink = new Link<Void>("dbExportLink") {
@@ -340,11 +337,12 @@ public class Configuration extends BasePage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(
-                            baseURL + "configuration/dbexport", restTemplate);
+                    HttpResourceStream stream = new HttpResourceStream(baseURL + "configuration/dbexport", restTemplate);
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null ? "content.xml" : stream.getFilename());
+                    rsrh.setFileName(stream.getFilename() == null
+                            ? "content.xml"
+                            : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
@@ -354,14 +352,14 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "read"));
+        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "read"));
         add(dbExportLink);
 
         Form confPaginatorForm = new Form("confPaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "confPaginatorRows"), prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "confPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -369,8 +367,8 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS,
-                        String.valueOf(confPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS, String
+                        .valueOf(confPaginatorRows));
                 confTable.setItemsPerPage(confPaginatorRows);
 
                 target.add(confContainer);
@@ -382,8 +380,7 @@ public class Configuration extends BasePage {
     }
 
     private void setupNotification() {
-        notificationPaginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
+        notificationPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
 
         List<IColumn> notificationCols = new ArrayList<IColumn>();
         notificationCols.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
@@ -418,8 +415,7 @@ public class Configuration extends BasePage {
 
                         editNotificationWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -492,8 +488,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new NotificationModalPage(Configuration.this.getPageReference(),
-                                createNotificationWin, new NotificationTO(), true);
+                        return new NotificationModalPage(Configuration.this.getPageReference(), createNotificationWin,
+                                new NotificationTO(), true);
                     }
                 });
 
@@ -501,15 +497,14 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Notification", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Notification", "create"));
         add(createNotificationLink);
 
         Form notificationPaginatorForm = new Form("notificationPaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "notificationPaginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
+                "notificationPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -517,8 +512,8 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS,
-                        String.valueOf(notificationPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS, String
+                        .valueOf(notificationPaginatorRows));
                 notificationTable.setItemsPerPage(notificationPaginatorRows);
 
                 target.add(notificationContainer);
@@ -529,8 +524,7 @@ public class Configuration extends BasePage {
         add(notificationPaginatorForm);
     }
 
-    private class SyncopeConfProvider
-            extends SortableDataProvider<ConfigurationTO> {
+    private class SyncopeConfProvider extends SortableDataProvider<ConfigurationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -571,8 +565,7 @@ public class Configuration extends BasePage {
         }
     }
 
-    private class NotificationProvider
-            extends SortableDataProvider<NotificationTO> {
+    private class NotificationProvider extends SortableDataProvider<NotificationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -619,8 +612,8 @@ public class Configuration extends BasePage {
 
         private final ConsoleLoggerController consoleLoggerController;
 
-        public LoggerPropertyList(final ConsoleLoggerController consoleLoggerController,
-                final String id, final List<? extends LoggerTO> list) {
+        public LoggerPropertyList(final ConsoleLoggerController consoleLoggerController, final String id,
+                final List<? extends LoggerTO> list) {
 
             super(id, list);
             this.consoleLoggerController = consoleLoggerController;
@@ -659,11 +652,11 @@ public class Configuration extends BasePage {
                 protected void onUpdate(final AjaxRequestTarget target) {
                     try {
                         if (getId().equals("corelogger")) {
-                            confRestClient.setLogLevel(item.getModelObject().getName(),
-                                    item.getModelObject().getLevel());
+                            confRestClient.setLogLevel(item.getModelObject().getName(), item.getModelObject()
+                                    .getLevel());
                         } else {
-                            consoleLoggerController.setLogLevel(item.getModelObject().getName(),
-                                    item.getModelObject().getLevel());
+                            consoleLoggerController.setLogLevel(item.getModelObject().getName(), item.getModelObject()
+                                    .getLevel());
                         }
 
                         info(getString("operation_succeded"));
@@ -675,8 +668,8 @@ public class Configuration extends BasePage {
                 }
             });
 
-            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE,
-                    xmlRolesReader.getAllAllowedRoles("Configuration", "logSetLevel"));
+            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                    "Configuration", "logSetLevel"));
 
             item.add(level);
         }

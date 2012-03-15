@@ -45,9 +45,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
         T result = null;
         T derivedAttribute;
-        for (Iterator<? extends AbstractDerAttr> itor =
-                getDerivedAttributes().iterator();
-                result == null && itor.hasNext();) {
+        for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator(); result == null
+                && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
             if (derivedAttribute.getDerivedSchema() != null
@@ -64,8 +63,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
         T result = null;
         T virtualAttribute;
-        for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator();
-                result == null && itor.hasNext();) {
+        for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator(); result == null
+                && itor.hasNext();) {
 
             virtualAttribute = (T) itor.next();
 

@@ -52,21 +52,27 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     public abstract Long getId();
 
     public Boolean getBooleanValue() {
-        return booleanValue == null ? null : isBooleanAsInteger(booleanValue);
+        return booleanValue == null
+                ? null
+                : isBooleanAsInteger(booleanValue);
     }
 
     public void setBooleanValue(final Boolean booleanValue) {
         this.booleanValue = booleanValue == null
-                ? null : getBooleanAsInteger(booleanValue);
+                ? null
+                : getBooleanAsInteger(booleanValue);
     }
 
     public Date getDateValue() {
-        return dateValue == null ? null : new Date(dateValue.getTime());
+        return dateValue == null
+                ? null
+                : new Date(dateValue.getTime());
     }
 
     public void setDateValue(final Date dateValue) {
         this.dateValue = dateValue == null
-                ? null : new Date(dateValue.getTime());
+                ? null
+                : new Date(dateValue.getTime());
     }
 
     public Double getDoubleValue() {
@@ -94,11 +100,15 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     }
 
     public <T> T getValue() {
-        return (T) (booleanValue != null ? getBooleanValue()
-                : (dateValue != null ? getDateValue()
-                : (doubleValue != null ? getDoubleValue()
-                : (longValue != null ? getLongValue()
-                : stringValue))));
+        return (T) (booleanValue != null
+                ? getBooleanValue()
+                : (dateValue != null
+                        ? getDateValue()
+                        : (doubleValue != null
+                                ? getDoubleValue()
+                                : (longValue != null
+                                        ? getLongValue()
+                                        : stringValue))));
     }
 
     public String getValueAsString() {
@@ -114,8 +124,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 if (getAttribute().getSchema().getFormatter() == null) {
                     result = getLongValue().toString();
                 } else {
-                    result = getAttribute().getSchema().getFormatter().
-                            format(getLongValue());
+                    result = getAttribute().getSchema().getFormatter().format(getLongValue());
                 }
                 break;
 
@@ -123,8 +132,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 if (getAttribute().getSchema().getFormatter() == null) {
                     result = getDoubleValue().toString();
                 } else {
-                    result = getAttribute().getSchema().getFormatter().
-                            format(getDoubleValue());
+                    result = getAttribute().getSchema().getFormatter().format(getDoubleValue());
                 }
                 break;
 
@@ -132,8 +140,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 if (getAttribute().getSchema().getFormatter() == null) {
                     result = DATE_FORMAT.get().format(getDateValue());
                 } else {
-                    result = getAttribute().getSchema().getFormatter().
-                            format(getDateValue());
+                    result = getAttribute().getSchema().getFormatter().format(getDateValue());
                 }
                 break;
 
@@ -148,12 +155,10 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttr> T getAttribute();
 
-    public abstract <T extends AbstractAttr> void setAttribute(
-            T attribute);
+    public abstract <T extends AbstractAttr> void setAttribute(T attribute);
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this,
-                ToStringStyle.MULTI_LINE_STYLE);
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

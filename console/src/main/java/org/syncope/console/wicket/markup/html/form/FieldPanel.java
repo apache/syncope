@@ -59,13 +59,17 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     public FieldPanel setTitle(String title) {
-        field.add(AttributeModifier.replace("title", title != null ? title : ""));
+        field.add(AttributeModifier.replace("title", title != null
+                ? title
+                : ""));
 
         return this;
     }
 
     public FieldPanel setStyleShet(final String classes) {
-        field.add(AttributeModifier.replace("class", classes != null ? classes : ""));
+        field.add(AttributeModifier.replace("class", classes != null
+                ? classes
+                : ""));
 
         return this;
     }
@@ -138,7 +142,9 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
             @Override
             public Serializable getObject() {
-                return list != null && !list.isEmpty() ? list.get(0) : null;
+                return list != null && !list.isEmpty()
+                        ? list.get(0)
+                        : null;
             }
 
             @Override
@@ -158,8 +164,8 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     public FieldPanel clone() {
         final FieldPanel panel;
         try {
-            panel = this.getClass().getConstructor(new Class[]{String.class, String.class, IModel.class}).
-                    newInstance(id, name, new Model(null));
+            panel = this.getClass().getConstructor(new Class[] { String.class, String.class, IModel.class })
+                    .newInstance(id, name, new Model(null));
         } catch (Exception e) {
             LOG.error("Error cloning field panel", e);
             return null;
@@ -181,8 +187,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
             setRequired(true);
         }
 
-        final Fragment fragment =
-                new Fragment("required", "requiredFragment", this);
+        final Fragment fragment = new Fragment("required", "requiredFragment", this);
 
         fragment.add(new Label("requiredLabel", "*"));
 
@@ -198,8 +203,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
             setRequired(false);
         }
 
-        final Fragment fragment =
-                new Fragment("required", "notRequiredFragment", this);
+        final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
 
         replace(fragment);
 

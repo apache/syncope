@@ -23,16 +23,14 @@ import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.types.EntityViolationType;
 
-public class AttrValidator extends AbstractValidator
-        implements ConstraintValidator<AttrCheck, AbstractAttr> {
+public class AttrValidator extends AbstractValidator implements ConstraintValidator<AttrCheck, AbstractAttr> {
 
     @Override
     public void initialize(final AttrCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final AbstractAttr object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final AbstractAttr object, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
@@ -40,11 +38,9 @@ public class AttrValidator extends AbstractValidator
             isValid = true;
         } else {
             if (object.getSchema().isUniqueConstraint()) {
-                isValid = object.getValues().isEmpty()
-                        && object.getUniqueValue() != null;
+                isValid = object.getValues().isEmpty() && object.getUniqueValue() != null;
             } else {
-                isValid = !object.getValues().isEmpty()
-                        && object.getUniqueValue() == null;
+                isValid = !object.getValues().isEmpty() && object.getUniqueValue() == null;
 
                 if (!object.getSchema().isMultivalue()) {
                     isValid &= object.getValues().size() == 1;
@@ -52,17 +48,13 @@ public class AttrValidator extends AbstractValidator
             }
 
             if (!isValid) {
-                LOG.error("Invalid values for attribute " + object + ": "
-                        + "schema=" + object.getSchema().getName() + ", "
-                        + "values={}", object.getValuesAsStrings());
+                LOG.error("Invalid values for attribute " + object + ": " + "schema=" + object.getSchema().getName()
+                        + ", " + "values={}", object.getValuesAsStrings());
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidValueList.toString()).
-                        addNode(object
-                        + "(" + object.getSchema().getName() + ")"
-                        + "{" + object.getValuesAsStrings() + "}").
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidValueList.toString()).addNode(
+                        object + "(" + object.getSchema().getName() + ")" + "{" + object.getValuesAsStrings() + "}")
+                        .addConstraintViolation();
             }
         }
 

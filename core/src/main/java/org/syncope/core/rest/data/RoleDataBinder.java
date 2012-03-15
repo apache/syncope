@@ -45,27 +45,20 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    public SyncopeRole create(final RoleTO roleTO)
-            throws SyncopeClientCompositeErrorException {
+    public SyncopeRole create(final RoleTO roleTO) throws SyncopeClientCompositeErrorException {
 
         SyncopeRole role = new SyncopeRole();
         role.setInheritAttributes(roleTO.isInheritAttributes());
-        role.setInheritDerivedAttributes(
-                roleTO.isInheritDerivedAttributes());
-        role.setInheritVirtualAttributes(
-                roleTO.isInheritVirtualAttributes());
+        role.setInheritDerivedAttributes(roleTO.isInheritDerivedAttributes());
+        role.setInheritVirtualAttributes(roleTO.isInheritVirtualAttributes());
 
         role.setInheritPasswordPolicy(roleTO.isInheritPasswordPolicy());
         role.setInheritAccountPolicy(roleTO.isInheritAccountPolicy());
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // name and parent
-        SyncopeClientException invalidRoles =
-                new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidRoles);
+        SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
         if (roleTO.getName() == null) {
             LOG.error("No name specified for this role");
 
@@ -87,11 +80,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        SyncopeRole otherRole = roleDAO.find(
-                roleTO.getName(), parentRoleId);
+        SyncopeRole otherRole = roleDAO.find(roleTO.getName(), parentRoleId);
         if (otherRole != null) {
-            LOG.error("Another role exists with the same name "
-                    + "and the same parent role: " + otherRole);
+            LOG.error("Another role exists with the same name " + "and the same parent role: " + otherRole);
 
             invalidRoles.addElement(roleTO.getName());
         }
@@ -121,24 +112,19 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return role;
     }
 
-    public PropagationByResource update(SyncopeRole role, RoleMod roleMod)
-            throws SyncopeClientCompositeErrorException {
+    public PropagationByResource update(SyncopeRole role, RoleMod roleMod) throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // name
-        SyncopeClientException invalidRoles = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidRoles);
+        SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
-            SyncopeRole otherRole = roleDAO.find(
-                    roleMod.getName(),
-                    role.getParent() != null ? role.getParent().getId() : 0L);
+            SyncopeRole otherRole = roleDAO.find(roleMod.getName(), role.getParent() != null
+                    ? role.getParent().getId()
+                    : 0L);
 
             if (otherRole != null) {
-                LOG.error("Another role exists with the same name "
-                        + "and the same parent role: " + otherRole);
+                LOG.error("Another role exists with the same name " + "and the same parent role: " + otherRole);
 
                 invalidRoles.addElement(roleMod.getName());
                 scce.addException(invalidRoles);
@@ -149,20 +135,17 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // inherited attributes
         if (roleMod.getInheritAttributes() != null) {
-            role.setInheritAttributes(
-                    roleMod.getInheritAttributes());
+            role.setInheritAttributes(roleMod.getInheritAttributes());
         }
 
         // inherited derived attributes
         if (roleMod.getInheritDerivedAttributes() != null) {
-            role.setInheritDerivedAttributes(
-                    roleMod.getInheritDerivedAttributes());
+            role.setInheritDerivedAttributes(roleMod.getInheritDerivedAttributes());
         }
 
         // inherited virtual attributes
         if (roleMod.getInheritVirtualAttributes() != null) {
-            role.setInheritVirtualAttributes(
-                    roleMod.getInheritVirtualAttributes());
+            role.setInheritVirtualAttributes(roleMod.getInheritVirtualAttributes());
         }
 
         // inherited password Policy
@@ -188,17 +171,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         if (roleMod.getPasswordPolicy() != null) {
-            role.setPasswordPolicy(
-                    roleMod.getPasswordPolicy().getId() != null
-                    ? (PasswordPolicy) policyDAO.find(
-                    roleMod.getPasswordPolicy().getId()) : null);
+            role.setPasswordPolicy(roleMod.getPasswordPolicy().getId() != null
+                    ? (PasswordPolicy) policyDAO.find(roleMod.getPasswordPolicy().getId())
+                    : null);
         }
 
         if (roleMod.getAccountPolicy() != null) {
-            role.setAccountPolicy(
-                    roleMod.getAccountPolicy().getId() != null
-                    ? (AccountPolicy) policyDAO.find(
-                    roleMod.getAccountPolicy().getId()) : null);
+            role.setAccountPolicy(roleMod.getAccountPolicy().getId() != null
+                    ? (AccountPolicy) policyDAO.find(roleMod.getAccountPolicy().getId())
+                    : null);
         }
 
         // attributes, derived attributes, virtual attributes and resources
@@ -225,30 +206,26 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         final List<RAttr> allAttributes = role.findInheritedAttributes();
         allAttributes.addAll((List<RAttr>) role.getAttributes());
 
-        final List<RDerAttr> allDerAttributes =
-                role.findInheritedDerivedAttributes();
+        final List<RDerAttr> allDerAttributes = role.findInheritedDerivedAttributes();
         allDerAttributes.addAll((List<RDerAttr>) role.getDerivedAttributes());
 
-        final List<RVirAttr> allVirAttributes =
-                role.findInheritedVirtualAttributes();
+        final List<RVirAttr> allVirAttributes = role.findInheritedVirtualAttributes();
         allVirAttributes.addAll((List<RVirAttr>) role.getVirtualAttributes());
         // -------------------------
 
-        fillTO(roleTO,
-                allAttributes,
-                allDerAttributes,
-                allVirAttributes,
-                role.getResources());
+        fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {
             roleTO.addEntitlement(entitlement.getName());
         }
 
         roleTO.setPasswordPolicy(role.getPasswordPolicy() != null
-                ? role.getPasswordPolicy().getId() : null);
+                ? role.getPasswordPolicy().getId()
+                : null);
 
         roleTO.setAccountPolicy(role.getAccountPolicy() != null
-                ? role.getAccountPolicy().getId() : null);
+                ? role.getAccountPolicy().getId()
+                : null);
 
         return roleTO;
     }

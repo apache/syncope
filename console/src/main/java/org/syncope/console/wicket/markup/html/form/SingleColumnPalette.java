@@ -122,12 +122,16 @@ public class SingleColumnPalette<T> extends Palette<T> {
 
     @Override
     protected Component newAddComponent() {
-        return addLink == null ? super.newAddComponent() : addLink;
+        return addLink == null
+                ? super.newAddComponent()
+                : addLink;
     }
 
     @Override
     protected Component newRemoveComponent() {
-        return removeLink == null ? super.newRemoveComponent() : removeLink;
+        return removeLink == null
+                ? super.newRemoveComponent()
+                : removeLink;
     }
 
     @Override

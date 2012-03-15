@@ -39,8 +39,7 @@ public class XMLRolesReader {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            XMLRolesReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XMLRolesReader.class);
 
     @Autowired
     private String authorizations;
@@ -52,8 +51,7 @@ public class XMLRolesReader {
         dbf.setNamespaceAware(true);
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
-            doc = db.parse(getClass().getResource("/" + authorizations).
-                    openStream());
+            doc = db.parse(getClass().getResource("/" + authorizations).openStream());
             doc.getDocumentElement().normalize();
         } catch (Exception e) {
             LOG.error("While initializing parsing of {}", authorizations, e);
@@ -68,8 +66,7 @@ public class XMLRolesReader {
      * @param actionId
      * @return roles list comma separated
      */
-    public String getAllAllowedRoles(final String pageId,
-            final String actionId) {
+    public String getAllAllowedRoles(final String pageId, final String actionId) {
 
         if (doc == null) {
             init();
@@ -82,9 +79,7 @@ public class XMLRolesReader {
         try {
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
-            XPathExpression expr = xpath.compile(
-                    "//page[@id='" + pageId + "']/"
-                    + "action[@id='" + actionId + "']/"
+            XPathExpression expr = xpath.compile("//page[@id='" + pageId + "']/" + "action[@id='" + actionId + "']/"
                     + "entitlement/text()");
             Object result = expr.evaluate(doc, XPathConstants.NODESET);
 

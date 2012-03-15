@@ -119,8 +119,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ReportTO update(@RequestBody final ReportTO reportTO)
-            throws NotFoundException {
+    public ReportTO update(@RequestBody final ReportTO reportTO) throws NotFoundException {
 
         LOG.debug("Report update called with parameter {}", reportTO);
 
@@ -135,8 +134,7 @@ public class ReportController extends AbstractController {
         try {
             jobInstanceLoader.registerJob(report);
         } catch (Exception e) {
-            LOG.error("While registering quartz job for report "
-                    + report.getId(), e);
+            LOG.error("While registering quartz job for report " + report.getId(), e);
 
             SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
@@ -209,8 +207,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{reportId}")
-    public ReportTO read(@PathVariable("reportId") final Long reportId)
-            throws NotFoundException {
+    public ReportTO read(@PathVariable("reportId") final Long reportId) throws NotFoundException {
 
         Report report = reportDAO.find(reportId);
         if (report == null) {
@@ -223,8 +220,7 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     @Transactional(readOnly = true)
-    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId)
-            throws NotFoundException {
+    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId) throws NotFoundException {
 
         ReportExec execution = reportExecDAO.find(executionId);
         if (execution == null) {
@@ -239,16 +235,15 @@ public class ReportController extends AbstractController {
     @Transactional(readOnly = true)
     public void exportExecutionResult(final HttpServletResponse response,
             @PathVariable("executionId") final Long executionId,
-            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt)
-            throws NotFoundException {
+            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt) throws NotFoundException {
 
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
         if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientCompositeErrorException sccee =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException sccee = new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
             sce.addElement(reportExec.getExecResult() == null
                     ? "No report data produced"
@@ -257,14 +252,15 @@ public class ReportController extends AbstractController {
             throw sccee;
         }
 
-        ReportExecExportFormat format =
-                fmt == null ? ReportExecExportFormat.XML : fmt;
+        ReportExecExportFormat format = fmt == null
+                ? ReportExecExportFormat.XML
+                : fmt;
 
         LOG.debug("Exporting result of {} as {}", reportExec, format);
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.addHeader("Content-Disposition",
-                "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase());
+        response.addHeader("Content-Disposition", "attachment; filename=" + reportExec.getReport().getName() + "."
+                + format.name().toLowerCase());
 
         // streaming SAX handler from a compressed byte array stream
         ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
@@ -273,8 +269,7 @@ public class ReportController extends AbstractController {
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
 
-            Pipeline<SAXPipelineComponent> pipeline =
-                    new NonCachingPipeline<SAXPipelineComponent>();
+            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<SAXPipelineComponent>();
             pipeline.addComponent(new XMLGenerator(zis));
 
             Map<String, Object> parameters = new HashMap<String, Object>();
@@ -313,8 +308,7 @@ public class ReportController extends AbstractController {
             pipeline.setup(response.getOutputStream());
             pipeline.execute();
 
-            LOG.debug("Result of {} successfully exported as {}",
-                    reportExec, format);
+            LOG.debug("Result of {} successfully exported as {}", reportExec, format);
         } catch (Throwable t) {
             LOG.error("While exporting content", t);
         } finally {
@@ -329,8 +323,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
-    public ReportExecTO execute(@PathVariable("reportId") final Long reportId)
-            throws NotFoundException {
+    public ReportExecTO execute(@PathVariable("reportId") final Long reportId) throws NotFoundException {
 
         Report report = reportDAO.find(reportId);
         if (report == null) {

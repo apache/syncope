@@ -20,152 +20,70 @@ package org.syncope.types;
 
 public enum SyncopeClientExceptionType {
 
-    Deadlock(
-    "Syncope.Deadlock",
-    ""),
-    DataIntegrityViolation(
-    "Syncope.DataIntegrityViolation",
-    "Syncope.DataIntegrityViolation.name"),
-    ExistingResource(
-    "Syncope.ExistingResource",
-    "Syncope.ExistingResource.name"),
-    GenericPersistence(
-    "Syncope.GenericPersistence",
-    "Syncope.GenericPersistence.cause"),
-    InvalidLogger(
-    "Syncope.InvalidLogger",
-    "Syncope.InvalidLogger.message"),
-    InvalidConnInstance(
-    "Syncope.InvalidConnInstance",
-    "Syncope.InvalidConnInstance.message"),
-    InvalidPasswordPolicy(
-    "Syncope.InvalidPasswordPolicy",
-    "Syncope.InvalidPasswordPolicy.reason"),
-    InvalidAccountPolicy(
-    "Syncope.InvalidAccountPolicy",
-    "Syncope.InvalidAccountPolicy.reason"),
-    InvalidSyncPolicy(
-    "Syncope.InvalidSyncPolicy",
-    "Syncope.InvalidSyncPolicy.reason"),
-    InvalidSyncopeRole(
-    "Syncope.InvalidSyncopeRole",
-    "Syncope.InvalidSyncopeRole.reason"),
-    InvalidReportExec(
-    "Syncope.InvalidReportExec",
-    "Syncope.InvalidReportExec.reason"),
-    InvalidRoles(
-    "Syncope.InvalidRoles",
-    "Syncope.InvalidRoles.name"),
-    InvalidSchemaDefinition(
-    "Syncope.InvalidSchemaDefinition",
-    ""),
-    InvalidSearchCondition(
-    "Syncope.InvalidSearchCondition",
-    ""),
+    Deadlock("Syncope.Deadlock", ""),
+    DataIntegrityViolation("Syncope.DataIntegrityViolation", "Syncope.DataIntegrityViolation.name"),
+    ExistingResource("Syncope.ExistingResource", "Syncope.ExistingResource.name"),
+    GenericPersistence("Syncope.GenericPersistence", "Syncope.GenericPersistence.cause"),
+    InvalidLogger("Syncope.InvalidLogger", "Syncope.InvalidLogger.message"),
+    InvalidConnInstance("Syncope.InvalidConnInstance", "Syncope.InvalidConnInstance.message"),
+    InvalidPasswordPolicy("Syncope.InvalidPasswordPolicy", "Syncope.InvalidPasswordPolicy.reason"),
+    InvalidAccountPolicy("Syncope.InvalidAccountPolicy", "Syncope.InvalidAccountPolicy.reason"),
+    InvalidSyncPolicy("Syncope.InvalidSyncPolicy", "Syncope.InvalidSyncPolicy.reason"),
+    InvalidSyncopeRole("Syncope.InvalidSyncopeRole", "Syncope.InvalidSyncopeRole.reason"),
+    InvalidReportExec("Syncope.InvalidReportExec", "Syncope.InvalidReportExec.reason"),
+    InvalidRoles("Syncope.InvalidRoles", "Syncope.InvalidRoles.name"),
+    InvalidSchemaDefinition("Syncope.InvalidSchemaDefinition", ""),
+    InvalidSearchCondition("Syncope.InvalidSearchCondition", ""),
     InvalidPropagationTaskExecReport(
-    "Syncope.InvalidPropagationTaskExecReport",
-    "Syncope.InvalidPropagationTaskExecReport.element"),
-    InvalidUSchema(
-    "Syncope.InvalidUSchemaUpdate",
-    "Syncope.InvalidUSchemaUpdate.name"),
-    InvalidUDerSchema(
-    "Syncope.InvalidUDerSchemaUpdate",
-    "Syncope.InvalidUDerSchemaUpdate.name"),
-    InvalidUVirSchema(
-    "Syncope.InvalidUVirSchemaUpdate",
-    "Syncope.InvalidUVirSchemaUpdate.name"),
-    InvalidRSchema(
-    "Syncope.InvalidRSchemaUpdate",
-    "Syncope.InvalidRSchemaUpdate.name"),
-    InvalidRDerSchema(
-    "Syncope.InvalidRDerSchemaUpdate",
-    "Syncope.InvalidRDerSchemaUpdate.name"),
-    InvalidRVirSchema(
-    "Syncope.InvalidRVirSchemaUpdate",
-    "Syncope.InvalidRVirSchemaUpdate.name"),
-    InvalidMSchema(
-    "Syncope.InvalidMSchemaUpdate",
-    "Syncope.InvalidMSchemaUpdate.name"),
-    InvalidMDerSchema(
-    "Syncope.InvalidMDerSchemaUpdate",
-    "Syncope.InvalidMDerSchemaUpdate.name"),
-    InvalidMVirSchema(
-    "Syncope.InvalidMVirSchemaUpdate",
-    "Syncope.InvalidMVirSchemaUpdate.name"),
-    InvalidSchemaMapping(
-    "Syncope.InvalidSchemaMapping",
-    ""),
-    InvalidSyncopeUser(
-    "Syncope.InvalidSyncopeUser",
-    "Syncope.InvalidSyncopeUser.element"),
-    InvalidExternalResource(
-    "Syncope.InvalidExternalResource",
-    "Syncope.InvalidExternalResource.element"),
-    InvalidNotification(
-    "Syncope.InvalidNotification",
-    "Syncope.InvalidNotification.element"),
-    InvalidPropagationTask(
-    "Syncope.InvalidPropagationTask",
-    "Syncope.InvalidPropagationTask.element"),
-    InvalidSchedTask(
-    "Syncope.InvalidSchedTask",
-    "Syncope.InvalidSchedTask.element"),
-    InvalidSyncTask(
-    "Syncope.InvalidSyncTask",
-    "Syncope.InvalidSyncTask.element"),
-    InvalidValues(
-    "Syncope.InvalidValues",
-    "Syncope.InvalidValues.attributeName"),
-    NotFound(
-    "Syncope.NotFound",
-    "Syncope.NotFound.entity"),
-    Propagation(
-    "Syncope.Propagation",
-    "Syncope.Propagation.resourceName"),
-    RejectedUserCreate(
-    "Syncope.RejectUserCreate",
-    "Syncope.RejectUserCreate.syncopeUserId"),
-    RequiredValuesMissing(
-    "Syncope.RequiredValuesMissing",
-    "Syncope.RequiredValuesMissing.attributeName"),
-    Scheduling(
-    "Syncope.Scheduling",
-    "Syncope.Scheduling.message"),
-    UnauthorizedRole(
-    "Syncope.UnauthorizedRole",
-    "Syncope.UnauthorizedRole.id"),
-    Unknown(
-    "Syncope.Unknown",
-    ""),
-    Workflow(
-    "Syncope.Workflow",
-    "Syncope.Workflow.message");
+            "Syncope.InvalidPropagationTaskExecReport",
+            "Syncope.InvalidPropagationTaskExecReport.element"),
+    InvalidUSchema("Syncope.InvalidUSchemaUpdate", "Syncope.InvalidUSchemaUpdate.name"),
+    InvalidUDerSchema("Syncope.InvalidUDerSchemaUpdate", "Syncope.InvalidUDerSchemaUpdate.name"),
+    InvalidUVirSchema("Syncope.InvalidUVirSchemaUpdate", "Syncope.InvalidUVirSchemaUpdate.name"),
+    InvalidRSchema("Syncope.InvalidRSchemaUpdate", "Syncope.InvalidRSchemaUpdate.name"),
+    InvalidRDerSchema("Syncope.InvalidRDerSchemaUpdate", "Syncope.InvalidRDerSchemaUpdate.name"),
+    InvalidRVirSchema("Syncope.InvalidRVirSchemaUpdate", "Syncope.InvalidRVirSchemaUpdate.name"),
+    InvalidMSchema("Syncope.InvalidMSchemaUpdate", "Syncope.InvalidMSchemaUpdate.name"),
+    InvalidMDerSchema("Syncope.InvalidMDerSchemaUpdate", "Syncope.InvalidMDerSchemaUpdate.name"),
+    InvalidMVirSchema("Syncope.InvalidMVirSchemaUpdate", "Syncope.InvalidMVirSchemaUpdate.name"),
+    InvalidSchemaMapping("Syncope.InvalidSchemaMapping", ""),
+    InvalidSyncopeUser("Syncope.InvalidSyncopeUser", "Syncope.InvalidSyncopeUser.element"),
+    InvalidExternalResource("Syncope.InvalidExternalResource", "Syncope.InvalidExternalResource.element"),
+    InvalidNotification("Syncope.InvalidNotification", "Syncope.InvalidNotification.element"),
+    InvalidPropagationTask("Syncope.InvalidPropagationTask", "Syncope.InvalidPropagationTask.element"),
+    InvalidSchedTask("Syncope.InvalidSchedTask", "Syncope.InvalidSchedTask.element"),
+    InvalidSyncTask("Syncope.InvalidSyncTask", "Syncope.InvalidSyncTask.element"),
+    InvalidValues("Syncope.InvalidValues", "Syncope.InvalidValues.attributeName"),
+    NotFound("Syncope.NotFound", "Syncope.NotFound.entity"),
+    Propagation("Syncope.Propagation", "Syncope.Propagation.resourceName"),
+    RejectedUserCreate("Syncope.RejectUserCreate", "Syncope.RejectUserCreate.syncopeUserId"),
+    RequiredValuesMissing("Syncope.RequiredValuesMissing", "Syncope.RequiredValuesMissing.attributeName"),
+    Scheduling("Syncope.Scheduling", "Syncope.Scheduling.message"),
+    UnauthorizedRole("Syncope.UnauthorizedRole", "Syncope.UnauthorizedRole.id"),
+    Unknown("Syncope.Unknown", ""),
+    Workflow("Syncope.Workflow", "Syncope.Workflow.message");
 
     private String headerValue;
 
     private String elementHeaderName;
 
-    private SyncopeClientExceptionType(String headerValue,
-            String elementHeaderName) {
+    private SyncopeClientExceptionType(String headerValue, String elementHeaderName) {
 
         this.headerValue = headerValue;
         this.elementHeaderName = elementHeaderName;
     }
 
-    public static SyncopeClientExceptionType getFromHeaderValue(
-            String exceptionTypeHeaderValue) {
+    public static SyncopeClientExceptionType getFromHeaderValue(String exceptionTypeHeaderValue) {
 
         SyncopeClientExceptionType result = null;
         for (SyncopeClientExceptionType syncopeClientExceptionType : values()) {
-            if (exceptionTypeHeaderValue.equals(
-                    syncopeClientExceptionType.getHeaderValue())) {
+            if (exceptionTypeHeaderValue.equals(syncopeClientExceptionType.getHeaderValue())) {
                 result = syncopeClientExceptionType;
             }
         }
 
         if (result == null) {
-            throw new IllegalArgumentException("Unexpected header value: "
-                    + exceptionTypeHeaderValue);
+            throw new IllegalArgumentException("Unexpected header value: " + exceptionTypeHeaderValue);
         }
 
         return result;

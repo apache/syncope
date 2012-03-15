@@ -27,16 +27,15 @@ import org.syncope.types.EntityViolationType;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.PropagationTaskExecStatus;
 
-public class PropagationTaskValidator extends AbstractValidator
-        implements ConstraintValidator<PropagationTaskCheck, PropagationTask> {
+public class PropagationTaskValidator extends AbstractValidator implements
+        ConstraintValidator<PropagationTaskCheck, PropagationTask> {
 
     @Override
     public void initialize(final PropagationTaskCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final PropagationTask object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final PropagationTask object, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
@@ -47,19 +46,15 @@ public class PropagationTaskValidator extends AbstractValidator
                     && object.getPropagationOperation() != null
                     && !object.getAttributes().isEmpty()
                     && object.getResource() != null
-                    && (PropagationOperation.DELETE == object.
-                    getPropagationOperation()
-                    || object.getSyncopeUser() != null);
+                    && (PropagationOperation.DELETE == object.getPropagationOperation() || object.getSyncopeUser() != null);
 
             if (isValid) {
                 List<TaskExec> executions = object.getExecs();
                 for (TaskExec execution : executions) {
                     try {
-                        PropagationTaskExecStatus.valueOf(
-                                execution.getStatus());
+                        PropagationTaskExecStatus.valueOf(execution.getStatus());
                     } catch (IllegalArgumentException e) {
-                        LOG.error("Invalid execution status '"
-                                + execution.getStatus() + "'", e);
+                        LOG.error("Invalid execution status '" + execution.getStatus() + "'", e);
                         isValid = false;
                     }
                 }
@@ -67,9 +62,8 @@ public class PropagationTaskValidator extends AbstractValidator
 
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidPropagationTask.toString()).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidPropagationTask.toString())
+                        .addConstraintViolation();
             }
         }
 

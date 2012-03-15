@@ -69,21 +69,25 @@ public abstract class AbstractExec extends AbstractBaseBean {
 
     public Date getEndDate() {
         return endDate == null
-                ? null : new Date(endDate.getTime());
+                ? null
+                : new Date(endDate.getTime());
     }
 
     public void setEndDate(final Date endDate) {
         this.endDate = endDate == null
-                ? null : new Date(endDate.getTime());
+                ? null
+                : new Date(endDate.getTime());
     }
 
     public Date getStartDate() {
         return startDate == null
-                ? null : new Date(startDate.getTime());
+                ? null
+                : new Date(startDate.getTime());
     }
 
     public void setStartDate(final Date startDate) {
         this.startDate = startDate == null
-                ? null : new Date(startDate.getTime());
+                ? null
+                : new Date(startDate.getTime());
     }
 }

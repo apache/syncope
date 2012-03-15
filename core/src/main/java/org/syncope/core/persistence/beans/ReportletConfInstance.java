@@ -54,7 +54,7 @@ public class ReportletConfInstance extends AbstractBaseBean {
     public ReportletConf getInstance() {
         return serializedInstance == null
                 ? null
-                : XMLSerializer.<ReportletConf>deserialize(serializedInstance);
+                : XMLSerializer.<ReportletConf> deserialize(serializedInstance);
     }
 
     public void setInstance(final ReportletConf instance) {

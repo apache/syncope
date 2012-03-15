@@ -36,15 +36,14 @@ public interface RoleDAO extends DAO {
     List<SyncopeRole> findByEntitlement(final Entitlement entitlement);
 
     List<SyncopeRole> findByResource(ExternalResource resource);
-    
+
     List<SyncopeRole> findChildren(Long roleId);
 
     List<SyncopeRole> findAll();
 
     List<Membership> findMemberships(SyncopeRole role);
 
-    SyncopeRole save(SyncopeRole syncopeRole)
-            throws InvalidEntityException;
+    SyncopeRole save(SyncopeRole syncopeRole) throws InvalidEntityException;
 
     void delete(Long id);
 }

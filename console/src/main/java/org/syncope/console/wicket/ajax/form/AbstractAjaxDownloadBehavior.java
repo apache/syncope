@@ -23,8 +23,7 @@ import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.util.resource.IResourceStream;
 
-public abstract class AbstractAjaxDownloadBehavior
-        extends AbstractAjaxBehavior {
+public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior {
 
     private static final long serialVersionUID = 6833760760338614245L;
 
@@ -40,8 +39,7 @@ public abstract class AbstractAjaxDownloadBehavior
     @Override
     public void onRequest() {
         getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(
-                new ResourceStreamRequestHandler(
-                getResourceStream(), getFileName()));
+                new ResourceStreamRequestHandler(getResourceStream(), getFileName()));
     }
 
     protected abstract String getFileName();

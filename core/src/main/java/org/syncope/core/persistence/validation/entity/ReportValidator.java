@@ -28,8 +28,7 @@ import org.syncope.client.report.ReportletConf;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.types.EntityViolationType;
 
-public class ReportValidator extends AbstractValidator
-        implements ConstraintValidator<ReportCheck, Report> {
+public class ReportValidator extends AbstractValidator implements ConstraintValidator<ReportCheck, Report> {
 
     @Override
     public void initialize(final ReportCheck constraintAnnotation) {
@@ -37,8 +36,7 @@ public class ReportValidator extends AbstractValidator
 
     @Override
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    public boolean isValid(final Report object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final Report object, final ConstraintValidatorContext context) {
 
         boolean isValid = true;
 
@@ -46,14 +44,12 @@ public class ReportValidator extends AbstractValidator
             try {
                 new CronExpression(object.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '"
-                        + object.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + object.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).
-                        addNode(object + ".cronExpression==" + object.getCronExpression()).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).addNode(
+                        object + ".cronExpression==" + object.getCronExpression()).addConstraintViolation();
             }
         }
 
@@ -66,9 +62,8 @@ public class ReportValidator extends AbstractValidator
             isValid = false;
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).
-                    addNode(object + ".reportletConfs with duplicate names").
-                    addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).addNode(
+                    object + ".reportletConfs with duplicate names").addConstraintViolation();
         }
 
         return isValid;

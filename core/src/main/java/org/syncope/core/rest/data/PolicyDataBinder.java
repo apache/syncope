@@ -44,39 +44,33 @@ public class PolicyDataBinder {
         switch (policy.getType()) {
             case GLOBAL_PASSWORD:
                 policyTO = new PasswordPolicyTO(true);
-                ((PasswordPolicyTO) policyTO).setSpecification(
-                        (PasswordPolicySpec) policy.getSpecification());
+                ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
                 break;
 
             case PASSWORD:
                 policyTO = new PasswordPolicyTO();
-                ((PasswordPolicyTO) policyTO).setSpecification(
-                        (PasswordPolicySpec) policy.getSpecification());
+                ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
                 break;
 
             case GLOBAL_ACCOUNT:
                 policyTO = new AccountPolicyTO(true);
-                ((AccountPolicyTO) policyTO).setSpecification(
-                        (AccountPolicySpec) policy.getSpecification());
+                ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
                 break;
 
             case ACCOUNT:
                 policyTO = new AccountPolicyTO();
-                ((AccountPolicyTO) policyTO).setSpecification(
-                        (AccountPolicySpec) policy.getSpecification());
+                ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
                 break;
 
             case GLOBAL_SYNC:
                 policyTO = new SyncPolicyTO(true);
-                ((SyncPolicyTO) policyTO).setSpecification(
-                        (SyncPolicySpec) policy.getSpecification());
+                ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
                 break;
 
             case SYNC:
             default:
                 policyTO = new SyncPolicyTO();
-                ((SyncPolicyTO) policyTO).setSpecification(
-                        (SyncPolicySpec) policy.getSpecification());
+                ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
 
         }
 
@@ -86,13 +80,11 @@ public class PolicyDataBinder {
         return (T) policyTO;
     }
 
-    public <T extends Policy> T getPolicy(
-            T policy, final PolicyTO policyTO) {
+    public <T extends Policy> T getPolicy(T policy, final PolicyTO policyTO) {
 
         if (policy != null && policy.getType() != policyTO.getType()) {
-            throw new IllegalArgumentException(
-                    String.format("Cannot update %s from %s",
-                    policy.getType(), policyTO.getType()));
+            throw new IllegalArgumentException(String.format("Cannot update %s from %s", policy.getType(), policyTO
+                    .getType()));
         }
 
         switch (policyTO.getType()) {
@@ -100,40 +92,35 @@ public class PolicyDataBinder {
                 if (policy == null) {
                     policy = (T) new PasswordPolicy(true);
                 }
-                policy.setSpecification(
-                        ((PasswordPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
             case PASSWORD:
                 if (policy == null) {
                     policy = (T) new PasswordPolicy();
                 }
-                policy.setSpecification(
-                        ((PasswordPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
             case GLOBAL_ACCOUNT:
                 if (policy == null) {
                     policy = (T) new AccountPolicy(true);
                 }
-                policy.setSpecification(
-                        ((AccountPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
                 break;
 
             case ACCOUNT:
                 if (policy == null) {
                     policy = (T) new AccountPolicy();
                 }
-                policy.setSpecification(
-                        ((AccountPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
                 break;
 
             case GLOBAL_SYNC:
                 if (policy == null) {
                     policy = (T) new SyncPolicy(true);
                 }
-                policy.setSpecification(
-                        ((SyncPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
                 break;
 
             case SYNC:
@@ -141,8 +128,7 @@ public class PolicyDataBinder {
                 if (policy == null) {
                     policy = (T) new SyncPolicy();
                 }
-                policy.setSpecification(
-                        ((SyncPolicyTO) policyTO).getSpecification());
+                policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
         }
 
         policy.setDescription(policyTO.getDescription());

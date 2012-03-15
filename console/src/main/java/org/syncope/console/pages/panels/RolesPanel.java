@@ -55,14 +55,12 @@ public class RolesPanel extends Panel {
 
     private UserTO userTO = null;
 
-    public RolesPanel(final String id, final UserTO userTO,
-            final boolean templateMode) {
+    public RolesPanel(final String id, final UserTO userTO, final boolean templateMode) {
 
         super(id);
         this.userTO = userTO;
 
-        final WebMarkupContainer membershipsContainer =
-                new WebMarkupContainer("membershipsContainer");
+        final WebMarkupContainer membershipsContainer = new WebMarkupContainer("membershipsContainer");
         membershipsContainer.setOutputMarkupId(true);
         add(membershipsContainer);
 
@@ -81,98 +79,80 @@ public class RolesPanel extends Panel {
             }
 
             @Override
-            protected void onNodeLinkClicked(final Object node,
-                    final BaseTree tree, final AjaxRequestTarget target) {
+            protected void onNodeLinkClicked(final Object node, final BaseTree tree, final AjaxRequestTarget target) {
 
-                final RoleTO roleTO =
-                        (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
+                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
 
                 membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID =
-                            7661763358801821185L;
+                    private static final long serialVersionUID = 7661763358801821185L;
 
                     private MembershipTO membershipTO;
 
                     @Override
                     public Page createPage() {
 
-                        for (MembershipTO memberTO :
-                                membershipsView.getList()) {
+                        for (MembershipTO memberTO : membershipsView.getList()) {
 
                             if (memberTO.getRoleId() == roleTO.getId()) {
-                                return new MembershipModalPage(
-                                        getPage().getPageReference(),
-                                        membershipWin, memberTO, templateMode);
+                                return new MembershipModalPage(getPage().getPageReference(), membershipWin, memberTO,
+                                        templateMode);
                             }
                         }
                         membershipTO = new MembershipTO();
                         membershipTO.setRoleId(roleTO.getId());
                         membershipTO.setRoleName(roleTO.getName());
 
-                        return new MembershipModalPage(
-                                getPage().getPageReference(),
-                                membershipWin, membershipTO, templateMode);
+                        return new MembershipModalPage(getPage().getPageReference(), membershipWin, membershipTO,
+                                templateMode);
                     }
                 });
                 membershipWin.show(target);
             }
         };
 
-        tree.setOutputMarkupId(
-                true);
+        tree.setOutputMarkupId(true);
         tree.getTreeState().expandAll();
 
         add(tree);
 
-        membershipsView = new ListView<MembershipTO>(
-                "memberships", new PropertyModel<List<? extends MembershipTO>>(
+        membershipsView = new ListView<MembershipTO>("memberships", new PropertyModel<List<? extends MembershipTO>>(
                 userTO, "memberships")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem item) {
-                final MembershipTO membershipTO =
-                        (MembershipTO) item.getDefaultModelObject();
+                final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
-                item.add(new Label("roleId", new Model(
-                        membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model(
-                        membershipTO.getRoleName())));
+                item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
+                item.add(new Label("roleName", new Model(membershipTO.getRoleName())));
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        membershipWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
-                                    @Override
-                                    public Page createPage() {
-                                        return new MembershipModalPage(
-                                                getPage().getPageReference(),
-                                                membershipWin, membershipTO,
-                                                templateMode);
+                            @Override
+                            public Page createPage() {
+                                return new MembershipModalPage(getPage().getPageReference(), membershipWin,
+                                        membershipTO, templateMode);
 
-                                    }
-                                });
+                            }
+                        });
                         membershipWin.show(target);
                     }
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
 
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -189,25 +169,19 @@ public class RolesPanel extends Panel {
         setWindowClosedCallback(membershipWin, membershipsContainer);
     }
 
-    private void setWindowClosedCallback(
-            final ModalWindow window,
-            final WebMarkupContainer container) {
+    private void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        final UserTO updatedUserTO =
-                                ((UserModalPage) getPage()).getUserTO();
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                final UserTO updatedUserTO = ((UserModalPage) getPage()).getUserTO();
 
-                        RolesPanel.this.userTO.setMemberships(
-                                updatedUserTO.getMemberships());
-                        target.add(container);
-                    }
-                });
+                RolesPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
+                target.add(container);
+            }
+        });
     }
 }

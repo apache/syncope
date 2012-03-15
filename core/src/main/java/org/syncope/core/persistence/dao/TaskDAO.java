@@ -27,31 +27,27 @@ import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface TaskDAO extends DAO {
 
-     <T extends Task> T find(Long id);
+    <T extends Task> T find(Long id);
 
-     <T extends Task> List<T> findWithoutExecs(Class<T> reference);
+    <T extends Task> List<T> findWithoutExecs(Class<T> reference);
 
-     <T extends Task> List<T> findAll(ExternalResource resource,
-            Class<T> reference);
+    <T extends Task> List<T> findAll(ExternalResource resource, Class<T> reference);
 
-     <T extends Task> List<T> findAll(Class<T> reference);
+    <T extends Task> List<T> findAll(Class<T> reference);
 
-     <T extends Task> List<T> findAll(int page, int itemsPerPage,
-            Class<T> reference);
+    <T extends Task> List<T> findAll(int page, int itemsPerPage, Class<T> reference);
 
     List<PropagationTask> findAll(ExternalResource resource, SyncopeUser user);
 
     List<PropagationTask> findAll(SyncopeUser user);
 
-     <T extends Task> int count(Class<T> reference);
+    <T extends Task> int count(Class<T> reference);
 
-     <T extends Task> T save(T task)
-            throws InvalidEntityException;
+    <T extends Task> T save(T task) throws InvalidEntityException;
 
-     <T extends Task> void delete(Long id);
+    <T extends Task> void delete(Long id);
 
-     <T extends Task> void delete(T task);
+    <T extends Task> void delete(T task);
 
-     <T extends Task> void deleteAll(ExternalResource resource,
-            Class<T> reference);
+    <T extends Task> void deleteAll(ExternalResource resource, Class<T> reference);
 }

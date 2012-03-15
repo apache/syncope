@@ -58,7 +58,8 @@ public class SchemaTO extends AbstractBaseBean {
 
     public String getMandatoryCondition() {
         return StringUtils.isNotBlank(mandatoryCondition)
-                ? mandatoryCondition : "false";
+                ? mandatoryCondition
+                : "false";
     }
 
     public void setMandatoryCondition(String mandatoryCondition) {

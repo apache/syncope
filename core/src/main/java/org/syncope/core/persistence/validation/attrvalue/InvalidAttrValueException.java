@@ -27,8 +27,7 @@ public class InvalidAttrValueException extends ValidationException {
         super("Could not validate " + value);
     }
 
-    public InvalidAttrValueException(
-            final AbstractAttrValue value, Throwable t) {
+    public InvalidAttrValueException(final AbstractAttrValue value, Throwable t) {
         super("Could not validate " + value, t);
     }
 }

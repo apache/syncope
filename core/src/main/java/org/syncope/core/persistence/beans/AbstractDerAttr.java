@@ -47,41 +47,35 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
      * @param attributes the set of attributes against which evaluate this derived attribute
      * @return the value of this derived attribute
      */
-    public String getValue(
-            final Collection<? extends AbstractAttr> attributes) {
+    public String getValue(final Collection<? extends AbstractAttr> attributes) {
 
         final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
         final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes
-        final JexlContext jexlContext = jexlUtil.addAttrsToContext(
-                attributes, null);
+        final JexlContext jexlContext = jexlUtil.addAttrsToContext(attributes, null);
 
         final AbstractAttributable owner = getOwner();
         if (owner instanceof SyncopeUser) {
-            jexlContext.set("username",
-                    ((SyncopeUser) owner).getUsername() != null
-                    ? ((SyncopeUser) owner).getUsername() : "");
-            jexlContext.set("creationDate",
-                    ((SyncopeUser) owner).getCreationDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().
-                    format(((SyncopeUser) owner).getCreationDate()) : "");
-            jexlContext.set("lastLoginDate",
-                    ((SyncopeUser) owner).getLastLoginDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().
-                    format(((SyncopeUser) owner).getLastLoginDate()) : "");
-            jexlContext.set("failedLogins",
-                    ((SyncopeUser) owner).getFailedLogins() != null
-                    ? ((SyncopeUser) owner).getFailedLogins() : "");
-            jexlContext.set("changePwdDate",
-                    ((SyncopeUser) owner).getChangePwdDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().
-                    format(((SyncopeUser) owner).getChangePwdDate()) : "");
+            jexlContext.set("username", ((SyncopeUser) owner).getUsername() != null
+                    ? ((SyncopeUser) owner).getUsername()
+                    : "");
+            jexlContext.set("creationDate", ((SyncopeUser) owner).getCreationDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getCreationDate())
+                    : "");
+            jexlContext.set("lastLoginDate", ((SyncopeUser) owner).getLastLoginDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getLastLoginDate())
+                    : "");
+            jexlContext.set("failedLogins", ((SyncopeUser) owner).getFailedLogins() != null
+                    ? ((SyncopeUser) owner).getFailedLogins()
+                    : "");
+            jexlContext.set("changePwdDate", ((SyncopeUser) owner).getChangePwdDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getChangePwdDate())
+                    : "");
         }
 
         // Evaluate expression using the context prepared before
-        return jexlUtil.evaluate(
-                getDerivedSchema().getExpression(), jexlContext);
+        return jexlUtil.evaluate(getDerivedSchema().getExpression(), jexlContext);
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();
@@ -90,6 +84,5 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractDerSchema> T getDerivedSchema();
 
-    public abstract <T extends AbstractDerSchema> void setDerivedSchema(
-            T derivedSchema);
+    public abstract <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema);
 }

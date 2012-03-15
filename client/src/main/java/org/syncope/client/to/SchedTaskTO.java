@@ -49,7 +49,9 @@ public class SchedTaskTO extends TaskTO {
     }
 
     public Date getLastExec() {
-        return lastExec == null ? null : new Date(lastExec.getTime());
+        return lastExec == null
+                ? null
+                : new Date(lastExec.getTime());
     }
 
     public void setLastExec(Date lastExec) {
@@ -59,7 +61,9 @@ public class SchedTaskTO extends TaskTO {
     }
 
     public Date getNextExec() {
-        return nextExec == null ? null : new Date(nextExec.getTime());
+        return nextExec == null
+                ? null
+                : new Date(nextExec.getTime());
     }
 
     public void setNextExec(Date nextExec) {

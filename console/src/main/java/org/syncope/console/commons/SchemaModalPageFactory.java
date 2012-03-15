@@ -45,8 +45,7 @@ abstract public class SchemaModalPageFactory extends BaseModalPage {
 
     };
 
-    public static AbstractSchemaModalPage getSchemaModalPage(
-            AttributableType entity, SchemaType schemaType) {
+    public static AbstractSchemaModalPage getSchemaModalPage(AttributableType entity, SchemaType schemaType) {
 
         AbstractSchemaModalPage page;
 

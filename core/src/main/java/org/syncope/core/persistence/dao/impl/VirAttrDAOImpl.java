@@ -28,31 +28,26 @@ import org.syncope.core.persistence.dao.VirAttrDAO;
 public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
 
     @Override
-    public <T extends AbstractVirAttr> T find(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractVirAttr> T find(final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractVirAttr> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractVirAttr> List<T> findAll(final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractVirAttr> T save(
-            final T virtualAttribute) {
+    public <T extends AbstractVirAttr> T save(final T virtualAttribute) {
 
         return entityManager.merge(virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractVirAttr> void delete(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractVirAttr> void delete(final Long id, final Class<T> reference) {
 
         T virtualAttribute = find(id, reference);
         if (virtualAttribute == null) {
@@ -63,12 +58,10 @@ public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
     }
 
     @Override
-    public <T extends AbstractVirAttr> void delete(
-            final T virtualAttribute) {
+    public <T extends AbstractVirAttr> void delete(final T virtualAttribute) {
 
         if (virtualAttribute.getOwner() != null) {
-            virtualAttribute.getOwner().
-                    removeVirtualAttribute(virtualAttribute);
+            virtualAttribute.getOwner().removeVirtualAttribute(virtualAttribute);
         }
 
         entityManager.remove(virtualAttribute);

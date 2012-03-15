@@ -34,8 +34,7 @@ public class InvalidEntityException extends ValidationException {
 
     private final Map<Class, Set<EntityViolationType>> violations;
 
-    public InvalidEntityException(final String entityClassSimpleName,
-            final Set<ConstraintViolation<Object>> violations) {
+    public InvalidEntityException(final String entityClassSimpleName, final Set<ConstraintViolation<Object>> violations) {
 
         super();
 
@@ -45,24 +44,18 @@ public class InvalidEntityException extends ValidationException {
         EntityViolationType entityViolationType;
         for (ConstraintViolation<Object> violation : violations) {
             try {
-                entityViolationType = EntityViolationType.valueOf(
-                        violation.getMessageTemplate());
+                entityViolationType = EntityViolationType.valueOf(violation.getMessageTemplate());
             } catch (IllegalArgumentException e) {
                 entityViolationType = EntityViolationType.Standard;
-                entityViolationType.setMessageTemplate(
-                        violation.getPropertyPath() + ": "
-                        + violation.getMessage());
+                entityViolationType.setMessageTemplate(violation.getPropertyPath() + ": " + violation.getMessage());
             }
 
-            if (!this.violations.containsKey(
-                    violation.getLeafBean().getClass())) {
+            if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
 
-                this.violations.put(violation.getLeafBean().getClass(),
-                        EnumSet.noneOf(EntityViolationType.class));
+                this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));
             }
 
-            this.violations.get(violation.getLeafBean().getClass()).
-                    add(entityViolationType);
+            this.violations.get(violation.getLeafBean().getClass()).add(entityViolationType);
         }
     }
 
@@ -90,9 +83,7 @@ public class InvalidEntityException extends ValidationException {
         StringBuilder sb = new StringBuilder();
 
         for (Class entity : violations.keySet()) {
-            sb.append(entity.getSimpleName()).append(" ").
-                    append(violations.get(entity).toString()).
-                    append(", ");
+            sb.append(entity.getSimpleName()).append(" ").append(violations.get(entity).toString()).append(", ");
         }
         sb.delete(sb.lastIndexOf(", "), sb.length());
 

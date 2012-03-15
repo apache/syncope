@@ -36,16 +36,14 @@ public class AsymmetricCipher {
     final private static String xform = "RSA/NONE/PKCS1Padding";
     final private static String algorithm = "RSA";
 
-    public static byte[] encrypt(byte[] inpBytes, PublicKey key)
-            throws Exception {
+    public static byte[] encrypt(byte[] inpBytes, PublicKey key) throws Exception {
 
         Cipher cipher = Cipher.getInstance(xform);
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(inpBytes);
     }
 
-    public static byte[] decrypt(byte[] inpBytes, PrivateKey key)
-            throws Exception {
+    public static byte[] decrypt(byte[] inpBytes, PrivateKey key) throws Exception {
 
         Cipher cipher = Cipher.getInstance(xform);
         cipher.init(Cipher.DECRYPT_MODE, key);
@@ -68,8 +66,7 @@ public class AsymmetricCipher {
         return baos.toByteArray();
     }
 
-    public static KeyPair deserializeKeyPair(byte[] serializedKeyPair)
-            throws IOException, ClassNotFoundException {
+    public static KeyPair deserializeKeyPair(byte[] serializedKeyPair) throws IOException, ClassNotFoundException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedKeyPair);
         ObjectInputStream ois = new ObjectInputStream(bais);

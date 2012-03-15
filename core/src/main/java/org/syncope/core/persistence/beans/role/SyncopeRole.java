@@ -55,11 +55,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PasswordPolicy;
 
 @Entity
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {
-    "name",
-    "parent_id"
-}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "parent_id" }))
 @Cacheable
 public class SyncopeRole extends AbstractAttributable {
 
@@ -75,10 +71,7 @@ public class SyncopeRole extends AbstractAttributable {
     private SyncopeRole parent;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "entitlement_name"))
+    @JoinTable(joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "entitlement_name"))
     private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -128,10 +121,7 @@ public class SyncopeRole extends AbstractAttributable {
      * Provisioning external resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "resource_name"))
+    @JoinTable(joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
 
@@ -216,18 +206,15 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
-            T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
 
         return derivedAttributes.add((RDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
-            T derivedAttribute) {
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
 
-        return derivedAttributes.remove(
-                (RDerAttr) derivedAttribute);
+        return derivedAttributes.remove((RDerAttr) derivedAttribute);
     }
 
     @Override
@@ -236,22 +223,19 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public void setDerivedAttributes(
-            List<? extends AbstractDerAttr> derivedAttributes) {
+    public void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes) {
 
         this.derivedAttributes = (List<RDerAttr>) derivedAttributes;
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(
-            T virtualAttribute) {
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
 
         return virtualAttributes.add((RVirAttr) virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(
-            T virtualAttribute) {
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
 
         return virtualAttributes.remove((RVirAttr) virtualAttribute);
     }
@@ -262,8 +246,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public void setVirtualAttributes(
-            List<? extends AbstractVirAttr> virtualAttributes) {
+    public void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes) {
 
         this.virtualAttributes = (List<RVirAttr>) virtualAttributes;
     }
@@ -296,8 +279,7 @@ public class SyncopeRole extends AbstractAttributable {
 
             // Add attributes not specialized and not already added
             for (RAttr attr : getParent().findInheritedAttributes()) {
-                if (!attrMap.containsKey(attr.getSchema())
-                        && !result.containsKey((RSchema) attr.getSchema())) {
+                if (!attrMap.containsKey(attr.getSchema()) && !result.containsKey((RSchema) attr.getSchema())) {
                     result.put((RSchema) attr.getSchema(), attr);
                 }
             }
@@ -311,8 +293,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
-        this.inheritDerivedAttributes =
-                getBooleanAsInteger(inheritDerivedAttributes);
+        this.inheritDerivedAttributes = getBooleanAsInteger(inheritDerivedAttributes);
 
     }
 
@@ -322,16 +303,13 @@ public class SyncopeRole extends AbstractAttributable {
      * @return a list of inherited and only inherited attributes.
      */
     public List<RDerAttr> findInheritedDerivedAttributes() {
-        final Map<RDerSchema, RDerAttr> result =
-                new HashMap<RDerSchema, RDerAttr>();
+        final Map<RDerSchema, RDerAttr> result = new HashMap<RDerSchema, RDerAttr>();
 
         if (isInheritDerivedAttributes() && getParent() != null) {
-            final Map<AbstractDerSchema, AbstractDerAttr> attrMap =
-                    getDerAttrMap();
+            final Map<AbstractDerSchema, AbstractDerAttr> attrMap = getDerAttrMap();
 
             // Add attributes not specialized
-            for (RDerAttr attr :
-                    (Collection<RDerAttr>) getParent().getDerivedAttributes()) {
+            for (RDerAttr attr : (Collection<RDerAttr>) getParent().getDerivedAttributes()) {
                 if (!attrMap.containsKey(attr.getDerivedSchema())) {
                     result.put((RDerSchema) attr.getDerivedSchema(), attr);
                 }
@@ -340,8 +318,7 @@ public class SyncopeRole extends AbstractAttributable {
             // Add attributes not specialized and not already added
             for (RDerAttr attr : getParent().findInheritedDerivedAttributes()) {
                 if (!attrMap.containsKey(attr.getDerivedSchema())
-                        && !result.containsKey(
-                        (RDerSchema) attr.getDerivedSchema())) {
+                        && !result.containsKey((RDerSchema) attr.getDerivedSchema())) {
                     result.put((RDerSchema) attr.getDerivedSchema(), attr);
                 }
             }
@@ -355,8 +332,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public void setInheritVirtualAttributes(boolean inheritVirtualAttributes) {
-        this.inheritVirtualAttributes =
-                getBooleanAsInteger(inheritVirtualAttributes);
+        this.inheritVirtualAttributes = getBooleanAsInteger(inheritVirtualAttributes);
 
     }
 
@@ -366,16 +342,13 @@ public class SyncopeRole extends AbstractAttributable {
      * @return a list of inherited and only inherited attributes.
      */
     public List<RVirAttr> findInheritedVirtualAttributes() {
-        final Map<RVirSchema, RVirAttr> result =
-                new HashMap<RVirSchema, RVirAttr>();
+        final Map<RVirSchema, RVirAttr> result = new HashMap<RVirSchema, RVirAttr>();
 
         if (isInheritVirtualAttributes() && getParent() != null) {
-            final Map<AbstractVirSchema, AbstractVirAttr> attrMap =
-                    getVirAttrMap();
+            final Map<AbstractVirSchema, AbstractVirAttr> attrMap = getVirAttrMap();
 
             // Add attributes not specialized
-            for (RVirAttr attr :
-                    (Collection<RVirAttr>) getParent().getVirtualAttributes()) {
+            for (RVirAttr attr : (Collection<RVirAttr>) getParent().getVirtualAttributes()) {
                 if (!attrMap.containsKey(attr.getVirtualSchema())) {
                     result.put((RVirSchema) attr.getVirtualSchema(), attr);
                 }
@@ -384,8 +357,7 @@ public class SyncopeRole extends AbstractAttributable {
             // Add attributes not specialized and not already added
             for (RVirAttr attr : getParent().findInheritedVirtualAttributes()) {
                 if (!attrMap.containsKey(attr.getVirtualSchema())
-                        && !result.containsKey(
-                        (RVirSchema) attr.getVirtualSchema())) {
+                        && !result.containsKey((RVirSchema) attr.getVirtualSchema())) {
                     result.put((RVirSchema) attr.getVirtualSchema(), attr);
                 }
             }
@@ -402,7 +374,8 @@ public class SyncopeRole extends AbstractAttributable {
      */
     public PasswordPolicy getPasswordPolicy() {
         return isInheritPasswordPolicy() && getParent() != null
-                ? getParent().getPasswordPolicy() : passwordPolicy;
+                ? getParent().getPasswordPolicy()
+                : passwordPolicy;
     }
 
     public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
@@ -425,7 +398,8 @@ public class SyncopeRole extends AbstractAttributable {
      */
     public AccountPolicy getAccountPolicy() {
         return isInheritAccountPolicy() && getParent() != null
-                ? getParent().getAccountPolicy() : accountPolicy;
+                ? getParent().getAccountPolicy()
+                : accountPolicy;
     }
 
     public void setAccountPolicy(AccountPolicy accountPolicy) {

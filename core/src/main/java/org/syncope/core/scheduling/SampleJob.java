@@ -30,19 +30,20 @@ import org.syncope.core.persistence.beans.TaskExec;
 public class SampleJob extends AbstractTaskJob {
 
     @Override
-    protected String doExecute(final boolean dryRun)
-            throws JobExecutionException {
+    protected String doExecute(final boolean dryRun) throws JobExecutionException {
 
         if (!(task instanceof SchedTask)) {
-            throw new JobExecutionException("Task " + taskId
-                    + " isn't a SchedTask");
+            throw new JobExecutionException("Task " + taskId + " isn't a SchedTask");
         }
         final SchedTask schedTask = (SchedTask) this.task;
 
-        LOG.info("SampleJob {}running [SchedTask {}]",
-                (dryRun ? "dry " : ""), schedTask.getId());
+        LOG.info("SampleJob {}running [SchedTask {}]", (dryRun
+                ? "dry "
+                : ""), schedTask.getId());
 
-        return (dryRun ? "DRY " : "") + "RUNNING";
+        return (dryRun
+                ? "DRY "
+                : "") + "RUNNING";
     }
 
     @Override

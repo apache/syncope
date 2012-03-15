@@ -58,12 +58,7 @@ public class TaskExec extends AbstractExec {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{"
-                + "id=" + id + ", "
-                + "startDate=" + startDate + ", "
-                + "endDate=" + endDate + ", "
-                + "task=" + task + ", "
-                + "status=" + status + ", "
-                + "message=" + message + '}';
+        return getClass().getSimpleName() + "{" + "id=" + id + ", " + "startDate=" + startDate + ", " + "endDate="
+                + endDate + ", " + "task=" + task + ", " + "status=" + status + ", " + "message=" + message + '}';
     }
 }

@@ -42,11 +42,9 @@ public class SchemaDataBinder {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SchemaDataBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    private static final String[] IGNORE_SCHEMA_PROPERTIES = {
-        "derivedSchemas", "attributes"};
+    private static final String[] IGNORE_SCHEMA_PROPERTIES = { "derivedSchemas", "attributes" };
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -54,21 +52,15 @@ public class SchemaDataBinder {
     @Autowired
     private JexlUtil jexlUtil;
 
-    private <T extends AbstractDerSchema> void populate(
-            final AbstractSchema schema,
-            final SchemaTO schemaTO)
+    private <T extends AbstractDerSchema> void populate(final AbstractSchema schema, final SchemaTO schemaTO)
             throws SyncopeClientCompositeErrorException {
 
         if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-            SyncopeClientException invalidMandatoryCondition =
-                    new SyncopeClientException(
+            SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(
-                    schemaTO.getMandatoryCondition());
+            invalidMandatoryCondition.addElement(schemaTO.getMandatoryCondition());
 
             scce.addException(invalidMandatoryCondition);
             throw scce;
@@ -83,32 +75,24 @@ public class SchemaDataBinder {
         populate(schema, schemaTO);
     }
 
-    public void update(final SchemaTO schemaTO, final AbstractSchema schema,
-            final AttributableUtil attributableUtil)
+    public void update(final SchemaTO schemaTO, final AbstractSchema schema, final AttributableUtil attributableUtil)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        List<AbstractAttr> attrs = schemaDAO.getAttributes(
-                schema, attributableUtil.attributeClass());
+        List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attributeClass());
         if (!attrs.isEmpty()) {
             if (schema.getType() != schemaTO.getType()) {
-                SyncopeClientException e = new SyncopeClientException(
-                        SyncopeClientExceptionType.valueOf(
-                        "Invalid" + schema.getClass().getSimpleName()));
-                e.addElement("Cannot change type since " + schema.getName()
-                        + " has attributes");
+                SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"
+                        + schema.getClass().getSimpleName()));
+                e.addElement("Cannot change type since " + schema.getName() + " has attributes");
 
                 scce.addException(e);
             }
             if (schema.isUniqueConstraint() != schemaTO.isUniqueConstraint()) {
-                SyncopeClientException e = new SyncopeClientException(
-                        SyncopeClientExceptionType.valueOf(
-                        "Invalid" + schema.getClass().getSimpleName()));
-                e.addElement("Cannot alter unique contraint since "
-                        + schema.getName() + " has attributes");
+                SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"
+                        + schema.getClass().getSimpleName()));
+                e.addElement("Cannot alter unique contraint since " + schema.getName() + " has attributes");
 
                 scce.addException(e);
             }
@@ -121,8 +105,7 @@ public class SchemaDataBinder {
         populate(schema, schemaTO);
     }
 
-    public <T extends AbstractSchema> SchemaTO getSchemaTO(final T schema,
-            final AttributableUtil attributableUtil) {
+    public <T extends AbstractSchema> SchemaTO getSchemaTO(final T schema, final AttributableUtil attributableUtil) {
 
         SchemaTO schemaTO = new SchemaTO();
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_SCHEMA_PROPERTIES);

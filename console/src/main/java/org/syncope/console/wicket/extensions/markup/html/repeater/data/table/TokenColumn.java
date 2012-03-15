@@ -36,18 +36,13 @@ public class TokenColumn extends AbstractColumn<UserTO> {
     }
 
     @Override
-    public void populateItem(final Item<ICellPopulator<UserTO>> cellItem,
-            final String componentId,
+    public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
             final IModel<UserTO> rowModel) {
 
         if (StringUtils.hasText(rowModel.getObject().getToken())) {
-            cellItem.add(new Label(
-                    componentId,
-                    new ResourceModel("tokenValued", "tokenValued")));
+            cellItem.add(new Label(componentId, new ResourceModel("tokenValued", "tokenValued")));
         } else {
-            cellItem.add(new Label(
-                    componentId,
-                    new ResourceModel("tokenNotValued", "tokenNotValued")));
+            cellItem.add(new Label(componentId, new ResourceModel("tokenNotValued", "tokenNotValued")));
         }
     }
 }

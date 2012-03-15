@@ -32,29 +32,19 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
 
     final Palette<T> palette;
 
-    public AjaxPalettePanel(
-            final String id,
-            final IModel<List<T>> model,
-            final ListModel<T> choices) {
+    public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices) {
 
         this(id, model, choices, false);
     }
 
-    public AjaxPalettePanel(
-            final String id,
-            final IModel<List<T>> model,
-            final ListModel<T> choices,
+    public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
             final boolean allowOrder) {
 
         this(id, model, choices, new SelectChoiceRenderer(), allowOrder);
     }
 
-    public AjaxPalettePanel(
-            final String id,
-            final IModel<List<T>> model,
-            final ListModel<T> choices,
-            final IChoiceRenderer<T> renderer,
-            final boolean allowOrder) {
+    public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
+            final IChoiceRenderer<T> renderer, final boolean allowOrder) {
 
         super(id, model);
 
@@ -63,19 +53,10 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
         setOutputMarkupId(true);
     }
 
-    private Palette<T> createPalette(
-            final IModel<List<T>> model,
-            final ListModel<T> choices,
-            final IChoiceRenderer<T> renderer,
-            final boolean allowOrder) {
+    private Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
+            final IChoiceRenderer<T> renderer, final boolean allowOrder) {
 
-        return new Palette(
-                "paletteField",
-                model,
-                choices,
-                renderer,
-                8,
-                allowOrder);
+        return new Palette("paletteField", model, choices, renderer, 8, allowOrder);
     }
 
     @Override

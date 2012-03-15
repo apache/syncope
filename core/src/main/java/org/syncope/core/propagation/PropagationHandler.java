@@ -35,9 +35,6 @@ public abstract class PropagationHandler {
      * @param before retrieved connector object before operation execution.
      * @param after retrieved connector object after operation execution.
      */
-    public abstract void handle(
-            final String resourceName,
-            final PropagationTaskExecStatus executionStatus,
-            final ConnectorObject before,
-            final ConnectorObject after);
+    public abstract void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
+            final ConnectorObject before, final ConnectorObject after);
 }

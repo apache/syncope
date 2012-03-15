@@ -85,7 +85,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
-    private static final String[] PROPERTY_IGNORE_PROPS = {"type"};
+    private static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
     public static final String WF_PROCESS_ID = "userWorkflow";
 
@@ -159,8 +159,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private Set<String> getPerformedTasks(final SyncopeUser user) {
         Set<String> result = new HashSet<String>();
 
-        List<HistoricActivityInstance> tasks =
-                historyService.createHistoricActivityInstanceQuery().executionId(user.getWorkflowId()).list();
+        List<HistoricActivityInstance> tasks = historyService.createHistoricActivityInstanceQuery().executionId(
+                user.getWorkflowId()).list();
         for (HistoricActivityInstance task : tasks) {
             result.add(task.getActivityId());
         }
@@ -169,9 +169,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private String encrypt(final String clear) {
-        byte[] encryptedBytes = EncryptorFactory.getInstance().
-                getDefaultEncryptor().encrypt(
-                clear.getBytes());
+        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
         char[] encryptedChars = SecurityUtil.bytesToChars(encryptedBytes);
 
         return new String(encryptedChars);
@@ -179,27 +177,21 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     private String decrypt(final String crypted) {
         char[] encryptedChars = crypted.toCharArray();
-        byte[] encryptedBytes = EncryptorFactory.getInstance().
-                getDefaultEncryptor().decrypt(
+        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(
                 SecurityUtil.charsToBytes(encryptedChars));
 
         return new String(encryptedBytes);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(
-            final UserTO userTO,
-            final boolean disablePwdPolicyCheck)
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck)
             throws WorkflowException {
         return create(userTO, disablePwdPolicyCheck, null);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(
-            final UserTO userTO,
-            final boolean disablePwdPolicyCheck,
-            final Boolean enabled)
-            throws WorkflowException {
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+            final Boolean enabled) throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(USER_TO, userTO);
@@ -212,8 +204,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new WorkflowException(e);
         }
 
-        SyncopeUser user =
-                (SyncopeUser) runtimeService.getVariable(processInstance.getProcessInstanceId(), SYNCOPE_USER);
+        SyncopeUser user = (SyncopeUser) runtimeService.getVariable(processInstance.getProcessInstanceId(),
+                SYNCOPE_USER);
 
         // this will make SyncopeUserValidator not to consider
         // password policies at all
@@ -224,8 +216,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean propagateEnable =
-                (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
+        Boolean propagateEnable = (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(),
+                PROPAGATE_ENABLE);
 
         if (propagateEnable == null) {
             propagateEnable = enabled;
@@ -241,17 +233,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             propByRes = null;
 
             if (StringUtils.isNotBlank(userTO.getPassword())) {
-                runtimeService.setVariable(
-                        processInstance.getProcessInstanceId(), ENCRYPTED_PWD, encrypt(userTO.getPassword()));
+                runtimeService.setVariable(processInstance.getProcessInstanceId(), ENCRYPTED_PWD, encrypt(userTO
+                        .getPassword()));
             }
         }
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), propagateEnable), propByRes, getPerformedTasks(user));
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagateEnable),
+                propByRes, getPerformedTasks(user));
     }
 
-    private Set<String> doExecuteTask(
-            final SyncopeUser user, final String task, final Map<String, Object> moreVariables)
+    private Set<String> doExecuteTask(final SyncopeUser user, final String task, final Map<String, Object> moreVariables)
             throws WorkflowException {
 
         Set<String> preTasks = getPerformedTasks(user);
@@ -286,12 +277,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final SyncopeUser user,
-            final String token)
-            throws WorkflowException {
+    protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token) throws WorkflowException {
 
-        Set<String> performedTasks = doExecuteTask(user, "activate",
-                Collections.singletonMap(TOKEN, (Object) token));
+        Set<String> performedTasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
@@ -299,8 +287,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(
-            final SyncopeUser user, final UserMod userMod)
+    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
         Set<String> task = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
@@ -308,8 +295,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes =
-                (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE);
+        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(),
+                PROP_BY_RESOURCE);
 
         // save resources to be propagated and password for later -
         // after form submission - propagation
@@ -319,14 +306,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getId(), propagateEnable), propByRes, task);
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated.getId(), propagateEnable),
+                propByRes, task);
     }
 
     @Override
-    @Transactional(rollbackFor = {Throwable.class})
-    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
-            throws WorkflowException {
+    @Transactional(rollbackFor = { Throwable.class })
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user) throws WorkflowException {
 
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
@@ -336,8 +322,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
-            throws WorkflowException {
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user) throws WorkflowException {
 
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
@@ -348,18 +333,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final SyncopeUser user)
-            throws WorkflowException {
+    protected void doDelete(final SyncopeUser user) throws WorkflowException {
 
         doExecuteTask(user, "delete", null);
         userDAO.delete(user);
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO,
-            final String taskId)
-            throws UnauthorizedRoleException, NotFoundException,
-            WorkflowException {
+    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
+            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
         SyncopeUser user = dataBinder.getUserFromId(userTO.getId());
 
@@ -374,21 +356,17 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition()
-            throws WorkflowException {
+    public WorkflowDefinitionTO getDefinition() throws WorkflowException {
 
         ProcessDefinition procDef;
         try {
-            procDef = repositoryService.createProcessDefinitionQuery().
-                    processDefinitionKey(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().
-                    singleResult();
+            procDef = repositoryService.createProcessDefinitionQuery().processDefinitionKey(
+                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
 
-        InputStream procDefIS = repositoryService.getResourceAsStream(
-                procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
+        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
         Reader reader = null;
         Writer writer = new StringWriter();
         try {
@@ -400,8 +378,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 writer.write(buffer, 0, n);
             }
         } catch (IOException e) {
-            LOG.error("While reading workflow definition {}",
-                    procDef.getKey(), e);
+            LOG.error("While reading workflow definition {}", procDef.getKey(), e);
         } finally {
             try {
                 if (reader != null) {
@@ -411,8 +388,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     procDefIS.close();
                 }
             } catch (IOException ioe) {
-                LOG.error("While closing input stream for {}",
-                        procDef.getKey(), ioe);
+                LOG.error("While closing input stream for {}", procDef.getKey(), ioe);
             }
         }
 
@@ -424,60 +400,47 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void updateDefinition(
-            final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
+    public void updateDefinition(final WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException {
 
-        if (!ActivitiUserWorkflowAdapter.WF_PROCESS_ID.equals(
-                definition.getId())) {
+        if (!ActivitiUserWorkflowAdapter.WF_PROCESS_ID.equals(definition.getId())) {
 
-            throw new NotFoundException("Workflow process id "
-                    + definition.getId());
+            throw new NotFoundException("Workflow process id " + definition.getId());
         }
 
         try {
-            repositoryService.createDeployment().addInputStream(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                    new ByteArrayInputStream(
-                    definition.getXmlDefinition().getBytes())).deploy();
+            repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
+                    new ByteArrayInputStream(definition.getXmlDefinition().getBytes())).deploy();
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
     }
 
     @Override
-    public List<String> getDefinedTasks()
-            throws WorkflowException {
+    public List<String> getDefinedTasks() throws WorkflowException {
 
         List<String> result = new ArrayList<String>();
 
         ProcessDefinition procDef;
         try {
-            procDef = repositoryService.createProcessDefinitionQuery().
-                    processDefinitionKey(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().
-                    singleResult();
+            procDef = repositoryService.createProcessDefinitionQuery().processDefinitionKey(
+                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
 
-        InputStream procDefIS = repositoryService.getResourceAsStream(
-                procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
+        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
 
-        DocumentBuilderFactory domFactory =
-                DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             Document doc = builder.parse(procDefIS);
 
             XPath xpath = XPathFactory.newInstance().newXPath();
 
-            NodeList nodeList = (NodeList) xpath.evaluate(
-                    "//userTask | //serviceTask | //scriptTask",
-                    doc, XPathConstants.NODESET);
+            NodeList nodeList = (NodeList) xpath.evaluate("//userTask | //serviceTask | //scriptTask", doc,
+                    XPathConstants.NODESET);
             for (int i = 0; i < nodeList.getLength(); i++) {
-                result.add(nodeList.item(i).getAttributes().
-                        getNamedItem("id").getNodeValue());
+                result.add(nodeList.item(i).getAttributes().getNamedItem("id").getNodeValue());
             }
         } catch (Exception e) {
             throw new WorkflowException(e);
@@ -485,16 +448,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             try {
                 procDefIS.close();
             } catch (IOException ioe) {
-                LOG.error("While closing input stream for {}",
-                        procDef.getKey(), ioe);
+                LOG.error("While closing input stream for {}", procDef.getKey(), ioe);
             }
         }
 
         return result;
     }
 
-    private WorkflowFormPropertyType fromActivitiFormType(
-            final FormType activitiFormType) {
+    private WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
 
         WorkflowFormPropertyType result = WorkflowFormPropertyType.String;
 
@@ -517,8 +478,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private WorkflowFormTO getFormTO(final Task task,
-            final TaskFormData formData) {
+    private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) {
 
         WorkflowFormTO formTO = new WorkflowFormTO();
         formTO.setTaskId(task.getId());
@@ -529,18 +489,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         WorkflowFormPropertyTO propertyTO;
         for (FormProperty fProp : formData.getFormProperties()) {
             propertyTO = new WorkflowFormPropertyTO();
-            BeanUtils.copyProperties(fProp, propertyTO,
-                    PROPERTY_IGNORE_PROPS);
+            BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
 
             if (propertyTO.getType() == WorkflowFormPropertyType.Date) {
-                propertyTO.setDatePattern(
-                        (String) fProp.getType().getInformation("datePattern"));
+                propertyTO.setDatePattern((String) fProp.getType().getInformation("datePattern"));
             }
             if (propertyTO.getType() == WorkflowFormPropertyType.Enum) {
-                propertyTO.setEnumValues(
-                        (Map<String, String>) fProp.getType().
-                        getInformation("values"));
+                propertyTO.setEnumValues((Map<String, String>) fProp.getType().getInformation("values"));
             }
 
             formTO.addProperty(propertyTO);
@@ -571,13 +527,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId)
-            throws NotFoundException, WorkflowException {
+    public WorkflowFormTO getForm(final String workflowId) throws NotFoundException, WorkflowException {
 
         Task task;
         try {
-            task = taskService.createTaskQuery().processInstanceId(workflowId).
-                    singleResult();
+            task = taskService.createTaskQuery().processInstanceId(workflowId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
@@ -598,8 +552,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Map.Entry<Task, TaskFormData> checkTask(final String taskId,
-            final String username)
+    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String username)
             throws NotFoundException {
 
         Task task;
@@ -627,18 +580,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId,
-            final String username)
+    public WorkflowFormTO claimForm(final String taskId, final String username)
             throws NotFoundException, WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked = checkTask(taskId, username);
 
         if (!adminUser.equals(username)) {
-            List<Task> tasksForUser = taskService.createTaskQuery().taskId(
-                    taskId).taskCandidateUser(username).list();
+            List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(username).list();
             if (tasksForUser.isEmpty()) {
-                throw new WorkflowException(new RuntimeException(
-                        username + " is not candidate for task " + taskId));
+                throw new WorkflowException(new RuntimeException(username + " is not candidate for task " + taskId));
             }
         }
 
@@ -654,31 +604,24 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, String>> submitForm(
-            final WorkflowFormTO form, final String username)
+    public WorkflowResult<Map.Entry<Long, String>> submitForm(final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
-        Map.Entry<Task, TaskFormData> checked =
-                checkTask(form.getTaskId(), username);
+        Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), username);
 
         if (!checked.getKey().getOwner().equals(username)) {
-            throw new WorkflowException(new RuntimeException(
-                    "Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but submited by "
-                    + username));
+            throw new WorkflowException(new RuntimeException("Task " + form.getTaskId() + " assigned to "
+                    + checked.getKey().getOwner() + " but submited by " + username));
         }
 
-        SyncopeUser user = userDAO.findByWorkflowId(
-                checked.getKey().getProcessInstanceId());
+        SyncopeUser user = userDAO.findByWorkflowId(checked.getKey().getProcessInstanceId());
         if (user == null) {
-            throw new NotFoundException("User with workflow id "
-                    + checked.getKey().getProcessInstanceId());
+            throw new NotFoundException("User with workflow id " + checked.getKey().getProcessInstanceId());
         }
 
         Set<String> preTasks = getPerformedTasks(user);
         try {
-            formService.submitTaskFormData(form.getTaskId(),
-                    form.getPropertiesForSubmit());
+            formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
@@ -691,20 +634,17 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser updated = userDAO.save(user);
 
         // see if there is any propagation to be done
-        PropagationByResource propByRes =
-                (PropagationByResource) runtimeService.getVariable(
-                user.getWorkflowId(), PROP_BY_RESOURCE);
+        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(),
+                PROP_BY_RESOURCE);
 
         // fetch - if available - the encrpted password
         String clearPassword = null;
-        String encryptedPwd = (String) runtimeService.getVariable(
-                user.getWorkflowId(), ENCRYPTED_PWD);
+        String encryptedPwd = (String) runtimeService.getVariable(user.getWorkflowId(), ENCRYPTED_PWD);
         if (StringUtils.isNotBlank(encryptedPwd)) {
             clearPassword = decrypt(encryptedPwd);
         }
 
-        return new WorkflowResult<Map.Entry<Long, String>>(
-                new DefaultMapEntry(updated.getId(), clearPassword),
+        return new WorkflowResult<Map.Entry<Long, String>>(new DefaultMapEntry(updated.getId(), clearPassword),
                 propByRes, postTasks);
     }
 }

@@ -30,8 +30,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<VirtualSchemaTO> VirtualSchemas = Arrays.asList(
-                restTemplate.getForObject(BASE_URL
+        List<VirtualSchemaTO> VirtualSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "virtualSchema/user/list.json", VirtualSchemaTO[].class));
         assertFalse(VirtualSchemas.isEmpty());
         for (VirtualSchemaTO VirtualSchemaTO : VirtualSchemas) {
@@ -42,8 +41,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
     @Test
     public void read() {
         VirtualSchemaTO VirtualSchemaTO = restTemplate.getForObject(BASE_URL
-                + "virtualSchema/membership/read/mvirtualdata.json",
-                VirtualSchemaTO.class);
+                + "virtualSchema/membership/read/mvirtualdata.json", VirtualSchemaTO.class);
         assertNotNull(VirtualSchemaTO);
     }
 
@@ -52,33 +50,26 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        VirtualSchemaTO actual = restTemplate.postForObject(BASE_URL
-                + "virtualSchema/user/create.json",
-                schema,
+        VirtualSchemaTO actual = restTemplate.postForObject(BASE_URL + "virtualSchema/user/create.json", schema,
                 VirtualSchemaTO.class);
         assertNotNull(actual);
 
-        actual = restTemplate.getForObject(BASE_URL
-                + "virtualSchema/user/read/" + actual.getName() + ".json",
+        actual = restTemplate.getForObject(BASE_URL + "virtualSchema/user/read/" + actual.getName() + ".json",
                 VirtualSchemaTO.class);
         assertNotNull(actual);
     }
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = restTemplate.getForObject(BASE_URL
-                + "virtualSchema/role/read/rvirtualdata.json",
+        VirtualSchemaTO schema = restTemplate.getForObject(BASE_URL + "virtualSchema/role/read/rvirtualdata.json",
                 VirtualSchemaTO.class);
         assertNotNull(schema);
 
-        restTemplate.delete(
-                BASE_URL + "virtualSchema/role/delete/{schema}",
-                schema.getName());
+        restTemplate.delete(BASE_URL + "virtualSchema/role/delete/{schema}", schema.getName());
 
         Throwable t = null;
         try {
-            schema = restTemplate.getForObject(BASE_URL
-                    + "virtualSchema/role/read/rvirtualdata.json",
+            schema = restTemplate.getForObject(BASE_URL + "virtualSchema/role/read/rvirtualdata.json",
                     VirtualSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;

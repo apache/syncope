@@ -33,8 +33,7 @@ public interface ReportExecDAO extends DAO {
 
     List<ReportExec> findAll();
 
-    ReportExec save(ReportExec execution)
-            throws InvalidEntityException;
+    ReportExec save(ReportExec execution) throws InvalidEntityException;
 
     void delete(Long id);
 

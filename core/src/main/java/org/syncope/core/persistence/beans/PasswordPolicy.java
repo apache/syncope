@@ -34,6 +34,7 @@ public class PasswordPolicy extends Policy {
         super();
 
         this.type = global
-                ? PolicyType.GLOBAL_PASSWORD : PolicyType.PASSWORD;
+                ? PolicyType.GLOBAL_PASSWORD
+                : PolicyType.PASSWORD;
     }
 }

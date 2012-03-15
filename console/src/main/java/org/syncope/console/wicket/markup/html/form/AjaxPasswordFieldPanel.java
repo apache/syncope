@@ -28,10 +28,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = -5490115280336667460L;
 
-    public AjaxPasswordFieldPanel(
-            final String id,
-            final String name,
-            final IModel<String> model) {
+    public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model) {
 
         super(id, name, model);
 
@@ -44,8 +41,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                private static final long serialVersionUID =
-                        -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget art) {

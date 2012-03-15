@@ -26,8 +26,7 @@ import org.syncope.core.persistence.beans.Notification;
 @Component
 public class NotificationDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {
-        "id", "about", "recipients"};
+    private static final String[] IGNORE_PROPERTIES = { "id", "about", "recipients" };
 
     public NotificationTO getNotificationTO(final Notification notification) {
         NotificationTO result = new NotificationTO();
@@ -41,8 +40,7 @@ public class NotificationDataBinder {
         return result;
     }
 
-    public Notification createNotification(
-            final NotificationTO notificationTO) {
+    public Notification createNotification(final NotificationTO notificationTO) {
 
         Notification result = new Notification();
 
@@ -51,11 +49,9 @@ public class NotificationDataBinder {
         return result;
     }
 
-    public void updateNotification(final Notification notification,
-            final NotificationTO notificationTO) {
+    public void updateNotification(final Notification notification, final NotificationTO notificationTO) {
 
-        BeanUtils.copyProperties(notificationTO, notification,
-                IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
         notification.setAbout(notificationTO.getAbout());
         notification.setRecipients(notificationTO.getRecipients());

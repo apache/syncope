@@ -91,7 +91,7 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getAbout() {
-        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlAbout);
+        NodeCond result = XMLSerializer.<NodeCond> deserialize(xmlAbout);
         if (result == null) {
             result = new NodeCond();
         }
@@ -107,7 +107,7 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getRecipients() {
-        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlRecipients);
+        NodeCond result = XMLSerializer.<NodeCond> deserialize(xmlRecipients);
         if (result == null) {
             result = new NodeCond();
         }

@@ -24,16 +24,15 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.EntityViolationType;
 
-public class ExternalResourceValidator extends AbstractValidator
-        implements ConstraintValidator<ExternalResourceCheck, ExternalResource> {
+public class ExternalResourceValidator extends AbstractValidator implements
+        ConstraintValidator<ExternalResourceCheck, ExternalResource> {
 
     @Override
     public void initialize(final ExternalResourceCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final ExternalResource object,
-            final ConstraintValidatorContext context) {
+    public boolean isValid(final ExternalResource object, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
@@ -49,14 +48,11 @@ public class ExternalResourceValidator extends AbstractValidator
             isValid = accountIds == 1;
 
             if (!isValid) {
-                LOG.error("Mappings for " + object
-                        + " have 0 or >1 account ids");
+                LOG.error("Mappings for " + object + " have 0 or >1 account ids");
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidAccountIdCount.toString()).
-                        addNode(object + ".accountIds.size==" + accountIds).
-                        addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidAccountIdCount.toString())
+                        .addNode(object + ".accountIds.size==" + accountIds).addConstraintViolation();
             }
         }
 

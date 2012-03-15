@@ -63,37 +63,33 @@ public class Roles extends BasePage {
         treePanel.setOutputMarkupId(true);
         container.add(treePanel);
 
-        final RoleSummaryPanel nodePanel =
-                new RoleSummaryPanel("summaryPanel",
-                createRoleWin, Roles.this.getPageReference());
+        final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin, Roles.this
+                .getPageReference());
 
         nodePanel.setOutputMarkupId(true);
 
         container.add(nodePanel);
 
-        createRoleWin.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
 
-                        final TreeNodeClickUpdate data =
-                                new TreeNodeClickUpdate(target,
-                                nodePanel.getSelectedNode() == null
-                                ? 0 : nodePanel.getSelectedNode().getId());
+                final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target, nodePanel.getSelectedNode() == null
+                        ? 0
+                        : nodePanel.getSelectedNode().getId());
 
-                        send(getPage(), Broadcast.BREADTH, data);
-                        target.add(container);
-                        if (modalResult) {
-                            getSession().info(getString("operation_succeded"));
-                            target.add(feedbackPanel);
-                            modalResult = false;
-                        }
-                    }
-                });
+                send(getPage(), Broadcast.BREADTH, data);
+                target.add(container);
+                if (modalResult) {
+                    getSession().info(getString("operation_succeded"));
+                    target.add(feedbackPanel);
+                    modalResult = false;
+                }
+            }
+        });
 
         container.add(createRoleWin);
     }

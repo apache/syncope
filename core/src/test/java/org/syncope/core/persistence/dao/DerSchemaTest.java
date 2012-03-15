@@ -40,43 +40,36 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UDerSchema> list =
-                derSchemaDAO.findAll(UDerSchema.class);
+        List<UDerSchema> list = derSchemaDAO.findAll(UDerSchema.class);
         assertEquals(3, list.size());
     }
 
     @Test
     public void findByName() {
-        UDerSchema attributeSchema =
-                derSchemaDAO.find("cn", UDerSchema.class);
-        assertNotNull("did not find expected derived attribute schema",
-                attributeSchema);
+        UDerSchema attributeSchema = derSchemaDAO.find("cn", UDerSchema.class);
+        assertNotNull("did not find expected derived attribute schema", attributeSchema);
     }
 
     @Test
     public void save() {
-        UDerSchema derivedAttributeSchema =
-                new UDerSchema();
+        UDerSchema derivedAttributeSchema = new UDerSchema();
         derivedAttributeSchema.setName("cn2");
         derivedAttributeSchema.setExpression("firstname surname");
 
         derSchemaDAO.save(derivedAttributeSchema);
 
-        UDerSchema actual =
-                derSchemaDAO.find("cn2", UDerSchema.class);
+        UDerSchema actual = derSchemaDAO.find("cn2", UDerSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttributeSchema, actual);
     }
 
     @Test
     public void delete() {
-        UDerSchema attributeSchema =
-                derSchemaDAO.find("cn", UDerSchema.class);
+        UDerSchema attributeSchema = derSchemaDAO.find("cn", UDerSchema.class);
 
         derSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
-        UDerSchema actual =
-                derSchemaDAO.find("cn", UDerSchema.class);
+        UDerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
         assertNull("delete did not work", actual);
     }
 }

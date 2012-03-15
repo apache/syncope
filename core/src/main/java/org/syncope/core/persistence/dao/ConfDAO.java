@@ -24,15 +24,13 @@ import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface ConfDAO extends DAO {
 
-    SyncopeConf find(String name)
-            throws MissingConfKeyException;
+    SyncopeConf find(String name) throws MissingConfKeyException;
 
     SyncopeConf find(String name, String defaultValue);
 
     List<SyncopeConf> findAll();
 
-    SyncopeConf save(SyncopeConf syncopeConfiguration)
-            throws InvalidEntityException;
+    SyncopeConf save(SyncopeConf syncopeConfiguration) throws InvalidEntityException;
 
     void delete(String name);
 }

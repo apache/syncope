@@ -34,10 +34,7 @@ public class SLF4JLogger implements LogSpi {
     private static final Logger LOG = LoggerFactory.getLogger(SLF4JLogger.class);
 
     @Override
-    public final void log(final Class<?> clazz,
-            final String method,
-            final Level level,
-            final String message,
+    public final void log(final Class<?> clazz, final String method, final Level level, final String message,
             final Throwable ex) {
 
         final StringBuilder logMessage = new StringBuilder();
@@ -85,8 +82,7 @@ public class SLF4JLogger implements LogSpi {
     }
 
     @Override
-    public final boolean isLoggable(final Class<?> clazz,
-            final Level level) {
+    public final boolean isLoggable(final Class<?> clazz, final Level level) {
 
         boolean loggable;
 

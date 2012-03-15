@@ -51,10 +51,8 @@ public class SchemaTest extends AbstractTest {
 
     @Test
     public void findByName() {
-        USchema attributeSchema =
-                schemaDAO.find("fullname", USchema.class);
-        assertNotNull("did not find expected attribute schema",
-                attributeSchema);
+        USchema attributeSchema = schemaDAO.find("fullname", USchema.class);
+        assertNotNull("did not find expected attribute schema", attributeSchema);
     }
 
     @Test
@@ -76,8 +74,7 @@ public class SchemaTest extends AbstractTest {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
         attributeSchema.setType(SchemaType.String);
-        attributeSchema.setValidatorClass(
-                "org.syncope.core.validation.EmailAddressValidator");
+        attributeSchema.setValidatorClass("org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
         attributeSchema.setMultivalue(true);
 
@@ -93,8 +90,7 @@ public class SchemaTest extends AbstractTest {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
         attributeSchema.setType(SchemaType.String);
-        attributeSchema.setValidatorClass(
-                "org.syncope.core.validation.EmailAddressValidator");
+        attributeSchema.setValidatorClass("org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
         attributeSchema.setMultivalue(true);
         attributeSchema.setUniqueConstraint(true);
@@ -116,8 +112,7 @@ public class SchemaTest extends AbstractTest {
         }
         assertNotNull(ex);
 
-        schema.setEnumerationValues(
-                "red" + AbstractSchema.enumValuesSeparator + "yellow");
+        schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
 
         schemaDAO.save(schema);
 

@@ -63,11 +63,9 @@ public class AuditElements {
                 result = EnumSet.allOf(ConnectorSubCategory.class);
                 break;
 
-
             case logger:
                 result = EnumSet.allOf(LoggerSubCategory.class);
                 break;
-
 
             default:
                 result = null;

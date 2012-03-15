@@ -37,20 +37,17 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
  *
  * @see DefaultContextHttpClient
  */
-public class PreemptiveAuthHttpRequestFactory
-        extends HttpComponentsClientHttpRequestFactory {
+public class PreemptiveAuthHttpRequestFactory extends HttpComponentsClientHttpRequestFactory {
 
     private final HttpHost targetHost;
 
-    public PreemptiveAuthHttpRequestFactory(
-            final String host, final int port, final String scheme) {
+    public PreemptiveAuthHttpRequestFactory(final String host, final int port, final String scheme) {
 
         super();
         targetHost = new HttpHost(host, port, scheme);
     }
 
-    public PreemptiveAuthHttpRequestFactory(
-            final String host, final int port, final String scheme,
+    public PreemptiveAuthHttpRequestFactory(final String host, final int port, final String scheme,
             final ClientConnectionManager conman, final HttpParams params) {
 
         super();
@@ -62,8 +59,7 @@ public class PreemptiveAuthHttpRequestFactory
     }
 
     @Override
-    protected HttpContext createHttpContext(final HttpMethod httpMethod,
-            final URI uri) {
+    protected HttpContext createHttpContext(final HttpMethod httpMethod, final URI uri) {
 
         AuthCache authCache = new BasicAuthCache();
         // Generate BASIC scheme object and add it to the local auth cache

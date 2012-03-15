@@ -36,8 +36,7 @@ import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 
-public class SyncopeUserManager extends UserManager
-        implements SyncopeSession {
+public class SyncopeUserManager extends UserManager implements SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -99,8 +98,7 @@ public class SyncopeUserManager extends UserManager
     }
 
     @Override
-    public List<User> findUserByQueryCriteria(final Object query,
-            final Page page) {
+    public List<User> findUserByQueryCriteria(final Object query, final Page page) {
 
         throw new UnsupportedOperationException();
     }
@@ -111,15 +109,13 @@ public class SyncopeUserManager extends UserManager
     }
 
     @Override
-    public IdentityInfoEntity findUserInfoByUserIdAndKey(final String userId,
-            final String key) {
+    public IdentityInfoEntity findUserInfoByUserIdAndKey(final String userId, final String key) {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<String> findUserInfoKeysByUserIdAndType(final String userId,
-            final String type) {
+    public List<String> findUserInfoKeysByUserIdAndType(final String userId, final String type) {
 
         throw new UnsupportedOperationException();
     }

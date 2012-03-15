@@ -73,8 +73,7 @@ public class ConfigurationController extends AbstractController {
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ConfigurationTO create(final HttpServletResponse response,
-            @RequestBody final ConfigurationTO configurationTO) {
+    public ConfigurationTO create(final HttpServletResponse response, @RequestBody final ConfigurationTO configurationTO) {
 
         LOG.debug("Configuration create called with parameters {}", configurationTO);
 
@@ -91,8 +90,7 @@ public class ConfigurationController extends AbstractController {
 
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{key}")
-    public void delete(@PathVariable("key") final String key)
-            throws MissingConfKeyException {
+    public void delete(@PathVariable("key") final String key) throws MissingConfKeyException {
 
         confDAO.find(key);
         confDAO.delete(key);
@@ -118,8 +116,7 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/{key}")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/{key}")
     public ConfigurationTO read(final HttpServletResponse response, @PathVariable("key") final String key)
             throws MissingConfKeyException {
 
@@ -144,10 +141,8 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
-    public ConfigurationTO update(final HttpServletResponse response,
-            @RequestBody final ConfigurationTO configurationTO)
+    @RequestMapping(method = RequestMethod.POST, value = "/update")
+    public ConfigurationTO update(final HttpServletResponse response, @RequestBody final ConfigurationTO configurationTO)
             throws MissingConfKeyException {
 
         SyncopeConf conf = confDAO.find(configurationTO.getKey());
@@ -166,14 +161,14 @@ public class ConfigurationController extends AbstractController {
 
         Set<String> validators = new HashSet<String>();
         try {
-            for (Resource resource : resResolver.getResources(
-                    "classpath:org/syncope/core/persistence/validation/attrvalue/*.class")) {
+            for (Resource resource : resResolver
+                    .getResources("classpath:org/syncope/core/persistence/validation/attrvalue/*.class")) {
 
                 ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
                 try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(
-                            ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader()));
+                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata
+                            .getClassName(), ClassUtils.getDefaultClassLoader()));
 
                     if (interfaces.contains(Validator.class) && !metadata.isAbstract()) {
                         validators.add(metadata.getClassName());
@@ -203,13 +198,11 @@ public class ConfigurationController extends AbstractController {
 
                 String template = resource.getURL().toExternalForm();
                 if (template.endsWith(".html.vm")) {
-                    htmlTemplates.add(template.substring(
-                            template.indexOf("mailTemplates/") + 14,
-                            template.indexOf(".html.vm")));
+                    htmlTemplates.add(template.substring(template.indexOf("mailTemplates/") + 14, template
+                            .indexOf(".html.vm")));
                 } else if (template.endsWith(".txt.vm")) {
-                    textTemplates.add(template.substring(
-                            template.indexOf("mailTemplates/") + 14,
-                            template.indexOf(".txt.vm")));
+                    textTemplates.add(template.substring(template.indexOf("mailTemplates/") + 14, template
+                            .indexOf(".txt.vm")));
                 } else {
                     LOG.warn("Unexpected template found: {}, ignoring...", template);
                 }

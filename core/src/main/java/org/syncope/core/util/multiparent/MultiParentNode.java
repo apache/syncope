@@ -79,13 +79,11 @@ public class MultiParentNode<T> {
         }
     }
 
-    public void addChild(final MultiParentNode<T> child)
-            throws CycleInMultiParentTreeException {
+    public void addChild(final MultiParentNode<T> child) throws CycleInMultiParentTreeException {
 
         if (child != null) {
             if (MultiParentNodeOp.findInTree(child, getObject()) != null) {
-                throw new CycleInMultiParentTreeException(
-                        "This node is descendant of given child node");
+                throw new CycleInMultiParentTreeException("This node is descendant of given child node");
             }
 
             children.add(child);
