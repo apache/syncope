@@ -30,31 +30,31 @@ public class UserMod extends AbstractAttributableMod {
 
     private String username;
 
-    private Set<MembershipMod> membershipsToBeAddeded;
+    private Set<MembershipMod> membershipsToBeAdded;
 
     private Set<Long> membershipsToBeRemoved;
 
     public UserMod() {
         super();
 
-        membershipsToBeAddeded = new HashSet<MembershipMod>();
+        membershipsToBeAdded = new HashSet<MembershipMod>();
         membershipsToBeRemoved = new HashSet<Long>();
     }
 
     public boolean addMembershipToBeAdded(MembershipMod membershipMod) {
-        return membershipsToBeAddeded.add(membershipMod);
+        return membershipsToBeAdded.add(membershipMod);
     }
 
     public boolean removeMembershipToBeAdded(MembershipMod membershipMod) {
-        return membershipsToBeAddeded.remove(membershipMod);
+        return membershipsToBeAdded.remove(membershipMod);
     }
 
     public Set<MembershipMod> getMembershipsToBeAdded() {
-        return membershipsToBeAddeded;
+        return membershipsToBeAdded;
     }
 
     public void setMembershipsToBeAdded(Set<MembershipMod> membershipMods) {
-        this.membershipsToBeAddeded = membershipMods;
+        this.membershipsToBeAdded = membershipMods;
     }
 
     public String getUsername() {
@@ -92,7 +92,7 @@ public class UserMod extends AbstractAttributableMod {
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && password == null && username == null && membershipsToBeAddeded.isEmpty()
+        return super.isEmpty() && password == null && username == null && membershipsToBeAdded.isEmpty()
                 && membershipsToBeRemoved.isEmpty();
     }
 }

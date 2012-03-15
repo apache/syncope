@@ -262,7 +262,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
-        // 2. update assignign a resource forcing mandatory constraints: must
+        // 2. update assigning a resource forcing mandatory constraints: must
         // fail with RequiredValuesMissing
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
@@ -277,7 +277,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        // 3. update assignign a resource NOT forcing mandatory constraints
+        // 3. update assigning a resource NOT forcing mandatory constraints
         // AND primary: must fail with PropagationException
         userMod = new UserMod();
         userMod.setId(userTO.getId());
@@ -292,7 +292,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        // 4. update assignign a resource NOT forcing mandatory constraints
+        // 4. update assigning a resource NOT forcing mandatory constraints
         // BUT not primary: must succeed
         userMod = new UserMod();
         userMod.setId(userTO.getId());
@@ -310,7 +310,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issue147() {
-        // 1. create an user wihtout role nor resources
+        // 1. create an user without role nor resources
         UserTO userTO = getSampleTO("issue147@syncope-idm.org");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
