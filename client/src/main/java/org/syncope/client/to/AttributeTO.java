@@ -37,7 +37,7 @@ public class AttributeTO extends AbstractBaseBean {
     private List<String> values;
 
     /**
-     * Wether this attribute is read-only or not.
+     * Whether this attribute is read-only or not.
      */
     private boolean readonly;
 
@@ -67,7 +67,7 @@ public class AttributeTO extends AbstractBaseBean {
 
     /**
      * @param value an attribute value to be added
-     * @return wether the operation succeeded or not
+     * @return whether the operation succeeded or not
      */
     public boolean addValue(final String value) {
         return value == null || isReadonly()
@@ -77,7 +77,7 @@ public class AttributeTO extends AbstractBaseBean {
 
     /**
      * @param value an attribute value to be removed
-     * @return wether the operation succeeded or not
+     * @return whether the operation succeeded or not
      */
     public boolean removeValue(final String value) {
         return value == null || isReadonly()

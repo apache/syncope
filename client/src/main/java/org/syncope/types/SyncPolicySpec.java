@@ -39,7 +39,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
 
     public ConflictResolutionAction getConflictResolutionAction() {
         if (conflictResolutionAction == null) {
-            return conflictResolutionAction.IGNORE;
+            return ConflictResolutionAction.IGNORE;
         } else {
             return conflictResolutionAction;
         }

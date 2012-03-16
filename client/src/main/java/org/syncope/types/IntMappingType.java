@@ -64,7 +64,7 @@ public enum IntMappingType {
      * @param attributableType attributable type
      * @return set of attribute types.
      */
-    public static EnumSet getAttributeTypes(final AttributableType attributableType) {
+    public static EnumSet<?> getAttributeTypes(final AttributableType attributableType) {
         switch (attributableType) {
             case ROLE:
                 return EnumSet.allOf(RoleMappingType.class);
@@ -79,7 +79,7 @@ public enum IntMappingType {
      * Check if attribute type belongs to the specified attributable type set.
      *
      * @param attributableType attributable type.
-     * @param type attrybute type.
+     * @param type attribute type.
      * @return true if attribute type belongs to the specified attributable type set.
      */
     public static boolean contains(final AttributableType attributableType, final String type) {

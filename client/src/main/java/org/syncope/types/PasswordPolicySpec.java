@@ -98,42 +98,42 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
     private boolean mustntEndWithDigit;
 
     /**
-     * Specify if must start with a non alphanumeric caracther.
+     * Specify if must start with a non alphanumeric character.
      */
     private boolean mustStartWithNonAlpha;
 
     /**
-     * Specify if must start with a alphanumeric caracther.
+     * Specify if must start with a alphanumeric character.
      */
     private boolean mustStartWithAlpha;
 
     /**
-     * Specify if mustn't start with a non alphanumeric caracther.
+     * Specify if mustn't start with a non alphanumeric character.
      */
     private boolean mustntStartWithNonAlpha;
 
     /**
-     * Specify if mustn't start with a alphanumeric caracther.
+     * Specify if mustn't start with a alphanumeric character.
      */
     private boolean mustntStartWithAlpha;
 
     /**
-     * Specify if must end with a non alphanumeric caracther.
+     * Specify if must end with a non alphanumeric character.
      */
     private boolean mustEndWithNonAlpha;
 
     /**
-     * Specify if must end with a alphanumeric caracther.
+     * Specify if must end with a alphanumeric character.
      */
     private boolean mustEndWithAlpha;
 
     /**
-     * Specify if mustn't end with a non alphanumeric caracther.
+     * Specify if mustn't end with a non alphanumeric character.
      */
     private boolean mustntEndWithNonAlpha;
 
     /**
-     * Specify if mustn't end with a alphanumeric caracther.
+     * Specify if mustn't end with a alphanumeric character.
      */
     private boolean mustntEndWithAlpha;
 

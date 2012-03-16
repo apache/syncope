@@ -47,7 +47,7 @@ public class PropagationTO extends AbstractBaseBean {
     private String resourceName;
 
     /**
-     * Propagation task excution status.
+     * Propagation task execution status.
      */
     private PropagationTaskExecStatus status;
 

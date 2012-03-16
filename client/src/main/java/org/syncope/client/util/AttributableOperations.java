@@ -301,7 +301,7 @@ public final class AttributableOperations {
             }
         }
 
-        return new ArrayList(attrs.values());
+        return new ArrayList<AttributeTO>(attrs.values());
     }
 
     private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(final T to,
@@ -327,7 +327,7 @@ public final class AttributableOperations {
 
             attrs.put(attrName, attrTO);
         }
-        result.setDerivedAttributes(new ArrayList(attrs.values()));
+        result.setDerivedAttributes(new ArrayList<AttributeTO>(attrs.values()));
 
         // 4. virtual attributes
         result.setVirtualAttributes(getUpdateValues(to.getVirtualAttributeMap(), mod.getVirtualAttributesToBeRemoved(),
