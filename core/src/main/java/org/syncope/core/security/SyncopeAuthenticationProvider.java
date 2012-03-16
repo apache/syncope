@@ -84,7 +84,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(noRollbackFor = { BadCredentialsException.class })
+    @Transactional(noRollbackFor = {BadCredentialsException.class})
     public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
         boolean authenticated;
@@ -116,8 +116,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         Authentication result;
 
         if ((user == null || !user.getSuspended()) && authenticated) {
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(authentication
-                    .getPrincipal(), null, userDetailsService.loadUserByUsername(
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(authentication.
+                    getPrincipal(), null, userDetailsService.loadUserByUsername(
                     authentication.getPrincipal().toString()).getAuthorities());
             token.setDetails(authentication.getDetails());
 
@@ -125,8 +125,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.success,
                     "Successfully authenticated, with roles: " + token.getAuthorities());
-            LOG.debug("User {} successfully authenticated, with roles {}", authentication.getPrincipal(), token
-                    .getAuthorities());
+            LOG.debug("User {} successfully authenticated, with roles {}", authentication.getPrincipal(), token.
+                    getAuthorities());
 
             if (user != null) {
                 user.setLastLoginDate(new Date());
@@ -140,8 +140,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 userDAO.save(user);
             }
 
-            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.failure, "User "
-                    + authentication.getPrincipal() + " not authenticated");
+            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.failure,
+                    "User " + authentication.getPrincipal() + " not authenticated");
             LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
             throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");

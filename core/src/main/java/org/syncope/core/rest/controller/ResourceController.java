@@ -30,7 +30,6 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +42,7 @@ import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -54,11 +53,16 @@ import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.util.ConnObjectUtil;
-import org.syncope.types.SyncopeClientExceptionType;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.ResourceSubCategory;
+import org.syncope.types.AuditElements.Result;
 
 @Controller
 @RequestMapping("/resource")
 public class ResourceController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -83,41 +87,15 @@ public class ResourceController extends AbstractController {
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ResourceTO create(final HttpServletResponse response, final @RequestBody ResourceTO resourceTO)
+    public ResourceTO create(final HttpServletResponse response, @RequestBody final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         LOG.debug("Resource creation: {}", resourceTO);
 
-        if (resourceTO == null) {
-            LOG.error("Missing resource");
+        ExternalResource resource = resourceDAO.save(binder.create(resourceTO));
 
-            throw new NotFoundException("Missing resource");
-        }
-
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-
-        LOG.debug("Verify that resource doesn't exist yet");
-        if (resourceTO.getName() != null && resourceDAO.find(resourceTO.getName()) != null) {
-            SyncopeClientException ex = new SyncopeClientException(SyncopeClientExceptionType.DataIntegrityViolation);
-
-            ex.addElement("Existing " + resourceTO.getName());
-            scce.addException(ex);
-
-            throw scce;
-        }
-
-        ExternalResource resource = binder.create(resourceTO);
-        if (resource == null) {
-            LOG.error("Resource creation failed");
-
-            SyncopeClientException ex = new SyncopeClientException(SyncopeClientExceptionType.Unknown);
-
-            scce.addException(ex);
-
-            throw scce;
-        }
-
-        resource = resourceDAO.save(resource);
+        auditManager.audit(Category.resource, ResourceSubCategory.create, Result.success,
+                "Successfully created resource: " + resource.getName());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getResourceTO(resource);
@@ -125,46 +103,37 @@ public class ResourceController extends AbstractController {
 
     @PreAuthorize("hasRole('RESOURCE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ResourceTO update(final HttpServletResponse response, final @RequestBody ResourceTO resourceTO)
+    public ResourceTO update(@RequestBody final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         LOG.debug("Role update request: {}", resourceTO);
 
-        ExternalResource resource = null;
-        if (resourceTO != null && resourceTO.getName() != null) {
-            resource = resourceDAO.find(resourceTO.getName());
-        }
+        ExternalResource resource = resourceDAO.find(resourceTO.getName());
         if (resource == null) {
-            LOG.error("Missing resource: {}", resourceTO.getName());
             throw new NotFoundException("Resource '" + resourceTO.getName() + "'");
         }
 
         resource = binder.update(resource, resourceTO);
-        if (resource == null) {
-            LOG.error("Resource update failed");
-
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-            SyncopeClientException ex = new SyncopeClientException(SyncopeClientExceptionType.Unknown);
-            scce.addException(ex);
-            throw scce;
-        }
-
         resource = resourceDAO.save(resource);
+
+        auditManager.audit(Category.resource, ResourceSubCategory.update, Result.success,
+                "Successfully updated resource: " + resource.getName());
 
         return binder.getResourceTO(resource);
     }
 
     @PreAuthorize("hasRole('RESOURCE_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{resourceName}")
-    public void delete(final HttpServletResponse response, final @PathVariable("resourceName") String resourceName)
+    public void delete(@PathVariable("resourceName") final String resourceName)
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
-
         if (resource == null) {
-            LOG.error("Could not find resource '" + resourceName + "'");
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
+
+        auditManager.audit(Category.resource, ResourceSubCategory.delete, Result.success,
+                "Successfully deleted resource: " + resource.getName());
 
         resourceDAO.delete(resourceName);
     }
@@ -172,14 +141,16 @@ public class ResourceController extends AbstractController {
     @PreAuthorize("hasRole('RESOURCE_READ')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET, value = "/read/{resourceName}")
-    public ResourceTO read(final HttpServletResponse response, final @PathVariable("resourceName") String resourceName)
+    public ResourceTO read(@PathVariable("resourceName") final String resourceName)
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
-            LOG.error("Could not find resource '" + resourceName + "'");
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
+
+        auditManager.audit(Category.resource, ResourceSubCategory.read, Result.success,
+                "Successfully read resource: " + resource.getName());
 
         return binder.getResourceTO(resource);
     }
@@ -189,7 +160,7 @@ public class ResourceController extends AbstractController {
     public List<ResourceTO> list(@RequestParam(required = false, value = "connInstanceId") final Long connInstanceId)
             throws NotFoundException {
 
-        final List<ExternalResource> resources;
+        List<ExternalResource> resources;
 
         if (connInstanceId == null) {
             resources = resourceDAO.findAll();
@@ -198,37 +169,24 @@ public class ResourceController extends AbstractController {
             resources = connInstance.getResources();
         }
 
-        if (resources == null) {
-            LOG.error("No resources found");
-            throw new NotFoundException("No resources found");
-        }
+        List<ResourceTO> result = binder.getResourceTOs(resources);
 
-        return binder.getResourceTOs(resources);
+        auditManager.audit(Category.resource, ResourceSubCategory.list, Result.success,
+                connInstanceId == null
+                ? "Successfully listed all resources: " + result.size()
+                : "Successfully listed resources for connector " + connInstanceId + ": " + result.size());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('RESOURCE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{roleName}/mappings")
-    public List<SchemaMappingTO> getRoleResourcesMapping(final HttpServletResponse response,
-            @PathVariable("roleName") final Long roleId) throws SyncopeClientCompositeErrorException {
+    @RequestMapping(method = RequestMethod.GET, value = "/{roleId}/mappings")
+    public List<SchemaMappingTO> getRoleResourcesMapping(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException {
 
-        SyncopeRole role = null;
-        if (roleId != null) {
-            role = roleDAO.find(roleId);
-        }
-
+        SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            LOG.error("Role " + roleId + " not found.");
-
-            SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            SyncopeClientException ex = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-
-            ex.addElement("resource");
-
-            compositeErrorException.addException(ex);
-
-            throw compositeErrorException;
+            throw new NotFoundException("Role '" + roleId + "'");
         }
 
         List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
@@ -237,7 +195,8 @@ public class ResourceController extends AbstractController {
             roleMappings.addAll(binder.getSchemaMappingTOs(resource.getMappings()));
         }
 
-        LOG.debug("Mappings found: {} ", roleMappings);
+        auditManager.audit(Category.resource, ResourceSubCategory.getRoleResourcesMapping, Result.success,
+                "Found " + roleMappings.size() + " mappings for role " + roleId);
 
         return roleMappings;
     }
@@ -245,20 +204,19 @@ public class ResourceController extends AbstractController {
     @PreAuthorize("hasRole('RESOURCE_GETOBJECT')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{objectId}")
-    public ConnObjectTO getObject(final HttpServletResponse response,
-            @PathVariable("resourceName") String resourceName, @PathVariable("objectId") final String objectId)
+    public ConnObjectTO getObject(@PathVariable("resourceName") final String resourceName,
+            @PathVariable("objectId") final String objectId)
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
-            LOG.error("Could not find resource '" + resourceName + "'");
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
         final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
 
-        final ConnectorObject connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(objectId), connector
-                .getOperationOptions(resource));
+        final ConnectorObject connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(objectId), connector.
+                getOperationOptions(resource));
 
         if (connectorObject == null) {
             throw new NotFoundException("Object " + objectId + " not found on resource " + resourceName);
@@ -273,6 +231,9 @@ public class ResourceController extends AbstractController {
         if (AttributeUtil.find(Name.NAME, attributes) == null) {
             attributes.add(connectorObject.getName());
         }
+
+        auditManager.audit(Category.resource, ResourceSubCategory.getObject, Result.success,
+                "Successfully read object " + objectId + " from resource " + resourceName);
 
         return connObjectUtil.getConnObjectTO(connectorObject);
     }

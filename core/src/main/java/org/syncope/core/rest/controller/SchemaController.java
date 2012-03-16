@@ -30,14 +30,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.core.rest.data.SchemaDataBinder;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.SchemaSubCategory;
+import org.syncope.types.AuditElements.Result;
 
 @Controller
 @RequestMapping("/schema")
 public class SchemaController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -54,6 +61,9 @@ public class SchemaController extends AbstractController {
         schemaDataBinder.create(schemaTO, schema);
         schema = schemaDAO.save(schema);
 
+        auditManager.audit(Category.schema, SchemaSubCategory.create, Result.success,
+                "Successfully created schema: " + kind + "/" + schema.getName());
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         return schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
     }
@@ -66,12 +76,13 @@ public class SchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).schemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
-            LOG.error("Could not find schema '" + schemaName + "'");
-
-            throw new NotFoundException(schemaName);
+            throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
+
+        auditManager.audit(Category.schema, SchemaSubCategory.delete, Result.success,
+                "Successfully deleted schema: " + kind + "/" + schema.getName());
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
@@ -84,6 +95,9 @@ public class SchemaController extends AbstractController {
             schemaTOs.add(schemaDataBinder.getSchemaTO(schema, attributableUtil));
         }
 
+        auditManager.audit(Category.schema, SchemaSubCategory.list, Result.success,
+                "Successfully listed all schemas: " + kind + "/" + schemaTOs.size());
+
         return schemaTOs;
     }
 
@@ -95,9 +109,11 @@ public class SchemaController extends AbstractController {
         AttributableUtil attributableUtil = getAttributableUtil(kind);
         AbstractSchema schema = schemaDAO.find(schemaName, attributableUtil.schemaClass());
         if (schema == null) {
-            LOG.error("Could not find schema '" + schemaName + "'");
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
+
+        auditManager.audit(Category.schema, SchemaSubCategory.read, Result.success,
+                "Successfully read schema: " + kind + "/" + schema.getName());
 
         return schemaDataBinder.getSchemaTO(schema, attributableUtil);
     }
@@ -110,12 +126,14 @@ public class SchemaController extends AbstractController {
         AttributableUtil attributableUtil = getAttributableUtil(kind);
         AbstractSchema schema = schemaDAO.find(schemaTO.getName(), attributableUtil.schemaClass());
         if (schema == null) {
-            LOG.error("Could not find schema '" + schemaTO.getName() + "'");
             throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
         }
 
         schemaDataBinder.update(schemaTO, schema, attributableUtil);
         schema = schemaDAO.save(schema);
+
+        auditManager.audit(Category.schema, SchemaSubCategory.update, Result.success,
+                "Successfully updated schema: " + kind + "/" + schema.getName());
 
         return schemaDataBinder.getSchemaTO(schema, attributableUtil);
     }

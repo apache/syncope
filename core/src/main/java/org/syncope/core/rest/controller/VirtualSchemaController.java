@@ -31,13 +31,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.VirtualSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.rest.data.VirtualSchemaDataBinder;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.Result;
+import org.syncope.types.AuditElements.SchemaSubCategory;
 
 @Controller
 @RequestMapping("/virtualSchema")
 public class VirtualSchemaController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private VirSchemaDAO virtualSchemaDAO;
@@ -51,10 +58,12 @@ public class VirtualSchemaController extends AbstractController {
             @RequestBody final VirtualSchemaTO virtualSchemaTO, @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException {
 
-        AbstractVirSchema virtualSchema = virtualSchemaDataBinder.create(virtualSchemaTO, getAttributableUtil(kind)
-                .newVirtualSchema(), getAttributableUtil(kind).schemaClass());
+        AbstractVirSchema virtualSchema = virtualSchemaDAO.save(virtualSchemaDataBinder.create(
+                virtualSchemaTO, getAttributableUtil(kind).newVirtualSchema(),
+                getAttributableUtil(kind).schemaClass()));
 
-        virtualSchema = virtualSchemaDAO.save(virtualSchema);
+        auditManager.audit(Category.schema, SchemaSubCategory.createVirtual, Result.success,
+                "Successfully created virtual schema: " + kind + "/" + virtualSchema.getName());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
@@ -62,18 +71,19 @@ public class VirtualSchemaController extends AbstractController {
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{kind}/delete/{schema}")
-    public void delete(HttpServletResponse response, @PathVariable("kind") final String kind,
+    public void delete(@PathVariable("kind") final String kind,
             @PathVariable("schema") final String virtualSchemaName) throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).virtualSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaName, reference);
         if (virtualSchema == null) {
-            LOG.error("Could not find virtual schema '" + virtualSchemaName + "'");
-
-            throw new NotFoundException(virtualSchemaName);
-        } else {
-            virtualSchemaDAO.delete(virtualSchemaName, getAttributableUtil(kind));
+            throw new NotFoundException("Virtual schema '" + virtualSchemaName + "'");
         }
+
+        virtualSchemaDAO.delete(virtualSchemaName, getAttributableUtil(kind));
+
+        auditManager.audit(Category.schema, SchemaSubCategory.deleteVirtual, Result.success,
+                "Successfully deleted virtual schema: " + kind + "/" + virtualSchema.getName());
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
@@ -83,9 +93,11 @@ public class VirtualSchemaController extends AbstractController {
 
         List<VirtualSchemaTO> virtualSchemaTOs = new ArrayList<VirtualSchemaTO>(virtualAttributeSchemas.size());
         for (AbstractVirSchema virtualSchema : virtualAttributeSchemas) {
-
             virtualSchemaTOs.add(virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema));
         }
+
+        auditManager.audit(Category.schema, SchemaSubCategory.listVirtual, Result.success,
+                "Successfully listed all virtual schemas: " + kind + "/" + virtualSchemaTOs.size());
 
         return virtualSchemaTOs;
     }
@@ -98,9 +110,11 @@ public class VirtualSchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).virtualSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaName, reference);
         if (virtualSchema == null) {
-            LOG.error("Could not find virtual schema '" + virtualSchemaName + "'");
-            throw new NotFoundException(virtualSchemaName);
+            throw new NotFoundException("Virtual schema '" + virtualSchemaName + "'");
         }
+
+        auditManager.audit(Category.schema, SchemaSubCategory.readVirtual, Result.success,
+                "Successfully read virtual schema: " + kind + "/" + virtualSchema.getName());
 
         return virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
     }
@@ -113,14 +127,16 @@ public class VirtualSchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).virtualSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaTO.getName(), reference);
         if (virtualSchema == null) {
-            LOG.error("Could not find virtual schema '" + virtualSchemaTO.getName() + "'");
-            throw new NotFoundException(virtualSchemaTO.getName());
+            throw new NotFoundException("Virtual schema '" + virtualSchema.getName() + "'");
         }
 
-        virtualSchema = virtualSchemaDataBinder.update(virtualSchemaTO, virtualSchema, getAttributableUtil(kind)
-                .schemaClass());
-
+        virtualSchema = virtualSchemaDataBinder.update(virtualSchemaTO, virtualSchema,
+                getAttributableUtil(kind).schemaClass());
         virtualSchema = virtualSchemaDAO.save(virtualSchema);
+
+        auditManager.audit(Category.schema, SchemaSubCategory.updateVirtual, Result.success,
+                "Successfully updated virtual schema: " + kind + "/" + virtualSchema.getName());
+
         return virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
     }
 }

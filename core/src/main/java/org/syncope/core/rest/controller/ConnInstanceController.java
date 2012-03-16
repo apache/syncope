@@ -102,7 +102,7 @@ public class ConnInstanceController extends AbstractController {
                     "Successfully created connector instance: " + connInstance.getDisplayName());
         } catch (Throwable t) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not create connector instance: " + connectorTO.getDisplayName());
+                    "Could not create connector instance: " + connectorTO.getDisplayName(), t);
 
             SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -133,7 +133,7 @@ public class ConnInstanceController extends AbstractController {
                     "Successfully update connector instance: " + connInstance.getDisplayName());
         } catch (Throwable t) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not update connector instance: " + connectorTO.getDisplayName());
+                    "Could not update connector instance: " + connectorTO.getDisplayName(), t);
 
             SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -371,7 +371,7 @@ public class ConnInstanceController extends AbstractController {
                     "Successfully checked connector: " + connectorTO);
         } catch (Exception ex) {
             auditManager.audit(Category.connector, ConnectorSubCategory.check, Result.failure,
-                    "Unsuccessful check for connector: " + connectorTO);
+                    "Unsuccessful check for connector: " + connectorTO, ex);
 
             LOG.error("Test connection failure {}", ex);
             result = false;

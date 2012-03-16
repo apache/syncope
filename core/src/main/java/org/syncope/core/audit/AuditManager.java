@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.syncope.types.AuditElements;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.Result;
 import org.syncope.types.SyncopeLoggerType;
 
 public class AuditManager {
@@ -32,29 +33,24 @@ public class AuditManager {
      */
     private static final Logger LOG = LoggerFactory.getLogger(AuditManager.class);
 
-    private String getLoggerName(final AuditElements.Category category, final Enum<?> subcategory,
-            final AuditElements.Result result) {
+    public String getLoggerName(final Category category, final Enum<?> subcategory, final Result result) {
 
-        StringBuilder loggerName = new StringBuilder();
-        loggerName.append(SyncopeLoggerType.AUDIT.getPrefix()).append('.').append(category.name()).append('.').append(
-                subcategory.name()).append('.').append(result.name());
-        return loggerName.toString();
+        return new StringBuilder().append(SyncopeLoggerType.AUDIT.getPrefix()).append('.').
+                append(category.name()).append('.').
+                append(subcategory.name()).append('.').
+                append(result.name()).toString();
     }
 
-    public void audit(final AuditElements.Category category, final Enum<?> subcategory,
-            final AuditElements.Result result, final String message) {
-
+    public void audit(final Category category, final Enum<?> subcategory, final Result result, final String message) {
         audit(category, subcategory, result, message, null);
     }
 
-    public void audit(final AuditElements.Category category, final Enum<?> subcategory,
-            final AuditElements.Result result, final String message, final Throwable t) {
+    public void audit(final Category category, final Enum<?> subcategory, final Result result, final String message,
+            final Throwable throwable) {
 
         if (category == null || subcategory == null || result == null) {
-            LOG.error("Invalid request: some null items {} {} {}", new Object[] { category, subcategory, result });
-        } else if (!AuditElements.getSubCategories(category).contains(subcategory)) {
-            LOG.error("Invalid request: {} does not belong to {}", new Object[] { subcategory, category });
-        } else {
+            LOG.error("Invalid request: some null items {} {} {}", new Object[]{category, subcategory, result});
+        } else if (category.getSubCategoryElements().contains(subcategory)) {
             StringBuilder auditMessage = new StringBuilder();
 
             final SecurityContext ctx = SecurityContextHolder.getContext();
@@ -64,11 +60,14 @@ public class AuditManager {
             auditMessage.append(message);
 
             Logger logger = LoggerFactory.getLogger(getLoggerName(category, subcategory, result));
-            if (t == null) {
+            if (throwable == null) {
                 logger.debug(auditMessage.toString());
             } else {
-                logger.debug(auditMessage.toString(), t);
+                logger.debug(auditMessage.toString(), throwable);
             }
+        } else {
+            LOG.error("Invalid request: {} does not belong to {}", new Object[]{subcategory, category});
         }
+
     }
 }

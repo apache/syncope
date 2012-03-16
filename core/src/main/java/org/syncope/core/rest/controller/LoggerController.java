@@ -133,9 +133,12 @@ public class LoggerController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('AUDIT_SET_LEVEL')")
-    @RequestMapping(method = RequestMethod.POST, value = "/audit/{name}/{level}")
-    public LoggerTO setAuditLevel(@PathVariable("name") final String name, @PathVariable("level") final Level level) {
-        return setLevel(name, level, SyncopeLoggerType.AUDIT);
+    @RequestMapping(method = RequestMethod.POST, value = "/audit/{category}/{subcategory}/{result}/{level}")
+    public LoggerTO setAuditLevel(@PathVariable("category") final Category category,
+            @PathVariable("subcategory") final Enum<?> subcategory, @PathVariable("result") final Result result,
+            @PathVariable("level") final Level level) {
+
+        return setLevel(auditManager.getLoggerName(category, subcategory, result), level, SyncopeLoggerType.AUDIT);
     }
 
     private void delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
@@ -167,9 +170,11 @@ public class LoggerController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('AUDIT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/audit/delete/{name}")
-    public void deleteAudit(@PathVariable("name") final String name) throws NotFoundException {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/audit/delete/{category}/{subcategory}/{result}")
+    public void deleteAudit(@PathVariable("category") final Category category,
+            @PathVariable("subcategory") final Enum<?> subcategory, @PathVariable("result") final Result result) throws
+            NotFoundException {
 
-        delete(name, SyncopeLoggerType.AUDIT);
+        delete(auditManager.getLoggerName(category, subcategory, result), SyncopeLoggerType.AUDIT);
     }
 }

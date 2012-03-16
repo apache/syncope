@@ -20,25 +20,41 @@ package org.syncope.types;
 
 import java.util.EnumSet;
 
-public class AuditElements {
+public final class AuditElements {
+
+    private AuditElements() {
+    }
 
     public enum Category {
 
-        authentication,
-        configuration,
-        connector,
-        logger,
-        notification,
-        policy,
-        report,
-        resource,
-        role,
-        schema,
-        task,
-        user,
-        userRequest,
-        workflow
+        authentication(AuthenticationSubCategory.class),
+        configuration(ConfigurationSubCategory.class),
+        connector(ConnectorSubCategory.class),
+        logger(LoggerSubCategory.class),
+        notification(NotificationSubCategory.class),
+        policy(PolicySubCategory.class),
+        report(ReportSubCategory.class),
+        resource(ResourceSubCategory.class),
+        role(RoleSubCategory.class),
+        schema(SchemaSubCategory.class),
+        task(TaskSubCategory.class),
+        user(UserSubCategory.class),
+        userRequest(UserRequestSubCategory.class),
+        workflow(WorkflowSubCategory.class);
 
+        private Class<? extends Enum<?>> subCategory;
+
+        Category(final Class<? extends Enum<?>> subCategory) {
+            this.subCategory = subCategory;
+        }
+
+        public Class<? extends Enum> getSubCategory() {
+            return subCategory;
+        }
+
+        public EnumSet<? extends Enum<?>> getSubCategoryElements() {
+            return EnumSet.allOf(getSubCategory());
+        }
     }
 
     public enum Result {
@@ -46,32 +62,6 @@ public class AuditElements {
         success,
         failure
 
-    }
-
-    public static EnumSet<? extends Enum> getSubCategories(final Category category) {
-        EnumSet<? extends Enum> result;
-        switch (category) {
-            case authentication:
-                result = EnumSet.allOf(AuthenticationSubCategory.class);
-                break;
-
-            case configuration:
-                result = EnumSet.allOf(ConfigurationSubCategory.class);
-                break;
-
-            case connector:
-                result = EnumSet.allOf(ConnectorSubCategory.class);
-                break;
-
-            case logger:
-                result = EnumSet.allOf(LoggerSubCategory.class);
-                break;
-
-            default:
-                result = null;
-        }
-
-        return result;
     }
 
     public enum AuthenticationSubCategory {
@@ -114,6 +104,139 @@ public class AuditElements {
         list,
         setLevel,
         delete
+
+    }
+
+    public enum NotificationSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        sent
+
+    }
+
+    public enum PolicySubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete
+
+    }
+
+    public enum ReportSubCategory {
+
+        list,
+        listExecutions,
+        create,
+        read,
+        readExecution,
+        update,
+        delete,
+        deleteExecution,
+        getReportletConfClasses,
+        execute,
+        exportExecutionResult
+
+    }
+
+    public enum ResourceSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        getObject,
+        getRoleResourcesMapping
+
+    }
+
+    public enum RoleSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        parent,
+        children
+
+    }
+
+    public enum SchemaSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        listDerived,
+        createDerived,
+        readDerived,
+        updateDerived,
+        deleteDerived,
+        listVirtual,
+        createVirtual,
+        readVirtual,
+        updateVirtual,
+        deleteVirtual
+
+    }
+
+    public enum TaskSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        listExecutions,
+        getJobClasses,
+        getJobActionClasses,
+        readExecution,
+        execute,
+        report,
+        deleteExecution
+
+    }
+
+    public enum UserSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        verifyPassword,
+        search,
+        setStatus,
+        executeWorkflow,
+        getForms,
+        getFormForUser,
+        claimForm,
+        submitForm
+
+    }
+
+    public enum UserRequestSubCategory {
+
+        list,
+        create,
+        read,
+        update,
+        delete,
+        isCreateAllowed,}
+
+    public enum WorkflowSubCategory {
+
+        getDefinition,
+        updateDefinition,
+        getDefinedTasks
 
     }
 }

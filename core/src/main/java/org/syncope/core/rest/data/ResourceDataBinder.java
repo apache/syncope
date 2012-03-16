@@ -126,12 +126,7 @@ public class ResourceDataBinder {
         return resource;
     }
 
-    public List<ResourceTO> getResourceTOs(Collection<ExternalResource> resources) {
-
-        if (resources == null) {
-            return null;
-        }
-
+    public List<ResourceTO> getResourceTOs(final Collection<ExternalResource> resources) {
         List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
         for (ExternalResource resource : resources) {
             resourceTOs.add(getResourceTO(resource));
@@ -140,7 +135,7 @@ public class ResourceDataBinder {
         return resourceTOs;
     }
 
-    public ResourceTO getResourceTO(ExternalResource resource) {
+    public ResourceTO getResourceTO(final ExternalResource resource) {
 
         if (resource == null) {
             return null;

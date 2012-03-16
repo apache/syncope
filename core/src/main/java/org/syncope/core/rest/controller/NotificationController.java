@@ -30,13 +30,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.NotificationTO;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.Notification;
 import org.syncope.core.persistence.dao.NotificationDAO;
 import org.syncope.core.rest.data.NotificationDataBinder;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.NotificationSubCategory;
+import org.syncope.types.AuditElements.Result;
 
 @Controller
 @RequestMapping("/notification")
 public class NotificationController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private NotificationDAO notificationDAO;
@@ -46,7 +53,7 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('NOTIFICATION_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{notificationId}")
-    public NotificationTO read(@PathVariable("notificationId") Long notificationId) throws NotFoundException {
+    public NotificationTO read(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
 
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
@@ -69,6 +76,9 @@ public class NotificationController extends AbstractController {
             notificationTOs.add(binder.getNotificationTO(notification));
         }
 
+        auditManager.audit(Category.notification, NotificationSubCategory.list, Result.success,
+                "Successfully listed all notifications: " + notificationTOs.size());
+
         return notificationTOs;
     }
 
@@ -79,8 +89,10 @@ public class NotificationController extends AbstractController {
 
         LOG.debug("Notification create called with parameter {}", notificationTO);
 
-        Notification notification = binder.createNotification(notificationTO);
-        notification = notificationDAO.save(notification);
+        Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
+
+        auditManager.audit(Category.notification, NotificationSubCategory.create, Result.success,
+                "Successfully created notification: " + notification.getId());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getNotificationTO(notification);
@@ -102,6 +114,9 @@ public class NotificationController extends AbstractController {
         binder.updateNotification(notification, notificationTO);
         notification = notificationDAO.save(notification);
 
+        auditManager.audit(Category.notification, NotificationSubCategory.update, Result.success,
+                "Successfully updated notification: " + notification.getId());
+
         return binder.getNotificationTO(notification);
     }
 
@@ -115,6 +130,9 @@ public class NotificationController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(notificationId));
         }
+
+        auditManager.audit(Category.notification, NotificationSubCategory.delete, Result.success,
+                "Successfully deleted notification: " + notification.getId());
 
         notificationDAO.delete(notificationId);
     }

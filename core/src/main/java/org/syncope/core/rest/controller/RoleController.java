@@ -33,14 +33,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.rest.data.RoleDataBinder;
 import org.syncope.core.util.EntitlementUtil;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.Result;
+import org.syncope.types.AuditElements.RoleSubCategory;
 
 @Controller
 @RequestMapping("/role")
 public class RoleController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -50,26 +57,20 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public RoleTO create(final HttpServletResponse response, final @RequestBody RoleTO roleTO)
+    public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO)
             throws SyncopeClientCompositeErrorException, UnauthorizedRoleException {
 
         LOG.debug("Role create called with parameters {}", roleTO);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (roleTO.getParent() != 0 && !allowedRoleIds.contains(roleTO.getParent())) {
-
             throw new UnauthorizedRoleException(roleTO.getParent());
         }
 
-        SyncopeRole role;
-        try {
-            role = roleDataBinder.create(roleTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("Could not create for " + roleTO, e);
+        SyncopeRole role = roleDAO.save(roleDataBinder.create(roleTO));
 
-            throw e;
-        }
-        role = roleDAO.save(role);
+        auditManager.audit(Category.role, RoleSubCategory.create, Result.success,
+                "Successfully created role: " + role.getId());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return roleDataBinder.getRoleTO(role);
@@ -77,7 +78,7 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{roleId}")
-    public void delete(@PathVariable("roleId") Long roleId) throws NotFoundException, UnauthorizedRoleException {
+    public void delete(@PathVariable("roleId") final Long roleId) throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
@@ -88,6 +89,9 @@ public class RoleController extends AbstractController {
         if (!allowedRoleIds.contains(role.getId())) {
             throw new UnauthorizedRoleException(role.getId());
         }
+
+        auditManager.audit(Category.role, RoleSubCategory.delete, Result.success,
+                "Successfully deleted role: " + role.getId());
 
         roleDAO.delete(roleId);
     }
@@ -100,32 +104,42 @@ public class RoleController extends AbstractController {
             roleTOs.add(roleDataBinder.getRoleTO(role));
         }
 
+        auditManager.audit(Category.role, RoleSubCategory.list, Result.success,
+                "Successfully listed all roles: " + roleTOs.size());
+
         return roleTOs;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/parent/{roleId}")
-    public RoleTO parent(@PathVariable("roleId") Long roleId) throws NotFoundException, UnauthorizedRoleException {
+    public RoleTO parent(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            throw new NotFoundException("Role " + String.valueOf(roleId));
+            throw new NotFoundException("Role " + roleId);
         }
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (role.getParent() != null && !allowedRoleIds.contains(role.getParent().getId())) {
-
             throw new UnauthorizedRoleException(role.getParent().getId());
         }
 
-        return role.getParent() == null
+        RoleTO result = role.getParent() == null
                 ? null
                 : roleDataBinder.getRoleTO(role.getParent());
+
+        auditManager.audit(Category.role, RoleSubCategory.parent, Result.success,
+                result == null
+                ? "Role " + role.getId() + " is a root role"
+                : "Found parent for role " + role.getId() + ": " + result.getId());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/children/{roleId}")
-    public List<RoleTO> children(@PathVariable("roleId") Long roleId) {
+    public List<RoleTO> children(@PathVariable("roleId") final Long roleId) {
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
         List<SyncopeRole> roles = roleDAO.findChildren(roleId);
@@ -136,12 +150,16 @@ public class RoleController extends AbstractController {
             }
         }
 
+        auditManager.audit(Category.role, RoleSubCategory.children, Result.success,
+                "Found " + roleTOs.size() + " children of role " + roleId);
+
         return roleTOs;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{roleId}")
-    public RoleTO read(@PathVariable("roleId") Long roleId) throws NotFoundException, UnauthorizedRoleException {
+    public RoleTO read(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
@@ -153,12 +171,15 @@ public class RoleController extends AbstractController {
             throw new UnauthorizedRoleException(role.getId());
         }
 
+        auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
+                "Successfully read role: " + role.getId());
+
         return roleDataBinder.getRoleTO(role);
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public RoleTO update(@RequestBody RoleMod roleMod) throws NotFoundException, UnauthorizedRoleException {
+    public RoleTO update(@RequestBody final RoleMod roleMod) throws NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("Role update called with parameter {}", roleMod);
 
@@ -174,6 +195,9 @@ public class RoleController extends AbstractController {
 
         roleDataBinder.update(role, roleMod);
         role = roleDAO.save(role);
+
+        auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
+                "Successfully updated role: " + role.getId());
 
         return roleDataBinder.getRoleTO(role);
     }

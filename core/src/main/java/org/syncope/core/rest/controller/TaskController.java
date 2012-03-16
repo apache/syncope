@@ -52,6 +52,7 @@ import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.NotificationTask;
@@ -69,6 +70,9 @@ import org.syncope.core.scheduling.ReportJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.core.util.TaskUtil;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.Result;
+import org.syncope.types.AuditElements.TaskSubCategory;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -76,6 +80,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/task")
 public class TaskController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private TaskDAO taskDAO;
@@ -126,12 +133,16 @@ public class TaskController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getId(), e);
 
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
             throw scce;
         }
+
+        auditManager.audit(Category.task, TaskSubCategory.create, Result.success,
+                "Successfully created task: " + task.getId() + "/" + taskUtil);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getTaskTO(task, taskUtil);
@@ -173,6 +184,9 @@ public class TaskController extends AbstractController {
             throw scce;
         }
 
+        auditManager.audit(Category.task, TaskSubCategory.update, Result.success,
+                "Successfully udpated task: " + task.getId() + "/" + taskUtil);
+
         return binder.getTaskTO(task, taskUtil);
     }
 
@@ -193,6 +207,9 @@ public class TaskController extends AbstractController {
             taskTOs.add(binder.getTaskTO(task, taskUtil));
         }
 
+        auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
+                "Successfully listed all tasks: " + taskTOs.size() + "/" + taskUtil);
+
         return taskTOs;
     }
 
@@ -209,6 +226,10 @@ public class TaskController extends AbstractController {
             taskTOs.add(binder.getTaskTO(task, taskUtil));
         }
 
+        auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
+                "Successfully listed all tasks (page=" + page + ", size=" + size + "): "
+                + taskTOs.size() + "/" + taskUtil);
+
         return taskTOs;
     }
 
@@ -221,6 +242,9 @@ public class TaskController extends AbstractController {
         for (TaskExec execution : executions) {
             executionTOs.add(binder.getTaskExecTO(execution));
         }
+
+        auditManager.audit(Category.task, TaskSubCategory.listExecutions, Result.success,
+                "Successfully listed all task executions: " + executionTOs.size() + "/" + kind);
 
         return executionTOs;
     }
@@ -237,8 +261,8 @@ public class TaskController extends AbstractController {
                 ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
                 try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata
-                            .getClassName(), ClassUtils.getDefaultClassLoader()));
+                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata.
+                            getClassName(), ClassUtils.getDefaultClassLoader()));
 
                     if ((interfaces.contains(Job.class) || interfaces.contains(StatefulJob.class))
                             && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())
@@ -255,9 +279,10 @@ public class TaskController extends AbstractController {
             LOG.error("While searching for class implementing {}", Job.class.getName(), e);
         }
 
-        ModelAndView result = new ModelAndView();
-        result.addObject(jobClasses);
-        return result;
+        auditManager.audit(Category.task, TaskSubCategory.getJobClasses, Result.success,
+                "Successfully listed all Job classes: " + jobClasses.size());
+
+        return new ModelAndView().addObject(jobClasses);
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
@@ -271,8 +296,8 @@ public class TaskController extends AbstractController {
                 ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
                 try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata
-                            .getClassName(), ClassUtils.getDefaultClassLoader()));
+                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata.
+                            getClassName(), ClassUtils.getDefaultClassLoader()));
 
                     if (interfaces.contains(SyncJobActions.class) && !metadata.isAbstract()) {
                         jobActionsClasses.add(metadata.getClassName());
@@ -285,9 +310,10 @@ public class TaskController extends AbstractController {
             LOG.error("While searching for class implementing {}", SyncJobActions.class.getName(), e);
         }
 
-        ModelAndView result = new ModelAndView();
-        result.addObject(jobActionsClasses);
-        return result;
+        auditManager.audit(Category.task, TaskSubCategory.getJobActionClasses, Result.success,
+                "Successfully listed all SyncJobActions classes: " + jobActionsClasses.size());
+
+        return new ModelAndView().addObject(jobActionsClasses);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -298,20 +324,27 @@ public class TaskController extends AbstractController {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
+        TaskUtil taskUtil = getTaskUtil(task);
 
-        return binder.getTaskTO(task, getTaskUtil(task));
+        auditManager.audit(Category.task, TaskSubCategory.read, Result.success,
+                "Successfully read task: " + task.getId() + "/" + taskUtil);
+
+        return binder.getTaskTO(task, taskUtil);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     public TaskExecTO readExecution(@PathVariable("executionId") final Long executionId) throws NotFoundException {
 
-        TaskExec execution = taskExecDAO.find(executionId);
-        if (execution == null) {
+        TaskExec taskExec = taskExecDAO.find(executionId);
+        if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        return binder.getTaskExecTO(execution);
+        auditManager.audit(Category.task, TaskSubCategory.readExecution, Result.success,
+                "Successfully read task execution: " + taskExec.getId());
+
+        return binder.getTaskExecTO(taskExec);
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
@@ -323,10 +356,11 @@ public class TaskController extends AbstractController {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
+        TaskUtil taskUtil = getTaskUtil(task);
 
         TaskExecTO result = null;
         LOG.debug("Execution started for {}", task);
-        switch (getTaskUtil(task)) {
+        switch (taskUtil) {
             case PROPAGATION:
                 final TaskExec propExec = propagationManager.execute((PropagationTask) task);
                 result = binder.getTaskExecTO(propExec);
@@ -340,8 +374,8 @@ public class TaskController extends AbstractController {
             case SCHED:
             case SYNC:
                 try {
-                    jobInstanceLoader.registerJob(task, ((SchedTask) task).getJobClassName(), ((SchedTask) task)
-                            .getCronExpression());
+                    jobInstanceLoader.registerJob(task, ((SchedTask) task).getJobClassName(), ((SchedTask) task).
+                            getCronExpression());
 
                     JobDataMap map = new JobDataMap();
                     map.put(AbstractTaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
@@ -349,6 +383,9 @@ public class TaskController extends AbstractController {
                             map);
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
+
+                    auditManager.audit(Category.task, TaskSubCategory.execute, Result.failure,
+                            "Could not start execution for task: " + task.getId() + "/" + taskUtil, e);
 
                     SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
                             HttpStatus.BAD_REQUEST);
@@ -369,6 +406,9 @@ public class TaskController extends AbstractController {
         }
         LOG.debug("Execution finished for {}, {}", task, result);
 
+        auditManager.audit(Category.task, TaskSubCategory.execute, Result.success,
+                "Successfully started execution for task: " + task.getId() + "/" + taskUtil);
+
         return result;
     }
 
@@ -384,17 +424,17 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        SyncopeClientException invalidReportException = new SyncopeClientException(
+        SyncopeClientException sce = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPropagationTaskExecReport);
 
         TaskUtil taskUtil = getTaskUtil(exec.getTask());
-        if (taskUtil != TaskUtil.PROPAGATION) {
-            invalidReportException.addElement("Task type: " + taskUtil);
-        } else {
+        if (TaskUtil.PROPAGATION == taskUtil) {
             PropagationTask task = (PropagationTask) exec.getTask();
             if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
-                invalidReportException.addElement("Propagation mode: " + task.getPropagationMode());
+                sce.addElement("Propagation mode: " + task.getPropagationMode());
             }
+        } else {
+            sce.addElement("Task type: " + taskUtil);
         }
 
         switch (status) {
@@ -405,15 +445,20 @@ public class TaskController extends AbstractController {
             case CREATED:
             case SUBMITTED:
             case UNSUBMITTED:
-                invalidReportException.addElement("Execution status to be set: " + status);
+                sce.addElement("Execution status to be set: " + status);
                 break;
 
             default:
         }
 
-        if (!invalidReportException.isEmpty()) {
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-            scce.addException(invalidReportException);
+        if (!sce.isEmpty()) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            scce.addException(sce);
+
+            auditManager.audit(Category.task, TaskSubCategory.report, Result.failure,
+                    "Could not reported execution status: " + exec.getId() + "/" + taskUtil, scce);
+
             throw scce;
         }
 
@@ -421,36 +466,46 @@ public class TaskController extends AbstractController {
         exec.setMessage(message);
         exec = taskExecDAO.save(exec);
 
+        auditManager.audit(Category.task, TaskSubCategory.report, Result.success,
+                "Successfully reported execution status: " + exec.getId() + "/" + taskUtil);
+
         return binder.getTaskExecTO(exec);
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{taskId}")
-    public void delete(@PathVariable("taskId") Long taskId)
+    public void delete(@PathVariable("taskId") final Long taskId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
+        TaskUtil taskUtil = getTaskUtil(task);
 
-        if (TaskUtil.SCHED == getTaskUtil(task) || TaskUtil.SYNC == getTaskUtil(task)) {
+        if (TaskUtil.SCHED == taskUtil || TaskUtil.SYNC == taskUtil) {
             jobInstanceLoader.unregisterJob(task);
         }
 
         taskDAO.delete(task);
+
+        auditManager.audit(Category.task, TaskSubCategory.delete, Result.success,
+                "Successfully deleted task: " + task.getId() + "/" + taskUtil);
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/execution/delete/{executionId}")
-    public void deleteExecution(@PathVariable("executionId") Long executionId)
+    public void deleteExecution(@PathVariable("executionId") final Long executionId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        TaskExec execution = taskExecDAO.find(executionId);
-        if (execution == null) {
+        TaskExec taskExec = taskExecDAO.find(executionId);
+        if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        taskExecDAO.delete(execution);
+        taskExecDAO.delete(taskExec);
+
+        auditManager.audit(Category.task, TaskSubCategory.deleteExecution, Result.success,
+                "Successfully deleted task execution: " + taskExec.getId());
     }
 }

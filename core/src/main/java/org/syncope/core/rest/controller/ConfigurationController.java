@@ -134,7 +134,7 @@ public class ConfigurationController extends AbstractController {
             result.setKey(key);
 
             auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.failure,
-                    "Could not read conf: " + key);
+                    "Could not find conf: " + key);
         }
 
         return result;
@@ -235,7 +235,7 @@ public class ConfigurationController extends AbstractController {
             LOG.debug("Database content successfully exported");
         } catch (Throwable t) {
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.failure,
-                    "Could not export database content");
+                    "Could not export database content", t);
             LOG.error("While exporting database content", t);
         }
     }

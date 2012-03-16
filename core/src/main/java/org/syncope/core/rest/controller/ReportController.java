@@ -59,6 +59,7 @@ import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
@@ -66,6 +67,9 @@ import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.dao.ReportExecDAO;
 import org.syncope.core.report.Reportlet;
 import org.syncope.core.rest.data.ReportDataBinder;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.ReportSubCategory;
+import org.syncope.types.AuditElements.Result;
 import org.syncope.types.ReportExecExportFormat;
 import org.syncope.types.ReportExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -73,6 +77,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/report")
 public class ReportController extends AbstractController {
+
+    @Autowired
+    private AuditManager auditManager;
 
     @Autowired
     private ReportDAO reportDAO;
@@ -106,12 +113,16 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
             throw scce;
         }
+
+        auditManager.audit(Category.report, ReportSubCategory.create, Result.success,
+                "Successfully created report: " + report.getId());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getReportTO(report);
@@ -143,6 +154,9 @@ public class ReportController extends AbstractController {
             throw scce;
         }
 
+        auditManager.audit(Category.report, ReportSubCategory.update, Result.success,
+                "Successfully updated report: " + report.getId());
+
         return binder.getReportTO(report);
     }
 
@@ -161,6 +175,9 @@ public class ReportController extends AbstractController {
             result.add(binder.getReportTO(report));
         }
 
+        auditManager.audit(Category.report, ReportSubCategory.list, Result.success,
+                "Successfully listed all reports: " + result.size());
+
         return result;
     }
 
@@ -173,6 +190,9 @@ public class ReportController extends AbstractController {
             result.add(binder.getReportTO(report));
         }
 
+        auditManager.audit(Category.report, ReportSubCategory.list, Result.success,
+                "Successfully listed reports (page=" + page + ", size=" + size + "): " + result.size());
+
         return result;
     }
 
@@ -184,6 +204,9 @@ public class ReportController extends AbstractController {
         for (ReportExec execution : executions) {
             executionTOs.add(binder.getReportExecTO(execution));
         }
+
+        auditManager.audit(Category.report, ReportSubCategory.listExecutions, Result.success,
+                "Successfully listed all report executions: " + executionTOs.size());
 
         return executionTOs;
     }
@@ -200,9 +223,10 @@ public class ReportController extends AbstractController {
             }
         }
 
-        ModelAndView result = new ModelAndView();
-        result.addObject(reportletConfClasses);
-        return result;
+        auditManager.audit(Category.report, ReportSubCategory.getReportletConfClasses, Result.success,
+                "Successfully listed all ReportletConf classes: " + reportletConfClasses.size());
+
+        return new ModelAndView().addObject(reportletConfClasses);
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
@@ -214,6 +238,9 @@ public class ReportController extends AbstractController {
             throw new NotFoundException("Report " + reportId);
         }
 
+        auditManager.audit(Category.report, ReportSubCategory.read, Result.success,
+                "Successfully read report: " + report.getId());
+
         return binder.getReportTO(report);
     }
 
@@ -222,12 +249,15 @@ public class ReportController extends AbstractController {
     @Transactional(readOnly = true)
     public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId) throws NotFoundException {
 
-        ReportExec execution = reportExecDAO.find(executionId);
-        if (execution == null) {
+        ReportExec reportExec = reportExecDAO.find(executionId);
+        if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
 
-        return binder.getReportExecTO(execution);
+        auditManager.audit(Category.report, ReportSubCategory.readExecution, Result.success,
+                "Successfully read report execution: " + reportExec.getId());
+
+        return binder.getReportExecTO(reportExec);
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
@@ -319,6 +349,9 @@ public class ReportController extends AbstractController {
                 LOG.error("While closing stream for execution result", e);
             }
         }
+
+        auditManager.audit(Category.report, ReportSubCategory.exportExecutionResult, Result.success,
+                "Successfully exported report execution: " + reportExec.getId());
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
@@ -335,10 +368,17 @@ public class ReportController extends AbstractController {
 
             JobDataMap map = new JobDataMap();
             scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
+
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
+                    "Successfully started execution for report: " + report.getId());
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
+                    "Could not start execution for report: " + report.getId(), e);
+
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
@@ -356,7 +396,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{reportId}")
-    public void delete(@PathVariable("reportId") Long reportId)
+    public void delete(@PathVariable("reportId") final Long reportId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         Report report = reportDAO.find(reportId);
@@ -367,18 +407,24 @@ public class ReportController extends AbstractController {
         jobInstanceLoader.unregisterJob(report);
 
         reportDAO.delete(report);
+
+        auditManager.audit(Category.report, ReportSubCategory.delete, Result.success,
+                "Successfully deleted report: " + report.getId());
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/execution/delete/{executionId}")
-    public void deleteExecution(@PathVariable("executionId") Long executionId)
+    public void deleteExecution(@PathVariable("executionId") final Long executionId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        ReportExec execution = reportExecDAO.find(executionId);
-        if (execution == null) {
+        ReportExec reportExec = reportExecDAO.find(executionId);
+        if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
 
-        reportExecDAO.delete(execution);
+        reportExecDAO.delete(reportExec);
+
+        auditManager.audit(Category.report, ReportSubCategory.deleteExecution, Result.success,
+                "Successfully deleted report execution: " + reportExec.getId());
     }
 }

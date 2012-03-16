@@ -31,11 +31,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
+import org.syncope.types.AuditElements.Category;
+import org.syncope.types.AuditElements.NotificationSubCategory;
+import org.syncope.types.AuditElements.Result;
 import org.syncope.types.TraceLevel;
 
 /**
@@ -56,6 +60,9 @@ public class NotificationJob implements StatefulJob {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
+
+    @Autowired
+    private AuditManager auditManager;
 
     /**
      * Task DAO.
@@ -94,8 +101,8 @@ public class NotificationJob implements StatefulJob {
         smtpUsername = confDAO.find("smtp.username", "").getValue();
         smtpPassword = confDAO.find("smtp.password", "").getValue();
 
-        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]", new Object[] { smtpHost, smtpPort,
-                smtpUsername });
+        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]",
+                new Object[]{smtpHost, smtpPort, smtpUsername});
     }
 
     public TaskExec executeSingle(final NotificationTask task) {
@@ -154,10 +161,11 @@ public class NotificationJob implements StatefulJob {
                     StringBuilder report = new StringBuilder();
                     switch (task.getTraceLevel()) {
                         case ALL:
-                            report.append("FROM: ").append(task.getSender()).append('\n').append("TO: ").append(to)
-                                    .append('\n').append("SUBJECT: ").append(task.getSubject()).append('\n').append(
-                                            '\n').append(task.getTextBody()).append('\n').append('\n').append(
-                                            task.getHtmlBody()).append('\n');
+                            report.append("FROM: ").append(task.getSender()).append('\n').
+                                    append("TO: ").append(to).append('\n').
+                                    append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
+                                    append(task.getTextBody()).append('\n').append('\n').
+                                    append(task.getHtmlBody()).append('\n');
                             break;
 
                         case SUMMARY:
@@ -171,6 +179,9 @@ public class NotificationJob implements StatefulJob {
                     if (report.length() > 0) {
                         execution.setMessage(report.toString());
                     }
+
+                    auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.success,
+                            "Successfully sent notification to " + to);
                 } catch (Throwable t) {
                     LOG.error("Could not send e-mail", t);
 
@@ -183,6 +194,9 @@ public class NotificationJob implements StatefulJob {
 
                         execution.setMessage(exceptionWriter.toString());
                     }
+
+                    auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.failure,
+                            "Could not send notification to " + to, t);
                 }
 
                 execution.setEndDate(new Date());
@@ -214,8 +228,8 @@ public class NotificationJob implements StatefulJob {
 
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
-        return (Status.valueOf(execution.getStatus()) == Status.NOT_SENT && task.getTraceLevel().ordinal() >= TraceLevel.FAILURES
-                .ordinal())
+        return (Status.valueOf(execution.getStatus()) == Status.NOT_SENT
+                && task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || task.getTraceLevel() == TraceLevel.ALL;
     }
 }
