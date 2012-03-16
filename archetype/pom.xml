@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.0-incubating-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -33,7 +33,7 @@ under the License.
   <description>Apache Syncope Archetype</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-archetype</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0.0-incubating-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
 
   <properties>
