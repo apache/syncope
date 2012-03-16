@@ -251,7 +251,7 @@ public class Reports extends BasePage {
 
         public ReportProvider() {
             //Default sorting
-            setSort("key", SortOrder.ASCENDING);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<ReportTO>(this);
         }
 
