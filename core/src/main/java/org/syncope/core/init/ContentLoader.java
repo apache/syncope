@@ -145,14 +145,22 @@ public class ContentLoader {
             LOG.debug("Indexes created, go for default content");
         } catch (Throwable t) {
             LOG.error("While creating indexes", t);
-        } finally {
-            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+
+        try {
+            statement = conn.createStatement();
+            statement.executeUpdate("DELETE FROM ACT_GE_PROPERTY");
+            statement.close();
+        } catch (SQLException e) {
+            LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
         }
 
         try {
             conn.close();
         } catch (SQLException e) {
             LOG.error("While closing SQL connection", e);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
 
         // 4. Load default content

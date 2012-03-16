@@ -353,7 +353,7 @@ public class ImportExport extends DefaultHandler {
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
                 // these tables must be ignored
-                if (!tableName.toUpperCase().startsWith("QRTZ_") && !tableName.toUpperCase().equals("ACT_GE_PROPERTY")) {
+                if (!tableName.toUpperCase().startsWith("QRTZ_")) {
 
                     tableNames.add(tableName);
                 }

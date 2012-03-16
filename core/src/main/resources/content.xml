@@ -117,5 +117,9 @@ under the License.
   <Entitlement name="AUDIT_LIST"/>
   <Entitlement name="AUDIT_SET_LEVEL"/>
   <Entitlement name="AUDIT_DELETE"/>
-    
+
+  <ACT_GE_PROPERTY NAME_="schema.version" VALUE_="5.9" REV_="1"/>
+  <ACT_GE_PROPERTY NAME_="schema.history" VALUE_="create(5.9)" REV_="1"/>
+  <ACT_GE_PROPERTY NAME_="next.dbid" VALUE_="1" REV_="1"/>
+  <ACT_GE_PROPERTY NAME_="historyLevel" VALUE_="1" REV_="1"/>    
 </dataset>
