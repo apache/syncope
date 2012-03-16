@@ -65,7 +65,7 @@ public class UserRestClient extends AbstractBaseRestClient {
      * Update existing user.
      *
      * @param userTO
-     * @return true is the opertion ends succesfully, false otherwise
+     * @return true is the operation ends successfully, false otherwise
      */
     public UserTO update(UserMod userModTO) throws SyncopeClientCompositeErrorException {
 

@@ -75,7 +75,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
     /**
      * Update an already existent role.
      * @param roleTO updated
-     * @return true is the opertion ends succesfully, false otherwise
+     * @return true is the operation ends successfully, false otherwise
      */
     public void updateRole(RoleMod roleMod) {
         restTemplate.postForObject(baseURL + "role/update", roleMod, RoleTO.class);

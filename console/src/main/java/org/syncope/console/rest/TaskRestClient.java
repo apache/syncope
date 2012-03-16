@@ -21,7 +21,6 @@ package org.syncope.console.rest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.NotificationTaskTO;
 import org.syncope.client.to.PropagationTaskTO;

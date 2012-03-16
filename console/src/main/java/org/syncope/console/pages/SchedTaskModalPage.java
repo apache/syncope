@@ -18,7 +18,6 @@
  */
 package org.syncope.console.pages;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;

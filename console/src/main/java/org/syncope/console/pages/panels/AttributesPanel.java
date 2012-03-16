@@ -139,7 +139,7 @@ public class AttributesPanel extends Panel {
                 values.add("");
                 attributeTO.setValues(values);
 
-                // is important to set readonly only after valus setting
+                // is important to set readonly only after values setting
                 attributeTO.setReadonly(schema.isReadonly());
             } else {
                 attributeTO.setValues(attrMap.get(schema.getName()).getValues());
