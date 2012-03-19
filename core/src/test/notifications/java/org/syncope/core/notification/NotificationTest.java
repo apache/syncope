@@ -126,8 +126,7 @@ public class NotificationTest {
         Properties props = new Properties();
 
         try {
-            props.load(NotificationTest.class.getResourceAsStream(
-                    "/test.properties"));
+            props.load(NotificationTest.class.getResourceAsStream("/test.properties"));
         } catch (IOException e) {
             LOG.error("Could not load properties", e);
             fail("Could not load test properties");
@@ -138,24 +137,19 @@ public class NotificationTest {
         mailAddress = props.getProperty("mail.address");
         mailPassword = props.getProperty("mail.password");
         if (StringUtils.isBlank(mailPassword)) {
-            throw new IllegalArgumentException(
-                    "Empty POP3 password: did you pass -Dmail.password=XXXX?");
+            throw new IllegalArgumentException("Empty POP3 password: did you pass -Dmail.password=XXXX?");
         }
     }
 
     @Before
     public void setupSecurity() {
-        List<GrantedAuthority> authorities =
-                new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         for (Entitlement entitlement : entitlementDAO.findAll()) {
-            authorities.add(
-                    new SimpleGrantedAuthority(entitlement.getName()));
+            authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
         }
 
-        UserDetails userDetails = new User(adminUser, "FAKE_PASSWORD",
-                true, true, true, true, authorities);
-        Authentication authentication = new TestingAuthenticationToken(
-                userDetails, "FAKE_PASSWORD", authorities);
+        UserDetails userDetails = new User(adminUser, "FAKE_PASSWORD", true, true, true, true, authorities);
+        Authentication authentication = new TestingAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
@@ -223,8 +217,7 @@ public class NotificationTest {
 
         boolean found = false;
         try {
-            Session session = Session.getDefaultInstance(
-                    System.getProperties());
+            Session session = Session.getDefaultInstance(System.getProperties());
             Store store = session.getStore("pop3");
             store.connect(pop3Host, mailAddress, mailPassword);
 
@@ -234,9 +227,7 @@ public class NotificationTest {
 
             Message[] messages = inbox.getMessages();
             for (int i = 0; i < messages.length; i++) {
-                if (sender.equals(messages[i].getFrom()[0].toString())
-                        && subject.equals(messages[i].getSubject())) {
-
+                if (sender.equals(messages[i].getFrom()[0].toString()) && subject.equals(messages[i].getSubject())) {
                     found = true;
                     messages[i].setFlag(Flag.DELETED, true);
                 }
@@ -267,8 +258,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         Random random = new Random(System.currentTimeMillis());
-        String sender = "syncopetest-" + String.valueOf(random.nextLong())
-                + "@syncope-idm.org";
+        String sender = "syncopetest-" + random.nextLong() + "@syncope-idm.org";
         notification.setSender(sender);
         String subject = "Test notification " + random.nextLong();
         notification.setSubject(subject);
