@@ -182,6 +182,16 @@ under the License.
       </roles>
       <url>http://people.apache.org/~elecharny/</url>
     </developer>
+    <developer>
+      <id>anzelld</id>
+      <name>Dino Anzellotti</name>
+      <organization>Everett Italia</organization>
+      <organizationUrl>http://www.everett.it/</organizationUrl>
+      <roles>
+        <role>PPMC member</role>
+      </roles>
+      <url>http://people.apache.org/~anzelld/</url>
+    </developer>
   </developers>
 
   <prerequisites>
