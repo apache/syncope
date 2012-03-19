@@ -108,6 +108,9 @@ public class ReportJob implements StatefulJob {
         execution.setReport(report);
         execution = reportExecDAO.save(execution);
 
+        report.addExec(execution);
+        report = reportDAO.save(report);
+
         // 2. define a SAX handler for generating result as XML
         TransformerHandler handler;
 
@@ -133,8 +136,8 @@ public class ReportJob implements StatefulJob {
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
-        ConfigurableListableBeanFactory beanFactory = ApplicationContextManager.getApplicationContext()
-                .getBeanFactory();
+        ConfigurableListableBeanFactory beanFactory =
+                ApplicationContextManager.getApplicationContext().getBeanFactory();
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
@@ -148,8 +151,8 @@ public class ReportJob implements StatefulJob {
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<Reportlet> reportletClass = dataBinder
-                        .findReportletClassHavingConfClass(reportletConf.getClass());
+                Class<Reportlet> reportletClass =
+                        dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
                 if (reportletClass != null) {
                     Reportlet autowired = (Reportlet) beanFactory.createBean(reportletClass,
                             AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);

@@ -21,6 +21,7 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.dao.ReportDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -29,6 +30,7 @@ import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public Report find(final Long id) {
         return entityManager.find(Report.class, id);
     }
@@ -61,8 +63,8 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Report save(final Report report) throws InvalidEntityException {
-
         return entityManager.merge(report);
     }
 

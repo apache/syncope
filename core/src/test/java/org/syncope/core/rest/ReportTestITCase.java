@@ -101,8 +101,7 @@ public class ReportTestITCase extends AbstractTest {
         report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        ReportTO actual = restTemplate
-                .getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, report.getId());
+        ReportTO actual = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, report.getId());
         assertNotNull(actual);
         assertEquals(actual, report);
     }
@@ -240,5 +239,32 @@ public class ReportTestITCase extends AbstractTest {
         export = EntityUtils.toString(response.getEntity()).trim();
         assertNotNull(export);
         assertFalse(export.isEmpty());
+    }
+
+    public void issueSYNCOPE43() {
+        ReportTO reportTO = new ReportTO();
+        reportTO.setName("issueSYNCOPE43");
+        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
+        assertNotNull(reportTO);
+
+        ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
+                ReportExecTO.class, reportTO.getId());
+        assertNotNull(execution);
+
+        int i = 0;
+        int maxit = 50;
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+
+            i++;
+        } while (reportTO.getExecutions().size() == 0 && i < maxit);
+
+        assertEquals(1, reportTO.getExecutions().size());
     }
 }

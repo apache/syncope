@@ -46,7 +46,7 @@ public class Report extends AbstractBaseBean {
 
     private String cronExpression;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "report")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
     private List<ReportExec> executions;
 
     public Report() {
