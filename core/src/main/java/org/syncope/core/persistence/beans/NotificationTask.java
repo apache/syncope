@@ -25,6 +25,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import org.syncope.types.TraceLevel;
 
@@ -43,9 +44,11 @@ public class NotificationTask extends Task {
     private String subject;
 
     @NotNull
+    @Lob
     private String textBody;
 
     @NotNull
+    @Lob
     private String htmlBody;
 
     @Enumerated(EnumType.STRING)
