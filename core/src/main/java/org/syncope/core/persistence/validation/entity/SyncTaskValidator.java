@@ -60,7 +60,7 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                 }
 
                 if (StringUtils.isNotBlank(object.getJobActionsClassName())) {
-                    Class syncJobActionsClass = null;
+                    Class<?> syncJobActionsClass = null;
                     boolean isAssignable = false;
                     try {
                         syncJobActionsClass = Class.forName(object.getJobActionsClassName());

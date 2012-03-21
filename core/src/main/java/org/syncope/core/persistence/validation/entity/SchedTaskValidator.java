@@ -37,7 +37,7 @@ public class SchedTaskValidator extends AbstractValidator implements ConstraintV
 
         boolean isValid = true;
 
-        Class jobClass = null;
+        Class<?> jobClass = null;
         try {
             jobClass = Class.forName(object.getJobClassName());
             isValid = AbstractTaskJob.class.isAssignableFrom(jobClass);

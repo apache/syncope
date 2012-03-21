@@ -509,7 +509,7 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
     /**
      * Split an attribute value recurring on provided literals/tokens.
      *
-     * @param attrValue value to be splitted.
+     * @param attrValue value to be split.
      * @param literals literals/tokens.
      * @return
      */

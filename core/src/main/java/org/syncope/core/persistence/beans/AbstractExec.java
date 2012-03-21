@@ -34,7 +34,7 @@ public abstract class AbstractExec extends AbstractBaseBean {
     protected String status;
 
     /**
-     * Any information to be accompained to this execution's result.
+     * Any information to be accompanied to this execution's result.
      */
     @Lob
     protected String message;

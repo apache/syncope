@@ -41,7 +41,7 @@ public interface UserSearchDAO extends DAO {
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
-     * @return the list of users matchin the given search condition
+     * @return the list of users matching the given search condition
      */
     List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition);
 
@@ -50,7 +50,7 @@ public interface UserSearchDAO extends DAO {
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
-     * @return the list of users matchin the given search condition
+     * @return the list of users matching the given search condition
      */
     List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition, int page, int itemsPerPage);
 

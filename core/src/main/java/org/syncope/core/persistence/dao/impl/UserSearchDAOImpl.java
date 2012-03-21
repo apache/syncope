@@ -56,12 +56,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     @Autowired
     private SchemaDAO schemaDAO;
 
-    private final Random random;
-
     public UserSearchDAOImpl() {
         super();
-
-        random = new Random(Calendar.getInstance().getTimeInMillis());
     }
 
     private String getAdminRolesFilter(final Set<Long> adminRoles) {
