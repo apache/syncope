@@ -195,7 +195,7 @@ public class PropagationManager {
      * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
      *
      * @param user to be propagated.
-     * @param enable wether user must be enabled or not.
+     * @param enable whether user must be enabled or not.
      * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
      * disable/enable actions limited to the external resources only.
      * @return list of propagation tasks
@@ -416,7 +416,7 @@ public class PropagationManager {
      *
      * @param user given user
      * @param password clear-text password
-     * @param enable wether user must be enabled or not
+     * @param enable whether user must be enabled or not
      * @param resource target resource
      * @return account link + prepared attributes
      */
@@ -497,7 +497,7 @@ public class PropagationManager {
      *
      * @param user user to be provisioned
      * @param password cleartext password to be provisioned
-     * @param enable wether user must be enabled or not
+     * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
@@ -581,10 +581,10 @@ public class PropagationManager {
     }
 
     /**
-     * Check wether an execution has to be stored, for a given task.
+     * Check whether an execution has to be stored, for a given task.
      *
      * @param task execution's task
-     * @param execution to be decide wether to store or not
+     * @param execution to be decide whether to store or not
      * @return true if execution has to be store, false otherwise
      */
     private boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
@@ -642,7 +642,7 @@ public class PropagationManager {
 
         String taskExecutionMessage = null;
 
-        // Flag to state wether any propagation has been attempted
+        // Flag to state whether any propagation has been attempted
         Set<String> propagationAttempted = new HashSet<String>();
 
         ConnectorObject before = null;

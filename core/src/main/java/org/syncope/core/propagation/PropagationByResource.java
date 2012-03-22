@@ -82,7 +82,7 @@ public class PropagationByResource implements Serializable {
      *
      * @param type resource operation type
      * @param resourceName target resource
-     * @return wether the operation was succeful or not
+     * @return whether the operation was successful or not
      */
     public final boolean add(final PropagationOperation type, final String resourceName) {
 
@@ -110,7 +110,7 @@ public class PropagationByResource implements Serializable {
      *
      * @param type resource operation type
      * @param resourceNames target resources
-     * @return wether the operation was succeful or not
+     * @return whether the operation was successful or not
      */
     public boolean addAll(final PropagationOperation type, final Set<String> resourceNames) {
 
@@ -138,7 +138,7 @@ public class PropagationByResource implements Serializable {
      *
      * @param type resource operation type
      * @param resourceName target resource
-     * @return wether the operation was succeful or not
+     * @return whether the operation was successful or not
      */
     public final boolean remove(final PropagationOperation type, final String resourceName) {
 
@@ -233,7 +233,7 @@ public class PropagationByResource implements Serializable {
     }
 
     /**
-     * Wether no operations are present.
+     * whether no operations are present.
      *
      * @return true if no operations (create / update / delete) and no
      * old account ids are present

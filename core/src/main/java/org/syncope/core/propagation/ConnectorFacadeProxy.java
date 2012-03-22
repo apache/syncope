@@ -65,8 +65,8 @@ import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 
 /**
- * Intercept calls to ConnectorFacade's methods and check if the correspondant connector instance has been configured to
- * allow every single operation: if not, simply do nothig.
+ * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
+ * allow every single operation: if not, simply do nothing.
  */
 public class ConnectorFacadeProxy {
 
@@ -81,7 +81,7 @@ public class ConnectorFacadeProxy {
     private final ConnectorFacade connector;
 
     /**
-     * Active connecto instance.
+     * Active Connector instance.
      *
      * @see org.syncope.core.persistence.beans.ConnInstance
      */
@@ -107,10 +107,6 @@ public class ConnectorFacadeProxy {
         // specify a connector.
         ConnectorKey key = new ConnectorKey(connInstance.getBundleName(), connInstance.getVersion(), connInstance
                 .getConnectorName());
-
-        if (key == null) {
-            throw new NotFoundException("Connector Key");
-        }
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("\nBundle name: " + key.getBundleName() + "\nBundle version: " + key.getBundleVersion()
