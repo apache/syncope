@@ -45,6 +45,7 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.SyncopeUserCond;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
+import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
@@ -141,6 +142,12 @@ public class SyncJob extends AbstractTaskJob {
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
+    /**
+     * Notification Manager.
+     */
+    @Autowired
+    private NotificationManager notificationManager;
+
     public void setActions(final SyncJobActions actions) {
         this.actions = actions;
     }
@@ -171,7 +178,7 @@ public class SyncJob extends AbstractTaskJob {
 
         if (policySpec != null && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
 
-            // search external attribute name/value 
+            // search external attribute name/value
             // about each specified name
             final ConnectorObject object = delta.getObject();
 
@@ -320,6 +327,9 @@ public class SyncJob extends AbstractTaskJob {
 
                 propagationManager.execute(tasks);
 
+                notificationManager.createTasks(new WorkflowResult<Long>(created.getResult().getKey(),
+                        created.getPropByRes(), created.getPerformedTasks()));
+
                 userTO = userDataBinder.getUserTO(created.getResult().getKey());
 
                 result.setUserId(created.getResult().getKey());
@@ -373,6 +383,10 @@ public class SyncJob extends AbstractTaskJob {
                                 .getResource().getName()));
 
                         propagationManager.execute(tasks);
+
+                        notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(),
+                                updated.getPropByRes(), updated.getPerformedTasks()));
+
                         userTO = userDataBinder.getUserTO(updated.getResult().getKey());
                     }
                 } catch (PropagationException e) {
@@ -419,6 +433,9 @@ public class SyncJob extends AbstractTaskJob {
                         List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId,
                                 ((SyncTask) this.task).getResource().getName());
                         propagationManager.execute(tasks);
+
+                        notificationManager.createTasks(new WorkflowResult<Long>(userId, null, "delete"));
+
                     } catch (Exception e) {
                         LOG.error("Could not propagate user " + userId, e);
                     }
