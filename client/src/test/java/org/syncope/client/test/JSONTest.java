@@ -34,6 +34,8 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.ReportTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.WorkflowFormPropertyTO;
+import org.syncope.types.AuditElements;
+import org.syncope.types.AuditLoggerName;
 
 public class JSONTest {
 
@@ -47,8 +49,8 @@ public class JSONTest {
         final MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleName("root");
 
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond), NodeCond
-                .getLeafCond(membershipCond));
+        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond), NodeCond.getLeafCond(
+                membershipCond));
 
         assertTrue(searchCondition.checkValidity());
 
@@ -114,5 +116,19 @@ public class JSONTest {
 
         ReportTO actual = mapper.readValue(writer.toString(), ReportTO.class);
         assertEquals(report, actual);
+    }
+
+    @Test
+    public void testAuditLoggerName() throws IOException {
+        AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
+                AuditElements.ReportSubCategory.create, AuditElements.Result.failure);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, auditLoggerName);
+
+        AuditLoggerName actual = mapper.readValue(writer.toString(), AuditLoggerName.class);
+        assertEquals(auditLoggerName, actual);
     }
 }

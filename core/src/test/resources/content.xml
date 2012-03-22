@@ -562,8 +562,8 @@ under the License.
   <Entitlement name="LOG_SET_LEVEL"/>
   <Entitlement name="LOG_DELETE"/>
   <Entitlement name="AUDIT_LIST"/>
-  <Entitlement name="AUDIT_SET_LEVEL"/>
-  <Entitlement name="AUDIT_DELETE"/>
+  <Entitlement name="AUDIT_ENABLE"/>
+  <Entitlement name="AUDIT_DISABLE"/>
   <Entitlement name="ROLE_1"/>
   <Entitlement name="ROLE_2"/>
   <Entitlement name="ROLE_3"/>

@@ -130,12 +130,12 @@ under the License.
       <entitlement>AUDIT_LIST</entitlement>
     </action>
         
-    <action id="setLevel">
-      <entitlement>AUDIT_SET_LEVEL</entitlement>
+    <action id="enable">
+      <entitlement>AUDIT_ENABLE</entitlement>
     </action>
 
-    <action id="delete">
-      <entitlement>AUDIT_DELETE</entitlement>
+    <action id="disable">
+      <entitlement>AUDIT_DISABLE</entitlement>
     </action>
   </page>
 

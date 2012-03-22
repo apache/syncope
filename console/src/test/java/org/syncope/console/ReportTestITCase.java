@@ -44,7 +44,7 @@ public class ReportTestITCase extends AbstractTest {
     }
 
     @Test
-    public void execute() {
+    public void executeReport() {
         selenium.click("css=img[alt=\"Reports\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
@@ -52,5 +52,26 @@ public class ReportTestITCase extends AbstractTest {
         selenium.click("//table/tbody/tr/td[6]/span/span[3]/a");
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+    }
+
+    @Test
+    public void navigateAudit() {
+        selenium.click("css=img[alt=\"Reports\"]");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[2]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[3]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[4]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[5]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[6]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[7]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[8]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[9]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[10]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[11]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[12]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[13]/a");
+        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[14]/a");
     }
 }

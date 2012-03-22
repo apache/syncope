@@ -32,9 +32,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.LoggerTO;
+import org.syncope.types.AuditLoggerName;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.audit.AuditManager;
@@ -65,8 +67,8 @@ public class LoggerController extends AbstractController {
             result.add(loggerTO);
         }
 
-        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success, "Successfully listed all loggers ("
-                + type + "): " + result.size());
+        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success,
+                "Successfully listed all loggers (" + type + "): " + result.size());
 
         return result;
     }
@@ -81,8 +83,18 @@ public class LoggerController extends AbstractController {
     @PreAuthorize("hasRole('AUDIT_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/audit/list")
     @Transactional(readOnly = true)
-    public List<LoggerTO> listAudits() {
-        return list(SyncopeLoggerType.AUDIT);
+    public List<AuditLoggerName> listAudits() {
+        List<AuditLoggerName> result = new ArrayList<AuditLoggerName>();
+
+        for (LoggerTO logger : list(SyncopeLoggerType.AUDIT)) {
+            try {
+                result.add(AuditLoggerName.fromLoggerName(logger.getName()));
+            } catch (Exception e) {
+                LOG.error("Unexpected audit logger name: {}", logger.getName(), e);
+            }
+        }
+
+        return result;
     }
 
     private void throwInvalidLogger(final SyncopeLoggerType type) {
@@ -120,8 +132,8 @@ public class LoggerController extends AbstractController {
         LoggerTO result = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, result);
 
-        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
-                "Successfully set level %s to logger %s (%s)", level, name, expectedType));
+        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
+                String.format("Successfully set level %s to logger %s (%s)", level, name, expectedType));
 
         return result;
     }
@@ -132,17 +144,24 @@ public class LoggerController extends AbstractController {
         return setLevel(name, level, SyncopeLoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('AUDIT_SET_LEVEL')")
-    @RequestMapping(method = RequestMethod.POST, value = "/audit/{category}/{subcategory}/{result}/{level}")
-    public LoggerTO setAuditLevel(@PathVariable("category") final Category category,
-            @PathVariable("subcategory") final Enum<?> subcategory, @PathVariable("result") final Result result,
-            @PathVariable("level") final Level level) {
+    @PreAuthorize("hasRole('AUDIT_ENABLE')")
+    @RequestMapping(method = RequestMethod.PUT, value = "/audit/enable")
+    public void enableAudit(@RequestBody final AuditLoggerName auditLoggerName) {
+        try {
+            setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, SyncopeLoggerType.AUDIT);
+        } catch (IllegalArgumentException e) {
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        return setLevel(auditManager.getLoggerName(category, subcategory, result), level, SyncopeLoggerType.AUDIT);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
+            sce.addElement(e.getMessage());
+            sccee.addException(sce);
+
+            throw sccee;
+        }
     }
 
     private void delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
-
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
             throw new NotFoundException("Logger " + name);
@@ -165,16 +184,26 @@ public class LoggerController extends AbstractController {
     @PreAuthorize("hasRole('LOG_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE, value = "/log/delete/{name}")
     public void deleteLog(@PathVariable("name") final String name) throws NotFoundException {
-
         delete(name, SyncopeLoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('AUDIT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/audit/delete/{category}/{subcategory}/{result}")
-    public void deleteAudit(@PathVariable("category") final Category category,
-            @PathVariable("subcategory") final Enum<?> subcategory, @PathVariable("result") final Result result) throws
-            NotFoundException {
+    @PreAuthorize("hasRole('AUDIT_DISABLE')")
+    @RequestMapping(method = RequestMethod.PUT, value = "/audit/disable")
+    public void disableAudit(@RequestBody final AuditLoggerName auditLoggerName) {
 
-        delete(auditManager.getLoggerName(category, subcategory, result), SyncopeLoggerType.AUDIT);
+        try {
+            delete(auditLoggerName.toLoggerName(), SyncopeLoggerType.AUDIT);
+        } catch (NotFoundException e) {
+            LOG.debug("Ignoring disable of non existing logger {}", auditLoggerName.toLoggerName());
+        } catch (IllegalArgumentException e) {
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
+            sce.addElement(e.getMessage());
+            sccee.addException(sce);
+
+            throw sccee;
+        }
     }
 }

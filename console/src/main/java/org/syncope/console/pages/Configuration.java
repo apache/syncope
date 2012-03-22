@@ -72,6 +72,7 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.pages.panels.PoliciesPanel;
 import org.syncope.console.rest.ConfigurationRestClient;
+import org.syncope.console.rest.LoggerRestClient;
 import org.syncope.console.rest.NotificationRestClient;
 import org.syncope.console.rest.WorkflowRestClient;
 import org.syncope.console.wicket.markup.html.form.ActionLink;
@@ -88,6 +89,9 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private ConfigurationRestClient confRestClient;
+
+    @SpringBean
+    private LoggerRestClient loggerRestClient;
 
     @SpringBean
     private NotificationRestClient notificationRestClient;
@@ -188,7 +192,7 @@ public class Configuration extends BasePage {
         add(workflowDefContainer);
 
         // Logger stuff
-        PropertyListView coreLoggerList = new LoggerPropertyList(null, "corelogger", confRestClient.listLogs());
+        PropertyListView coreLoggerList = new LoggerPropertyList(null, "corelogger", loggerRestClient.listLogs());
         WebMarkupContainer coreLoggerContainer = new WebMarkupContainer("coreLoggerContainer");
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
@@ -367,8 +371,8 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS, String
-                        .valueOf(confPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS, String.valueOf(
+                        confPaginatorRows));
                 confTable.setItemsPerPage(confPaginatorRows);
 
                 target.add(confContainer);
@@ -512,8 +516,8 @@ public class Configuration extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS, String
-                        .valueOf(notificationPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS, String.valueOf(
+                        notificationPaginatorRows));
                 notificationTable.setItemsPerPage(notificationPaginatorRows);
 
                 target.add(notificationContainer);
@@ -652,11 +656,11 @@ public class Configuration extends BasePage {
                 protected void onUpdate(final AjaxRequestTarget target) {
                     try {
                         if (getId().equals("corelogger")) {
-                            confRestClient.setLogLevel(item.getModelObject().getName(), item.getModelObject()
-                                    .getLevel());
+                            loggerRestClient.setLogLevel(item.getModelObject().getName(),
+                                    item.getModelObject().getLevel());
                         } else {
-                            consoleLoggerController.setLogLevel(item.getModelObject().getName(), item.getModelObject()
-                                    .getLevel());
+                            consoleLoggerController.setLogLevel(item.getModelObject().getName(),
+                                    item.getModelObject().getLevel());
                         }
 
                         info(getString("operation_succeded"));

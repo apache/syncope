@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.client.to.LoggerTO;
-import org.syncope.types.SyncopeLoggerLevel;
 
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {
@@ -64,13 +62,5 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      */
     public void deleteConfiguration(final String key) {
         restTemplate.delete(baseURL + "configuration/delete/{key}.json", key);
-    }
-
-    public List<LoggerTO> listLogs() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "logger/log/list", LoggerTO[].class));
-    }
-
-    public void setLogLevel(final String name, final SyncopeLoggerLevel level) {
-        restTemplate.postForObject(baseURL + "logger/log/{name}/{level}", null, LoggerTO.class, name, level);
     }
 }

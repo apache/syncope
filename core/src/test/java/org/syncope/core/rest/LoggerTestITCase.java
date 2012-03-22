@@ -24,21 +24,16 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.syncope.client.to.LoggerTO;
+import org.syncope.types.AuditElements;
+import org.syncope.types.AuditLoggerName;
 import org.syncope.types.SyncopeLoggerLevel;
 
 public class LoggerTestITCase extends AbstractTest {
 
     @Test
-    public void list() {
-        List<LoggerTO> loggers = Arrays.asList(restTemplate
-                .getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
-        assertNotNull(loggers);
-        assertFalse(loggers.isEmpty());
-        for (LoggerTO logger : loggers) {
-            assertNotNull(logger);
-        }
-
-        loggers = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", LoggerTO[].class));
+    public void listLogs() {
+        List<LoggerTO> loggers =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -47,9 +42,20 @@ public class LoggerTestITCase extends AbstractTest {
     }
 
     @Test
+    public void listAudits() {
+        List<AuditLoggerName> audits =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        assertNotNull(audits);
+        assertFalse(audits.isEmpty());
+        for (AuditLoggerName audit : audits) {
+            assertNotNull(audit);
+        }
+    }
+
+    @Test
     public void setLevel() {
-        List<LoggerTO> loggers = Arrays.asList(restTemplate
-                .getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        List<LoggerTO> loggers =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         int startSize = loggers.size();
 
@@ -61,5 +67,28 @@ public class LoggerTestITCase extends AbstractTest {
         loggers = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
         assertNotNull(loggers);
         assertEquals(startSize + 1, loggers.size());
+    }
+
+    @Test
+    public void enableDisableAudit() {
+        AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
+                AuditElements.ReportSubCategory.listExecutions, AuditElements.Result.failure);
+
+        List<AuditLoggerName> audits =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        assertNotNull(audits);
+        assertFalse(audits.contains(auditLoggerName));
+
+        restTemplate.put(BASE_URL + "logger/audit/enable", auditLoggerName);
+
+        audits = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        assertNotNull(audits);
+        assertTrue(audits.contains(auditLoggerName));
+
+        restTemplate.put(BASE_URL + "logger/audit/disable", auditLoggerName);
+
+        audits = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        assertNotNull(audits);
+        assertFalse(audits.contains(auditLoggerName));
     }
 }

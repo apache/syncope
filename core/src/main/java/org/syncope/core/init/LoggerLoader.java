@@ -59,7 +59,7 @@ public class LoggerLoader {
                 if (loggerLogs.containsKey(logger.getName())) {
                     logger.setLevel(loggerLogs.get(logger.getName()).getLevel().getLevel());
                     loggerLogs.remove(logger.getName());
-                } else {
+                } else if (!logger.getName().equals(SyncopeLoggerType.AUDIT.getPrefix())) {
                     SyncopeLogger syncopeLogger = new SyncopeLogger();
                     syncopeLogger.setName(logger.getName());
                     syncopeLogger.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
