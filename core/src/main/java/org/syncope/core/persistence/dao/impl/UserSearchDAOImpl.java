@@ -373,11 +373,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                     if (not) {
                         query.append(" NOT ");
                     }
-                    query.append(" LIKE ");
-                    if (!(cond instanceof SyncopeUserCond)) {
-                        query.append('\'');
-                    }
-                    query.append(cond.getExpression()).append("'");
+
+                    query.append(" LIKE '").append(cond.getExpression()).append("'");
+
                 } else {
                     if (!(cond instanceof SyncopeUserCond)) {
                         query.append("' AND");
@@ -510,7 +508,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                 syncopeUserClassField = i.getDeclaredField(cond.getSchema());
             } catch (Exception ignore) {
                 // ignore exception
-                LOG.debug("Field '{}' not found on class '{}'", new String[] { cond.getSchema(), i.getSimpleName() },
+                LOG.debug("Field '{}' not found on class '{}'", new String[]{cond.getSchema(), i.getSimpleName()},
                         ignore);
             } finally {
                 i = i.getSuperclass();
