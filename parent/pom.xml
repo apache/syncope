@@ -685,9 +685,9 @@ under the License.
           </dependencies>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.groovy.maven</groupId>
+          <groupId>org.codehaus.maven</groupId>
           <artifactId>gmaven-plugin</artifactId>
-          <version>1.0</version>
+          <version>1.4</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
