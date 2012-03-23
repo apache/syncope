@@ -49,15 +49,15 @@ public class ActivitiWorkflowLoader {
                 wfDefinitionStream = getClass().getResourceAsStream(
                         "/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
 
-                repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                        wfDefinitionStream).deploy();
+                repositoryService.createDeployment().addInputStream(
+                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, wfDefinitionStream).deploy();
             } finally {
                 if (wfDefinitionStream != null) {
                     try {
                         wfDefinitionStream.close();
                     } catch (IOException e) {
-                        LOG.error("While closing input stream for {}", ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                                e);
+                        LOG.error("While closing input stream for {}",
+                                ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
                     }
                 }
             }

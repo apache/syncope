@@ -59,17 +59,18 @@ import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    private static final String[] IGNORE_USER_PROPERTIES = { "memberships", "attributes", "derivedAttributes",
-            "virtualAttributes", "resources" };
+    private static final String[] IGNORE_USER_PROPERTIES = {"memberships", "attributes", "derivedAttributes",
+        "virtualAttributes", "resources"};
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
     @Transactional(readOnly = true)
-    public SyncopeUser getUserFromId(final Long userId) throws NotFoundException, UnauthorizedRoleException {
+    public SyncopeUser getUserFromId(final Long userId)
+            throws NotFoundException, UnauthorizedRoleException {
 
         if (userId == null) {
             throw new NotFoundException("Null user id");
@@ -103,7 +104,18 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public SyncopeUser getUserFromUsername(final String username) throws NotFoundException, UnauthorizedRoleException {
+    public boolean verifyPassword(final SyncopeUser user, final String password)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeUser passwordUser = new SyncopeUser();
+        passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
+
+        return user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
+    }
+
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromUsername(final String username)
+            throws NotFoundException, UnauthorizedRoleException {
 
         if (username == null) {
             throw new NotFoundException("Null username");
@@ -129,7 +141,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return CipherAlgorithm.valueOf(confDAO.find("password.cipher.algorithm", "AES").getValue());
     }
 
-    public void create(final SyncopeUser user, final UserTO userTO) throws SyncopeClientCompositeErrorException {
+    public void create(final SyncopeUser user, final UserTO userTO)
+            throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -332,8 +345,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     propByRes.addAll(PropagationOperation.UPDATE, role.getResourceNames());
                 }
 
-                propByRes.merge(fill(membership, membershipMod, AttributableUtil
-                        .getInstance(AttributableType.MEMBERSHIP), scce));
+                propByRes.merge(fill(membership, membershipMod,
+                        AttributableUtil.getInstance(AttributableType.MEMBERSHIP), scce));
             }
         }
 
@@ -363,8 +376,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // retrieve virtual values
         connObjectUtil.retrieveVirAttrValues(user);
 
-        fillTO(userTO, user.getAttributes(), user.getDerivedAttributes(), user.getVirtualAttributes(), user
-                .getResources());
+        fillTO(userTO, user.getAttributes(), user.getDerivedAttributes(), user.getVirtualAttributes(),
+                user.getResources());
 
         MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
@@ -373,8 +386,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipTO.setRoleId(membership.getSyncopeRole().getId());
             membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
-            fillTO(membershipTO, membership.getAttributes(), membership.getDerivedAttributes(), membership
-                    .getVirtualAttributes(), membership.getResources());
+            fillTO(membershipTO, membership.getAttributes(), membership.getDerivedAttributes(), membership.
+                    getVirtualAttributes(), membership.getResources());
 
             userTO.addMembership(membershipTO);
         }
@@ -383,13 +396,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final String username) throws NotFoundException, UnauthorizedRoleException {
+    public UserTO getUserTO(final String username)
+            throws NotFoundException, UnauthorizedRoleException {
 
         return getUserTO(getUserFromUsername(username));
     }
 
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final Long userId) throws NotFoundException, UnauthorizedRoleException {
+    public UserTO getUserTO(final Long userId)
+            throws NotFoundException, UnauthorizedRoleException {
 
         return getUserTO(getUserFromId(userId));
     }

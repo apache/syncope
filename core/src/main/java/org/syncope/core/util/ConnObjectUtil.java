@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
@@ -34,26 +33,27 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
-import org.syncope.client.mod.AttributeMod;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConnObjectTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.util.AttributableOperations;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.rest.data.UserDataBinder;
@@ -84,8 +84,47 @@ public class ConnObjectUtil {
      * @param obj connector object
      * @return UserTO for the user to be created
      */
+    @Transactional(readOnly = true)
     public UserTO getUserTO(final ConnectorObject obj, final SyncTask syncTask) {
 
+        UserTO userTO = getUserTOFromConnObject(obj, syncTask);
+
+        // 3. if password was not set above, generate a random string
+        if (StringUtils.isBlank(userTO.getPassword())) {
+            userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
+        }
+
+        return userTO;
+    }
+
+    /**
+     * Build an UserMod out of connector object attributes and schema mapping.
+     *
+     * @param userId user to be updated
+     * @param obj connector object
+     * @return UserMod for the user to be updated
+     */
+    @Transactional(readOnly = true)
+    public UserMod getUserMod(final Long userId, final ConnectorObject obj, final SyncTask syncTask)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        final SyncopeUser user = userDataBinder.getUserFromId(userId);
+        final UserTO original = userDataBinder.getUserTO(user);
+
+        final UserTO updated = getUserTOFromConnObject(obj, syncTask);
+        updated.setId(userId);
+
+        if (StringUtils.isNotBlank(updated.getPassword())) {
+            // update password if and only if password has really changed
+            if (userDataBinder.verifyPassword(user, updated.getPassword())) {
+                updated.setPassword(null);
+            }
+        }
+
+        return AttributableOperations.diff(updated, original);
+    }
+
+    private UserTO getUserTOFromConnObject(final ConnectorObject obj, final SyncTask syncTask) {
         final UserTO userTO = new UserTO();
 
         // 1. fill with data from connector object
@@ -182,96 +221,7 @@ public class ConnObjectUtil {
             }
         }
 
-        // 3. if password was not set above, generate a random string
-        if (StringUtils.isBlank(userTO.getPassword())) {
-            userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
-        }
-
         return userTO;
-    }
-
-    /**
-     * Build an UserMod out of connector object attributes and schema mapping.
-     *
-     * @param userId user to be updated
-     * @param obj connector object
-     * @return UserMod for the user to be updated
-     */
-    public UserMod getUserMod(final Long userId, final ConnectorObject obj, final SyncTask syncTask) {
-
-        final UserMod userMod = new UserMod();
-        userMod.setId(userId);
-
-        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
-
-            List<Object> values = attribute == null
-                    ? Collections.EMPTY_LIST
-                    : attribute.getValue();
-
-            AttributeMod attributeMod;
-            switch (mapping.getIntMappingType()) {
-                case SyncopeUserId:
-                    break;
-
-                case Password:
-                    attribute = obj.getAttributeByName(OperationalAttributes.PASSWORD_NAME);
-
-                    if (attribute != null && attribute.getValue() != null && !attribute.getValue().isEmpty()) {
-
-                        String password = getPassword(attribute.getValue().get(0));
-                        // update password if and only if password has really 
-                        // changed
-                        try {
-                            if (!userDataBinder.verifyPassword(userId, password)) {
-
-                                userMod.setPassword(password);
-                            }
-                        } catch (NotFoundException e) {
-                            LOG.error("Could not find user {}", userId, e);
-                        } catch (UnauthorizedRoleException e) {
-                            LOG.error("Not allowed to read user {}", userId, e);
-                        }
-                    }
-                    break;
-
-                case Username:
-                    if (values != null && !values.isEmpty()) {
-                        userMod.setUsername(values.get(0).toString());
-                    }
-                    break;
-
-                case UserSchema:
-                    userMod.addAttributeToBeRemoved(mapping.getIntAttrName());
-
-                    attributeMod = new AttributeMod();
-                    attributeMod.setSchema(mapping.getIntAttrName());
-                    for (Object value : values) {
-                        attributeMod.addValueToBeAdded(value.toString());
-                    }
-                    userMod.addAttributeToBeUpdated(attributeMod);
-                    break;
-
-                case UserDerivedSchema:
-                    userMod.addDerivedAttributeToBeAdded(mapping.getIntAttrName());
-                    break;
-
-                case UserVirtualSchema:
-                    userMod.addVirtualAttributeToBeRemoved(mapping.getIntAttrName());
-
-                    attributeMod = new AttributeMod();
-                    attributeMod.setSchema(mapping.getIntAttrName());
-                    for (Object value : values) {
-                        attributeMod.addValueToBeAdded(value.toString());
-                    }
-                    userMod.addVirtualAttributeToBeUpdated(attributeMod);
-                    break;
-
-                default:
-            }
-        }
-
-        return userMod;
     }
 
     /**
@@ -339,7 +289,8 @@ public class ConnObjectUtil {
         final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
-        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects = new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
+        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects =
+                new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
 
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
