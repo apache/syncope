@@ -19,25 +19,29 @@
 package org.syncope.hibernate;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.AttributeInfo;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.EnumMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 
 /**
- * Add Hibernate's @Type to each entity String field labeled @Lob, in order to
- * enable PostgreSQL's LOB support.
+ * Enhance JPA entities for usage with Hibernate.
  */
 public final class HibernateEnhancer {
 
@@ -56,12 +60,11 @@ public final class HibernateEnhancer {
         ClassPool classPool = ClassPool.getDefault();
         classPool.appendClassPath(args[0]);
 
-        PathMatchingResourcePatternResolver resResolver = new PathMatchingResourcePatternResolver(classPool
-                .getClassLoader());
+        PathMatchingResourcePatternResolver resResolver =
+                new PathMatchingResourcePatternResolver(classPool.getClassLoader());
         CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
 
         for (Resource resource : resResolver.getResources("classpath*:org/syncope/core/**/*.class")) {
-
             MetadataReader metadataReader = cachingMetadataReaderFactory.getMetadataReader(resource);
             if (metadataReader.getAnnotationMetadata().isAnnotated(Entity.class.getName())) {
 
@@ -75,16 +78,45 @@ public final class HibernateEnhancer {
                 ConstPool constPool = classFile.getConstPool();
 
                 for (Field field : entity.getDeclaredFields()) {
+                    AnnotationsAttribute annotAttr = null;
+                    // Add Hibernate's @Type to each entity String field labeled @Lob,
+                    // in order to enable PostgreSQL's LOB support.
                     if (field.isAnnotationPresent(Lob.class)) {
-                        AnnotationsAttribute typeAttr = new AnnotationsAttribute(constPool,
-                                AnnotationsAttribute.visibleTag);
                         Annotation typeAnnot = new Annotation("org.hibernate.annotations.Type", constPool);
-                        typeAnnot.addMemberValue("type", new StringMemberValue("org.hibernate.type.StringClobType",
-                                constPool));
-                        typeAttr.addAnnotation(typeAnnot);
+                        typeAnnot.addMemberValue("type",
+                                new StringMemberValue("org.hibernate.type.StringClobType", constPool));
 
-                        CtField lobField = ctClass.getDeclaredField(field.getName());
-                        lobField.getFieldInfo().addAttribute(typeAttr);
+                        annotAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+                        annotAttr.addAnnotation(typeAnnot);
+                    }
+
+                    // Workaround for https://hibernate.onjira.com/browse/EJB-346
+                    if (field.isAnnotationPresent(OneToMany.class) && field.getType().isAssignableFrom(List.class)
+                            && FetchType.EAGER == field.getAnnotation(OneToMany.class).fetch()) {
+
+                        Annotation fetchAnnot = new Annotation("org.hibernate.annotations.Fetch", constPool);
+                        EnumMemberValue emb = new EnumMemberValue(constPool);
+                        emb.setType("org.hibernate.annotations.FetchMode");
+                        emb.setValue("SUBSELECT");
+                        fetchAnnot.addMemberValue("value", emb);
+
+                        annotAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+                        annotAttr.addAnnotation(fetchAnnot);
+                    }
+
+                    if (annotAttr != null) {
+                        CtField ctField = ctClass.getDeclaredField(field.getName());
+
+                        List<AttributeInfo> formerAttrs = ctField.getFieldInfo().getAttributes();
+                        for (AttributeInfo formerAttr : formerAttrs) {
+                            if (formerAttr instanceof AnnotationsAttribute) {
+                                for (Annotation annotation : ((AnnotationsAttribute) formerAttr).getAnnotations()) {
+                                    annotAttr.addAnnotation(annotation);
+                                }
+                            }
+                        }
+
+                        ctField.getFieldInfo().addAttribute(annotAttr);
                     }
                 }
 
