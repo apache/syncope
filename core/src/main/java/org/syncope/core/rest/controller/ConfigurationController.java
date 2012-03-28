@@ -28,13 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.audit.AuditManager;
+import org.syncope.core.init.ImplementationClassNamesLoader;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
@@ -69,12 +67,15 @@ public class ConfigurationController extends AbstractController {
     private ImportExport importExport;
 
     @Autowired
+    private ImplementationClassNamesLoader classNamesLoader;
+
+    @Autowired
     private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ConfigurationTO create(final HttpServletResponse response, @RequestBody final ConfigurationTO configurationTO) {
-
+    public ConfigurationTO create(final HttpServletResponse response,
+            @RequestBody final ConfigurationTO configurationTO) {
         LOG.debug("Configuration create called with parameters {}", configurationTO);
 
         SyncopeConf conf = configurationDataBinder.createSyncopeConfiguration(configurationTO);
@@ -157,29 +158,7 @@ public class ConfigurationController extends AbstractController {
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/validators")
     public ModelAndView getValidators() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
-
-        Set<String> validators = new HashSet<String>();
-        try {
-            for (Resource resource : resResolver
-                    .getResources("classpath:org/syncope/core/persistence/validation/attrvalue/*.class")) {
-
-                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
-
-                try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata
-                            .getClassName(), ClassUtils.getDefaultClassLoader()));
-
-                    if (interfaces.contains(Validator.class) && !metadata.isAbstract()) {
-                        validators.add(metadata.getClassName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Could not load class {}", metadata.getClassName(), e);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Validator.class.getName(), e);
-        }
+        Set<String> validators = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.VALIDATOR);
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.getValidators, Result.success,
                 "Successfully listed all validators: " + validators.size());
@@ -198,11 +177,11 @@ public class ConfigurationController extends AbstractController {
 
                 String template = resource.getURL().toExternalForm();
                 if (template.endsWith(".html.vm")) {
-                    htmlTemplates.add(template.substring(template.indexOf("mailTemplates/") + 14, template
-                            .indexOf(".html.vm")));
+                    htmlTemplates.add(
+                            template.substring(template.indexOf("mailTemplates/") + 14, template.indexOf(".html.vm")));
                 } else if (template.endsWith(".txt.vm")) {
-                    textTemplates.add(template.substring(template.indexOf("mailTemplates/") + 14, template
-                            .indexOf(".txt.vm")));
+                    textTemplates.add(
+                            template.substring(template.indexOf("mailTemplates/") + 14, template.indexOf(".txt.vm")));
                 } else {
                     LOG.warn("Unexpected template found: {}, ignoring...", template);
                 }

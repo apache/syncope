@@ -18,7 +18,6 @@
  */
 package org.syncope.core.rest.data;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import org.quartz.Scheduler;
@@ -28,16 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.syncope.client.report.ReportletConf;
 import org.syncope.client.to.ReportExecTO;
 import org.syncope.client.to.ReportTO;
+import org.syncope.core.init.ImplementationClassNamesLoader;
 import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.Report;
 import org.syncope.core.persistence.beans.ReportExec;
@@ -53,9 +49,9 @@ public class ReportDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = { "id", "reportlets", "executions", "latestExecStatus" };
+    private static final String[] IGNORE_REPORT_PROPERTIES = {"id", "reportlets", "executions", "latestExecStatus"};
 
-    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = { "id", "report", "execResult" };
+    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = {"id", "report", "execResult"};
 
     @Autowired
     private ReportExecDAO reportExecDAO;
@@ -64,31 +60,21 @@ public class ReportDataBinder {
     private SchedulerFactoryBean scheduler;
 
     @Autowired
-    private ResourcePatternResolver resResolver;
+    private ImplementationClassNamesLoader classNamesLoader;
 
     public Set<Class<Reportlet>> getAllReportletClasses() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
-
         Set<Class<Reportlet>> reportletClasses = new HashSet<Class<Reportlet>>();
-        try {
-            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
-                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
 
-                try {
-                    Class reportletClass = ClassUtils.forName(metadata.getClassName(), ClassUtils
-                            .getDefaultClassLoader());
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(reportletClass);
-                    if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
-                        reportletClasses.add(reportletClass);
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Could not load class {}", metadata.getClassName(), e);
-                }
+        for (String className : classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET)) {
+            try {
+                Class reportletClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
+                reportletClasses.add(reportletClass);
+            } catch (ClassNotFoundException e) {
+                LOG.warn("Could not load class {}", className);
+            } catch (LinkageError e) {
+                LOG.warn("Could not link class {}", className);
             }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Reportlet.class.getName(), e);
         }
-
         return reportletClasses;
     }
 

@@ -18,28 +18,19 @@
  */
 package org.syncope.core.rest.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
-import org.quartz.StatefulJob;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +44,7 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.audit.AuditManager;
+import org.syncope.core.init.ImplementationClassNamesLoader;
 import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.NotificationTask;
@@ -65,10 +57,6 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
 import org.syncope.core.scheduling.AbstractTaskJob;
-import org.syncope.core.scheduling.NotificationJob;
-import org.syncope.core.scheduling.ReportJob;
-import org.syncope.core.scheduling.SyncJob;
-import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.AuditElements.Category;
 import org.syncope.types.AuditElements.Result;
@@ -106,7 +94,7 @@ public class TaskController extends AbstractController {
     private SchedulerFactoryBean scheduler;
 
     @Autowired
-    private ResourcePatternResolver resResolver;
+    private ImplementationClassNamesLoader classNamesLoader;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create/sync")
@@ -252,32 +240,7 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/jobClasses")
     public ModelAndView getJobClasses() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
-
-        Set<String> jobClasses = new HashSet<String>();
-        try {
-            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
-
-                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
-
-                try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata.
-                            getClassName(), ClassUtils.getDefaultClassLoader()));
-
-                    if ((interfaces.contains(Job.class) || interfaces.contains(StatefulJob.class))
-                            && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())
-                            && !ReportJob.class.getName().equals(metadata.getClassName())
-                            && !NotificationJob.class.getName().equals(metadata.getClassName())) {
-
-                        jobClasses.add(metadata.getClassName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Could not load class {}", metadata.getClassName(), e);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Job.class.getName(), e);
-        }
+        Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.JOB);
 
         auditManager.audit(Category.task, TaskSubCategory.getJobClasses, Result.success,
                 "Successfully listed all Job classes: " + jobClasses.size());
@@ -288,27 +251,7 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/jobActionsClasses")
     public ModelAndView getJobActionClasses() {
-        CachingMetadataReaderFactory cachingMetadataReaderFactory = new CachingMetadataReaderFactory();
-
-        Set<String> jobActionsClasses = new HashSet<String>();
-        try {
-            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
-                ClassMetadata metadata = cachingMetadataReaderFactory.getMetadataReader(resource).getClassMetadata();
-
-                try {
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(ClassUtils.forName(metadata.
-                            getClassName(), ClassUtils.getDefaultClassLoader()));
-
-                    if (interfaces.contains(SyncJobActions.class) && !metadata.isAbstract()) {
-                        jobActionsClasses.add(metadata.getClassName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Could not load class {}", metadata.getClassName(), e);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", SyncJobActions.class.getName(), e);
-        }
+        Set<String> jobActionsClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.JOB_ACTIONS);
 
         auditManager.audit(Category.task, TaskSubCategory.getJobActionClasses, Result.success,
                 "Successfully listed all SyncJobActions classes: " + jobActionsClasses.size());

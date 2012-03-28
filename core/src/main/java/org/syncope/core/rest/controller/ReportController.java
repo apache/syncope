@@ -41,7 +41,6 @@ import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -95,9 +94,6 @@ public class ReportController extends AbstractController {
 
     @Autowired
     private ReportDataBinder binder;
-
-    @Autowired
-    private ResourcePatternResolver resResolver;
 
     @PreAuthorize("hasRole('REPORT_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")

@@ -48,6 +48,9 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
     @Autowired
     private LoggerLoader loggerLoader;
 
+    @Autowired
+    private ImplementationClassNamesLoader classNamesLoader;
+
     @Override
     public void setServletContext(final ServletContext servletContext) {
     }
@@ -64,5 +67,6 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
         jobInstanceLoader.load();
         activitiWorkflowLoader.load();
         loggerLoader.load();
+        classNamesLoader.load();
     }
 }
