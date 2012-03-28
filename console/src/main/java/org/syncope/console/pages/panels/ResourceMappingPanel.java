@@ -21,7 +21,6 @@ package org.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -287,7 +286,7 @@ public class ResourceMappingPanel extends Panel {
                         "mandatoryCondition", "mandatoryCondition").getObject(), new PropertyModel(mappingTO,
                         "mandatoryCondition"));
 
-                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
 
                 mandatory.setStyleShet(shortFieldStyle);
 
@@ -546,11 +545,7 @@ public class ResourceMappingPanel extends Panel {
         final List<IntMappingType> res = new ArrayList<IntMappingType>();
 
         if (entity != null) {
-            final EnumSet types = IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.toString()));
-
-            for (Object type : types) {
-                res.add(IntMappingType.valueOf(type.toString()));
-            }
+            res.addAll(IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.toString())));
         }
 
         return res;

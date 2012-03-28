@@ -19,6 +19,8 @@
 package org.syncope.types;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Internal attribute mapping type.
@@ -62,17 +64,45 @@ public enum IntMappingType {
      * Get attribute types for a certain attributable type.
      *
      * @param attributableType attributable type
+     * @param toBeFiltered types to be filtered from the result.
      * @return set of attribute types.
      */
-    public static EnumSet<?> getAttributeTypes(final AttributableType attributableType) {
+    public static Set<IntMappingType> getAttributeTypes(
+            final AttributableType attributableType, final Set<IntMappingType> toBeFiltered) {
+
+        final Set<IntMappingType> res = getAttributeTypes(attributableType);
+        res.removeAll(toBeFiltered);
+
+        return res;
+    }
+
+    /**
+     * Get attribute types for a certain attributable type.
+     *
+     * @param attributableType attributable type
+     * @return set of attribute types.
+     */
+    public static Set<IntMappingType> getAttributeTypes(final AttributableType attributableType) {
+        final EnumSet<?> enumset;
+
         switch (attributableType) {
             case ROLE:
-                return EnumSet.allOf(RoleMappingType.class);
+                enumset = EnumSet.allOf(RoleMappingType.class);
+                break;
             case MEMBERSHIP:
-                return EnumSet.allOf(MembershipMappingType.class);
+                enumset = EnumSet.allOf(MembershipMappingType.class);
+                break;
             default:
-                return EnumSet.allOf(UserMappingType.class);
+                enumset = EnumSet.allOf(UserMappingType.class);
         }
+
+        final Set<IntMappingType> res = new HashSet<IntMappingType>();
+
+        for (Object obj : enumset) {
+            res.add(IntMappingType.valueOf(obj.toString()));
+        }
+
+        return res;
     }
 
     /**
@@ -104,7 +134,6 @@ public enum IntMappingType {
         SyncopeUserId,
         Password,
         Username;
-
     }
 
     /**
@@ -115,7 +144,6 @@ public enum IntMappingType {
         RoleSchema,
         RoleDerivedSchema,
         RoleVirtualSchema;
-
     }
 
     /**
@@ -126,6 +154,5 @@ public enum IntMappingType {
         MembershipSchema,
         MembershipDerivedSchema,
         MembershipVirtualSchema;
-
     }
 }

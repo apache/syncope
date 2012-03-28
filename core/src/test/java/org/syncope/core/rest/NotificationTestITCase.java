@@ -29,6 +29,7 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.NotificationTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.types.TraceLevel;
 
@@ -65,8 +66,8 @@ public class NotificationTestITCase extends AbstractTest {
         AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond
-                .getLeafCond(fullnameLeafCond2));
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
+                fullnameLeafCond2));
 
         notificationTO.setAbout(about);
 
@@ -76,12 +77,16 @@ public class NotificationTestITCase extends AbstractTest {
 
         notificationTO.setRecipients(recipients);
 
+        notificationTO.setRecipientAttrName("email");
+        notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
+
         notificationTO.setSender("syncope@syncope-idm.org");
         notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
 
-        NotificationTO actual = restTemplate.postForObject(BASE_URL + "notification/create.json", notificationTO,
-                NotificationTO.class);
+        NotificationTO actual =
+                restTemplate.postForObject(BASE_URL + "notification/create.json", notificationTO, NotificationTO.class);
+        
         assertNotNull(actual);
         assertNotNull(actual.getId());
         notificationTO.setId(actual.getId());
@@ -122,8 +127,7 @@ public class NotificationTestITCase extends AbstractTest {
 
         SyncopeClientException exception = null;
         try {
-            restTemplate
-                    .getForObject(BASE_URL + "notification/read/{notificationId}.json", NotificationTO.class, "101");
+            restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json", NotificationTO.class, "101");
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.NotFound);
         }

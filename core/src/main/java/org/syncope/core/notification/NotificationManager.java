@@ -18,6 +18,7 @@
  */
 package org.syncope.core.notification;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,20 +37,25 @@ import org.syncope.core.persistence.beans.Notification;
 import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UDerAttr;
+import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.NotificationDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.scheduling.NotificationJob;
+import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.core.workflow.WorkflowResult;
+import org.syncope.types.IntMappingType;
 
 /**
  * Create notification tasks that will be executed by NotificationJob.
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class NotificationManager {
 
     /**
@@ -96,6 +102,8 @@ public class NotificationManager {
     @Autowired
     private NotificationJob notificationJob;
 
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
     /**
      * Create a notification task.
      *
@@ -104,29 +112,38 @@ public class NotificationManager {
      * @param emailSchema name of user schema containing e-mail address
      * @return notification task, fully populated
      */
-    private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user,
-            final String emailSchema) {
+    private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user) {
 
-        Set<String> recipients = new HashSet<String>();
-        for (SyncopeUser recipient : searchDAO.search(notification.getRecipients())) {
+        connObjectUtil.retrieveVirAttrValues(user);
+        
+        final IntMappingType recipientAttrType = notification.getRecipientAttrType();
+        final String recipientAttrName = notification.getRecipientAttrName();
 
-            if (recipient.getAttribute(emailSchema) == null) {
-                LOG.error("{} cannot be notified no {} attribute present", recipient, emailSchema);
-            } else {
-                recipients.add(recipient.getAttribute(emailSchema).getValuesAsStrings().get(0));
-            }
-        }
+        final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
+        recipients.addAll(searchDAO.search(notification.getRecipients()));
+
         if (notification.isSelfAsRecipient()) {
-            if (user.getAttribute(emailSchema) == null) {
-                LOG.error("{} cannot be notified no {} attribute present", user, emailSchema);
+            recipients.add(user);
+        }
+
+        Set<String> recipientEmails = new HashSet<String>();
+
+        for (SyncopeUser recipient : recipients) {
+            
+            connObjectUtil.retrieveVirAttrValues(recipient);
+
+            String email = getRecipientEmail(recipientAttrType, recipientAttrName, user);
+
+            if (email == null) {
+                LOG.error("{} cannot be notified. No {} attribute present", recipient, recipientAttrName);
             } else {
-                recipients.add(user.getAttribute(emailSchema).getValuesAsStrings().get(0));
+                recipientEmails.add(email);
             }
         }
 
         NotificationTask task = new NotificationTask();
         task.setTraceLevel(notification.getTraceLevel());
-        task.setRecipients(recipients);
+        task.setRecipients(recipientEmails);
         task.setSender(notification.getSender());
         task.setSubject(notification.getSubject());
 
@@ -136,8 +153,8 @@ public class NotificationManager {
             model.put(attr.getSchema().getName(), values.isEmpty()
                     ? ""
                     : (values.size() == 1
-                            ? values.iterator().next()
-                            : values));
+                    ? values.iterator().next()
+                    : values));
         }
 
         String htmlBody;
@@ -165,14 +182,13 @@ public class NotificationManager {
      * @param wfResult workflow result
      * @throws NotFoundException if user contained in the workflow result cannot be found
      */
-    public void createTasks(final WorkflowResult<Long> wfResult) throws NotFoundException {
+    public void createTasks(final WorkflowResult<Long> wfResult)
+            throws NotFoundException {
 
         SyncopeUser user = userDAO.find(wfResult.getResult());
         if (user == null) {
             throw new NotFoundException("User " + wfResult.getResult());
         }
-
-        final String emailSchema = confDAO.find("email.schema", "email").getValue();
 
         for (Notification notification : notificationDAO.findAll()) {
             if (searchDAO.matches(user, notification.getAbout())) {
@@ -181,7 +197,7 @@ public class NotificationManager {
 
                 if (!events.isEmpty()) {
                     LOG.debug("Creating notification task for events {} about {}", events, user);
-                    taskDAO.save(getNotificationTask(notification, user, emailSchema));
+                    taskDAO.save(getNotificationTask(notification, user));
                 } else {
                     LOG.debug("No events found about {}", user);
                 }
@@ -191,5 +207,33 @@ public class NotificationManager {
 
     public TaskExec execute(final NotificationTask task) {
         return notificationJob.executeSingle(task);
+    }
+
+    private String getRecipientEmail(
+            final IntMappingType recipientAttrType, final String recipientAttrName, final SyncopeUser user) {
+
+        final String email;
+
+        switch (recipientAttrType) {
+            case Username:
+                email = user.getUsername();
+                break;
+            case UserSchema:
+                UAttr attr = user.getAttribute(recipientAttrName);
+                email = attr == null || attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
+                break;
+            case UserVirtualSchema:
+                UVirAttr virAttr = user.getVirtualAttribute(recipientAttrName);
+                email = virAttr == null || virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
+                break;
+            case UserDerivedSchema:
+                UDerAttr derAttr = user.getDerivedAttribute(recipientAttrName);
+                email = derAttr == null ? null : derAttr.getValue(user.getAttributes());
+                break;
+            default:
+                email = null;
+        }
+
+        return email;
     }
 }

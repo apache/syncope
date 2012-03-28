@@ -37,6 +37,7 @@ import javax.validation.constraints.NotNull;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
 import org.syncope.client.util.XMLSerializer;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.TraceLevel;
 
 @NotificationCheck
@@ -61,6 +62,13 @@ public class Notification extends AbstractBaseBean {
     @Lob
     private String xmlRecipients;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private IntMappingType recipientAttrType;
+
+    @NotNull
+    private String recipientAttrName;
+
     @Column(nullable = false)
     @Basic
     @Min(0)
@@ -76,8 +84,8 @@ public class Notification extends AbstractBaseBean {
     @NotNull
     private String template;
 
-    @Enumerated(EnumType.STRING)
     @NotNull
+    @Enumerated(EnumType.STRING)
     private TraceLevel traceLevel;
 
     public Notification() {
@@ -91,7 +99,7 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getAbout() {
-        NodeCond result = XMLSerializer.<NodeCond> deserialize(xmlAbout);
+        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlAbout);
         if (result == null) {
             result = new NodeCond();
         }
@@ -107,7 +115,7 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getRecipients() {
-        NodeCond result = XMLSerializer.<NodeCond> deserialize(xmlRecipients);
+        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlRecipients);
         if (result == null) {
             result = new NodeCond();
         }
@@ -120,6 +128,22 @@ public class Notification extends AbstractBaseBean {
         }
 
         xmlRecipients = XMLSerializer.serialize(recipients);
+    }
+
+    public String getRecipientAttrName() {
+        return recipientAttrName;
+    }
+
+    public void setRecipientAttrName(String recipientAttrName) {
+        this.recipientAttrName = recipientAttrName;
+    }
+
+    public IntMappingType getRecipientAttrType() {
+        return recipientAttrType;
+    }
+
+    public void setRecipientAttrType(IntMappingType recipientAttrType) {
+        this.recipientAttrType = recipientAttrType;
     }
 
     public List<String> getEvents() {

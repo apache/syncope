@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.search.NodeCond;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.TraceLevel;
 
 public class NotificationTO extends AbstractBaseBean {
@@ -35,6 +36,10 @@ public class NotificationTO extends AbstractBaseBean {
     private NodeCond about;
 
     private NodeCond recipients;
+
+    private IntMappingType recipientAttrType;
+
+    private String recipientAttrName;
 
     private boolean selfAsRecipient;
 
@@ -88,6 +93,22 @@ public class NotificationTO extends AbstractBaseBean {
 
     public void setRecipients(NodeCond recipients) {
         this.recipients = recipients;
+    }
+
+    public String getRecipientAttrName() {
+        return recipientAttrName;
+    }
+
+    public void setRecipientAttrName(String recipientAttrName) {
+        this.recipientAttrName = recipientAttrName;
+    }
+
+    public IntMappingType getRecipientAttrType() {
+        return recipientAttrType;
+    }
+
+    public void setRecipientAttrType(IntMappingType recipientAttrType) {
+        this.recipientAttrType = recipientAttrType;
     }
 
     public boolean isSelfAsRecipient() {

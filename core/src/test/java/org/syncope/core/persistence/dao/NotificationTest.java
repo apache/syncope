@@ -33,6 +33,7 @@ import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.Notification;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.EntityViolationType;
+import org.syncope.types.IntMappingType;
 
 @Transactional
 public class NotificationTest extends AbstractTest {
@@ -70,8 +71,8 @@ public class NotificationTest extends AbstractTest {
         AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond
-                .getLeafCond(fullnameLeafCond2));
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
+                fullnameLeafCond2));
 
         notification.setAbout(about);
 
@@ -80,6 +81,9 @@ public class NotificationTest extends AbstractTest {
         NodeCond recipients = NodeCond.getLeafCond(membCond);
 
         notification.setRecipients(recipients);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
 
         notification.setSender("syncope@syncope-idm.org");
         notification.setSubject("Test notification");
@@ -103,6 +107,9 @@ public class NotificationTest extends AbstractTest {
         NodeCond recipients = NodeCond.getLeafCond(membCond);
 
         notification.setRecipients(recipients);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
 
         notification.setSender("syncope@syncope-idm.org");
         notification.setSubject("Test notification");

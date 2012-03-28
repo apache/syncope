@@ -23,7 +23,6 @@ under the License.
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
-  <SyncopeConf confKey="email.schema" confValue="email"/>
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
