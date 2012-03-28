@@ -19,6 +19,7 @@
 package org.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,9 +57,16 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getDerivedAttributeMap() {
-        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(derivedAttributes.size());
-        for (AttributeTO attributeTO : derivedAttributes) {
-            result.put(attributeTO.getSchema(), attributeTO);
+        Map<String, AttributeTO> result;
+
+        if (derivedAttributes == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, AttributeTO>(derivedAttributes.size());
+            for (AttributeTO attributeTO : derivedAttributes) {
+                result.put(attributeTO.getSchema(), attributeTO);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
         return result;
@@ -66,9 +74,16 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getVirtualAttributeMap() {
-        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(virtualAttributes.size());
-        for (AttributeTO attributeTO : virtualAttributes) {
-            result.put(attributeTO.getSchema(), attributeTO);
+        Map<String, AttributeTO> result;
+
+        if (derivedAttributes == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, AttributeTO>(virtualAttributes.size());
+            for (AttributeTO attributeTO : virtualAttributes) {
+                result.put(attributeTO.getSchema(), attributeTO);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
         return result;

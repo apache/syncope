@@ -20,6 +20,7 @@ package org.syncope.client.to;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -120,13 +121,20 @@ public class WorkflowFormTO extends AbstractBaseBean {
     }
 
     @JsonIgnore
-    public Map<String, WorkflowFormPropertyTO> getPropertiesAsMap() {
-        Map<String, WorkflowFormPropertyTO> props = new HashMap<String, WorkflowFormPropertyTO>();
-        for (WorkflowFormPropertyTO prop : getProperties()) {
-            props.put(prop.getId(), prop);
+    public Map<String, WorkflowFormPropertyTO> getPropertyMap() {
+        Map<String, WorkflowFormPropertyTO> result;
+
+        if (getProperties() == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, WorkflowFormPropertyTO>();
+            for (WorkflowFormPropertyTO prop : getProperties()) {
+                result.put(prop.getId(), prop);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
-        return props;
+        return result;
     }
 
     @JsonIgnore

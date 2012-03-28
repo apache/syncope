@@ -18,6 +18,7 @@
  */
 package org.syncope.client.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,20 +35,26 @@ public final class ConnConfPropUtils {
     private ConnConfPropUtils() {
     }
 
-    public static Set<ConnConfProperty> joinConnInstanceProperties(final Map<String, ConnConfProperty> connectorProp,
-            final Map<String, ConnConfProperty> resourceProp) {
+    public static Set<ConnConfProperty> joinConnInstanceProperties(
+            final Map<String, ConnConfProperty> connectorProp, final Map<String, ConnConfProperty> resourceProp) {
 
         connectorProp.putAll(resourceProp);
         return new HashSet<ConnConfProperty>(connectorProp.values());
     }
 
     public static Map<String, ConnConfProperty> getConnConfPropertyMap(final Set<ConnConfProperty> properties) {
-
-        final Map<String, ConnConfProperty> prop = new HashMap<String, ConnConfProperty>();
-        for (Iterator<ConnConfProperty> item = properties.iterator(); item.hasNext();) {
-            ConnConfProperty property = item.next();
-            prop.put(property.getSchema().getName(), property);
+        Map<String, ConnConfProperty> result;
+        if (properties == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, ConnConfProperty>();
+            for (Iterator<ConnConfProperty> item = properties.iterator(); item.hasNext();) {
+                ConnConfProperty property = item.next();
+                result.put(property.getSchema().getName(), property);
+            }
+            result = Collections.unmodifiableMap(result);
         }
-        return prop;
+
+        return result;
     }
 }

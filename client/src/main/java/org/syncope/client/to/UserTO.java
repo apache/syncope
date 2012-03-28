@@ -20,6 +20,7 @@ package org.syncope.client.to;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -87,10 +88,16 @@ public class UserTO extends AbstractAttributableTO {
 
     @JsonIgnore
     public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result = new HashMap<Long, MembershipTO>(getMemberships().size());
+        Map<Long, MembershipTO> result;
 
-        for (MembershipTO membership : getMemberships()) {
-            result.put(membership.getRoleId(), membership);
+        if (getMemberships() == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<Long, MembershipTO>(getMemberships().size());
+            for (MembershipTO membership : getMemberships()) {
+                result.put(membership.getRoleId(), membership);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
         return result;

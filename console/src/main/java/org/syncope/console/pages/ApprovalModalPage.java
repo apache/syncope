@@ -88,9 +88,9 @@ public class ApprovalModalPage extends BaseModalPage {
                 FieldPanel field;
                 switch (prop.getType()) {
                     case Boolean:
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(), new Model(
-                                Boolean.valueOf(prop.getValue()))).setChoices(Arrays
-                                .asList(new String[] { "Yes", "No" }));
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
+                                new String[]{"Yes", "No"}));
                         break;
 
                     case Date:
@@ -111,11 +111,11 @@ public class ApprovalModalPage extends BaseModalPage {
                         break;
 
                     case Enum:
-                        MapChoiceRenderer<String, String> enumCR = new MapChoiceRenderer<String, String>(prop
-                                .getEnumValues());
+                        MapChoiceRenderer<String, String> enumCR =
+                                new MapChoiceRenderer<String, String>(prop.getEnumValues());
 
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(), new Model(
-                                prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
 
                             private static final long serialVersionUID = -858521070366432018L;
 
@@ -127,8 +127,8 @@ public class ApprovalModalPage extends BaseModalPage {
                         break;
 
                     case Long:
-                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(), new Model(Long
-                                .valueOf(prop.getValue())), Long.class);
+                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(Long.valueOf(prop.getValue())), Long.class);
                         break;
 
                     case String:
@@ -153,7 +153,7 @@ public class ApprovalModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
-                Map<String, WorkflowFormPropertyTO> props = formTO.getPropertiesAsMap();
+                Map<String, WorkflowFormPropertyTO> props = formTO.getPropertyMap();
 
                 for (int i = 0; i < propView.size(); i++) {
                     ListItem<WorkflowFormPropertyTO> item = (ListItem<WorkflowFormPropertyTO>) propView.get(i);
@@ -166,7 +166,7 @@ public class ApprovalModalPage extends BaseModalPage {
                     if (item.getModelObject().isWritable()) {
                         switch (item.getModelObject().getType()) {
                             case Boolean:
-                                props.get(item.getModelObject().getId()).setValue(String.valueOf(input.equals("0")));
+                                props.get(item.getModelObject().getId()).setValue(String.valueOf("0".equals(input)));
                                 break;
 
                             case Date:

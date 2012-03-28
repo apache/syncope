@@ -650,7 +650,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getOwner());
 
         // 5. reject user
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
         props.get("approve").setValue(Boolean.FALSE.toString());
         props.get("rejectReason").setValue("I don't like him.");
         form.setProperties(props.values());
@@ -707,7 +707,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getOwner());
 
         // 5. approve user (and verify that propagation occurred)
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
         props.get("approve").setValue(Boolean.TRUE.toString());
         form.setProperties(props.values());
         userTO = restTemplate.postForObject(BASE_URL + "user/workflow/form/submit", form, UserTO.class);

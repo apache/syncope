@@ -18,6 +18,7 @@
  */
 package org.syncope.client.to;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,9 +84,16 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, ConnConfProperty> getConfigurationMap() {
-        Map<String, ConnConfProperty> result = new HashMap<String, ConnConfProperty>();
-        for (ConnConfProperty prop : getConfiguration()) {
-            result.put(prop.getSchema().getName(), prop);
+        Map<String, ConnConfProperty> result;
+
+        if (getConfiguration() == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, ConnConfProperty>();
+            for (ConnConfProperty prop : getConfiguration()) {
+                result.put(prop.getSchema().getName(), prop);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
         return result;
@@ -100,10 +108,9 @@ public class ConnInstanceTO extends AbstractBaseBean {
     }
 
     public void setConfiguration(Set<ConnConfProperty> configuration) {
-        if (configuration == null || configuration.isEmpty()) {
-            this.configuration.clear();
-        } else {
-            this.configuration = configuration;
+        this.configuration.clear();
+        if (configuration != null && !configuration.isEmpty()) {
+            this.configuration.addAll(configuration);
         }
     }
 

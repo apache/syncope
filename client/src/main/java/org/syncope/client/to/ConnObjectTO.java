@@ -19,6 +19,7 @@
 package org.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,9 +56,16 @@ public class ConnObjectTO extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, AttributeTO> getAttributeMap() {
-        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(attributes.size());
-        for (AttributeTO attributeTO : attributes) {
-            result.put(attributeTO.getSchema(), attributeTO);
+        Map<String, AttributeTO> result;
+
+        if (attributes == null) {
+            result = Collections.EMPTY_MAP;
+        } else {
+            result = new HashMap<String, AttributeTO>(attributes.size());
+            for (AttributeTO attributeTO : attributes) {
+                result.put(attributeTO.getSchema(), attributeTO);
+            }
+            result = Collections.unmodifiableMap(result);
         }
 
         return result;
