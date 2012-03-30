@@ -20,6 +20,7 @@ package org.syncope.client.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,8 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 
 /**
- * Utility class for manipulating classes extending AbstractAttributableTO 
- * and AbstractAttributableMod.
+ * Utility class for manipulating classes extending AbstractAttributableTO and AbstractAttributableMod.
+ *
  * @see AbstractAttributableTO
  * @see AbstractAttributableMod
  */
@@ -108,8 +109,8 @@ public final class AttributableOperations {
         result.setId(updated.getId());
 
         // 2. attributes
-        Map<String, AttributeTO> updatedAttrs = updated.getAttributeMap();
-        Map<String, AttributeTO> originalAttrs = original.getAttributeMap();
+        Map<String, AttributeTO> updatedAttrs = new HashMap<String, AttributeTO>(updated.getAttributeMap());
+        Map<String, AttributeTO> originalAttrs = new HashMap<String, AttributeTO>(original.getAttributeMap());
 
         Set<String> originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
@@ -164,6 +165,7 @@ public final class AttributableOperations {
 
     /**
      * Calculate modifications needed by first in order to be equal to second.
+     *
      * @param updated updated UserTO
      * @param original original UserTO
      * @return UserMod containing differences
@@ -241,6 +243,7 @@ public final class AttributableOperations {
 
     /**
      * Calculate modifications needed by first in order to be equal to second.
+     *
      * @param updated updated RoleTO
      * @param original original RoleTO
      * @return RoleMod containing differences
@@ -313,8 +316,8 @@ public final class AttributableOperations {
         }
 
         // 2. attributes
-        result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(), mod
-                .getAttributesToBeUpdated()));
+        result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(), mod.
+                getAttributesToBeUpdated()));
 
         // 3. derived attributes
         Map<String, AttributeTO> attrs = to.getDerivedAttributeMap();
