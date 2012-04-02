@@ -101,8 +101,10 @@ public class ReportTestITCase extends AbstractTest {
         report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        ReportTO actual = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, report.getId());
+        ReportTO actual = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class,
+                report.getId());
         assertNotNull(actual);
+
         assertEquals(actual, report);
     }
 

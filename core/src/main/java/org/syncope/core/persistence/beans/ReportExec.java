@@ -22,7 +22,9 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import org.apache.commons.lang.ArrayUtils;
 import org.syncope.types.ReportExecStatus;
 
 @Entity
@@ -42,8 +44,9 @@ public class ReportExec extends AbstractExec {
     /**
      * Report execution result, stored as an XML stream.
      */
+    @Lob
     @Basic(fetch = FetchType.LAZY)
-    private byte[] execResult;
+    private Byte[] execResult;
 
     public Long getId() {
         return id;
@@ -58,11 +61,11 @@ public class ReportExec extends AbstractExec {
     }
 
     public byte[] getExecResult() {
-        return execResult;
+        return execResult == null ? null : ArrayUtils.toPrimitive(execResult);
     }
 
     public void setExecResult(byte[] execResult) {
-        this.execResult = execResult;
+        this.execResult = execResult == null ? null : ArrayUtils.toObject(execResult);
     }
 
     public void setStatus(ReportExecStatus status) {

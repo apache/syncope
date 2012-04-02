@@ -79,12 +79,16 @@ public final class HibernateEnhancer {
 
                 for (Field field : entity.getDeclaredFields()) {
                     AnnotationsAttribute annotAttr = null;
-                    // Add Hibernate's @Type to each entity String field labeled @Lob,
-                    // in order to enable PostgreSQL's LOB support.
+                    // Add Hibernate's @Type to each entity String field annotated with @Lob
                     if (field.isAnnotationPresent(Lob.class)) {
                         Annotation typeAnnot = new Annotation("org.hibernate.annotations.Type", constPool);
-                        typeAnnot.addMemberValue("type",
-                                new StringMemberValue("org.hibernate.type.StringClobType", constPool));
+                        if (String.class.equals(field.getType())) {
+                            typeAnnot.addMemberValue("type",
+                                    new StringMemberValue("org.hibernate.type.StringClobType", constPool));
+                        } else if (field.getType().isArray()) {
+                            typeAnnot.addMemberValue("type",
+                                    new StringMemberValue("org.hibernate.type.ByteArrayBlobType", constPool));
+                        }
 
                         annotAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
                         annotAttr.addAnnotation(typeAnnot);

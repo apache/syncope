@@ -21,13 +21,12 @@ under the License.
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
   <deployment>
     <dependencies>
-      <module name="org.hibernate" />
-      <module name="org.apache.xerces" />
-      <module name="org.apache.xalan" />
+      <module name="org.hibernate"/>
+      <module name="org.apache.xalan"/>
     </dependencies>
     <exclusions>
-      <module name="org.slf4j" />
-      <module name="org.slf4j.impl" />
+      <module name="org.slf4j"/>
+      <module name="org.slf4j.impl"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>

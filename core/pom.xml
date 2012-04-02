@@ -498,7 +498,7 @@ under the License.
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
               </dependency>
-            </dependencies>
+            </dependencies>            
           </container>
           <configuration>
             <type>standalone</type>
@@ -521,6 +521,7 @@ under the License.
               <deployable>
                 <location>${cargo.run.dir}</location>
                 <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+                <pingTimeout>60000</pingTimeout>
                 <properties>
                   <context>syncope</context>
                 </properties>
@@ -1029,58 +1030,6 @@ under the License.
             </executions>
           </plugin>
 
-          <!--<plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-derby</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>java</executable>
-                  <classpathScope>test</classpathScope>
-                  <arguments>
-                    <argument>-classpath</argument>
-                    <classpath>
-                      <dependency>org.apache.derby:derby</dependency>
-                      <dependency>org.apache.derby:derbynet</dependency>
-                    </classpath>
-                    <argument>org.apache.derby.drda.NetworkServerControl</argument>
-                    <argument>start</argument>
-                    <argument>-noSecurityManager</argument>
-                  </arguments>
-                  <workingDirectory>${project.build.directory}/target/derby</workingDirectory>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop-derby</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>java</executable>
-                  <classpathScope>test</classpathScope>
-                  <arguments>
-                    <argument>-classpath</argument>
-                    <classpath>
-                      <dependency>org.apache.derby:derby</dependency>
-                      <dependency>org.apache.derby:derbynet</dependency>
-                    </classpath>
-                    <argument>org.apache.derby.drda.NetworkServerControl</argument>
-                    <argument>shutdown</argument>
-                    <argument>-noSecurityManager</argument>
-                  </arguments>
-                  <workingDirectory>${project.build.directory}/target/derby</workingDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>-->
-          
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -1104,7 +1053,7 @@ under the License.
 
     <profile>
       <id>jboss-it</id>
-
+      
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope</groupId>
@@ -1151,7 +1100,7 @@ under the License.
             <executions>
               <execution>
                 <id>enhance-hibernate</id>
-                <phase>process-classes</phase>
+                <phase>test-compile</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -1197,7 +1146,7 @@ under the License.
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
-
+          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
@@ -1215,7 +1164,7 @@ under the License.
               <container>
                 <containerId>jboss71x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.Final/jboss-as-7.1.0.Final.zip</url>
+                  <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${java.io.tmpdir}</extractDir>
                 </zipUrlInstaller>
@@ -1234,7 +1183,6 @@ under the License.
                 <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
-                  <goal>deploy</goal>
                 </goals>
               </execution>
               <execution>
