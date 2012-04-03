@@ -97,8 +97,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium
-                .click("//*[@id=\"users-contain\"]//" + "*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[span=\"ws-target-resource-delete\"]/../td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");

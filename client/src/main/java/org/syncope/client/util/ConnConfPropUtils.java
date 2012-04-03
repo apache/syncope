@@ -38,8 +38,11 @@ public final class ConnConfPropUtils {
     public static Set<ConnConfProperty> joinConnInstanceProperties(
             final Map<String, ConnConfProperty> connectorProp, final Map<String, ConnConfProperty> resourceProp) {
 
-        connectorProp.putAll(resourceProp);
-        return new HashSet<ConnConfProperty>(connectorProp.values());
+        Set<ConnConfProperty> result = new HashSet<ConnConfProperty>();
+        result.addAll(connectorProp.values());
+        result.addAll(resourceProp.values());
+
+        return result;
     }
 
     public static Map<String, ConnConfProperty> getConnConfPropertyMap(final Set<ConnConfProperty> properties) {

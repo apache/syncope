@@ -99,8 +99,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
@@ -142,8 +142,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
@@ -181,8 +181,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
@@ -231,13 +231,13 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
-        UserTO readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO
-                .getId());
+        UserTO readUserTO =
+                restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
@@ -299,8 +299,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
 
@@ -406,5 +406,53 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
+    }
+
+    @Test
+    public void issueSYNCOPE48() {
+        // Parent role, able to create users with role 1
+        RoleTO parentRole = new RoleTO();
+        parentRole.setName("parentAdminRole");
+        parentRole.addEntitlement("USER_CREATE");
+        parentRole.addEntitlement("ROLE_1");
+        parentRole.setParent(1L);
+
+        parentRole = restTemplate.postForObject(BASE_URL + "role/create", parentRole, RoleTO.class);
+        assertNotNull(parentRole);
+
+        // Child role, with no entitlements
+        RoleTO childRole = new RoleTO();
+        childRole.setName("childAdminRole");
+        childRole.setParent(parentRole.getId());
+
+        childRole = restTemplate.postForObject(BASE_URL + "role/create", childRole, RoleTO.class);
+        assertNotNull(childRole);
+
+        // User with child role, created by admin
+        UserTO role1Admin = UserTestITCase.getSampleTO("syncope48admin@apache.org");
+        role1Admin.setPassword("password");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(childRole.getId());
+        role1Admin.addMembership(membershipTO);
+
+        role1Admin = restTemplate.postForObject(BASE_URL + "user/create", role1Admin, UserTO.class);
+        assertNotNull(role1Admin);
+
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(role1Admin.getUsername(), "password"));
+
+        // User with role 1, created by user with child role created above
+        UserTO role1User = UserTestITCase.getSampleTO("syncope48user@apache.org");
+        membershipTO = new MembershipTO();
+        membershipTO.setRoleId(1L);
+        role1User.addMembership(membershipTO);
+
+        role1User = restTemplate.postForObject(BASE_URL + "user/create", role1User, UserTO.class);
+        assertNotNull(role1User);
+
+        // reset admin credentials for restTemplate
+        super.setupRestTemplate();
     }
 }

@@ -18,7 +18,9 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -103,6 +105,20 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent.id=:roleId");
         query.setParameter("roleId", roleId);
         return query.getResultList();
+    }
+
+    private void findAncestors(final Set<SyncopeRole> result, final SyncopeRole role) {
+        if (role.getParent() != null && !result.contains(role.getParent())) {
+            result.add(role.getParent());
+            findAncestors(result, role.getParent());
+        }
+    }
+
+    @Override
+    public Set<SyncopeRole> findAncestors(final SyncopeRole role) {
+        Set<SyncopeRole> result = new HashSet<SyncopeRole>();
+        findAncestors(result, role);
+        return result;
     }
 
     @Override

@@ -38,8 +38,7 @@ public class EditProfileTestITCase extends AbstractTest {
 
         selenium.click("//div/span/span/a");
 
-        selenium
-                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
 
         selenium.click("css=a.w_close");
 
@@ -61,14 +60,13 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.click("name=:submit");
         selenium.waitForPageToLoad("30000");
 
-        selenium.click("css=img[alt=\"Users\"]");
+        selenium.click("css=img[alt=\"Schema\"]");
         selenium.waitForPageToLoad("30000");
 
         selenium.click("id=username");
         selenium.click("//span[@id='editProfile']/a");
 
-        selenium
-                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
 
         assertTrue(selenium.isElementPresent("//input[@value='user1']"));
 

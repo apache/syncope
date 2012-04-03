@@ -26,6 +26,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.mod.UserMod;
@@ -42,19 +43,17 @@ public class UserRequestTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
 
-        SyncopeClientException exception = null;
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
         }
-        assertNotNull(exception);
 
         UserTO userTO = restTemplate.getForObject(BASE_URL + "user/request/read/self", UserTO.class);
         assertEquals("user1", userTO.getUsername());
@@ -103,8 +102,8 @@ public class UserRequestTestITCase extends AbstractTest {
         attrCond.setSchema("userId");
         attrCond.setExpression("selfcreate@syncope-idm.org");
 
-        final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", NodeCond
-                .getLeafCond(attrCond), UserTO[].class));
+        final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", NodeCond.
+                getLeafCond(attrCond), UserTO[].class));
         assertTrue(matchingUsers.isEmpty());
 
         // 7. actually create user
@@ -136,8 +135,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(exception);
 
         // 3. auth as user just created
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), initialPassword));
 
@@ -194,8 +193,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(exception);
 
         // 3. auth as user just created
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), initialPassword));
 

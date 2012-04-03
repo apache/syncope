@@ -72,11 +72,10 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements based on roles owned by user,
-            // considering role inheritance as well
+            // Give entitlements based on roles owned by user, and their ancestors
             Set<SyncopeRole> roles = new HashSet<SyncopeRole>(user.getRoles());
-            for (Long roleId : user.getRoleIds()) {
-                roles.addAll(roleDAO.findChildren(roleId));
+            for (SyncopeRole role : user.getRoles()) {
+                roles.addAll(roleDAO.findAncestors(role));
             }
             for (SyncopeRole role : roles) {
                 for (Entitlement entitlement : role.getEntitlements()) {
