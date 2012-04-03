@@ -71,6 +71,7 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.rest.controller.TaskController;
 import org.syncope.core.rest.controller.UserController;
 import org.syncope.core.scheduling.NotificationJob;
+import org.syncope.types.IntMappingType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -256,6 +257,9 @@ public class NotificationTest {
         membCond.setRoleId(8L);
         notification.setRecipients(NodeCond.getLeafCond(membCond));
         notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncopetest-" + random.nextLong() + "@syncope-idm.org";
