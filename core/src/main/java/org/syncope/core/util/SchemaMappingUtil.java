@@ -152,12 +152,11 @@ public class SchemaMappingUtil {
                         getIntMappingType()));
 
                 for (AbstractAttributable attributable : attributables) {
-                    final UAttr attr = attributable.getAttribute(mapping.getIntAttrName());
+                    final AbstractAttr attr = attributable.getAttribute(mapping.getIntAttrName());
 
                     if (attr != null && attr.getValues() != null) {
                         values.addAll(schema.isUniqueConstraint()
-                                ? Collections.singletonList(attr.getUniqueValue())
-                                : attr.getValues());
+                                ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
                     }
 
                     LOG.debug("Retrieved attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
