@@ -887,6 +887,7 @@ under the License.
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
             <exclude>.externalToolBuilders/**</exclude>
+            <exclude>maven-eclipse.xml</exclude>
           </excludes>
         </configuration>
         <executions>
