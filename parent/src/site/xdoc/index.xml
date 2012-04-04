@@ -37,10 +37,15 @@ under the License.
         is an Open Source system for managing digital identities in enterprise environments, 
         implemented in JEE technology and released under Apache 2.0 license.
       </p>
+
       <p>
-        In order to run Apache Syncope, a J2EE container (Apache Tomcat, for example) and a DBMS are only needed.
-        <br/>
-        Most DBMSes available either on the market or in the Open Source space are fully supported.
+        <span style="font-weight: bold">Identity management</span> (or IdM) represents the joint result of business process and IT to manage user data on systems
+        and applications. IdM involves considering user attributes, roles, resources and entitlements in trying to give a 
+        decent answer to the question bumping at every time in IT administrators’ mind:
+      </p>
+
+      <p style="text-align:center;">
+        <i>Who has access to What, When, How, and Why?</i>
       </p>
     </div>
 
