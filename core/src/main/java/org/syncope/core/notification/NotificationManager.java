@@ -19,6 +19,7 @@
 package org.syncope.core.notification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
-import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.Notification;
 import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.TaskExec;
@@ -47,6 +47,7 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.UserSearchDAO;
+import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.util.ConnObjectUtil;
 import org.syncope.core.util.EntitlementUtil;
@@ -83,6 +84,9 @@ public class NotificationManager {
      */
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private UserDataBinder userDataBinder;
 
     /**
      * User Search DAO.
@@ -160,14 +164,7 @@ public class NotificationManager {
         task.setSubject(notification.getSubject());
 
         final Map<String, Object> model = new HashMap<String, Object>();
-        for (AbstractAttr attr : user.getAttributes()) {
-            List<String> values = attr.getValuesAsStrings();
-            model.put(attr.getSchema().getName(), values.isEmpty()
-                    ? ""
-                    : (values.size() == 1
-                    ? values.iterator().next()
-                    : values));
-        }
+        model.put("user", userDataBinder.getUserTO(user));
 
         String htmlBody;
         String textBody;
@@ -255,7 +252,7 @@ public class NotificationManager {
      * @param execution task execution.
      * @return merged task execution.
      */
-    public TaskExec storeExecution(TaskExec execution) {
+    public TaskExec storeExecution(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
         task.addExec(execution);
         return taskExecDAO.save(execution);

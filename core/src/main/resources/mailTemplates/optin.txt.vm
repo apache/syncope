@@ -9,6 +9,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-Hi ${firstname} ${surname}, welcome to Syncope!
+Hi $user.getAttributeMap().get("firstname").getValues().get(0) $user.getAttributeMap().get("surname").getValues().get(0), welcome to Syncope!
 
-Your email address is ${email}.
+Your username is $user.getUsername().
+Your email address is $user.getAttributeMap().get("email").getValues().get(0).
+
+#if(!$user.getMemberships().isEmpty())
+You have been provided with the following roles:
+#foreach($membership in $user.getMemberships())
+  * $membership.roleName
+#end
+#end
