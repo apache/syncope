@@ -53,6 +53,7 @@ public class NotificationJob implements StatefulJob {
 
         SENT,
         NOT_SENT
+
     }
 
     /**
@@ -203,6 +204,8 @@ public class NotificationJob implements StatefulJob {
             execution = notificationManager.storeExecution(execution);
         }
 
+        notificationManager.updateLatestExecStatus(execution);
+
         return execution;
     }
 
@@ -212,7 +215,7 @@ public class NotificationJob implements StatefulJob {
 
         LOG.debug("Waking up...");
 
-        for (NotificationTask task : taskDAO.findWithoutExecs(NotificationTask.class)) {
+        for (NotificationTask task : taskDAO.findToExec(NotificationTask.class)) {
             executeSingle(task);
         }
 

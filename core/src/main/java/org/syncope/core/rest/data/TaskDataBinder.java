@@ -42,10 +42,10 @@ import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.JobInstanceLoader;
-import org.syncope.core.persistence.beans.SchedTask;
-import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -62,9 +62,9 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = { "latestExecStatus", "executions", "resource", "user" };
+    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource", "user"};
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
     @Autowired
     private TaskExecDAO taskExecDAO;
@@ -202,11 +202,6 @@ public class TaskDataBinder {
     public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
         TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
-
-        TaskExec latestExec = taskExecDAO.findLatestStarted(task);
-        taskTO.setLatestExecStatus(latestExec == null
-                ? ""
-                : latestExec.getStatus());
 
         for (TaskExec execution : task.getExecs()) {
             taskTO.addExecution(getTaskExecTO(execution));

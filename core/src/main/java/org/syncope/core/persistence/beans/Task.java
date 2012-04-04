@@ -21,6 +21,7 @@ package org.syncope.core.persistence.beans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -40,6 +41,9 @@ public class Task extends AbstractBaseBean {
     @Id
     private Long id;
 
+    @Column(nullable = true)
+    private String latestExecStatus;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<TaskExec> executions;
 
@@ -51,6 +55,14 @@ public class Task extends AbstractBaseBean {
 
     public Long getId() {
         return id;
+    }
+
+    public String getLatestExecStatus() {
+        return latestExecStatus;
+    }
+
+    public void setLatestExecStatus(String latestExecStatus) {
+        this.latestExecStatus = latestExecStatus;
     }
 
     public boolean addExec(TaskExec exec) {

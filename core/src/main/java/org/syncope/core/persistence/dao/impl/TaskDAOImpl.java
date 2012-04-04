@@ -41,20 +41,19 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     }
 
     private <T extends Task> StringBuilder buildfindAllQuery(final Class<T> reference) {
-
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e ");
         if (SchedTask.class.equals(reference)) {
-            queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").append(SyncTask.class.getSimpleName()).append(
-                    " e) ");
+            queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").
+                    append(SyncTask.class.getSimpleName()).append(" e) ");
         }
 
         return queryString;
     }
 
     @Override
-    public <T extends Task> List<T> findWithoutExecs(final Class<T> reference) {
+    public <T extends Task> List<T> findToExec(final Class<T> reference) {
         StringBuilder queryString = buildfindAllQuery(reference);
-        queryString.append("WHERE e.executions IS EMPTY");
+        queryString.append("WHERE e.latestExecStatus IS NULL");
         final Query query = entityManager.createQuery(queryString.toString());
         return query.getResultList();
     }
@@ -127,7 +126,7 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public <T extends Task> T save(final T task) {
         return entityManager.merge(task);

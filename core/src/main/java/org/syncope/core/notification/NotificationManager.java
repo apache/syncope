@@ -19,7 +19,6 @@
 package org.syncope.core.notification;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -247,7 +246,7 @@ public class NotificationManager {
     }
 
     /**
-     * Execute TaskExec persist within a transaction.
+     * Store execution of a NotificationTask.
      *
      * @param execution task execution.
      * @return merged task execution.
@@ -256,5 +255,16 @@ public class NotificationManager {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
         task.addExec(execution);
         return taskExecDAO.save(execution);
+    }
+
+    /**
+     * Update latest execution status of a NotificationTask.
+     *
+     * @param execution task execution
+     */
+    public void updateLatestExecStatus(final TaskExec execution) {
+        NotificationTask task = taskDAO.find(execution.getTask().getId());
+        task.setLatestExecStatus(execution.getStatus());
+        taskDAO.save(task);
     }
 }

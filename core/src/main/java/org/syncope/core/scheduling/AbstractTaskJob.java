@@ -33,9 +33,8 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 
 /**
- * Base job implementation that delegates to concrete implementation the actual
- * job execution and provides some background settings (like as the
- * corresponding Task, for example).
+ * Base job implementation that delegates to concrete implementation the actual job execution and provides some
+ * background settings (like as the corresponding Task, for example).
  */
 public abstract class AbstractTaskJob implements StatefulJob {
 
@@ -117,11 +116,14 @@ public abstract class AbstractTaskJob implements StatefulJob {
         if (hasToBeRegistered(execution)) {
             taskExecDAO.save(execution);
         }
+
+        task.setLatestExecStatus(execution.getStatus());
+        task = taskDAO.save(task);
     }
 
     /**
      * The actual execution, delegated to child classes.
-     * 
+     *
      * @param dryRun whether to actually touch the data
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
@@ -129,8 +131,8 @@ public abstract class AbstractTaskJob implements StatefulJob {
     protected abstract String doExecute(boolean dryRun) throws JobExecutionException;
 
     /**
-     * Template method to determine whether this job's task execution has
-     * to be persisted or not.
+     * Template method to determine whether this job's task execution has to be persisted or not.
+     *
      * @param execution task execution
      * @return wether to persist or not
      */

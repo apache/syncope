@@ -54,7 +54,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findWithoutExecs() {
-        List<PropagationTask> tasks = taskDAO.findWithoutExecs(PropagationTask.class);
+        List<PropagationTask> tasks = taskDAO.findToExec(PropagationTask.class);
         assertNotNull(tasks);
         assertEquals(3, tasks.size());
     }
