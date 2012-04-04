@@ -767,6 +767,34 @@ public class UserTestITCase extends AbstractTest {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
+    
+    @Test
+    public void deleteByUsername() {
+        UserTO userTO = getSampleTO("delete.by.username@apache.org");
+
+        // specify a propagation
+        userTO.addResource("resource-testdb");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        long id = userTO.getId();
+        userTO = 
+            restTemplate.getForObject(BASE_URL + "user/delete?username=" + userTO.getUsername(), UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals(id, userTO.getId());
+        assertTrue(userTO.getAttributes().isEmpty());
+
+        // check for propagation result
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+
+        try {
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        } catch (HttpStatusCodeException e) {
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        }
+    }
 
     @Test
     public void count() {

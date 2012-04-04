@@ -434,51 +434,21 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
     public UserTO delete(@PathVariable("userId") final Long userId)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
-
         LOG.debug("User delete called with {}", userId);
-
-        // Note here that we can only notify about "delete", not any other
-        // task defined in workflow process definition: this because this
-        // information could only be available after wfAdapter.delete(), which
-        // will also effectively remove user from db, thus making virtually
-        // impossible by NotificationManager to fetch required user information
-        notificationManager.createTasks(new WorkflowResult<Long>(userId, null, "delete"));
-
-        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId);
-
-        final UserTO userTO = new UserTO();
-        userTO.setId(userId);
-
-        propagationManager.execute(tasks, new PropagationHandler() {
-
-            @Override
-            public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                    final ConnectorObject before, final ConnectorObject after) {
-
-                final PropagationTO propagation = new PropagationTO();
-                propagation.setResourceName(resourceName);
-                propagation.setStatus(executionStatus);
-
-                if (before != null) {
-                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
-                }
-
-                if (after != null) {
-                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
-                }
-
-                userTO.addPropagationTO(propagation);
-            }
-        });
-
-        wfAdapter.delete(userId);
-
-        auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
-                "Successfully deleted user: " + userTO.getUsername());
-
-        LOG.debug("User successfully deleted: {}", userId);
-
-        return userTO;
+        
+        return deleteByUserId(userId);
+    }
+    
+    @PreAuthorize("hasRole('USER_DELETE')")
+    @RequestMapping(method = RequestMethod.GET, value = "/delete")
+    public UserTO delete(@RequestParam("username") final String username)
+            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
+        LOG.debug("User delete called with {}", username);
+        
+        UserTO result = userDataBinder.getUserTO(username);
+        long userId = result.getId();
+        
+        return deleteByUserId(userId);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -623,5 +593,51 @@ public class UserController {
         LOG.debug("About to return updated user\n{}", savedTO);
 
         return savedTO;
+    }
+    
+    private UserTO deleteByUserId(final Long userId)
+        throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
+        // Note here that we can only notify about "delete", not any other
+        // task defined in workflow process definition: this because this
+        // information could only be available after wfAdapter.delete(), which
+        // will also effectively remove user from db, thus making virtually
+        // impossible by NotificationManager to fetch required user information
+        notificationManager.createTasks(new WorkflowResult<Long>(userId, null, "delete"));
+
+        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId);
+
+        final UserTO userTO = new UserTO();
+        userTO.setId(userId);
+
+        propagationManager.execute(tasks, new PropagationHandler() {
+
+            @Override
+            public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
+                               final ConnectorObject before, final ConnectorObject after) {
+
+                final PropagationTO propagation = new PropagationTO();
+                propagation.setResourceName(resourceName);
+                propagation.setStatus(executionStatus);
+
+                if (before != null) {
+                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
+                }
+
+                if (after != null) {
+                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
+                }
+
+                userTO.addPropagationTO(propagation);
+            }
+        });
+
+        wfAdapter.delete(userId);
+
+        auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
+                           "Successfully deleted user: " + userTO.getUsername());
+
+        LOG.debug("User successfully deleted: {}", userId);
+
+        return userTO;
     }
 }
