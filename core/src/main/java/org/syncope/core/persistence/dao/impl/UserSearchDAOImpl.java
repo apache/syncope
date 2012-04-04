@@ -20,12 +20,10 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -62,27 +60,28 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
     private String getAdminRolesFilter(final Set<Long> adminRoles) {
         final StringBuilder adminRolesFilter = new StringBuilder();
-        if (adminRoles == null || adminRoles.isEmpty()) {
-            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").append("FROM Membership");
-        } else {
-            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").append("FROM Membership M1 ").append(
-                    "WHERE syncopeRole_id IN (");
-            adminRolesFilter.append("SELECT syncopeRole_id ").append("FROM Membership M2 ").append(
-                    "WHERE M2.syncopeUser_id=M1.syncopeUser_id ").append("AND syncopeRole_id NOT IN (");
-            adminRolesFilter.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
-            boolean firstRole = true;
-            for (Long adminRoleId : adminRoles) {
-                if (firstRole) {
-                    adminRolesFilter.append(" WHERE");
-                    firstRole = false;
-                } else {
-                    adminRolesFilter.append(" OR");
-                }
 
-                adminRolesFilter.append(" id=").append(adminRoleId);
+        adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").append("FROM Membership M1 ").
+                append("WHERE syncopeRole_id IN (");
+
+        adminRolesFilter.append("SELECT syncopeRole_id ").append("FROM Membership M2 ").
+                append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").append("AND syncopeRole_id NOT IN (");
+
+        adminRolesFilter.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
+
+        boolean firstRole = true;
+
+        for (Long adminRoleId : adminRoles) {
+            if (firstRole) {
+                adminRolesFilter.append(" WHERE");
+                firstRole = false;
+            } else {
+                adminRolesFilter.append(" OR");
             }
-            adminRolesFilter.append("))");
+            adminRolesFilter.append(" id=").append(adminRoleId);
         }
+
+        adminRolesFilter.append("))");
 
         return adminRolesFilter.toString();
     }
@@ -116,30 +115,27 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     @Override
-    public List<SyncopeUser> search(final NodeCond searchCondition) {
-        return search(null, searchCondition, -1, -1);
-    }
-
-    @Override
     public List<SyncopeUser> search(final Set<Long> adminRoles, final NodeCond searchCondition) {
-
         return search(adminRoles, searchCondition, -1, -1);
     }
 
     @Override
-    public List<SyncopeUser> search(final Set<Long> adminRoles, final NodeCond searchCondition, final int page,
-            final int itemsPerPage) {
+    public List<SyncopeUser> search(
+            final Set<Long> adminRoles, final NodeCond searchCondition, final int page, final int itemsPerPage) {
 
         List<SyncopeUser> result = Collections.EMPTY_LIST;
 
-        LOG.debug("Search condition:\n{}", searchCondition);
-        if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition:\n{}", searchCondition);
-        } else {
-            try {
-                result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
-            } catch (Throwable t) {
-                LOG.error("While searching users", t);
+        if (adminRoles != null && !adminRoles.isEmpty()) {
+            LOG.debug("Search condition:\n{}", searchCondition);
+
+            if (!searchCondition.checkValidity()) {
+                LOG.error("Invalid search condition:\n{}", searchCondition);
+            } else {
+                try {
+                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
+                } catch (Throwable t) {
+                    LOG.error("While searching users", t);
+                }
             }
         }
 
@@ -196,8 +192,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         }
     }
 
-    private List<SyncopeUser> doSearch(final Set<Long> adminRoles, final NodeCond nodeCond, final int page,
-            final int itemsPerPage) {
+    private List<SyncopeUser> doSearch(
+            final Set<Long> adminRoles, final NodeCond nodeCond, final int page, final int itemsPerPage) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 

@@ -33,12 +33,6 @@ public interface UserSearchDAO extends DAO {
     int count(Set<Long> adminRoles, NodeCond searchCondition);
 
     /**
-     * @param searchCondition the search condition
-     * @return the list of users matchin the given search condition
-     */
-    List<SyncopeUser> search(NodeCond searchCondition);
-
-    /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
      * @return the list of users matching the given search condition
@@ -56,6 +50,7 @@ public interface UserSearchDAO extends DAO {
 
     /**
      * Verify if user matched the given search condition.
+     *
      * @param user to be checked
      * @param searchCondition to be verified
      * @return true if user matched searchCondition

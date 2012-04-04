@@ -41,12 +41,15 @@ import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.dao.ConfDAO;
+import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.NotificationDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.util.ConnObjectUtil;
+import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.IntMappingType;
 
@@ -94,6 +97,12 @@ public class NotificationManager {
     private TaskDAO taskDAO;
 
     /**
+     * TaskExec DAO.
+     */
+    @Autowired
+    private TaskExecDAO taskExecDAO;
+
+    /**
      * Velocity template engine.
      */
     @Autowired
@@ -103,7 +112,11 @@ public class NotificationManager {
     private NotificationJob notificationJob;
 
     @Autowired
+    private EntitlementDAO entitlementDAO;
+
+    @Autowired
     private ConnObjectUtil connObjectUtil;
+
     /**
      * Create a notification task.
      *
@@ -115,12 +128,10 @@ public class NotificationManager {
     private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user) {
 
         connObjectUtil.retrieveVirAttrValues(user);
-        
-        final IntMappingType recipientAttrType = notification.getRecipientAttrType();
-        final String recipientAttrName = notification.getRecipientAttrName();
 
         final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
-        recipients.addAll(searchDAO.search(notification.getRecipients()));
+        recipients.addAll(
+                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), notification.getRecipients()));
 
         if (notification.isSelfAsRecipient()) {
             recipients.add(user);
@@ -129,13 +140,14 @@ public class NotificationManager {
         Set<String> recipientEmails = new HashSet<String>();
 
         for (SyncopeUser recipient : recipients) {
-            
+
             connObjectUtil.retrieveVirAttrValues(recipient);
 
-            String email = getRecipientEmail(recipientAttrType, recipientAttrName, user);
+            String email = getRecipientEmail(
+                    notification.getRecipientAttrType(), notification.getRecipientAttrName(), recipient);
 
             if (email == null) {
-                LOG.error("{} cannot be notified. No {} attribute present", recipient, recipientAttrName);
+                LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
                 recipientEmails.add(email);
             }
@@ -235,5 +247,17 @@ public class NotificationManager {
         }
 
         return email;
+    }
+
+    /**
+     * Execute TaskExec persist within a transaction.
+     *
+     * @param execution task execution.
+     * @return merged task execution.
+     */
+    public TaskExec storeExecution(TaskExec execution) {
+        NotificationTask task = taskDAO.find(execution.getTask().getId());
+        task.addExec(execution);
+        return taskExecDAO.save(execution);
     }
 }

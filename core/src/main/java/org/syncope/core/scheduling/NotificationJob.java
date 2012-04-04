@@ -32,11 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.syncope.core.audit.AuditManager;
+import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.types.AuditElements.Category;
 import org.syncope.types.AuditElements.NotificationSubCategory;
 import org.syncope.types.AuditElements.Result;
@@ -53,7 +53,6 @@ public class NotificationJob implements StatefulJob {
 
         SENT,
         NOT_SENT
-
     }
 
     /**
@@ -64,17 +63,14 @@ public class NotificationJob implements StatefulJob {
     @Autowired
     private AuditManager auditManager;
 
+    @Autowired
+    private NotificationManager notificationManager;
+
     /**
      * Task DAO.
      */
     @Autowired
     private TaskDAO taskDAO;
-
-    /**
-     * Task execution DAO.
-     */
-    @Autowired
-    private TaskExecDAO taskExecDAO;
 
     /**
      * Configuration DAO.
@@ -204,19 +200,19 @@ public class NotificationJob implements StatefulJob {
         }
 
         if (hasToBeRegistered(execution)) {
-            execution = taskExecDAO.save(execution);
+            execution = notificationManager.storeExecution(execution);
         }
 
         return execution;
     }
 
     @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
+    public void execute(final JobExecutionContext context)
+            throws JobExecutionException {
 
         LOG.debug("Waking up...");
 
         for (NotificationTask task : taskDAO.findWithoutExecs(NotificationTask.class)) {
-
             executeSingle(task);
         }
 
