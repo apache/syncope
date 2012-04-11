@@ -25,7 +25,9 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +37,9 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.audit.AuditManager;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.RoleDataBinder;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.AuditElements.Category;
@@ -51,6 +55,9 @@ public class RoleController extends AbstractController {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private RoleDataBinder roleDataBinder;
@@ -82,7 +89,7 @@ public class RoleController extends AbstractController {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            throw new NotFoundException("Role " + String.valueOf(roleId));
+            throw new NotFoundException("Role " + roleId);
         }
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -97,6 +104,7 @@ public class RoleController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/list")
+    @Transactional(readOnly = true)
     public List<RoleTO> list() {
         List<SyncopeRole> roles = roleDAO.findAll();
         List<RoleTO> roleTOs = new ArrayList<RoleTO>();
@@ -112,6 +120,7 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/parent/{roleId}")
+    @Transactional(readOnly = true)
     public RoleTO parent(@PathVariable("roleId") final Long roleId)
             throws NotFoundException, UnauthorizedRoleException {
 
@@ -139,6 +148,7 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/children/{roleId}")
+    @Transactional(readOnly = true)
     public List<RoleTO> children(@PathVariable("roleId") final Long roleId) {
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -158,12 +168,13 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{roleId}")
+    @Transactional(readOnly = true)
     public RoleTO read(@PathVariable("roleId") final Long roleId)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            throw new NotFoundException(String.valueOf(roleId));
+            throw new NotFoundException("Role " + roleId);
         }
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -173,6 +184,34 @@ public class RoleController extends AbstractController {
 
         auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
                 "Successfully read role: " + role.getId());
+
+        return roleDataBinder.getRoleTO(role);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET, value = "/selfRead/{roleId}")
+    @Transactional(readOnly = true)
+    public RoleTO selfRead(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeRole role = roleDAO.find(roleId);
+        if (role == null) {
+            throw new NotFoundException("Role " + roleId);
+        }
+        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (authUser == null) {
+            throw new NotFoundException("Authenticated user "
+                    + SecurityContextHolder.getContext().getAuthentication().getName());
+        }
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+        allowedRoleIds.addAll(authUser.getRoleIds());
+        if (!allowedRoleIds.contains(role.getId())) {
+            throw new UnauthorizedRoleException(role.getId());
+        }
+
+        auditManager.audit(Category.role, RoleSubCategory.selfRead, Result.success,
+                "Successfully read own role: " + role.getId());
 
         return roleDataBinder.getRoleTO(role);
     }

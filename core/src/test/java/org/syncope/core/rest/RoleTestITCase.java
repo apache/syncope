@@ -22,14 +22,19 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
+import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class RoleTestITCase extends AbstractTest {
@@ -146,6 +151,37 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO);
         assertNotNull(roleTO.getAttributes());
         assertFalse(roleTO.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void selfRead() {
+        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}", UserTO.class, 1);
+        assertNotNull(userTO);
+
+        assertTrue(userTO.getMembershipMap().containsKey(1L));
+        assertFalse(userTO.getMembershipMap().containsKey(3L));
+
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+
+        SyncopeClientException exception = null;
+        try {
+            restTemplate.getForObject(BASE_URL + "role/selfRead/{roleId}", RoleTO.class, 3);
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+        }
+        assertNotNull(exception);
+
+        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/selfRead/{roleId}", RoleTO.class, 1);
+        assertNotNull(roleTO);
+        assertNotNull(roleTO.getAttributes());
+        assertFalse(roleTO.getAttributes().isEmpty());
+
+        // restore admin authentication
+        super.setupRestTemplate();
     }
 
     @Test

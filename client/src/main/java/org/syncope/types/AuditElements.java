@@ -161,6 +161,7 @@ public final class AuditElements {
         list,
         create,
         read,
+        selfRead,
         update,
         delete,
         parent,
@@ -230,7 +231,8 @@ public final class AuditElements {
         read,
         update,
         delete,
-        isCreateAllowed,}
+        isCreateAllowed,
+    }
 
     public enum WorkflowSubCategory {
 
