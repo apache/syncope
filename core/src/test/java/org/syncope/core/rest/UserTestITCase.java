@@ -522,12 +522,12 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{userId}?password=password123",
-                Boolean.class, newUserTO.getId());
+        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+                Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
-        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{userId}?password=passwordXX",
-                Boolean.class, newUserTO.getId());
+        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=passwordXX",
+                Boolean.class, newUserTO.getUsername());
         assertFalse(verify);
 
         // 4. try (and fail) to create another user with same (unique) values

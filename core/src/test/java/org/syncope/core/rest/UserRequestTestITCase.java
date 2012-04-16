@@ -159,8 +159,8 @@ public class UserRequestTestITCase extends AbstractTest {
         super.setupRestTemplate();
 
         // 7. user password has not changed yet
-        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{userId}?password="
-                + userMod.getPassword(), Boolean.class, userTO.getId());
+        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password="
+                + userMod.getPassword(), Boolean.class, userTO.getUsername());
         assertFalse(verify);
 
         // 8. actually update user
@@ -168,8 +168,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 9. user password has now changed
-        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{userId}?password=" + userMod.getPassword(),
-                Boolean.class, userTO.getId());
+        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=" + userMod.getPassword(),
+                Boolean.class, userTO.getUsername());
         assertTrue(verify);
     }
 

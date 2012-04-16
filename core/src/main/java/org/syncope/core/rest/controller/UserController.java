@@ -109,15 +109,15 @@ public class UserController {
     private ConnObjectUtil connObjectUtil;
 
     @PreAuthorize("hasRole('USER_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{userId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{username}")
     @Transactional(readOnly = true)
-    public ModelAndView verifyPassword(@PathVariable("userId") Long userId,
+    public ModelAndView verifyPassword(@PathVariable("username") String username,
             @RequestParam("password") final String password) throws NotFoundException, UnauthorizedRoleException {
 
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
-                "Verified password for: " + userId);
+                "Verified password for: " + username);
 
-        return new ModelAndView().addObject(userDataBinder.verifyPassword(userId, password));
+        return new ModelAndView().addObject(userDataBinder.verifyPassword(username, password));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")

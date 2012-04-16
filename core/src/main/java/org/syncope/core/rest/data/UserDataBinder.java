@@ -92,10 +92,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public boolean verifyPassword(final Long userId, final String password)
+    public boolean verifyPassword(final String username, final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = getUserFromId(userId);
+        SyncopeUser user = getUserFromUsername(username);
 
         SyncopeUser passwordUser = new SyncopeUser();
         passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
