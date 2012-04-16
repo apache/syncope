@@ -196,9 +196,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read")
+    @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO read(@RequestParam("username") final String username)
+    public UserTO read(@PathVariable final String username)
             throws NotFoundException, UnauthorizedRoleException {
 
         UserTO result = userDataBinder.getUserTO(username);
@@ -440,8 +440,8 @@ public class UserController {
     }
     
     @PreAuthorize("hasRole('USER_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete")
-    public UserTO delete(@RequestParam("username") final String username)
+    @RequestMapping(method = RequestMethod.GET, value = "/deleteByUsername/{username}")
+    public UserTO delete(@PathVariable final String username)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", username);
         

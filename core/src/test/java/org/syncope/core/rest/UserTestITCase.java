@@ -779,7 +779,7 @@ public class UserTestITCase extends AbstractTest {
 
         long id = userTO.getId();
         userTO = 
-            restTemplate.getForObject(BASE_URL + "user/delete?username=" + userTO.getUsername(), UserTO.class);
+            restTemplate.getForObject(BASE_URL + "user/deleteByUsername/{username}.json", UserTO.class, userTO.getUsername());
 
         assertNotNull(userTO);
         assertEquals(id, userTO.getId());

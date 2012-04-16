@@ -318,7 +318,8 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);
 
         // check for user template
-        userTO = restTemplate.getForObject(BASE_URL + "user/read.json?username=test7", UserTO.class);
+        userTO = 
+            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test7");
         assertNotNull(userTO);
         assertEquals("TYPE_OTHER", userTO.getAttributeMap().get("type").getValues().get(0));
         assertEquals(2, userTO.getResources().size());
@@ -327,7 +328,8 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().size());
         assertTrue(userTO.getMemberships().get(0).getAttributeMap().containsKey("subscriptionDate"));
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read.json?username=test8", UserTO.class);
+        userTO = 
+            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test8");
         assertNotNull(userTO);
         assertEquals("TYPE_8", userTO.getAttributeMap().get("type").getValues().get(0));
 
@@ -340,11 +342,13 @@ public class TaskTestITCase extends AbstractTest {
         // * expected disabled user test1
         // * expected enabled user test2
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read.json?username=test1", UserTO.class);
+        userTO = 
+            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test1");
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read.json?username=test3", UserTO.class);
+        userTO = 
+            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test3");
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -416,7 +420,8 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-        final UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read.json?username=testuser1", UserTO.class);
+        final UserTO userTO = 
+            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
 
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.org", userTO.getAttributeMap().get("userId").getValues().get(0));
