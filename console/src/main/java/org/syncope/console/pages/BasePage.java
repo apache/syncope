@@ -151,7 +151,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
             editProfileFrag = new Fragment("editProfile", "editProfileFrag", this);
 
-            AjaxLink editProfileLink = new IndicatingAjaxLink("link") {
+            final AjaxLink editProfileLink = new IndicatingAjaxLink("link") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -162,7 +162,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                         @Override
                         public Page createPage() {
                             return new UserRequestModalPage(BasePage.this.getPageReference(), editProfileModalWin,
-                                    userTO);
+                                    userTO, UserModalPage.Mode.SELF);
                         }
                     });
 

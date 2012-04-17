@@ -49,6 +49,7 @@ public abstract class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
+
     }
 
     private static final long serialVersionUID = 5002005009737457667L;
@@ -59,7 +60,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
     protected UserTO userTO;
 
-    private final Mode mode;
+    protected final Mode mode;
 
     private Fragment fragment = null;
 
@@ -194,7 +195,6 @@ public abstract class UserModalPage extends BaseModalPage {
                     }
 
                     closeAction(target, form);
-
                 } catch (Exception e) {
                     LOG.error("While creating or updating user", e);
                     error(getString("error") + ":" + e.getMessage());

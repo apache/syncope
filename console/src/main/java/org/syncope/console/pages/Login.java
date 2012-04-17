@@ -99,7 +99,7 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[] { Locale.ENGLISH, Locale.ITALIAN }));
+        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
 
         form.add(languageSelect);
 
@@ -141,7 +141,7 @@ public class Login extends WebPage {
         if (isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            AjaxLink selfRegLink = new IndicatingAjaxLink("link") {
+            final AjaxLink selfRegLink = new IndicatingAjaxLink("link") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -154,7 +154,7 @@ public class Login extends WebPage {
                         @Override
                         public Page createPage() {
                             return new UserRequestModalPage(Login.this.getPageReference(), editProfileModalWin,
-                                    new UserTO());
+                                    new UserTO(), UserModalPage.Mode.SELF);
                         }
                     });
 
@@ -174,8 +174,8 @@ public class Login extends WebPage {
 
     private String[] authenticate(final String userId, final String password) {
         // 1. Set provided credentials to check
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
 
@@ -204,8 +204,8 @@ public class Login extends WebPage {
     }
 
     private String getCoreVersion() {
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
 
         String version = "";
         try {

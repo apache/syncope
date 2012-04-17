@@ -47,19 +47,19 @@ public class UserRequestModalPage extends UserModalPage {
 
     private UserRequestTO userRequestTO;
 
-    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
+    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO,
+            final Mode mode) {
 
-        super(callerPageRef, window, userTO, Mode.SELF, false);
+        super(callerPageRef, window, userTO, mode, false);
 
         setupEditPanel();
     }
 
     public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window,
-            final UserRequestTO userRequestTO) {
+            final UserRequestTO userRequestTO, final Mode mode) {
 
-        super(callerPageRef, window, null, Mode.SELF, false);
+        super(callerPageRef, window, null, mode, false);
 
-        // evaluate userTO ...
         switch (userRequestTO.getType()) {
             case CREATE:
                 userTO = userRequestTO.getUserTO();
@@ -81,9 +81,9 @@ public class UserRequestModalPage extends UserModalPage {
         setupEditPanel();
     }
 
-    public UserRequestModalPage(final ModalWindow window, final UserTO userTO) {
+    public UserRequestModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
 
-        super(window, userTO, Mode.SELF);
+        super(window, userTO, mode);
     }
 
     @Override
@@ -91,20 +91,48 @@ public class UserRequestModalPage extends UserModalPage {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
-            requestRestClient.requestCreate(updatedUserTO);
-        } else {
-            final UserMod userMod = AttributableOperations.diff(updatedUserTO, userRestClient.read(updatedUserTO
-                    .getId()));
+            switch (mode) {
+                case SELF:
+                    requestRestClient.requestCreate(updatedUserTO);
+                    break;
 
-            // update user just if it is changed
+                case ADMIN:
+                    userRestClient.create(updatedUserTO);
+                    if (userRequestTO != null) {
+                        requestRestClient.delete(userRequestTO.getId());
+                    }
+                    break;
+
+                default:
+                    LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
+            }
+        } else {
+            final UserMod userMod = AttributableOperations.diff(updatedUserTO,
+                    userRestClient.read(updatedUserTO.getId()));
+
+            // update user only if it has changed
             if (!userMod.isEmpty()) {
-                requestRestClient.requestUpdate(userMod);
+                switch (mode) {
+                    case SELF:
+                        requestRestClient.requestUpdate(userMod);
+                        break;
+
+                    case ADMIN:
+                        userRestClient.update(userMod);
+                        if (userRequestTO != null) {
+                            requestRestClient.delete(userRequestTO.getId());
+                        }
+                        break;
+
+                    default:
+                        LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
+                }
             }
         }
     }
 
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
-        setResponsePage(new UserRequestModalPage(window, userTO));
+        setResponsePage(new UserRequestModalPage(window, userTO, mode));
     }
 }

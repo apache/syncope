@@ -202,8 +202,8 @@ public class Todo extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_APPROVAL_PAGINATOR_ROWS, String
-                        .valueOf(approvalPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_APPROVAL_PAGINATOR_ROWS, String.valueOf(
+                        approvalPaginatorRows));
                 approvalTable.setItemsPerPage(approvalPaginatorRows);
 
                 target.add(approvalContainer);
@@ -262,8 +262,8 @@ public class Todo extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new UserRequestModalPage(Todo.this.getPageReference(), editUserRequestWin, model
-                                        .getObject());
+                                return new UserRequestModalPage(Todo.this.getPageReference(), editUserRequestWin,
+                                        model.getObject(), UserModalPage.Mode.ADMIN);
                             }
                         });
 
@@ -330,8 +330,8 @@ public class Todo extends BasePage {
 
         Form userRequestPaginatorForm = new Form("userRequestPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(userRequestPaginatorForm, RENDER, xmlRolesReader
-                .getAllAllowedRoles("UserRequest", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(userRequestPaginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+                "UserRequest", "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "userRequestPaginatorRows"), prefMan.getPaginatorChoices());
@@ -342,8 +342,8 @@ public class Todo extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_USER_REQUEST_PAGINATOR_ROWS, String
-                        .valueOf(userRequestPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_USER_REQUEST_PAGINATOR_ROWS, String.valueOf(
+                        userRequestPaginatorRows));
                 userRequestTable.setItemsPerPage(userRequestPaginatorRows);
 
                 target.add(userRequestContainer);
