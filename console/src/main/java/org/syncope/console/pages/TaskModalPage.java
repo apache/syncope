@@ -199,7 +199,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         public TaskExecutionsProvider(final TaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
-            setSort("startDate", SortOrder.ASCENDING);
+            setSort("startDate", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
