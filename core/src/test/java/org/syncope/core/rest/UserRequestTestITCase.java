@@ -185,7 +185,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 2. try to request user delete as admin: failure
         SyncopeClientException exception = null;
         try {
-            restTemplate.postForObject(BASE_URL + "user/request/delete/", userTO.getId(), UserRequestTO.class);
+            restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}", UserRequestTO.class, userTO.getId());
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
@@ -199,8 +199,8 @@ public class UserRequestTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), initialPassword));
 
         // 4. now request user delete works
-        UserRequestTO request = restTemplate.postForObject(BASE_URL + "user/request/delete", userTO.getId(),
-                UserRequestTO.class);
+        UserRequestTO request = restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}", 
+                UserRequestTO.class, userTO.getId());
         assertNotNull(request);
 
         // 5. switch back to admin

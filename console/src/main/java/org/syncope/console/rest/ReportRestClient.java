@@ -66,8 +66,8 @@ public class ReportRestClient extends AbstractBaseRestClient implements Executio
      *
      * @param reportId report to delete
      */
-    public void delete(final Long reportId) {
-        restTemplate.delete(baseURL + "report/delete/{reportId}", reportId);
+    public ReportTO delete(final Long reportId) {
+        return restTemplate.getForObject(baseURL + "report/delete/{reportId}", ReportTO.class, reportId);
     }
 
     /**

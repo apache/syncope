@@ -65,7 +65,10 @@ public class VirtualSchemaTestITCase extends AbstractTest {
                 VirtualSchemaTO.class);
         assertNotNull(schema);
 
-        restTemplate.delete(BASE_URL + "virtualSchema/role/delete/{schema}", schema.getName());
+        VirtualSchemaTO deletedSchema = 
+            restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class, 
+                    schema.getName());
+        assertNotNull(deletedSchema);
 
         Throwable t = null;
         try {

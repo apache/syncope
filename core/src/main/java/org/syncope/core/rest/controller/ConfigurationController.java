@@ -90,14 +90,16 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{key}")
-    public void delete(@PathVariable("key") final String key) throws MissingConfKeyException {
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{key}")
+    public ConfigurationTO delete(@PathVariable("key") final String key) throws MissingConfKeyException {
 
-        confDAO.find(key);
+        SyncopeConf conf = confDAO.find(key);
+        ConfigurationTO confToDelete = configurationDataBinder.getConfigurationTO(conf);
         confDAO.delete(key);
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.delete, Result.success,
                 "Successfully deleted conf: " + key);
+        return confToDelete;
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")

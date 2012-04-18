@@ -161,13 +161,16 @@ public class LoggerController extends AbstractController {
         }
     }
 
-    private void delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
+    private LoggerTO delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
             throw new NotFoundException("Logger " + name);
         } else if (expectedType != syncopeLogger.getType()) {
             throwInvalidLogger(expectedType);
         }
+        
+        LoggerTO loggerToDelete = new LoggerTO();
+        BeanUtils.copyProperties(syncopeLogger, loggerToDelete);
 
         // remove SyncopeLogger from local storage, so that LoggerLoader won't load this next time
         loggerDAO.delete(syncopeLogger);
@@ -179,12 +182,14 @@ public class LoggerController extends AbstractController {
 
         auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
                 "Successfully deleted logger %s (%s)", name, expectedType));
+        
+        return loggerToDelete;
     }
 
     @PreAuthorize("hasRole('LOG_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/log/delete/{name}")
-    public void deleteLog(@PathVariable("name") final String name) throws NotFoundException {
-        delete(name, SyncopeLoggerType.LOG);
+    @RequestMapping(method = RequestMethod.GET, value = "/log/delete/{name}")
+    public LoggerTO deleteLog(@PathVariable("name") final String name) throws NotFoundException {
+        return delete(name, SyncopeLoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_DISABLE')")

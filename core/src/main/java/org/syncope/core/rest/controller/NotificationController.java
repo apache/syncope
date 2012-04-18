@@ -121,8 +121,8 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{notificationId}")
-    public void delete(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{notificationId}")
+    public NotificationTO delete(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
 
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
@@ -130,10 +130,14 @@ public class NotificationController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(notificationId));
         }
+        
+        NotificationTO notificationToDelete = binder.getNotificationTO(notification);
 
         auditManager.audit(Category.notification, NotificationSubCategory.delete, Result.success,
                 "Successfully deleted notification: " + notification.getId());
 
         notificationDAO.delete(notificationId);
+        
+        return notificationToDelete;
     }
 }

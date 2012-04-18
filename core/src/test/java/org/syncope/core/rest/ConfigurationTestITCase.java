@@ -45,7 +45,8 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void delete() throws UnsupportedEncodingException {
 
         try {
-            restTemplate.delete(BASE_URL + "configuration/delete/{key}.json", "nonExistent");
+            restTemplate.getForObject(
+                    BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "nonExistent");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -53,7 +54,10 @@ public class ConfigurationTestITCase extends AbstractTest {
         ConfigurationTO tokenLengthTO = restTemplate.getForObject(BASE_URL + "configuration/read/{key}.json",
                 ConfigurationTO.class, "token.length");
 
-        restTemplate.delete(BASE_URL + "configuration/delete/{key}.json", "token.length");
+        ConfigurationTO deletedConfig =
+                restTemplate.getForObject(
+                        BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "token.length");
+        assertNotNull(deletedConfig);
         try {
             restTemplate
                     .getForObject(BASE_URL + "configuration/read/{key}.json", ConfigurationTO.class, "token.length");

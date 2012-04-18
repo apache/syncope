@@ -60,7 +60,7 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
     /**
      * Delete a configuration by key.
      */
-    public void deleteConfiguration(final String key) {
-        restTemplate.delete(baseURL + "configuration/delete/{key}.json", key);
+    public ConfigurationTO deleteConfiguration(final String key) {
+        return restTemplate.getForObject(baseURL + "configuration/delete/{key}.json", ConfigurationTO.class, key);
     }
 }

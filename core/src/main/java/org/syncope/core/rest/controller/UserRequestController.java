@@ -179,8 +179,8 @@ public class UserRequestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.POST, value = "/delete")
-    public UserRequestTO delete(@RequestBody final Long userId) throws NotFoundException, UnauthorizedRoleException {
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{requestId}")
+    public UserRequestTO delete(@PathVariable("requestId") final Long userId) throws NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("Request user delete called with {}", userId);
 
@@ -201,17 +201,21 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/deleteRequest/{requestId}")
-    public void deleteRequest(@PathVariable("requestId") final Long requestId) throws NotFoundException {
+    @RequestMapping(method = RequestMethod.GET, value = "/deleteRequest/{requestId}")
+    public UserRequestTO deleteRequest(@PathVariable("requestId") final Long requestId) throws NotFoundException {
 
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
             throw new NotFoundException("User request " + requestId);
         }
+        
+        UserRequestTO requestToDelete = dataBinder.getUserRequestTO(request);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
                 "Successfully deleted user request for user" + request.getUserId());
 
         userRequestDAO.delete(requestId);
+        
+        return requestToDelete;
     }
 }

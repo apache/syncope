@@ -84,13 +84,15 @@ public class RoleController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{roleId}")
-    public void delete(@PathVariable("roleId") final Long roleId) throws NotFoundException, UnauthorizedRoleException {
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
+    public RoleTO delete(@PathVariable("roleId") final Long roleId) throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             throw new NotFoundException("Role " + roleId);
         }
+        
+        RoleTO roleToDelete = roleDataBinder.getRoleTO(role);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (!allowedRoleIds.contains(role.getId())) {
@@ -101,6 +103,8 @@ public class RoleController extends AbstractController {
                 "Successfully deleted role: " + role.getId());
 
         roleDAO.delete(roleId);
+        
+        return roleToDelete;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/list")

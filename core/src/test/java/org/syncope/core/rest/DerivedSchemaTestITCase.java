@@ -67,7 +67,10 @@ public class DerivedSchemaTestITCase extends AbstractTest {
                 DerivedSchemaTO.class);
         assertNotNull(schema);
 
-        restTemplate.delete(BASE_URL + "derivedSchema/role/delete/{schema}", schema.getName());
+        DerivedSchemaTO schemaToDelete =
+                restTemplate.getForObject(
+                    BASE_URL + "derivedSchema/role/delete/{schema}", DerivedSchemaTO.class, schema.getName());
+        assertNotNull(schemaToDelete);
 
         Throwable t = null;
         try {

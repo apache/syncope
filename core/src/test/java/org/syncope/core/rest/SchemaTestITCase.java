@@ -110,7 +110,9 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        restTemplate.delete(BASE_URL + "schema/user/delete/cool.json");
+        SchemaTO deletedSchema = 
+            restTemplate.getForObject(BASE_URL + "schema/user/delete/cool.json", SchemaTO.class);
+        assertNotNull(deletedSchema);
         SchemaTO firstname = null;
         try {
             firstname = restTemplate.getForObject(BASE_URL + "schema/user/read/cool.json", SchemaTO.class);

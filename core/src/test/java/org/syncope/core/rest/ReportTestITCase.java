@@ -136,7 +136,9 @@ public class ReportTestITCase extends AbstractTest {
         report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        restTemplate.delete(BASE_URL + "report/delete/{reportId}", report.getId());
+        ReportTO deletedReport = 
+                restTemplate.getForObject(BASE_URL + "report/delete/{reportId}", ReportTO.class, report.getId());
+        assertNotNull(deletedReport);
 
         try {
             restTemplate.getForObject(BASE_URL + "report/read/{reportId}", UserTO.class, report.getId());

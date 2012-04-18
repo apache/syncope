@@ -131,8 +131,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      *
      * @param taskId task to delete
      */
-    public void delete(final Long taskId) {
-        restTemplate.delete(baseURL + "task/delete/{taskId}", taskId);
+    public TaskTO delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
+        return restTemplate.getForObject(baseURL + "task/delete/{taskId}", taskToClass, taskId);
     }
 
     @Override

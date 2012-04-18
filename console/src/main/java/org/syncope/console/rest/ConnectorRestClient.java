@@ -82,8 +82,9 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         restTemplate.postForObject(baseURL + "connector/update.json", connectorTO, ConnInstanceTO.class);
     }
 
-    public void delete(Long id) {
-        restTemplate.delete(baseURL + "connector/delete/{connectorId}.json", id.toString());
+    public ConnInstanceTO delete(Long id) {
+        return restTemplate.getForObject(baseURL + "connector/delete/{connectorId}.json", 
+                                         ConnInstanceTO.class, id.toString());
     }
 
     public List<ConnBundleTO> getAllBundles() {

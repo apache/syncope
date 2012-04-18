@@ -160,7 +160,12 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // check also for the deletion of the created object
         try {
-            restTemplate.delete(BASE_URL + "connector/delete/{connectorId}.json", String.valueOf(actual.getId()));
+            ConnInstanceTO deletedConn = restTemplate.getForObject(
+                BASE_URL + "connector/delete/{connectorId}.json", 
+                ConnInstanceTO.class, 
+                String.valueOf(actual.getId())
+            );
+            assertNotNull(deletedConn);
         } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
             t = e;
@@ -320,7 +325,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void deleteWithException() {
         try {
-            restTemplate.delete(BASE_URL + "connector/delete/{connectorId}.json", "0");
+            restTemplate.getForObject(
+                    BASE_URL + "connector/delete/{connectorId}.json", ConnInstanceTO.class, "0");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }

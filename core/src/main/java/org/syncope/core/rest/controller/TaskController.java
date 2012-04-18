@@ -416,8 +416,8 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{taskId}")
-    public void delete(@PathVariable("taskId") final Long taskId)
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{taskId}")
+    public TaskTO delete(@PathVariable("taskId") final Long taskId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         Task task = taskDAO.find(taskId);
@@ -425,6 +425,8 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
         TaskUtil taskUtil = getTaskUtil(task);
+        
+        TaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
 
         if (TaskUtil.SCHED == taskUtil || TaskUtil.SYNC == taskUtil) {
             jobInstanceLoader.unregisterJob(task);
@@ -434,21 +436,26 @@ public class TaskController extends AbstractController {
 
         auditManager.audit(Category.task, TaskSubCategory.delete, Result.success,
                 "Successfully deleted task: " + task.getId() + "/" + taskUtil);
+        
+        return taskToDelete;
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/execution/delete/{executionId}")
-    public void deleteExecution(@PathVariable("executionId") final Long executionId)
+    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
+    public TaskExecTO deleteExecution(@PathVariable("executionId") final Long executionId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
         }
+        
+        TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
 
         taskExecDAO.delete(taskExec);
 
         auditManager.audit(Category.task, TaskSubCategory.deleteExecution, Result.success,
                 "Successfully deleted task execution: " + taskExec.getId());
+        return taskExecutionToDelete;
     }
 }

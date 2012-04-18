@@ -201,8 +201,9 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public void deleteSchema(final AttributableType type, String name) {
-        restTemplate.delete(baseURL + "schema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
+    public SchemaTO deleteSchema(final AttributableType type, String name) {
+        return restTemplate.getForObject(baseURL + "schema/" + type.name().toLowerCase() + "/delete/" 
+                + name + ".json", SchemaTO.class);
     }
 
     /**
@@ -267,8 +268,9 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      *
      * @param name (e.g.:surname)
      */
-    public void deleteDerivedSchema(final AttributableType type, String name) {
-        restTemplate.delete(baseURL + "derivedSchema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
+    public DerivedSchemaTO deleteDerivedSchema(final AttributableType type, String name) {
+        return restTemplate.getForObject(baseURL + "derivedSchema/" + type.name().toLowerCase() + "/delete/" + name 
+                                         + ".json", DerivedSchemaTO.class);
     }
 
     /**
@@ -276,8 +278,9 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      *
      * @param name (e.g.:surname)
      */
-    public void deleteVirtualSchema(final AttributableType type, final String name) {
-        restTemplate.delete(baseURL + "virtualSchema/" + type.name().toLowerCase() + "/delete/" + name + ".json");
+    public VirtualSchemaTO deleteVirtualSchema(final AttributableType type, final String name) {
+        return restTemplate.getForObject(baseURL + "virtualSchema/" + type.name().toLowerCase() + "/delete/" + name 
+                                         + ".json", VirtualSchemaTO.class);
     }
 
     /**

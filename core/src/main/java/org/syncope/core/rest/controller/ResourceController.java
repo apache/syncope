@@ -123,19 +123,23 @@ public class ResourceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('RESOURCE_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{resourceName}")
-    public void delete(@PathVariable("resourceName") final String resourceName)
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{resourceName}")
+    public ResourceTO delete(@PathVariable("resourceName") final String resourceName)
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
+        
+        ResourceTO resourceToDelete = binder.getResourceTO(resource);
 
         auditManager.audit(Category.resource, ResourceSubCategory.delete, Result.success,
                 "Successfully deleted resource: " + resource.getName());
 
         resourceDAO.delete(resourceName);
+        
+        return resourceToDelete;
     }
 
     @PreAuthorize("hasRole('RESOURCE_READ')")

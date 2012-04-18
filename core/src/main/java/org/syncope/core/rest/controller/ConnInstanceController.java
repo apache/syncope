@@ -149,8 +149,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{connectorId}")
-    public void delete(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{connectorId}")
+    public ConnInstanceTO delete(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
         if (connInstance == null) {
@@ -169,10 +169,14 @@ public class ConnInstanceController extends AbstractController {
             scce.addException(invalidConnInstance);
             throw scce;
         }
+        
+        ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
 
         connInstanceDAO.delete(connectorId);
         auditManager.audit(Category.connector, ConnectorSubCategory.delete, Result.success,
                 "Successfully deleted connector instance: " + connectorId);
+        
+        return connToDelete;
     }
 
     @PreAuthorize("hasRole('CONNECTOR_LIST')")

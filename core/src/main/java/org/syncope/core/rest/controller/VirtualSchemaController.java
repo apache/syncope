@@ -70,8 +70,8 @@ public class VirtualSchemaController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{kind}/delete/{schema}")
-    public void delete(@PathVariable("kind") final String kind,
+    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
+    public VirtualSchemaTO delete(@PathVariable("kind") final String kind,
             @PathVariable("schema") final String virtualSchemaName) throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).virtualSchemaClass();
@@ -80,10 +80,12 @@ public class VirtualSchemaController extends AbstractController {
             throw new NotFoundException("Virtual schema '" + virtualSchemaName + "'");
         }
 
+        VirtualSchemaTO schemaToDelete = virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
         virtualSchemaDAO.delete(virtualSchemaName, getAttributableUtil(kind));
 
         auditManager.audit(Category.schema, SchemaSubCategory.deleteVirtual, Result.success,
                 "Successfully deleted virtual schema: " + kind + "/" + virtualSchema.getName());
+        return schemaToDelete;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")

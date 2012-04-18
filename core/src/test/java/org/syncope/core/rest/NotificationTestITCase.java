@@ -123,7 +123,9 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        restTemplate.delete(BASE_URL + "notification/delete/{notificationId}.json", "101");
+        NotificationTO deletedNotification = restTemplate.getForObject(
+                BASE_URL + "notification/delete/{notificationId}.json", NotificationTO.class, "101");
+        assertNotNull(deletedNotification);
 
         SyncopeClientException exception = null;
         try {

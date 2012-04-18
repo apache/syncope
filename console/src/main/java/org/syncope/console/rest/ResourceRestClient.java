@@ -61,7 +61,8 @@ public class ResourceRestClient extends AbstractBaseRestClient {
         restTemplate.postForObject(baseURL + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
-    public void delete(final String name) {
-        restTemplate.delete(baseURL + "resource/delete/{resourceName}.json", name);
+    public ResourceTO delete(final String name) {
+        return restTemplate.getForObject(baseURL + "resource/delete/{resourceName}.json", 
+                                         ResourceTO.class, name);
     }
 }

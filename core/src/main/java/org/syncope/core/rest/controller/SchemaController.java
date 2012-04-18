@@ -69,8 +69,8 @@ public class SchemaController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{kind}/delete/{schema}")
-    public void delete(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
+    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
+    public SchemaTO delete(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).schemaClass();
@@ -78,11 +78,15 @@ public class SchemaController extends AbstractController {
         if (schema == null) {
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
+        
+        SchemaTO schemaToDelete = schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
 
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
 
         auditManager.audit(Category.schema, SchemaSubCategory.delete, Result.success,
                 "Successfully deleted schema: " + kind + "/" + schema.getName());
+        
+        return schemaToDelete;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")

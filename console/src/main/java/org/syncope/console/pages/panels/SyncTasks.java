@@ -212,7 +212,7 @@ public class SyncTasks extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.delete(taskTO.getId());
+                            restClient.delete(taskTO.getId(), SyncTaskTO.class);
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());

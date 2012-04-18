@@ -69,8 +69,8 @@ public class DerivedSchemaController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{kind}/delete/{schema}")
-    public void delete(@PathVariable("kind") final String kind,
+    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
+    public DerivedSchemaTO delete(@PathVariable("kind") final String kind,
             @PathVariable("schema") final String derivedSchemaName) throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).derivedSchemaClass();
@@ -78,11 +78,15 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
         }
+        
+        DerivedSchemaTO schemaToDelete = derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
 
         derivedSchemaDAO.delete(derivedSchemaName, getAttributableUtil(kind));
 
         auditManager.audit(Category.schema, SchemaSubCategory.deleteDerived, Result.success,
                 "Successfully deleted derived schema: " + kind + "/" + derivedSchema.getName());
+        
+        return schemaToDelete;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")

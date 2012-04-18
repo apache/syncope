@@ -150,7 +150,9 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull("find to delete did not work", policyTO);
 
-        restTemplate.delete(BASE_URL + "policy/delete/{id}", 7L);
+        PolicyTO policyToDelete =
+                restTemplate.getForObject(BASE_URL + "policy/delete/{id}", SyncPolicyTO.class, 7L);
+        assertNotNull(policyToDelete);
 
         Throwable t = null;
         try {

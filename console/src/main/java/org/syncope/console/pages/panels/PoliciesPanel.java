@@ -178,7 +178,7 @@ public class PoliciesPanel extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
 
-                            policyRestClient.delete(accountPolicyTO.getId());
+                            policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
                             info(getString("operation_succeded"));
 
                         } catch (SyncopeClientCompositeErrorException e) {

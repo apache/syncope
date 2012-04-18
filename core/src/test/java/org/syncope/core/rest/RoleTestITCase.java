@@ -113,12 +113,13 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void delete() {
         try {
-            restTemplate.delete(BASE_URL + "role/delete/{roleId}", 0);
+            restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, 0);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
-        restTemplate.delete(BASE_URL + "role/delete/{roleId}", 5);
+        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, 5);
+        assertNotNull(deletedRole);
         try {
             restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 2);
         } catch (HttpStatusCodeException e) {

@@ -175,7 +175,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
         }
     }
 
-    public void delete(final Long id) {
-        restTemplate.delete(baseURL + "policy/delete/" + id);
+    public PolicyTO delete(final Long id, Class<? extends PolicyTO> policyClass) {
+        return restTemplate.getForObject(baseURL + "policy/delete/" + id, policyClass);
     }
 }

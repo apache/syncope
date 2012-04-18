@@ -315,7 +315,8 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void deleteWithException() {
         try {
-            restTemplate.delete(BASE_URL + "resource/delete/{resourceName}.json", "resourcenotfound");
+            restTemplate.getForObject(
+                BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -341,7 +342,10 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
-        restTemplate.delete(BASE_URL + "resource/delete/{resourceName}.json", resourceName);
+        ResourceTO deletedResource = 
+                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, 
+                        resourceName);
+        assertNotNull(deletedResource);
 
         try {
             restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class, resourceName);

@@ -63,8 +63,8 @@ public class LoggerRestClient extends AbstractBaseRestClient {
         restTemplate.put(baseURL + "logger/audit/enable", auditLoggerName);
     }
 
-    public void deleteLog(final String name) {
-        restTemplate.delete(baseURL + "logger/log/delete/{name}", name);
+    public LoggerTO deleteLog(final String name) {
+        return restTemplate.getForObject(baseURL + "logger/log/delete/{name}", LoggerTO.class, name);
     }
 
     public void disableAudit(final AuditLoggerName auditLoggerName) {

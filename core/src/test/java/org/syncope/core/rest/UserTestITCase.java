@@ -203,7 +203,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(policyTO);
 
-        restTemplate.delete(BASE_URL + "policy/delete/{id}", 2L);
+        restTemplate.getForObject(BASE_URL + "policy/delete/{id}", PasswordPolicyTO.class, 2L);
 
         UserTO userTO = new UserTO();
         userTO.setUsername("issue172@syncope-idm.org");

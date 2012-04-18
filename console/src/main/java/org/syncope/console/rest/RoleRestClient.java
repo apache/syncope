@@ -82,11 +82,11 @@ public class RoleRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Delete an already existent role by its name.
-     * @param name (e.g.:surname)
-     * @return schemaTO
+     * Delete an already existent role by its id.
+     * @param name (e.g.:rolename)
+     * @return roleTO
      */
-    public void deleteRole(Long id) {
-        restTemplate.delete(baseURL + "role/delete/{roleId}.json", id);
+    public RoleTO deleteRole(Long id) {
+        return restTemplate.getForObject(baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
     }
 }

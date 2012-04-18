@@ -391,14 +391,16 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{reportId}")
-    public void delete(@PathVariable("reportId") final Long reportId)
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{reportId}")
+    public ReportTO delete(@PathVariable("reportId") final Long reportId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
         }
+        
+        ReportTO deletedReport = binder.getReportTO(report);
 
         jobInstanceLoader.unregisterJob(report);
 
@@ -406,11 +408,13 @@ public class ReportController extends AbstractController {
 
         auditManager.audit(Category.report, ReportSubCategory.delete, Result.success,
                 "Successfully deleted report: " + report.getId());
+        
+        return deletedReport;
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/execution/delete/{executionId}")
-    public void deleteExecution(@PathVariable("executionId") final Long executionId)
+    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
+    public ReportExecTO deleteExecution(@PathVariable("executionId") final Long executionId)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
         ReportExec reportExec = reportExecDAO.find(executionId);
@@ -418,9 +422,13 @@ public class ReportController extends AbstractController {
             throw new NotFoundException("Report execution " + executionId);
         }
 
+        ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);
+                
         reportExecDAO.delete(reportExec);
 
         auditManager.audit(Category.report, ReportSubCategory.deleteExecution, Result.success,
                 "Successfully deleted report execution: " + reportExec.getId());
+        
+        return reportExecToDelete;
     }
 }

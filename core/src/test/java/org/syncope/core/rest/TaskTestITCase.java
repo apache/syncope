@@ -167,11 +167,10 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void deal() {
         try {
-            restTemplate.delete(BASE_URL + "task/delete/{taskId}", 0);
+            restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", TaskTO.class, 0);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
-
         TaskExecTO execution = restTemplate
                 .postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 1);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), execution.getStatus());
@@ -181,7 +180,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUCCESS.name(), execution.getStatus());
         assertEquals("OK", execution.getMessage());
 
-        restTemplate.delete(BASE_URL + "task/delete/{taskId}", 1);
+        restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", PropagationTaskTO.class, 1);
         try {
             restTemplate.getForObject(BASE_URL + "task/execution/read/{executionId}", TaskExecTO.class, execution
                     .getId());
