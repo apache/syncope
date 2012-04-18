@@ -299,7 +299,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <includes>org/syncope/core/persistence/beans/**/*.class</includes>
+          <includes>org/apache/syncope/core/persistence/beans/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
             driverClassName=org.h2.Driver,

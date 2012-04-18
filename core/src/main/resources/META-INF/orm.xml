@@ -28,7 +28,7 @@ under the License.
   <table-generator name="SEQ_RAttrValue" pk-column-value="SEQ_RAttrValue" initial-value="100"/>
   <table-generator name="SEQ_MAttrValue" pk-column-value="SEQ_MAttrValue" initial-value="100"/>
 
-  <entity class="org.syncope.core.persistence.beans.user.SyncopeUser">
+  <entity class="org.apache.syncope.core.persistence.beans.user.SyncopeUser">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_SyncopeUser" strategy="TABLE"/>
@@ -37,7 +37,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.role.SyncopeRole">
+  <entity class="org.apache.syncope.core.persistence.beans.role.SyncopeRole">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_SyncopeRole" strategy="TABLE"/>
@@ -46,7 +46,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.membership.Membership">
+  <entity class="org.apache.syncope.core.persistence.beans.membership.Membership">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Membership" strategy="TABLE"/>
@@ -55,7 +55,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.SchemaMapping">
+  <entity class="org.apache.syncope.core.persistence.beans.SchemaMapping">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_SchemaMapping" strategy="TABLE"/>
@@ -64,7 +64,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.ConnInstance">
+  <entity class="org.apache.syncope.core.persistence.beans.ConnInstance">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ConnInstance" strategy="TABLE"/>
@@ -73,7 +73,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.user.UAttr">
+  <entity class="org.apache.syncope.core.persistence.beans.user.UAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UAttr" strategy="TABLE"/>
@@ -81,7 +81,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.role.RAttr">
+  <entity class="org.apache.syncope.core.persistence.beans.role.RAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RAttr" strategy="TABLE"/>
@@ -89,7 +89,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.membership.MAttr">
+  <entity class="org.apache.syncope.core.persistence.beans.membership.MAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_MAttr" strategy="TABLE"/>
@@ -98,14 +98,14 @@ under the License.
     </attributes>
   </entity>
     
-  <entity class="org.syncope.core.persistence.beans.user.UAttrValue">
+  <entity class="org.apache.syncope.core.persistence.beans.user.UAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.user.UAttrUniqueValue">
+  <entity class="org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -134,14 +134,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.role.RAttrValue">
+  <entity class="org.apache.syncope.core.persistence.beans.role.RAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.role.RAttrUniqueValue">
+  <entity class="org.apache.syncope.core.persistence.beans.role.RAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -170,14 +170,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.membership.MAttrValue">
+  <entity class="org.apache.syncope.core.persistence.beans.membership.MAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_MAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.membership.MAttrUniqueValue">
+  <entity class="org.apache.syncope.core.persistence.beans.membership.MAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -207,7 +207,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.Task">
+  <entity class="org.apache.syncope.core.persistence.beans.Task">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Task" strategy="TABLE"/>
@@ -215,7 +215,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.TaskExec">
+  <entity class="org.apache.syncope.core.persistence.beans.TaskExec">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_TaskExec" strategy="TABLE"/>
@@ -224,7 +224,7 @@ under the License.
     </attributes>
   </entity>
     
-  <entity class="org.syncope.core.persistence.beans.Policy">
+  <entity class="org.apache.syncope.core.persistence.beans.Policy">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Policy" strategy="TABLE"/>
@@ -233,7 +233,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.syncope.core.persistence.beans.Report">
+  <entity class="org.apache.syncope.core.persistence.beans.Report">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Report" strategy="TABLE"/>
@@ -241,7 +241,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.ReportExec">
+  <entity class="org.apache.syncope.core.persistence.beans.ReportExec">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ReportExec" strategy="TABLE"/>
@@ -249,7 +249,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.syncope.core.persistence.beans.ReportletConfInstance">
+  <entity class="org.apache.syncope.core.persistence.beans.ReportletConfInstance">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ReportletConfInstance" strategy="TABLE"/>

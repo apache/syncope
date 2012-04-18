@@ -29,14 +29,14 @@ under the License.
        http://www.springframework.org/schema/oxm
        http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-  <context:component-scan base-package="org.syncope.core.rest.controller"/>
+  <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
 
   <bean id="adminUser" class="java.lang.String">
     <constructor-arg value="${adminUser}"/>
   </bean>
     
     <!-- JSON (via Jackson) -->
-  <bean id="jacksonObjectMapper" class="org.syncope.core.rest.data.UnwrappedObjectMapper"/>
+  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper"/>
   <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
     <property name="objectMapper" ref="jacksonObjectMapper"/>

@@ -38,13 +38,13 @@ under the License.
         </property>
         <property name="persistenceUnitPostProcessors">
             <list>
-                <bean class="org.syncope.core.util.SpringPersistenceUnitPostProcessor">
+                <bean class="org.apache.syncope.core.util.SpringPersistenceUnitPostProcessor">
                     <property name="locations">
                         <list>
-                            <value>classpath:org/syncope/core/persistence/beans/*.class</value>
-                            <value>classpath:org/syncope/core/persistence/beans/membership/*.class</value>
-                            <value>classpath:org/syncope/core/persistence/beans/role/*.class</value>
-                            <value>classpath:org/syncope/core/persistence/beans/user/*.class</value>
+                            <value>classpath:org/apache/syncope/core/persistence/beans/*.class</value>
+                            <value>classpath:org/apache/syncope/core/persistence/beans/membership/*.class</value>
+                            <value>classpath:org/apache/syncope/core/persistence/beans/role/*.class</value>
+                            <value>classpath:org/apache/syncope/core/persistence/beans/user/*.class</value>
                         </list>
                     </property>
                 </bean>

@@ -23,7 +23,7 @@ under the License.
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 version="1.0">
 
-  <xsl:template match="reportlet[@class='org.syncope.core.report.UserReportlet']">
+  <xsl:template match="reportlet[@class='org.apache.syncope.core.report.UserReportlet']">
 
     <fo:block font-size="14pt" font-weight="bold" space-after="0.5cm">Reportlet: <xsl:value-of select="@name"/></fo:block>
 

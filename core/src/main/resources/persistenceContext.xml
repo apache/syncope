@@ -35,9 +35,9 @@ under the License.
   <import resource="persistenceContextEMFactory.xml"/>
 
   <context:annotation-config/>
-  <context:component-scan base-package="org.syncope.core.persistence"/>
-  <context:component-scan base-package="org.syncope.core.rest.data"/>
-  <context:component-scan base-package="org.syncope.core.policy"/>
+  <context:component-scan base-package="org.apache.syncope.core.persistence"/>
+  <context:component-scan base-package="org.apache.syncope.core.rest.data"/>
+  <context:component-scan base-package="org.apache.syncope.core.policy"/>
 
   <aop:aspectj-autoproxy/>
 

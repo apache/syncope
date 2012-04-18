@@ -25,7 +25,7 @@ under the License.
 
   <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
   <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
-  <bean id="httpClientFactory" class="org.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+  <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
     <constructor-arg value="localhost"/>
     <constructor-arg value="9080"/>
     <constructor-arg value="http"/>
@@ -37,7 +37,7 @@ under the License.
 
     <property name="errorHandler">
       <bean id="syncopeClientErrorHandler"
-                  class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+                  class="org.apache.syncope.client.validation.SyncopeClientErrorHandler"/>
     </property>
   </bean>
 

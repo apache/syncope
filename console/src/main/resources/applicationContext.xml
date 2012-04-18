@@ -36,7 +36,7 @@ under the License.
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <context:component-scan base-package="org.syncope.console.rest"/>
+  <context:component-scan base-package="org.apache.syncope.console.rest"/>
 
   <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -59,7 +59,7 @@ under the License.
     <constructor-arg value="authorizations.xml"/>
   </bean>
 
-  <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication"/>
+  <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>
 
   <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
         
@@ -70,7 +70,7 @@ under the License.
 
   <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
   <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
-  <bean id="httpClientFactory" class="org.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+  <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
     <constructor-arg value="${host}"/>
     <constructor-arg value="${port}"/>
     <constructor-arg value="${scheme}"/>
@@ -82,16 +82,16 @@ under the License.
 
     <property name="errorHandler">
       <bean id="syncopeClientErrorHandler"
-                  class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+                  class="org.apache.syncope.client.validation.SyncopeClientErrorHandler"/>
     </property>
   </bean>
 
-  <bean id="StatusUtils" class="org.syncope.console.commons.StatusUtils"/>
+  <bean id="StatusUtils" class="org.apache.syncope.console.commons.StatusUtils"/>
 
-  <bean id="preferenceManager" class="org.syncope.console.commons.PreferenceManager"/>
+  <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
 
-  <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader"/>
+  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader"/>
 
-  <bean id="roleTreeBuilder" class="org.syncope.console.commons.RoleTreeBuilder"/>
+  <bean id="roleTreeBuilder" class="org.apache.syncope.console.commons.RoleTreeBuilder"/>
 
 </beans>

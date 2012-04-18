@@ -1,14 +1,14 @@
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@page import="org.syncope.client.SyncopeConstants"%>
+<%@page import="org.apache.syncope.client.SyncopeConstants"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.apache.openjpa.datacache.CacheStatisticsImpl"%>
 <%@page import="javax.persistence.EntityManagerFactory"%>
 <%@page import="org.apache.openjpa.persistence.OpenJPAPersistence"%>
 <%@page import="org.apache.openjpa.persistence.OpenJPAEntityManagerFactory"%>
-<%@page import="org.syncope.core.util.ApplicationContextManager"%>
+<%@page import="org.apache.syncope.core.util.ApplicationContextManager"%>
 <%@page import="org.springframework.context.ConfigurableApplicationContext"%>
 <%@page import="org.apache.openjpa.datacache.QueryKey"%>
 <%@page import="org.apache.openjpa.kernel.QueryStatistics"%>

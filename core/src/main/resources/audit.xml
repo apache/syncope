@@ -22,7 +22,7 @@ under the License.
   <property resource="persistence.properties"/>
   
   <appender name="audit" class="ch.qos.logback.classic.db.DBAppender">
-    <connectionSource class="org.syncope.core.audit.JNDIFallbackConnectionSource">
+    <connectionSource class="org.apache.syncope.core.audit.JNDIFallbackConnectionSource">
       <param name="jndiLocation" value="java:comp/env/jdbc/syncopeDataSource"/>
       <dataSource class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <param name="driverClassName" value="${jpa.driverClassName}"/>

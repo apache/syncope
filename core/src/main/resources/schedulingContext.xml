@@ -33,7 +33,7 @@ under the License.
     <property name="dataSource" ref="dataSource"/>
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobFactory">
-      <bean class="org.syncope.core.scheduling.SpringBeanJobFactory"/>
+      <bean class="org.apache.syncope.core.scheduling.SpringBeanJobFactory"/>
     </property>
     <property name="quartzProperties">
       <props>
@@ -51,5 +51,5 @@ under the License.
     </property>
   </bean>
     
-  <bean id="notificationJob" class="org.syncope.core.scheduling.NotificationJob"/>
+  <bean id="notificationJob" class="org.apache.syncope.core.scheduling.NotificationJob"/>
 </beans>

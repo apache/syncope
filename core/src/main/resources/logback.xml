@@ -82,26 +82,26 @@ under the License.
     </encoder>
   </appender>
 
-  <logger name="org.syncope.client" additivity="false">
+  <logger name="org.apache.syncope.client" additivity="false">
     <level value="OFF"/>
     <appender-ref ref="main"/>
   </logger>
 
-  <logger name="org.syncope.core.persistence" additivity="false">
+  <logger name="org.apache.syncope.core.persistence" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="persistence"/>
   </logger>
-  <logger name="org.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
+  <logger name="org.apache.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="persistence"/>
   </logger>
     
-  <logger name="org.syncope.core.security" additivity="false">
+  <logger name="org.apache.syncope.core.security" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="main"/>
   </logger>
 
-  <logger name="org.syncope.core.rest" additivity="false">
+  <logger name="org.apache.syncope.core.rest" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="rest"/>
   </logger>
@@ -110,7 +110,7 @@ under the License.
     <level value="DEBUG"/>
     <appender-ref ref="connid"/>
   </logger>
-  <logger name="org.syncope.core.connid" additivity="false">
+  <logger name="org.apache.syncope.core.connid" additivity="false">
     <level value="DEBUG"/>
     <appender-ref ref="connid"/>
   </logger>
@@ -119,7 +119,7 @@ under the License.
     <appender-ref ref="connid"/>
   </logger>
     
-  <logger name="org.syncope.core.test" additivity="false">
+  <logger name="org.apache.syncope.core.test" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="test"/>
   </logger>

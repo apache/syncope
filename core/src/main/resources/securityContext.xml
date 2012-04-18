@@ -28,7 +28,7 @@ under the License.
 
   <security:global-method-security pre-post-annotations="enabled"/>
 
-  <bean id="securityContextRepository" class='org.syncope.core.security.NullSecurityContextRepository'/>
+  <bean id="securityContextRepository" class='org.apache.syncope.core.security.NullSecurityContextRepository'/>
 
   <security:http security-context-repository-ref="securityContextRepository">
     <security:http-basic/>
@@ -36,12 +36,12 @@ under the License.
   </security:http>
 
   <bean id="syncopeUserDetailsService"
-          class="org.syncope.core.security.SyncopeUserDetailsService">
+          class="org.apache.syncope.core.security.SyncopeUserDetailsService">
     <property name="adminUser" value="${adminUser}"/>
   </bean>
 
   <bean id="syncopeAuthenticationProvider"
-          class="org.syncope.core.security.SyncopeAuthenticationProvider">
+          class="org.apache.syncope.core.security.SyncopeAuthenticationProvider">
     <property name="adminUser" value="${adminUser}"/>
     <property name="adminMD5Password" value="${adminMD5Password}"/>
     <property name="syncopeUserDetailsService" ref="syncopeUserDetailsService"/>

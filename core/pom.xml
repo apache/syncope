@@ -321,7 +321,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <includes>org/syncope/core/persistence/beans/**/*.class</includes>
+          <includes>org/apache/syncope/core/persistence/beans/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
             driverClassName=org.h2.Driver,
@@ -444,7 +444,7 @@ under the License.
                     <exclude name="**/workflow.properties" />
                   </patternset>
                 </unzip>
-                <copy file="${project.build.directory}/test-classes/org/syncope/core/scheduling/TestSyncJobActions.class" todir="${cargo.run.dir}/WEB-INF/classes/org/syncope/core/scheduling" />
+                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/scheduling/TestSyncJobActions.class" todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/scheduling" />
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">
@@ -1109,7 +1109,7 @@ under the License.
                   <arguments>
                     <argument>-classpath</argument>
                     <classpath />
-                    <argument>org.syncope.hibernate.HibernateEnhancer</argument>
+                    <argument>org.apache.syncope.hibernate.HibernateEnhancer</argument>
                     <argument>${project.build.directory}/classes</argument>
                   </arguments>
                 </configuration>
@@ -1240,7 +1240,7 @@ under the License.
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>2.9.1</version>
         <configuration>
-          <configLocation>org/syncope/checkstyle.xml</configLocation>
+          <configLocation>org/apache/syncope/checkstyle.xml</configLocation>
           <targetJdk>${targetJdk}</targetJdk>
         </configuration>
       </plugin>
@@ -1250,7 +1250,7 @@ under the License.
         <version>2.7.1</version>
         <configuration>
           <rulesets>
-            <ruleset>org/syncope/pmd.xml</ruleset>
+            <ruleset>org/apache/syncope/pmd.xml</ruleset>
           </rulesets>
           <targetJdk>${targetJdk}</targetJdk>
         </configuration>

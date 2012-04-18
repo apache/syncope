@@ -1,25 +1,25 @@
 <%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.springframework.orm.jpa.JpaSystemException"%>
-<%@page import="org.syncope.types.EntityViolationType"%>
+<%@page import="org.apache.syncope.types.EntityViolationType"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
-<%@page import="org.syncope.core.persistence.validation.entity.InvalidEntityException"%>
+<%@page import="org.apache.syncope.core.persistence.validation.entity.InvalidEntityException"%>
 <%@page import="javax.persistence.PersistenceException"%>
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
-<%@page import="org.syncope.core.rest.controller.InvalidSearchConditionException"%>
-<%@page import="org.syncope.core.rest.controller.UnauthorizedRoleException"%>
-<%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
-<%@page import="org.syncope.client.validation.SyncopeClientException"%>
-<%@page import="org.syncope.client.validation.SyncopeClientCompositeErrorException"%>
-<%@page import="org.syncope.core.propagation.PropagationException"%>
-<%@page import="org.syncope.core.workflow.WorkflowException"%>
-<%@page import="org.syncope.types.SyncopeClientExceptionType"%>
+<%@page import="org.apache.syncope.core.rest.controller.InvalidSearchConditionException"%>
+<%@page import="org.apache.syncope.core.rest.controller.UnauthorizedRoleException"%>
+<%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
+<%@page import="org.apache.syncope.client.validation.SyncopeClientException"%>
+<%@page import="org.apache.syncope.client.validation.SyncopeClientCompositeErrorException"%>
+<%@page import="org.apache.syncope.core.propagation.PropagationException"%>
+<%@page import="org.apache.syncope.core.workflow.WorkflowException"%>
+<%@page import="org.apache.syncope.types.SyncopeClientExceptionType"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
-<%@page import="org.syncope.client.validation.SyncopeClientErrorHandler"%>
+<%@page import="org.apache.syncope.client.validation.SyncopeClientErrorHandler"%>
 <%@page import="javassist.NotFoundException"%>
 <%@page import="org.slf4j.LoggerFactory"%>
 <%@page import="org.slf4j.Logger"%>
-<%@page import="org.syncope.core.rest.controller.AbstractController"%>
+<%@page import="org.apache.syncope.core.rest.controller.AbstractController"%>
 
 <%!    static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);%>
 

@@ -5,7 +5,7 @@
 <%@page import="java.sql.ResultSet"%>
 <%@page import="java.sql.Statement"%>
 <%@page import="java.sql.Connection"%>
-<%@page import="org.syncope.core.util.ApplicationContextManager"%>
+<%@page import="org.apache.syncope.core.util.ApplicationContextManager"%>
 <%@page import="org.springframework.context.ConfigurableApplicationContext"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%!

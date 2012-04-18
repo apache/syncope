@@ -38,11 +38,11 @@ under the License.
     <property name="ignoreUnresolvablePlaceholders" value="true" />
   </bean>
 
-  <bean class="org.syncope.core.util.ApplicationContextProvider"/>
+  <bean class="org.apache.syncope.core.util.ApplicationContextProvider"/>
 
-  <context:component-scan base-package="org.syncope.core.init"/>
-  <context:component-scan base-package="org.syncope.core.audit"/>
-  <context:component-scan base-package="org.syncope.core.util"/>
+  <context:component-scan base-package="org.apache.syncope.core.init"/>
+  <context:component-scan base-package="org.apache.syncope.core.audit"/>
+  <context:component-scan base-package="org.apache.syncope.core.util"/>
 
   <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
     <property name="dataSource" ref="dataSource"/>
@@ -66,14 +66,14 @@ under the License.
     </property>
   </bean>
   
-  <bean id="propagationManager" class="org.syncope.core.propagation.PropagationManager"/>
-  <bean id="notificationManager" class="org.syncope.core.notification.NotificationManager"/>
-  <bean id="auditManager" class="org.syncope.core.audit.AuditManager"/>
+  <bean id="propagationManager" class="org.apache.syncope.core.propagation.PropagationManager"/>
+  <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
+  <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
           
   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
     <property name="cache" value="512"/>
     <property name="lenient" value="true"/>
     <property name="silent" value="false"/>
   </bean>
-  <bean id="jexlUtil" class="org.syncope.core.util.JexlUtil"/>
+  <bean id="jexlUtil" class="org.apache.syncope.core.util.JexlUtil"/>
 </beans>
