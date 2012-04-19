@@ -18,6 +18,14 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.pages.panels.AttributesPanel;
+import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
+import org.apache.syncope.console.pages.panels.ResourcesPanel;
+import org.apache.syncope.console.pages.panels.RolesPanel;
+import org.apache.syncope.console.pages.panels.UserDetailsPanel;
+import org.apache.syncope.console.pages.panels.UserManagementResultPanel;
+import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -30,14 +38,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.pages.panels.AttributesPanel;
-import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
-import org.apache.syncope.console.pages.panels.ResourcesPanel;
-import org.apache.syncope.console.pages.panels.RolesPanel;
-import org.apache.syncope.console.pages.panels.UserDetailsPanel;
-import org.apache.syncope.console.pages.panels.UserManagementResultPanel;
-import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 
 /**
  * Modal window with User form.

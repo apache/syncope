@@ -19,29 +19,17 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.SyncopeConstants;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SchemaType;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -51,6 +39,21 @@ import org.apache.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.SchemaType;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AttributesPanel extends Panel {
 
@@ -60,6 +63,8 @@ public class AttributesPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     private final boolean templateMode;
+
+    private static Logger LOG = LoggerFactory.getLogger(AttributesPanel.class);
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
             final boolean templateMode) {
@@ -107,15 +112,14 @@ public class AttributesPanel extends Panel {
                         ? attributeTO.getSchema() + " (JEXL)"
                         : attributeTO.getSchema()));
 
-                final FieldPanel panel = getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form,
-                        attributeTO);
+                final FieldPanel panel =
+                        getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form, attributeTO);
 
                 if (templateMode || !schemas.getObject().get(attributeTO.getSchema()).isMultivalue()) {
-
                     item.add(panel);
                 } else {
-                    item.add(new MultiValueSelectorPanel<String>("panel", new PropertyModel(attributeTO, "values"),
-                            panel));
+                    item.add(new MultiValueSelectorPanel<String>(
+                            "panel", new PropertyModel(attributeTO, "values"), panel));
                 }
             }
         };
@@ -156,17 +160,12 @@ public class AttributesPanel extends Panel {
 
         final FieldPanel panel;
 
-        final boolean required = templateMode
-                ? false
-                : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean required = templateMode ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
-        final boolean readOnly = templateMode
-                ? false
-                : schemaTO.isReadonly();
+        final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
 
-        final SchemaType type = templateMode
-                ? SchemaType.String
-                : schemaTO.getType();
+        final SchemaType type = templateMode ? SchemaType.String : schemaTO.getType();
+
         switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model());
@@ -199,11 +198,29 @@ public class AttributesPanel extends Panel {
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model());
-                ((AjaxDropDownChoicePanel) panel).setChoices(Arrays.asList(schemaTO.getEnumerationValues().split(
-                        Schema.enumValuesSeparator)));
+                ((AjaxDropDownChoicePanel) panel).setChoices(getEnumeratedValues(schemaTO));
+
+                if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
+                    ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+
+                        final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);
+
+                        @Override
+                        public String getDisplayValue(final String value) {
+                            return valueMap.get(value) == null ? value : valueMap.get(value);
+                        }
+
+                        @Override
+                        public String getIdValue(final String value, int i) {
+                            return value;
+                        }
+                    });
+                }
+
                 if (required) {
                     panel.addRequiredLabel();
                 }
+
                 break;
 
             default:
@@ -217,5 +234,37 @@ public class AttributesPanel extends Panel {
         panel.setNewModel(attributeTO.getValues());
 
         return panel;
+    }
+
+    private Map<String, String> getEnumeratedKeyValues(final SchemaTO schemaTO) {
+        final Map<String, String> res = new HashMap<String, String>();
+
+        final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
+                ? new String[0]
+                : schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator);
+
+        final String[] keys = StringUtils.isBlank(schemaTO.getEnumerationKeys())
+                ? new String[0]
+                : schemaTO.getEnumerationKeys().split(Schema.enumValuesSeparator);
+
+        for (int i = 0; i < values.length; i++) {
+            res.put(values[i].trim(), keys.length > i ? keys[i].trim() : null);
+        }
+
+        return res;
+    }
+
+    private List<String> getEnumeratedValues(final SchemaTO schemaTO) {
+        final List<String> res = new ArrayList<String>();
+
+        final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
+                ? new String[0]
+                : schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator);
+
+        for (String value : values) {
+            res.add(value.trim());
+        }
+
+        return res;
     }
 }

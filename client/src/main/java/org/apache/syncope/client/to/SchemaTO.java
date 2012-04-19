@@ -34,6 +34,8 @@ public class SchemaTO extends AbstractBaseBean {
 
     private String enumerationValues;
 
+    private String enumerationKeys;
+
     private boolean multivalue;
 
     private boolean uniqueConstraint;
@@ -72,6 +74,14 @@ public class SchemaTO extends AbstractBaseBean {
 
     public void setEnumerationValues(String enumerationValues) {
         this.enumerationValues = enumerationValues;
+    }
+
+    public String getEnumerationKeys() {
+        return enumerationKeys;
+    }
+
+    public void setEnumerationKeys(String enumerationKeys) {
+        this.enumerationKeys = enumerationKeys;
     }
 
     public boolean isMultivalue() {

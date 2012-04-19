@@ -18,16 +18,13 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SchemaType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -41,12 +38,19 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.apache.syncope.client.AbstractBaseBean;
+import org.apache.syncope.client.to.SchemaTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.SchemaType;
 
 /**
  * Modal window with Schema form.
@@ -63,17 +67,16 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
     public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
             AbstractBaseBean schemaTO, final boolean createFlag) {
 
-        final SchemaTO schema = schemaTO == null
-                ? new SchemaTO()
-                : (SchemaTO) schemaTO;
+        final SchemaTO schema = schemaTO == null ? new SchemaTO() : (SchemaTO) schemaTO;
 
         final Form schemaForm = new Form("form");
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
-                schema, "name"));
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(schema, "name"));
+
         name.addRequiredLabel();
         name.setEnabled(createFlag);
 
@@ -101,15 +104,28 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         type.setChoices(Arrays.asList(SchemaType.values()));
         type.addRequiredLabel();
 
-        final AjaxTextFieldPanel enumerationValues = new AjaxTextFieldPanel("enumerationValues",
-                getString("enumerationValues"), new PropertyModel<String>(schema, "enumerationValues"));
+        final MultiValueSelectorPanel<String> enumerationValues =
+                new MultiValueSelectorPanel<String>("enumerationValues",
+                new Model(),
+                new AjaxTextFieldPanel("panel", "enumerationValues", new Model(null)).addRequiredLabel());
+        schemaForm.add(enumerationValues);
+
+        enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
+
+        final MultiValueSelectorPanel<String> enumerationKeys =
+                new MultiValueSelectorPanel<String>("enumerationKeys",
+                new Model(),
+                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model(null)));
+        schemaForm.add(enumerationKeys);
+
+        enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
 
         if (schema != null && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
-            enumerationValues.addRequiredLabel();
             enumerationValues.setEnabled(Boolean.TRUE);
+            enumerationKeys.setEnabled(Boolean.TRUE);
         } else {
-            enumerationValues.removeRequiredLabel();
             enumerationValues.setEnabled(Boolean.FALSE);
+            enumerationKeys.setEnabled(Boolean.FALSE);
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -119,13 +135,23 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (SchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
-                    enumerationValues.addRequiredLabel();
                     enumerationValues.setEnabled(Boolean.TRUE);
-                    enumerationValues.setModelObject(((SchemaTO) schema).getEnumerationValues());
+                    enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
+
+                    enumerationKeys.setEnabled(Boolean.TRUE);
+                    enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
                 } else {
-                    enumerationValues.removeRequiredLabel();
+                    final List<String> values = new ArrayList<String>();
+                    values.add("");
+
                     enumerationValues.setEnabled(Boolean.FALSE);
-                    enumerationValues.setModelObject(null);
+                    enumerationValues.setModelObject((Serializable) values);
+
+                    final List<String> keys = new ArrayList<String>();
+                    keys.add("");
+
+                    enumerationKeys.setEnabled(Boolean.FALSE);
+                    enumerationKeys.setModelObject((Serializable) keys);
                 }
 
                 target.add(schemaForm);
@@ -180,7 +206,10 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
-                SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
+                final SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
+
+                schemaTO.setEnumerationValues(getEnumValuesAsString(enumerationValues.getView().getModelObject()));
+                schemaTO.setEnumerationKeys(getEnumValuesAsString(enumerationKeys.getView().getModelObject()));
 
                 if (schemaTO.isMultivalue() && schemaTO.isUniqueConstraint()) {
                     error(getString("multivalueAndUniqueConstr.validation"));
@@ -226,7 +255,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(conversionPattern);
         schemaForm.add(validatorClass);
         schemaForm.add(type);
-        schemaForm.add(enumerationValues);
         schemaForm.add(mandatoryCondition);
         schemaForm.add(multivalue);
         schemaForm.add(readonly);
@@ -235,5 +263,35 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(submit);
 
         add(schemaForm);
+    }
+
+    private String getEnumValuesAsString(final List<String> enumerationValues) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (String str : enumerationValues) {
+            if (StringUtils.isNotBlank(str)) {
+                if (builder.length() > 0) {
+                    builder.append(Schema.enumValuesSeparator);
+                }
+
+                builder.append(str.trim());
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private List<String> getEnumValuesAsList(final String enumerationValues) {
+        final List<String> values = new ArrayList<String>();
+
+        if (StringUtils.isNotBlank(enumerationValues)) {
+            for (String value : enumerationValues.split(Schema.enumValuesSeparator)) {
+                values.add(value.trim());
+            }
+        } else {
+            values.add("");
+        }
+
+        return values;
     }
 }

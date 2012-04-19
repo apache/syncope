@@ -79,6 +79,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Column(nullable = true)
     private String enumerationValues;
 
+    @Column(nullable = true)
+    private String enumerationKeys;
+
     @Transient
     private AbstractValidator validator;
 
@@ -148,7 +151,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
                 Constructor validatorConstructor = Class.forName(getValidatorClass()).getConstructor(
-                        new Class[] { getClass().getSuperclass() });
+                        new Class[]{getClass().getSuperclass()});
                 validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type " + getValidatorClass()
@@ -177,6 +180,14 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setEnumerationValues(final String enumerationValues) {
         this.enumerationValues = enumerationValues;
+    }
+
+    public String getEnumerationKeys() {
+        return enumerationKeys;
+    }
+
+    public void setEnumerationKeys(String enumerationKeys) {
+        this.enumerationKeys = enumerationKeys;
     }
 
     public String getConversionPattern() {

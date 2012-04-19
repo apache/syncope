@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -114,11 +113,14 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(ex);
 
         schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
+        schema.setEnumerationKeys("1" + AbstractSchema.enumValuesSeparator + "2");
 
         schemaDAO.save(schema);
 
         RSchema actual = schemaDAO.find(schema.getName(), RSchema.class);
         assertNotNull(actual);
+        assertNotNull(actual.getEnumerationKeys());
+        assertFalse(actual.getEnumerationKeys().isEmpty());
     }
 
     @Test(expected = InvalidEntityException.class)
