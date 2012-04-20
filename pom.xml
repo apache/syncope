@@ -27,13 +27,13 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-root</artifactId>
-  <version>1.0.0-incubating-SNAPSHOT</version>
+  <version>1.0.0-RC1-incubating</version>
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/trunk</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/trunk</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/trunk</url>
   </scm>
   
   <build>
