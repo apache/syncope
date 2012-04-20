@@ -50,9 +50,9 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/</url>
   </scm>
 
   <issueManagement>
