@@ -50,11 +50,11 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/parent</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/parent</developerConnection>
+    <url>http://svn.apache.org/viewvc/incubator/syncope/trunk/parent</url>
   </scm>
-
+  
   <issueManagement>
     <system>jira</system>
     <url>https://issues.apache.org/jira/browse/SYNCOPE</url>
@@ -918,7 +918,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
+        <version>2.9.1</version>        
         <dependencies>    
           <dependency>
             <groupId>org.apache.syncope</groupId>
@@ -958,6 +958,9 @@ under the License.
               <configuration>
                 <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                 <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                <anonymousConnection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</anonymousConnection>
+                <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
+                <webAccessUrl>http://svn.apache.org/viewvc/incubator/syncope/trunk</webAccessUrl>
               </configuration>
               <reportSets>
                 <reportSet>
@@ -1000,11 +1003,6 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.2.2</version>
-      </plugin>
     </plugins>
   </build>
 
@@ -1029,33 +1027,5 @@ under the License.
         <module>../console</module>
       </modules>
     </profile>
-    <profile>
-      <id>release-sign-artifacts</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.4</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
-
 </project>

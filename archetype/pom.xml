@@ -33,7 +33,6 @@ under the License.
   <description>Apache Syncope Archetype</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-archetype</artifactId>
-  <version>1.0.0-incubating-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
 
   <properties>

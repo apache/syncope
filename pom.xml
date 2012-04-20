@@ -33,7 +33,7 @@ under the License.
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
     <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk</url>
+    <url>http://svn.apache.org/viewvc/incubator/syncope/trunk</url>
   </scm>
   
   <build>
@@ -46,6 +46,16 @@ under the License.
           <skip>true</skip>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.2.2</version>
+        <configuration>
+          <mavenExecutorId>forked-path</mavenExecutorId>
+          <arguments>-Papache-release</arguments>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -56,4 +66,33 @@ under the License.
     <module>console</module>
     <module>parent</module>
   </modules>
+  
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.4</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <modules>
+        <module>quality</module>
+        <module>archetype</module>
+        <module>hibernate-enhancer</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
