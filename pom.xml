@@ -70,8 +70,31 @@ under the License.
   <profiles>
     <profile>
       <id>apache-release</id>
-      <build>
+      
+      <build>        
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.3</version>
+            <executions>
+              <execution>
+                <id>sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <finalName>syncope-${project.version}</finalName>
+                  <descriptor>src/assemble/source-assembly.xml</descriptor>
+                  <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                  <workDirectory>${project.build.directory}/work</workDirectory>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -88,6 +111,7 @@ under the License.
           </plugin>
         </plugins>
       </build>
+      
       <modules>
         <module>quality</module>
         <module>archetype</module>
