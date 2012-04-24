@@ -116,29 +116,29 @@ public class PolicyBeanPanel extends Panel {
                 try {
                     if (field.getType().equals(ConflictResolutionAction.class)) {
                         classMethod = policy.getClass().getMethod("get" + StringUtils.capitalize(field.getName()),
-                                new Class[] {});
+                                new Class[]{});
 
                         component = new AjaxDropDownChoicePanel("field", field.getName(), new PropertyModel(policy,
                                 field.getName()));
 
-                        ((AjaxDropDownChoicePanel) component).setChoices(Arrays.asList(ConflictResolutionAction
-                                .values()));
+                        ((AjaxDropDownChoicePanel) component).setChoices(
+                                Arrays.asList(ConflictResolutionAction.values()));
 
                         item.add(component);
 
                         item.add(getActivationControl(component,
-                                (Enum) classMethod.invoke(policy, new Object[] {}) != null,
+                                (Enum) classMethod.invoke(policy, new Object[]{}) != null,
                                 ConflictResolutionAction.IGNORE, ConflictResolutionAction.IGNORE));
 
                     } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
-                        item.add(new AjaxCheckBoxPanel("check", field.getName(), new PropertyModel(policy, field
-                                .getName())));
+                        item.add(new AjaxCheckBoxPanel("check", field.getName(), new PropertyModel(policy,
+                                field.getName())));
 
                         item.add(new Label("field", new Model(null)));
 
                     } else if (field.getType().equals(List.class) || field.getType().equals(Set.class)) {
                         classMethod = policy.getClass().getMethod("get" + StringUtils.capitalize(field.getName()),
-                                new Class[] {});
+                                new Class[]{});
 
                         if (field.getSchemaList() != null) {
                             final List values = schemas.getObject();
@@ -154,14 +154,14 @@ public class PolicyBeanPanel extends Panel {
                             item.add(component);
 
                             item.add(getActivationControl(component, !((List) classMethod.invoke(policy,
-                                    new Object[] {})).isEmpty(), new ArrayList<String>(), new ArrayList<String>()));
+                                    new Object[]{})).isEmpty(), new ArrayList<String>(), new ArrayList<String>()));
                         } else {
                             final FieldPanel panel = new AjaxTextFieldPanel("panel", field.getName(), new Model(null));
 
                             panel.setRequired(true);
 
-                            component = new MultiValueSelectorPanel<String>("field", new PropertyModel(policy, field
-                                    .getName()), panel);
+                            component = new MultiValueSelectorPanel<String>("field", new PropertyModel(policy, field.
+                                    getName()), panel);
 
                             item.add(component);
 
@@ -170,21 +170,21 @@ public class PolicyBeanPanel extends Panel {
                             reinitializedValue.add("");
 
                             item.add(getActivationControl(component, !((List<String>) classMethod.invoke(policy,
-                                    new Object[] {})).isEmpty(), (Serializable) new ArrayList<String>(),
+                                    new Object[]{})).isEmpty(), (Serializable) new ArrayList<String>(),
                                     (Serializable) reinitializedValue));
                         }
                     } else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
 
                         classMethod = policy.getClass().getMethod("get" + StringUtils.capitalize(field.getName()),
-                                new Class[] {});
+                                new Class[]{});
 
-                        component = new AjaxTextFieldPanel("field", field.getName(), new PropertyModel(policy, field
-                                .getName()));
+                        component = new AjaxTextFieldPanel("field", field.getName(), new PropertyModel(policy, field.
+                                getName()));
 
                         item.add(component);
 
                         item.add(getActivationControl(component,
-                                (Integer) classMethod.invoke(policy, new Object[] {}) > 0, 0, 0));
+                                (Integer) classMethod.invoke(policy, new Object[]{}) > 0, 0, 0));
                     } else {
                         item.add(new AjaxCheckBoxPanel("check", field.getName(), new Model()));
                         item.add(new Label("field", new Model(null)));
@@ -205,7 +205,7 @@ public class PolicyBeanPanel extends Panel {
 
         panel.setEnabled(checked);
 
-        check.getField().add(new AjaxFormComponentUpdatingBehavior("onChange") {
+        check.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
