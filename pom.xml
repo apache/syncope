@@ -39,14 +39,6 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.2.2</version>
         <configuration>
@@ -87,8 +79,6 @@ under the License.
                 <configuration>
                   <finalName>syncope-${project.version}</finalName>
                   <descriptor>src/assemble/source-assembly.xml</descriptor>
-                  <outputDirectory>${project.build.directory}/dist</outputDirectory>
-                  <workDirectory>${project.build.directory}/work</workDirectory>
                   <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
               </execution>
