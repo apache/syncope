@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>Apache Syncope</title>
+    <author email="syncope-dev@incubator.apache.org">Apache Syncope Documentation Team</author>
+  </properties>
+
+  <body>
+    <p>The Syncope team is using the 
+      <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
+      More details on releasing artifacts and using Nexus can be found on the Maven website at
+      <a href="http://maven.apache.org/developers/release/apache-release.html">http://maven.apache.org/developers/release/apache-release.html</a>.
+    </p>
+    
+    <section name="Release steps">
+      
+      <subsection name="Prepare the source for release">
+        <ol>
+          <li>Clean up JIRA so the             
+            <b>Fix Version</b> in issues resolved since the last
+            release includes this release version correctly.  Also, transition any
+            <b>Resolved</b> issues to the 
+            <b>Closed</b> state.
+          </li>
+          <li>
+            Update the text files in a working copy of the project root:
+            <ol>
+              <li>Update the 
+                <tt>CHANGES</tt> based on the Text release reports from JIRA.
+              </li>
+              <li>Review and update 
+                <tt>README</tt> if needed.
+              </li>
+              <li>
+                Commit any changes back to svn:
+                <source>svn commit -m "updating files for release"</source>
+              </li>
+            </ol>
+          </li>
+          <li>
+            Perform a full build and deploy the SNAPSHOT artifacts:
+            <source>mvn -P apache-release clean deploy</source>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Get source tree">
+        <ol>
+          <li>
+            <strong>
+              <em>Only for new major releases (like 1.0.0 to 1.1.0):</em>
+            </strong>
+            <br/>
+            Create a sub-branch from which to make the release.
+            <br/>
+            Releasing from a branch will allow any cosmetic changes that need to be made for the release to be 
+            approved to be done without preventing other more disruptive advances in the trunk from potentially 
+            causing problems with the release. It also provides a future maintenance branch (like 1.0.x.)
+            <br/>
+            A branch can be made by running:
+            <source>mvn release:branch -DbranchName=1.0.x</source>
+          </li>
+          <li>
+            Checkout a clean copy of the trunk/branch to release using command line svn:
+            <source>svn checkout https://svn.apache.org/repos/asf/incubator/syncope/trunk/ release</source>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Prepare the release">
+        <ol>
+          <li>
+            Do a dry run of the 
+            <tt>release:prepare</tt> step.
+            <source>mvn -Papache-release release:prepare -DdryRun=true</source>
+
+            The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
+            release process will complete as expected.
+          
+            <p>
+              <em>If you cancel a 
+                <tt>release:prepare</tt> before it updates the pom.xml versions, then use the 
+                <tt>release:clean</tt> goal to just remove the extra files that were created.
+              </em>
+            </p>
+          </li>
+          <li>
+            Verify that the release process completed as expected:
+            <ol>
+              <li>The release plugin will create 
+                <code>pom.xml.tag</code> files which contain the
+                changes that would have been committed to SVN. The only differences between
+                <code>pom.xml.tag</code> and its corresponding 
+                <code>pom.xml</code> file should be the version
+                number.
+              </li>
+              <li>
+                If other formatting changes have been made you should review the changes and then commit them:
+                <source>svn commit -m "fixing formatting for release"</source>
+              </li>
+              <li>
+                Assuming the 
+                <code>.tag</code> files look OK you may proceed and do any other validation you feel necessary.
+                The following list may be helpful:
+                <ol>
+                  <li>Check 
+                    <tt>release.properties</tt> and make sure that the scm properties have the
+                    right version. Sometimes the scm location can be the previous version not the next version.
+                  </li>
+                  <li>
+                    Verify signatures: On Un*x platforms the following command can be executed:
+<source>for file in `find . -type f -iname '*.asc'`
+do
+  gpg --verify ${file} 
+done</source>
+                    You'll need to look at the output to ensure it contains only good signatures:
+<source>gpg: Good signature from ...
+gpg: Signature made ...</source>
+                  </li>
+                </ol>
+              </li>
+              <li>
+                Once any failures or required updates have been committed to svn, rollback the release prepare files:
+                <source>mvn -P apache-release release:rollback</source>
+              </li>
+            </ol>
+          </li>
+          <li>
+            Run the 
+            <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version information and 
+            optionally your GPG passphrase again.
+            <source>mvn -P apache-release release:prepare</source>
+          </li>
+          <li>
+            Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
+            the next step is performed.
+<source>cd ..
+tar -czf 1.0-rc1.tar.gz 1.0-rc1/
+cd 1.0-rc1</source>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Perform the release">
+        This step will create a maven staging repository
+        <source>mvn -P apache-release release:perform</source>
+        
+        <ol>
+          <li>Verify the staged artifacts in the Nexus repository:
+            <ol>
+              <li>
+                <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+              </li>
+              <li>
+                <strong>Enterprise --&gt; Staging</strong>
+              </li>
+              <li>
+                <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+              </li>
+              <li>Navigate through the artifact tree and make sure that all binary, 
+                <code>javadoc</code>,
+                <code>sources</code>, and 
+                <code>tests</code> jars, as well as 
+                <code>pom</code>s, ... have 
+                <code>.asc</code> (GPG signature) and 
+                <code>.md5</code>
+                files (see 
+                <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
+                <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
+                The 
+                <code>syncope-source.tar.gz</code> and 
+                <code>syncope-source.zip</code> of 
+                <code>syncope-root</code>
+                should likewise have signature and checksum files.
+              </li>
+            </ol>
+          </li>
+          <li>Close the nexus staging repo:
+            <ol>
+              <li>
+                <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+              </li>
+              <li>
+                <strong>Enterprise --&gt; Staging</strong>
+              </li>
+              <li>
+                <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+              </li>
+              <li>Right click on the open 
+                <code>org.apache.syncope-XXX</code> staging repo
+                and select 
+                <strong>Close</strong>.
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Vote the Release">
+        <ol>
+          <li>
+            Create a 
+            <code>VOTE</code> email thread on 
+            <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> to record votes as replies, e.g.:
+            <pre>
+To: syncope-dev@incubator.apache.org
+Subject: [VOTE] Apache Syncope &lt;version&gt;
+
+I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+
+SVN source tag (r9999999):
+https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
+
+Maven staging repo:
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+
+Source release:
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+
+PGP release keys (signed using ABCDEFG):
+http://www.apache.org/dist/incubator/syncope/KEYS
+
+Vote will be open for 72 hours.
+
+[ ] +1  approve
+[ ] +0  no opinion
+[ ] -1  disapprove (and reason why)
+            </pre>
+          </li>
+          <li>
+            Create a DISCUSS email thread on syncope-dev@ for any vote questions, e.g.:
+            <pre>
+To: syncope-dev@incubator.apache.org
+Subject: [DISCUSS] Apache Syncope &lt;version&gt;
+
+Discussion thread for vote on &lt;version&gt; release candidate, with SVN source tag (r9999999).
+
+For more information on the release process, check out http://www.apache.org/dev/release.html
+
+Some of the things to check before voting are:
+ - does "mvn apache-rat:check" pass on the source
+ - can you build the contents of source-release.zip and svn tag
+ - do all of the staged jars/zips contain the required LICENSE and NOTICE files
+ - are all of the staged jars signed and the signature verifiable
+ - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
+            </pre>
+          </li>
+          <li>
+            Perform a review of the release and cast your vote. For more details on Apache releases see
+            <a href="http://www.apache.org/dev/release.html">http://www.apache.org/dev/release.html</a>.
+          </li>
+          <li>A -1 vote does not necessarily mean that the vote must be redone,
+            however it is usually a good idea to rollback the release if a -1 vote is
+            received (see "Recovering from a vetoed release" below).
+          </li>
+          <li>After the vote has been open for at least 72 hours, has at least three
+            +1 PMC votes and no -1 votes, then post the results to the vote thread:
+            <ol>
+              <li>Reply to the initial email prepending 
+                <code>[RESULT]</code> to the original subject
+              </li>
+              <li>Include a list of every binding +1, 0 or -1 vote.</li>
+            </ol>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Finalize the Release">
+        <ol>
+          <li>Promote the staged nexus artifacts:
+            <ol>
+              <li>
+                <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+              </li>
+              <li>
+                <strong>Enterprise --&gt; Staging</strong>
+              </li>
+              <li>
+                <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+              </li>
+              <li>Right click on the closed 
+                <code>org.apache.syncope-XXX</code> staging repo and select 
+                <strong>Release</strong>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Add the distribution artifacts to the distribution area
+            <p>
+              <strong>TO BE COMPLETED</strong>
+            </p>
+          </li>
+          <li>
+            Update the 
+            <em>Downloads</em> site page to point to the new release artifacts
+            <p>
+              <strong>TO BE COMPLETED</strong>
+            </p>
+          </li>
+          <li>
+            <p>Update the 
+              <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA versions</a>
+              page to mark the version as 
+              <strong>Released</strong>, and set the date to the date that
+              the release was approved. You may also need to make a new release entry for the next release.
+            </p>
+          </li>
+        </ol>
+      </subsection>
+      
+      <subsection name="Announce the Release">
+        Make an announcement about the release on the
+        <a href="mailto:syncope-user@incubator.apache.org">syncope-user</a>,
+        <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a>, and
+        <a href="mailto:announce@apache.org">announce@apache.org</a> lists as per
+        <a href="http://www.apache.org/foundation/mailinglists.html#foundation-announce]">the Apache Announcement Mailing Lists page</a>
+      </subsection>
+    </section>
+    
+    <section name="Recovering from a vetoed release">
+      <ol>
+        <li>
+          <p>Reply to the initial vote email prepending 
+            <code>[CANCELED]</code> to the original subject.
+          </p>
+        </li>
+        <li>
+          <p>Rollback the version upgrades in trunk by 
+            <em>either</em>:
+          </p>
+          <ol>
+            <li>
+              Restore the 0.1-rc1.tar.gz and run
+              <source>mvn -P apache-release release:rollback</source> 
+              <em>or</em>:
+              manually revert the versions in trunk to the prior version and commit
+            </li>
+          </ol>
+        </li>
+        <li>
+          <p>Delete the svn tag created by the 
+            <code>release:perform</code> step:
+          </p>
+          <source>svn rm https://svn.apache.org/repos/asf/incubator/syncope/tags/1.0 -m "deleting tag from rolled back release"</source>
+        </li>
+        <li>
+          <p>Drop the nexus staging repo:</p>
+          <ol>
+            <li>
+              <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+            </li>
+            <li>
+              <strong>Enterprise --&gt; Staging</strong>
+            </li>
+            <li>
+              <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+            </li>
+            <li>Right click on the closed 
+              <code>org.apache.syncope-XXX</code> staging repo and select 
+              <strong>Drop</strong>.
+            </li>
+          </ol>
+        </li>
+        <li>
+          Make the required updates that caused the vote to be canceled.
+        </li>
+        <li>Spin another release attempt!</li>
+      </ol>
+    </section>
+  </body>
+</document>
