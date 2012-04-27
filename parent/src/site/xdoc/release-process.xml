@@ -93,7 +93,7 @@ under the License.
           <li>
             Do a dry run of the 
             <tt>release:prepare</tt> step.
-            <source>mvn -Papache-release release:prepare -DdryRun=true</source>
+            <source>mvn -P apache-release release:prepare -DdryRun=true</source>
 
             The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
             release process will complete as expected.
@@ -250,20 +250,20 @@ Vote will be open for 72 hours.
             </pre>
           </li>
           <li>
-            Create a DISCUSS email thread on syncope-dev@ for any vote questions, e.g.:
+            Create a <code>DISCUSS</code> email thread on <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> for any vote questions, e.g.:
             <pre>
 To: syncope-dev@incubator.apache.org
 Subject: [DISCUSS] Apache Syncope &lt;version&gt;
 
-Discussion thread for vote on &lt;version&gt; release candidate, with SVN source tag (r9999999).
+Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
 
 For more information on the release process, check out http://www.apache.org/dev/release.html
 
 Some of the things to check before voting are:
  - does "mvn apache-rat:check" pass on the source
- - can you build the contents of source-release.zip and svn tag
- - do all of the staged jars/zips contain the required LICENSE and NOTICE files
- - are all of the staged jars signed and the signature verifiable
+ - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
+ - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
+ - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
  - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
             </pre>
           </li>
