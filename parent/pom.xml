@@ -662,6 +662,13 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.plexus</groupId>
+              <artifactId>plexus-compiler-javac</artifactId>
+              <version>1.8.6</version>
+            </dependency>
+          </dependencies>
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
