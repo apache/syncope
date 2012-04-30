@@ -52,6 +52,39 @@ under the License.
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>0.7</version>
+        <configuration>
+          <excludes>
+            <exclude>nbactions.xml</exclude>
+            <exclude>nb-configuration.xml</exclude>
+            <exclude>**/META-INF/services/**</exclude>
+            <exclude>**/*.css</exclude>
+            <exclude>**/*.js</exclude>
+            <exclude>**/*.csv</exclude>
+            <exclude>.externalToolBuilders/**</exclude>
+            <exclude>maven-eclipse.xml</exclude>
+            
+            <!-- Need to explicitely exclude these modules since they are not part of the default build
+                 profile: they will be checked anyway in the apache-release profile, as submodules. -->
+            <exclude>archetype/**</exclude>
+            <exclude>hibernate-enhancer/**</exclude>
+            <exclude>quality/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>rat-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.2.2</version>
         <configuration>
@@ -60,7 +93,6 @@ under the License.
           <autoVersionSubmodules>true</autoVersionSubmodules>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 
@@ -78,6 +110,7 @@ under the License.
       
       <build>        
         <plugins>
+      
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
