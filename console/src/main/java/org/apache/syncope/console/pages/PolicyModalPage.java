@@ -47,7 +47,6 @@ import org.apache.syncope.types.SyncPolicySpec;
 public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
     private static final long serialVersionUID = -7325772767481076679L;
-
     @SpringBean
     private PolicyRestClient policyRestClient;
 
@@ -77,17 +76,17 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_SYNC, PolicyType.SYNC }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
 
             default:
         }
@@ -170,16 +169,25 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
+                if (!(specification instanceof AccountPolicySpec))  {
+                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().getName());
+                }
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) specification);
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
+                if (!(specification instanceof PasswordPolicySpec))  {
+                    throw new ClassCastException("policy is type Password, but spec is not: " + specification.getClass().getName());
+                }
                 ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) specification);
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
+                if (!(specification instanceof SyncPolicySpec))  {
+                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().getName());
+                }
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) specification);
 
             default:
