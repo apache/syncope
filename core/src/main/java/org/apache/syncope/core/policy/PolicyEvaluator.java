@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.policy;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class PolicyEvaluator {
                     final PasswordPolicySpec pspec = policy.getSpecification();
                     final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
 
-                    BeanUtils.copyProperties(pspec, passwordPolicy, new String[] { "schemasNotPermitted" });
+                    BeanUtils.copyProperties(pspec, passwordPolicy, new String[]{"schemasNotPermitted"});
 
                     for (String schema : pspec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
@@ -66,28 +67,28 @@ public class PolicyEvaluator {
                     }
 
                     // Password history verification and update
-                    final String password = ((SyncopeUser) attributable).getPassword();
 
-                    final List<String> passwordHistory = ((SyncopeUser) attributable).getPasswordHistory();
+                    if (!(attributable instanceof SyncopeUser)) {
+                        LOG.error("Cannot check previous passwords. attributable is not a user object: " + attributable.getClass().toString());
+                        result = (T) passwordPolicy;
+                        break;
+                    }
+                    SyncopeUser user = (SyncopeUser) attributable;
+                    final String password = user.getPassword();
+                    final List<String> passwordHistory = user.getPasswordHistory();
 
-                    if (((SyncopeUser) attributable).verifyPasswordHistory(((SyncopeUser) attributable)
-                            .getClearPassword(), pspec.getHistoryLength())) {
-
-                        passwordPolicy.getWordsNotPermitted().add(((SyncopeUser) attributable).getClearPassword());
+                    if (user.verifyPasswordHistory(user.getClearPassword(), pspec.getHistoryLength())) {
+                        passwordPolicy.getWordsNotPermitted().add(user.getClearPassword());
                     } else {
-
                         if (pspec.getHistoryLength() > 0 && password != null) {
                             passwordHistory.add(password);
                         }
-
                         if (pspec.getHistoryLength() < passwordHistory.size()) {
                             for (int i = 0; i < passwordHistory.size() - pspec.getHistoryLength(); i++) {
-
                                 passwordHistory.remove(i);
                             }
                         }
                     }
-
                     result = (T) passwordPolicy;
                     break;
                 case ACCOUNT:
@@ -95,7 +96,7 @@ public class PolicyEvaluator {
                     final AccountPolicySpec spec = policy.getSpecification();
                     final AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
-                    BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
+                    BeanUtils.copyProperties(spec, accountPolicy, new String[]{"schemasNotPermitted"});
 
                     for (String schema : spec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
