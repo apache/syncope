@@ -54,6 +54,9 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Override
     public <T extends AbstractAttr> void setAttribute(final T attribute) {
+        if (!(attribute instanceof MAttr)) {
+            throw new ClassCastException("expected type MAttr, found: " + attribute.getClass().getName());
+        }
         this.attribute = (MAttr) attribute;
     }
 
@@ -64,6 +67,10 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Override
     public <T extends AbstractSchema> void setSchema(final T schema) {
+                if (!(schema instanceof MSchema)) {
+            throw new ClassCastException("expected type MSchema, found: " + schema.getClass().getName());
+        }
+
         this.schema = (MSchema) schema;
     }
 }
