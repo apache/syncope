@@ -36,7 +36,6 @@ import org.springframework.util.StringUtils;
 public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private static final long serialVersionUID = 1919852712185883648L;
-
     private final String datePattern;
 
     public DateTextFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
@@ -117,7 +116,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null) {
+                if (object != null && object instanceof Date) {
                     if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         item.setModelObject((String) formatter.format((Date) object));
@@ -143,7 +142,6 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 527651414610325237L;
-
             private final DateFormat formatter = new SimpleDateFormat(datePattern);
 
             @Override
@@ -164,7 +162,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null) {
+                if (object != null && object instanceof Date) {
                     list.clear();
                     list.add((String) formatter.format((Date) object));
                 }

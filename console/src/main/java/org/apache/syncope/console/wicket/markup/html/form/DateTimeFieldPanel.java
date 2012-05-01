@@ -219,7 +219,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null) {
+                if (object != null && object instanceof Date) {
                     if (item.getModelObject() instanceof String) {
                         // Parse string using datePattern
                         item.setModelObject((String) formatter.format((Date) object));
@@ -270,7 +270,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> implements Cloneable {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null) {
+                if (object != null && object instanceof Date) {
                     list.clear();
                     list.add((String) formatter.format((Date) object));
                 }
