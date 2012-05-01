@@ -41,33 +41,28 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 public class UAttr extends AbstractAttr {
 
     private static final long serialVersionUID = 6333601983691157406L;
-
     /**
      * Auto-generated id for this table.
      */
     @Id
     private Long id;
-
     /**
      * The owner of this attribute.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeUser owner;
-
     /**
      * The schema of this attribute.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "schema_name")
     private USchema schema;
-
     /**
      * Values of this attribute (if schema is not UNIQUE).
      */
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<UAttrValue> values;
-
     /**
      * Value of this attribute (if schema is UNIQUE).
      */
@@ -95,6 +90,9 @@ public class UAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(final T owner) {
+        if (!(owner instanceof SyncopeUser)) {
+            throw new ClassCastException("owner is expected to be typed SyncopeUser: " + owner.getClass().getName());
+        }
         this.owner = (SyncopeUser) owner;
     }
 
@@ -105,18 +103,25 @@ public class UAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractSchema> void setSchema(final T schema) {
+        if (!(schema instanceof USchema)) {
+            throw new ClassCastException("schema is expected to be typed USchema: " + schema.getClass().getName());
+        }
         this.schema = (USchema) schema;
     }
 
     @Override
     public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
-
+        if (!(attributeValue instanceof UAttrValue)) {
+            throw new ClassCastException("attributeValue is expected to be typed UAttrValue: " + attributeValue.getClass().getName());
+        }
         return values.add((UAttrValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
-
+        if (!(attributeValue instanceof UAttrValue)) {
+            throw new ClassCastException("attributeValue is expected to be typed UAttrValue: " + attributeValue.getClass().getName());
+        }
         return values.remove((UAttrValue) attributeValue);
     }
 
@@ -144,7 +149,9 @@ public class UAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
-
+        if (!(uniqueAttributeValue instanceof UAttrUniqueValue)) {
+            throw new ClassCastException("uniqueAttributeValue is expected to be typed UAttrUniqueValue: " + uniqueAttributeValue.getClass().getName());
+        }
         this.uniqueValue = (UAttrUniqueValue) uniqueAttributeValue;
     }
 }
