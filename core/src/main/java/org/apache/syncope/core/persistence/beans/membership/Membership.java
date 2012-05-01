@@ -39,28 +39,23 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "syncopeUser_id", "syncopeRole_id" }))
+@Table(uniqueConstraints =
+@UniqueConstraint(columnNames = {"syncopeUser_id", "syncopeRole_id"}))
 public class Membership extends AbstractAttributable {
 
     private static final long serialVersionUID = 5030106264797289469L;
-
     @Id
     private Long id;
-
     @ManyToOne
     private SyncopeUser syncopeUser;
-
     @ManyToOne
     private SyncopeRole syncopeRole;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MAttr> attributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MDerAttr> derivedAttributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MVirAttr> virtualAttributes;
@@ -101,11 +96,17 @@ public class Membership extends AbstractAttributable {
 
     @Override
     public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+        if (!(attribute instanceof MAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
+        }
         return attributes.add((MAttr) attribute);
     }
 
     @Override
     public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+        if (!(attribute instanceof MAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
+        }
         return attributes.remove((MAttr) attribute);
     }
 
@@ -121,12 +122,17 @@ public class Membership extends AbstractAttributable {
 
     @Override
     public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
-
+        if (!(derivedAttribute instanceof MDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derivedAttribute.getClass().getName());
+        }
         return derivedAttributes.add((MDerAttr) derivedAttribute);
     }
 
     @Override
     public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
+        if (!(derivedAttribute instanceof MDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derivedAttribute.getClass().getName());
+        }
 
         return derivedAttributes.remove((MDerAttr) derivedAttribute);
     }
@@ -144,12 +150,18 @@ public class Membership extends AbstractAttributable {
 
     @Override
     public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
+        if (!(virtualAttribute instanceof MVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virtualAttribute.getClass().getName());
+        }
 
         return virtualAttributes.add((MVirAttr) virtualAttribute);
     }
 
     @Override
     public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
+        if (!(virtualAttribute instanceof MVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virtualAttribute.getClass().getName());
+        }
 
         return virtualAttributes.remove((MVirAttr) virtualAttribute);
     }

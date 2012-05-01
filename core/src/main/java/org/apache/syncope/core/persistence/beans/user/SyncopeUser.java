@@ -75,7 +75,6 @@ import org.apache.syncope.types.CipherAlgorithm;
 public class SyncopeUser extends AbstractAttributable {
 
     private static final long serialVersionUID = -3905046855521446823L;
-
     private static SecretKeySpec keySpec;
 
     static {
@@ -85,94 +84,76 @@ public class SyncopeUser extends AbstractAttributable {
             LOG.error("Error during key specification", e);
         }
     }
-
     @Id
     private Long id;
-
     @NotNull
     private String password;
-
     @Transient
     private String clearPassword;
-
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     @Valid
     private List<Membership> memberships;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<UAttr> attributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<UDerAttr> derivedAttributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<UVirAttr> virtualAttributes;
-
     private String workflowId;
-
     @Column(nullable = true)
     private String status;
-
     @Lob
     private String token;
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
-
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private CipherAlgorithm cipherAlgorithm;
-
     @ElementCollection
     private List<String> passwordHistory;
-
     /**
      * Subsequent failed logins.
      */
     @Column(nullable = true)
     private Integer failedLogins;
-
     /**
      * Username/Login.
      */
     @Column(unique = true)
     @NotNull
     private String username;
-
     /**
      * Last successful login date.
      */
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginDate;
-
     /**
      * Creation date.
      */
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
-
     /**
      * Change password date.
      */
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date changePwdDate;
-
     @Basic
     @Min(0)
     @Max(1)
     private Integer suspended;
-
     /**
      * Provisioning external resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "resource_name"))
+    @JoinTable(joinColumns =
+    @JoinColumn(name = "user_id"), inverseJoinColumns =
+    @JoinColumn(name = "resource_name"))
     private Set<ExternalResource> resources;
 
     public SyncopeUser() {
@@ -294,11 +275,19 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Override
     public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
+        if (!(attribute instanceof UAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UAttr: " + attribute.getClass().getName());
+        }
+
         return attributes.add((UAttr) attribute);
     }
 
     @Override
     public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
+        if (!(attribute instanceof UAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UAttr: " + attribute.getClass().getName());
+        }
+
         return attributes.remove((UAttr) attribute);
     }
 
@@ -317,13 +306,18 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Override
     public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derivedAttribute) {
+        if (!(derivedAttribute instanceof UDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derivedAttribute.getClass().getName());
+        }
 
         return derivedAttributes.add((UDerAttr) derivedAttribute);
     }
 
     @Override
     public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
-
+        if (!(derivedAttribute instanceof UDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derivedAttribute.getClass().getName());
+        }
         return derivedAttributes.remove((UDerAttr) derivedAttribute);
     }
 
@@ -342,11 +336,17 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Override
     public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virtualAttribute) {
+        if (!(virtualAttribute instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virtualAttribute.getClass().getName());
+        }
         return virtualAttributes.add((UVirAttr) virtualAttribute);
     }
 
     @Override
     public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virtualAttribute) {
+        if (!(virtualAttribute instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virtualAttribute.getClass().getName());
+        }
         return virtualAttributes.remove((UVirAttr) virtualAttribute);
     }
 
