@@ -33,7 +33,6 @@ public class MAttrValue extends AbstractAttrValue {
 
     @Id
     private Long id;
-
     @ManyToOne
     @NotNull
     private MAttr attribute;
@@ -50,6 +49,9 @@ public class MAttrValue extends AbstractAttrValue {
 
     @Override
     public <T extends AbstractAttr> void setAttribute(T attribute) {
+        if (!(attribute instanceof MAttr)) {
+            throw new ClassCastException("expected type MAttr, found: " + attribute.getClass().getName());
+        }
         this.attribute = (MAttr) attribute;
     }
 }
