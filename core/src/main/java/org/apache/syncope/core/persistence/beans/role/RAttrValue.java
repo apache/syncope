@@ -33,7 +33,6 @@ public class RAttrValue extends AbstractAttrValue {
 
     @Id
     private Long id;
-
     @ManyToOne
     @NotNull
     private RAttr attribute;
@@ -50,6 +49,9 @@ public class RAttrValue extends AbstractAttrValue {
 
     @Override
     public <T extends AbstractAttr> void setAttribute(T attribute) {
+        if (!(attribute instanceof RAttr)) {
+            throw new ClassCastException("expected type RAttr, found: " + attribute.getClass().getName());
+        }
         this.attribute = (RAttr) attribute;
     }
 }
