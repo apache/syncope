@@ -214,10 +214,10 @@ public class ConfigurationController extends AbstractController {
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
                     "Successfully exported database content");
             LOG.debug("Database content successfully exported");
-        } catch (Throwable t) {
+        } catch (Exception e) {
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.failure,
-                    "Could not export database content", t);
-            LOG.error("While exporting database content", t);
+                    "Could not export database content", e);
+            LOG.error("While exporting database content", e);
         }
     }
 }

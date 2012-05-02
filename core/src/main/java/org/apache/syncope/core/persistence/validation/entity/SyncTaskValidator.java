@@ -65,8 +65,8 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                     try {
                         syncJobActionsClass = Class.forName(object.getJobActionsClassName());
                         isAssignable = SyncJobActions.class.isAssignableFrom(syncJobActionsClass);
-                    } catch (Throwable t) {
-                        LOG.error("Invalid SyncJobActions specified", t);
+                    } catch (Exception e) {
+                        LOG.error("Invalid SyncJobActions specified", e);
                         isValid = false;
                     }
 

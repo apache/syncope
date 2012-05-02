@@ -84,8 +84,8 @@ public abstract class AbstractTest {
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");
-        } catch (Throwable t) {
-            LOG.error("Could not load bundles.properties", t);
+        } catch (Exception e) {
+            LOG.error("Could not load bundles.properties", e);
         }
         assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);

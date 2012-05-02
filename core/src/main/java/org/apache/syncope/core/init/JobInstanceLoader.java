@@ -148,9 +148,9 @@ public class JobInstanceLoader {
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
-                } catch (Throwable t) {
+                } catch (Exception e) {
                     LOG.error("Class {} not found, reverting to {}", new Object[] { jobActionsClassName,
-                            syncJobActionsClass.getName(), t });
+                            syncJobActionsClass.getName(), e });
                 }
             }
             SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,

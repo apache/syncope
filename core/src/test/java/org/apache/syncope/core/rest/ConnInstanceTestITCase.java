@@ -62,8 +62,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
             connidSoapVersion = props.getProperty("connid.soap.version");
             connidDbTableVersion = props.getProperty("connid.db.table.version");
             bundlesDirectory = props.getProperty("bundles.directory");
-        } catch (Throwable t) {
-            LOG.error("Could not load bundles.properties", t);
+        } catch (Exception e) {
+            LOG.error("Could not load bundles.properties", e);
         } finally {
             if (propStream != null) {
                 try {

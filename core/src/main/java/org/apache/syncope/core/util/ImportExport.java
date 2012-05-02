@@ -86,9 +86,9 @@ public class ImportExport extends DefaultHandler {
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             schema = dbProps.getProperty("database.schema");
-        } catch (Throwable t) {
+        } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find persistence.properties", t);
+                LOG.debug("Could not find persistence.properties", e);
             } else {
                 LOG.error("Could not find persistence.properties");
             }

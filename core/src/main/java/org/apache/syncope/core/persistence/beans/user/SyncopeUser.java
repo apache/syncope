@@ -267,8 +267,8 @@ public class SyncopeUser extends AbstractAttributable {
         try {
             this.password = encodePassword(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
-        } catch (Throwable t) {
-            LOG.error("Could not encode password", t);
+        } catch (Exception e) {
+            LOG.error("Could not encode password", e);
             this.password = null;
         }
     }
@@ -534,8 +534,8 @@ public class SyncopeUser extends AbstractAttributable {
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm != null
                         ? encodePassword(password, cipherAlgorithm)
                         : password);
-            } catch (Throwable t) {
-                LOG.error("Error evaluating password history", t);
+            } catch (Exception e) {
+                LOG.error("Error evaluating password history", e);
             }
         }
 

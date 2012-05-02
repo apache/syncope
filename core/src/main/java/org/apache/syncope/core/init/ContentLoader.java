@@ -119,8 +119,8 @@ public class ContentLoader {
             }
 
             LOG.debug("Views created, go for indexes");
-        } catch (Throwable t) {
-            LOG.error("While creating views", t);
+        } catch (Exception e) {
+            LOG.error("While creating views", e);
         }
 
         // 3. Create indexes
@@ -143,8 +143,8 @@ public class ContentLoader {
             }
 
             LOG.debug("Indexes created, go for default content");
-        } catch (Throwable t) {
-            LOG.error("While creating indexes", t);
+        } catch (Exception e) {
+            LOG.error("While creating indexes", e);
         }
 
         try {
@@ -169,8 +169,8 @@ public class ContentLoader {
             SAXParser parser = factory.newSAXParser();
             parser.parse(getClass().getResourceAsStream("/content.xml"), importExport);
             LOG.debug("Default content successfully loaded");
-        } catch (Throwable t) {
-            LOG.error("While loading default content", t);
+        } catch (Exception e) {
+            LOG.error("While loading default content", e);
         }
     }
 }

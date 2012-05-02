@@ -235,8 +235,8 @@ public class NotificationTest {
             }
             inbox.close(true);
             store.close();
-        } catch (Throwable t) {
-            LOG.error("Unexpected exception", t);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
             fail("Unexpected exception while fetching e-mail");
         }
 
@@ -278,8 +278,8 @@ public class NotificationTest {
             SyncopeConf smtpHostConf = confDAO.find("smtp.host");
             smtpHostConf.setValue(smtpHost);
             confDAO.save(smtpHostConf);
-        } catch (Throwable t) {
-            LOG.error("Unexpected exception", t);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
             fail("Unexpected exception while setting SMTP host");
         }
 
@@ -293,8 +293,8 @@ public class NotificationTest {
 
         try {
             userController.create(new MockHttpServletResponse(), userTO);
-        } catch (Throwable t) {
-            LOG.error("Unexpected exception", t);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
             fail("Unexpected exception while creating");
         }
 
@@ -320,8 +320,8 @@ public class NotificationTest {
         // 5. execute Notification task and verify e-mail
         try {
             taskController.execute(taskId, false);
-        } catch (Throwable t) {
-            LOG.error("Unexpected exception", t);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
             fail("Unexpected exception while executing notification task");
         }
 

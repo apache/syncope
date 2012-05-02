@@ -458,9 +458,9 @@ public class ConnectorFacadeProxy {
                     }
                 }
             }
-        } catch (Throwable t) {
-            // catch throwable in order to manage unpredictable behaviors
-            LOG.debug("Unsupported operation {}", t);
+        } catch (Exception e) {
+            // catch exception in order to manage unpredictable behaviors
+            LOG.debug("Unsupported operation {}", e);
         }
 
         return resourceSchemaNames;
@@ -556,8 +556,8 @@ public class ConnectorFacadeProxy {
                 } else {
                     value = values.get(0).toString();
                 }
-            } catch (Throwable t) {
-                LOG.error("Invalid ConnConfProperty specified: {}", property, t);
+            } catch (Exception e) {
+                LOG.error("Invalid ConnConfProperty specified: {}", property, e);
             }
         }
 

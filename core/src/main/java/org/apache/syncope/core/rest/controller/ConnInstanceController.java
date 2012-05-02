@@ -100,15 +100,15 @@ public class ConnInstanceController extends AbstractController {
             connInstance = connInstanceDAO.save(connInstance);
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.success,
                     "Successfully created connector instance: " + connInstance.getDisplayName());
-        } catch (Throwable t) {
+        } catch (Exception e) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not create connector instance: " + connectorTO.getDisplayName(), t);
+                    "Could not create connector instance: " + connectorTO.getDisplayName(), e);
 
             SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
             SyncopeClientException invalidConnInstance = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.addElement(t.getMessage());
+            invalidConnInstance.addElement(e.getMessage());
 
             scce.addException(invalidConnInstance);
             throw scce;
@@ -131,15 +131,15 @@ public class ConnInstanceController extends AbstractController {
             connInstance = connInstanceDAO.save(connInstance);
             auditManager.audit(Category.connector, ConnectorSubCategory.update, Result.success,
                     "Successfully update connector instance: " + connInstance.getDisplayName());
-        } catch (Throwable t) {
+        } catch (Exception e) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not update connector instance: " + connectorTO.getDisplayName(), t);
+                    "Could not update connector instance: " + connectorTO.getDisplayName(), e);
 
             SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
             SyncopeClientException invalidConnInstance = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.addElement(t.getMessage());
+            invalidConnInstance.addElement(e.getMessage());
 
             scce.addException(invalidConnInstance);
             throw scce;

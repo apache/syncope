@@ -456,8 +456,8 @@ public class PropagationManager {
                     }
 
                 }
-            } catch (Throwable t) {
-                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), t);
+            } catch (Exception e) {
+                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), e);
             }
         }
 
@@ -743,15 +743,15 @@ public class PropagationManager {
                 throw e;
             }
 
-        } catch (Throwable t) {
-            LOG.error("Exception during provision on resource " + task.getResource().getName(), t);
+        } catch (Exception e) {
+            LOG.error("Exception during provision on resource " + task.getResource().getName(), e);
 
-            if (t instanceof ConnectorException && t.getCause() != null) {
-                taskExecutionMessage = t.getCause().getMessage();
+            if (e instanceof ConnectorException && e.getCause() != null) {
+                taskExecutionMessage = e.getCause().getMessage();
             } else {
                 StringWriter exceptionWriter = new StringWriter();
-                exceptionWriter.write(t.getMessage() + "\n\n");
-                t.printStackTrace(new PrintWriter(exceptionWriter));
+                exceptionWriter.write(e.getMessage() + "\n\n");
+                e.printStackTrace(new PrintWriter(exceptionWriter));
                 taskExecutionMessage = exceptionWriter.toString();
             }
 

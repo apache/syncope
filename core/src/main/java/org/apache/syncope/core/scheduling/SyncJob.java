@@ -337,10 +337,10 @@ public class SyncJob extends AbstractTaskJob {
                 result.setStatus(Status.SUCCESS);
             } catch (PropagationException e) {
                 LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 result.setStatus(Status.FAILURE);
-                result.setMessage(t.getMessage());
-                LOG.error("Could not create user " + delta.getUid().getUidValue(), t);
+                result.setMessage(e.getMessage());
+                LOG.error("Could not create user " + delta.getUid().getUidValue(), e);
             }
         }
 
@@ -391,10 +391,10 @@ public class SyncJob extends AbstractTaskJob {
                     }
                 } catch (PropagationException e) {
                     LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
-                } catch (Throwable t) {
+                } catch (Exception e) {
                     result.setStatus(Status.FAILURE);
-                    result.setMessage(t.getMessage());
-                    LOG.error("Could not update user " + delta.getUid().getUidValue(), t);
+                    result.setMessage(e.getMessage());
+                    LOG.error("Could not update user " + delta.getUid().getUidValue(), e);
                 }
 
                 delta = actions.after(delta, userTO, result);
@@ -442,10 +442,10 @@ public class SyncJob extends AbstractTaskJob {
 
                     try {
                         wfAdapter.delete(userId);
-                    } catch (Throwable t) {
+                    } catch (Exception e) {
                         result.setStatus(Status.FAILURE);
-                        result.setMessage(t.getMessage());
-                        LOG.error("Could not delete user " + userId, t);
+                        result.setMessage(e.getMessage());
+                        LOG.error("Could not delete user " + userId, e);
                     }
                 }
 
@@ -666,12 +666,12 @@ public class SyncJob extends AbstractTaskJob {
                     resource.setSyncToken(connector.getLatestSyncToken());
                     resourceDAO.save(resource);
 
-                } catch (Throwable t) {
-                    throw new JobExecutionException("While updating SyncToken", t);
+                } catch (Exception e) {
+                    throw new JobExecutionException("While updating SyncToken", e);
                 }
             }
-        } catch (Throwable t) {
-            throw new JobExecutionException("While syncing on connector", t);
+        } catch (Exception e) {
+            throw new JobExecutionException("While syncing on connector", e);
         }
 
         actions.afterAll(syncTask, results);
