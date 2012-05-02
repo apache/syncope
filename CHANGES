@@ -41,6 +41,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-58] - User request approval duplicates requests
     * [SYNCOPE-61] - WARNING: DB connection abandoned
     * [SYNCOPE-63] - PolicyBeanPanel doesn't work fine
+    * [SYNCOPE-65] - Export/Import doesn't work with MySQL
     * [SYNCOPE-70] - Source artifacts include either 'syncope-1.0.0-RC1-incubating-source' and 'syncope-root-1.0.0-RC1-incubating-source' root dirs
     * [SYNCOPE-71] - Foreign key constraints missed with OpenJPA
     * [SYNCOPE-72] - JSP files don't contain the required ASF license header
