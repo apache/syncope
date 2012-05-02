@@ -89,9 +89,9 @@ under the License.
         <version>2.2.2</version>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
-          <releaseProfiles>apache-release</releaseProfiles>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>syncope-@{project.version}</tagNameFormat>
+          <arguments>-Papache-release</arguments>
         </configuration>
       </plugin>
     </plugins>
@@ -108,7 +108,7 @@ under the License.
   <profiles>
     <profile>
       <id>apache-release</id>
-      
+
       <build>        
         <plugins>
       

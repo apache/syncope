@@ -143,7 +143,7 @@ under the License.
             causing problems with the release. It also provides a future maintenance branch (like 1.0.x.)
             <br/>
             A branch can be made by running:
-            <source>mvn release:branch -DbranchName=1.0.x</source>
+            <source>mvn -P apache-release release:branch -DbranchName=1.0.x</source>
           </li>
           <li>
             Checkout a clean copy of the trunk/branch to release using command line svn:
@@ -157,7 +157,7 @@ under the License.
           <li>
             Do a dry run of the 
             <tt>release:prepare</tt> step.
-            <source>mvn release:prepare -DdryRun=true</source>
+            <source>mvn -P apache-release release:prepare -DdryRun=true</source>
 
             The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
             release process will complete as expected.
@@ -206,7 +206,7 @@ gpg: Signature made ...</source>
               </li>
               <li>
                 Once any failures or required updates have been committed to svn, rollback the release prepare files:
-                <source>mvn release:rollback</source>
+                <source>mvn -P apache-release release:rollback</source>
               </li>
             </ol>
           </li>
@@ -214,7 +214,7 @@ gpg: Signature made ...</source>
             Run the 
             <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version information and 
             optionally your GPG passphrase again.
-            <source>mvn release:prepare</source>
+            <source>mvn -P apache-release release:prepare</source>
           </li>
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
@@ -228,7 +228,7 @@ cd 1.0-rc1</source>
       
       <subsection name="Perform the release">
         This step will create a maven staging repository
-        <source>mvn release:perform</source>
+        <source>mvn -P apache-release release:perform</source>
         
         <ol>
           <li>Verify the staged artifacts in the Nexus repository:
@@ -417,7 +417,7 @@ Some of the things to check before voting are:
           <ol>
             <li>
               Restore the 0.1-rc1.tar.gz and run
-              <source>mvn release:rollback</source> 
+              <source>mvn -P apache-release release:rollback</source> 
               <em>or</em>:
               manually revert the versions in trunk to the prior version and commit
             </li>
