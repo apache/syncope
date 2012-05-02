@@ -27,22 +27,31 @@ public class MultiParentNode<T> {
 
     private final T object;
 
-    private Set<MultiParentNode<T>> parents;
-
     private Set<MultiParentNode<T>> children;
+
+    private int level = 0;
+
+    private boolean exploited = false;
 
     public MultiParentNode(final T object) {
         this.object = object;
-        parents = new HashSet<MultiParentNode<T>>();
         children = new HashSet<MultiParentNode<T>>();
     }
 
-    public boolean isRoot() {
-        return parents.isEmpty();
+    public int getLevel() {
+        return level;
     }
 
-    public boolean isLeaf() {
-        return children.isEmpty();
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    boolean isExploited() {
+        return exploited;
+    }
+
+    void setExploited(boolean exploited) {
+        this.exploited = exploited;
     }
 
     public T getObject() {
@@ -50,51 +59,38 @@ public class MultiParentNode<T> {
     }
 
     public boolean isParent(final MultiParentNode<T> child) {
-        return children.contains(child) && child.isChild(this);
+        return children.contains(child);
     }
 
     public boolean isChild(final MultiParentNode<T> parent) {
-        return parents.contains(parent) && parent.isParent(this);
+        return parent.isParent(this);
     }
 
     public Set<MultiParentNode<T>> getChildren() {
         return children;
     }
 
-    public Set<MultiParentNode<T>> getParents() {
-        return parents;
-    }
-
     public void addParent(final MultiParentNode<T> parent) {
         if (parent != null) {
-            parents.add(parent);
             parent.children.add(this);
         }
     }
 
     public void removeParent(final MultiParentNode<T> parent) {
         if (parent != null) {
-            parents.remove(parent);
             parent.children.remove(this);
         }
     }
 
-    public void addChild(final MultiParentNode<T> child) throws CycleInMultiParentTreeException {
-
+    public void addChild(final MultiParentNode<T> child) {
         if (child != null) {
-            if (MultiParentNodeOp.findInTree(child, getObject()) != null) {
-                throw new CycleInMultiParentTreeException("This node is descendant of given child node");
-            }
-
             children.add(child);
-            child.parents.add(this);
         }
     }
 
     public void removeChild(final MultiParentNode<T> child) {
         if (child != null) {
             children.remove(child);
-            child.parents.remove(this);
         }
     }
 

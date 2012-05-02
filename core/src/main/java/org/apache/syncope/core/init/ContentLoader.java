@@ -27,14 +27,14 @@ import java.util.Properties;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.util.ImportExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.util.ImportExport;
 
 /**
  * If empty, load default content to Syncope database by reading from
