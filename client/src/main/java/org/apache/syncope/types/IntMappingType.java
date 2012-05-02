@@ -115,12 +115,26 @@ public enum IntMappingType {
     public static boolean contains(final AttributableType attributableType, final String type) {
         switch (attributableType) {
             case ROLE:
-                return RoleMappingType.valueOf(type) != null;
+                for (RoleMappingType c : RoleMappingType.values()) {
+                    if (c.name().equals(type)) {
+                        return true;
+                    }
+                }
             case MEMBERSHIP:
-                return MembershipMappingType.valueOf(type) != null;
+                for (MembershipMappingType c : MembershipMappingType.values()) {
+                    if (c.name().equals(type)) {
+                        return true;
+                    }
+                }
+            case USER:
             default:
-                return UserMappingType.valueOf(type) != null;
+                for (UserMappingType c : UserMappingType.values()) {
+                    if (c.name().equals(type)) {
+                        return true;
+                    }
+                }
         }
+        return false;
     }
 
     /**
