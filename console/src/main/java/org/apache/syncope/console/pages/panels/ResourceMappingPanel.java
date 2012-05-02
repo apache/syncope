@@ -473,23 +473,8 @@ public class ResourceMappingPanel extends Panel {
                     break;
 
                 case SyncopeUserId:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 case Password:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 case Username:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
@@ -514,10 +499,6 @@ public class ResourceMappingPanel extends Panel {
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
                     // Virtual accountId is not permitted
-                    accountId.setReadOnly(true);
-                    accountId.setModelObject(false);
-                    break;
-
                 case Password:
                     // AccountId cannot be derived from password.
                     accountId.setReadOnly(true);
