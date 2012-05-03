@@ -65,8 +65,8 @@ public class ContentLoader {
         boolean existingData = false;
         try {
             statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConf.class.getSimpleName());
+            final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
+            resultSet = statement.executeQuery(queryContent);
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
@@ -111,7 +111,8 @@ public class ContentLoader {
 
                 try {
                     statement = conn.createStatement();
-                    statement.executeUpdate(views.get(idx).toString().replaceAll("\\n", " "));
+                    final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
+                    statement.executeUpdate(updateViews);
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create view ", e);
@@ -135,7 +136,8 @@ public class ContentLoader {
 
                 try {
                     statement = conn.createStatement();
-                    statement.executeUpdate(indexes.get(idx).toString());
+                    final String updateIndexed = indexes.get(idx).toString();
+                    statement.executeUpdate(updateIndexed);
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create index ", e);

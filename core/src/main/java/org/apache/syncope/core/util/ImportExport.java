@@ -131,7 +131,8 @@ public class ImportExport extends DefaultHandler {
 
         try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + tableName);
+            final String queryString = "SELECT * FROM " + tableName;
+            rs = stmt.executeQuery(queryString);
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
                 colTypes.put(rs.getMetaData().getColumnName(i + 1).toUpperCase(), rs.getMetaData().getColumnType(i + 1));
             }
