@@ -912,6 +912,47 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Put LICENSE and NOTICE files in all javadoc artifacts -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE files for javadoc jar">
+
+                <echo level="info" message="**** copy-javadoc-files - Copying NOTICE and LICENSE files ****" />
+
+                <mkdir dir="target/apidocs/META-INF"/>
+                <copy todir="target/apidocs/META-INF">
+                  <fileset dir="..">
+                    <include name="NOTICE"/>
+                    <include name="LICENSE"/>
+                  </fileset>
+                </copy>
+
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>ianal-maven-plugin</artifactId>
