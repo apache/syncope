@@ -18,31 +18,21 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
-import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.springframework.util.StringUtils;
 
-public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
+public class DateTextFieldPanel extends DateFieldPanel {
 
     private static final long serialVersionUID = 1919852712185883648L;
-    private final String datePattern;
 
     public DateTextFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
 
-        super(id, name, model);
-
-        this.datePattern = datePattern;
+        super(id, name, model, datePattern);
 
         field = DateTextField.forDatePattern("field", model, datePattern);
 
@@ -83,98 +73,8 @@ public class DateTextFieldPanel extends FieldPanel<Date> implements Cloneable {
     }
 
     @Override
-    public FieldPanel setNewModel(final ListItem item) {
-        final DateFormat formatter = new SimpleDateFormat(datePattern);
-
-        IModel<Date> model = new Model() {
-
-            private static final long serialVersionUID = 6799404673615637845L;
-
-            @Override
-            public Serializable getObject() {
-                Date date = null;
-
-                if (StringUtils.hasText((String) item.getModelObject())) {
-                    if (item.getModelObject() instanceof String) {
-                        // Parse string using datePattern
-                        try {
-                            date = formatter.parse((String) item.getModelObject());
-                        } catch (ParseException e) {
-                            LOG.error("While parsing date", e);
-                        }
-                    } else if (item.getModelObject() instanceof Date) {
-                        // Don't parse anything
-                        date = (Date) item.getModelObject();
-                    } else {
-                        // consider Long
-                        date = new Date((Long) item.getModelObject());
-                    }
-                }
-
-                return date;
-            }
-
-            @Override
-            public void setObject(final Serializable object) {
-                if (object != null && object instanceof Date) {
-                    if (item.getModelObject() instanceof String) {
-                        // Parse string using datePattern
-                        item.setModelObject((String) formatter.format((Date) object));
-                    } else if (item.getModelObject() instanceof Date) {
-                        // Don't parse anything
-                        item.setModelObject((Date) object);
-                    } else {
-                        // consider Long
-                        item.setModelObject(((Date) object).getTime());
-                    }
-                } else {
-                    item.setModelObject(null);
-                }
-            }
-        };
-
-        field.setModel(model);
-        return this;
-    }
-
-    @Override
-    public FieldPanel setNewModel(final List<Serializable> list) {
-        setNewModel(new Model() {
-
-            private static final long serialVersionUID = 527651414610325237L;
-            private final DateFormat formatter = new SimpleDateFormat(datePattern);
-
-            @Override
-            public Serializable getObject() {
-                Date date = null;
-
-                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
-                    try {
-                        // Parse string using datePattern
-                        date = formatter.parse(list.get(0).toString());
-                    } catch (ParseException e) {
-                        LOG.error("invalid parse exception", e);
-                    }
-                }
-
-                return date;
-            }
-
-            @Override
-            public void setObject(final Serializable object) {
-                if (object != null && object instanceof Date) {
-                    list.clear();
-                    list.add((String) formatter.format((Date) object));
-                }
-            }
-        });
-
-        return this;
-    }
-
-    @Override
     public FieldPanel clone() {
-        final FieldPanel panel = new DateTextFieldPanel(id, name, new Model(null), datePattern);
+        final FieldPanel panel = new DateTextFieldPanel(id, name, new Model(), datePattern);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);
