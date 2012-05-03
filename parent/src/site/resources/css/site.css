@@ -30,8 +30,14 @@ under the License.
   padding-bottom: 15px;
 }
 
+ul.toc li ul {
+  clear: both;
+  display: block;
+  float: none;
+}
+
 ul.toc, ul.toc ul {
-  list-style: decimal;
+  list-style: decimal outside none;
   padding:0;
   float:left;
   display:block;
@@ -40,7 +46,6 @@ ul.toc, ul.toc ul {
 
 ul.toc li {
   clear:left;
-  height:1.05em;
   position:relative;
   left: 30px;
 }
@@ -49,7 +54,7 @@ ul.toc li ul li {
   left: 0px;
 }
 
-ul.toc a {
-  float:left;
-  text-decoration:none;
+a {
+  clear:both;
+  text-decoration:none;  
 }
