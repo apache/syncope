@@ -22,16 +22,24 @@ under the License.
           xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
   <properties>
-    <title>Apache Syncope</title>
+    <title>Release Process</title>
     <author email="syncope-dev@incubator.apache.org">Apache Syncope Documentation Team</author>
   </properties>
 
   <body>
-    <p>The Syncope team is using the 
-      <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
-      More details on releasing artifacts and using Nexus can be found on the Maven website at
-      <a href="http://maven.apache.org/developers/release/apache-release.html">http://maven.apache.org/developers/release/apache-release.html</a>.
-    </p>
+    <div class="toc_container">
+      <macro name="toc">
+        <param name="class" value="toc"/>
+      </macro>
+    </div>
+
+    <section name="Introduction">
+      <p>The Syncope team is using the 
+        <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
+        More details on releasing artifacts and using Nexus can be found on the Maven website at
+        <a href="http://maven.apache.org/developers/release/apache-release.html">http://maven.apache.org/developers/release/apache-release.html</a>.
+      </p>
+    </section>
     
     <section name="Prerequisites">
       <subsection name="GPG">
@@ -92,8 +100,7 @@ under the License.
     </profile>
   </profiles>
   ...
-</settings>]]>
-        </source>
+</settings>]]></source>
       </subsection>
     </section>
     
@@ -194,12 +201,12 @@ under the License.
                   </li>
                   <li>
                     Verify signatures: On Un*x platforms the following command can be executed:
-<source>for file in `find . -type f -iname '*.asc'`
+                    <source>for file in `find . -type f -iname '*.asc'`
 do
   gpg --verify ${file} 
 done</source>
                     You'll need to look at the output to ensure it contains only good signatures:
-<source>gpg: Good signature from ...
+                    <source>gpg: Good signature from ...
 gpg: Signature made ...</source>
                   </li>
                 </ol>
@@ -219,7 +226,7 @@ gpg: Signature made ...</source>
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
             the next step is performed.
-<source>cd ..
+            <source>cd ..
 tar -czf 1.0-rc1.tar.gz 1.0-rc1/
 cd 1.0-rc1</source>
           </li>
@@ -281,54 +288,54 @@ cd 1.0-rc1</source>
         </ol>
       </subsection>
       
-      <subsection name="Vote the Release">
+      <subsection name="Vote the release">
         <ol>
           <li>
             Create a 
             <code>VOTE</code> email thread on 
             <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> to record votes as replies, e.g.:
             <pre>
-To: syncope-dev@incubator.apache.org
-Subject: [VOTE] Apache Syncope &lt;version&gt;
+              To: syncope-dev@incubator.apache.org
+              Subject: [VOTE] Apache Syncope &lt;version&gt;
 
-I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+              I've created a &lt;version&gt; release, with the following artifacts up for a vote:
 
-SVN source tag (r9999999):
-https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
+              SVN source tag (r9999999):
+              https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
 
-Maven staging repo:
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+              Maven staging repo:
+              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
-Source release:
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+              Source release (checksums and signatures are available at the same location):
+              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
+              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
 
-PGP release keys (signed using ABCDEFG):
-http://www.apache.org/dist/incubator/syncope/KEYS
+              PGP release keys (signed using ABCDEFG):
+              http://www.apache.org/dist/incubator/syncope/KEYS
 
-Vote will be open for 72 hours.
+              Vote will be open for 72 hours.
 
-[ ] +1  approve
-[ ] +0  no opinion
-[ ] -1  disapprove (and reason why)
+              [ ] +1  approve
+              [ ] +0  no opinion
+              [ ] -1  disapprove (and reason why)
             </pre>
           </li>
           <li>
             Create a <code>DISCUSS</code> email thread on <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> for any vote questions, e.g.:
             <pre>
-To: syncope-dev@incubator.apache.org
-Subject: [DISCUSS] Apache Syncope &lt;version&gt;
+              To: syncope-dev@incubator.apache.org
+              Subject: [DISCUSS] Apache Syncope &lt;version&gt;
 
-Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
+              Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
 
-For more information on the release process, check out http://www.apache.org/dev/release.html
+              For more information on the release process, check out http://www.apache.org/dev/release.html
 
-Some of the things to check before voting are:
- - does "mvn apache-rat:check" pass on the source
- - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
- - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
- - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
- - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
+              Some of the things to check before voting are:
+              - does "mvn apache-rat:check" pass on the source
+              - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
+              - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
+              - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
+              - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
             </pre>
           </li>
           <li>
@@ -337,7 +344,7 @@ Some of the things to check before voting are:
           </li>
           <li>A -1 vote does not necessarily mean that the vote must be redone,
             however it is usually a good idea to rollback the release if a -1 vote is
-            received (see "Recovering from a vetoed release" below).
+            received (see <a href="#Recovering_from_a_vetoed_release">&quot;Recovering from a vetoed release&quot;</a>).
           </li>
           <li>After the vote has been open for at least 72 hours, has at least three
             +1 PMC votes and no -1 votes, then post the results to the vote thread:
@@ -351,7 +358,7 @@ Some of the things to check before voting are:
         </ol>
       </subsection>
       
-      <subsection name="Finalize the Release">
+      <subsection name="Finalize the release">
         <ol>
           <li>Promote the staged nexus artifacts:
             <ol>
@@ -372,29 +379,32 @@ Some of the things to check before voting are:
           </li>
           <li>
             Add the distribution artifacts to the distribution area
-            <p>
-              <strong>TO BE COMPLETED</strong>
-            </p>
+<source>ssh people.apache.org
+cd /x1/www/www.apache.org/dist/incubator/syncope/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.tar.gz*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+</source>
           </li>
           <li>
-            Update the 
-            <em>Downloads</em> site page to point to the new release artifacts
-            <p>
-              <strong>TO BE COMPLETED</strong>
-            </p>
+            Update the <a href="downloads.html">downloads</a> site page to point to the new release artifacts with base 
+            URL
+            <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
           </li>
           <li>
-            <p>Update the 
-              <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA versions</a>
-              page to mark the version as 
-              <strong>Released</strong>, and set the date to the date that
-              the release was approved. You may also need to make a new release entry for the next release.
-            </p>
+            Update the <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
+            new project</a> wiki page to point to the new release artifacts
+          </li>
+          <li>
+            Update the <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA 
+            versions</a> page to mark the version as <strong>Released</strong>, and set the date to the date that
+            the release was approved. You may also need to make a new release entry for the next release.
           </li>
         </ol>
       </subsection>
       
-      <subsection name="Announce the Release">
+      <subsection name="Announce the release">
         Make an announcement about the release on the
         <a href="mailto:syncope-user@incubator.apache.org">syncope-user</a>,
         <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a>, and
@@ -416,9 +426,11 @@ Some of the things to check before voting are:
           </p>
           <ol>
             <li>
-              Restore the 0.1-rc1.tar.gz and run
+              restore the 0.1-rc1.tar.gz and run
               <source>mvn -P apache-release release:rollback</source> 
-              <em>or</em>:
+            </li>
+            <li>             
+              <em>or</em>
               manually revert the versions in trunk to the prior version and commit
             </li>
           </ol>
