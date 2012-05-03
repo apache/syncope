@@ -192,6 +192,17 @@ under the License.
       </roles>
       <url>http://people.apache.org/~anzelld/</url>
     </developer>
+    <developer>
+      <id>coheigea</id>
+      <name>Colm O hEigeartaigh</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>Mentor</role>
+        <role>PPMC member</role>
+      </roles>
+      <url>http://people.apache.org/~coheigea/</url>
+    </developer>
   </developers>
 
   <prerequisites>
