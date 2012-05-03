@@ -90,11 +90,11 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
             result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
                     + "task/notification/list/{page}/{size}.json", NotificationTaskTO[].class, page, size));
         } else if (SchedTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL + "task/sched/list/{page}/{size}.json",
-                    SchedTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
+                    + "task/sched/list/{page}/{size}.json", SchedTaskTO[].class, page, size));
         } else if (SyncTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL + "task/sync/list/{page}/{size}.json",
-                    SyncTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
+                    + "task/sync/list/{page}/{size}.json", SyncTaskTO[].class, page, size));
         }
 
         return result;
@@ -146,8 +146,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      * @param taskId task id
      */
     public void startExecution(final Long taskId, boolean dryRun) {
-        restTemplate.postForObject(baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId,
-                dryRun);
+        restTemplate.postForObject(
+                baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId, dryRun);
     }
 
     /**
@@ -157,7 +157,7 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      */
     @Override
     public void deleteExecution(final Long taskExecId) {
-        restTemplate.delete(baseURL + "task/execution/delete/{execId}", taskExecId);
+        restTemplate.getForObject(baseURL + "task/execution/delete/{execId}", TaskExecTO.class, taskExecId);
     }
 
     public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {

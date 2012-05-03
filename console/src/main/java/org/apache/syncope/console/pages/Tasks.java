@@ -23,6 +23,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.to.SchedTaskTO;
+import org.apache.syncope.client.to.TaskExecTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.NotificationTasks;
+import org.apache.syncope.console.pages.panels.PropagationTasks;
+import org.apache.syncope.console.pages.panels.SchedTasks;
+import org.apache.syncope.console.pages.panels.SyncTasks;
+import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -31,15 +40,6 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.NotificationTasks;
-import org.apache.syncope.console.pages.panels.SchedTasks;
-import org.apache.syncope.console.pages.panels.PropagationTasks;
-import org.apache.syncope.console.pages.panels.SyncTasks;
-import org.apache.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
 
@@ -130,7 +130,7 @@ public class Tasks extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
+            setSort("id", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<T>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;

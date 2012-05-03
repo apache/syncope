@@ -21,15 +21,15 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
@@ -53,7 +53,16 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     @Override
     public <T extends Task> List<T> findToExec(final Class<T> reference) {
         StringBuilder queryString = buildfindAllQuery(reference);
-        queryString.append("WHERE e.latestExecStatus IS NULL");
+        
+        if (SchedTask.class.equals(reference)) {
+            queryString.append("AND ");
+        } else {
+            queryString.append("WHERE ");
+        }
+        
+        queryString.append("e.latestExecStatus IS NULL ");
+        queryString.append("ORDER BY e.id DESC");
+
         final Query query = entityManager.createQuery(queryString.toString());
         return query.getResultList();
     }
@@ -62,12 +71,15 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     public <T extends Task> List<T> findAll(final ExternalResource resource, final Class<T> reference) {
 
         StringBuilder queryString = buildfindAllQuery(reference);
+
         if (SchedTask.class.equals(reference)) {
             queryString.append("AND ");
         } else {
             queryString.append("WHERE ");
         }
-        queryString.append("e.resource=:resource");
+
+        queryString.append("e.resource=:resource ");
+        queryString.append("ORDER BY e.id DESC");
 
         final Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("resource", resource);
@@ -83,7 +95,10 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     @Override
     public <T extends Task> List<T> findAll(final int page, final int itemsPerPage, final Class<T> reference) {
 
-        final Query query = entityManager.createQuery(buildfindAllQuery(reference).toString());
+        StringBuilder queryString = buildfindAllQuery(reference);
+        queryString.append("ORDER BY e.id DESC");
+
+        final Query query = entityManager.createQuery(queryString.toString());
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0
@@ -99,7 +114,10 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     @Override
     public List<PropagationTask> findAll(final SyncopeUser user) {
         StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
-        queryString.append("WHERE e.syncopeUser=:user");
+
+        queryString.append("WHERE e.syncopeUser=:user ");
+        queryString.append("ORDER BY e.id DESC");
+
         final Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("user", user);
 
@@ -110,7 +128,10 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     public List<PropagationTask> findAll(final ExternalResource resource, final SyncopeUser user) {
 
         StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
-        queryString.append("WHERE e.syncopeUser=:user ").append("AND e.resource=:resource");
+        queryString.append("WHERE e.syncopeUser=:user ");
+        queryString.append("AND e.resource=:resource ");
+        queryString.append("ORDER BY e.id DESC");
+
         final Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("user", user);
         query.setParameter("resource", resource);
