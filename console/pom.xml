@@ -100,7 +100,7 @@ under the License.
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring</artifactId>
-            <!-- exclude spring framework that wicket pulls in -->
+      <!-- exclude spring framework that wicket pulls in -->
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
@@ -296,8 +296,8 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.tomcat.ajp.port>8889</cargo.tomcat.ajp.port>
-              <cargo.rmi.port>8805</cargo.rmi.port>
+              <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
+              <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
 <!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
               <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false -Xms512m -Xmx1024m -XX:PermSize=512m -XX:MaxPermSize=1024m</cargo.jvmargs>

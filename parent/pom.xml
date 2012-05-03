@@ -261,6 +261,8 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
                 
     <cargo.servlet.port>9080</cargo.servlet.port>
+    <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
+    <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
