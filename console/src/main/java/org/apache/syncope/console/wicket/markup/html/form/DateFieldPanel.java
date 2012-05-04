@@ -84,7 +84,6 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
             @Override
             public void setObject(final Serializable object) {
                 if (object instanceof Date) {
-                    final Object obj = item.getModelObject();
                     item.setModelObject(formatter.format((Date) object));
                 } else {
                     item.setModelObject(null);

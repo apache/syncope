@@ -288,6 +288,14 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
+    /**
+     * Creates user and stores the result in parameter delta (!)
+     * 
+     * @param delta
+     * @param dryRun
+     * @return
+     * @throws JobExecutionException 
+     */
     private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
 
         final SyncResult result = new SyncResult();
@@ -684,7 +692,7 @@ public class SyncJob extends AbstractTaskJob {
     }
 
     /**
-     * Handle delatas.
+     * Handle deltas.
      *
      * @param syncTask sync task.
      * @param delta delta.
