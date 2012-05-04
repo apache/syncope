@@ -767,7 +767,7 @@ public class PropagationManager {
                 execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.FAILURE.name()
                         : PropagationTaskExecStatus.UNSUBMITTED.name());
-            } catch (Throwable wft) {
+            } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
