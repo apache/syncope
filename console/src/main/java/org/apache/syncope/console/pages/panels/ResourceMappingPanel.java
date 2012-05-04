@@ -176,10 +176,13 @@ public class ResourceMappingPanel extends Panel {
 
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
-                final AttributableType entity = mappingTO.getIntMappingType() == null
-                        ? null
-                        : mappingTO.getIntMappingType().getAttributableType();
-
+                final AttributableType entity;
+                if (mappingTO.getIntMappingType() != null){
+                    entity = mappingTO.getIntMappingType().getAttributableType();
+                } else {
+                    entity = null;
+                }
+                        
                 attrTypes = getAttributeTypes(entity);
 
                 item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
@@ -274,7 +277,11 @@ public class ResourceMappingPanel extends Panel {
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
 
-                boolean required = mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword();
+                boolean required = false;
+                if (mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword()) {
+                    required = true;
+                }
+                
 
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
