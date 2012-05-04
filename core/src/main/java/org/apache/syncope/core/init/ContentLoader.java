@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -113,9 +114,12 @@ public class ContentLoader {
                     final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
                     statement = conn.prepareStatement(updateViews);
                     statement.executeUpdate();
-                    statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create view ", e);
+                } finally {
+                    if (statement != null) {
+                        statement.close();
+                    }
                 }
             }
 
@@ -138,9 +142,12 @@ public class ContentLoader {
                     final String updateIndexed = indexes.get(idx).toString();
                     statement = conn.prepareStatement(updateIndexed);
                     statement.executeUpdate();
-                    statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create index ", e);
+                } finally {
+                    if (statement != null) {
+                        statement.close();
+                    }
                 }
             }
 
@@ -152,9 +159,16 @@ public class ContentLoader {
         try {
             statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
             statement.executeUpdate();
-            statement.close();
         } catch (SQLException e) {
             LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOG.error("Error closing statement of ACT_GE_PROPERTY delete rows", e);
+                }
+            }
         }
 
         try {
