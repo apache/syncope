@@ -142,7 +142,7 @@ public class JobInstanceLoader {
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
-        if (jobInstance instanceof SyncJob) {
+        if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
             String jobActionsClassName = ((SyncTask) task).getJobActionsClassName();
             Class syncJobActionsClass = DefaultSyncJobActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {

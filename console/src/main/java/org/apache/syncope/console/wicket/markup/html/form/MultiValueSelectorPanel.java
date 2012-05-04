@@ -146,6 +146,9 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
     @Override
     public MultiValueSelectorPanel<E> setModelObject(Serializable object) {
+        if (!(object instanceof List)) {
+            throw new ClassCastException("object is expected to be List: " + object.getClass().getName());
+        }
         view.setModelObject((List<E>) object);
         return this;
     }
