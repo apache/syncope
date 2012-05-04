@@ -27,7 +27,7 @@ under the License.
         
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>1.0.0-incubating-SNAPSHOT</version>
+  <version>1.0.0-RC1-incubating</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -50,9 +50,9 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/parent</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/parent</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/syncope/trunk/parent</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/parent</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/parent</developerConnection>
+    <url>http://svn.apache.org/viewvc/incubator/syncope/tags/syncope-1.0.0-RC1-incubating/parent</url>
   </scm>
   
   <issueManagement>
@@ -940,11 +940,11 @@ under the License.
 
                 <echo level="info" message="**** copy-javadoc-files - Copying NOTICE and LICENSE files ****" />
 
-                <mkdir dir="target/apidocs/META-INF"/>
+                <mkdir dir="target/apidocs/META-INF" />
                 <copy todir="target/apidocs/META-INF">
                   <fileset dir="..">
-                    <include name="NOTICE"/>
-                    <include name="LICENSE"/>
+                    <include name="NOTICE" />
+                    <include name="LICENSE" />
                   </fileset>
                 </copy>
 
