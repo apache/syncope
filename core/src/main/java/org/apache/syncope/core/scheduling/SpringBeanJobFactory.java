@@ -39,9 +39,9 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
 
     @Override
     public void setIgnoredUnknownProperties(final String[] ignoredUnknownProperties) {
-
-        super.setIgnoredUnknownProperties(ignoredUnknownProperties);
-        this.ignoredUnknownProperties = ignoredUnknownProperties;
+        String[] defensiveCopy = ignoredUnknownProperties.clone();
+        super.setIgnoredUnknownProperties(defensiveCopy);
+        this.ignoredUnknownProperties = defensiveCopy;
     }
 
     @Override

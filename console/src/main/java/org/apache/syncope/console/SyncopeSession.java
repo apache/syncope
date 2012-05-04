@@ -63,7 +63,8 @@ public class SyncopeSession extends WebSession {
     }
 
     public void setEntitlements(final String[] entitlements) {
-        roles = new Roles(entitlements);
+        String[] defensiveCopy = entitlements.clone();
+        roles = new Roles(defensiveCopy);
     }
 
     public Roles getEntitlements() {
