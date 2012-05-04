@@ -72,9 +72,6 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 }
                 break;
 
-            case PASSWORD:
-                break;
-
             case GLOBAL_ACCOUNT:
 
                 // just one GLOBAL_ACCOUNT policy
@@ -87,9 +84,6 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
 
                     return false;
                 }
-                break;
-
-            case ACCOUNT:
                 break;
 
             case GLOBAL_SYNC:
@@ -106,6 +100,8 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 }
                 break;
 
+            case PASSWORD:
+            case ACCOUNT:
             case SYNC:
             default:
         }

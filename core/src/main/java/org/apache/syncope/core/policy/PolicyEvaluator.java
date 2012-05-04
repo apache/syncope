@@ -112,8 +112,6 @@ public class PolicyEvaluator {
                     break;
                 case SYNC:
                 case GLOBAL_SYNC:
-                    result = null;
-                    break;
                 default:
                     result = null;
             }
