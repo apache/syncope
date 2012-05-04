@@ -29,16 +29,16 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[4]/a");
-        selenium.click("//table/tbody/tr/td[7]/span/span[3]/a");
+        selenium.click("//*[span=1]/../td[7]/span/span[3]/a");
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[7]/span/span[7]/a");
+        selenium.click("//*[span=1]/../td[7]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[2]/div/div/span/div/div/div[2]/span/input\");", "30000");
 
-        assertTrue(selenium.isElementPresent("//form/div[2]/div[2]/span/table/tbody/tr/td"));
+        assertTrue(selenium.isElementPresent("//form/div[2]/div[2]/span/table/tbody/tr[2]/td"));
 
         selenium.click("css=a.w_close");
     }
@@ -50,7 +50,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//table/tbody/tr[4]/td[7]/span/span[9]/a");
+        selenium.click("//table/tbody/tr/td[7]/span/span[9]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 
