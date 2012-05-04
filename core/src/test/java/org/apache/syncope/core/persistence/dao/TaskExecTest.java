@@ -54,7 +54,7 @@ public class TaskExecTest extends AbstractTest {
         assertEquals(0, list.size());
 
         list = taskExecDAO.findAll(NotificationTask.class);
-        assertEquals(0, list.size());
+        assertEquals(1, list.size());
     }
 
     @Test
