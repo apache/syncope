@@ -45,6 +45,8 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-70] - Source artifacts include either 'syncope-1.0.0-RC1-incubating-source' and 'syncope-root-1.0.0-RC1-incubating-source' root dirs
     * [SYNCOPE-71] - Foreign key constraints missed with OpenJPA
     * [SYNCOPE-72] - JSP files don't contain the required ASF license header
+    * [SYNCOPE-75] - User create fails providing more than one value for a multivalued attribute of type date
+    * [SYNCOPE-77] - Save button not displayed in MembershipModalPage
 
 ** Improvement
     * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
@@ -59,6 +61,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-55] - Allow users to read roles assigned to them by membership
     * [SYNCOPE-60] - Display Excecutions in Synhronization Tasks with descendent order as default
     * [SYNCOPE-62] - Improve enum schema by giving the possibility to specify labels
+    * [SYNCOPE-67] - Display all Execute Tasks (Propagation, Notification and Scheduled) and related Execution history items sortered in descending order
     * [SYNCOPE-69] - Increase compile performance
 
 ** New Feature
