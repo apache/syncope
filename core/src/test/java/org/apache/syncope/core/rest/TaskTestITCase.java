@@ -466,32 +466,37 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, 8L);
 
         assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        TaskExecTO execution = restTemplate.postForObject(
-                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
-        assertEquals("NOT_SENT", execution.getStatus());
+        int executionNumber = taskTO.getExecutions().size();
 
-        int i = 0;
-        int maxit = 50;
+        if (executionNumber == 0) {
+            // generate an execution in order to verify the deletion of a notification task with one or more executions
 
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
+            TaskExecTO execution = restTemplate.postForObject(
+                    BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
+            assertEquals("NOT_SENT", execution.getStatus());
 
-            taskTO = restTemplate.getForObject(
-                    BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, taskTO.getId());
+            int i = 0;
+            int maxit = 50;
 
-            assertNotNull(taskTO);
-            assertNotNull(taskTO.getExecutions());
+            // wait for sync completion (executions incremented)
+            do {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
 
-            i++;
-        } while (taskTO.getExecutions().isEmpty() && i < maxit);
+                taskTO = restTemplate.getForObject(
+                        BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, taskTO.getId());
 
-        assertFalse(taskTO.getExecutions().isEmpty());
+                assertNotNull(taskTO);
+                assertNotNull(taskTO.getExecutions());
+
+                i++;
+            } while (executionNumber == taskTO.getExecutions().size() && i < maxit);
+
+            assertFalse(taskTO.getExecutions().isEmpty());
+        }
 
         taskTO = restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", NotificationTaskTO.class, taskTO.getId());
         assertNotNull(taskTO);
