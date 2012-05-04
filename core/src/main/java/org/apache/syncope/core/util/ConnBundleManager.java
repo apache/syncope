@@ -117,7 +117,7 @@ public class ConnBundleManager {
     public ConfigurationProperties getConfigurationProperties(final ConnectorInfo info) throws NotFoundException {
 
         if (info == null) {
-            throw new NotFoundException("Invalid connector info " + info);
+            throw new NotFoundException("Invalid: connector info is null");
         }
 
         // create default configuration

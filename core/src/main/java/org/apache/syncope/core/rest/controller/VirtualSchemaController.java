@@ -129,7 +129,7 @@ public class VirtualSchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).virtualSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaTO.getName(), reference);
         if (virtualSchema == null) {
-            throw new NotFoundException("Virtual schema '" + virtualSchema.getName() + "'");
+            throw new NotFoundException("Virtual schema is null");
         }
 
         virtualSchema = virtualSchemaDataBinder.update(virtualSchemaTO, virtualSchema,
