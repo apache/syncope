@@ -313,7 +313,7 @@ public class SyncJob extends AbstractTaskJob {
                             .getAttributes());
 
                     if (status != null) {
-                        enabled = status != null && status.getValue() != null && !status.getValue().isEmpty()
+                        enabled = status.getValue() != null && !status.getValue().isEmpty()
                                 ? (Boolean) status.getValue().get(0)
                                 : null;
                     }

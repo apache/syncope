@@ -20,9 +20,9 @@ package org.apache.syncope.core.init;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
@@ -60,13 +60,13 @@ public class ContentLoader {
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
         // 1. Check wether we are allowed to load default content into the DB
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         boolean existingData = false;
         try {
-            statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
-            resultSet = statement.executeQuery(queryContent);
+            statement = conn.prepareStatement(queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            resultSet = statement.executeQuery();
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
@@ -110,9 +110,9 @@ public class ContentLoader {
                 LOG.debug("Creating view {}", views.get(idx).toString());
 
                 try {
-                    statement = conn.createStatement();
                     final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
-                    statement.executeUpdate(updateViews);
+                    statement = conn.prepareStatement(updateViews);
+                    statement.executeUpdate();
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create view ", e);
@@ -135,9 +135,9 @@ public class ContentLoader {
                 LOG.debug("Creating index {}", indexes.get(idx).toString());
 
                 try {
-                    statement = conn.createStatement();
                     final String updateIndexed = indexes.get(idx).toString();
-                    statement.executeUpdate(updateIndexed);
+                    statement = conn.prepareStatement(updateIndexed);
+                    statement.executeUpdate();
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create index ", e);
@@ -150,8 +150,8 @@ public class ContentLoader {
         }
 
         try {
-            statement = conn.createStatement();
-            statement.executeUpdate("DELETE FROM ACT_GE_PROPERTY");
+            statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException e) {
             LOG.error("Error during ACT_GE_PROPERTY delete rows", e);

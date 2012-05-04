@@ -28,7 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
@@ -127,12 +126,12 @@ public class ImportExport extends DefaultHandler {
 
         Connection conn = DataSourceUtils.getConnection(dataSource);
         ResultSet rs = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
 
         try {
-            stmt = conn.createStatement();
             final String queryString = "SELECT * FROM " + tableName;
-            rs = stmt.executeQuery(queryString);
+            stmt = conn.prepareStatement(queryString);
+            rs = stmt.executeQuery();
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
                 colTypes.put(rs.getMetaData().getColumnName(i + 1).toUpperCase(), rs.getMetaData().getColumnType(i + 1));
             }

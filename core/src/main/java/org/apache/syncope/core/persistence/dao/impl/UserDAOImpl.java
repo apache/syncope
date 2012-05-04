@@ -407,21 +407,13 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
             public int compare(String t, String t1) {
                 if (t == null && t1 == null) {
                     return 0;
-                }
-
-                if (t != null && t1 == null) {
+                } else if (t != null && t1 == null) {
                     return -1;
-                }
-
-                if (t == null && t1 != null) {
+                } else if (t == null && t1 != null) {
                     return 1;
-                }
-
-                if (t.length() == t1.length()) {
+                } else if (t.length() == t1.length()) {
                     return 0;
-                }
-
-                if (t.length() > t1.length()) {
+                } else if (t.length() > t1.length()) {
                     return -1;
                 } else {
                     return 1;
