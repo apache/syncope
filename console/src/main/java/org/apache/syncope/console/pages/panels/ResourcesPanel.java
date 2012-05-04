@@ -38,27 +38,33 @@ public class ResourcesPanel extends Panel {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    final IModel<List<String>> allResources = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-            final List<String> resourceNames = new ArrayList<String>();
-
-            for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
-                resourceNames.add(resourceTO.getName());
-            }
-            return resourceNames;
-        }
-    };
-
     public <T extends AbstractAttributableTO> ResourcesPanel(final String id, final T entityTO) {
         super(id);
+        final IModel<List<String>> allResources = new allResourcesModel(resourceRestClient);
 
         final AjaxPalettePanel resourcesPalette = new AjaxPalettePanel("resourcesPalette", new PropertyModel(entityTO,
                 "resources"), new ListModel<String>(allResources.getObject()));
 
         add(resourcesPalette);
+    }
+    
+    private static class allResourcesModel extends LoadableDetachableModel {
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        private ResourceRestClient client;
+        
+        public allResourcesModel(ResourceRestClient resourceRestClient) {
+            this.client = resourceRestClient;
+        }
+
+        @Override
+        protected Object load() {
+            final List<String> resourceNames = new ArrayList<String>();
+
+            for (ResourceTO resourceTO : client.getAllResources()) {
+                resourceNames.add(resourceTO.getName());
+            }
+            return resourceNames;
+        }
     }
 }
