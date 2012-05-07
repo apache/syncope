@@ -294,48 +294,46 @@ cd 1.0-rc1</source>
             Create a 
             <code>VOTE</code> email thread on 
             <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> to record votes as replies, e.g.:
-            <pre>
-              To: syncope-dev@incubator.apache.org
-              Subject: [VOTE] Apache Syncope &lt;version&gt;
+            <pre>To: syncope-dev@incubator.apache.org
+Subject: [VOTE] Apache Syncope &lt;version&gt;
 
-              I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+I've created a &lt;version&gt; release, with the following artifacts up for a vote:
 
-              SVN source tag (r9999999):
-              https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
+SVN source tag (r9999999):
+https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
 
-              Maven staging repo:
-              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+Maven staging repo:
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
-              Source release (checksums and signatures are available at the same location):
-              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
-              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+Source release (checksums and signatures are available at the same location):
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
 
-              PGP release keys (signed using ABCDEFG):
-              http://www.apache.org/dist/incubator/syncope/KEYS
+PGP release keys (signed using ABCDEFG):
+http://www.apache.org/dist/incubator/syncope/KEYS
 
-              Vote will be open for 72 hours.
+Vote will be open for 72 hours.
 
-              [ ] +1  approve
-              [ ] +0  no opinion
-              [ ] -1  disapprove (and reason why)
-            </pre>
+[ ] +1  approve
+[ ] +0  no opinion
+[ ] -1  disapprove (and reason why)</pre>
           </li>
           <li>
             Create a <code>DISCUSS</code> email thread on <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a> for any vote questions, e.g.:
             <pre>
-              To: syncope-dev@incubator.apache.org
-              Subject: [DISCUSS] Apache Syncope &lt;version&gt;
+To: syncope-dev@incubator.apache.org
+Subject: [DISCUSS] Apache Syncope &lt;version&gt;
 
-              Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
+Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
 
-              For more information on the release process, check out http://www.apache.org/dev/release.html
+For more information on the release process, check out http://www.apache.org/dev/release.html
 
-              Some of the things to check before voting are:
-              - does "mvn apache-rat:check" pass on the source
-              - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
-              - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
-              - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
-              - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
+Some of the things to check before voting are:
+ - does "mvn apache-rat:check" pass on the source
+ - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
+ - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
+ - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
+ - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
             </pre>
           </li>
           <li>
@@ -346,15 +344,109 @@ cd 1.0-rc1</source>
             however it is usually a good idea to rollback the release if a -1 vote is
             received (see <a href="#Recovering_from_a_vetoed_release">&quot;Recovering from a vetoed release&quot;</a>).
           </li>
+          <!-- <incubator-specific> -->
           <li>After the vote has been open for at least 72 hours, has at least three
             +1 PMC votes and no -1 votes, then post the results to the vote thread:
-            <ol>
-              <li>Reply to the initial email prepending 
-                <code>[RESULT]</code> to the original subject
-              </li>
-              <li>Include a list of every binding +1, 0 or -1 vote.</li>
-            </ol>
+            <pre>To: syncope-dev@incubator.apache.org
+Subject: [RESULT] [VOTE] Apache Syncope &lt;version&gt;
+
+Hi all,
+after 72 hours, the vote for Syncope &lt;version&gt; [1] *passes*
+with ... PPMC + ... non-PPMC votes.
+
++1 (PPMC / binding)
+* ...
+
++1 (non binding)
+ * ... (or &lt;none&gt;)
+
+0
+ * ... (or &lt;none&gt;)
+
+-1
+ * ... (or &lt;none&gt;)
+
+Thanks to everyone participating.
+
+I will now submit the release for voting on the general@incubator.apache.org
+
+Best regards.
+
+[1] &lt;link to syncope-dev ML archives for the related [VOTE] thread&gt;</pre>
           </li>
+          <li>Once the vote has been approved on <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a>, 
+          then the release process should be performed again on 
+          <a href="mailto:general@incubator.apache.org">general@incubator</a> ML.
+          <pre>To: general@incubator.apache.org
+Subject: [VOTE] Apache Syncope &lt;version&gt;
+            
+I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+
+SVN source tag (r9999999):
+https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
+
+Maven staging repo:
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+
+Source release (checksums and signatures are available at the same location):
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+
+PGP release keys (signed using ABCDEFG):
+http://www.apache.org/dist/incubator/syncope/KEYS
+
+This has been voted through on the syncope-dev@incubator.apache.org mailing list [1], 
+and now requires a vote on general@incubator.apache.org
+
+Votes already cast (on syncope-dev):
+
++1 (binding)
+* ...
+
++1 (non binding)
+ * ... (or &lt;none&gt;)
+
+
+Vote will be open for 72 hours.
+
+[ ] +1  approve
+[ ] +0  no opinion
+[ ] -1  disapprove (and reason why)
+
+Best regards.
+
+[1] &lt;link to syncope-dev ML archives for the related [RESULT] [VOTE] thread&gt;</pre>
+          </li>
+          <li>Once the incubator vote has completed, post the results to the 
+          <a href="mailto:general@incubator.apache.org">general@incubator</a> ML:
+          <pre>To: general@incubator.apache.org
+Subject: [RESULT] [VOTE] Apache Syncope &lt;version&gt;
+
+Hi all,
+after 72 hours, the vote for Syncope &lt;version&gt; [1] *passes*
+with ... IPMC + ... non-IPMC votes.
+
++1 (IPMC / binding)
+* ...
+
++1 (non binding)
+ * ... (or &lt;none&gt;)
+
+0
+ * ... (or &lt;none&gt;)
+
+-1
+ * ... (or &lt;none&gt;)
+
+Thanks to everyone participating.
+
+I will now copy this release to Syncope' dist directory and promote the artifacts to the central Maven repository.
+
+Best regards.
+
+[1] &lt;link to general incubator ML archives for the related [VOTE] thread&gt;</pre>
+          </li>
+          <!-- </incubator-specific> -->
         </ol>
       </subsection>
       
