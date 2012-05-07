@@ -508,7 +508,7 @@ under the License.
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
 <!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
-              <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false -Xms512m -Xmx1024m -XX:PermSize=512m -XX:MaxPermSize=1024m</cargo.jvmargs>
+              <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
             <configfiles>
               <configfile>
