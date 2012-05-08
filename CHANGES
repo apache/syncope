@@ -1,4 +1,4 @@
-Apache Syncope (incubating) - CHANGES.txt
+Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
@@ -12,6 +12,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
 ** Bug
     * [SYNCOPE-1] - ASF license headers not correct
     * [SYNCOPE-3] - Include NOTICE and LICENSE in all artifacts
+    * [SYNCOPE-8] - ERROR: type "clob" does not exist
     * [SYNCOPE-10] - ConnInstance update doesn't imply related connector spring beans reloading
     * [SYNCOPE-11] - Editing a virtual attribute, error after submit
     * [SYNCOPE-12] - Error Selenium Tests
@@ -21,6 +22,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-21] - ACT_HI_ACTINST:Unique index or primary key violation on non-empty database
     * [SYNCOPE-23] - TODO tab glitches
     * [SYNCOPE-27] - Reflection aware REST methods don't consider classes not explicitly implementing interfaces
+    * [SYNCOPE-29] - Deployment on JBoss AS 7.1.0-Final does not work
     * [SYNCOPE-30] - Generation from archetype fails with error 'The defined artifact is not an archetype'
     * [SYNCOPE-31] - User status is not propagated during update
     * [SYNCOPE-32] - Missing SMALLINT type in ImportExport class
@@ -42,11 +44,15 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-61] - WARNING: DB connection abandoned
     * [SYNCOPE-63] - PolicyBeanPanel doesn't work fine
     * [SYNCOPE-65] - Export/Import doesn't work with MySQL
+    * [SYNCOPE-68] - Existing memberships removed during synchronization
     * [SYNCOPE-70] - Source artifacts include either 'syncope-1.0.0-RC1-incubating-source' and 'syncope-root-1.0.0-RC1-incubating-source' root dirs
     * [SYNCOPE-71] - Foreign key constraints missed with OpenJPA
     * [SYNCOPE-72] - JSP files don't contain the required ASF license header
     * [SYNCOPE-75] - User create fails providing more than one value for a multivalued attribute of type date
     * [SYNCOPE-77] - Save button not displayed in MembershipModalPage
+    * [SYNCOPE-80] - Changin Rows to display value in Propagation Tasks does not take effect
+    * [SYNCOPE-81] - NotificationTasks cannot be deleted
+    * [SYNCOPE-82] - Propagation task executions don't get persisted
 
 ** Improvement
     * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
@@ -63,6 +69,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-62] - Improve enum schema by giving the possibility to specify labels
     * [SYNCOPE-67] - Display all Execute Tasks (Propagation, Notification and Scheduled) and related Execution history items sortered in descending order
     * [SYNCOPE-69] - Increase compile performance
+    * [SYNCOPE-74] - Make configuration params available in mail templates
 
 ** New Feature
     * [SYNCOPE-7] - Role/Membership attributes propagation
@@ -73,6 +80,7 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-9] - Update logo in console web UI
     * [SYNCOPE-13] - Migrate documentation from old wiki
     * [SYNCOPE-19] - Update Activiti to release 5.9 
+    * [SYNCOPE-20] - Audit features
     * [SYNCOPE-25] - Update glassfish-it profile to latest glassfish 3.1.2
     * [SYNCOPE-35] - Update to Wicket 1.5.5 and verify selenium tests
     * [SYNCOPE-56] - Package rename
