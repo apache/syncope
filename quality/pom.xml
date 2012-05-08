@@ -23,11 +23,11 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Parent POM is not Syncope parent POM but Syncope root POM: this is due to avoid circular dependencies between 
-       this POM and Syncope parent POM; specific items related to this are marked below as <SyncopeRootPOM/>. -->
+       this POM and Syncope parent POM; specific items related to this are marked below as <SyncopeRootPOM />. -->
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-root</artifactId>
-    <version>1.0.0-incubating-SNAPSHOT</version>
+    <version>1.0.0-RC1-incubating</version>
   </parent>
 
   <name>Apache Syncope Quality</name>
@@ -35,7 +35,7 @@ under the License.
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-quality</artifactId>
 
-  <!-- <SyncopeRootPOM/> -->
+  <!-- <SyncopeRootPOM /> -->
   <distributionManagement>
     <site>
       <id>syncope.quality.website</id>
@@ -49,7 +49,7 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
       </resource>
-      <!-- <SyncopeRootPOM/> -->
+      <!-- <SyncopeRootPOM /> -->
       <resource>
         <directory>..</directory>
         <targetPath>META-INF</targetPath>
