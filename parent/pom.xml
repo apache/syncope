@@ -777,7 +777,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>selenium-maven-plugin</artifactId>
-          <version>2.2</version>
+          <version>2.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -937,12 +937,12 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE/DISCLAIMER files for javadoc jars">
-                <mkdir dir="target/apidocs/META-INF"/>
+                <mkdir dir="target/apidocs/META-INF" />
                 <copy todir="target/apidocs/META-INF">
                   <fileset dir="..">
-                    <include name="NOTICE"/>
-                    <include name="LICENSE"/>
-                    <include name="DISCLAIMER"/>
+                    <include name="NOTICE" />
+                    <include name="LICENSE" />
+                    <include name="DISCLAIMER" />
                   </fileset>
                 </copy>
               </target>
