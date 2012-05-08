@@ -30,31 +30,38 @@ under the License.
   <version>1.0.0-incubating-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>10</version>
+    <relativePath />
+  </parent>
+  
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</connection>
     <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
     <url>http://svn.apache.org/viewvc/incubator/syncope/trunk</url>
   </scm>
-
-  <distributionManagement>
-    <repository>
-      <id>apache.releases.https</id>
-      <name>Apache Release Distribution Repository</name>
-      <url>https://repository.apache.org/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>apache.snapshots.https</id>
-      <name>Apache Development Snapshot Repository</name>
-      <url>https://repository.apache.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   
   <build>
     <plugins>
+      <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.7</version>
         <configuration>
           <excludes>
             <exclude>nbactions.xml</exclude>
