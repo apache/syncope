@@ -45,6 +45,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.SchedTaskTO;
+import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -80,6 +81,10 @@ public class SchedTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    private final List<IColumn<TaskTO>> columns;
+
+    private AjaxFallbackDefaultDataTable<TaskTO> table;
+
     public SchedTasks(final String id, final PageReference callerPageRef) {
 
         super(id);
@@ -99,7 +104,7 @@ public class SchedTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SchedTaskTO>> columns = new ArrayList<IColumn<SchedTaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -111,7 +116,7 @@ public class SchedTasks extends Panel {
 
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<SchedTaskTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -121,10 +126,10 @@ public class SchedTasks extends Panel {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<SchedTaskTO>> cellItem, final String componentId,
-                    final IModel<SchedTaskTO> model) {
+            public void populateItem(final Item<ICellPopulator<TaskTO>> cellItem, final String componentId,
+                    final IModel<TaskTO> model) {
 
-                final SchedTaskTO taskTO = model.getObject();
+                final SchedTaskTO taskTO = (SchedTaskTO) model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
@@ -206,9 +211,12 @@ public class SchedTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SchedTaskTO> table = new AjaxFallbackDefaultDataTable<SchedTaskTO>(
-                "datatable", columns, new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
-                paginatorRows);
+        table = Tasks.updateTaskTable(
+                columns,
+                new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                container,
+                0);
+
         container.add(table);
 
         Form paginatorForm = new Form("PaginatorForm");
@@ -225,7 +233,11 @@ public class SchedTasks extends Panel {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setItemsPerPage(paginatorRows);
+                table = Tasks.updateTaskTable(
+                        columns,
+                        new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                        container,
+                        table == null ? 0 : table.getCurrentPage());
 
                 target.add(container);
             }
