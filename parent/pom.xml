@@ -925,7 +925,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <!-- Put LICENSE and NOTICE files in all javadoc artifacts -->
+      <!-- Put NOTICE, LICENSE and DISCLAIMER files in all javadoc artifacts -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -936,18 +936,15 @@ under the License.
             </goals>
             <phase>process-resources</phase>
             <configuration>
-              <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE files for javadoc jar">
-
-                <echo level="info" message="**** copy-javadoc-files - Copying NOTICE and LICENSE files ****" />
-
-                <mkdir dir="target/apidocs/META-INF" />
+              <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE/DISCLAIMER files for javadoc jars">
+                <mkdir dir="target/apidocs/META-INF"/>
                 <copy todir="target/apidocs/META-INF">
                   <fileset dir="..">
-                    <include name="NOTICE" />
-                    <include name="LICENSE" />
+                    <include name="NOTICE"/>
+                    <include name="LICENSE"/>
+                    <include name="DISCLAIMER"/>
                   </fileset>
                 </copy>
-
               </target>
             </configuration>
           </execution>
@@ -963,6 +960,11 @@ under the License.
               <goal>verify-legal-files</goal>
             </goals>
             <configuration>
+              <requiredFiles>
+                <requiredFile>LICENSE</requiredFile>
+                <requiredFile>NOTICE</requiredFile>
+                <requiredFile>DISCLAIMER</requiredFile>
+              </requiredFiles>
               <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
             </configuration>
