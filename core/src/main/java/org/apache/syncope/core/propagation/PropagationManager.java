@@ -79,7 +79,7 @@ import org.apache.syncope.types.TraceLevel;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class PropagationManager {
 
     /**
@@ -135,7 +135,8 @@ public class PropagationManager {
     @Autowired
     private JexlUtil jexlUtil;
 
-    private SyncopeUser getSyncopeUser(final Long userId) throws NotFoundException {
+    private SyncopeUser getSyncopeUser(final Long userId)
+            throws NotFoundException {
 
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
@@ -155,7 +156,8 @@ public class PropagationManager {
      * @throws NotFoundException if userId is not found
      */
     public List<PropagationTask> getCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs) throws NotFoundException {
+            final String password, final List<AttributeTO> vAttrs)
+            throws NotFoundException {
 
         return getCreateTaskIds(wfResult, password, vAttrs, null);
     }
@@ -202,7 +204,8 @@ public class PropagationManager {
      * @throws NotFoundException if userId is not found
      */
     public List<PropagationTask> getUpdateTaskIds(final SyncopeUser user, final Boolean enable,
-            final Set<String> syncResourceNames) throws NotFoundException {
+            final Set<String> syncResourceNames)
+            throws NotFoundException {
 
         return getUpdateTaskIds(user, // SyncopeUser to be updated on external resources
                 null, // no propagation by resources
@@ -257,17 +260,19 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final Set<String> syncResourceNames) throws NotFoundException {
+            final Set<String> syncResourceNames)
+            throws NotFoundException {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
 
-        return getUpdateTaskIds(user, wfResult.getPropByRes(), password, vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult
-                .getResult().getValue(), syncResourceNames);
+        return getUpdateTaskIds(user, wfResult.getPropByRes(), password, vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.
+                getResult().getValue(), syncResourceNames);
     }
 
     private List<PropagationTask> getUpdateTaskIds(final SyncopeUser user, final PropagationByResource propByRes,
             final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable, final Set<String> syncResourceNames) throws NotFoundException {
+            final Boolean enable, final Set<String> syncResourceNames)
+            throws NotFoundException {
 
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(user, vAttrsToBeRemoved == null
                 ? Collections.EMPTY_SET
@@ -299,7 +304,8 @@ public class PropagationManager {
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      */
-    public List<PropagationTask> getDeleteTaskIds(final Long userId) throws NotFoundException {
+    public List<PropagationTask> getDeleteTaskIds(final Long userId)
+            throws NotFoundException {
 
         return getDeleteTaskIds(userId, null);
     }
@@ -338,7 +344,8 @@ public class PropagationManager {
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
     private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
-            final String password) throws ClassNotFoundException {
+            final String password)
+            throws ClassNotFoundException {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
@@ -394,8 +401,8 @@ public class PropagationManager {
 
         } else if (mapping.isPassword()) {
 
-            res = new DefaultMapEntry(null, AttributeBuilder.buildPassword(objValues.iterator().next().toString()
-                    .toCharArray()));
+            res = new DefaultMapEntry(null, AttributeBuilder.buildPassword(objValues.iterator().next().toString().
+                    toCharArray()));
 
         } else {
             if (schema != null && schema.isMultivalue()) {
@@ -423,8 +430,8 @@ public class PropagationManager {
     private Map.Entry<String, Set<Attribute>> prepareAttributes(final SyncopeUser user, final String password,
             final Boolean enable, final ExternalResource resource) {
 
-        LOG.debug("Preparing resource attributes for {}" + " on resource {}" + " with attributes {}", new Object[] {
-                user, resource, user.getAttributes() });
+        LOG.debug("Preparing resource attributes for {}" + " on resource {}" + " with attributes {}", new Object[]{
+                    user, resource, user.getAttributes()});
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -456,8 +463,8 @@ public class PropagationManager {
                     }
 
                 }
-            } catch (Throwable t) {
-                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), t);
+            } catch (Exception e) {
+                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), e);
             }
         }
 
@@ -543,7 +550,8 @@ public class PropagationManager {
         return tasks;
     }
 
-    public void execute(final List<PropagationTask> tasks) throws PropagationException {
+    public void execute(final List<PropagationTask> tasks)
+            throws PropagationException {
         execute(tasks, null);
     }
 
@@ -743,15 +751,15 @@ public class PropagationManager {
                 throw e;
             }
 
-        } catch (Throwable t) {
-            LOG.error("Exception during provision on resource " + task.getResource().getName(), t);
+        } catch (Exception e) {
+            LOG.error("Exception during provision on resource " + task.getResource().getName(), e);
 
-            if (t instanceof ConnectorException && t.getCause() != null) {
-                taskExecutionMessage = t.getCause().getMessage();
+            if (e instanceof ConnectorException && e.getCause() != null) {
+                taskExecutionMessage = e.getCause().getMessage();
             } else {
                 StringWriter exceptionWriter = new StringWriter();
-                exceptionWriter.write(t.getMessage() + "\n\n");
-                t.printStackTrace(new PrintWriter(exceptionWriter));
+                exceptionWriter.write(e.getMessage() + "\n\n");
+                e.printStackTrace(new PrintWriter(exceptionWriter));
                 taskExecutionMessage = exceptionWriter.toString();
             }
 
@@ -759,7 +767,7 @@ public class PropagationManager {
                 execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.FAILURE.name()
                         : PropagationTaskExecStatus.UNSUBMITTED.name());
-            } catch (Throwable wft) {
+            } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
@@ -767,27 +775,37 @@ public class PropagationManager {
         } finally {
             LOG.debug("Update execution for {}", task);
 
+            execution.setStartDate(startDate);
+            execution.setMessage(taskExecutionMessage);
+            execution.setEndDate(new Date());
+
             if (hasToBeregistered(task, execution)) {
-                PropagationTask savedTask = taskDAO.save(task);
-
-                execution.setStartDate(startDate);
-                execution.setMessage(taskExecutionMessage);
-                execution.setEndDate(new Date());
-                execution.setTask(savedTask);
-
-                if (!propagationAttempted.isEmpty()) {
-                    execution = taskExecDAO.save(execution);
+                if (propagationAttempted.isEmpty()) {
+                    LOG.debug("No propagation attemped for {}", execution);
+                } else {
+                    execution.setTask(task);
+                    task.addExec(execution);
 
                     LOG.debug("Execution finished: {}", execution);
-                } else {
-                    LOG.debug("No propagation attemped for {}", execution);
                 }
+
+                taskDAO.save(task);
+
+                // Flush call is needed to value the id field of execution (used by deal test of TaskTestITCase).
+                taskDAO.flush();
+                
+                // An alternative to the flush call could be the following statement but we should accept the risk to  
+                // have a not so probable trouble coming from concurrent calls.
+                //final TaskExec latestExec = taskExecDAO.findLatestStarted(taskDAO.save(task));
             }
         }
 
         if (handler != null) {
-            handler.handle(task.getResource().getName(), PropagationTaskExecStatus.valueOf(execution.getStatus()),
-                    before, after);
+            handler.handle(
+                    task.getResource().getName(),
+                    PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                    before,
+                    after);
         }
 
         return execution;
@@ -807,8 +825,8 @@ public class PropagationManager {
 
             return connector.getObject(task.getPropagationMode(), task.getPropagationOperation(), ObjectClass.ACCOUNT,
                     new Uid(latest || task.getOldAccountId() == null
-                            ? task.getAccountId()
-                            : task.getOldAccountId()), connector.getOperationOptions(task.getResource()));
+                    ? task.getAccountId()
+                    : task.getOldAccountId()), connector.getOperationOptions(task.getResource()));
 
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);

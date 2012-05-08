@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import java.io.InvalidClassException;
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Scheduler;
@@ -136,7 +137,8 @@ public class TaskDataBinder {
         task.setJobActionsClassName(taskTO.getJobActionsClassName());
     }
 
-    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) throws NotFoundException {
+    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil)
+            throws NotFoundException {
 
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
@@ -147,6 +149,10 @@ public class TaskDataBinder {
                 break;
 
             case SYNC:
+                if (!(taskTO instanceof SyncTaskTO)) {
+                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
+                            getClass().getName());
+                }
                 SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
                 ExternalResource resource = resourceDAO.find(syncTaskTO.getResource());
@@ -167,6 +173,15 @@ public class TaskDataBinder {
         task.setCronExpression(taskTO.getCronExpression());
 
         if (taskUtil == TaskUtil.SYNC) {
+            if (!(task instanceof SyncTask)) {
+                throw new ClassCastException("taskUtil is type SyncTask but task is not SyncTask: " + task.getClass().
+                        getName());
+            }
+            if (!(taskTO instanceof SyncTaskTO)) {
+                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
+                        getClass().getName());
+            }
+
             fill((SyncTask) task, (SyncTaskTO) taskTO);
         }
     }
@@ -174,10 +189,14 @@ public class TaskDataBinder {
     public TaskExecTO getTaskExecTO(final TaskExec execution) {
         TaskExecTO executionTO = new TaskExecTO();
         BeanUtils.copyProperties(execution, executionTO, IGNORE_TASK_EXECUTION_PROPERTIES);
+
         if (execution.getId() != null) {
             executionTO.setId(execution.getId());
         }
-        executionTO.setTask(execution.getTask().getId());
+
+        if (execution.getTask() != null && execution.getTask().getId() != null) {
+            executionTO.setTask(execution.getTask().getId());
+        }
 
         return executionTO;
     }
@@ -209,6 +228,11 @@ public class TaskDataBinder {
 
         switch (taskUtil) {
             case PROPAGATION:
+                if (!(task instanceof PropagationTask)) {
+                    throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: " + task.
+                            getClass().getName());
+                }
+
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
                 if (((PropagationTask) task).getSyncopeUser() != null) {
                     ((PropagationTaskTO) taskTO).setUser(((PropagationTask) task).getSyncopeUser().getId());
@@ -221,6 +245,11 @@ public class TaskDataBinder {
 
             case SYNC:
                 setExecTime((SchedTaskTO) taskTO, task);
+
+                if (!(task instanceof SyncTask)) {
+                    throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: " + task.getClass().
+                            getName());
+                }
 
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
                 break;

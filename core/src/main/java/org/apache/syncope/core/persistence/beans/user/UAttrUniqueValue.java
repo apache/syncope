@@ -31,13 +31,10 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
     private static final long serialVersionUID = -64080804563305387L;
-
     @Id
     private Long id;
-
     @OneToOne(optional = false)
     private UAttr attribute;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "schema_name")
     private USchema schema;
@@ -54,6 +51,9 @@ public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Override
     public <T extends AbstractAttr> void setAttribute(final T attribute) {
+        if (!(attribute instanceof UAttr)) {
+            throw new ClassCastException("expected type UAttr, found: " + attribute.getClass().getName());
+        }
         this.attribute = (UAttr) attribute;
     }
 
@@ -64,6 +64,9 @@ public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Override
     public <T extends AbstractSchema> void setSchema(final T schema) {
+        if (!(schema instanceof USchema)) {
+            throw new ClassCastException("expected type USchema, found: " + schema.getClass().getName());
+        }
         this.schema = (USchema) schema;
     }
 }

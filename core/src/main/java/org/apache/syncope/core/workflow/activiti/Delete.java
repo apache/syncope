@@ -29,7 +29,11 @@ public class Delete extends AbstractActivitiDelegate {
 
         SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
-        // do something with SyncopeUser...
+        // TODO: do something with SyncopeUser...
+        if (user != null) {
+            user.checkToken("");
+        }
+
 
         // remove SyncopeUser variable
         execution.removeVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);

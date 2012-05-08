@@ -26,55 +26,55 @@ under the License.
     <author email="syncope-dev@incubator.apache.org">Apache Syncope Documentation Team</author>
   </properties>
 
-  <body>
-    <h2>Features</h2>
-    
-    <ul>
-      <li>Identity and Role Administration
-        <ul>
-          <li>Password management and Self-Service Operations</li>
-          <li>Configurable Password encryption</li>
-          <li>Attribute validators (Reg-Exp based and custom)</li>
-          <li>Account Policy management</li>
-          <li>Password Policy management</li>
-          <li>Role-based provisioning</li>
-          <li>Account status information on external resources</li>
-        </ul>
-      </li>
-      <li>Approval and Request Management
-        <ul>
-          <li>End-User Request Management</li>
-          <li>Approval workflow</li>
-          <li>Workflow event notification</li>
-        </ul>
-      </li>
-      <li>Domain Integration
-        <ul>
-          <li>Highly configurable communication with external resources powered by            
-            <a href="http://connid.googlecode.com" target="_blank">ConnId</a>
-          </li>
-          <li>Identity propagation towards external resources</li>
-          <li>Reconciliation / Bulk load from external resources</li>
-          <li>Identity synchronization from external resources (ActiveSync)</li>
-          <li>Synchronization Policy Management</li>
-        </ul>
-      </li>
-      <li>Business Intelligence
-        <ul>
-          <li>Comprehensive Auditing features</li>
-          <li>Highly customizable and configurable Report generation</li>
-        </ul>
-      </li>
-      <li>System Administration
-        <ul>
-          <li>RESTFul interface</li>
-          <li>Web-based AJAX administration console</li>
-          <li>Role-based administration</li>
-          <li>Attribute schema, Derived attribute schema and Virtual Attribute schema management</li>
-          <li>Role tree management</li>
-          <li>Schedulable Task execution</li>
-        </ul>
-      </li>
-    </ul>
+  <body>    
+    <section name="Identity and Role Administration">
+      <ul>
+        <li>Password management and Self-Service Operations</li>
+        <li>Configurable Password encryption</li>
+        <li>Attribute validators (Reg-Exp based and custom)</li>
+        <li>Account Policy management</li>
+        <li>Password Policy management</li>
+        <li>Role-based provisioning</li>
+        <li>Account status information on external resources</li>
+      </ul>
+    </section>
+      
+    <section name="Approval and Request Management">
+      <ul>
+        <li>End-User Request Management</li>
+        <li>Approval workflow</li>
+        <li>Workflow event notification</li>
+      </ul>
+    </section>
+      
+    <section name="Domain Integration">
+      <ul>
+        <li>Highly configurable communication with external resources powered by            
+          <a href="http://connid.googlecode.com" target="_blank">ConnId</a>
+        </li>
+        <li>Identity propagation towards external resources</li>
+        <li>Reconciliation / Bulk load from external resources</li>
+        <li>Identity synchronization from external resources (ActiveSync)</li>
+        <li>Synchronization Policy Management</li>
+      </ul>
+    </section>
+      
+    <section name="Business Intelligence">
+      <ul>
+        <li>Comprehensive Auditing features</li>
+        <li>Highly customizable and configurable Report generation</li>
+      </ul>
+    </section>
+      
+    <section name="System Administration">
+      <ul>
+        <li>RESTFul interface</li>
+        <li>Web-based AJAX administration console</li>
+        <li>Role-based administration</li>
+        <li>Attribute schema, Derived attribute schema and Virtual Attribute schema management</li>
+        <li>Role tree management</li>
+        <li>Schedulable Task execution</li>
+      </ul>
+    </section>
   </body>
 </document>

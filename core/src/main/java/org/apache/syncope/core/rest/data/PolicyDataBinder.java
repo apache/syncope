@@ -41,37 +41,43 @@ public class PolicyDataBinder {
      */
     public <T extends PolicyTO> T getPolicyTO(final Policy policy) {
         final PolicyTO policyTO;
+
+        boolean isGlobal = Boolean.FALSE;
         switch (policy.getType()) {
             case GLOBAL_PASSWORD:
-                policyTO = new PasswordPolicyTO(true);
-                ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
-                break;
+            case GLOBAL_ACCOUNT:
+            case GLOBAL_SYNC:
+                isGlobal = Boolean.TRUE;
+            default:
+        }
 
+        switch (policy.getType()) {
+            case GLOBAL_PASSWORD:
             case PASSWORD:
-                policyTO = new PasswordPolicyTO();
+                if (!(policy.getSpecification() instanceof PasswordPolicySpec)) {
+                    throw new ClassCastException("policy is expected to be typed PasswordPolicySpec: " + policy.getSpecification().getClass().getName());
+                }
+                policyTO = new PasswordPolicyTO(isGlobal);
                 ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
                 break;
 
             case GLOBAL_ACCOUNT:
-                policyTO = new AccountPolicyTO(true);
-                ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
-                break;
-
             case ACCOUNT:
-                policyTO = new AccountPolicyTO();
+                if (!(policy.getSpecification() instanceof AccountPolicySpec)) {
+                    throw new ClassCastException("policy is expected to be typed AccountPolicySpec: " + policy.getSpecification().getClass().getName());
+                }
+                policyTO = new AccountPolicyTO(isGlobal);
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
                 break;
 
             case GLOBAL_SYNC:
-                policyTO = new SyncPolicyTO(true);
-                ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
-                break;
-
             case SYNC:
             default:
-                policyTO = new SyncPolicyTO();
+                if (!(policy.getSpecification() instanceof SyncPolicySpec)) {
+                    throw new ClassCastException("policy is expected to be typed SyncPolicySpec: " + policy.getSpecification().getClass().getName());
+                }
+                policyTO = new SyncPolicyTO(isGlobal);
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
-
         }
 
         policyTO.setId(policy.getId());
@@ -83,50 +89,49 @@ public class PolicyDataBinder {
     public <T extends Policy> T getPolicy(T policy, final PolicyTO policyTO) {
 
         if (policy != null && policy.getType() != policyTO.getType()) {
-            throw new IllegalArgumentException(String.format("Cannot update %s from %s", policy.getType(), policyTO
-                    .getType()));
+            throw new IllegalArgumentException(String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
+        }
+        
+        boolean isGlobal = Boolean.FALSE;
+        switch (policyTO.getType()) {
+            case GLOBAL_PASSWORD:
+            case GLOBAL_ACCOUNT:
+            case GLOBAL_SYNC:
+                isGlobal = Boolean.TRUE;
+            default:
         }
 
         switch (policyTO.getType()) {
             case GLOBAL_PASSWORD:
-                if (policy == null) {
-                    policy = (T) new PasswordPolicy(true);
-                }
-                policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
-                break;
-
             case PASSWORD:
+                if (!(policyTO instanceof PasswordPolicyTO)) {
+                    throw new ClassCastException("policyTO is expected to be typed PasswordPolicyTO: " + policyTO.getClass().getName());
+                }
                 if (policy == null) {
-                    policy = (T) new PasswordPolicy();
+                    policy = (T) new PasswordPolicy(isGlobal);
                 }
                 policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
             case GLOBAL_ACCOUNT:
-                if (policy == null) {
-                    policy = (T) new AccountPolicy(true);
-                }
-                policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
-                break;
-
             case ACCOUNT:
+                if (!(policyTO instanceof AccountPolicyTO)) {
+                    throw new ClassCastException("policyTO is expected to be typed AccountPolicyTO: " + policyTO.getClass().getName());
+                }
                 if (policy == null) {
-                    policy = (T) new AccountPolicy();
+                    policy = (T) new AccountPolicy(isGlobal);
                 }
                 policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
                 break;
 
             case GLOBAL_SYNC:
-                if (policy == null) {
-                    policy = (T) new SyncPolicy(true);
-                }
-                policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
-                break;
-
             case SYNC:
             default:
+                if (!(policyTO instanceof SyncPolicyTO)) {
+                    throw new ClassCastException("policyTO is expected to be typed SyncPolicyTO: " + policyTO.getClass().getName());
+                }
                 if (policy == null) {
-                    policy = (T) new SyncPolicy();
+                    policy = (T) new SyncPolicy(isGlobal);
                 }
                 policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
         }

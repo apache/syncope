@@ -26,10 +26,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntitlementUtil {
 
     private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN = Pattern.compile("^ROLE_([\\d])+");
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementUtil.class);
+
 
     public static Set<String> getOwnedEntitlementNames() {
         final Set<String> result = new HashSet<String>();
@@ -59,7 +63,8 @@ public class EntitlementUtil {
         if (isRoleEntitlement(entitlementName)) {
             try {
                 result = Long.valueOf(entitlementName.substring(entitlementName.indexOf("_") + 1));
-            } catch (Throwable t) {
+            } catch (Exception e) {
+                LOG.error("unable to parse {} to Long", entitlementName, e);
             }
         }
 

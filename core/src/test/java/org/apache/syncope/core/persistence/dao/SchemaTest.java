@@ -104,11 +104,11 @@ public class SchemaTest extends AbstractTest {
         schema.setType(SchemaType.Enum);
         schema.setName("color");
 
-        Throwable ex = null;
+        Exception ex = null;
         try {
             schemaDAO.save(schema);
-        } catch (Throwable t) {
-            ex = t;
+        } catch (Exception e) {
+            ex = e;
         }
         assertNotNull(ex);
 

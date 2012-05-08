@@ -33,7 +33,6 @@ public class UAttrValue extends AbstractAttrValue {
 
     @Id
     private Long id;
-
     @ManyToOne
     @NotNull
     private UAttr attribute;
@@ -50,6 +49,9 @@ public class UAttrValue extends AbstractAttrValue {
 
     @Override
     public <T extends AbstractAttr> void setAttribute(final T attribute) {
+        if (!(attribute instanceof UAttr)) {
+            throw new ClassCastException("expected type UAttr, found: " + attribute.getClass().getName());
+        }
         this.attribute = (UAttr) attribute;
     }
 }

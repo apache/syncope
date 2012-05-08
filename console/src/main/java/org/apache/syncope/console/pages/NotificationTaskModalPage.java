@@ -38,11 +38,13 @@ public class NotificationTaskModalPage extends TaskModalPage {
         sender.setEnabled(false);
         profile.add(sender);
 
-        final ListMultipleChoice<String> recipients = new ListMultipleChoice<String>("recipients",
-                new ArrayList<String>(((NotificationTaskTO) taskTO).getRecipients()));
-        recipients.setMaxRows(5);
-        recipients.setEnabled(false);
-        profile.add(recipients);
+        if (taskTO instanceof NotificationTaskTO) {
+            final ListMultipleChoice<String> recipients = new ListMultipleChoice<String>("recipients",
+                    new ArrayList<String>(((NotificationTaskTO) taskTO).getRecipients()));
+            recipients.setMaxRows(5);
+            recipients.setEnabled(false);
+            profile.add(recipients);
+        }
 
         final AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
                 new PropertyModel<String>(taskTO, "subject"));

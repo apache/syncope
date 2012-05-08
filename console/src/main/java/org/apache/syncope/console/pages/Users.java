@@ -81,8 +81,8 @@ public class Users extends BasePage {
                 editModalWin.show(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users",
-                "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "create"));
         add(createLink);
 
         setWindowClosedReloadCallback(editModalWin);

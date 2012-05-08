@@ -178,14 +178,12 @@ public class AttributesPanel extends Panel {
                         : SyncopeConstants.DEFAULT_DATE_PATTERN;
 
                 if (!dataPattern.contains("H")) {
-
                     panel = new DateTextFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
 
                     if (required) {
                         panel.addRequiredLabel();
                     }
                 } else {
-
                     panel = new DateTimeFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
 
                     if (required) {

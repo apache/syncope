@@ -40,7 +40,7 @@ under the License.
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>1.1</version>
+    <version>1.2.1</version>
   </skin>
 
   <body>
@@ -53,27 +53,28 @@ under the License.
       <item name="Apache Syncope" href="http://incubator.apache.org/syncope/"/>
     </breadcrumbs>
         
-    <menu name="Project Information">
-      <item name="Project Summary" href="project-summary.html"/>
+    <menu name="Overview">
+      <item name="Features" href="features.html"/>
+      <item name="Architecture" href="architecture.html"/>
+<!--      <item name="Downloads" href="downloads.html"/>-->
+      <item name="Javadoc" href="apidocs/index.html"/>
+      <item name="License" href="license.html"/>
+    </menu>
+  
+    <menu name="Community">
       <item name="Mailing Lists" href="mail-lists.html"/>
       <item name="Project Team" href="team-list.html"/>
+      <item name="Roadmap" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
+      <item name="Documentation" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Index"/>
+    </menu>
+      
+    <menu name="Development">
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
       <item name="Issue Tracking" href="issue-tracking.html"/>
-      <item name="Dependency Management" href="dependency-management.html"/>
-      <item name="Distribution Management" href="distribution-management.html"/>
-      <item name="Plugin Management" href="plugin-management.html"/>
-      <item name="Project Plugins" href="plugins.html"/>
-      <item name="Project License" href="license.html"/>
+<!--      <item name="Release Process" href="release-process.html"/>-->
     </menu>
 
-    <menu name="Documentation">
-      <item name="Features" href="features.html"/>
-      <item name="Architecture" href="architecture.html"/>
-      <item name="Wiki" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Index"/>
-      <item name="Javadoc" href="apidocs/index.html"/>
-    </menu>
-    
     <menu name="ASF">
       <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
       <item name="Foundation" href="http://www.apache.org/foundation/"/>

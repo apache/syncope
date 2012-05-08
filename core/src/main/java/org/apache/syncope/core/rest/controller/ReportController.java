@@ -335,8 +335,8 @@ public class ReportController extends AbstractController {
             pipeline.execute();
 
             LOG.debug("Result of {} successfully exported as {}", reportExec, format);
-        } catch (Throwable t) {
-            LOG.error("While exporting content", t);
+        } catch (Exception e) {
+            LOG.error("While exporting content", e);
         } finally {
             try {
                 zis.close();

@@ -1,0 +1,90 @@
+Apache Syncope (incubating) - CHANGES
+Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+--------------------------------------------------------------------------------
+
+Release Notes - Syncope - Version 1.0.0-RC1-incubating
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-5] - Report configuration UI
+    * [SYNCOPE-6] - Add Selenium test case for Report
+
+** Bug
+    * [SYNCOPE-1] - ASF license headers not correct
+    * [SYNCOPE-3] - Include NOTICE and LICENSE in all artifacts
+    * [SYNCOPE-8] - ERROR: type "clob" does not exist
+    * [SYNCOPE-10] - ConnInstance update doesn't imply related connector spring beans reloading
+    * [SYNCOPE-11] - Editing a virtual attribute, error after submit
+    * [SYNCOPE-12] - Error Selenium Tests
+    * [SYNCOPE-16] - Update propagation fails in case of virtual attributes
+    * [SYNCOPE-17] - Manage ConnID's configuration exception
+    * [SYNCOPE-18] - Virtual attributes cannot be mapped as AccountId
+    * [SYNCOPE-21] - ACT_HI_ACTINST:Unique index or primary key violation on non-empty database
+    * [SYNCOPE-23] - TODO tab glitches
+    * [SYNCOPE-27] - Reflection aware REST methods don't consider classes not explicitly implementing interfaces
+    * [SYNCOPE-29] - Deployment on JBoss AS 7.1.0-Final does not work
+    * [SYNCOPE-30] - Generation from archetype fails with error 'The defined artifact is not an archetype'
+    * [SYNCOPE-31] - User status is not propagated during update
+    * [SYNCOPE-32] - Missing SMALLINT type in ImportExport class
+    * [SYNCOPE-33] - Virtual attribute missing during synchronization
+    * [SYNCOPE-34] - No propagation fo virtual attributes retrieved/generated  during synchronization
+    * [SYNCOPE-36] - User read fails in case of error during virtual attribute retrieving
+    * [SYNCOPE-37] - Using console, create a new report feature does not work.
+    * [SYNCOPE-39] - Notification task is not created during synchronization
+    * [SYNCOPE-40] - Notification task error: small field size (htmlbody and txtbody)
+    * [SYNCOPE-41] - NotificationManager: extend email.schema to derived and virtual attributes
+    * [SYNCOPE-43] - Report does not keep a reference to its executions for a new report
+    * [SYNCOPE-46] - Error: Search from console with LIKE condition
+    * [SYNCOPE-47] - User resource set update fails during synchronization
+    * [SYNCOPE-48] - Incorrect entitlement inheritance
+    * [SYNCOPE-49] - Make utility maps returned by TO's methods read-only
+    * [SYNCOPE-52] - Recipient search does not work
+    * [SYNCOPE-54] - Notification e-mails can be sent forever
+    * [SYNCOPE-58] - User request approval duplicates requests
+    * [SYNCOPE-61] - WARNING: DB connection abandoned
+    * [SYNCOPE-63] - PolicyBeanPanel doesn't work fine
+    * [SYNCOPE-65] - Export/Import doesn't work with MySQL
+    * [SYNCOPE-68] - Existing memberships removed during synchronization
+    * [SYNCOPE-70] - Source artifacts include either 'syncope-1.0.0-RC1-incubating-source' and 'syncope-root-1.0.0-RC1-incubating-source' root dirs
+    * [SYNCOPE-71] - Foreign key constraints missed with OpenJPA
+    * [SYNCOPE-72] - JSP files don't contain the required ASF license header
+    * [SYNCOPE-75] - User create fails providing more than one value for a multivalued attribute of type date
+    * [SYNCOPE-77] - Save button not displayed in MembershipModalPage
+    * [SYNCOPE-80] - Changin Rows to display value in Propagation Tasks does not take effect
+    * [SYNCOPE-81] - NotificationTasks cannot be deleted
+    * [SYNCOPE-82] - Propagation task executions don't get persisted
+
+** Improvement
+    * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
+    * [SYNCOPE-22] - Improve virtual attribute value retrieving
+    * [SYNCOPE-24] - Remove code replication managing resource schema mappings
+    * [SYNCOPE-28] - SyncJobActions interface improvement
+    * [SYNCOPE-38] - Todo icon is different compared to other icons.
+    * [SYNCOPE-42] - Add the ability to delete a user by username via the REST API
+    * [SYNCOPE-45] - Make all delete operations consistent in the REST API
+    * [SYNCOPE-50] - Cache custom implementation classes
+    * [SYNCOPE-53] - Make the whole UserTO object available in mail templates
+    * [SYNCOPE-55] - Allow users to read roles assigned to them by membership
+    * [SYNCOPE-60] - Display Excecutions in Synhronization Tasks with descendent order as default
+    * [SYNCOPE-62] - Improve enum schema by giving the possibility to specify labels
+    * [SYNCOPE-67] - Display all Execute Tasks (Propagation, Notification and Scheduled) and related Execution history items sortered in descending order
+    * [SYNCOPE-69] - Increase compile performance
+    * [SYNCOPE-74] - Make configuration params available in mail templates
+
+** New Feature
+    * [SYNCOPE-7] - Role/Membership attributes propagation
+
+** Task
+    * [SYNCOPE-2] - Fix NOTICE and LICENSE content
+    * [SYNCOPE-4] - Report features
+    * [SYNCOPE-9] - Update logo in console web UI
+    * [SYNCOPE-13] - Migrate documentation from old wiki
+    * [SYNCOPE-19] - Update Activiti to release 5.9 
+    * [SYNCOPE-20] - Audit features
+    * [SYNCOPE-25] - Update glassfish-it profile to latest glassfish 3.1.2
+    * [SYNCOPE-35] - Update to Wicket 1.5.5 and verify selenium tests
+    * [SYNCOPE-56] - Package rename
+    * [SYNCOPE-64] - Issues fixed since last non-ASF release (0.7.1)
+    * [SYNCOPE-66] - Add source distribution sub-module
+
+--------------------------------------------------------------------------------

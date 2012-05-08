@@ -29,6 +29,9 @@ import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.types.TraceLevel;
 
+/**
+ * Encapsulate all information about a notification task.
+ */
 @Entity
 public class NotificationTask extends Task {
 

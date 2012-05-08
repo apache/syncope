@@ -252,6 +252,9 @@ public class SchemaMappingUtil {
         if (mapping != null) {
             switch (mapping.getIntMappingType()) {
                 case Username:
+                    if (!(attributable instanceof SyncopeUser)) {
+                        throw new ClassCastException("mappingtype is Username, but attributable is not SyncopeUser: " + attributable.getClass().getName());
+                    }
                     value.add(((SyncopeUser) attributable).getUsername());
                     break;
                 case Password:

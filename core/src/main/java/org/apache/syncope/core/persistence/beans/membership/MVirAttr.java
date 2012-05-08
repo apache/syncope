@@ -31,10 +31,8 @@ import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 public class MVirAttr extends AbstractVirAttr {
 
     private static final long serialVersionUID = 7774760571251641332L;
-
     @ManyToOne
     private Membership owner;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private MVirSchema virtualSchema;
 
@@ -45,6 +43,10 @@ public class MVirAttr extends AbstractVirAttr {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
+        if (!(owner instanceof Membership)) {
+            throw new ClassCastException("expected type Membership, found: " + owner.getClass().getName());
+        }
+
         this.owner = (Membership) owner;
     }
 
@@ -55,7 +57,9 @@ public class MVirAttr extends AbstractVirAttr {
 
     @Override
     public <T extends AbstractVirSchema> void setVirtualSchema(T virtualSchema) {
-
+        if (!(virtualSchema instanceof MVirSchema)) {
+            throw new ClassCastException("expected type MVirSchema, found: " + virtualSchema.getClass().getName());
+        }
         this.virtualSchema = (MVirSchema) virtualSchema;
     }
 

@@ -24,7 +24,7 @@ under the License.
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
     <property name="dataSource" ref="dataSource"/>
     <property name="jpaVendorAdapter">
@@ -36,10 +36,13 @@ under the License.
     </property>
     <property name="jpaPropertyMap">
       <map>
-                <!--<entry key="openjpa.Log" value="SQL=TRACE"/>-->
+        <!--<entry key="openjpa.Log" value="SQL=TRACE"/>-->
                 
         <entry key="openjpa.NontransactionalWrite" value="false"/>
         <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
+
+        <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
+        <entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
                 
         <entry key="openjpa.ReadLockLevel" value="none"/>
         <entry key="openjpa.WriteLockLevel" value="write"/>

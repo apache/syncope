@@ -20,21 +20,22 @@ package org.apache.syncope.core.init;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.util.ImportExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.util.ImportExport;
 
 /**
  * If empty, load default content to Syncope database by reading from
@@ -60,13 +61,13 @@ public class ContentLoader {
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
         // 1. Check wether we are allowed to load default content into the DB
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         boolean existingData = false;
         try {
-            statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConf.class.getSimpleName());
+            final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
+            statement = conn.prepareStatement(queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            resultSet = statement.executeQuery();
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
@@ -110,17 +111,21 @@ public class ContentLoader {
                 LOG.debug("Creating view {}", views.get(idx).toString());
 
                 try {
-                    statement = conn.createStatement();
-                    statement.executeUpdate(views.get(idx).toString().replaceAll("\\n", " "));
-                    statement.close();
+                    final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
+                    statement = conn.prepareStatement(updateViews);
+                    statement.executeUpdate();
                 } catch (SQLException e) {
                     LOG.error("Could not create view ", e);
+                } finally {
+                    if (statement != null) {
+                        statement.close();
+                    }
                 }
             }
 
             LOG.debug("Views created, go for indexes");
-        } catch (Throwable t) {
-            LOG.error("While creating views", t);
+        } catch (Exception e) {
+            LOG.error("While creating views", e);
         }
 
         // 3. Create indexes
@@ -134,25 +139,36 @@ public class ContentLoader {
                 LOG.debug("Creating index {}", indexes.get(idx).toString());
 
                 try {
-                    statement = conn.createStatement();
-                    statement.executeUpdate(indexes.get(idx).toString());
-                    statement.close();
+                    final String updateIndexed = indexes.get(idx).toString();
+                    statement = conn.prepareStatement(updateIndexed);
+                    statement.executeUpdate();
                 } catch (SQLException e) {
                     LOG.error("Could not create index ", e);
+                } finally {
+                    if (statement != null) {
+                        statement.close();
+                    }
                 }
             }
 
             LOG.debug("Indexes created, go for default content");
-        } catch (Throwable t) {
-            LOG.error("While creating indexes", t);
+        } catch (Exception e) {
+            LOG.error("While creating indexes", e);
         }
 
         try {
-            statement = conn.createStatement();
-            statement.executeUpdate("DELETE FROM ACT_GE_PROPERTY");
-            statement.close();
+            statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
+            statement.executeUpdate();
         } catch (SQLException e) {
             LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOG.error("Error closing statement of ACT_GE_PROPERTY delete rows", e);
+                }
+            }
         }
 
         try {
@@ -169,8 +185,8 @@ public class ContentLoader {
             SAXParser parser = factory.newSAXParser();
             parser.parse(getClass().getResourceAsStream("/content.xml"), importExport);
             LOG.debug("Default content successfully loaded");
-        } catch (Throwable t) {
-            LOG.error("While loading default content", t);
+        } catch (Exception e) {
+            LOG.error("While loading default content", e);
         }
     }
 }

@@ -30,6 +30,13 @@ under the License.
   <version>1.0.0-RC1-incubating</version>
   <packaging>pom</packaging>
 
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>10</version>
+    <relativePath />
+  </parent>
+  
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating</connection>
     <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC1-incubating</developerConnection>
@@ -38,24 +45,62 @@ under the License.
   
   <build>
     <plugins>
+      <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>nbactions.xml</exclude>
+            <exclude>nb-configuration.xml</exclude>
+            <exclude>**/META-INF/services/**</exclude>
+            <exclude>**/*.css</exclude>
+            <exclude>**/*.js</exclude>
+            <exclude>**/*.csv</exclude>
+            <exclude>.externalToolBuilders/**</exclude>
+            <exclude>maven-eclipse.xml</exclude>
+            
+            <!-- Need to explicitely exclude these modules since they are not part of the default build
+                 profile: they will be checked anyway in the apache-release profile, as submodules. -->
+            <exclude>archetype/**</exclude>
+            <exclude>hibernate-enhancer/**</exclude>
+            <exclude>quality/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>rat-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.2.2</version>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
-          <arguments>-Papache-release</arguments>
           <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>syncope-@{project.version}</tagNameFormat>
+          <arguments>-Papache-release</arguments>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 
@@ -70,8 +115,30 @@ under the License.
   <profiles>
     <profile>
       <id>apache-release</id>
-      <build>
+
+      <build>        
         <plugins>
+      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.3</version>
+            <executions>
+              <execution>
+                <id>sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <finalName>syncope-${project.version}</finalName>
+                  <descriptor>src/assemble/source-assembly.xml</descriptor>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -88,6 +155,7 @@ under the License.
           </plugin>
         </plugins>
       </build>
+      
       <modules>
         <module>quality</module>
         <module>archetype</module>

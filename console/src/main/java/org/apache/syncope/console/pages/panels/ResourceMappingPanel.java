@@ -176,10 +176,13 @@ public class ResourceMappingPanel extends Panel {
 
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
-                final AttributableType entity = mappingTO.getIntMappingType() == null
-                        ? null
-                        : mappingTO.getIntMappingType().getAttributableType();
-
+                final AttributableType entity;
+                if (mappingTO.getIntMappingType() != null){
+                    entity = mappingTO.getIntMappingType().getAttributableType();
+                } else {
+                    entity = null;
+                }
+                        
                 attrTypes = getAttributeTypes(entity);
 
                 item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
@@ -274,7 +277,11 @@ public class ResourceMappingPanel extends Panel {
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
 
-                boolean required = mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword();
+                boolean required = false;
+                if (mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword()) {
+                    required = true;
+                }
+                
 
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
@@ -473,23 +480,8 @@ public class ResourceMappingPanel extends Panel {
                     break;
 
                 case SyncopeUserId:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 case Password:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 case Username:
-                    toBeUpdated.setEnabled(false);
-                    toBeUpdated.setRequired(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
-                    break;
-
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
@@ -514,10 +506,6 @@ public class ResourceMappingPanel extends Panel {
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
                     // Virtual accountId is not permitted
-                    accountId.setReadOnly(true);
-                    accountId.setModelObject(false);
-                    break;
-
                 case Password:
                     // AccountId cannot be derived from password.
                     accountId.setReadOnly(true);

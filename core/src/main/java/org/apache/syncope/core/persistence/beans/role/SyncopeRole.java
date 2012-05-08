@@ -55,73 +55,63 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "parent_id" }))
+@Table(uniqueConstraints =
+@UniqueConstraint(columnNames = {"name", "parent_id"}))
 @Cacheable
 public class SyncopeRole extends AbstractAttributable {
 
     private static final long serialVersionUID = -5281258853142421875L;
-
     @Id
     private Long id;
-
     @NotNull
     private String name;
-
     @ManyToOne(optional = true)
     private SyncopeRole parent;
-
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "entitlement_name"))
+    @JoinTable(joinColumns =
+    @JoinColumn(name = "role_id"), inverseJoinColumns =
+    @JoinColumn(name = "entitlement_name"))
     private Set<Entitlement> entitlements;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RAttr> attributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RDerAttr> derivedAttributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RVirAttr> virtualAttributes;
-
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritAttributes;
-
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritDerivedAttributes;
-
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritVirtualAttributes;
-
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritPasswordPolicy;
-
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritAccountPolicy;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private PasswordPolicy passwordPolicy;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private AccountPolicy accountPolicy;
-
     /**
      * Provisioning external resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "resource_name"))
+    @JoinTable(joinColumns =
+    @JoinColumn(name = "role_id"), inverseJoinColumns =
+    @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
 
@@ -187,11 +177,17 @@ public class SyncopeRole extends AbstractAttributable {
 
     @Override
     public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+        if (!(attribute instanceof RAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
+        }
         return attributes.add((RAttr) attribute);
     }
 
     @Override
     public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+        if (!(attribute instanceof RAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
+        }
         return attributes.remove((RAttr) attribute);
     }
 
@@ -207,13 +203,17 @@ public class SyncopeRole extends AbstractAttributable {
 
     @Override
     public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
-
+        if (!(derivedAttribute instanceof RDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derivedAttribute.getClass().getName());
+        }
         return derivedAttributes.add((RDerAttr) derivedAttribute);
     }
 
     @Override
     public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
-
+        if (!(derivedAttribute instanceof RDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derivedAttribute.getClass().getName());
+        }
         return derivedAttributes.remove((RDerAttr) derivedAttribute);
     }
 
@@ -230,13 +230,17 @@ public class SyncopeRole extends AbstractAttributable {
 
     @Override
     public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
-
+        if (!(virtualAttribute instanceof RVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virtualAttribute.getClass().getName());
+        }
         return virtualAttributes.add((RVirAttr) virtualAttribute);
     }
 
     @Override
     public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
-
+        if (!(virtualAttribute instanceof RVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virtualAttribute.getClass().getName());
+        }
         return virtualAttributes.remove((RVirAttr) virtualAttribute);
     }
 

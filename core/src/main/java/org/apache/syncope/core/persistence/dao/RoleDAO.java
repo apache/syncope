@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
@@ -38,9 +37,11 @@ public interface RoleDAO extends DAO {
 
     List<SyncopeRole> findByResource(ExternalResource resource);
 
+    List<SyncopeRole> findAncestors(SyncopeRole role);
+
     List<SyncopeRole> findChildren(Long roleId);
 
-    Set<SyncopeRole> findAncestors(SyncopeRole role);
+    List<SyncopeRole> findDescendants(SyncopeRole role);
 
     List<SyncopeRole> findAll();
 

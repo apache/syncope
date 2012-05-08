@@ -18,24 +18,27 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -100,14 +103,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         return query.getResultList();
     }
 
-    @Override
-    public List<SyncopeRole> findChildren(final Long roleId) {
-        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent.id=:roleId");
-        query.setParameter("roleId", roleId);
-        return query.getResultList();
-    }
-
-    private void findAncestors(final Set<SyncopeRole> result, final SyncopeRole role) {
+    private void findAncestors(final List<SyncopeRole> result, final SyncopeRole role) {
         if (role.getParent() != null && !result.contains(role.getParent())) {
             result.add(role.getParent());
             findAncestors(result, role.getParent());
@@ -115,9 +111,33 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
-    public Set<SyncopeRole> findAncestors(final SyncopeRole role) {
-        Set<SyncopeRole> result = new HashSet<SyncopeRole>();
+    public List<SyncopeRole> findAncestors(final SyncopeRole role) {
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
         findAncestors(result, role);
+        return result;
+    }
+
+    @Override
+    public List<SyncopeRole> findChildren(final Long roleId) {
+        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent.id=:roleId");
+        query.setParameter("roleId", roleId);
+        return query.getResultList();
+    }
+
+    private void findDescendants(final List<SyncopeRole> result, final SyncopeRole role) {
+        List<SyncopeRole> children = findChildren(role.getId());
+        if (children != null) {
+            for (SyncopeRole child : children) {
+                findDescendants(result, child);
+            }
+        }
+        result.add(role);
+    }
+
+    @Override
+    public List<SyncopeRole> findDescendants(final SyncopeRole role) {
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
+        findDescendants(result, role);
         return result;
     }
 
@@ -161,26 +181,20 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
             return;
         }
 
-        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE r.parent.id=:id");
-        query.setParameter("id", id);
-        List<SyncopeRole> childrenRoles = query.getResultList();
-        for (SyncopeRole child : childrenRoles) {
-            delete(child.getId());
+        for (SyncopeRole roleToBeDeleted : findDescendants(role)) {
+            for (Membership membership : findMemberships(roleToBeDeleted)) {
+                membership.getSyncopeUser().removeMembership(membership);
+                userDAO.save(membership.getSyncopeUser());
+
+                entityManager.remove(membership);
+            }
+
+            roleToBeDeleted.getEntitlements().clear();
+
+            roleToBeDeleted.setParent(null);
+            entityManager.remove(roleToBeDeleted);
+
+            entitlementDAO.delete(EntitlementUtil.getEntitlementNameFromRoleId(roleToBeDeleted.getId()));
         }
-
-        for (Membership membership : findMemberships(role)) {
-            membership.setSyncopeRole(null);
-            membership.getSyncopeUser().removeMembership(membership);
-            membership.setSyncopeUser(null);
-
-            entityManager.remove(membership);
-        }
-
-        role.getEntitlements().clear();
-
-        role.setParent(null);
-        entityManager.remove(role);
-
-        entitlementDAO.delete(EntitlementUtil.getEntitlementNameFromRoleId(id));
     }
 }

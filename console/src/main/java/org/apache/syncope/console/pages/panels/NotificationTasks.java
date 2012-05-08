@@ -40,12 +40,14 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.NotificationTaskTO;
+import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.NotificationTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -76,14 +78,22 @@ public class NotificationTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    private final List<IColumn<TaskTO>> columns;
+
+    private AjaxFallbackDefaultDataTable<TaskTO> table;
+
     public NotificationTasks(String id) {
         super(id);
+
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        add(container);
 
         add(window = new ModalWindow("taskWin"));
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
         columns.add(new PropertyColumn(new ResourceModel("sender"), "sender", "sender"));
@@ -169,14 +179,13 @@ public class NotificationTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>("datatable",
-                columns, new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class), paginatorRows);
+        table = Tasks.updateTaskTable(
+                columns,
+                new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                container,
+                0);
 
-        container = new WebMarkupContainer("container");
         container.add(table);
-        container.setOutputMarkupId(true);
-
-        add(container);
 
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -212,7 +221,11 @@ public class NotificationTasks extends Panel {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
                         Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
 
-                table.setItemsPerPage(paginatorRows);
+                table = Tasks.updateTaskTable(
+                        columns,
+                        new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                        container,
+                        table == null ? 0 : table.getCurrentPage());
 
                 target.add(container);
             }

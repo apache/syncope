@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.SchedTaskTO;
@@ -171,8 +172,7 @@ public class TaskTestITCase extends AbstractTest {
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
-        TaskExecTO execution = restTemplate
-                .postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 1);
+        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 1);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), execution.getStatus());
 
         execution = restTemplate.getForObject(BASE_URL + "task/execution/report/{executionId}"
@@ -182,8 +182,8 @@ public class TaskTestITCase extends AbstractTest {
 
         restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", PropagationTaskTO.class, 1);
         try {
-            restTemplate.getForObject(BASE_URL + "task/execution/read/{executionId}", TaskExecTO.class, execution
-                    .getId());
+            restTemplate.getForObject(BASE_URL + "task/execution/read/{executionId}", TaskExecTO.class,
+                    execution.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -317,8 +317,7 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);
 
         // check for user template
-        userTO = 
-            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test7");
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test7");
         assertNotNull(userTO);
         assertEquals("TYPE_OTHER", userTO.getAttributeMap().get("type").getValues().get(0));
         assertEquals(2, userTO.getResources().size());
@@ -327,8 +326,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().size());
         assertTrue(userTO.getMemberships().get(0).getAttributeMap().containsKey("subscriptionDate"));
 
-        userTO = 
-            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test8");
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test8");
         assertNotNull(userTO);
         assertEquals("TYPE_8", userTO.getAttributeMap().get("type").getValues().get(0));
 
@@ -341,13 +339,11 @@ public class TaskTestITCase extends AbstractTest {
         // * expected disabled user test1
         // * expected enabled user test2
 
-        userTO = 
-            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test1");
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test1");
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        userTO = 
-            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test3");
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "test3");
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -419,8 +415,8 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-        final UserTO userTO = 
-            restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
+        final UserTO userTO =
+                restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
 
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
@@ -428,8 +424,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issue196() {
-        TaskExecTO execution = restTemplate
-                .postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
+        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
         assertNotNull(execution);
         assertEquals(0, execution.getId());
         assertNotNull(execution.getTask());
@@ -463,5 +458,47 @@ public class TaskTestITCase extends AbstractTest {
         } while (preDryRunSize == taskTO.getExecutions().size());
 
         assertEquals("SUCCESS", taskTO.getExecutions().get(0).getStatus());
+    }
+
+    @Test
+    public void issueSYNCOPE81() {
+        NotificationTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, 8L);
+
+        assertNotNull(taskTO);
+
+        int executionNumber = taskTO.getExecutions().size();
+
+        if (executionNumber == 0) {
+            // generate an execution in order to verify the deletion of a notification task with one or more executions
+
+            TaskExecTO execution = restTemplate.postForObject(
+                    BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
+            assertEquals("NOT_SENT", execution.getStatus());
+
+            int i = 0;
+            int maxit = 50;
+
+            // wait for sync completion (executions incremented)
+            do {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+
+                taskTO = restTemplate.getForObject(
+                        BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, taskTO.getId());
+
+                assertNotNull(taskTO);
+                assertNotNull(taskTO.getExecutions());
+
+                i++;
+            } while (executionNumber == taskTO.getExecutions().size() && i < maxit);
+
+            assertFalse(taskTO.getExecutions().isEmpty());
+        }
+
+        taskTO = restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", NotificationTaskTO.class, taskTO.getId());
+        assertNotNull(taskTO);
     }
 }

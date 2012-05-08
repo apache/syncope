@@ -47,6 +47,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.PropagationTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -80,14 +81,22 @@ public class PropagationTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    private final List<IColumn<TaskTO>> columns;
+
+    private AjaxFallbackDefaultDataTable<TaskTO> table;
+
     public PropagationTasks(final String id) {
         super(id);
+
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        add(container);
 
         add(window = new ModalWindow("taskWin"));
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -179,14 +188,11 @@ public class PropagationTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>("datatable",
-                columns, new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class), paginatorRows);
-
-        container = new WebMarkupContainer("container");
-        container.add(table);
-        container.setOutputMarkupId(true);
-
-        add(container);
+        table = Tasks.updateTaskTable(
+                columns,
+                new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class),
+                container,
+                0);
 
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -210,8 +216,8 @@ public class PropagationTasks extends Panel {
 
         Form paginatorForm = new Form("PaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices());
+        final DropDownChoice rowsChooser = new DropDownChoice(
+                "rowsChooser", new PropertyModel(this, "paginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -222,7 +228,11 @@ public class PropagationTasks extends Panel {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
                         Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
 
-                table.setItemsPerPage(paginatorRows);
+                table = Tasks.updateTaskTable(
+                        columns,
+                        new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class),
+                        container,
+                        table == null ? 0 : table.getCurrentPage());
 
                 target.add(container);
             }

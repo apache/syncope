@@ -16,6 +16,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
+.toc_container {
+  width: 95%;
+  float: left;
+  margin-bottom: 10px;
+  margin-left: -25px;
+}
+
 .toc {
   width: 300px;
   border: 1px solid gray;
@@ -23,21 +30,31 @@ under the License.
   padding-bottom: 15px;
 }
 
-ul.toc li {
-  visibility: hidden;
-  list-style: none;
+ul.toc li ul {
+  clear: both;
+  display: block;
+  float: none;
 }
 
-ul.toc li ul {
-  visibility: visible;
-  counter-reset: item;
+ul.toc, ul.toc ul {
+  list-style: decimal outside none;
+  padding:0;
+  float:left;
+  display:block;
+  clear:left;
+}
+
+ul.toc li {
+  clear:left;
+  position:relative;
+  left: 30px;
 }
 
 ul.toc li ul li {
-  visibility: visible;
+  left: 0px;
 }
 
-ul.toc li ul li:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item;
+a {
+  clear:both;
+  text-decoration:none;  
 }

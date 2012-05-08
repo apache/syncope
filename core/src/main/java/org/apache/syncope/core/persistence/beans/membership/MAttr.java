@@ -38,21 +38,16 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 public class MAttr extends AbstractAttr {
 
     private static final long serialVersionUID = 3755864809152866489L;
-
     @Id
     private Long id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private Membership owner;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "schema_name")
     private MSchema schema;
-
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<MAttrValue> values;
-
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private MAttrUniqueValue uniqueValue;
@@ -74,6 +69,9 @@ public class MAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
+        if (!(owner instanceof Membership)) {
+            throw new ClassCastException("owner is expected to be typed Membership: " + owner.getClass().getName());
+        }
         this.owner = (Membership) owner;
     }
 
@@ -84,19 +82,26 @@ public class MAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractSchema> void setSchema(T schema) {
+        if (!(schema instanceof MSchema)) {
+            throw new ClassCastException("schema is expected to be typed MSchema: " + schema.getClass().getName());
+        }
         this.schema = (MSchema) schema;
     }
 
     @Override
     public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
-
+        if (!(attributeValue instanceof MAttrValue)) {
+            throw new ClassCastException("attributeValue is expected to be typed MAttrValue: " + attributeValue.getClass().getName());
+        }
         attributeValue.setAttribute(this);
         return values.add((MAttrValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
-
+        if (!(attributeValue instanceof MAttrValue)) {
+            throw new ClassCastException("attributeValue is expected to be typed MAttrValue: " + attributeValue.getClass().getName());
+        }
         boolean result = values.remove((MAttrValue) attributeValue);
         attributeValue.setAttribute(null);
         return result;
@@ -126,7 +131,9 @@ public class MAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
-
+        if (!(uniqueAttributeValue instanceof MAttrUniqueValue)) {
+            throw new ClassCastException("uniqueAttributeValue is expected to be typed MAttrUniqueValue: " + uniqueAttributeValue.getClass().getName());
+        }
         this.uniqueValue = (MAttrUniqueValue) uniqueAttributeValue;
     }
 }

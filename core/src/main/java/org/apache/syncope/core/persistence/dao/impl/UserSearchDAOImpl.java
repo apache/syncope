@@ -133,8 +133,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
             } else {
                 try {
                     result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
-                } catch (Throwable t) {
-                    LOG.error("While searching users", t);
+                } catch (Exception e) {
+                    LOG.error("While searching users", e);
                 }
             }
         }

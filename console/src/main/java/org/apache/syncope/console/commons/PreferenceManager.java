@@ -45,14 +45,10 @@ public class PreferenceManager {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
-
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
-
     private static final TypeReference MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
-
-    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
-
+    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[]{10, 25, 50});
     @Autowired
     private ObjectMapper mapper;
 
@@ -91,8 +87,10 @@ public class PreferenceManager {
     public String get(final Request request, final String key) {
         String result = null;
 
-        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
-
+        Cookie prefCookie = null;
+        if (request instanceof WebRequest) {
+            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        }
         if (prefCookie != null) {
 
             final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes())));
@@ -136,9 +134,20 @@ public class PreferenceManager {
         return result;
     }
 
+    /**
+     * Get the existing preference from the cookie (if present).
+     * Write the preferences to a cookie.
+     * 
+     * @param request
+     * @param response
+     * @param prefs 
+     */
     public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
 
-        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = null;
+        if (request instanceof WebRequest) {
+            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        }
 
         final Map<String, String> current = new HashMap<String, String>();
 
@@ -160,12 +169,17 @@ public class PreferenceManager {
         }
 
         prefCookie.setMaxAge(ONE_YEAR_TIME);
-        ((WebResponse) response).addCookie(prefCookie);
+        if (response instanceof WebResponse) {
+            ((WebResponse) response).addCookie(prefCookie);
+        }
     }
 
     public void set(final Request request, final Response response, final String key, final String value) {
 
-        Cookie prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = null;
+        if (request instanceof WebRequest) {
+            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
+        }
 
         final Map<String, String> prefs = new HashMap<String, String>();
 
@@ -185,7 +199,9 @@ public class PreferenceManager {
         }
 
         prefCookie.setMaxAge(ONE_YEAR_TIME);
-        ((WebResponse) response).addCookie(prefCookie);
+        if (response instanceof WebResponse) {
+            ((WebResponse) response).addCookie(prefCookie);
+        }
     }
 
     public void setList(final Request request, final Response response, final String key, final List<String> values) {

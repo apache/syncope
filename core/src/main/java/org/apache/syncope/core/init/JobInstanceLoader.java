@@ -142,15 +142,15 @@ public class JobInstanceLoader {
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
-        if (jobInstance instanceof SyncJob) {
+        if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
             String jobActionsClassName = ((SyncTask) task).getJobActionsClassName();
             Class syncJobActionsClass = DefaultSyncJobActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
-                } catch (Throwable t) {
+                } catch (Exception e) {
                     LOG.error("Class {} not found, reverting to {}", new Object[] { jobActionsClassName,
-                            syncJobActionsClass.getName(), t });
+                            syncJobActionsClass.getName(), e });
                 }
             }
             SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,

@@ -66,8 +66,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
     @Override
     public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
             AbstractBaseBean schemaTO, final boolean createFlag) {
-
-        final SchemaTO schema = schemaTO == null ? new SchemaTO() : (SchemaTO) schemaTO;
+        final SchemaTO schema;
+        if (schemaTO != null && schemaTO instanceof SchemaTO) {
+            schema = (SchemaTO) schemaTO;
+        } else {
+            schema = new SchemaTO();
+        }
 
         final Form schemaForm = new Form("form");
 

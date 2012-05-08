@@ -20,6 +20,20 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.to.SyncTaskTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.SyncTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.pages.UserTemplateModalPage;
+import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,19 +57,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.SyncTaskModalPage;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.console.pages.UserTemplateModalPage;
-import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 public class SyncTasks extends Panel {
 
@@ -80,6 +81,10 @@ public class SyncTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    private final List<IColumn<TaskTO>> columns;
+
+    private AjaxFallbackDefaultDataTable<TaskTO> table;
+
     public SyncTasks(String id, final PageReference callerPageRef) {
         super(id);
 
@@ -98,7 +103,7 @@ public class SyncTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SyncTaskTO>> columns = new ArrayList<IColumn<SyncTaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -110,7 +115,7 @@ public class SyncTasks extends Panel {
 
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<SyncTaskTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -120,10 +125,10 @@ public class SyncTasks extends Panel {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<SyncTaskTO>> cellItem, final String componentId,
-                    final IModel<SyncTaskTO> model) {
+            public void populateItem(final Item<ICellPopulator<TaskTO>> cellItem, final String componentId,
+                    final IModel<TaskTO> model) {
 
-                final SyncTaskTO taskTO = model.getObject();
+                final SyncTaskTO taskTO = (SyncTaskTO) model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
@@ -226,8 +231,12 @@ public class SyncTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SyncTaskTO> table = new AjaxFallbackDefaultDataTable<SyncTaskTO>(
-                "datatable", columns, new TasksProvider(restClient, paginatorRows, id, SyncTaskTO.class), paginatorRows);
+        table = Tasks.updateTaskTable(
+                columns,
+                new TasksProvider(restClient, paginatorRows, getId(), SyncTaskTO.class),
+                container,
+                0);
+
         container.add(table);
 
         Form paginatorForm = new Form("PaginatorForm");
@@ -244,7 +253,11 @@ public class SyncTasks extends Panel {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setItemsPerPage(paginatorRows);
+                table = Tasks.updateTaskTable(
+                        columns,
+                        new TasksProvider(restClient, paginatorRows, getId(), SyncTaskTO.class),
+                        container,
+                        table == null ? 0 : table.getCurrentPage());
 
                 target.add(container);
             }
@@ -274,8 +287,8 @@ public class SyncTasks extends Panel {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
-                "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
 
         add(createLink);
     }

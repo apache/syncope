@@ -35,6 +35,7 @@ public class MembershipDAOImpl extends AbstractDAOImpl implements MembershipDAO 
 
     @Autowired
     private UserDAO userDAO;
+
     @Autowired
     private RoleDAO roleDAO;
 
@@ -83,10 +84,6 @@ public class MembershipDAOImpl extends AbstractDAOImpl implements MembershipDAO 
 
         membership.getSyncopeUser().removeMembership(membership);
         userDAO.save(membership.getSyncopeUser());
-        membership.setSyncopeUser(null);
-
-        roleDAO.save(membership.getSyncopeRole());
-        membership.setSyncopeRole(null);
 
         entityManager.remove(membership);
     }

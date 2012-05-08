@@ -22,7 +22,6 @@ import org.apache.wicket.PageReference;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -71,11 +70,6 @@ public class MembershipModalPage extends BaseModalPage {
                 target.add(feedbackPanel);
             }
         };
-
-        String allowedRoles = userTO.getId() == 0
-                ? xmlRolesReader.getAllAllowedRoles("Users", "create")
-                : xmlRolesReader.getAllAllowedRoles("Users", "update");
-        MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, allowedRoles);
 
         form.add(submit);
 

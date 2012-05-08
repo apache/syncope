@@ -29,10 +29,8 @@ import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 public class UDerAttr extends AbstractDerAttr {
 
     private static final long serialVersionUID = 4723044452807292060L;
-
     @ManyToOne
     private SyncopeUser owner;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private UDerSchema derivedSchema;
 
@@ -43,6 +41,10 @@ public class UDerAttr extends AbstractDerAttr {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
+        if (!(owner instanceof SyncopeUser)) {
+            throw new ClassCastException("expected type SyncopeUser, found: " + owner.getClass().getName());
+        }
+
         this.owner = (SyncopeUser) owner;
     }
 
@@ -53,7 +55,9 @@ public class UDerAttr extends AbstractDerAttr {
 
     @Override
     public <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema) {
-
+        if (!(derivedSchema instanceof UDerSchema)) {
+            throw new ClassCastException("expected type UDerSchema, found: " + derivedSchema.getClass().getName());
+        }
         this.derivedSchema = (UDerSchema) derivedSchema;
     }
 }

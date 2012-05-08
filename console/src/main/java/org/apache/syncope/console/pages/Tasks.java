@@ -23,23 +23,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.to.SchedTaskTO;
+import org.apache.syncope.client.to.TaskExecTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.NotificationTasks;
+import org.apache.syncope.console.pages.panels.PropagationTasks;
+import org.apache.syncope.console.pages.panels.SchedTasks;
+import org.apache.syncope.console.pages.panels.SyncTasks;
+import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.NotificationTasks;
-import org.apache.syncope.console.pages.panels.SchedTasks;
-import org.apache.syncope.console.pages.panels.PropagationTasks;
-import org.apache.syncope.console.pages.panels.SyncTasks;
-import org.apache.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
 
@@ -96,6 +98,7 @@ public class Tasks extends BasePage {
         public IModel<TaskExecTO> model(final TaskExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<TaskExecTO>() {
+
                 private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override
@@ -124,13 +127,13 @@ public class Tasks extends BasePage {
 
         private Class<T> reference;
 
-        public TasksProvider(final TaskRestClient restClient, final int paginatorRows, final String id,
-                final Class<T> reference) {
+        public TasksProvider(
+                final TaskRestClient restClient, final int paginatorRows, final String id, final Class<T> reference) {
 
             super();
 
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
+            setSort("id", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<T>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;
@@ -156,8 +159,8 @@ public class Tasks extends BasePage {
                         }
                     });
 
-                    ((SchedTaskTO) task).setLastExec(task.getExecutions().get(task.getExecutions().size() - 1)
-                            .getStartDate());
+                    ((SchedTaskTO) task).setLastExec(task.getExecutions().get(task.getExecutions().size() - 1).
+                            getStartDate());
                 }
                 tasks.add(task);
             }
@@ -175,5 +178,31 @@ public class Tasks extends BasePage {
         public IModel<T> model(final T object) {
             return new CompoundPropertyModel<T>(object);
         }
+    }
+
+    /**
+     * Update task table.
+     *
+     * @param columns columns.
+     * @param dataProvider data provider.
+     * @param container container.
+     * @param currentPage current page index.
+     * @return data table.
+     */
+    public static AjaxFallbackDefaultDataTable<TaskTO> updateTaskTable(
+            final List<IColumn<TaskTO>> columns,
+            final TasksProvider dataProvider,
+            final WebMarkupContainer container,
+            final int currentPage) {
+
+        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable<TaskTO>(
+                "datatable", columns, dataProvider, dataProvider.paginatorRows);
+
+        table.setCurrentPage(currentPage);
+        table.setOutputMarkupId(true);
+
+        container.addOrReplace(table);
+
+        return table;
     }
 }

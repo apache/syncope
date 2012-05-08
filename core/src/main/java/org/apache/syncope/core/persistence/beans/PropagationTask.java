@@ -24,12 +24,12 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import org.identityconnectors.framework.common.objects.Attribute;
+import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
-import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
+import org.identityconnectors.framework.common.objects.Attribute;
 
 /**
  * Encapsulate all information about a propagation task.

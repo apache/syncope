@@ -82,7 +82,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null) {
+                if (object != null && object instanceof Boolean) {
                     list.clear();
                     list.add(((Boolean) object).toString());
                 }

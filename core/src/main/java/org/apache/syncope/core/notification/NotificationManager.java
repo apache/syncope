@@ -25,13 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.VelocityException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -52,6 +45,13 @@ import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.VelocityException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.velocity.VelocityEngineUtils;
 
 /**
  * Create notification tasks that will be executed by NotificationJob.
@@ -253,7 +253,7 @@ public class NotificationManager {
      */
     public TaskExec storeExecution(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
-        task.addExec(execution);
+        execution.setTask(task);
         return taskExecDAO.save(execution);
     }
 

@@ -21,10 +21,10 @@ package org.apache.syncope.core.persistence.validation.entity;
 import java.text.ParseException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.quartz.CronExpression;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.scheduling.AbstractTaskJob;
 import org.apache.syncope.types.EntityViolationType;
+import org.quartz.CronExpression;
 
 public class SchedTaskValidator extends AbstractValidator implements ConstraintValidator<SchedTaskCheck, SchedTask> {
 
@@ -41,8 +41,8 @@ public class SchedTaskValidator extends AbstractValidator implements ConstraintV
         try {
             jobClass = Class.forName(object.getJobClassName());
             isValid = AbstractTaskJob.class.isAssignableFrom(jobClass);
-        } catch (Throwable t) {
-            LOG.error("Invalid Job class specified", t);
+        } catch (Exception e) {
+            LOG.error("Invalid Job class specified", e);
             isValid = false;
         }
         if (jobClass == null || !isValid) {

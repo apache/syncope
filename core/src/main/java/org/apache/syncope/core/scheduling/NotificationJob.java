@@ -179,13 +179,13 @@ public class NotificationJob implements StatefulJob {
 
                     auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.success,
                             "Successfully sent notification to " + to);
-                } catch (Throwable t) {
-                    LOG.error("Could not send e-mail", t);
+                } catch (Exception e) {
+                    LOG.error("Could not send e-mail", e);
 
                     execution.setStatus(Status.NOT_SENT.name());
                     StringWriter exceptionWriter = new StringWriter();
-                    exceptionWriter.write(t.getMessage() + "\n\n");
-                    t.printStackTrace(new PrintWriter(exceptionWriter));
+                    exceptionWriter.write(e.getMessage() + "\n\n");
+                    e.printStackTrace(new PrintWriter(exceptionWriter));
 
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
 
@@ -193,7 +193,7 @@ public class NotificationJob implements StatefulJob {
                     }
 
                     auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.failure,
-                            "Could not send notification to " + to, t);
+                            "Could not send notification to " + to, e);
                 }
 
                 execution.setEndDate(new Date());

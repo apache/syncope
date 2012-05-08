@@ -19,36 +19,31 @@
 package org.apache.syncope.core.util.multiparent;
 
 import java.util.List;
+import java.util.Set;
 
 public class MultiParentNodeOp {
 
     private MultiParentNodeOp() {
     }
 
-    public static <T> MultiParentNode<T> findInTree(final MultiParentNode<T> parent, final T object) {
-
-        if (parent.getObject().equals(object)) {
-            return parent;
+    public static <T> void traverseTree(final Set<MultiParentNode<T>> roots, final List<T> objects) {
+        for (MultiParentNode<T> root : roots) {
+            traverseTree(root, objects);
         }
+    }
 
-        for (MultiParentNode<T> child : parent.getChildren()) {
-            MultiParentNode<T> found = findInTree(child, object);
-            if (found != null) {
-                return found;
+    public static <T> void traverseTree(final MultiParentNode<T> root, final List<T> objects) {
+
+        root.setExploited(true);
+
+        for (MultiParentNode<T> child : root.getChildren()) {
+            if (!child.isExploited()) {
+                traverseTree(child, objects);
             }
         }
 
-        return null;
-    }
-
-    public static <T> void traverseTree(final MultiParentNode<T> parent, final List<T> objects) {
-
-        for (MultiParentNode<T> child : parent.getChildren()) {
-            traverseTree(child, objects);
-        }
-
-        if (!objects.contains(parent.getObject())) {
-            objects.add(parent.getObject());
+        if (!objects.contains(root.getObject())) {
+            objects.add(root.getObject());
         }
     }
 }

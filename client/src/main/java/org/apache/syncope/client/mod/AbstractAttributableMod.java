@@ -22,28 +22,27 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.client.AbstractBaseBean;
 
+/**
+ * Abstract base class for objects that can have attributes removed, added or updated.
+ * 
+ * Attributes can be regular attributes, derived attributes, virtual attributes and resources.
+ */
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
-
     protected long id;
-
     protected Set<AttributeMod> attributesToBeUpdated;
-
     protected Set<String> attributesToBeRemoved;
-
     protected Set<String> derivedAttributesToBeAdded;
-
     protected Set<String> derivedAttributesToBeRemoved;
-
     protected Set<AttributeMod> virtualAttributesToBeUpdated;
-
     protected Set<String> virtualAttributesToBeRemoved;
-
     protected Set<String> resourcesToBeAdded;
-
     protected Set<String> resourcesToBeRemoved;
 
+    /**
+     * All attributes are initialized to empty sets.
+     */
     public AbstractAttributableMod() {
         super();
 
@@ -65,10 +64,22 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.id = id;
     }
 
+    /**
+     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
+     * 
+     * @param name (schema) of attribute to be removed.
+     * @return true on success. 
+     */
     public boolean addAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.add(attribute);
     }
 
+    /**
+     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
+     * 
+     * @param name (schema) of attribute to be removed.
+     * @return true on success. 
+     */
     public boolean removeAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.remove(attribute);
     }
@@ -81,10 +92,24 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.attributesToBeRemoved = attributesToBeRemoved;
     }
 
+    /**
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
+     * 
+     * @param attribute modification object
+     * @see AttributeMod
+     * @return true on success
+     */
     public boolean addAttributeToBeUpdated(AttributeMod attribute) {
         return attributesToBeUpdated.add(attribute);
     }
 
+    /**
+     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
+     * 
+     * @param attribute modification object
+     * @see AttributeMod
+     * @return true on success
+     */
     public boolean removeAttributeToBeUpdated(AttributeMod attribute) {
         return attributesToBeUpdated.remove(attribute);
     }
@@ -94,14 +119,26 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     public void setAttributesToBeUpdated(Set<AttributeMod> attributesToBeUpdated) {
-
         this.attributesToBeUpdated = attributesToBeUpdated;
     }
 
+    /**
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
+     * 
+     * @param attribute modification object
+     * @see AttributeMod
+     * @return true on success
+     */
     public boolean addDerivedAttributeToBeAdded(String derivedAttribute) {
         return derivedAttributesToBeAdded.add(derivedAttribute);
     }
 
+    /**
+     * Add a derivedattribute. Value is calculated by its definition. 
+     * 
+     * @param derivedAttribute
+     * @return true on success
+     */
     public boolean removeDerivedAttributeToBeAdded(String derivedAttribute) {
         return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
@@ -202,6 +239,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.resourcesToBeRemoved = resourcesToBeRemoved;
     }
 
+    /**
+     * @return true is all backing Sets are empty.
+     */
     public boolean isEmpty() {
         return attributesToBeUpdated.isEmpty() && attributesToBeRemoved.isEmpty()
                 && derivedAttributesToBeAdded.isEmpty() && derivedAttributesToBeRemoved.isEmpty()

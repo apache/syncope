@@ -27,12 +27,13 @@ under the License.
   </properties>
 
   <body>
-    <h2>Architecture</h2>
 
-    <macro name="toc">
-      <param name="class" value="toc"/>
-    </macro>
-    
+    <div class="toc_container">
+      <macro name="toc">
+        <param name="class" value="toc"/>
+      </macro>
+    </div>
+      
     <section name="Introduction">
       <p>
         From an high-level point of view, the component architecture of Apache Syncope can be summarized by following figure.
@@ -83,7 +84,7 @@ under the License.
           All the data in Apache Syncope (users, roles, attributes, resources, ...) is managed at an high level with a standard JPA 2.0 approach and persisted to underlying database.
         </p>
         <p>
-          <a href="http://openjpa.apache.org">OpenJPA</a>, the chosen JPA implementation, makes Apache Syncope to be successfully deployable on most DBMS without any modification on the source code; in order to have an idea of this possibility, take a look at 
+          <a href="http://openjpa.apache.org">Apache OpenJPA</a>, the chosen JPA implementation, makes Apache Syncope to be successfully deployable on most DBMS without any modification on the source code; in order to have an idea of this possibility, take a look at 
           <a href="http://openjpa.apache.org/builds/latest/docs/docbook/manual/ref_guide_dbsetup_dbsupport.html">available options</a>.
           <br/>
           Currently, Apache Syncope officially supports MySQL, PostgreSQL and Oracle DB.
@@ -117,9 +118,10 @@ under the License.
     </section>
 
     <section name="The console">
-      <p>
-        The web management interface for configuring and administering Syncope core. Like as other external applications, the console communicates with the core by REST calls.
+      <p>The web management interface for configuring and administering Syncope core, implemented with 
+        <a href="http://wicket.apache,org">Apache Wicket</a>
       </p>
+      <p>Like as other external applications, the console communicates with the core by REST calls.</p>
     </section>
   </body>
 </document>

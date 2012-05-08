@@ -145,9 +145,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
     final private FeedbackPanel feedbackPanel;
 
     /**
-     * Specify if results are about a filtered search or not. Using this
-     * attribute it is possible to use this panel to show results about user
-     * list and user search.
+     * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
+     * show results about user list and user search.
      */
     private boolean filtered;
 
@@ -167,8 +166,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private UserDataProvider dataProvider;
 
     /**
-     * Modal window to be used for user profile editing. Global visibility is
-     * required ...
+     * Modal window to be used for user profile editing. Global visibility is required ...
      */
     private final ModalWindow editmodal = new ModalWindow("editModal");
 
@@ -226,13 +224,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // Result table initialization
         // ---------------------------
         // preferences and container must be not null to use it ...
+        rows = preferences.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
         updateResultTable(false);
         // ---------------------------
 
         // ---------------------------
         // Link to select schemas/columns to be shown
         // ---------------------------
-        AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+        final AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -272,8 +271,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
         });
 
-        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Users", "changeView"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
 
         container.add(displayAttrsLink);
         // ---------------------------
@@ -284,8 +283,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
         final Form paginatorForm = new Form("paginator");
         container.add(paginatorForm);
 
-        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>("rowsChooser", new PropertyModel(this,
-                "rows"), preferences.getPaginatorChoices());
+        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
+                "rowsChooser", new PropertyModel(this, "rows"), preferences.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -297,6 +296,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
+                data.setRows(rows);
 
                 send(getParent(), Broadcast.BREADTH, data);
             }
@@ -317,16 +317,17 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     private void updateResultTable(final boolean create) {
-        // Requires preferences/container attributes not null ...
-        rows = preferences.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+        updateResultTable(create, rows);
+    }
 
+    private void updateResultTable(final boolean create, final int rows) {
         dataProvider = new UserDataProvider(userRestClient, rows, filtered);
         dataProvider.setSearchCond(filter);
 
         final int currentPage = resultTable != null
                 ? (create
-                        ? resultTable.getPageCount() - 1
-                        : resultTable.getCurrentPage())
+                ? resultTable.getPageCount() - 1
+                : resultTable.getCurrentPage())
                 : 0;
 
         resultTable = new AjaxFallbackDefaultDataTable<UserTO>("resultTable", getColumns(), dataProvider, rows);
@@ -480,11 +481,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
         if (event.getPayload() instanceof EventDataWrapper) {
 
             final EventDataWrapper data = (EventDataWrapper) event.getPayload();
-            final AjaxRequestTarget target = data.getTarget();
 
-            updateResultTable(data.isCreate());
-
-            target.add(container);
+            if (data.getRows() < 1) {
+                updateResultTable(data.isCreate());
+            } else {
+                updateResultTable(data.isCreate(), data.getRows());
+            }
+            
+            data.getTarget().add(container);
         }
     }
 
@@ -497,6 +501,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             public void onClose(final AjaxRequestTarget target) {
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
+                data.setRows(rows);
 
                 send(getParent(), Broadcast.BREADTH, data);
 
@@ -518,6 +523,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         private boolean create;
 
+        private int rows;
+
         public AjaxRequestTarget getTarget() {
             return target;
         }
@@ -532,6 +539,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         public void setCreate(boolean create) {
             this.create = create;
+        }
+
+        public int getRows() {
+            return rows;
+        }
+
+        public void setRows(int rows) {
+            this.rows = rows;
         }
     }
 }
