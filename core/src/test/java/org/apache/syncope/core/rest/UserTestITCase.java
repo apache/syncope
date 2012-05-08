@@ -1235,6 +1235,12 @@ public class UserTestITCase extends AbstractTest {
         //             all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
+        final PropagationTaskTO taskTO =
+                restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
+
+        assertNotNull(taskTO);
+        assertEquals(1, taskTO.getExecutions().size());
+
         // --------------------------------------
         // Delete operation
         // --------------------------------------

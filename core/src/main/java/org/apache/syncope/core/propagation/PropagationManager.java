@@ -780,22 +780,32 @@ public class PropagationManager {
             execution.setEndDate(new Date());
 
             if (hasToBeregistered(task, execution)) {
-                PropagationTask savedTask = taskDAO.save(task);
-                execution.setTask(savedTask);
-
-                if (!propagationAttempted.isEmpty()) {
-                    execution = taskExecDAO.save(execution);
+                if (propagationAttempted.isEmpty()) {
+                    LOG.debug("No propagation attemped for {}", execution);
+                } else {
+                    execution.setTask(task);
+                    task.addExec(execution);
 
                     LOG.debug("Execution finished: {}", execution);
-                } else {
-                    LOG.debug("No propagation attemped for {}", execution);
                 }
+
+                taskDAO.save(task);
+
+                // Flush call is needed to value the id field of execution (used by deal test of TaskTestITCase).
+                taskDAO.flush();
+                
+                // An alternative to the flush call could be the following statement but we should accept the risk to  
+                // have a not so probable trouble coming from concurrent calls.
+                //final TaskExec latestExec = taskExecDAO.findLatestStarted(taskDAO.save(task));
             }
         }
 
         if (handler != null) {
-            handler.handle(task.getResource().getName(), PropagationTaskExecStatus.valueOf(execution.getStatus()),
-                    before, after);
+            handler.handle(
+                    task.getResource().getName(),
+                    PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                    before,
+                    after);
         }
 
         return execution;
