@@ -205,6 +205,15 @@ under the License.
     </developer>
   </developers>
 
+  <contributors>
+    <contributor>
+      <name>Denis Signoretto</name>
+      <email>denis.signoretto@intesys.it</email>
+      <organization>Intesys</organization>
+      <organizationUrl>http://www.intesys.it</organizationUrl>
+    </contributor>
+  </contributors>
+
   <prerequisites>
     <maven>[3.0.3,)</maven>
   </prerequisites>
