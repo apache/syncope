@@ -366,6 +366,17 @@ under the License.
         <groupId>org.activiti</groupId>
         <artifactId>activiti-engine</artifactId>
         <version>${activiti.version}</version>
+        <!-- Using geronimo-* for this -->
+        <exclusions>
+          <exclusion>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.activiti</groupId>
