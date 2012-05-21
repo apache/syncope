@@ -210,7 +210,14 @@ under the License.
       <name>Denis Signoretto</name>
       <email>denis.signoretto@intesys.it</email>
       <organization>Intesys</organization>
-      <organizationUrl>http://www.intesys.it</organizationUrl>
+      <organizationUrl>http://www.intesys.it/</organizationUrl>
+    </contributor>
+    <contributor>
+      <name>Bob Lannoy</name>
+      <email>bob.lannoy@smals.be</email>
+      <organization>Smals</organization>
+      <organizationUrl>http://www.smals.be/</organizationUrl>
+      <url>http://blogresearch.smalsrech.be/</url>
     </contributor>
   </contributors>
 
