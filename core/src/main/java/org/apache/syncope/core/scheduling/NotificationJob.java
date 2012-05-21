@@ -216,7 +216,9 @@ public class NotificationJob implements StatefulJob {
         LOG.debug("Waking up...");
 
         for (NotificationTask task : taskDAO.findToExec(NotificationTask.class)) {
+            LOG.debug("Found notification task {} to be executed: starting...", task);
             executeSingle(task);
+            LOG.debug("Notification task {} executed", task);
         }
 
         LOG.debug("Sleeping again...");
