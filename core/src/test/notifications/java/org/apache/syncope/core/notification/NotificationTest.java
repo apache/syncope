@@ -87,8 +87,7 @@ public class NotificationTest {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            NotificationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
 
     private static String smtpHost;
 

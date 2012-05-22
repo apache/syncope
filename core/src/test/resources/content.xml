@@ -27,7 +27,7 @@ under the License.
   <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
 
-    <!-- sample policies -->
+  <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="GLOBAL_SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
   <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3Corg.apache.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E1%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E8%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Efalse%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.apache.syncope.types.PasswordPolicySpec%3E"/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%3E%0A++%3CalternativeSearchAttrs%3E%0A++++%3Cstring%3Eusername%3C%2Fstring%3E%0A++++%3Cstring%3Efirstname%3C%2Fstring%3E%0A++%3C%2FalternativeSearchAttrs%3E%0A++%3CconflictResolutionAction%3EALL%3C%2FconflictResolutionAction%3E%0A%3C%2Forg.apache.syncope.types.SyncPolicySpec%3E"/>
@@ -492,11 +492,11 @@ under the License.
   <Task DTYPE="SyncTask" id="7" resource_name="resource-testdb"
         performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.scheduling.SyncJob"/>
-
-  <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="notification" textBody="" htmlBody="" traceLevel="ALL"/>
+  <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
+        textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <NotificationTask_Recipients notificationtask_id="8" element="recipient@prova.org"/>
 
-    <!-- Authentication and authorization -->
+  <!-- Authentication and authorization -->
   <Entitlement name="base"/>
   <Entitlement name="advanced" description="Advanced entitlement"/>
   <Entitlement name="SCHEMA_CREATE"/>

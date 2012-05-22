@@ -23,11 +23,14 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.search.MembershipCond;
+import org.apache.syncope.client.search.NodeCond;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
@@ -37,6 +40,8 @@ import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
+import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.TraceLevel;
 
 public class TaskTestITCase extends AbstractTest {
 
@@ -464,12 +469,11 @@ public class TaskTestITCase extends AbstractTest {
     public void issueSYNCOPE81() {
         NotificationTaskTO taskTO = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", NotificationTaskTO.class, 8L);
-
         assertNotNull(taskTO);
 
-        int executionNumber = taskTO.getExecutions().size();
+        int executions = taskTO.getExecutions().size();
 
-        if (executionNumber == 0) {
+        if (executions == 0) {
             // generate an execution in order to verify the deletion of a notification task with one or more executions
 
             TaskExecTO execution = restTemplate.postForObject(
@@ -479,7 +483,7 @@ public class TaskTestITCase extends AbstractTest {
             int i = 0;
             int maxit = 50;
 
-            // wait for sync completion (executions incremented)
+            // wait for task exec completion (executions incremented)
             do {
                 try {
                     Thread.sleep(1000);
@@ -493,12 +497,77 @@ public class TaskTestITCase extends AbstractTest {
                 assertNotNull(taskTO.getExecutions());
 
                 i++;
-            } while (executionNumber == taskTO.getExecutions().size() && i < maxit);
+            } while (executions == taskTO.getExecutions().size() && i < maxit);
 
             assertFalse(taskTO.getExecutions().isEmpty());
         }
 
         taskTO = restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", NotificationTaskTO.class, taskTO.getId());
         assertNotNull(taskTO);
+    }
+
+    @Test
+    public void issueSYNCOPE86() {
+        // 1. create suitable notification for subsequent tests
+        NotificationTO notification = new NotificationTO();
+        notification.setTraceLevel(TraceLevel.FAILURES);
+        notification.addEvent("create");
+
+        MembershipCond membCond = new MembershipCond();
+        membCond.setRoleId(7L);
+        notification.setAbout(NodeCond.getLeafCond(membCond));
+
+        membCond = new MembershipCond();
+        membCond.setRoleId(8L);
+        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        String sender = "syncope86@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification SYNCOPE-86";
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+
+        notification = restTemplate.postForObject(BASE_URL + "notification/create.json",
+                notification, NotificationTO.class);
+        assertNotNull(notification);
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getSampleTO("syncope86@syncope.apache.org");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        // 3. get NotificationTaskTO for user just created
+        List<NotificationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/notification/list",
+                NotificationTaskTO[].class));
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        NotificationTaskTO taskTO = null;
+        for (NotificationTaskTO task : tasks) {
+            if (sender.equals(task.getSender())) {
+                taskTO = task;
+            }
+        }
+        assertNotNull(taskTO);
+        assertTrue(taskTO.getExecutions().isEmpty());
+
+        // 4. execute the generated NotificationTask
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
+        assertNotNull(execution);
+
+        // 5. verify
+        taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", NotificationTaskTO.class,
+                taskTO.getId());
+        assertNotNull(taskTO);
+        assertEquals(1, taskTO.getExecutions().size());
     }
 }

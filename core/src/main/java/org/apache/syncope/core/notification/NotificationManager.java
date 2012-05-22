@@ -246,15 +246,18 @@ public class NotificationManager {
     }
 
     /**
-     * Store execution of a NotificationTask.
+     * Store execution of a NotificationTask and update latest execution status of related NotificationTask.
      *
      * @param execution task execution.
      * @return merged task execution.
      */
-    public TaskExec storeExecution(final TaskExec execution) {
+    public TaskExec storeExecAndUpdateLatestExecStatus(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
-        execution.setTask(task);
-        return taskExecDAO.save(execution);
+        task.addExec(execution);
+        task.setLatestExecStatus(execution.getStatus());
+        task = taskDAO.save(task);
+        // NotificationTasks always have a single execution at most
+        return task.getExecs().get(0);
     }
 
     /**

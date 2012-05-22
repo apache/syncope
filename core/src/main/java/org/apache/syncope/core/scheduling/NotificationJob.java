@@ -188,7 +188,6 @@ public class NotificationJob implements StatefulJob {
                     e.printStackTrace(new PrintWriter(exceptionWriter));
 
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
-
                         execution.setMessage(exceptionWriter.toString());
                     }
 
@@ -201,10 +200,10 @@ public class NotificationJob implements StatefulJob {
         }
 
         if (hasToBeRegistered(execution)) {
-            execution = notificationManager.storeExecution(execution);
+            execution = notificationManager.storeExecAndUpdateLatestExecStatus(execution);
+        } else {
+            notificationManager.updateLatestExecStatus(execution);
         }
-
-        notificationManager.updateLatestExecStatus(execution);
 
         return execution;
     }
