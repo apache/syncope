@@ -86,6 +86,39 @@ under the License.
     </dependencies>
   </dependencyManagement>
     
+  <build>
+    
+    <!-- Disable legal check for generated projects: see SYNCOPE-84 -->
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>ianal-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>            
+            <goals>
+              <goal>verify-legal-files</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+    
   <modules>
     <module>core</module>
     <module>console</module>
