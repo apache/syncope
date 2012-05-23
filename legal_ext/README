@@ -1,0 +1,6 @@
+This directory contains LICENSE and NOTICE files for inclusion in WAR artifacts.
+LICENSE and NOTICE files from this directory differ from the ones in parent directory because contain information about software actually included in (and then distributed with) WAR artifacts.
+
+See [1] for more details.
+
+[1] http://syncope-dev.1063484.n5.nabble.com/RESULT-VOTE-Apache-Syncope-1-0-0-RC1-incubating-5th-attempt-tp5703335p5709720.html

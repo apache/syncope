@@ -791,12 +791,18 @@ under the License.
               <resource>
                 <directory>${project.build.outputDirectory}</directory>
                 <includes>
-                  <include>META-INF/LICENSE*</include>
-                  <include>META-INF/NOTICE*</include>
                   <include>META-INF/DISCLAIMER*</include>
                   <include>META-INF/DEPENDENCIES*</include>
                 </includes>
               </resource>
+	      <resource>
+		<directory>${basedir}/../legal_ext</directory>
+		<targetPath>META-INF</targetPath>
+		<includes>
+                  <include>LICENSE</include>
+                  <include>NOTICE</include>
+		</includes>
+	      </resource>
             </webResources>
             <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DISCLAIMER*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
           </configuration>
