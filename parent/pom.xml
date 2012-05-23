@@ -254,6 +254,7 @@ under the License.
     <quartz.version>1.8.6</quartz.version>
 
     <openjpa.version>2.2.0</openjpa.version>
+    <bval.version>0.4</bval.version>
         
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
@@ -314,13 +315,6 @@ under the License.
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
         <version>${jstl.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId> 
-        <artifactId>geronimo-jpa_2.0_spec</artifactId> 
-        <version>1.1</version> 
-        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -392,9 +386,35 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.geronimo.specs</groupId> 
+        <artifactId>geronimo-jpa_2.0_spec</artifactId> 
+        <version>1.1</version> 
+      </dependency>
+      <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-all</artifactId>
         <version>${openjpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-jdbc</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-persistence-jdbc</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.0.0.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-jsr303</artifactId>
+        <version>${bval.version}</version>
       </dependency>
 
       <dependency>
@@ -795,14 +815,14 @@ under the License.
                   <include>META-INF/DEPENDENCIES*</include>
                 </includes>
               </resource>
-	      <resource>
-		<directory>${basedir}/../legal_ext</directory>
-		<targetPath>META-INF</targetPath>
-		<includes>
+              <resource>
+                <directory>${basedir}/../legal_ext</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
                   <include>LICENSE</include>
                   <include>NOTICE</include>
-		</includes>
-	      </resource>
+                </includes>
+              </resource>
             </webResources>
             <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DISCLAIMER*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
           </configuration>
