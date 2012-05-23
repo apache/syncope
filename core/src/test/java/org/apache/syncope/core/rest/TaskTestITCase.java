@@ -570,4 +570,124 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
     }
+
+    @Test
+    public void issueSYNCOPE68() {
+        //-----------------------------
+        // Create a new user ... it should be updated applying sync policy
+        //-----------------------------
+        UserTO userTO = new UserTO();
+        userTO.setPassword("password123");
+        userTO.setUsername("testuser2");
+
+        AttributeTO firstnameTO = new AttributeTO();
+        firstnameTO.setSchema("firstname");
+        firstnameTO.addValue("testuser2");
+        userTO.addAttribute(firstnameTO);
+
+        AttributeTO surnameTO = new AttributeTO();
+        surnameTO.setSchema("surname");
+        surnameTO.addValue("testuser2");
+        userTO.addAttribute(surnameTO);
+
+        AttributeTO typeTO = new AttributeTO();
+        typeTO.setSchema("type");
+        typeTO.addValue("a type");
+        userTO.addAttribute(typeTO);
+
+        AttributeTO fullnameTO = new AttributeTO();
+        fullnameTO.setSchema("fullname");
+        fullnameTO.addValue("testuser2");
+        userTO.addAttribute(fullnameTO);
+
+        AttributeTO userIdTO = new AttributeTO();
+        userIdTO.setSchema("userId");
+        userIdTO.addValue("testuser2@syncope.apache.org");
+        userTO.addAttribute(userIdTO);
+
+        AttributeTO emailTO = new AttributeTO();
+        emailTO.setSchema("email");
+        emailTO.addValue("testuser2@syncope.apache.org");
+        userTO.addAttribute(emailTO);
+
+        userTO.addResource("ws-target-resource-nopropagation2");
+        userTO.addResource("ws-target-resource-nopropagation4");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7L);
+
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("testuser2", userTO.getUsername());
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals(3, userTO.getResources().size());
+        //-----------------------------
+
+        //-----------------------------
+        //  add user template
+        //-----------------------------
+        UserTO template = new UserTO();
+
+        membershipTO = new MembershipTO();
+        membershipTO.setRoleId(10L);
+
+        template.addMembership(membershipTO);
+
+        template.addResource("ws-target-resource-nopropagation4");
+        //-----------------------------
+
+        // Update sync task
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 9);
+        assertNotNull(task);
+
+        task.setUserTemplate(template);
+
+        SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+        assertFalse(actual.getUserTemplate().getResources().isEmpty());
+        assertFalse(actual.getUserTemplate().getMemberships().isEmpty());
+
+        // read executions before sync (dryrun test could be executed before)
+        int preSyncSize = actual.getExecutions().size();
+
+        TaskExecTO execution =
+                restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, actual.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = 20;
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
+
+            assertNotNull(actual);
+            assertNotNull(actual.getExecutions());
+
+            i++;
+
+        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
+
+        assertEquals(1, actual.getExecutions().size());
+
+        final String status = actual.getExecutions().get(0).getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser2");
+
+        assertNotNull(userTO);
+        assertEquals("testuser2@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
+
+        assertEquals(2, userTO.getMemberships().size());
+        assertEquals(4, userTO.getResources().size());
+    }
 }

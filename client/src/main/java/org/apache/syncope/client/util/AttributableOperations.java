@@ -99,8 +99,11 @@ public final class AttributableOperations {
         }
     }
 
-    private static void diff(final AbstractAttributableTO updated, final AbstractAttributableTO original,
-            final AbstractAttributableMod result) {
+    private static void diff(
+            final AbstractAttributableTO updated,
+            final AbstractAttributableTO original,
+            final AbstractAttributableMod result,
+            final boolean incremental) {
 
         // 1. check same id
         if (updated.getId() != original.getId()) {
@@ -114,7 +117,10 @@ public final class AttributableOperations {
 
         Set<String> originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
-        result.setAttributesToBeRemoved(originalAttrNames);
+
+        if (!incremental) {
+            result.setAttributesToBeRemoved(originalAttrNames);
+        }
 
         Set<String> emptyUpdatedAttrs = new HashSet<String>();
         for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
@@ -136,7 +142,10 @@ public final class AttributableOperations {
 
         originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
-        result.setDerivedAttributesToBeRemoved(originalAttrNames);
+
+        if (!incremental) {
+            result.setDerivedAttributesToBeRemoved(originalAttrNames);
+        }
 
         Set<String> updatedAttrNames = new HashSet<String>(updatedAttrs.keySet());
         updatedAttrNames.removeAll(originalAttrs.keySet());
@@ -148,7 +157,10 @@ public final class AttributableOperations {
 
         originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
-        result.setVirtualAttributesToBeRemoved(originalAttrNames);
+
+        if (!incremental) {
+            result.setVirtualAttributesToBeRemoved(originalAttrNames);
+        }
 
         populate(updatedAttrs, originalAttrs, result, true);
 
@@ -160,7 +172,10 @@ public final class AttributableOperations {
         result.setResourcesToBeAdded(updatedRes);
 
         originalRes.removeAll(updated.getResources());
-        result.setResourcesToBeRemoved(originalRes);
+
+        if (!incremental) {
+            result.setResourcesToBeRemoved(originalRes);
+        }
     }
 
     /**
@@ -171,9 +186,21 @@ public final class AttributableOperations {
      * @return UserMod containing differences
      */
     public static UserMod diff(final UserTO updated, final UserTO original) {
+        return diff(updated, original, false);
+    }
+
+    /**
+     * Calculate modifications needed by first in order to be equal to second.
+     *
+     * @param updated updated UserTO
+     * @param original original UserTO
+     * @param incremental perform incremental diff (without removing existing info)
+     * @return UserMod containing differences
+     */
+    public static UserMod diff(final UserTO updated, final UserTO original, boolean incremental) {
         UserMod result = new UserMod();
 
-        diff(updated, original, result);
+        diff(updated, original, result, incremental);
 
         // 1. password
         if (original.getPassword() != null && !original.getPassword().equals(updated.getPassword())) {
@@ -196,7 +223,7 @@ public final class AttributableOperations {
             membMod.setRole(entry.getValue().getRoleId());
 
             if (originalMembs.containsKey(entry.getKey())) {
-                diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod);
+                diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod, false);
             } else {
                 for (AttributeTO attr : entry.getValue().getAttributes()) {
 
@@ -232,10 +259,12 @@ public final class AttributableOperations {
             }
         }
 
-        Set<Long> originalRoles = new HashSet<Long>(originalMembs.keySet());
-        originalRoles.removeAll(updatedMembs.keySet());
-        for (Long roleId : originalRoles) {
-            result.addMembershipToBeRemoved(originalMembs.get(roleId).getId());
+        if (!incremental) {
+            Set<Long> originalRoles = new HashSet<Long>(originalMembs.keySet());
+            originalRoles.removeAll(updatedMembs.keySet());
+            for (Long roleId : originalRoles) {
+                result.addMembershipToBeRemoved(originalMembs.get(roleId).getId());
+            }
         }
 
         return result;
@@ -251,7 +280,7 @@ public final class AttributableOperations {
     public static RoleMod diff(final RoleTO updated, final RoleTO original) {
         RoleMod result = new RoleMod();
 
-        diff(updated, original, result);
+        diff(updated, original, result, false);
 
         // 1. inheritance
         result.setInheritAccountPolicy(updated.isInheritAccountPolicy());

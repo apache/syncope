@@ -18,3 +18,12 @@ password VARCHAR(255) NOT NULL,
 status VARCHAR(5));
 
 INSERT INTO test VALUES ('testuser1', 'password', 'false');
+
+-- this table must be created in order to provide a specific test for issueSYNCOPE68
+DROP TABLE test2 IF EXISTS;
+CREATE TABLE test2 (
+id VARCHAR(50) PRIMARY KEY,
+password VARCHAR(255) NOT NULL,
+status VARCHAR(5));
+
+INSERT INTO test2 VALUES ('testuser2', 'password321', 'false');

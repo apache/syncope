@@ -63,7 +63,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     /**
      * Connector change used to miss connector bean registration.
-     * 
+     *
      * http://code.google.com/p/syncope/issues/detail?id=176
      */
     @Test
@@ -74,8 +74,12 @@ public class ConnInstanceTest extends AbstractTest {
 
         List<ExternalResource> resources = connInstance.getResources();
         assertNotNull(resources);
-        assertEquals(1, resources.size());
-        assertEquals("ws-target-resource-nopropagation", resources.get(0).getName());
+        assertEquals(4, resources.size());
+        assertTrue(
+                "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(0).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(1).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(2).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(3).getName()));
 
         connInstance.addCapability(ConnectorCapability.SEARCH);
 
@@ -85,7 +89,11 @@ public class ConnInstanceTest extends AbstractTest {
 
         resources = connInstance.getResources();
         assertNotNull(resources);
-        assertEquals(1, resources.size());
-        assertEquals("ws-target-resource-nopropagation", resources.get(0).getName());
+        assertEquals(4, resources.size());
+        assertTrue(
+                "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(0).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(1).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(2).getName())
+                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(3).getName()));
     }
 }
