@@ -53,6 +53,9 @@ Release Notes - Syncope - Version 1.0.0-RC1-incubating
     * [SYNCOPE-80] - Changin Rows to display value in Propagation Tasks does not take effect
     * [SYNCOPE-81] - NotificationTasks cannot be deleted
     * [SYNCOPE-82] - Propagation task executions don't get persisted
+    * [SYNCOPE-84] - Projects generated with maven artifacts fail because of missing legal files
+    * [SYNCOPE-85] - Replace dependency on openjpa-all
+    * [SYNCOPE-86] - TaskExec instances are not associated with owning NotificationTask
 
 ** Improvement
     * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
