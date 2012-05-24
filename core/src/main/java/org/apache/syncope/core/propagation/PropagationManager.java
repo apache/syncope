@@ -781,7 +781,7 @@ public class PropagationManager {
 
             if (hasToBeregistered(task, execution)) {
                 if (propagationAttempted.isEmpty()) {
-                    LOG.debug("No propagation attemped for {}", execution);
+                    LOG.debug("No propagation attempted for {}", execution);
                 } else {
                     execution.setTask(task);
                     task.addExec(execution);

@@ -41,7 +41,7 @@ under the License.
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_SyncopeRole" strategy="TABLE"/>
-        <table-generator name="SEQ_SyncopeRole" pk-column-value="SEQ_SyncopeRole" initial-value="10"/>
+        <table-generator name="SEQ_SyncopeRole" pk-column-value="SEQ_SyncopeRole" initial-value="100"/>
       </id>
     </attributes>
   </entity>
@@ -50,7 +50,7 @@ under the License.
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Membership" strategy="TABLE"/>
-        <table-generator name="SEQ_Membership" pk-column-value="SEQ_Membership" initial-value="10"/>
+        <table-generator name="SEQ_Membership" pk-column-value="SEQ_Membership" initial-value="100"/>
       </id>
     </attributes>
   </entity>

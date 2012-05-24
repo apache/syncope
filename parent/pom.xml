@@ -205,6 +205,22 @@ under the License.
     </developer>
   </developers>
 
+  <contributors>
+    <contributor>
+      <name>Denis Signoretto</name>
+      <email>denis.signoretto@intesys.it</email>
+      <organization>Intesys</organization>
+      <organizationUrl>http://www.intesys.it/</organizationUrl>
+    </contributor>
+    <contributor>
+      <name>Bob Lannoy</name>
+      <email>bob.lannoy@smals.be</email>
+      <organization>Smals</organization>
+      <organizationUrl>http://www.smals.be/</organizationUrl>
+      <url>http://blogresearch.smalsrech.be/</url>
+    </contributor>
+  </contributors>
+
   <prerequisites>
     <maven>[3.0.3,)</maven>
   </prerequisites>
@@ -238,6 +254,7 @@ under the License.
     <quartz.version>1.8.6</quartz.version>
 
     <openjpa.version>2.2.0</openjpa.version>
+    <bval.version>0.4</bval.version>
         
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
@@ -301,13 +318,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.apache.geronimo.specs</groupId> 
-        <artifactId>geronimo-jpa_2.0_spec</artifactId> 
-        <version>1.1</version> 
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javamail_1.4_spec</artifactId>
         <version>1.7.1</version>
@@ -357,6 +367,17 @@ under the License.
         <groupId>org.activiti</groupId>
         <artifactId>activiti-engine</artifactId>
         <version>${activiti.version}</version>
+        <!-- Using geronimo-* for this -->
+        <exclusions>
+          <exclusion>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.activiti</groupId>
@@ -365,9 +386,35 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.geronimo.specs</groupId> 
+        <artifactId>geronimo-jpa_2.0_spec</artifactId> 
+        <version>1.1</version> 
+      </dependency>
+      <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-all</artifactId>
         <version>${openjpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-jdbc</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-persistence-jdbc</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.0.0.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-jsr303</artifactId>
+        <version>${bval.version}</version>
       </dependency>
 
       <dependency>
@@ -662,7 +709,7 @@ under the License.
 
     <repository>
       <id>activiti</id>
-      <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
+      <url>http://maven.alfresco.com/nexus/content/groups/public/</url>
     </repository>
 
   </repositories>
@@ -764,10 +811,16 @@ under the License.
               <resource>
                 <directory>${project.build.outputDirectory}</directory>
                 <includes>
-                  <include>META-INF/LICENSE*</include>
-                  <include>META-INF/NOTICE*</include>
                   <include>META-INF/DISCLAIMER*</include>
                   <include>META-INF/DEPENDENCIES*</include>
+                </includes>
+              </resource>
+              <resource>
+                <directory>${basedir}/../legal_ext</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                  <include>LICENSE</include>
+                  <include>NOTICE</include>
                 </includes>
               </resource>
             </webResources>

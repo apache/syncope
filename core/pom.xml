@@ -205,8 +205,34 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId> 
+      <artifactId>geronimo-jpa_2.0_spec</artifactId> 
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-all</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa-jdbc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa-persistence-jdbc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr303</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -488,7 +514,7 @@ under the License.
                 <groupId>${jdbcdriver.groupId}</groupId>
                 <artifactId>${jdbcdriver.artifactId}</artifactId>
               </dependency>
-
+              
               <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-all</artifactId>

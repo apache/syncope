@@ -44,7 +44,7 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
-        <!-- Only needed for running core alongside -->
+    <!-- Only needed for running core -->
     <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-all</artifactId>

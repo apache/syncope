@@ -16,16 +16,15 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <definitions id="definitions"
              targetNamespace="http://activiti.org/bpmn20" 
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:activiti="http://activiti.org/bpmn"
              xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
              xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
              xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" 
-             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL 
                                  http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
   
@@ -33,7 +32,7 @@ under the License.
   
     <startEvent id="theStart"/>
     
-        <!-- Create an user -->
+    <!-- Create an user -->
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
       
     <serviceTask id="create" name="Create" activiti:class="org.apache.syncope.core.workflow.activiti.Create"/>
@@ -59,14 +58,14 @@ under the License.
     <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
         
     <exclusiveGateway id="createApprovalGW"/>
-    <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="enableGW">
+    <sequenceFlow id="createApprovalGW2EnableGW" sourceRef="createApprovalGW" targetRef="enableGW">
       <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
       <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
     </sequenceFlow>
         
-        <!-- activate user if suspension is not required -->
+    <!-- activate user if suspension is not required -->
     <exclusiveGateway id="enableGW"/>
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
       <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
@@ -78,43 +77,40 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
     </sequenceFlow>
         
-        <!-- Comment the following two lines, uncomment the lines below and change
-             createApproval2Activate.targetRef to "generateToken" in order to enable opt-in. -->
+    <!-- Comment the following two lines, uncomment the lines below and change
+         createApprovalGW2Activate.targetRef to "generateToken" in order to enable opt-in. -->
     <serviceTask id="activate" name="Activate" activiti:class="org.apache.syncope.core.workflow.activiti.AutoActivate"/>
-
     <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
-        <!-- Uncomment the following lines and comment the above line in order to enable opt-in.        
-        <serviceTask id="generateToken" name="Generate token" activiti:class="org.apache.syncope.core.workflow.activiti.GenerateToken"/>
+    <!--<serviceTask id="generateToken" name="Generate token" activiti:class="org.apache.syncope.core.workflow.activiti.GenerateToken"/>
         
-        <sequenceFlow id="flowN+1" sourceRef="generateToken" targetRef="Created"/>
+    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="createdGw"/>
 
-        <userTask id="created" name="Created"/>
+    <userTask id="created" name="Created"/>
 
-        <sequenceFlow id="flowN+2" sourceRef="created" targetRef="createdGw"/>
+    <sequenceFlow id="flow6" sourceRef="created" targetRef="createdGw"/>
 
-        <exclusiveGateway id="createdGw"/>
-        <sequenceFlow id="created2Activate" sourceRef="createdGw" targetRef="activate">
-            <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${task == 'activate' && syncopeUser.checkToken(token)}]]>
-            </conditionExpression>
-        </sequenceFlow>  
-        <sequenceFlow id="created2Created" sourceRef="createdGw" targetRef="created">
-            <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${task == 'activate' && !syncopeUser.checkToken(token)}]]>
-            </conditionExpression>
-        </sequenceFlow>  
-        <sequenceFlow id="created2Delete" sourceRef="createdGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
-        </sequenceFlow>
+    NOTE: this gateway makes sense when the token to be checked (i.e. the 'token' variable below) is provided as input
+    from external to this workflow instance (a link provided in an notification e-mail, for example)
+    <exclusiveGateway id="createdGw"/>
+    <sequenceFlow id="created2Activate" sourceRef="createdGw" targetRef="activate">
+      <conditionExpression xsi:type="tFormalExpression">
+        <![CDATA[${syncopeUser.checkToken(token)}]]>
+      </conditionExpression>
+    </sequenceFlow>  
+    <sequenceFlow id="created2Created" sourceRef="createdGw" targetRef="created">
+      <conditionExpression xsi:type="tFormalExpression">
+        <![CDATA[${!syncopeUser.checkToken(token)}]]>
+      </conditionExpression>
+    </sequenceFlow>
         
-        <scriptTask id="activate" name="Activate" scriptFormat="juel">
-            <script>
-            syncopeUser.removeToken()    
-            </script>
-        </scriptTask>
+    <scriptTask id="activate" name="Activate" scriptFormat="juel">
+      <script>
+        syncopeUser.removeToken()    
+      </script>
+    </scriptTask>
 
-        <sequenceFlow id="flowN+3" sourceRef="activate" targetRef="active"/>-->
+    <sequenceFlow id="flow62" sourceRef="activate" targetRef="active"/>-->
 
     <userTask id="active" name="Active"/>
         
@@ -131,12 +127,12 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
     </sequenceFlow>
 
-        <!-- Update an active user -->
+    <!-- Update an active user -->
     <serviceTask id="update" name="Update" activiti:class="org.apache.syncope.core.workflow.activiti.Update"/>
 
     <sequenceFlow id="flow8" sourceRef="update" targetRef="active"/>
 
-        <!-- Suspend an active user -->
+    <!-- Suspend an active user -->
     <serviceTask id="suspend" name="Suspend" activiti:class="org.apache.syncope.core.workflow.activiti.Suspend"/>
 
     <sequenceFlow id="flow9" sourceRef="suspend" targetRef="suspended"/>
@@ -153,14 +149,14 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
     </sequenceFlow>
 
-        <!-- Reactivate a suspended user -->
+    <!-- Reactivate a suspended user -->
     <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.apache.syncope.core.workflow.activiti.Reactivate"/>
 
     <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
         
-        <!-- Reject an user -->
+    <!-- Reject an user -->
     <scriptTask id="reject" name="Reject" scriptFormat="groovy">
-            <!-- Do something with rejectReason -->
+      <!-- Do something with rejectReason -->
       <script>
         def scriptVar = rejectReason
       </script>
@@ -172,7 +168,7 @@ under the License.
         
     <sequenceFlow id="flow13" sourceRef="rejected" targetRef="delete"/>
 
-        <!-- Delete an user (created, active or suspended) -->
+    <!-- Delete an user (created, active or suspended) -->
     <serviceTask id="delete" name="Delete" activiti:class="org.apache.syncope.core.workflow.activiti.Delete"/>
 
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>

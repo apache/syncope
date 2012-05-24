@@ -161,10 +161,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check also for the deletion of the created object
         try {
             ConnInstanceTO deletedConn = restTemplate.getForObject(
-                BASE_URL + "connector/delete/{connectorId}.json", 
-                ConnInstanceTO.class, 
-                String.valueOf(actual.getId())
-            );
+                    BASE_URL + "connector/delete/{connectorId}.json",
+                    ConnInstanceTO.class,
+                    String.valueOf(actual.getId()));
             assertNotNull(deletedConn);
         } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
@@ -175,8 +174,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // check the non existence
         try {
-            restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}", ConnInstanceTO.class, String
-                    .valueOf(actual.getId()));
+            restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}", ConnInstanceTO.class,
+                    String.valueOf(actual.getId()));
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -228,8 +227,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertNotNull(actual);
 
-        actual = restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}", ConnInstanceTO.class, String
-                .valueOf(actual.getId()));
+        actual = restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}", ConnInstanceTO.class, String.
+                valueOf(actual.getId()));
 
         assertNotNull(actual);
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -243,8 +242,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Copy resource and connector in order to create new objects.
         // ----------------------------------
         // Retrieve a connector instance template.
-        ConnInstanceTO connInstanceTO = restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}",
-                ConnInstanceTO.class, 103L);
+        ConnInstanceTO connInstanceTO =
+                restTemplate.getForObject(BASE_URL + "connector/read/{connectorId}", ConnInstanceTO.class, 103L);
 
         assertNotNull(connInstanceTO);
 
@@ -252,7 +251,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         List<ResourceTO> resources = Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "resource/list.json?connInstanceId=103", ResourceTO[].class));
 
-        assertEquals(1, resources.size());
+        assertEquals(4, resources.size());
 
         // Retrieve a resource TO template.
         ResourceTO resourceTO = resources.get(0);
@@ -268,8 +267,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Create a new connector instance.
         // ----------------------------------
-        connInstanceTO = restTemplate.postForObject(BASE_URL + "connector/create.json", connInstanceTO,
-                ConnInstanceTO.class);
+        connInstanceTO =
+                restTemplate.postForObject(BASE_URL + "connector/create.json", connInstanceTO, ConnInstanceTO.class);
 
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
@@ -522,8 +521,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
 
-        schemaNames = Arrays.asList(restTemplate
-                .postForObject(BASE_URL + "connector/schema/list", conn, String[].class));
+        schemaNames = Arrays.asList(restTemplate.postForObject(BASE_URL + "connector/schema/list", conn, String[].class));
         assertNotNull(schemaNames);
         assertEquals(0, schemaNames.size());
 

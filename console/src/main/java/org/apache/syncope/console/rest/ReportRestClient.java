@@ -20,10 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ReportRestClient extends AbstractBaseRestClient implements ExecutionRestClient {
@@ -87,7 +87,7 @@ public class ReportRestClient extends AbstractBaseRestClient implements Executio
      */
     @Override
     public void deleteExecution(final Long reportExecId) {
-        restTemplate.delete(baseURL + "report/execution/delete/{execId}", reportExecId);
+        restTemplate.getForObject(baseURL + "report/execution/delete/{execId}", ReportExecTO.class, reportExecId);
     }
 
     /**

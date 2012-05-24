@@ -121,7 +121,9 @@ public class ConnObjectUtil {
             }
         }
 
-        return AttributableOperations.diff(updated, original);
+        final UserMod userMod = AttributableOperations.diff(updated, original, true);
+
+        return userMod;
     }
 
     private UserTO getUserTOFromConnObject(final ConnectorObject obj, final SyncTask syncTask) {

@@ -37,7 +37,8 @@ public class UserRequestRestClient extends AbstractBaseRestClient {
     }
 
     public UserRequestTO delete(final Long requestId) {
-        return restTemplate.getForObject(baseURL + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
+        return restTemplate.getForObject(baseURL + "user/request/deleteRequest/{requestId}",
+                UserRequestTO.class, requestId);
     }
 
     public UserRequestTO requestCreate(final UserTO userTO) {

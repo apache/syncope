@@ -20,9 +20,9 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationRestClient extends AbstractBaseRestClient {
@@ -49,7 +49,7 @@ public class NotificationRestClient extends AbstractBaseRestClient {
 
     public void deleteNotification(final Long id) throws SyncopeClientCompositeErrorException {
 
-        restTemplate.delete(baseURL + "notification/delete/{notificationId}.json", id);
+        restTemplate.getForObject(baseURL + "notification/delete/{notificationId}.json", NotificationTO.class, id);
     }
 
     public List<String> getMailTemplates() throws SyncopeClientCompositeErrorException {

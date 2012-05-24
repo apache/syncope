@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.data;
 
-import java.io.InvalidClassException;
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Scheduler;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.SyncopeClientExceptionType;
@@ -66,9 +64,6 @@ public class TaskDataBinder {
     private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource", "user"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
-
-    @Autowired
-    private TaskExecDAO taskExecDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -229,8 +224,8 @@ public class TaskDataBinder {
         switch (taskUtil) {
             case PROPAGATION:
                 if (!(task instanceof PropagationTask)) {
-                    throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: " + task.
-                            getClass().getName());
+                    throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: "
+                            + task.getClass().getName());
                 }
 
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
