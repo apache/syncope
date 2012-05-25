@@ -56,7 +56,6 @@ import org.activiti.engine.task.Task;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.common.security.EncryptorFactory;
-import org.identityconnectors.common.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -72,6 +71,7 @@ import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.WorkflowFormPropertyType;
+import org.springframework.security.crypto.codec.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -85,7 +85,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
-    private static final String[] PROPERTY_IGNORE_PROPS = { "type" };
+    private static final String[] PROPERTY_IGNORE_PROPS = {"type"};
 
     public static final String WF_PROCESS_ID = "userWorkflow";
 
@@ -170,17 +170,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     private String encrypt(final String clear) {
         byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
-        char[] encryptedChars = SecurityUtil.bytesToChars(encryptedBytes);
 
-        return new String(encryptedChars);
+        return new String(Base64.encode(encryptedBytes));
     }
 
     private String decrypt(final String crypted) {
-        char[] encryptedChars = crypted.toCharArray();
-        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(
-                SecurityUtil.charsToBytes(encryptedChars));
+        byte[] decryptedBytes =
+                EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(Base64.decode(crypted.getBytes()));
 
-        return new String(encryptedBytes);
+        return new String(decryptedBytes);
     }
 
     @Override
@@ -191,7 +189,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled) throws WorkflowException {
+            final Boolean enabled)
+            throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(USER_TO, userTO);
@@ -233,8 +232,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             propByRes = null;
 
             if (StringUtils.isNotBlank(userTO.getPassword())) {
-                runtimeService.setVariable(processInstance.getProcessInstanceId(), ENCRYPTED_PWD, encrypt(userTO
-                        .getPassword()));
+                runtimeService.setVariable(
+                        processInstance.getProcessInstanceId(), ENCRYPTED_PWD, encrypt(userTO.getPassword()));
             }
         }
 
@@ -277,7 +276,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token) throws WorkflowException {
+    protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token)
+            throws WorkflowException {
 
         Set<String> performedTasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
         updateStatus(user);
@@ -311,8 +311,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    @Transactional(rollbackFor = { Throwable.class })
-    protected WorkflowResult<Long> doSuspend(final SyncopeUser user) throws WorkflowException {
+    @Transactional(rollbackFor = {Throwable.class})
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
+            throws WorkflowException {
 
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
@@ -322,7 +323,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final SyncopeUser user) throws WorkflowException {
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
+            throws WorkflowException {
 
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
@@ -333,7 +335,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final SyncopeUser user) throws WorkflowException {
+    protected void doDelete(final SyncopeUser user)
+            throws WorkflowException {
 
         doExecuteTask(user, "delete", null);
         userDAO.delete(user);
@@ -356,7 +359,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition() throws WorkflowException {
+    public WorkflowDefinitionTO getDefinition()
+            throws WorkflowException {
 
         ProcessDefinition procDef;
         try {
@@ -400,7 +404,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void updateDefinition(final WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException {
+    public void updateDefinition(final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
 
         if (!ActivitiUserWorkflowAdapter.WF_PROCESS_ID.equals(definition.getId())) {
 
@@ -416,7 +421,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public List<String> getDefinedTasks() throws WorkflowException {
+    public List<String> getDefinedTasks()
+            throws WorkflowException {
 
         List<String> result = new ArrayList<String>();
 
@@ -527,7 +533,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId) throws NotFoundException, WorkflowException {
+    public WorkflowFormTO getForm(final String workflowId)
+            throws NotFoundException, WorkflowException {
 
         Task task;
         try {
