@@ -20,14 +20,10 @@ package org.apache.syncope.core.notification;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
@@ -35,10 +31,8 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
-import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.Entitlement;
@@ -49,10 +43,12 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.types.IntMappingType;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -89,13 +85,19 @@ public class NotificationTest {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
 
-    private static String smtpHost;
+    private static String smtpHost = "localhost";
 
-    private static String pop3Host;
+    private static int smtpPort = 2525;
 
-    private static String mailAddress;
+    private static String pop3Host = "localhost";
 
-    private static String mailPassword;
+    private static int pop3Port = 1110;
+
+    private static String mailAddress = "notificationtest@syncope.apache.org";
+
+    private static String mailPassword = "password";
+
+    private static GreenMail greenMail;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -122,22 +124,19 @@ public class NotificationTest {
     private NotificationJob notificationJob;
 
     @BeforeClass
-    public static void loadProperties() {
-        Properties props = new Properties();
+    public static void startGreenMail() {
+        ServerSetup[] config = new ServerSetup[2];
+        config[0] = new ServerSetup(smtpPort, smtpHost, ServerSetup.PROTOCOL_SMTP);
+        config[1] = new ServerSetup(pop3Port, pop3Host, ServerSetup.PROTOCOL_POP3);
+        greenMail = new GreenMail(config);
+        greenMail.setUser(mailAddress, mailPassword);
+        greenMail.start();
+    }
 
-        try {
-            props.load(NotificationTest.class.getResourceAsStream("/test.properties"));
-        } catch (IOException e) {
-            LOG.error("Could not load properties", e);
-            fail("Could not load test properties");
-        }
-
-        smtpHost = props.getProperty("smtp.host");
-        pop3Host = props.getProperty("pop3.host");
-        mailAddress = props.getProperty("mail.address");
-        mailPassword = props.getProperty("mail.password");
-        if (StringUtils.isBlank(mailPassword)) {
-            throw new IllegalArgumentException("Empty POP3 password: did you pass -Dmail.password=XXXX?");
+    @AfterClass
+    public static void stopGreenMail() {
+        if (greenMail != null) {
+            greenMail.stop();
         }
     }
 
@@ -153,65 +152,10 @@ public class NotificationTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    public static UserTO getSampleTO(final String email) {
-        UserTO userTO = new UserTO();
-        userTO.setPassword("password123");
-        userTO.setUsername(email);
-
-        AttributeTO fullnameTO = new AttributeTO();
-        fullnameTO.setSchema("fullname");
-        fullnameTO.addValue(email);
-        userTO.addAttribute(fullnameTO);
-
-        AttributeTO firstnameTO = new AttributeTO();
-        firstnameTO.setSchema("firstname");
-        firstnameTO.addValue(email);
-        userTO.addAttribute(firstnameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("Surname");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO typeTO = new AttributeTO();
-        typeTO.setSchema("type");
-        typeTO.addValue("a type");
-        userTO.addAttribute(typeTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue(email);
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue(email);
-        userTO.addAttribute(emailTO);
-
-        AttributeTO loginDateTO = new AttributeTO();
-        loginDateTO.setSchema("loginDate");
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        loginDateTO.addValue(sdf.format(new Date()));
-        userTO.addAttribute(loginDateTO);
-
-        // add a derived attribute
-        AttributeTO cnTO = new AttributeTO();
-        cnTO.setSchema("cn");
-        userTO.addDerivedAttribute(cnTO);
-
-        // add a virtual attribute
-        AttributeTO virtualdata = new AttributeTO();
-        virtualdata.setSchema("virtualdata");
-        virtualdata.setValues(Collections.singletonList("virtualvalue"));
-        userTO.addVirtualAttribute(virtualdata);
-
-        return userTO;
-    }
-
     private boolean verifyMail(final String sender, final String subject) {
         LOG.info("Waiting for notification to be sent...");
         try {
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
 
@@ -219,7 +163,7 @@ public class NotificationTest {
         try {
             Session session = Session.getDefaultInstance(System.getProperties());
             Store store = session.getStore("pop3");
-            store.connect(pop3Host, mailAddress, mailPassword);
+            store.connect(pop3Host, pop3Port, mailAddress, mailPassword);
 
             Folder inbox = store.getFolder("INBOX");
             assertNotNull(inbox);
@@ -261,7 +205,7 @@ public class NotificationTest {
         notification.setRecipientAttrType(IntMappingType.UserSchema);
 
         Random random = new Random(System.currentTimeMillis());
-        String sender = "syncopetest-" + random.nextLong() + "@syncope-idm.org";
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
         notification.setSender(sender);
         String subject = "Test notification " + random.nextLong();
         notification.setSubject(subject);
@@ -272,20 +216,24 @@ public class NotificationTest {
 
         notificationDAO.flush();
 
-        // 2. use a real SMTP server
+        // 2. use test SMTP server
         try {
             SyncopeConf smtpHostConf = confDAO.find("smtp.host");
             smtpHostConf.setValue(smtpHost);
             confDAO.save(smtpHostConf);
+
+            SyncopeConf smtpPortConf = confDAO.find("smtp.port");
+            smtpPortConf.setValue(Integer.toString(smtpPort));
+            confDAO.save(smtpPortConf);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while setting SMTP host");
+            fail("Unexpected exception while setting SMTP host and port");
         }
 
         confDAO.flush();
 
         // 3. create user
-        UserTO userTO = getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);

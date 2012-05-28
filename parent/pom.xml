@@ -699,6 +699,12 @@ under the License.
         <version>${connid.ldap.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.icegreen</groupId>
+        <artifactId>greenmail</artifactId>
+        <version>1.3.1b</version>
+        <scope>test</scope>
+      </dependency>
       <!-- /TEST -->
 
     </dependencies>
