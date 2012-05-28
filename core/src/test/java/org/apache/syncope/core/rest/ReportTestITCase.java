@@ -26,7 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -136,7 +138,7 @@ public class ReportTestITCase extends AbstractTest {
         report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
         assertNotNull(report);
 
-        ReportTO deletedReport = 
+        ReportTO deletedReport =
                 restTemplate.getForObject(BASE_URL + "report/delete/{reportId}", ReportTO.class, report.getId());
         assertNotNull(deletedReport);
 
@@ -149,7 +151,8 @@ public class ReportTestITCase extends AbstractTest {
     }
 
     @Test
-    public void executeAndExport() throws IOException {
+    public void executeAndExport()
+            throws IOException {
 
         ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
         assertNotNull(reportTO);
@@ -163,7 +166,6 @@ public class ReportTestITCase extends AbstractTest {
                 ReportExecTO.class, reportTO.getId());
         assertNotNull(execution);
 
-        int i = 0;
         int maxit = 50;
 
         do {
@@ -174,8 +176,8 @@ public class ReportTestITCase extends AbstractTest {
 
             reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
-            i++;
-        } while (preExecIds.size() == reportTO.getExecutions().size() && i < maxit);
+            maxit--;
+        } while (preExecIds.size() == reportTO.getExecutions().size() && maxit > 0);
 
         Set<Long> postExecIds = new HashSet<Long>();
         for (ReportExecTO exec : reportTO.getExecutions()) {
@@ -188,11 +190,16 @@ public class ReportTestITCase extends AbstractTest {
         // Export
         // 1. XML (default)
 
-        HttpResponse response = null;
-        HttpGet getMethod = null;
+        final HttpClient client = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient();
 
-        i = 0;
+        HttpResponse response = null;
+
         maxit = 10;
+
+        // issueSYNCOPE89
+        ((ThreadSafeClientConnManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
+
+        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
 
         do {
             try {
@@ -200,13 +207,10 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
+            response = client.execute(getMethod);
 
-            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
-                    getMethod);
-
-            i++;
-        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && i < maxit);
+            maxit--;
+        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && maxit > 0);
 
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -255,7 +259,6 @@ public class ReportTestITCase extends AbstractTest {
                 ReportExecTO.class, reportTO.getId());
         assertNotNull(execution);
 
-        int i = 0;
         int maxit = 50;
 
         do {
@@ -266,8 +269,8 @@ public class ReportTestITCase extends AbstractTest {
 
             reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
-            i++;
-        } while (reportTO.getExecutions().size() == 0 && i < maxit);
+            maxit--;
+        } while (reportTO.getExecutions().size() == 0 && maxit > 0);
 
         assertEquals(1, reportTO.getExecutions().size());
     }
