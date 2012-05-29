@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -78,8 +79,8 @@ public class ResourceConnConfPanel extends Panel {
     /**
      * Number java types.
      */
-    private static final List<Class> NUMBER = Arrays.asList(new Class[] { Integer.class, Double.class, Long.class,
-            Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE });
+    private static final List<Class> NUMBER = Arrays.asList(new Class[]{Integer.class, Double.class, Long.class,
+                Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE});
 
     @SpringBean
     private ConnectorRestClient connRestClient;
@@ -117,9 +118,9 @@ public class ResourceConnConfPanel extends Panel {
 
                 ConnInstanceTO connectorTO = connRestClient.read(resourceTO.getConnectorId());
 
-                connectorTO.setConfiguration(ConnConfPropUtils.joinConnInstanceProperties(connectorTO
-                        .getConfigurationMap(), ConnConfPropUtils.getConnConfPropertyMap(resourceTO
-                        .getConnConfProperties())));
+                connectorTO.setConfiguration(ConnConfPropUtils.joinConnInstanceProperties(connectorTO.
+                        getConfigurationMap(),
+                        ConnConfPropUtils.getConnConfPropertyMap(resourceTO.getConnConfProperties())));
 
                 if (connRestClient.check(connectorTO).booleanValue()) {
                     info(getString("success_connection"));
@@ -171,8 +172,8 @@ public class ResourceConnConfPanel extends Panel {
                     Class propertySchemaClass;
 
                     try {
-                        propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils
-                                .getDefaultClassLoader());
+                        propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
+                                getDefaultClassLoader());
                     } catch (Exception e) {
                         LOG.error("Error parsing attribute type", e);
                         propertySchemaClass = String.class;
@@ -258,6 +259,9 @@ public class ResourceConnConfPanel extends Panel {
                 }
             }
         }
+
+        // re-order properties
+        Collections.sort(props);
 
         return props;
     }

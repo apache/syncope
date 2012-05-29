@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.data;
 import java.util.Map;
 import javassist.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,11 +34,12 @@ import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "id", "resources" };
+    private static final String[] IGNORE_PROPERTIES = {"id", "resources"};
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -47,7 +47,7 @@ public class ConnInstanceDataBinder {
     @Autowired
     private ConnBundleManager connBundleManager;
 
-    public ConnInstance getConnInstance(final ConnInstanceTO connectorInstanceTO)
+    public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
@@ -56,25 +56,25 @@ public class ConnInstanceDataBinder {
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (connectorInstanceTO.getBundleName() == null) {
+        if (connInstanceTO.getBundleName() == null) {
             requiredValuesMissing.addElement("bundlename");
         }
 
-        if (connectorInstanceTO.getVersion() == null) {
+        if (connInstanceTO.getVersion() == null) {
             requiredValuesMissing.addElement("bundleversion");
         }
 
-        if (connectorInstanceTO.getConnectorName() == null) {
+        if (connInstanceTO.getConnectorName() == null) {
             requiredValuesMissing.addElement("connectorname");
         }
 
-        if (connectorInstanceTO.getConfiguration() == null || connectorInstanceTO.getConfiguration().isEmpty()) {
+        if (connInstanceTO.getConfiguration() == null || connInstanceTO.getConfiguration().isEmpty()) {
             requiredValuesMissing.addElement("configuration");
         }
 
         ConnInstance connectorInstance = new ConnInstance();
 
-        BeanUtils.copyProperties(connectorInstanceTO, connectorInstance, IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(connInstanceTO, connectorInstance, IGNORE_PROPERTIES);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -118,7 +118,6 @@ public class ConnInstanceDataBinder {
         }
 
         if (connInstanceTO.getConfiguration() != null && !connInstanceTO.getConfiguration().isEmpty()) {
-
             connInstance.setConfiguration(connInstanceTO.getConfiguration());
         }
 
@@ -141,33 +140,33 @@ public class ConnInstanceDataBinder {
         return connInstance;
     }
 
-    public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) throws NotFoundException {
+    public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance)
+            throws NotFoundException {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setId(connInstance.getId() != null
-                ? connInstance.getId().longValue()
-                : 0L);
+        connInstanceTO.setId(connInstance.getId() != null ? connInstance.getId().longValue() : 0L);
 
         // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties = connBundleManager.getConfigurationProperties(connInstance.getBundleName(),
-                connInstance.getVersion(), connInstance.getConnectorName());
+        ConfigurationProperties properties = connBundleManager.getConfigurationProperties(
+                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
-        ConnConfPropSchema connConfPropSchema;
-        ConfigurationProperty configurationProperty;
+        final Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
 
-        Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
         for (String propName : properties.getPropertyNames()) {
-            configurationProperty = properties.getProperty(propName);
+            ConfigurationPropertyImpl configurationProperty =
+                    (ConfigurationPropertyImpl) properties.getProperty(propName);
 
             if (!connInstanceToConfMap.containsKey(propName)) {
-                connConfPropSchema = new ConnConfPropSchema();
+                ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
                 connConfPropSchema.setName(configurationProperty.getName());
                 connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
                 connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
                 connConfPropSchema.setRequired(configurationProperty.isRequired());
                 connConfPropSchema.setType(configurationProperty.getType().getName());
+                connConfPropSchema.setConfidential(configurationProperty.isConfidential());
+                connConfPropSchema.setOrder(configurationProperty.getOrder());
 
                 ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(connConfPropSchema);

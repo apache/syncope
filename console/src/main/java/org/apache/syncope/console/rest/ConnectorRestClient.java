@@ -83,8 +83,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     public ConnInstanceTO delete(Long id) {
-        return restTemplate.getForObject(baseURL + "connector/delete/{connectorId}.json", 
-                                         ConnInstanceTO.class, id.toString());
+        return restTemplate.getForObject(baseURL + "connector/delete/{connectorId}.json",
+                ConnInstanceTO.class, id.toString());
     }
 
     public List<ConnBundleTO> getAllBundles() {
@@ -112,6 +112,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         try {
             properties = Arrays.asList(restTemplate.getForObject(baseURL
                     + "connector/{connectorId}/configurationProperty/list", ConnConfProperty[].class, connectorId));
+
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector configuration properties", e);
         }
@@ -155,7 +156,6 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
         try {
             return restTemplate.postForObject(baseURL + "connector/check.json", connector, Boolean.class);
-
         } catch (Exception e) {
             LOG.error("Connector not found {}", connector, e);
             return false;

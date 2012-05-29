@@ -36,6 +36,8 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     private int order;
 
+    private boolean confidential;
+
     public String getName() {
         return name;
     }
@@ -82,6 +84,14 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public boolean isConfidential() {
+        return confidential;
+    }
+
+    public void setConfidential(boolean confidential) {
+        this.confidential = confidential;
     }
 
     @Override

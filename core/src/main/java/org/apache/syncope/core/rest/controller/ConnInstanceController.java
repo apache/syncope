@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
@@ -64,6 +63,7 @@ import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 
 @Controller
 @RequestMapping("/connector")
@@ -150,7 +150,8 @@ public class ConnInstanceController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{connectorId}")
-    public ConnInstanceTO delete(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
+    public ConnInstanceTO delete(@PathVariable("connectorId") Long connectorId)
+            throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
         if (connInstance == null) {
@@ -169,13 +170,13 @@ public class ConnInstanceController extends AbstractController {
             scce.addException(invalidConnInstance);
             throw scce;
         }
-        
+
         ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
 
         connInstanceDAO.delete(connectorId);
         auditManager.audit(Category.connector, ConnectorSubCategory.delete, Result.success,
                 "Successfully deleted connector instance: " + connectorId);
-        
+
         return connToDelete;
     }
 
@@ -210,7 +211,8 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{connectorId}")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(@PathVariable("connectorId") Long connectorId) throws NotFoundException {
+    public ConnInstanceTO read(@PathVariable("connectorId") Long connectorId)
+            throws NotFoundException {
 
         ConnInstance connInstance = connInstanceDAO.find(connectorId);
         if (connInstance == null) {
@@ -255,8 +257,8 @@ public class ConnInstanceController extends AbstractController {
 
                 ConnectorKey key = bundle.getConnectorKey();
 
-                LOG.debug("\nBundle name: {}" + "\nBundle version: {}" + "\nBundle class: {}", new Object[] {
-                        key.getBundleName(), key.getBundleVersion(), key.getConnectorName() });
+                LOG.debug("\nBundle name: {}" + "\nBundle version: {}" + "\nBundle class: {}", new Object[]{
+                            key.getBundleName(), key.getBundleVersion(), key.getConnectorName()});
 
                 connectorBundleTO.setBundleName(key.getBundleName());
                 connectorBundleTO.setConnectorName(key.getConnectorName());
@@ -264,13 +266,11 @@ public class ConnInstanceController extends AbstractController {
 
                 ConfigurationProperties properties = bundleManager.getConfigurationProperties(bundle);
 
-                ConnConfPropSchema connConfPropSchema;
-                ConfigurationProperty configurationProperty;
-
                 for (String propName : properties.getPropertyNames()) {
-                    connConfPropSchema = new ConnConfPropSchema();
+                    ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
 
-                    configurationProperty = properties.getProperty(propName);
+                    ConfigurationPropertyImpl configurationProperty =
+                            (ConfigurationPropertyImpl) properties.getProperty(propName);
 
                     // set name
                     connConfPropSchema.setName(configurationProperty.getName());
@@ -286,6 +286,12 @@ public class ConnInstanceController extends AbstractController {
 
                     // set type
                     connConfPropSchema.setType(configurationProperty.getType().getName());
+
+                    // set order
+                    connConfPropSchema.setOrder(configurationProperty.getOrder());
+
+                    // set confidential
+                    connConfPropSchema.setConfidential(configurationProperty.isConfidential());
 
                     connectorBundleTO.addProperty(connConfPropSchema);
                 }
@@ -316,8 +322,8 @@ public class ConnInstanceController extends AbstractController {
         }
 
         // consider the possibility to receive overridden properties only
-        final Set<ConnConfProperty> conf = mergeConnConfProperties(connectorTO.getConfiguration(), connInstance
-                .getConfiguration());
+        final Set<ConnConfProperty> conf = mergeConnConfProperties(connectorTO.getConfiguration(), connInstance.
+                getConfiguration());
 
         // We cannot use Spring bean because this method could be used during
         // resource definition or modification: bean couldn't exist or bean
@@ -332,7 +338,7 @@ public class ConnInstanceController extends AbstractController {
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
                 "Successfully listed all schema names (" + result.size() + ") for connector "
-                        + connInstance.getDisplayName());
+                + connInstance.getDisplayName());
 
         return result;
     }
@@ -352,7 +358,7 @@ public class ConnInstanceController extends AbstractController {
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getConfigurationProperties, Result.success,
                 "Successfully listed all conf properties (" + result.size() + ") for connector "
-                        + connInstance.getDisplayName());
+                + connInstance.getDisplayName());
 
         return result;
     }
@@ -421,7 +427,8 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
     @Transactional(readOnly = true)
-    public ConnInstanceTO readConnectorBean(@PathVariable("resourceName") String resourceName) throws NotFoundException {
+    public ConnInstanceTO readConnectorBean(@PathVariable("resourceName") String resourceName)
+            throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {

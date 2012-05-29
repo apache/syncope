@@ -387,14 +387,7 @@ public class ResourceMappingPanel extends Panel {
      */
     private void initResourceSchemaNames() {
         if (resourceTO != null && resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0) {
-
-            final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-            connInstanceTO.setId(resourceTO.getConnectorId());
-
-            connInstanceTO.setConfiguration(resourceTO.getConnConfProperties());
-
             schemaNames = getResourceSchemaNames(resourceTO.getConnectorId(), resourceTO.getConnConfProperties());
-
         } else {
             schemaNames = Collections.EMPTY_LIST;
         }
