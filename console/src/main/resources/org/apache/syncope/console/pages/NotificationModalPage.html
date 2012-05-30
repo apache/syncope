@@ -97,16 +97,25 @@
         </div>
 
         <div id="recipients">
-          <span wicket:id="recipients"/>
-
           <div class="tablerow">
-            <div class="tablecolumn_label medium_fixedsize">
-              <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
-            </div>
-            <div class="tablecolumn_field medium_dynamicsize">
+            <div class="tablecolumn_field">
               <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
             </div>
+            <div class="tablecolumn_label">
+              <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
+            </div>
           </div>
+          <span wicket:id="recipientsContainer">
+            <div class="tablerow">
+              <div class="tablecolumn_field">
+                <span wicket:id="checkRecipients">[checkRecipients]</span>
+              </div>
+              <div class="tablecolumn_label">
+                <label for="checkRecipients"><wicket:message key="checkRecipients"/></label>
+              </div>
+            </div>
+            <span wicket:id="recipients"/>
+          </span>
         </div>
       </div>
 

@@ -125,4 +125,53 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }
+
+    @Test
+    public void createNotification() {
+        selenium.click("css=img[alt=\"Configuration\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//a[contains(text(),'Create new notification')]");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[2]/div/div/div/div/label\");", "30000");
+
+        selenium.type("name=sender:textField", "test@syncope.it");
+
+        selenium.type("name=sender:textField", "test@syncope.it");
+
+        selenium.select("//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[2]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+
+        selenium.select("//div[2]/form/div[2]/div/div/div[4]/div[2]/span/select", "label=fullname");
+
+        selenium.select("//div[2]/form/div[2]/div/div/div[5]/div[2]/span/select", "label=optin");
+
+        selenium.select("//div[2]/form/div[2]/div/div/div[6]/div[2]/span/select", "label=ALL");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
+
+        selenium.select("//td[3]/select", "label=MEMBERSHIP");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//td[4]/select[option='8 otherchild']\");", "30000");
+
+        selenium.select("//td[4]/select", "label=8 otherchild");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[3]/a/span");
+
+        selenium.click("//tr[2]/td/select/option");
+
+        selenium.click("//div[2]/form/div[2]/div[3]/span/span/table/tbody/tr[2]/td[2]/button");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[4]/a/span");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[2]/div[4]/div/div[2]/label\");", "30000");
+        
+        selenium.click("//div[2]/form/div[3]/input");
+    }
 }

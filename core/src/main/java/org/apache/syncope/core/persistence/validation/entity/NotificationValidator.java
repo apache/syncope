@@ -49,11 +49,14 @@ public class NotificationValidator extends AbstractValidator implements
             context.buildConstraintViolationWithTemplate("Invalid about search condition").addNode(
                     EntityViolationType.InvalidNotification.toString()).addNode("about").addConstraintViolation();
         }
-        if (!value.getRecipients().checkValidity()) {
-            isValid = false;
+        if (value.getRecipients() != null) {
+            if (!value.getRecipients().checkValidity() && !value.isSelfAsRecipient()) {
+                isValid = false;
 
-            context.buildConstraintViolationWithTemplate("Invalid recipients search condition").addNode(
-                    EntityViolationType.InvalidNotification.toString()).addNode("recipients").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("Invalid recipients search condition").addNode(
+                        EntityViolationType.InvalidNotification.toString()).
+                        addNode("recipients").addConstraintViolation();
+            }
         }
 
         return isValid;

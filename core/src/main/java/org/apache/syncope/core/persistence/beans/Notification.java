@@ -58,7 +58,6 @@ public class Notification extends AbstractBaseBean {
     @Lob
     private String xmlAbout;
 
-    @NotNull
     @Lob
     private String xmlRecipients;
 
@@ -115,19 +114,11 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getRecipients() {
-        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlRecipients);
-        if (result == null) {
-            result = new NodeCond();
-        }
-        return result;
+        return xmlRecipients == null ? null : XMLSerializer.<NodeCond>deserialize(xmlRecipients);
     }
 
     public void setRecipients(NodeCond recipients) {
-        if (recipients == null) {
-            recipients = new NodeCond();
-        }
-
-        xmlRecipients = XMLSerializer.serialize(recipients);
+        xmlRecipients = recipients == null ? null : XMLSerializer.serialize(recipients);
     }
 
     public String getRecipientAttrName() {

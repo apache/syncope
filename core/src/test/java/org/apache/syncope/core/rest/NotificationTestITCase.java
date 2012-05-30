@@ -86,7 +86,7 @@ public class NotificationTestITCase extends AbstractTest {
 
         NotificationTO actual =
                 restTemplate.postForObject(BASE_URL + "notification/create.json", notificationTO, NotificationTO.class);
-        
+
         assertNotNull(actual);
         assertNotNull(actual.getId());
         notificationTO.setId(actual.getId());
@@ -134,5 +134,47 @@ public class NotificationTestITCase extends AbstractTest {
             exception = e.getException(SyncopeClientExceptionType.NotFound);
         }
         assertNotNull(exception);
+    }
+
+    @Test
+    public void issueSYNCOPE83() {
+        NotificationTO notificationTO = new NotificationTO();
+        notificationTO.setTraceLevel(TraceLevel.SUMMARY);
+        notificationTO.addEvent("create");
+
+        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond1.setSchema("fullname");
+        fullnameLeafCond1.setExpression("%o%");
+        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond2.setSchema("fullname");
+        fullnameLeafCond2.setExpression("%i%");
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
+                fullnameLeafCond2));
+
+        notificationTO.setAbout(about);
+
+        notificationTO.setRecipientAttrName("email");
+        notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
+
+        notificationTO.setSelfAsRecipient(true);
+
+        notificationTO.setSender("syncope@syncope.apache.org");
+        notificationTO.setSubject("Test notification without");
+        notificationTO.setTemplate("test");
+
+        NotificationTO actual = null;
+        SyncopeClientException exception = null;
+        try {
+            actual = restTemplate.postForObject(
+                    BASE_URL + "notification/create.json", notificationTO, NotificationTO.class);
+
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
+        }
+        assertNull(exception);
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        notificationTO.setId(actual.getId());
+        assertEquals(actual, notificationTO);
     }
 }

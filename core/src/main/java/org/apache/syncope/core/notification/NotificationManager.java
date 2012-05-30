@@ -133,8 +133,11 @@ public class NotificationManager {
         connObjectUtil.retrieveVirAttrValues(user);
 
         final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
-        recipients.addAll(
-                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), notification.getRecipients()));
+
+        if (notification.getRecipients() != null) {
+            recipients.addAll(searchDAO.search(EntitlementUtil.getRoleIds(
+                    entitlementDAO.findAll()), notification.getRecipients()));
+        }
 
         if (notification.isSelfAsRecipient()) {
             recipients.add(user);

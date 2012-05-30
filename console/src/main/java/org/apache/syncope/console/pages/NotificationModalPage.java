@@ -31,6 +31,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -136,12 +137,61 @@ class NotificationModalPage extends BaseModalPage {
                 new ListModel<String>(restClient.getEvents()));
         form.add(events);
 
-        final UserSearchPanel recipients = new UserSearchPanel("recipients", notificationTO.getRecipients());
-        form.add(recipients);
+        final WebMarkupContainer recipientsContainer = new WebMarkupContainer("recipientsContainer");
+        recipientsContainer.setOutputMarkupId(true);
+
+        form.add(recipientsContainer);
 
         final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
                 getString("selfAsRecipient"), new PropertyModel(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
+
+        if (createFlag) {
+            selfAsRecipient.getField().setDefaultModelObject(Boolean.TRUE);
+        }
+
+        final AjaxCheckBoxPanel checkRecipients =
+                new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
+                new Model(notificationTO.getRecipients() == null ? false : true));
+        recipientsContainer.add(checkRecipients);
+
+        final UserSearchPanel recipients =
+                new UserSearchPanel("recipients",
+                notificationTO.getRecipients() == null ? null : notificationTO.getRecipients());
+        recipientsContainer.add(recipients);
+        recipients.setEnabled(checkRecipients.getModelObject());
+
+        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (!Boolean.valueOf(selfAsRecipient.getField().getValue())) {
+                    checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
+                    target.add(checkRecipients);
+                    recipients.setEnabled(checkRecipients.getModelObject());
+                    target.add(recipients);
+                    target.add(recipientsContainer);
+                }
+            }
+        });
+
+        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (!checkRecipients.getModelObject()) {
+                    selfAsRecipient.getField().setDefaultModelObject(Boolean.TRUE);
+                    target.add(selfAsRecipient);
+                }
+                recipients.setEnabled(checkRecipients.getModelObject());
+                target.add(recipients);
+                target.add(recipientsContainer);
+            }
+        });
 
         AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
@@ -151,8 +201,8 @@ class NotificationModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
                 notificationTO.setAbout(about.buildSearchCond());
-                notificationTO.setRecipients(recipients.buildSearchCond());
-
+                notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
+                
                 try {
                     if (createFlag) {
                         restClient.createNotification(notificationTO);
