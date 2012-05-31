@@ -26,10 +26,12 @@ public class GenerateToken extends AbstractActivitiDelegate {
 
     @Override
     protected void doExecute(final DelegateExecution execution) throws Exception {
-
         SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
-        user.generateToken(Integer.parseInt(confDAO.find("token.length", "256").getValue()), Integer.parseInt(confDAO
-                .find("token.expireTime", "60").getValue()));
+        user.generateToken(
+                Integer.parseInt(confDAO.find("token.length", "256").getValue()),
+                Integer.parseInt(confDAO.find("token.expireTime", "60").getValue()));
+
+        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
     }
 }
