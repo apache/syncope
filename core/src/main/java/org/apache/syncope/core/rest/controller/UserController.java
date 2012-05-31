@@ -26,20 +26,6 @@ import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.MembershipTO;
@@ -65,6 +51,20 @@ import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.UserSubCategory;
 import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Note that this controller does not extend AbstractController, hence does not provide any Spring's @Transactional
@@ -389,7 +389,7 @@ public class UserController {
             throw new NotFoundException("User " + userTO.getId());
         }
 
-        return setStatus(user, resourceNames, performLocally, performRemotely, true, "activate");
+        return setStatus(user, userTO.getToken(), resourceNames, performLocally, performRemotely, true, "activate");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -408,7 +408,7 @@ public class UserController {
             throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, resourceNames, performLocally, performRemotely, false, "suspend");
+        return setStatus(user, null, resourceNames, performLocally, performRemotely, false, "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -427,7 +427,7 @@ public class UserController {
             throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, resourceNames, performLocally, performRemotely, true, "reactivate");
+        return setStatus(user, null, resourceNames, performLocally, performRemotely, true, "reactivate");
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
@@ -435,19 +435,19 @@ public class UserController {
     public UserTO delete(@PathVariable("userId") final Long userId)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", userId);
-        
+
         return deleteByUserId(userId);
     }
-    
+
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/deleteByUsername/{username}")
     public UserTO delete(@PathVariable final String username)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", username);
-        
+
         UserTO result = userDataBinder.getUserTO(username);
         long userId = result.getId();
-        
+
         return deleteByUserId(userId);
     }
 
@@ -545,28 +545,23 @@ public class UserController {
         return savedTO;
     }
 
-    private UserTO setStatus(final SyncopeUser user, final Set<String> resourceNames, final boolean performLocally,
-            final boolean performRemotely, final boolean status, final String performedTask)
+    private UserTO setStatus(final SyncopeUser user, final String token, final Set<String> resourceNames,
+            final boolean performLocally, final boolean performRemotely, final boolean status, final String task)
             throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
 
-        LOG.debug("About to suspend " + user.getId());
+        LOG.debug("About to set status of {}" + user);
 
-        List<PropagationTask> tasks = null;
-        WorkflowResult<Long> updated = null;
-
+        WorkflowResult<Long> updated;
         if (performLocally) {
-            // perform local changes
-
-            if ("suspend".equals(performedTask)) {
+            if ("suspend".equals(task)) {
                 updated = wfAdapter.suspend(user.getId());
-            } else if ("reactivate".equals(performedTask)) {
+            } else if ("reactivate".equals(task)) {
                 updated = wfAdapter.reactivate(user.getId());
             } else {
-                updated = wfAdapter.activate(user.getId(), user.getToken());
+                updated = wfAdapter.activate(user.getId(), token);
             }
         } else {
-            // do not perform local changes
-            updated = new WorkflowResult<Long>(user.getId(), null, performedTask);
+            updated = new WorkflowResult<Long>(user.getId(), null, task);
         }
 
         // Resources to exclude from propagation.
@@ -580,7 +575,7 @@ public class UserController {
             resources.addAll(user.getResourceNames());
         }
 
-        tasks = propagationManager.getUpdateTaskIds(user, status, resources);
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, status, resources);
 
         propagationManager.execute(tasks);
         notificationManager.createTasks(updated);
@@ -594,9 +589,9 @@ public class UserController {
 
         return savedTO;
     }
-    
+
     private UserTO deleteByUserId(final Long userId)
-        throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
+            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after wfAdapter.delete(), which
@@ -613,7 +608,7 @@ public class UserController {
 
             @Override
             public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                               final ConnectorObject before, final ConnectorObject after) {
+                    final ConnectorObject before, final ConnectorObject after) {
 
                 final PropagationTO propagation = new PropagationTO();
                 propagation.setResourceName(resourceName);
@@ -634,7 +629,7 @@ public class UserController {
         wfAdapter.delete(userId);
 
         auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
-                           "Successfully deleted user: " + userTO.getUsername());
+                "Successfully deleted user: " + userTO.getUsername());
 
         LOG.debug("User successfully deleted: {}", userId);
 
