@@ -35,5 +35,6 @@ You have been provided with the following roles:
 </ul>
 #end
 
+SMPT HOST is $syncopeConf.get("smtp.host").
 </body>
 </html>

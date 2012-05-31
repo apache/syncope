@@ -27,6 +27,7 @@ import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
@@ -167,6 +168,7 @@ public class NotificationManager {
 
         final Map<String, Object> model = new HashMap<String, Object>();
         model.put("user", userDataBinder.getUserTO(user));
+        model.put("syncopeConf", this.findAll());
 
         String htmlBody;
         String textBody;
@@ -272,5 +274,13 @@ public class NotificationManager {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
         task.setLatestExecStatus(execution.getStatus());
         taskDAO.save(task);
+    }
+
+    public Map<String, String> findAll() {
+        Map<String, String> syncopeConfMap = new HashMap<String, String>();
+        for (SyncopeConf conf : confDAO.findAll()) {
+            syncopeConfMap.put(conf.getKey(), conf.getValue());
+        }
+        return syncopeConfMap;
     }
 }
