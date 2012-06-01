@@ -480,6 +480,11 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
 </source>
           </li>
           <li>
+            Add appropriate release notes to
+            <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Releases">Releases</a>
+            wiki page based on the HTML release reports from JIRA
+          </li>
+          <li>
             Update the <a href="downloads.html">downloads</a> site page to point to the new release artifacts with base 
             URL
             <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
@@ -497,7 +502,7 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
       </subsection>
       
       <subsection name="Announce the release">
-        Make an announcement about the release on the
+        After the mirrors have had time to update (24 hours to be on the safe side), make an announcement about the release on the
         <a href="mailto:syncope-user@incubator.apache.org">syncope-user</a>,
         <a href="mailto:syncope-dev@incubator.apache.org">syncope-dev</a>, and
         <a href="mailto:announce@apache.org">announce@apache.org</a> lists as per

@@ -41,13 +41,17 @@ under the License.
       </p>
       <p>Use the links below to download a source distribution of Apache Syncope.
       It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.</p>
-      <p><strong>Note</strong> that the preferred way to create an Apache Syncope project is to 
+      <div style="border: 1px solid black; border-radius: 15px;padding:5px;background-color:#F5F5F5;text-align:center;margin-top:5px;margin-bottom:10px;">
+        <strong>Note</strong> that the preferred way to create an Apache Syncope project is to 
       <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven 
-      project</a> starting from published archetype.</p>
+      project</a> starting from published archetype.
+      </div>
     </section>
 
-    <section name="Current Release">
-      <subsection name="Apache Syncope 1.0.0-RC1-incubating - Released May 10th, 2012">
+    <section name="Current Releases">
+      <subsection name="1.0.0-RC1-incubating Espressivo">
+        <p>Release date: June 1st, 2012</p>
+        <p><a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a></p>
         <table>
           <thead>
             <tr>
@@ -81,8 +85,8 @@ under the License.
       </subsection>
     </section>
 
-    <section name="Older Releases">
-    </section>
+<!--    <section name="Older Releases">
+    </section>-->
 
     <section name="Verifying Releases">
       <p>We strongly recommend you verify the integrity of the downloaded files with both PGP and MD5.</p>

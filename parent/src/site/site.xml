@@ -56,7 +56,7 @@ under the License.
     <menu name="Overview">
       <item name="Features" href="features.html"/>
       <item name="Architecture" href="architecture.html"/>
-<!--      <item name="Downloads" href="downloads.html"/>-->
+      <item name="Downloads" href="downloads.html"/>
       <item name="Javadoc" href="apidocs/index.html"/>
       <item name="License" href="license.html"/>
     </menu>
@@ -72,7 +72,7 @@ under the License.
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
       <item name="Issue Tracking" href="issue-tracking.html"/>
-<!--      <item name="Release Process" href="release-process.html"/>-->
+      <item name="Release Process" href="release-process.html"/>
     </menu>
 
     <menu name="ASF">
