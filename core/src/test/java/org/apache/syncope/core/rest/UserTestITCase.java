@@ -434,8 +434,8 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void create() {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
-                PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks =
+                Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -447,8 +447,8 @@ public class UserTestITCase extends AbstractTest {
                 maxId = task.getId();
             }
         }
-        PropagationTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
-                maxId);
+        PropagationTaskTO taskTO =
+                restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, maxId);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -1265,6 +1265,59 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createActivate() {
+        UserTO userTO = getSampleTO("createActivate@syncope.apache.org");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(11L);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getToken());
+        assertNotNull(userTO.getTokenExpireTime());
+
+        assertEquals("created", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/activate/{userId}?token=" + userTO.getToken(), UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertNull(userTO.getToken());
+        assertNull(userTO.getTokenExpireTime());
+
+        assertEquals("active", userTO.getStatus());
+    }
+
+    @Test
+    public void createActivateByUsername() {
+        UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(11L);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getToken());
+        assertNotNull(userTO.getTokenExpireTime());
+
+        assertEquals("created", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/activateByUsername/{username}.json?token=" + userTO.getToken(),
+                UserTO.class, userTO.getUsername());
+
+        assertNotNull(userTO);
+        assertNull(userTO.getToken());
+        assertNull(userTO.getTokenExpireTime());
+
+        assertEquals("active", userTO.getStatus());
+    }
+
+    @Test
     public void suspendReactivate() {
         UserTO userTO = getSampleTO("suspendReactivate@syncope.apache.org");
 
@@ -1283,6 +1336,32 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+    }
+
+    @Test
+    public void suspendReactivateByUsername() {
+        UserTO userTO = getSampleTO("suspendReactivateByUsername@syncope.apache.org");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7L);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class, userTO.getUsername());
+
+        assertNotNull(userTO);
+        assertEquals("suspended", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/reactivateByUsername/{username}.json", UserTO.class, userTO.getUsername());
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

@@ -112,7 +112,8 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{username}")
     @Transactional(readOnly = true)
     public ModelAndView verifyPassword(@PathVariable("username") String username,
-            @RequestParam("password") final String password) throws NotFoundException, UnauthorizedRoleException {
+            @RequestParam("password") final String password)
+            throws NotFoundException, UnauthorizedRoleException {
 
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
@@ -132,7 +133,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/count")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public ModelAndView searchCount(@RequestBody final NodeCond searchCondition) throws InvalidSearchConditionException {
+    public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
+            throws InvalidSearchConditionException {
 
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -185,7 +187,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO read(@PathVariable("userId") final Long userId) throws NotFoundException, UnauthorizedRoleException {
+    public UserTO read(@PathVariable("userId") final Long userId)
+            throws NotFoundException, UnauthorizedRoleException {
 
         UserTO result = userDataBinder.getUserTO(userId);
 
@@ -212,7 +215,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public List<UserTO> search(@RequestBody final NodeCond searchCondition) throws InvalidSearchConditionException {
+    public List<UserTO> search(@RequestBody final NodeCond searchCondition)
+            throws InvalidSearchConditionException {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
@@ -238,7 +242,8 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
-            @PathVariable("size") final int size) throws InvalidSearchConditionException {
+            @PathVariable("size") final int size)
+            throws InvalidSearchConditionException {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
@@ -374,22 +379,65 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/activate")
+    @RequestMapping(method = RequestMethod.GET, value = "/activate/{userId}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO activate(@RequestBody final UserTO userTO,
+    public UserTO activate(
+            @PathVariable("userId") final Long userId,
+            @RequestParam(required = true) final String token,
             @RequestParam(required = false) final Set<String> resourceNames,
             @RequestParam(required = false, defaultValue = "true") final Boolean performLocally,
             @RequestParam(required = false, defaultValue = "true") final Boolean performRemotely)
             throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
 
-        LOG.debug("About to activate " + userTO.getId());
+        LOG.debug("About to activate " + userId);
 
-        SyncopeUser user = userDAO.find(userTO.getId());
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
-            throw new NotFoundException("User " + userTO.getId());
+            throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, userTO.getToken(), resourceNames, performLocally, performRemotely, true, "activate");
+        return setStatus(user, token, resourceNames, performLocally, performRemotely, true, "activate");
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET, value = "/activateByUsername/{username}")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public UserTO activate(
+            @PathVariable("username") final String username,
+            @RequestParam(required = true) final String token,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performRemotely)
+            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to activate " + username);
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        return setStatus(user, token, resourceNames, performLocally, performRemotely, true, "activate");
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET, value = "/suspendByUsername/{username}")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO suspend(@PathVariable("username") final String username,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performRemotely)
+            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to suspend " + username);
+
+        SyncopeUser user = userDAO.find(username);
+
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        return setStatus(user, null, resourceNames, performLocally, performRemotely, false, "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -425,6 +473,25 @@ public class UserController {
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
+        }
+
+        return setStatus(user, null, resourceNames, performLocally, performRemotely, true, "reactivate");
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET, value = "/reactivateByUsername/{username}")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO reactivate(final @PathVariable("username") String username,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performLocally,
+            @RequestParam(required = false, defaultValue = "true") final Boolean performRemotely)
+            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to reactivate " + username);
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
         }
 
         return setStatus(user, null, resourceNames, performLocally, performRemotely, true, "reactivate");

@@ -64,9 +64,13 @@ under the License.
     <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
       <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
     </sequenceFlow>
-        
-    <!-- activate user if suspension is not required -->
+    
     <exclusiveGateway id="enableGW"/>
+    <!-- opt-in required -->
+    <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(11)}</conditionExpression>
+    </sequenceFlow>
+    <!-- activate user if suspension is not required -->
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
       <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
     </sequenceFlow>
@@ -76,45 +80,39 @@ under the License.
     <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
       <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
     </sequenceFlow>
-        
-    <!-- Comment the following two lines, uncomment the lines below and change
-         createApprovalGW2Activate.targetRef to "generateToken" in order to enable opt-in. -->
+    
     <serviceTask id="activate" name="Activate" activiti:class="org.apache.syncope.core.workflow.activiti.AutoActivate"/>
     <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
-    <!--<serviceTask id="generateToken" name="Generate token" activiti:class="org.apache.syncope.core.workflow.activiti.GenerateToken"/>
+    <!-- Double opt-in required -->
+    <serviceTask id="generateToken" name="Generate token" 
+                 activiti:class="org.apache.syncope.core.workflow.activiti.GenerateToken"/>
         
-    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="createdGw"/>
+    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
 
     <userTask id="created" name="Created"/>
 
-    <sequenceFlow id="flow6" sourceRef="created" targetRef="createdGw"/>
+    <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"/>
 
-    NOTE: this gateway makes sense when the token to be checked (i.e. the 'token' variable below) is provided as input
-    from external to this workflow instance (a link provided in an notification e-mail, for example)
-    <exclusiveGateway id="createdGw"/>
-    <sequenceFlow id="created2Activate" sourceRef="createdGw" targetRef="activate">
-      <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${syncopeUser.checkToken(token)}]]>
-      </conditionExpression>
+    <exclusiveGateway id="optinGW"/>
+    <sequenceFlow id="created2Activate" sourceRef="optinGW" targetRef="removeToken">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.checkToken(token)}</conditionExpression>
     </sequenceFlow>  
-    <sequenceFlow id="created2Created" sourceRef="createdGw" targetRef="created">
-      <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${!syncopeUser.checkToken(token)}]]>
-      </conditionExpression>
+    <sequenceFlow id="created2Created" sourceRef="optinGW" targetRef="created">
+      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.checkToken(token)}</conditionExpression>
     </sequenceFlow>
         
-    <scriptTask id="activate" name="Activate" scriptFormat="juel">
+    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy">
       <script>
         syncopeUser.removeToken()    
       </script>
     </scriptTask>
 
-    <sequenceFlow id="flow62" sourceRef="activate" targetRef="active"/>-->
-
+    <sequenceFlow id="flow7" sourceRef="removeToken" targetRef="active"/>
+    
     <userTask id="active" name="Active"/>
         
-    <sequenceFlow id="flow7" sourceRef="active" targetRef="activeGw"/>
+    <sequenceFlow id="flow8" sourceRef="active" targetRef="activeGw"/>
 
     <exclusiveGateway id="activeGw"/>
     <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
@@ -130,16 +128,16 @@ under the License.
     <!-- Update an active user -->
     <serviceTask id="update" name="Update" activiti:class="org.apache.syncope.core.workflow.activiti.Update"/>
 
-    <sequenceFlow id="flow8" sourceRef="update" targetRef="active"/>
+    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
 
     <!-- Suspend an active user -->
     <serviceTask id="suspend" name="Suspend" activiti:class="org.apache.syncope.core.workflow.activiti.Suspend"/>
 
-    <sequenceFlow id="flow9" sourceRef="suspend" targetRef="suspended"/>
+    <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
 
     <userTask id="suspended" name="Suspended"/>
         
-    <sequenceFlow id="flow10" sourceRef="suspended" targetRef="suspendedGw"/>
+    <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
 
     <exclusiveGateway id="suspendedGw"/>
     <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
@@ -152,7 +150,7 @@ under the License.
     <!-- Reactivate a suspended user -->
     <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.apache.syncope.core.workflow.activiti.Reactivate"/>
 
-    <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
+    <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
         
     <!-- Reject an user -->
     <scriptTask id="reject" name="Reject" scriptFormat="groovy">
@@ -162,11 +160,11 @@ under the License.
       </script>
     </scriptTask>
         
-    <sequenceFlow id="flow12" sourceRef="reject" targetRef="rejected"/>
+    <sequenceFlow id="flow13" sourceRef="reject" targetRef="rejected"/>
 
     <userTask id="rejected" name="Rejected"/>
         
-    <sequenceFlow id="flow13" sourceRef="rejected" targetRef="delete"/>
+    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="delete"/>
 
     <!-- Delete an user (created, active or suspended) -->
     <serviceTask id="delete" name="Delete" activiti:class="org.apache.syncope.core.workflow.activiti.Delete"/>
