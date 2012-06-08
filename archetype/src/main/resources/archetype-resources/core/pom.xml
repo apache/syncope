@@ -99,11 +99,10 @@ under the License.
       <artifactId>groovy-all</artifactId>
     </dependency>
 
-<!-- TEST -->
+    <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
-      <version>${syncope.version}</version>
       <type>war</type>
       <scope>test</scope>
     </dependency>

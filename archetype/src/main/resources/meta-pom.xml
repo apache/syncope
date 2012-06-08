@@ -28,11 +28,11 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.0.0-incubating-SNAPSHOT</version>
+    <version></version>
   </parent>
 
   <properties>
-    <syncope.version>1.0.0-incubating-SNAPSHOT</syncope.version>
+    <syncope.version></syncope.version>
   </properties>
 
   <name>Apache Syncope sample project</name>
@@ -54,6 +54,7 @@ under the License.
         <artifactId>syncope-build-tools</artifactId>
         <version>${syncope.version}</version>
         <type>war</type>
+        <scope>test</scope>
       </dependency> 
             
       <dependency>
@@ -111,7 +112,7 @@ under the License.
     </pluginManagement>
     
     <!-- Disable legal check for generated projects: see SYNCOPE-84 -->
-    <plugins>      
+    <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>ianal-maven-plugin</artifactId>

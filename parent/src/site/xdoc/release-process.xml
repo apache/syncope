@@ -119,10 +119,6 @@ under the License.
             from JIRA.
           </li>
           <li>
-            Update parent POM version in <tt>archetype/src/main/resources/archetype-resources/pom.xml</tt>
-            to the ongoing release number.
-          </li>
-          <li>
             Commit any changes back to svn:
             <source>svn commit -m "updating files for release"</source>
           </li>

@@ -81,7 +81,6 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
-      <version>${syncope.version}</version>
       <type>war</type>
       <scope>test</scope>
     </dependency>
@@ -138,7 +137,7 @@ under the License.
     <finalName>syncope-console</finalName>
 
     <plugins>
-
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>

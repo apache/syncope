@@ -65,6 +65,51 @@ under the License.
     </pluginManagement>
 
     <plugins>
+      <!-- Generate project's parent POM and dynamically sets Syncope version -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${basedir}/src/main/resources</dir>
+              <includes>
+                <include>meta-pom.xml</include>
+              </includes>
+              <outputDir>${basedir}/src/main/resources/archetype-resources</outputDir>
+              <stylesheet>${basedir}/src/main/resources/properties2pom.xsl</stylesheet>
+              <parameters>
+                <parameter>
+                  <name>syncopeVersion</name>
+                  <value>${project.version}</value>
+                </parameter>
+              </parameters>
+              <outputProperties>
+                <outputProperty>
+                  <name>indent</name>
+                  <value>yes</value>
+                </outputProperty>
+              </outputProperties>
+              <fileMappers>
+                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                  <pattern>^meta-(.*)\.xml$</pattern>
+                  <replacement>$1.xml</replacement>
+                </fileMapper>
+              </fileMappers>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
