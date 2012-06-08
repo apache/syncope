@@ -115,19 +115,16 @@ under the License.
             <b>Closed</b> state.
           </li>
           <li>
-            Update the text files in a working copy of the project root:
-            <ol>
-              <li>Update the 
-                <tt>CHANGES</tt> based on the Text release reports from JIRA.
-              </li>
-              <li>Review and update 
-                <tt>README</tt> if needed.
-              </li>
-              <li>
-                Commit any changes back to svn:
-                <source>svn commit -m "updating files for release"</source>
-              </li>
-            </ol>
+            Update the <tt>CHANGES</tt> file in a working copy of the project root based on the Text release reports
+            from JIRA.
+          </li>
+          <li>
+            Update parent POM version in <tt>archetype/src/main/resources/archetype-resources/pom.xml</tt>
+            to the ongoing release number.
+          </li>
+          <li>
+            Commit any changes back to svn:
+            <source>svn commit -m "updating files for release"</source>
           </li>
           <li>
             Perform a full build and deploy the SNAPSHOT artifacts:
