@@ -715,7 +715,7 @@ under the License.
 
     <repository>
       <id>activiti</id>
-      <url>http://maven.alfresco.com/nexus/content/groups/public/</url>
+      <url>https://artifacts.alfresco.com/nexus/content/groups/public/</url>
     </repository>
 
   </repositories>
