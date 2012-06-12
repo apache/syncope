@@ -28,7 +28,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -37,6 +36,7 @@ import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
+import org.springframework.security.authentication.DisabledException;
 
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
@@ -84,47 +84,45 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(noRollbackFor = {BadCredentialsException.class})
-    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+    @Transactional(noRollbackFor = {BadCredentialsException.class, DisabledException.class})
+    public Authentication authenticate(final Authentication authentication)
+            throws AuthenticationException {
 
-        boolean authenticated;
+        boolean authenticated = false;
         SyncopeUser passwordUser = new SyncopeUser();
         SyncopeUser user = null;
 
-        if (adminUser.equals(authentication.getPrincipal())) {
-            passwordUser.setPassword(authentication.getCredentials().toString(), CipherAlgorithm.MD5, 0);
+        String username = authentication.getPrincipal().toString();
 
+        if (adminUser.equals(username)) {
+            passwordUser.setPassword(authentication.getCredentials().toString(), CipherAlgorithm.MD5, 0);
             authenticated = adminMD5Password.equalsIgnoreCase(passwordUser.getPassword());
         } else {
-            String username;
-            try {
-                username = authentication.getPrincipal().toString();
-            } catch (NumberFormatException e) {
-                throw new UsernameNotFoundException("Invalid username: " + authentication.getName(), e);
-            }
-
             user = userDAO.find(username);
-            if (user == null) {
-                throw new UsernameNotFoundException("Could not find user " + username);
+
+            if (user != null) {
+                if (user.getSuspended()) {
+                    throw new DisabledException("User " + user.getUsername() + " is suspended");
+                }
+
+                passwordUser.setPassword(authentication.getCredentials().toString(), user.getCipherAlgoritm(), 0);
+                authenticated = user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
             }
-
-            passwordUser.setPassword(authentication.getCredentials().toString(), user.getCipherAlgoritm(), 0);
-
-            authenticated = user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
         }
 
-        Authentication result;
+        UsernamePasswordAuthenticationToken token;
 
-        if ((user == null || !user.getSuspended()) && authenticated) {
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(authentication.
-                    getPrincipal(), null, userDetailsService.loadUserByUsername(
-                    authentication.getPrincipal().toString()).getAuthorities());
+        if (authenticated) {
+            token = new UsernamePasswordAuthenticationToken(
+                    authentication.getPrincipal(),
+                    null,
+                    userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).getAuthorities());
+
             token.setDetails(authentication.getDetails());
-
-            result = token;
 
             auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.success,
                     "Successfully authenticated, with roles: " + token.getAuthorities());
+
             LOG.debug("User {} successfully authenticated, with roles {}", authentication.getPrincipal(), token.
                     getAuthorities());
 
@@ -135,19 +133,25 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
 
         } else {
-            if (user != null && !user.getSuspended()) {
+            if (user != null) {
                 user.setFailedLogins(user.getFailedLogins() + 1);
                 userDAO.save(user);
             }
 
             auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.failure,
                     "User " + authentication.getPrincipal() + " not authenticated");
+
             LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
-            throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");
+            // By using HttpComponents version 4.2 the request is sent twice in case of exception (SYNCOPE-94) ...
+            // throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");
+            
+            // ... this is the reason of the following code.
+            token = new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), null, null);
+            token.setDetails(authentication.getDetails());
         }
 
-        return result;
+        return token;
     }
 
     @Override
