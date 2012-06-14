@@ -38,6 +38,7 @@ import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.USchema;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
@@ -50,6 +51,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -125,7 +129,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
         List<SyncopeUser> result = Collections.EMPTY_LIST;
 
-        if (adminRoles != null && !adminRoles.isEmpty()) {
+        if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
             if (!searchCondition.checkValidity()) {
