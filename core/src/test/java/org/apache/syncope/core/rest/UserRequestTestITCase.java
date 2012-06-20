@@ -95,7 +95,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(request);
 
         // 5. switch back to admin
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         // 6. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
@@ -156,7 +156,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(request);
 
         // 6. switch back to admin
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         // 7. user password has not changed yet
         Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password="
@@ -204,7 +204,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(request);
 
         // 5. switch back to admin
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         // 6. user still exists
         UserTO actual = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());

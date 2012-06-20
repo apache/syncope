@@ -24,12 +24,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AttributeTO;
@@ -53,7 +51,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertFalse(allEntitlements.isEmpty());
 
         // 2. as admin, read own entitlements
-        super.setupRestTemplate();
+        super.resetRestTemplate();
+
         Set<String> adminEntitlements = new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "auth/entitlements.json", String[].class)));
 
@@ -99,10 +98,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json", SchemaTO.class);
         assertNotNull(schemaTO);
@@ -118,7 +114,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
@@ -142,16 +138,12 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         UserTO readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
         assertNotNull(readUserTO);
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
+        super.setupRestTemplate("user2", "password");
 
         SyncopeClientException exception = null;
         try {
@@ -163,7 +155,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(exception);
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
     }
 
     @Test
@@ -181,10 +173,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
@@ -200,20 +189,22 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
+        super.setupRestTemplate("user2", "password");
 
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
+        matchedUsers =
+                Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition, UserTO[].class));
+
         assertNotNull(matchedUsers);
+
         userIds = new HashSet<Long>(matchedUsers.size());
+
         for (UserTO user : matchedUsers) {
             userIds.add(user.getId());
         }
         assertFalse(userIds.contains(1L));
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
     }
 
     @Test
@@ -231,10 +222,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         UserTO readUserTO =
                 restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
@@ -245,8 +233,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
+        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
@@ -268,15 +255,14 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         assertNotNull(readUserTO);
@@ -299,10 +285,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
@@ -312,8 +295,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
+        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
@@ -345,7 +327,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
@@ -354,8 +336,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
 
         // last authentication before suspension
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "wrongpwd1"));
+        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
 
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
@@ -367,7 +348,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
@@ -378,8 +359,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // check for authentication
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
@@ -392,15 +372,14 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), "password123"));
+        super.setupRestTemplate(userTO.getUsername(), "password123");
 
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
 
@@ -438,10 +417,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = restTemplate.postForObject(BASE_URL + "user/create", role1Admin, UserTO.class);
         assertNotNull(role1Admin);
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(role1Admin.getUsername(), "password"));
+        super.setupRestTemplate(role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getSampleTO("syncope48user@apache.org");
@@ -453,6 +429,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(role1User);
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
     }
 }

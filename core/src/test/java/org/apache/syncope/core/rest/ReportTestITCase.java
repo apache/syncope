@@ -25,10 +25,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -191,6 +198,17 @@ public class ReportTestITCase extends AbstractTest {
         // 1. XML (default)
 
         final HttpClient client = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient();
+        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getAuthScope();
+        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
+
+
+        // Add AuthCache to the execution context
+        BasicHttpContext localcontext = new BasicHttpContext();
+
+        // Generate BASIC scheme object and add it to the local auth cache
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(targetHost, new BasicScheme());
+        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
 
         HttpResponse response = null;
 
@@ -207,7 +225,7 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            response = client.execute(getMethod);
+            response = client.execute(targetHost, getMethod, localcontext);
 
             maxit--;
         } while ((response == null || response.getStatusLine().getStatusCode() != 200) && maxit > 0);
@@ -220,8 +238,7 @@ public class ReportTestITCase extends AbstractTest {
 
         // 2. HTML
         getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=HTML");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
-                getMethod);
+        response = client.execute(targetHost, getMethod, localcontext);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();
@@ -230,8 +247,7 @@ public class ReportTestITCase extends AbstractTest {
 
         // 3. PDF
         getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=PDF");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
-                getMethod);
+        response = client.execute(targetHost, getMethod, localcontext);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();
@@ -240,8 +256,7 @@ public class ReportTestITCase extends AbstractTest {
 
         // 4. RTF
         getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=RTF");
-        response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
-                getMethod);
+        response = client.execute(targetHost, getMethod, localcontext);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         export = EntityUtils.toString(response.getEntity()).trim();

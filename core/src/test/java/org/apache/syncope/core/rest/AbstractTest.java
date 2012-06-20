@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
+@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
 
     /**
@@ -52,11 +52,16 @@ public abstract class AbstractTest {
         return new RestTemplate();
     }
 
-    @Before
-    public void setupRestTemplate() {
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory());
+    public void setupRestTemplate(final String uid, final String pwd) {
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("admin", "password"));
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials(uid, pwd));
+    }
+
+    @Before
+    public void resetRestTemplate() {
+        setupRestTemplate("admin", "password");
     }
 }

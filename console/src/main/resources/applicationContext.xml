@@ -39,7 +39,7 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.console.rest"/>
 
   <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
       <list>
         <value>classpath:configuration.properties</value>
@@ -64,12 +64,27 @@ under the License.
   <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
         
   <bean id="mappingJacksonHttpMessageConverter"
-          class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+        class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
     <property name="objectMapper" ref="jacksonObjectMapper"/>
   </bean>
 
   <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
-  <bean id="httpClientParams" class="org.apache.http.params.SyncBasicHttpParams"/>
+  
+  <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
+    <property name="parameters">
+      <map key-type="java.lang.String">
+        <entry>
+          <key>
+            <value>http.protocol.handle-authentication</value>
+          </key>
+          <value type="java.lang.Boolean">
+            false
+          </value>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  
   <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
     <constructor-arg value="${host}"/>
     <constructor-arg value="${port}"/>
@@ -82,7 +97,7 @@ under the License.
 
     <property name="errorHandler">
       <bean id="syncopeClientErrorHandler"
-                  class="org.apache.syncope.client.validation.SyncopeClientErrorHandler"/>
+            class="org.apache.syncope.client.validation.SyncopeClientErrorHandler"/>
     </property>
   </bean>
 

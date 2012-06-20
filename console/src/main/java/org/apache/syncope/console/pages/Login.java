@@ -109,16 +109,21 @@ public class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-                String[] entitlements = authenticate(userIdField.getRawInput(), passwordField.getRawInput());
+                try {
+                    String[] entitlements = authenticate(userIdField.getRawInput(), passwordField.getRawInput());
 
-                if (entitlements == null) {
-                    error(getString("login-error"));
-                } else {
                     SyncopeSession.get().setUserId(userIdField.getRawInput());
                     SyncopeSession.get().setEntitlements(entitlements);
                     SyncopeSession.get().setCoreVersion(getCoreVersion());
 
                     setResponsePage(WelcomePage.class, parameters);
+                } catch (HttpClientErrorException e) {
+                    error(getString("login-error"));
+                    
+                    PreemptiveAuthHttpRequestFactory requestFactory =
+                            ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+
+                    ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
                 }
             }
         };
@@ -174,20 +179,14 @@ public class Login extends WebPage {
 
     private String[] authenticate(final String userId, final String password) {
         // 1. Set provided credentials to check
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
 
         // 2. Search authorizations for user specified by credentials
-        String[] entitlements = null;
-        try {
-            entitlements = restTemplate.getForObject(baseURL + "auth/entitlements.json", String[].class);
-        } catch (HttpClientErrorException e) {
-            LOG.error("While fetching user's entitlements", e);
-        }
-
-        return entitlements;
+        return restTemplate.getForObject(baseURL + "auth/entitlements.json", String[].class);
     }
 
     private boolean isSelfRegistrationAllowed() {

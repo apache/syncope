@@ -143,12 +143,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
-            // By using HttpComponents version 4.2 the request is sent twice in case of exception (SYNCOPE-94) ...
-            // throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");
-            
-            // ... this is the reason of the following code.
-            token = new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), null, null);
-            token.setDetails(authentication.getDetails());
+            throw new BadCredentialsException("User " + authentication.getPrincipal() + " not authenticated");
         }
 
         return token;

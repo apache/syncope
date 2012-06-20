@@ -182,7 +182,7 @@ public class RoleTestITCase extends AbstractTest {
         assertFalse(roleTO.getAttributes().isEmpty());
 
         // restore admin authentication
-        super.setupRestTemplate();
+        super.resetRestTemplate();
     }
 
     @Test

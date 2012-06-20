@@ -659,7 +659,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("rejected", userTO.getStatus());
 
         // reset admin credentials for restTemplate
-        super.setupRestTemplate();
+        super.resetRestTemplate();
     }
 
     @Test

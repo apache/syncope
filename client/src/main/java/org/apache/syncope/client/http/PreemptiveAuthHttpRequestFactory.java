@@ -26,7 +26,9 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.http.HttpMethod;
@@ -50,7 +52,7 @@ public class PreemptiveAuthHttpRequestFactory extends HttpComponentsClientHttpRe
     public PreemptiveAuthHttpRequestFactory(final String host, final int port, final String scheme,
             final ClientConnectionManager conman, final HttpParams params) {
 
-        super();
+        super(new DefaultHttpClient(conman, params));
         targetHost = new HttpHost(host, port, scheme);
     }
 
@@ -61,13 +63,12 @@ public class PreemptiveAuthHttpRequestFactory extends HttpComponentsClientHttpRe
     @Override
     protected HttpContext createHttpContext(final HttpMethod httpMethod, final URI uri) {
 
-        AuthCache authCache = new BasicAuthCache();
-        // Generate BASIC scheme object and add it to the local auth cache
-        BasicScheme basicAuth = new BasicScheme();
-        authCache.put(targetHost, basicAuth);
-
         // Add AuthCache to the execution context
         BasicHttpContext localcontext = new BasicHttpContext();
+
+        // Generate BASIC scheme object and add it to the local auth cache
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(targetHost, new BasicScheme());
         localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
 
         return localcontext;
