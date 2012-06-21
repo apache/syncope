@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,14 +34,17 @@ public class RoleRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all Roles.
+     *
      * @return SchemaTOs
      */
-    public List<RoleTO> getAllRoles() throws SyncopeClientCompositeErrorException {
+    public List<RoleTO> getAllRoles()
+            throws SyncopeClientCompositeErrorException {
 
         List<RoleTO> roles = null;
 
         try {
-            roles = Arrays.asList(restTemplate.getForObject(baseURL + "role/list.json", RoleTO[].class));
+            roles = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "role/list.json", RoleTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While listing all roles", e);
         }
@@ -50,14 +54,17 @@ public class RoleRestClient extends AbstractBaseRestClient {
 
     /**
      * Create new role.
+     *
      * @param roleTO
      */
     public void createRole(RoleTO roleTO) {
-        restTemplate.postForObject(baseURL + "role/create", roleTO, RoleTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "role/create", roleTO, RoleTO.class);
     }
 
     /**
      * Load an already existent role by its name.
+     *
      * @param name (e.g.:surname)
      * @return schemaTO
      */
@@ -65,7 +72,8 @@ public class RoleRestClient extends AbstractBaseRestClient {
         RoleTO roleTO = null;
 
         try {
-            roleTO = restTemplate.getForObject(baseURL + "role/read/{roleId}.json", RoleTO.class, id);
+            roleTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "role/read/{roleId}.json", RoleTO.class, id);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a role", e);
         }
@@ -74,19 +82,23 @@ public class RoleRestClient extends AbstractBaseRestClient {
 
     /**
      * Update an already existent role.
+     *
      * @param roleTO updated
      * @return true is the operation ends successfully, false otherwise
      */
     public void updateRole(RoleMod roleMod) {
-        restTemplate.postForObject(baseURL + "role/update", roleMod, RoleTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "role/update", roleMod, RoleTO.class);
     }
 
     /**
      * Delete an already existent role by its id.
+     *
      * @param name (e.g.:rolename)
      * @return roleTO
      */
     public RoleTO deleteRole(Long id) {
-        return restTemplate.getForObject(baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
     }
 }

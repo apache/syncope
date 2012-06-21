@@ -22,8 +22,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.console.SyncopeSession;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Syncope Logout.
@@ -31,9 +29,6 @@ import org.springframework.web.client.RestTemplate;
 public class Logout extends BasePage {
 
     private static final long serialVersionUID = -2143007520243939450L;
-
-    @SpringBean
-    private RestTemplate restTemplate;
 
     public Logout(final PageParameters parameters) {
         super(parameters);
@@ -46,7 +41,7 @@ public class Logout extends BasePage {
         setResponsePage(getApplication().getHomePage());
 
         PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+                ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().getRequestFactory());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
     }

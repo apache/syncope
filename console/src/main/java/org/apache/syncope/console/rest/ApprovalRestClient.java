@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.console.SyncopeSession;
 
 /**
  * Console client for invoking Rest Todo services.
@@ -31,14 +32,17 @@ import org.apache.syncope.client.to.WorkflowFormTO;
 public class ApprovalRestClient extends AbstractBaseRestClient {
 
     public List<WorkflowFormTO> getForms() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "user/workflow/form/list", WorkflowFormTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "user/workflow/form/list", WorkflowFormTO[].class));
     }
 
     public WorkflowFormTO claimForm(final String taskId) {
-        return restTemplate.getForObject(baseURL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
     }
 
     public void submitForm(final WorkflowFormTO form) {
-        restTemplate.postForObject(baseURL + "user/workflow/form/submit", form, UserTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/workflow/form/submit", form, UserTO.class);
     }
 }

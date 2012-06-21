@@ -22,43 +22,51 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationRestClient extends AbstractBaseRestClient {
 
-    public List<NotificationTO> getAllNotifications() throws SyncopeClientCompositeErrorException {
-
-        return Arrays.asList(restTemplate.getForObject(baseURL + "notification/list.json", NotificationTO[].class));
+    public List<NotificationTO> getAllNotifications()
+            throws SyncopeClientCompositeErrorException {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "notification/list.json", NotificationTO[].class));
     }
 
-    public NotificationTO readNotification(final Long id) throws SyncopeClientCompositeErrorException {
-
-        return restTemplate.getForObject(baseURL + "notification/read/{notificationId}.json", NotificationTO.class, id);
+    public NotificationTO readNotification(final Long id)
+            throws SyncopeClientCompositeErrorException {
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "notification/read/{notificationId}.json", NotificationTO.class, id);
     }
 
-    public void createNotification(final NotificationTO notificationTO) throws SyncopeClientCompositeErrorException {
-
-        restTemplate.postForObject(baseURL + "notification/create.json", notificationTO, NotificationTO.class);
+    public void createNotification(final NotificationTO notificationTO)
+            throws SyncopeClientCompositeErrorException {
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "notification/create.json", notificationTO, NotificationTO.class);
     }
 
-    public void updateNotification(final NotificationTO notificationTO) throws SyncopeClientCompositeErrorException {
-
-        restTemplate.postForObject(baseURL + "notification/update.json", notificationTO, NotificationTO.class);
+    public void updateNotification(final NotificationTO notificationTO)
+            throws SyncopeClientCompositeErrorException {
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "notification/update.json", notificationTO, NotificationTO.class);
     }
 
-    public void deleteNotification(final Long id) throws SyncopeClientCompositeErrorException {
-
-        restTemplate.getForObject(baseURL + "notification/delete/{notificationId}.json", NotificationTO.class, id);
+    public void deleteNotification(final Long id)
+            throws SyncopeClientCompositeErrorException {
+        SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "notification/delete/{notificationId}.json", NotificationTO.class, id);
     }
 
-    public List<String> getMailTemplates() throws SyncopeClientCompositeErrorException {
-
-        return Arrays.asList(restTemplate.getForObject(baseURL + "configuration/mailTemplates.json", String[].class));
+    public List<String> getMailTemplates()
+            throws SyncopeClientCompositeErrorException {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "configuration/mailTemplates.json", String[].class));
     }
 
-    public List<String> getEvents() throws SyncopeClientCompositeErrorException {
-
-        return Arrays.asList(restTemplate.getForObject(baseURL + "workflow/tasks.json", String[].class));
+    public List<String> getEvents()
+            throws SyncopeClientCompositeErrorException {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "workflow/tasks.json", String[].class));
     }
 }

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.console.SyncopeSession;
 
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {
@@ -32,11 +33,13 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @return ConfigurationTOs
      */
     public List<ConfigurationTO> getAllConfigurations() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "configuration/list.json", ConfigurationTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "configuration/list.json", ConfigurationTO[].class));
     }
 
     public ConfigurationTO readConfiguration(final String key) {
-        return restTemplate.getForObject(baseURL + "configuration/read/{key}.json", ConfigurationTO.class, key);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "configuration/read/{key}.json", ConfigurationTO.class, key);
     }
 
     /**
@@ -45,7 +48,8 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @param configurationTO
      */
     public void createConfiguration(ConfigurationTO configurationTO) {
-        restTemplate.postForObject(baseURL + "configuration/create", configurationTO, ConfigurationTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "configuration/create", configurationTO, ConfigurationTO.class);
     }
 
     /**
@@ -54,13 +58,15 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @param configurationTO
      */
     public void updateConfiguration(final ConfigurationTO configurationTO) {
-        restTemplate.postForObject(baseURL + "configuration/update", configurationTO, ConfigurationTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "configuration/update", configurationTO, ConfigurationTO.class);
     }
 
     /**
      * Delete a configuration by key.
      */
     public ConfigurationTO deleteConfiguration(final String key) {
-        return restTemplate.getForObject(baseURL + "configuration/delete/{key}.json", ConfigurationTO.class, key);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "configuration/delete/{key}.json", ConfigurationTO.class, key);
     }
 }

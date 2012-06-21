@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
@@ -38,7 +39,6 @@ import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
 
 public class HttpResourceStream extends AbstractResourceStream implements IFixedLocationResourceStream {
 
@@ -48,18 +48,15 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     private final URI uri;
 
-    private final RestTemplate restTemplate;
-
     private transient HttpEntity responseEntity;
 
     private transient String contentType;
 
     private transient String filename;
 
-    public HttpResourceStream(final String uri, final RestTemplate restTemplate) throws URISyntaxException {
-
+    public HttpResourceStream(final String uri)
+            throws URISyntaxException {
         this.uri = new URI(Args.notNull(uri, "uri"));
-        this.restTemplate = Args.notNull(restTemplate, "restTemplate");
     }
 
     private HttpResponse buildFakeResponse(final String errorMessage) {
@@ -85,9 +82,10 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
         HttpGet getMethod = new HttpGet(this.uri);
         HttpResponse response;
+
         try {
-            response = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().execute(
-                    getMethod);
+            response = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().getRequestFactory()).
+                    getHttpClient().execute(getMethod);
         } catch (Exception e) {
             LOG.error("Unexpected exception while executing HTTP method to {}", this.uri, e);
             response = buildFakeResponse(e.getMessage());
@@ -114,7 +112,8 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public InputStream getInputStream() throws ResourceStreamNotFoundException {
+    public InputStream getInputStream()
+            throws ResourceStreamNotFoundException {
 
         try {
             execute();
@@ -125,7 +124,8 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public void close() throws IOException {
+    public void close()
+            throws IOException {
         // Nothing needed here, because we are using HttpComponents HttpClient
     }
 

@@ -25,6 +25,7 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.console.commons.StatusBean;
 
@@ -35,7 +36,7 @@ import org.apache.syncope.console.commons.StatusBean;
 public class UserRestClient extends AbstractBaseRestClient {
 
     public Integer count() {
-        return restTemplate.getForObject(baseURL + "user/count.json", Integer.class);
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/count.json", Integer.class);
     }
 
     /**
@@ -46,8 +47,8 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @return list of TaskTO objects
      */
     public List<UserTO> list(final int page, final int size) {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "user/list/{page}/{size}.json", UserTO[].class, page,
-                size));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "user/list/{page}/{size}.json", UserTO[].class, page, size));
     }
 
     /**
@@ -56,9 +57,10 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO instance
      * @throws SyncopeClientCompositeErrorException
      */
-    public UserTO create(final UserTO userTO) throws SyncopeClientCompositeErrorException {
+    public UserTO create(final UserTO userTO)
+            throws SyncopeClientCompositeErrorException {
 
-        return restTemplate.postForObject(baseURL + "user/create", userTO, UserTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/create", userTO, UserTO.class);
     }
 
     /**
@@ -67,20 +69,23 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO
      * @return true is the operation ends successfully, false otherwise
      */
-    public UserTO update(UserMod userModTO) throws SyncopeClientCompositeErrorException {
+    public UserTO update(UserMod userModTO)
+            throws SyncopeClientCompositeErrorException {
 
-        return restTemplate.postForObject(baseURL + "user/update", userModTO, UserTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/update", userModTO, UserTO.class);
     }
 
-    public UserTO delete(Long id) throws SyncopeClientCompositeErrorException {
+    public UserTO delete(Long id)
+            throws SyncopeClientCompositeErrorException {
 
-        return restTemplate.getForObject(baseURL + "user/delete/{userId}", UserTO.class, id);
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/delete/{userId}", UserTO.class, id);
     }
 
     public UserTO read(Long id) {
         UserTO userTO = null;
         try {
-            userTO = restTemplate.getForObject(baseURL + "user/read/{userId}.json", UserTO.class, id);
+            userTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "user/read/{userId}.json", UserTO.class, id);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a user", e);
         }
@@ -88,7 +93,8 @@ public class UserRestClient extends AbstractBaseRestClient {
     }
 
     public Integer searchCount(final NodeCond searchCond) {
-        return restTemplate.postForObject(baseURL + "user/search/count.json", searchCond, Integer.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/search/count.json", searchCond, Integer.class);
     }
 
     /**
@@ -97,30 +103,34 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public List<UserTO> search(final NodeCond searchCond) throws SyncopeClientCompositeErrorException {
+    public List<UserTO> search(final NodeCond searchCond)
+            throws SyncopeClientCompositeErrorException {
 
-        return Arrays.asList(restTemplate.postForObject(baseURL + "user/search", searchCond, UserTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/search", searchCond, UserTO[].class));
     }
 
     public List<UserTO> search(final NodeCond searchCond, final int page, final int size)
             throws SyncopeClientCompositeErrorException {
 
-        return Arrays.asList(restTemplate.postForObject(baseURL + "user/search/{page}/{size}", searchCond,
-                UserTO[].class, page, size));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/search/{page}/{size}", searchCond, UserTO[].class, page, size));
     }
 
     public ConnObjectTO getRemoteObject(final String resourceName, final String objectId)
             throws SyncopeClientCompositeErrorException {
-        return restTemplate.getForObject(baseURL + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class,
-                resourceName, objectId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, resourceName, objectId);
     }
 
-    public UserTO reactivate(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
+    public UserTO reactivate(long userId, List<StatusBean> statuses)
+            throws SyncopeClientCompositeErrorException {
 
         return enable(userId, statuses, true);
     }
 
-    public UserTO suspend(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
+    public UserTO suspend(long userId, List<StatusBean> statuses)
+            throws SyncopeClientCompositeErrorException {
 
         return enable(userId, statuses, false);
     }
@@ -133,7 +143,7 @@ public class UserRestClient extends AbstractBaseRestClient {
         query.append(baseURL).append("user/").append(enable
                 ? "reactivate/"
                 : "suspend/").append(userId).append("?").
-        // perform on resource if and only if resources have been speciofied
+                // perform on resource if and only if resources have been speciofied
                 append("performRemotely=").append(!statuses.isEmpty()).append("&");
 
         boolean performLoacal = false;
@@ -152,6 +162,6 @@ public class UserRestClient extends AbstractBaseRestClient {
         // perform on syncope if and only if it has been requested
         query.append("performLocally=").append(performLoacal);
 
-        return restTemplate.getForObject(query.toString(), UserTO.class);
+        return SyncopeSession.get().getRestTemplate().getForObject(query.toString(), UserTO.class);
     }
 }

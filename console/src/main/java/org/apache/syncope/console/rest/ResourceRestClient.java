@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.SyncopeSession;
 
 /**
  * Console client for invoking Rest Resources services.
@@ -34,7 +35,8 @@ public class ResourceRestClient extends AbstractBaseRestClient {
         List<ResourceTO> resources = null;
 
         try {
-            resources = Arrays.asList(restTemplate.getForObject(baseURL + "resource/list.json", ResourceTO[].class));
+            resources = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject
+                    (baseURL + "resource/list.json", ResourceTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all resources", e);
         }
@@ -43,14 +45,15 @@ public class ResourceRestClient extends AbstractBaseRestClient {
     }
 
     public void create(final ResourceTO resourceTO) {
-        restTemplate.postForObject(baseURL + "resource/create", resourceTO, ResourceTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(baseURL + "resource/create", resourceTO, ResourceTO.class);
     }
 
     public ResourceTO read(final String name) {
         ResourceTO resourceTO = null;
 
         try {
-            resourceTO = restTemplate.getForObject(baseURL + "resource/read/" + name + ".json", ResourceTO.class);
+            resourceTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "resource/read/" + name + ".json", ResourceTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a resource", e);
         }
@@ -58,11 +61,12 @@ public class ResourceRestClient extends AbstractBaseRestClient {
     }
 
     public void update(final ResourceTO resourceTO) {
-        restTemplate.postForObject(baseURL + "resource/update.json", resourceTO, ResourceTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     public ResourceTO delete(final String name) {
-        return restTemplate.getForObject(baseURL + "resource/delete/{resourceName}.json", 
-                                         ResourceTO.class, name);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "resource/delete/{resourceName}.json", ResourceTO.class, name);
     }
 }

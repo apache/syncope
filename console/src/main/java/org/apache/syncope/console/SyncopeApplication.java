@@ -18,6 +18,18 @@
  */
 package org.apache.syncope.console;
 
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.Configuration;
+import org.apache.syncope.console.pages.Login;
+import org.apache.syncope.console.pages.Logout;
+import org.apache.syncope.console.pages.Reports;
+import org.apache.syncope.console.pages.Resources;
+import org.apache.syncope.console.pages.Roles;
+import org.apache.syncope.console.pages.Schema;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Todo;
+import org.apache.syncope.console.pages.Users;
+import org.apache.syncope.console.pages.WelcomePage;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -36,18 +48,9 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.Configuration;
-import org.apache.syncope.console.pages.Login;
-import org.apache.syncope.console.pages.Logout;
-import org.apache.syncope.console.pages.Reports;
-import org.apache.syncope.console.pages.Resources;
-import org.apache.syncope.console.pages.Roles;
-import org.apache.syncope.console.pages.Schema;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Todo;
-import org.apache.syncope.console.pages.Users;
-import org.apache.syncope.console.pages.WelcomePage;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * SyncopeApplication class.
@@ -75,7 +78,7 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
     }
 
-    public void setupNavigationPane(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel,
+    public void setupNavigationPanel(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel,
             final String version) {
 
         page.add(new Label("version", "Console: " + version + "; Core: " + SyncopeSession.get().getCoreVersion()));
@@ -151,9 +154,7 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
 
     @Override
     public Class getHomePage() {
-        return SyncopeSession.get().isAuthenticated()
-                ? WelcomePage.class
-                : Login.class;
+        return SyncopeSession.get().isAuthenticated() ? WelcomePage.class : Login.class;
     }
 
     @Override

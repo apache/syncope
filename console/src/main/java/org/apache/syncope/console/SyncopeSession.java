@@ -19,11 +19,15 @@
 package org.apache.syncope.console;
 
 import java.text.SimpleDateFormat;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
-import org.apache.syncope.console.commons.Constants;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Custom Syncope Session class.
@@ -38,12 +42,23 @@ public class SyncopeSession extends WebSession {
 
     private Roles roles = new Roles();
 
+    private RestTemplate restTemplate;
+
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
     }
 
     public SyncopeSession(final Request request) {
         super(request);
+
+        final ApplicationContext applicationContext =
+                WebApplicationContextUtils.getWebApplicationContext(WebApplication.get().getServletContext());
+
+        restTemplate = applicationContext.getBean(RestTemplate.class);
+    }
+
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
     }
 
     public String getUserId() {

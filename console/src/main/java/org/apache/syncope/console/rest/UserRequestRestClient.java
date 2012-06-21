@@ -23,33 +23,38 @@ import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserRequestRestClient extends AbstractBaseRestClient {
 
     public UserTO readProfile() {
-        return restTemplate.getForObject(baseURL + "user/request/read/self", UserTO.class);
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/request/read/self", UserTO.class);
     }
 
     public List<UserRequestTO> list() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "user/request/list", UserRequestTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "user/request/list", UserRequestTO[].class));
     }
 
     public UserRequestTO delete(final Long requestId) {
-        return restTemplate.getForObject(baseURL + "user/request/deleteRequest/{requestId}",
-                UserRequestTO.class, requestId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
     }
 
     public UserRequestTO requestCreate(final UserTO userTO) {
-        return restTemplate.postForObject(baseURL + "user/request/create", userTO, UserRequestTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/request/create", userTO, UserRequestTO.class);
     }
 
     public UserRequestTO requestUpdate(final UserMod userMod) {
-        return restTemplate.postForObject(baseURL + "user/request/update", userMod, UserRequestTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/request/update", userMod, UserRequestTO.class);
     }
 
     public UserRequestTO requestDelete(final Long userId) {
-        return restTemplate.postForObject(baseURL + "user/request/delete/", userId, UserRequestTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "user/request/delete/", userId, UserRequestTO.class);
     }
 }

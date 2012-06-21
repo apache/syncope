@@ -57,7 +57,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -90,9 +89,6 @@ public class ReportModalPage extends BaseModalPage {
 
     @SpringBean
     private ReportRestClient restClient;
-
-    @SpringBean
-    protected RestTemplate restTemplate;
 
     @SpringBean(name = "baseURL")
     protected String baseURL;
@@ -296,8 +292,8 @@ public class ReportModalPage extends BaseModalPage {
                     public Page createPage() {
                         modalReportletConfOldName = null;
                         modalReportletConf = null;
-                        return new ReportletConfModalPage(null, reportletConfWin, ReportModalPage.this
-                                .getPageReference());
+                        return new ReportletConfModalPage(null, reportletConfWin,
+                                ReportModalPage.this.getPageReference());
                     }
                 });
                 reportletConfWin.show(target);
@@ -432,8 +428,8 @@ public class ReportModalPage extends BaseModalPage {
                             @Override
                             public Page createPage() {
                                 ReportModalPage.this.exportExecId = model.getObject().getId();
-                                return new ReportExecResultDownloadModalPage(reportExecExportWin, ReportModalPage.this
-                                        .getPageReference());
+                                return new ReportExecResultDownloadModalPage(reportExecExportWin, ReportModalPage.this.
+                                        getPageReference());
                             }
                         });
                         reportExecExportWin.show(target);
@@ -553,7 +549,7 @@ public class ReportModalPage extends BaseModalPage {
             this.url = urlBuilder.toString();
 
             try {
-                stream = new HttpResourceStream(this.url, restTemplate);
+                stream = new HttpResourceStream(this.url);
             } catch (Exception e) {
                 LOG.error("While contacting target URL", e);
             }

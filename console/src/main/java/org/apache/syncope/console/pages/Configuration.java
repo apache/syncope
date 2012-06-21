@@ -60,7 +60,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.client.to.NotificationTO;
@@ -98,9 +97,6 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private WorkflowRestClient wfRestClient;
-
-    @SpringBean
-    private RestTemplate restTemplate;
 
     @SpringBean(name = "baseURL")
     protected String baseURL;
@@ -341,12 +337,10 @@ public class Configuration extends BasePage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(baseURL + "configuration/dbexport", restTemplate);
+                    HttpResourceStream stream = new HttpResourceStream(baseURL + "configuration/dbexport");
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null
-                            ? "content.xml"
-                            : stream.getFilename());
+                    rsrh.setFileName(stream.getFilename() == null ? "content.xml" : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);

@@ -96,7 +96,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     }
 
     private void pageSetup() {
-        ((SyncopeApplication) getApplication()).setupNavigationPane(this, xmlRolesReader, true, version);
+        ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, true, version);
 
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);

@@ -44,8 +44,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @return ConnectorInstanceTOs
      */
     public List<ConnInstanceTO> getAllConnectors() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "connector/list.json?lang="
-                + SyncopeSession.get().getLocale(), ConnInstanceTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "connector/list.json?lang=" + SyncopeSession.get().getLocale(), ConnInstanceTO[].class));
     }
 
     /**
@@ -55,7 +55,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      */
     public void create(final ConnInstanceTO connectorTO) {
         connectorTO.setConfiguration(filterProperties(connectorTO.getConfiguration()));
-        restTemplate.postForObject(baseURL + "connector/create.json", connectorTO, ConnInstanceTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "connector/create.json", connectorTO, ConnInstanceTO.class);
     }
 
     /**
@@ -68,8 +69,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         ConnInstanceTO connectorTO = null;
 
         try {
-            connectorTO = restTemplate.getForObject(baseURL + "connector/read/" + connectorInstanceId,
-                    ConnInstanceTO.class);
+            connectorTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "connector/read/" + connectorInstanceId, ConnInstanceTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a connector", e);
         }
@@ -79,20 +80,21 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
     public void update(final ConnInstanceTO connectorTO) {
         connectorTO.setConfiguration(filterProperties(connectorTO.getConfiguration()));
-        restTemplate.postForObject(baseURL + "connector/update.json", connectorTO, ConnInstanceTO.class);
+        SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "connector/update.json", connectorTO, ConnInstanceTO.class);
     }
 
     public ConnInstanceTO delete(Long id) {
-        return restTemplate.getForObject(baseURL + "connector/delete/{connectorId}.json",
-                ConnInstanceTO.class, id.toString());
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "connector/delete/{connectorId}.json", ConnInstanceTO.class, id.toString());
     }
 
     public List<ConnBundleTO> getAllBundles() {
         List<ConnBundleTO> bundles = null;
 
         try {
-            bundles = Arrays.asList(restTemplate.getForObject(baseURL + "connector/bundle/list?lang="
-                    + SyncopeSession.get().getLocale(), ConnBundleTO[].class));
+            bundles = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "connector/bundle/list?lang=" + SyncopeSession.get().getLocale(), ConnBundleTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector bundles", e);
         }
@@ -110,7 +112,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         List<ConnConfProperty> properties = null;
 
         try {
-            properties = Arrays.asList(restTemplate.getForObject(baseURL
+            properties = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(baseURL
                     + "connector/{connectorId}/configurationProperty/list", ConnConfProperty[].class, connectorId));
 
         } catch (SyncopeClientCompositeErrorException e) {
@@ -155,7 +157,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         connector.setConfiguration(filterProperties(connector.getConfiguration()));
 
         try {
-            return restTemplate.postForObject(baseURL + "connector/check.json", connector, Boolean.class);
+            return SyncopeSession.get().getRestTemplate().postForObject(
+                    baseURL + "connector/check.json", connector, Boolean.class);
         } catch (Exception e) {
             LOG.error("Connector not found {}", connector, e);
             return false;
@@ -166,8 +169,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         List<String> schemaNames = null;
 
         try {
-            schemaNames = Arrays.asList(restTemplate.postForObject(baseURL + "connector/schema/list", connectorTO,
-                    String[].class));
+            schemaNames = Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
+                    baseURL + "connector/schema/list", connectorTO, String[].class));
 
             // re-order schema names list
             Collections.sort(schemaNames);

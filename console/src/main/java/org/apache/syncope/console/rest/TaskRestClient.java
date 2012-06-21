@@ -29,6 +29,7 @@ import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.SyncopeSession;
 
 /**
  * Console client for invoking Rest Tasks services.
@@ -45,7 +46,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
         List<String> jobClasses = null;
 
         try {
-            jobClasses = Arrays.asList(restTemplate.getForObject(baseURL + "task/jobClasses.json", String[].class));
+            jobClasses = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/jobClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job classes", e);
         }
@@ -56,7 +58,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
         List<String> actions = null;
 
         try {
-            actions = Arrays.asList(restTemplate.getForObject(baseURL + "task/jobActionsClasses.json", String[].class));
+            actions = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/jobActionsClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job actions classes", e);
         }
@@ -70,7 +73,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      * @return number of stored tasks.
      */
     public Integer count(final String kind) {
-        return restTemplate.getForObject(baseURL + "task/{kind}/count.json", Integer.class, kind);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/{kind}/count.json", Integer.class, kind);
     }
 
     /**
@@ -84,35 +88,39 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
         List<T> result = Collections.EMPTY_LIST;
 
         if (PropagationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
-                    + "task/propagation/list/{page}/{size}.json", PropagationTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/propagation/list/{page}/{size}.json", PropagationTaskTO[].class, page, size));
         } else if (NotificationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
-                    + "task/notification/list/{page}/{size}.json", NotificationTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/notification/list/{page}/{size}.json", NotificationTaskTO[].class, page, size));
         } else if (SchedTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
-                    + "task/sched/list/{page}/{size}.json", SchedTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/sched/list/{page}/{size}.json", SchedTaskTO[].class, page, size));
         } else if (SyncTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(restTemplate.getForObject(baseURL
-                    + "task/sync/list/{page}/{size}.json", SyncTaskTO[].class, page, size));
+            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/sync/list/{page}/{size}.json", SyncTaskTO[].class, page, size));
         }
 
         return result;
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {
-        return restTemplate.getForObject(baseURL + "task/read/{taskId}", PropagationTaskTO.class, taskId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/read/{taskId}", PropagationTaskTO.class, taskId);
     }
 
     public NotificationTaskTO readNotificationTask(final Long taskId) {
-        return restTemplate.getForObject(baseURL + "task/read/{taskId}", NotificationTaskTO.class, taskId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/read/{taskId}", NotificationTaskTO.class, taskId);
     }
 
     public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
         if (SyncTaskTO.class.getName().equals(reference.getName())) {
-            return (T) restTemplate.getForObject(baseURL + "task/read/{taskId}", SyncTaskTO.class, taskId);
+            return (T) SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/read/{taskId}", SyncTaskTO.class, taskId);
         } else {
-            return (T) restTemplate.getForObject(baseURL + "task/read/{taskId}", SchedTaskTO.class, taskId);
+            return (T) SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "task/read/{taskId}", SchedTaskTO.class, taskId);
         }
     }
 
@@ -123,7 +131,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      */
     @Override
     public List<TaskExecTO> listExecutions() {
-        return Arrays.asList(restTemplate.getForObject(baseURL + "task/execution/list", TaskExecTO[].class));
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/execution/list", TaskExecTO[].class));
     }
 
     /**
@@ -132,7 +141,8 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      * @param taskId task to delete
      */
     public TaskTO delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
-        return restTemplate.getForObject(baseURL + "task/delete/{taskId}", taskToClass, taskId);
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/delete/{taskId}", taskToClass, taskId);
     }
 
     @Override
@@ -146,7 +156,7 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      * @param taskId task id
      */
     public void startExecution(final Long taskId, boolean dryRun) {
-        restTemplate.postForObject(
+        SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId, dryRun);
     }
 
@@ -157,22 +167,27 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      */
     @Override
     public void deleteExecution(final Long taskExecId) {
-        restTemplate.getForObject(baseURL + "task/execution/delete/{execId}", TaskExecTO.class, taskExecId);
+        SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "task/execution/delete/{execId}", TaskExecTO.class, taskExecId);
     }
 
     public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL + "task/create/sync", taskTO, SyncTaskTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "task/create/sync", taskTO, SyncTaskTO.class);
     }
 
     public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL + "task/create/sched", taskTO, SchedTaskTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "task/create/sched", taskTO, SchedTaskTO.class);
     }
 
     public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL + "task/update/sched", taskTO, SchedTaskTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "task/update/sched", taskTO, SchedTaskTO.class);
     }
 
     public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
-        return restTemplate.postForObject(baseURL + "task/update/sync", taskTO, SyncTaskTO.class);
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "task/update/sync", taskTO, SyncTaskTO.class);
     }
 }

@@ -85,14 +85,15 @@ under the License.
     </property>
   </bean>
   
-  <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+  <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory" scope="prototype">
     <constructor-arg value="${host}"/>
     <constructor-arg value="${port}"/>
     <constructor-arg value="${scheme}"/>
     <constructor-arg ref="httpClientConnManager"/>
     <constructor-arg ref="httpClientParams"/>
   </bean>
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+  
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" scope="prototype">
     <constructor-arg ref="httpClientFactory"/>
 
     <property name="errorHandler">

@@ -72,9 +72,6 @@ public class Login extends WebPage {
 
     private final static int SELF_REG_WIN_WIDTH = 800;
 
-    @SpringBean
-    private RestTemplate restTemplate;
-
     @SpringBean(name = "baseURL")
     private String baseURL;
 
@@ -119,9 +116,9 @@ public class Login extends WebPage {
                     setResponsePage(WelcomePage.class, parameters);
                 } catch (HttpClientErrorException e) {
                     error(getString("login-error"));
-                    
-                    PreemptiveAuthHttpRequestFactory requestFactory =
-                            ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+
+                    PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
+                            get().getRestTemplate().getRequestFactory());
 
                     ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
                 }
@@ -178,6 +175,8 @@ public class Login extends WebPage {
     }
 
     private String[] authenticate(final String userId, final String password) {
+        final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
+
         // 1. Set provided credentials to check
         PreemptiveAuthHttpRequestFactory requestFactory =
                 ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
@@ -192,6 +191,7 @@ public class Login extends WebPage {
     private boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
+            final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
             result = restTemplate.getForObject(baseURL + "user/request/create/allowed", Boolean.class);
         } catch (HttpClientErrorException e) {
             LOG.error("While seeking if self registration is allowed", e);
@@ -203,6 +203,8 @@ public class Login extends WebPage {
     }
 
     private String getCoreVersion() {
+        final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
+
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
 
