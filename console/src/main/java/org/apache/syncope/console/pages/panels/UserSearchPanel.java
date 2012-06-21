@@ -72,8 +72,8 @@ public class UserSearchPanel extends Panel {
      */
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchPanel.class);
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] { "attributes", "derivedAttributes",
-            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap" });
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{"attributes", "derivedAttributes",
+                "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -224,7 +224,7 @@ public class UserSearchPanel extends Panel {
             searchConditionList = new ArrayList<SearchCondWrapper>();
             searchConditionList.add(new SearchCondWrapper());
         } else {
-            searchConditionList = getSearchCondWrappers(initNodeCond);
+            searchConditionList = getSearchCondWrappers(initNodeCond, null);
         }
         searchFormContainer.add(new SearchView("searchView", searchConditionList, searchFormContainer));
 
@@ -276,7 +276,7 @@ public class UserSearchPanel extends Panel {
         return searchFeedback;
     }
 
-    private List<SearchCondWrapper> getSearchCondWrappers(final NodeCond searchCond) {
+    private List<SearchCondWrapper> getSearchCondWrappers(final NodeCond searchCond, final NodeCond.Type type) {
         LOG.debug("Search condition: {}", searchCond);
 
         List<SearchCondWrapper> wrappers = new ArrayList<SearchCondWrapper>();
@@ -284,17 +284,28 @@ public class UserSearchPanel extends Panel {
         switch (searchCond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                wrappers.add(getSearchCondWrapper(searchCond));
+                final SearchCondWrapper wrapper = getSearchCondWrapper(searchCond);
+
+                if (type != null) {
+                    switch (type) {
+                        case AND:
+                            wrapper.setOperationType(OperationType.AND);
+                            break;
+                        case OR:
+                            wrapper.setOperationType(OperationType.OR);
+                            break;
+                        default:
+                        // nothing to specify
+                    }
+                }
+
+                wrappers.add(wrapper);
                 break;
 
             case AND:
             case OR:
-                wrappers.add(getSearchCondWrapper(searchCond.getLeftNodeCond()));
-                SearchCondWrapper wrapper = getSearchCondWrapper(searchCond.getRightNodeCond());
-                wrapper.setOperationType(searchCond.getType() == NodeCond.Type.AND
-                        ? OperationType.AND
-                        : OperationType.OR);
-                wrappers.add(wrapper);
+                wrappers.addAll(getSearchCondWrappers(searchCond.getLeftNodeCond(), type));
+                wrappers.addAll(getSearchCondWrappers(searchCond.getRightNodeCond(), searchCond.getType()));
                 break;
 
             default:
@@ -342,17 +353,15 @@ public class UserSearchPanel extends Panel {
     }
 
     private NodeCond buildSearchCond(final List<SearchCondWrapper> conditions) {
-        // inverse processing: from right to left
-        // (OperationType is specified on the right)
-        SearchCondWrapper searchConditionWrapper = conditions.get(conditions.size() - 1);
+        SearchCondWrapper searchConditionWrapper = conditions.get(0);
         if (searchConditionWrapper == null || searchConditionWrapper.getFilterType() == null) {
             return null;
         }
 
         LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[] {
-                searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
-                searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
-                searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator() });
+                    searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
+                    searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
+                    searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator()});
 
         NodeCond nodeCond = null;
 
@@ -406,15 +415,15 @@ public class UserSearchPanel extends Panel {
                 break;
 
             default:
-                // nothing to do
+            // nothing to do
         }
 
         LOG.debug("Processed condition {}", nodeCond);
 
         if (conditions.size() > 1) {
-            List<SearchCondWrapper> subList = conditions.subList(0, conditions.size() - 1);
+            List<SearchCondWrapper> subList = conditions.subList(1, conditions.size());
 
-            if (OperationType.OR.equals(searchConditionWrapper.getOperationType())) {
+            if (OperationType.OR.equals(subList.get(0).getOperationType())) {
                 nodeCond = NodeCond.getOrCond(nodeCond, buildSearchCond(subList));
             } else {
                 nodeCond = NodeCond.getAndCond(nodeCond, buildSearchCond(subList));
