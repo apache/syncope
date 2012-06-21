@@ -38,9 +38,9 @@ under the License.
   <!-- <SyncopeRootPOM /> -->
   <distributionManagement>
     <site>
-      <id>syncope.quality.website</id>
-      <name>Apache Syncope quality website</name>
-      <url>${site.deploymentBaseUrl}/quality</url>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
   

@@ -34,6 +34,14 @@ under the License.
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-hibernate-enhancer</artifactId>
 
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>

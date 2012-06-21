@@ -119,6 +119,12 @@ under the License.
             from JIRA.
           </li>
           <li>
+            Update the 
+            <a href="downloads.html">downloads</a> site page by adding the new release artifacts with base 
+            URL
+            <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
+          </li>
+          <li>
             Commit any changes back to svn:
             <source>svn commit -m "updating files for release"</source>
           </li>
@@ -220,61 +226,83 @@ gpg: Signature made ...</source>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
             the next step is performed.
             <source>cd ..
-tar -czf 1.0-rc1.tar.gz 1.0-rc1/
-cd 1.0-rc1</source>
+tar -czf &lt;version&gt;.tar.gz &lt;version&gt;/
+cd &lt;version&gt;</source>
           </li>
         </ol>
       </subsection>
       
       <subsection name="Perform the release">
-        This step will create a maven staging repository
-        <source>mvn -P apache-release release:perform</source>
-        
         <ol>
-          <li>Verify the staged artifacts in the Nexus repository:
-            <ol>
-              <li>
-                <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
-              </li>
-              <li>
-                <strong>Enterprise --&gt; Staging</strong>
-              </li>
-              <li>
-                <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
-              </li>
-              <li>Navigate through the artifact tree and make sure that all binary, 
-                <code>javadoc</code>,
-                <code>sources</code>, and 
-                <code>tests</code> jars, as well as 
-                <code>pom</code>s, ... have 
-                <code>.asc</code> (GPG signature) and 
-                <code>.md5</code>
-                files (see 
-                <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
-                <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
-                The 
-                <code>syncope-source.tar.gz</code> and 
-                <code>syncope-source.zip</code> of 
-                <code>syncope-root</code>
-                should likewise have signature and checksum files.
-              </li>
-            </ol>
+          <li>
+            This step will create the staging site
+            <source>svn checkout https://svn.apache.org/repos/asf/incubator/syncope/site/ site
+svn checkout https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
+cd syncope-&lt;version&gt;
+mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+cd ../site
+rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality
+svn add &lt;version&gt;
+svn commit -m "staging site for release"</source>
           </li>
-          <li>Close the nexus staging repo:
+          <li>
+            This step will create a maven staging repository
+            <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
+        
+            <p>
+              <em>If your local OS userid doesn't match your Apache userid, then you'll have to also override the value 
+                provided by the OS to Maven for the site-deploy step to work. This is known to work for Linux, 
+                but not for Mac and unknown for Windows.
+              </em>
+            </p>
+            
             <ol>
-              <li>
-                <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+              <li>Verify the staged artifacts in the Nexus repository:
+                <ol>
+                  <li>
+                    <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+                  </li>
+                  <li>
+                    <strong>Enterprise --&gt; Staging</strong>
+                  </li>
+                  <li>
+                    <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+                  </li>
+                  <li>Navigate through the artifact tree and make sure that all binary, 
+                    <code>javadoc</code>,
+                    <code>sources</code>, and 
+                    <code>tests</code> jars, as well as 
+                    <code>pom</code>s, ... have 
+                    <code>.asc</code> (GPG signature) and 
+                    <code>.md5</code>
+                    files (see 
+                    <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
+                    <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
+                    The 
+                    <code>syncope-source.tar.gz</code> and 
+                    <code>syncope-source.zip</code> of 
+                    <code>syncope-root</code>
+                    should likewise have signature and checksum files.
+                  </li>
+                </ol>
               </li>
-              <li>
-                <strong>Enterprise --&gt; Staging</strong>
-              </li>
-              <li>
-                <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
-              </li>
-              <li>Right click on the open 
-                <code>org.apache.syncope-XXX</code> staging repo
-                and select 
-                <strong>Close</strong>.
+              <li>Close the nexus staging repo:
+                <ol>
+                  <li>
+                    <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
+                  </li>
+                  <li>
+                    <strong>Enterprise --&gt; Staging</strong>
+                  </li>
+                  <li>
+                    <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
+                  </li>
+                  <li>Right click on the open 
+                    <code>org.apache.syncope-XXX</code> staging repo
+                    and select 
+                    <strong>Close</strong>.
+                  </li>
+                </ol>
               </li>
             </ol>
           </li>
@@ -301,6 +329,9 @@ https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 Source release (checksums and signatures are available at the same location):
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+
+Staging site:
+http://incubator.apache.org/syncope/&lt;version&gt;/
 
 PGP release keys (signed using ABCDEFG):
 http://www.apache.org/dist/incubator/syncope/KEYS
@@ -384,6 +415,9 @@ https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 Source release (checksums and signatures are available at the same location):
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+
+Staging site:
+http://incubator.apache.org/syncope/&lt;version&gt;/
 
 PGP release keys (signed using ABCDEFG):
 http://www.apache.org/dist/incubator/syncope/KEYS
@@ -478,11 +512,6 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
             wiki page based on the HTML release reports from JIRA
           </li>
           <li>
-            Update the <a href="downloads.html">downloads</a> site page to point to the new release artifacts with base 
-            URL
-            <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
-          </li>
-          <li>
             Update the <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
             new project</a> wiki page to point to the new release artifacts
           </li>
@@ -490,6 +519,15 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
             Update the <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA 
             versions</a> page to mark the version as <strong>Released</strong>, and set the date to the date that
             the release was approved. You may also need to make a new release entry for the next release.
+          </li>
+          <li>
+            Promote the staging site
+            <source>
+svn co https://svn.apache.org/repos/asf/incubator/syncope/site/
+svn rm *.html apidocs css images js
+svn mv &lt;version&gt;/* .
+svn rm &lt;version&gt;
+svn commit -m "Promoting the staging site"</source>
           </li>
         </ol>
       </subsection>
@@ -516,7 +554,7 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
           </p>
           <ol>
             <li>
-              restore the 0.1-rc1.tar.gz and run
+              restore the &lt;version&gt;.tar.gz and run
               <source>mvn -P apache-release release:rollback</source> 
             </li>
             <li>             
@@ -529,7 +567,12 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
           <p>Delete the svn tag created by the 
             <code>release:perform</code> step:
           </p>
-          <source>svn rm https://svn.apache.org/repos/asf/incubator/syncope/tags/1.0 -m "deleting tag from rolled back release"</source>
+          <source>svn rm https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt; -m "deleting tag from rolled back release"</source>
+        </li>
+        <li>
+          <p>Delete the staging site:
+          </p>
+          <source>svn rm https://svn.apache.org/repos/asf/incubator/syncope/site/&lt;version&gt; -m "deleting staging site from rolled back release"</source>
         </li>
         <li>
           <p>Drop the nexus staging repo:</p>

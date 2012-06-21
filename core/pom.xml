@@ -36,6 +36,14 @@ under the License.
   <artifactId>syncope-core</artifactId>
   <packaging>war</packaging>
 
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
   <properties>
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>

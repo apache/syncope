@@ -35,6 +35,14 @@ under the License.
   <artifactId>syncope-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
   <properties>
     <SVNRepoURL>http://svn.apache.org/repos/asf/incubator/syncope/trunk</SVNRepoURL>
   </properties>

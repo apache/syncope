@@ -36,6 +36,14 @@ under the License.
   <artifactId>syncope-console</artifactId>
   <packaging>war</packaging>
 
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
   <dependencies>
 
     <dependency>
