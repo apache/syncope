@@ -239,14 +239,16 @@ cd &lt;version&gt;</source>
             <source>svn checkout https://svn.apache.org/repos/asf/incubator/syncope/site/ site
 svn checkout https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
 cd syncope-&lt;version&gt;
+mvn -Pall clean install
 mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-cd ../site
+cd ../site/&lt;version&gt;
 rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality
+cd ..
 svn add &lt;version&gt;
 svn commit -m "staging site for release"</source>
           </li>
           <li>
-            This step will create a maven staging repository
+            From the directory where you have launched <tt>release:prepare</tt> execute (this step will create a maven staging repository):
             <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
