@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.0.0-RC2-incubating</version>
+    <version>1.0.0-incubating-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -48,9 +48,9 @@ under the License.
   </properties>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC2-incubating/archetype</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC2-incubating/archetype</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.0-RC2-incubating/archetype</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</developerConnection>
+    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</url>
   </scm>
 
   <build>
