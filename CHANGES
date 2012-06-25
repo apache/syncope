@@ -2,6 +2,29 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.0-RC2-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-83] - Recipients tab has all fields required when editing NotificationTask
+    * [SYNCOPE-90] - GenerateToken class doesn't persist token to DB 
+    * [SYNCOPE-92] - Align parent POM version to latest release
+    * [SYNCOPE-94] - When upgrading to HttpComponents Client 4.2, an Integration Test fails
+    * [SYNCOPE-95] - Search doesn't work at all with production content.xml
+    * [SYNCOPE-96] - Invalid authentication
+    * [SYNCOPE-97] - Singleton RestTemplate
+    * [SYNCOPE-99] - Problem editing notifications through console when Membership included in about
+
+** Improvement
+    * [SYNCOPE-73] - Add staging site generation steps to release-process page
+    * [SYNCOPE-74] - Make configuration params available in mail templates
+    * [SYNCOPE-76] - Manage connector configuration property confidential
+    * [SYNCOPE-88] - Support MS SQL Server
+    * [SYNCOPE-89] - ReportTestITCase.executeAndExport hangs with oracle
+    * [SYNCOPE-91] - More UserController RESTful method consistency
+    * [SYNCOPE-98] - Method to check if token has expired
+
+--------------------------------------------------------------------------------
+
 Release Notes - Syncope - Version 1.0.0-RC1-incubating
 ================================================================================
 

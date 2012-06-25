@@ -49,7 +49,44 @@ under the License.
     </section>
 
     <section name="Current Releases">
-      <subsection name="1.0.0-RC1-incubating Espressivo">
+      <subsection name="1.0.0-RC2-incubating Espressivo">
+        <p>Release date: June 25th, 2012</p>
+        <p><a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Signatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz">syncope-root-1.0.0-RC2-incubating-source.tar.gz</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.asc">asc</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.md5">md5</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip">syncope-root-1.0.0-RC2-incubating-source.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.sha1">sha1</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>
+    </section>
+
+    <section name="Older Releases">
+        <subsection name="1.0.0-RC1-incubating Espressivo">
         <p>Release date: June 1st, 2012</p>
         <p><a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a></p>
         <table>
@@ -84,9 +121,6 @@ under the License.
         </table>
       </subsection>
     </section>
-
-<!--    <section name="Older Releases">
-    </section>-->
 
     <section name="Verifying Releases">
       <p>We strongly recommend you verify the integrity of the downloaded files with both PGP and MD5.</p>
