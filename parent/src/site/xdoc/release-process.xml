@@ -325,6 +325,9 @@ I've created a &lt;version&gt; release, with the following artifacts up for a vo
 SVN source tag (r9999999):
 https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
 
+List of changes:
+https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/CHANGES
+
 Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
@@ -410,6 +413,9 @@ I've created a &lt;version&gt; release, with the following artifacts up for a vo
 
 SVN source tag (r9999999):
 https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/
+
+List of changes:
+https://svn.apache.org/repos/asf/incubator/syncope/tags/&lt;version&gt;/CHANGES
 
 Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
