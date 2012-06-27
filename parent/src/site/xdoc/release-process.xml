@@ -280,10 +280,7 @@ svn commit -m "staging site for release"</source>
                     files (see 
                     <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
                     <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
-                    The 
-                    <code>syncope-source.tar.gz</code> and 
-                    <code>syncope-source.zip</code> of 
-                    <code>syncope-root</code>
+                    The <code>syncope-root-&lt;version&gt;-source-release.zip</code> of <code>syncope-root</code>
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
@@ -332,8 +329,7 @@ Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
 Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-root-&lt;version&gt;-source-release.zip
 
 Staging site:
 http://incubator.apache.org/syncope/&lt;version&gt;/
@@ -359,9 +355,9 @@ For more information on the release process, check out http://www.apache.org/dev
 
 Some of the things to check before voting are:
  - does "mvn apache-rat:check" pass on the source
- - can you build the contents of source release (both .zip and .tar.gz) and SVN tag
- - do all of the staged jars/wars/tar.gz/zips contain the required LICENSE and NOTICE files
- - are all of the staged jars/wars/tar.gz/zips signed and the signature verifiable
+ - can you build the contents of source release zip and SVN tag
+ - do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
+ - are all of the staged jars/wars/zips signed and the signature verifiable
  - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/incubator/syncope/)
             </pre>
           </li>
@@ -421,8 +417,7 @@ Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
 Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.tar.gz
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-&lt;version&gt;-source.zip
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-root-&lt;version&gt;-source-release.zip
 
 Staging site:
 http://incubator.apache.org/syncope/&lt;version&gt;/
@@ -508,8 +503,6 @@ Best regards.
             Add the distribution artifacts to the distribution area
 <source>ssh people.apache.org
 cd /x1/www/www.apache.org/dist/incubator/syncope/
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.tar.gz*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
 </source>

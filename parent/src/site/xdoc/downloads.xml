@@ -62,22 +62,12 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz">syncope-root-1.0.0-RC2-incubating-source.tar.gz</a>
+                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source-release.zip">syncope-root-1.0.0-RC2-incubating-source-release.zip</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.asc">asc</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.md5">md5</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.tar.gz.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip">syncope-root-1.0.0-RC2-incubating-source.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source.zip.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC2-incubating/syncope-root-1.0.0-RC2-incubating-source-release.zip.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
@@ -99,22 +89,12 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.tar.gz">syncope-root-1.0.0-RC1-incubating-source.tar.gz</a>
+                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source-release.zip">syncope-root-1.0.0-RC1-incubating-source-release.zip</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.tar.gz.asc">asc</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.tar.gz.md5">md5</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.tar.gz.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.zip">syncope-root-1.0.0-RC1-incubating-source.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source.zip.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC1-incubating/syncope-root-1.0.0-RC1-incubating-source-release.zip.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
@@ -133,15 +113,12 @@ under the License.
       commands:
       
         <source>$ pgpk -a KEYS
-$ pgpv syncope-*.tar.gz.asc
 $ pgpv syncope-*.zip.asc</source>
         
         <source>$ pgp -ka KEYS
-$ pgp syncope-*.tar.gz.asc
 $ pgp syncope-*.zip.asc</source>
       
         <source>$ gpg --import KEYS
-$ gpg --verify syncope-*.tar.gz.asc
 $ gpg --verify syncope-*.zip.asc</source>
        </p>
     <p>Alternatively, you can verify the MD5 signature on the files. A Unix/Linux program called  

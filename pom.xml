@@ -118,27 +118,6 @@ under the License.
 
       <build>        
         <plugins>
-      
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.3</version>
-            <executions>
-              <execution>
-                <id>sources</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <finalName>syncope-${project.version}</finalName>
-                  <descriptor>src/assemble/source-assembly.xml</descriptor>
-                  <tarLongFileMode>gnu</tarLongFileMode>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
