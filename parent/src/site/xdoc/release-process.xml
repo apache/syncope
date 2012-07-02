@@ -529,6 +529,7 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
             Promote the staging site
             <source>
 svn co https://svn.apache.org/repos/asf/incubator/syncope/site/
+cd site
 svn rm *.html apidocs css images js
 svn mv &lt;version&gt;/* .
 svn rm &lt;version&gt;
