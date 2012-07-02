@@ -508,6 +508,10 @@ https://repository.apache.org/content/repositories/releases/org/apache/syncope/s
 </source>
           </li>
           <li>
+            Remove older distribution artifacts (if present) from the distribution area (i.e. 
+            <tt>people.apache.org:/x1/www/www.apache.org/dist/incubator/syncope/</tt>).
+          </li>
+          <li>
             Add appropriate release notes to
             <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Releases">Releases</a>
             wiki page based on the HTML release reports from JIRA
