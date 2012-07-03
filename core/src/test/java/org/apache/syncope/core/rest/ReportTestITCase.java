@@ -285,7 +285,7 @@ public class ReportTestITCase extends AbstractTest {
             reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
 
             maxit--;
-        } while (reportTO.getExecutions().size() == 0 && maxit > 0);
+        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
 
         assertEquals(1, reportTO.getExecutions().size());
     }
