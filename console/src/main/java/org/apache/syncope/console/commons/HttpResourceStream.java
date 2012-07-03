@@ -25,11 +25,18 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.util.lang.Args;
@@ -80,18 +87,26 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
             return;
         }
 
+        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().
+                getRequestFactory()).getAuthScope();
+        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
+        BasicHttpContext localcontext = new BasicHttpContext();
+        // Generate BASIC scheme object and add it to the local auth cache
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(targetHost, new BasicScheme());
+        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
+
         HttpGet getMethod = new HttpGet(this.uri);
         HttpResponse response;
-
         try {
             response = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().getRequestFactory()).
-                    getHttpClient().execute(getMethod);
+                    getHttpClient().execute(targetHost, getMethod, localcontext);
         } catch (Exception e) {
             LOG.error("Unexpected exception while executing HTTP method to {}", this.uri, e);
             response = buildFakeResponse(e.getMessage());
         }
         if (response.getStatusLine().getStatusCode() != 200) {
-            LOG.error("Unsuccessful HTTP method to {}", this.uri);
+            LOG.error("Unsuccessful HTTP method to {} {}", this.uri, response);
             response = buildFakeResponse("HTTP status " + response.getStatusLine().getStatusCode());
         }
 
