@@ -34,7 +34,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
@@ -215,7 +215,7 @@ public class ReportTestITCase extends AbstractTest {
         maxit = 10;
 
         // issueSYNCOPE89
-        ((ThreadSafeClientConnManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
+        ((PoolingClientConnectionManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
 
         HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
 

@@ -68,7 +68,7 @@ under the License.
     <property name="objectMapper" ref="jacksonObjectMapper"/>
   </bean>
 
-  <bean id="httpClientConnManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager"/>
+  <bean id="httpClientConnManager" class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
   
   <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
     <property name="parameters">
