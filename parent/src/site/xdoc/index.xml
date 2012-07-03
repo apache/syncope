@@ -50,20 +50,21 @@ under the License.
     </div>
 
     <div class="alert-message warning">
-      <h2>Disclaimer</h2>
-      <p>Apache Syncope is an effort undergoing
-        <a href="http://incubator.apache.org/">incubation</a>
-        at
-        The Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly
-        accepted projects until a further review indicates that the infrastructure, communications, and decision making
-        process have stabilized in a manner consistent with other successful ASF projects.
-        While incubation status is not necessarily a reflection of the completeness or stability of the code,
-        it does indicate that the project has yet to be fully endorsed by the ASF.
-      </p>
-      <p>You can view our current
-        <a href="http://incubator.apache.org/projects/syncope.html">incubation status</a>
-        for more details.
-      </p>
+      <section name="Disclaimer">
+        <p>Apache Syncope is an effort undergoing
+          <a href="http://incubator.apache.org/">incubation</a>
+          at
+          The Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly
+          accepted projects until a further review indicates that the infrastructure, communications, and decision making
+          process have stabilized in a manner consistent with other successful ASF projects.
+          While incubation status is not necessarily a reflection of the completeness or stability of the code,
+          it does indicate that the project has yet to be fully endorsed by the ASF.
+        </p>
+        <p>You can view our current
+          <a href="http://incubator.apache.org/projects/syncope.html">incubation status</a>
+          for more details.
+        </p>
+      </section>
     </div>
   </body>
 </document>
