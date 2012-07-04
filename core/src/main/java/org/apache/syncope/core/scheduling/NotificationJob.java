@@ -136,6 +136,7 @@ public class NotificationJob implements StatefulJob {
                     JavaMailSenderImpl sender = new JavaMailSenderImpl();
                     sender.setHost(smtpHost);
                     sender.setPort(smtpPort);
+                    sender.setDefaultEncoding("UTF-8");
                     if (StringUtils.isNotBlank(smtpUsername)) {
                         sender.setUsername(smtpUsername);
                     }
@@ -145,7 +146,6 @@ public class NotificationJob implements StatefulJob {
 
                     MimeMessage message = sender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
                     helper.setTo(to);
                     helper.setFrom(task.getSender());
                     helper.setSubject(task.getSubject());

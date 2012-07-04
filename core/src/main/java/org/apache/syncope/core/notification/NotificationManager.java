@@ -174,9 +174,9 @@ public class NotificationManager {
         String textBody;
         try {
             htmlBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
-                    + notification.getTemplate() + ".html.vm", model);
+                    + notification.getTemplate() + ".html.vm", "UTF-8", model);
             textBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
-                    + notification.getTemplate() + ".txt.vm", model);
+                    + notification.getTemplate() + ".txt.vm", "UTF-8", model);
         } catch (VelocityException e) {
             LOG.error("Could not get mail body", e);
 
