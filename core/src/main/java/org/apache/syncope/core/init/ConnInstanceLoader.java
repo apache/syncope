@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
-import org.apache.syncope.core.util.ApplicationContextManager;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.types.ConnConfProperty;
 import org.identityconnectors.common.l10n.CurrentLocale;
@@ -55,7 +55,7 @@ public class ConnInstanceLoader {
     private ConnBundleManager connBundleManager;
 
     private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
         return (DefaultListableBeanFactory) context.getBeanFactory();
     }

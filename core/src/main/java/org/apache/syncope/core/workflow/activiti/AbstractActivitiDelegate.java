@@ -21,12 +21,12 @@ package org.apache.syncope.core.workflow.activiti;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.util.ApplicationContextManager;
 
 /**
  * Abstract base class for Activiti's JavaDelegate implementations in Syncope.
@@ -38,7 +38,7 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractActivitiDelegate.class);
 
-    protected static final ConfigurableApplicationContext CONTEXT = ApplicationContextManager.getApplicationContext();
+    protected static final ConfigurableApplicationContext CONTEXT = ApplicationContextProvider.getApplicationContext();
 
     protected TaskService taskService;
 

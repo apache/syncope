@@ -18,22 +18,25 @@
  */
 package org.apache.syncope.core.util;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
 public class ApplicationContextProvider implements ApplicationContextAware {
 
+    private static ConfigurableApplicationContext ctx;
+
+    public static ConfigurableApplicationContext getApplicationContext() {
+        return ctx;
+    }
+
     /**
      * Wiring the ApplicationContext into a static method.
      *
      * @param ctx Spring application context
-     * @throws BeansException if thrown by application context methods
      */
     @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
-
-        ApplicationContextManager.setApplicationContext((ConfigurableApplicationContext) ctx);
+    public void setApplicationContext(ApplicationContext ctx) {
+        ApplicationContextProvider.ctx = (ConfigurableApplicationContext) ctx;
     }
 }

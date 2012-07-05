@@ -23,6 +23,19 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.core.persistence.beans.Report;
+import org.apache.syncope.core.persistence.beans.SchedTask;
+import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.Task;
+import org.apache.syncope.core.persistence.dao.ReportDAO;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.scheduling.AbstractTaskJob;
+import org.apache.syncope.core.scheduling.DefaultSyncJobActions;
+import org.apache.syncope.core.scheduling.NotificationJob;
+import org.apache.syncope.core.scheduling.ReportJob;
+import org.apache.syncope.core.scheduling.SyncJob;
+import org.apache.syncope.core.scheduling.SyncJobActions;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -38,19 +51,6 @@ import org.springframework.scheduling.quartz.JobDetailBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.Report;
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.beans.SyncTask;
-import org.apache.syncope.core.persistence.beans.Task;
-import org.apache.syncope.core.persistence.dao.ReportDAO;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.scheduling.AbstractTaskJob;
-import org.apache.syncope.core.scheduling.DefaultSyncJobActions;
-import org.apache.syncope.core.scheduling.NotificationJob;
-import org.apache.syncope.core.scheduling.ReportJob;
-import org.apache.syncope.core.scheduling.SyncJob;
-import org.apache.syncope.core.scheduling.SyncJobActions;
-import org.apache.syncope.core.util.ApplicationContextManager;
 
 @Component
 public class JobInstanceLoader {
@@ -67,7 +67,7 @@ public class JobInstanceLoader {
     private ReportDAO reportDAO;
 
     private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
         return (DefaultListableBeanFactory) context.getBeanFactory();
     }

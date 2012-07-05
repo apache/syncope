@@ -24,10 +24,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.util.ApplicationContextManager;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.JexlUtil;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @MappedSuperclass
 public abstract class AbstractDerAttr extends AbstractBaseBean {
@@ -49,7 +49,7 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
      */
     public String getValue(final Collection<? extends AbstractAttr> attributes) {
 
-        final ConfigurableApplicationContext context = ApplicationContextManager.getApplicationContext();
+        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes

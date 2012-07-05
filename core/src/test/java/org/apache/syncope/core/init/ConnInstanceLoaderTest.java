@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.init;
 
-import org.apache.syncope.core.init.ConnInstanceLoader;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -29,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
-import org.apache.syncope.core.util.ApplicationContextManager;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
 
 @Transactional
@@ -51,8 +50,8 @@ public class ConnInstanceLoaderTest extends AbstractTest {
 
         // Remove any other connector instance bean set up by
         // standard ConnInstanceLoader.load()
-        for (String bean : ApplicationContextManager.getApplicationContext().getBeanNamesForType(
-                ConnectorFacadeProxy.class)) {
+        for (String bean : ApplicationContextProvider.getApplicationContext().
+                getBeanNamesForType(ConnectorFacadeProxy.class)) {
 
             cil.unregisterConnector(bean);
         }
@@ -62,7 +61,8 @@ public class ConnInstanceLoaderTest extends AbstractTest {
     public void load() {
         cil.load();
 
-        assertEquals(resourceDAO.findAll().size(), ApplicationContextManager.getApplicationContext()
-                .getBeanNamesForType(ConnectorFacadeProxy.class).length);
+        assertEquals(resourceDAO.findAll().size(),
+                ApplicationContextProvider.getApplicationContext().
+                getBeanNamesForType(ConnectorFacadeProxy.class).length);
     }
 }

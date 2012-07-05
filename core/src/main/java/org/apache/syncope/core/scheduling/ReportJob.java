@@ -31,14 +31,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
@@ -50,8 +42,16 @@ import org.apache.syncope.core.rest.data.ReportDataBinder;
 import static org.apache.syncope.core.scheduling.ReportXMLConst.ATTR_NAME;
 import static org.apache.syncope.core.scheduling.ReportXMLConst.ELEMENT_REPORT;
 import static org.apache.syncope.core.scheduling.ReportXMLConst.XSD_STRING;
-import org.apache.syncope.core.util.ApplicationContextManager;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.types.ReportExecStatus;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -137,7 +137,7 @@ public class ReportJob implements StatefulJob {
         execution = reportExecDAO.save(execution);
 
         ConfigurableListableBeanFactory beanFactory =
-                ApplicationContextManager.getApplicationContext().getBeanFactory();
+                ApplicationContextProvider.getApplicationContext().getBeanFactory();
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
