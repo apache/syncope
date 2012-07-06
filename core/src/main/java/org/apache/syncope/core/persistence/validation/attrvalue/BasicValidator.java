@@ -36,7 +36,7 @@ public class BasicValidator extends AbstractValidator {
         if (SchemaType.Enum.equals(schema.getType())) {
             final String[] enumeration = schema.getEnumerationValues().split(AbstractSchema.enumValuesSeparator);
 
-            final String value = attributeValue.getValueAsString();
+            final String value = attributeValue.getStringValue();
 
             Boolean found = Boolean.FALSE;
 
