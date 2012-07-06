@@ -26,11 +26,11 @@ under the License.
 <%@page import="javax.persistence.EntityManagerFactory"%>
 <%@page import="org.apache.openjpa.persistence.OpenJPAPersistence"%>
 <%@page import="org.apache.openjpa.persistence.OpenJPAEntityManagerFactory"%>
-<%@page import="org.apache.syncope.core.util.ApplicationContextManager"%>
 <%@page import="org.springframework.context.ConfigurableApplicationContext"%>
 <%@page import="org.apache.openjpa.datacache.QueryKey"%>
 <%@page import="org.apache.openjpa.kernel.QueryStatistics"%>
 <%@page import="org.apache.openjpa.persistence.QueryResultCacheImpl"%>
+<%@page import="org.apache.syncope.core.util.ApplicationContextProvider"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
@@ -72,8 +72,7 @@ under the License.
   <body>
     <p/>
     <%
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
+        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
         EntityManagerFactory emf = context.getBean(
                 EntityManagerFactory.class);
