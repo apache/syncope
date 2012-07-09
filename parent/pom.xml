@@ -272,7 +272,7 @@ under the License.
 
     <apacheds.version>1.5.7</apacheds.version>
 
-    <tomcat.version>7.0.28</tomcat.version>
+    <tomcat.version>7.0.29</tomcat.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <log.directory>${project.build.directory}/log</log.directory>
