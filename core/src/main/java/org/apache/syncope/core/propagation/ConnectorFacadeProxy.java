@@ -25,6 +25,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
+import org.apache.syncope.core.persistence.beans.ConnInstance;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.util.ConnBundleManager;
+import org.apache.syncope.core.util.SchemaMappingUtil;
+import org.apache.syncope.types.ConnConfProperty;
+import org.apache.syncope.types.ConnectorCapability;
+import org.apache.syncope.types.PropagationMode;
+import org.apache.syncope.types.PropagationOperation;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -53,16 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
-import org.apache.syncope.core.util.ConnBundleManager;
-import org.apache.syncope.core.util.SchemaMappingUtil;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.ConnectorCapability;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to

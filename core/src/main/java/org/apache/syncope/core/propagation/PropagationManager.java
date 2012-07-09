@@ -30,21 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.identityconnectors.framework.common.FrameworkUtil;
-import org.identityconnectors.framework.common.exceptions.ConnectorException;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.init.ConnInstanceLoader;
@@ -61,7 +46,6 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -75,6 +59,21 @@ import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SchemaType;
 import org.apache.syncope.types.TraceLevel;
+import org.identityconnectors.framework.common.FrameworkUtil;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Manage the data propagation to external resources.
@@ -122,12 +121,6 @@ public class PropagationManager {
      */
     @Autowired
     private TaskDAO taskDAO;
-
-    /**
-     * Task execution DAO.
-     */
-    @Autowired
-    private TaskExecDAO taskExecDAO;
 
     /**
      * JEXL engine for evaluating connector's account link.
@@ -793,7 +786,7 @@ public class PropagationManager {
 
                 // Flush call is needed to value the id field of execution (used by deal test of TaskTestITCase).
                 taskDAO.flush();
-                
+
                 // An alternative to the flush call could be the following statement but we should accept the risk to  
                 // have a not so probable trouble coming from concurrent calls.
                 //final TaskExec latestExec = taskExecDAO.findLatestStarted(taskDAO.save(task));

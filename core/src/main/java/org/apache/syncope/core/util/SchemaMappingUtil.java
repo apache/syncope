@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.Uid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -45,13 +41,16 @@ import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.types.IntMappingType;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.Uid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaMappingUtil {
 
@@ -253,7 +252,8 @@ public class SchemaMappingUtil {
             switch (mapping.getIntMappingType()) {
                 case Username:
                     if (!(attributable instanceof SyncopeUser)) {
-                        throw new ClassCastException("mappingtype is Username, but attributable is not SyncopeUser: " + attributable.getClass().getName());
+                        throw new ClassCastException("mappingtype is Username, but attributable is not SyncopeUser: "
+                                + attributable.getClass().getName());
                     }
                     value.add(((SyncopeUser) attributable).getUsername());
                     break;
@@ -350,8 +350,7 @@ public class SchemaMappingUtil {
      * @param mappings collection of SchemaMapping.
      * @return AccountId mapping or null if no occurences found.
      */
-    public static final SchemaMapping getAccountIdMapping(final Collection<SchemaMapping> mappings) {
-
+    public static SchemaMapping getAccountIdMapping(final Collection<SchemaMapping> mappings) {
         for (SchemaMapping mapping : mappings) {
             if (mapping.isAccountid()) {
                 return mapping;
@@ -368,8 +367,9 @@ public class SchemaMappingUtil {
      * @param mappings collection of SchemaMapping.
      * @return accountId internal value.
      */
-    public static final String getAccountIdValue(final AbstractAttributable attributable,
+    public static String getAccountIdValue(final AbstractAttributable attributable,
             final Collection<SchemaMapping> mappings) {
+
         final List<String> values = getIntValueAsStrings(attributable, getAccountIdMapping(mappings));
         return values == null || values.isEmpty()
                 ? null
@@ -383,7 +383,7 @@ public class SchemaMappingUtil {
      * @param mappings accountId mapping.
      * @return accountId internal value.
      */
-    public static final String getAccountIdValue(final AbstractAttributable attributable, final SchemaMapping mapping) {
+    public static String getAccountIdValue(final AbstractAttributable attributable, final SchemaMapping mapping) {
         final List<String> values = getIntValueAsStrings(attributable, mapping);
         return values == null || values.isEmpty()
                 ? null
