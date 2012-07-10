@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,6 +39,7 @@ public class NotificationTask extends Task {
     private static final long serialVersionUID = 95731573485279180L;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "address")
     private Set<String> recipients;
 
     @NotNull

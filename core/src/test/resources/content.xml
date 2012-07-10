@@ -548,7 +548,7 @@ under the License.
         performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.scheduling.SyncJob"/>
         
-  <NotificationTask_Recipients notificationtask_id="8" element="recipient@prova.org"/>
+  <NotificationTask_Recipients notificationtask_id="8" address="recipient@prova.org"/>
 
   <!-- Authentication and authorization -->
   <Entitlement name="base"/>
