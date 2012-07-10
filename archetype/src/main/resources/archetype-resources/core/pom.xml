@@ -315,6 +315,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
+          <persistenceXmlFile>${project.basedir}/src/main/resources/META-INF/spring-persistence.xml</persistenceXmlFile>
           <includes>org/apache/syncope/core/persistence/beans/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
