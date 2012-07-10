@@ -360,6 +360,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
+          <persistenceXmlFile>${project.basedir}/src/main/resources/META-INF/spring-persistence.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/beans/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
@@ -1119,27 +1120,6 @@ under the License.
 
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>rename-persistence.xml</id>
-                <phase>process-resources</phase>
-                <configuration>
-                  <target>
-                    <delete file="${project.build.directory}/classes/META-INF/persistence.xml" />
-                    <copy file="src/main/resources/META-INF/persistence.xml" tofile="${project.build.directory}/classes/META-INF/spring-persistence.xml" />
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
@@ -1177,22 +1157,6 @@ under the License.
                 </properties>
               </configuration>
             </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -1231,6 +1195,149 @@ under the License.
         </testResources>
       </build>
     </profile>
+    
+    <profile>
+      <id>weblogic-it</id>
+      
+      <properties>
+        <weblogic.home>/opt/weblogic-12.1.1</weblogic.home>
+      </properties>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-all</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+        
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>explode-build-tools-for-weblogic</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.syncope</groupId>
+                      <artifactId>syncope-build-tools</artifactId>
+                      <version>${project.version}</version>
+                      <outputDirectory>${project.build.directory}/syncope-build-tools-test</outputDirectory>
+                      <type>war</type>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <container>
+                <containerId>weblogic103x</containerId>
+                <type>installed</type>
+                <home>${weblogic.home}/wlserver</home>
+
+                <dependencies>
+                  <dependency>
+                    <location>${weblogic.home}/patch_wls1211/profiles/default/sys_manifest_classpath/weblogic_patch.jar</location>
+                  </dependency>
+                  <dependency>
+                    <location>${weblogic.home}/patch_ocp371/profiles/default/sys_manifest_classpath/weblogic_patch.jar</location>
+                  </dependency>
+                </dependencies>
+
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+                
+                <systemProperties>
+                  <java.endorsed.dirs>${weblogic.home}/wlserver/endorsed</java.endorsed.dirs>
+                </systemProperties>
+              </container>
+              <configuration>
+                <properties>
+                  <cargo.weblogic.bea.home>${weblogic.home}</cargo.weblogic.bea.home>
+                </properties>
+                
+                <deployables>
+                  <deployable>
+                    <location>${cargo.run.dir}</location>
+                    <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+                    <pingTimeout>1200000</pingTimeout>
+                    <properties>
+                      <context>syncope</context>
+                    </properties>
+                  </deployable>
+                  <deployable>
+                    <groupId>org.connid.bundles.soap</groupId>
+                    <artifactId>wssample</artifactId>
+                    <type>war</type>
+                    <properties>
+                      <context>wssample</context>
+                    </properties>
+                  </deployable>
+                  <deployable>
+                    <location>${project.build.directory}/syncope-build-tools-test</location>
+                    <properties>
+                      <context>syncope-build-tools</context>
+                    </properties>
+                  </deployable>
+                </deployables>
+              </configuration>
+            </configuration>
+          </plugin>
+        </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>persistence.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>persistence.properties</include>
+            </includes>            
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
   </profiles>
 
   <reporting>

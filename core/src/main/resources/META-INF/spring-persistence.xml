@@ -26,9 +26,5 @@ under the License.
   <persistence-unit name="syncopePersistenceUnit">
     <mapping-file>META-INF/orm.xml</mapping-file>
     <validation-mode>NONE</validation-mode>
-        
-    <properties>
-      <property name="eclipselink.weaving" value="false"/>
-    </properties>
   </persistence-unit>
 </persistence>
