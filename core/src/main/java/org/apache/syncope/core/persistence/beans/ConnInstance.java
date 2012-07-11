@@ -92,6 +92,7 @@ public class ConnInstance extends AbstractBaseBean {
     public ConnInstance() {
         super();
         capabilities = new HashSet<ConnectorCapability>();
+        resources = new ArrayList<ExternalResource>();
     }
 
     public String getVersion() {
@@ -119,7 +120,7 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result = XMLSerializer.<HashSet<ConnConfProperty>> deserialize(xmlConfiguration);
+        Set<ConnConfProperty> result = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
         if (result == null) {
             result = Collections.emptySet();
         }
@@ -143,27 +144,21 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public List<ExternalResource> getResources() {
-        if (this.resources == null) {
-            this.resources = new ArrayList<ExternalResource>();
-        }
         return this.resources;
     }
 
     public void setResources(List<ExternalResource> resources) {
-        this.resources = resources;
+        this.resources.clear();
+        if (resources != null && !resources.isEmpty()) {
+            this.resources.addAll(resources);
+        }
     }
 
     public boolean addResource(ExternalResource resource) {
-        if (this.resources == null) {
-            this.resources = new ArrayList<ExternalResource>();
-        }
-        return this.resources.add(resource);
+        return !this.resources.contains(resource) && this.resources.add(resource);
     }
 
     public boolean removeResource(ExternalResource resource) {
-        if (this.resources == null) {
-            return true;
-        }
         return this.resources.remove(resource);
     }
 

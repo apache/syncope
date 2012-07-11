@@ -18,23 +18,23 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.connid.bundles.soap.WebServiceConnector;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
+import org.connid.bundles.soap.WebServiceConnector;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ResourceTest extends AbstractTest {

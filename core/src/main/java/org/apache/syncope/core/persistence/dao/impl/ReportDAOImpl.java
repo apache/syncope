@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {

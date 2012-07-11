@@ -158,9 +158,8 @@ public class ResourceTest extends AbstractTest {
         resource.setConnector(connector);
 
         // specify mappings
-        SchemaMapping mapping = null;
         for (int i = 0; i < 3; i++) {
-            mapping = new SchemaMapping();
+            SchemaMapping mapping = new SchemaMapping();
             mapping.setExtAttrName("test" + i);
             mapping.setIntAttrName("nonexistent" + i);
             mapping.setIntMappingType(IntMappingType.UserSchema);

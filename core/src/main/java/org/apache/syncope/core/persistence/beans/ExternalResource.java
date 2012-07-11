@@ -38,13 +38,13 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
-import org.identityconnectors.framework.common.objects.SyncToken;
-import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.TraceLevel;
+import org.identityconnectors.framework.common.objects.SyncToken;
 
 /**
  * A resource to which propagation occurs.

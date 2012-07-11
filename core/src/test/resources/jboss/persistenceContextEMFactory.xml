@@ -16,55 +16,53 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="entityManagerFactory"
+  <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceXmlLocation" value="classpath*:META-INF/spring-persistence.xml"/>
-        <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="showSql" value="false"/>
-                <property name="generateDdl" value="true"/>
-                <property name="databasePlatform" value="${jpa.dialect}"/>
-            </bean>
-        </property>
-        <property name="persistenceUnitPostProcessors">
+    <property name="persistenceXmlLocation" value="classpath*:META-INF/spring-persistence.xml"/>
+    <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
+    <property name="dataSource" ref="dataSource"/>
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="showSql" value="false"/>
+        <property name="generateDdl" value="true"/>
+        <property name="databasePlatform" value="${jpa.dialect}"/>
+      </bean>
+    </property>
+    <property name="persistenceUnitPostProcessors">
+      <list>
+        <bean class="org.apache.syncope.core.util.SpringPersistenceUnitPostProcessor">
+          <property name="locations">
             <list>
-                <bean class="org.apache.syncope.core.util.SpringPersistenceUnitPostProcessor">
-                    <property name="locations">
-                        <list>
-                            <value>classpath:org/apache/syncope/core/persistence/beans/*.class</value>
-                            <value>classpath:org/apache/syncope/core/persistence/beans/membership/*.class</value>
-                            <value>classpath:org/apache/syncope/core/persistence/beans/role/*.class</value>
-                            <value>classpath:org/apache/syncope/core/persistence/beans/user/*.class</value>
-                        </list>
-                    </property>
-                </bean>
+              <value>classpath:org/apache/syncope/core/persistence/beans/*.class</value>
+              <value>classpath:org/apache/syncope/core/persistence/beans/membership/*.class</value>
+              <value>classpath:org/apache/syncope/core/persistence/beans/role/*.class</value>
+              <value>classpath:org/apache/syncope/core/persistence/beans/user/*.class</value>
             </list>
-        </property>
-        <property name="jpaPropertyMap">
-            <map>
-                <entry key="hibernate.listeners.envers.autoRegister" value="false"/>
+          </property>
+        </bean>
+      </list>
+    </property>
+    <property name="jpaPropertyMap">
+      <map>
+        <entry key="hibernate.listeners.envers.autoRegister" value="false"/>
                 
-                <entry key="hibernate.order_inserts" value="true"/>
-                <entry key="hibernate.order_updates" value="true"/>
-                <entry key="hibernate.id.new_generator_mappings" value="true"/>
-                <entry key="hibernate.generate_statistics" value="false"/>
+        <entry key="hibernate.order_inserts" value="true"/>
+        <entry key="hibernate.order_updates" value="true"/>
+        <entry key="hibernate.id.new_generator_mappings" value="true"/>
+        <entry key="hibernate.generate_statistics" value="false"/>
 
-                <!-- Second level cache -->
-                <entry key="hibernate.cache.use_second_level_cache" value="false"/>
-                <entry key="hibernate.cache.use_query_cache" value="false"/>
-                <entry key="hibernate.cache.use_minimal_puts" value="false"/>
-            </map>
-        </property>
-    </bean>
+        <!-- Second level cache -->
+        <entry key="hibernate.cache.use_second_level_cache" value="false"/>
+        <entry key="hibernate.cache.use_query_cache" value="false"/>
+        <entry key="hibernate.cache.use_minimal_puts" value="false"/>
+      </map>
+    </property>
+  </bean>
 
 </beans>

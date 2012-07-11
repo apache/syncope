@@ -43,8 +43,8 @@ under the License.
 
   <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
-    <!-- Use JNDI datasource as default but, when not available, revert to
-         local datasource, using different properties for execution and testing -->
+  <!-- Use JNDI datasource as default but, when not available, revert to
+       local datasource, using different properties for execution and testing -->
   <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
     <property name="defaultObject" ref="localDataSource"/>
