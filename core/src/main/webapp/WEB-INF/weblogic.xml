@@ -34,4 +34,9 @@ under the License.
     </prefer-application-packages>
   </container-descriptor>
 
+  <!-- Uncomment this when using JNDI DataSource -->
+  <!--<resource-description>
+    <jndi-name>syncopeDataSource</jndi-name>
+    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>
+  </resource-description>-->
 </weblogic-web-app>
