@@ -359,33 +359,47 @@ public class ReportController extends AbstractController {
             throw new NotFoundException("Report " + reportId);
         }
 
-        try {
-            jobInstanceLoader.registerJob(report);
+        ReportExecTO result;
 
-            JobDataMap map = new JobDataMap();
-            scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
+        ReportExec latestExec = reportExecDAO.findLatestStarted(report);
+        if (latestExec != null
+                && (ReportExecStatus.STARTED.name().equals(latestExec.getStatus())
+                || ReportExecStatus.RUNNING.name().equals(latestExec.getStatus()))) {
 
-            auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
-                    "Successfully started execution for report: " + report.getId());
-        } catch (Exception e) {
-            LOG.error("While executing report {}", report, e);
+            LOG.debug("Found a non-terminated execution for report {}: not triggering a new execution", report);
+            
+            result = binder.getReportExecTO(latestExec);
+        } else {
+            LOG.debug("Triggering a new execution of report {}", report);
 
-            auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
-                    "Could not start execution for report: " + report.getId(), e);
+            try {
+                jobInstanceLoader.registerJob(report);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+                JobDataMap map = new JobDataMap();
+                scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
+
+                auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
+                        "Successfully started execution for report: " + report.getId());
+            } catch (Exception e) {
+                LOG.error("While executing report {}", report, e);
+
+                auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
+                        "Could not start execution for report: " + report.getId(), e);
+
+                SyncopeClientCompositeErrorException scce =
+                        new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+                SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
+                sce.addElement(e.getMessage());
+                scce.addException(sce);
+                throw scce;
+            }
+
+            result = new ReportExecTO();
+            result.setReport(reportId);
+            result.setStartDate(new Date());
+            result.setStatus(ReportExecStatus.STARTED);
+            result.setMessage("Job fired; waiting for results...");
         }
-
-        ReportExecTO result = new ReportExecTO();
-        result.setReport(reportId);
-        result.setStartDate(new Date());
-        result.setStatus(ReportExecStatus.STARTED);
-        result.setMessage("Job fired; waiting for results...");
 
         return result;
     }
@@ -399,7 +413,7 @@ public class ReportController extends AbstractController {
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
         }
-        
+
         ReportTO deletedReport = binder.getReportTO(report);
 
         jobInstanceLoader.unregisterJob(report);
@@ -408,7 +422,7 @@ public class ReportController extends AbstractController {
 
         auditManager.audit(Category.report, ReportSubCategory.delete, Result.success,
                 "Successfully deleted report: " + report.getId());
-        
+
         return deletedReport;
     }
 
@@ -423,12 +437,12 @@ public class ReportController extends AbstractController {
         }
 
         ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);
-                
+
         reportExecDAO.delete(reportExec);
 
         auditManager.audit(Category.report, ReportSubCategory.deleteExecution, Result.success,
                 "Successfully deleted report execution: " + reportExec.getId());
-        
+
         return reportExecToDelete;
     }
 }

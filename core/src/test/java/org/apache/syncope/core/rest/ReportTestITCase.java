@@ -264,6 +264,7 @@ public class ReportTestITCase extends AbstractTest {
         assertFalse(export.isEmpty());
     }
 
+    @Test
     public void issueSYNCOPE43() {
         ReportTO reportTO = new ReportTO();
         reportTO.setName("issueSYNCOPE43");
@@ -275,6 +276,73 @@ public class ReportTestITCase extends AbstractTest {
         assertNotNull(execution);
 
         int maxit = 50;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
+
+            maxit--;
+        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
+
+        assertEquals(1, reportTO.getExecutions().size());
+    }
+
+    @Test
+    public void issueSYNCOPE102() throws IOException {
+        // Create
+        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        reportTO.setId(0);
+        reportTO.setName("issueSYNCOPE102");
+        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
+        assertNotNull(reportTO);
+
+        // Execute (multiple requests)
+        for (int i = 0; i < 10; i++) {
+            ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
+                    ReportExecTO.class, reportTO.getId());
+            assertNotNull(execution);
+        }
+
+        // Wait for one execution
+        int maxit = 50;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
+
+            maxit--;
+        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
+
+        assertTrue(!reportTO.getExecutions().isEmpty());
+
+        // Export
+        final HttpClient client = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient();
+        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getAuthScope();
+        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
+
+        // Add AuthCache to the execution context
+        BasicHttpContext localcontext = new BasicHttpContext();
+
+        // Generate BASIC scheme object and add it to the local auth cache
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(targetHost, new BasicScheme());
+        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
+
+        HttpResponse response = null;
+
+        maxit = 10;
+
+        // issueSYNCOPE89
+        ((PoolingClientConnectionManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
+
+        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/" + reportTO.getExecutions().
+                iterator().next().getId());
 
         do {
             try {
@@ -282,11 +350,15 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+            response = client.execute(targetHost, getMethod, localcontext);
 
             maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
+        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && maxit > 0);
 
-        assertEquals(1, reportTO.getExecutions().size());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        String export = EntityUtils.toString(response.getEntity()).trim();
+        assertNotNull(export);
+        assertFalse(export.isEmpty());
     }
 }
