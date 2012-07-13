@@ -36,7 +36,8 @@ under the License.
     </property>
     <property name="jpaPropertyMap">
       <map>
-        <!--<entry key="openjpa.Log" value="SQL=TRACE"/>-->
+        <!--<entry key="openjpa.Log" value="SQL=TRACE"/>
+        <entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=80"/>-->
                 
         <entry key="openjpa.NontransactionalWrite" value="false"/>
         <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
@@ -50,7 +51,7 @@ under the License.
                                 
         <entry key="openjpa.DataCache" value="true" />
         <entry key="openjpa.QueryCache" value="true"/>
-        <entry key="openjpa.RemoteCommitProvider" value="sjvm" />
+        <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
       </map>
     </property>
   </bean>

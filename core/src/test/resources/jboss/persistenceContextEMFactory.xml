@@ -23,44 +23,38 @@ under the License.
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="persistenceXmlLocation" value="classpath*:META-INF/spring-persistence.xml"/>
     <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
     <property name="dataSource" ref="dataSource"/>
     <property name="jpaVendorAdapter">
-      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
         <property name="showSql" value="false"/>
         <property name="generateDdl" value="true"/>
         <property name="databasePlatform" value="${jpa.dialect}"/>
       </bean>
     </property>
-    <property name="persistenceUnitPostProcessors">
-      <list>
-        <bean class="org.apache.syncope.core.util.SpringPersistenceUnitPostProcessor">
-          <property name="locations">
-            <list>
-              <value>classpath:org/apache/syncope/core/persistence/beans/*.class</value>
-              <value>classpath:org/apache/syncope/core/persistence/beans/membership/*.class</value>
-              <value>classpath:org/apache/syncope/core/persistence/beans/role/*.class</value>
-              <value>classpath:org/apache/syncope/core/persistence/beans/user/*.class</value>
-            </list>
-          </property>
-        </bean>
-      </list>
-    </property>
     <property name="jpaPropertyMap">
       <map>
-        <entry key="hibernate.listeners.envers.autoRegister" value="false"/>
+        <!--<entry key="openjpa.Log" value="SQL=TRACE"/>
+        <entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=80"/>-->
                 
-        <entry key="hibernate.order_inserts" value="true"/>
-        <entry key="hibernate.order_updates" value="true"/>
-        <entry key="hibernate.id.new_generator_mappings" value="true"/>
-        <entry key="hibernate.generate_statistics" value="false"/>
+        <entry key="openjpa.NontransactionalWrite" value="false"/>
+        <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
 
-        <!-- Second level cache -->
-        <entry key="hibernate.cache.use_second_level_cache" value="false"/>
-        <entry key="hibernate.cache.use_query_cache" value="false"/>
-        <entry key="hibernate.cache.use_minimal_puts" value="false"/>
+        <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
+        <entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+                
+        <entry key="openjpa.ReadLockLevel" value="none"/>
+        <entry key="openjpa.WriteLockLevel" value="write"/>
+        <entry key="openjpa.LockTimeout" value="30000"/>
+                                
+        <entry key="openjpa.DataCache" value="true" />
+        <entry key="openjpa.QueryCache" value="true"/>
+        <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
+        
+        <entry key="openjpa.MetaDataFactory"
+               value="org.apache.syncope.core.persistence.openjpa.JBossPersistenceMappingFactory(URLs=vfs:${project.build.directory}/cargo/configurations/jboss71x/deployments/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)"/>
       </map>
     </property>
   </bean>
