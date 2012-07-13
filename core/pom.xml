@@ -1085,15 +1085,6 @@ under the License.
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
-          
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <packagingExcludes>WEB-INF/lib/dom4j*.jar,WEB-INF/lib/mail*.jar</packagingExcludes>
-            </configuration>
-          </plugin>
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
