@@ -1497,7 +1497,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(userTO.getResources().isEmpty());
 
-        String azz = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
     }
 
     @Test
