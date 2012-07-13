@@ -722,8 +722,17 @@ public class PropagationManager {
                         if (before == null) {
                             LOG.debug("{} not found on external resource:" + " ignoring delete", task.getAccountId());
                         } else {
-                            connector.delete(task.getPropagationMode(), ObjectClass.ACCOUNT, before.getUid(), null,
-                                    propagationAttempted);
+                            final SyncopeUser user = getSyncopeUser(task.getSyncopeUser().getId());
+
+                            if (user == null || !user.getResourceNames().contains(task.getResource().getName())) {
+                                connector.delete(
+                                        task.getPropagationMode(),
+                                        ObjectClass.ACCOUNT,
+                                        before.getUid(),
+                                        null,
+                                        propagationAttempted);
+                            }
+
                         }
                         break;
 

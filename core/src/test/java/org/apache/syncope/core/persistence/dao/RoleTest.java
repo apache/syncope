@@ -43,7 +43,7 @@ public class RoleTest extends AbstractTest {
     @Test
     public void findAll() {
         List<SyncopeRole> list = roleDAO.findAll();
-        assertEquals("did not get expected number of roles ", 11, list.size());
+        assertEquals("did not get expected number of roles ", 13, list.size());
     }
 
     @Test

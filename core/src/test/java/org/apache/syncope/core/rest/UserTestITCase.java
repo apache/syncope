@@ -1479,11 +1479,12 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
+        assertEquals(1, userTO.getResources().size());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
-        String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
-                userTO.getUsername());
+        String username =
+                jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
 
         assertEquals(userTO.getUsername(), username);
 
@@ -1496,7 +1497,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(userTO.getResources().isEmpty());
 
-        jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        String azz = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
     }
 
     @Test
@@ -1744,5 +1745,108 @@ public class UserTestITCase extends AbstractTest {
         actual = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, actual.getId());
         assertNotNull(actual);
         assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE108() {
+        UserTO userTO = getSampleTO("syncope108@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+
+        AttributeTO csvuserid = new AttributeTO();
+        csvuserid.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuserid);
+
+        MembershipTO memb12 = new MembershipTO();
+        memb12.setRoleId(12L);
+
+        userTO.addMembership(memb12);
+
+        MembershipTO memb13 = new MembershipTO();
+        memb13.setRoleId(13L);
+
+        userTO.addMembership(memb13);
+
+        userTO.addResource("resource-csv");
+
+        UserTO actual = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(actual);
+        assertEquals(2, actual.getMemberships().size());
+        assertEquals(1, actual.getResources().size());
+
+        ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
+                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
+                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+
+        assertNotNull(connObjectTO);
+
+        // -----------------------------------
+        // Remove the first membership: de-provisioning shouldn't happen
+        // -----------------------------------
+        UserMod userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        userMod.addMembershipToBeRemoved(actual.getMemberships().get(0).getId());
+
+        actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(actual);
+        assertEquals(1, actual.getMemberships().size());
+
+        connObjectTO = restTemplate.getForObject(BASE_URL
+                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+
+        assertNotNull(connObjectTO);
+        // -----------------------------------
+
+        // -----------------------------------
+        // Remove the resource assigned directly: de-provisioning shouldn't happen
+        // -----------------------------------
+        userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        userMod.addResourceToBeRemoved(actual.getResources().iterator().next());
+
+        actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(actual);
+        assertEquals(1, actual.getMemberships().size());
+        assertFalse(actual.getResources().isEmpty());
+
+        connObjectTO = restTemplate.getForObject(BASE_URL
+                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
+                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+
+        assertNotNull(connObjectTO);
+        // -----------------------------------
+
+        // -----------------------------------
+        // Remove the first membership: de-provisioning should happen
+        // -----------------------------------
+        userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        userMod.addMembershipToBeRemoved(actual.getMemberships().get(0).getId());
+
+        actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(actual);
+        assertTrue(actual.getMemberships().isEmpty());
+        assertTrue(actual.getResources().isEmpty());
+
+        Throwable t = null;
+
+        try {
+            restTemplate.getForObject(BASE_URL
+                    + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
+                    getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+        } catch (SyncopeClientCompositeErrorException e) {
+            assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
+            t = e;
+        }
+
+        assertNotNull(t);
+        // -----------------------------------
     }
 }

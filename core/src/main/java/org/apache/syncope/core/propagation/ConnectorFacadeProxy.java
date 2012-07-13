@@ -105,8 +105,8 @@ public class ConnectorFacadeProxy {
         this.activeConnInstance = connInstance;
 
         // specify a connector.
-        ConnectorKey key = new ConnectorKey(connInstance.getBundleName(), connInstance.getVersion(), connInstance
-                .getConnectorName());
+        ConnectorKey key = new ConnectorKey(connInstance.getBundleName(), connInstance.getVersion(), connInstance.
+                getConnectorName());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("\nBundle name: " + key.getBundleName() + "\nBundle version: " + key.getBundleVersion()
@@ -221,8 +221,8 @@ public class ConnectorFacadeProxy {
             result = connector.update(objectClass, uid, attrs, options);
         } else {
             LOG.info("Update for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance
-                    .getCapabilities());
+                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance.
+                    getCapabilities());
         }
 
         return result;
@@ -248,9 +248,8 @@ public class ConnectorFacadeProxy {
 
             connector.delete(objectClass, uid, options);
         } else {
-            LOG.info("Delete for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance
-                    .getCapabilities());
+            LOG.info("Delete for {} was attempted, although the connector only has these capabilities: {}. No action.",
+                    uid.getUidValue(), activeConnInstance.getCapabilities());
         }
     }
 
@@ -265,7 +264,7 @@ public class ConnectorFacadeProxy {
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
             connector.sync(ObjectClass.ACCOUNT, token, handler, options);
         } else {
-            LOG.info("Sync was attempted, although the " + "connector only has these capabilities: {}. No action.",
+            LOG.info("Sync was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
     }
@@ -343,7 +342,7 @@ public class ConnectorFacadeProxy {
                 }
             }
         } else {
-            LOG.info("Search was attempted, although the " + "connector only has these capabilities: {}. No action.",
+            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
 
@@ -451,8 +450,8 @@ public class ConnectorFacadeProxy {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
                     if (showall
                             || (!Name.NAME.equals(attrInfo.getName())
-                                    && !OperationalAttributes.PASSWORD_NAME.equals(attrInfo.getName()) && !OperationalAttributes.ENABLE_NAME
-                                    .equals(attrInfo.getName()))) {
+                            && !OperationalAttributes.PASSWORD_NAME.equals(attrInfo.getName()) && !OperationalAttributes.ENABLE_NAME.
+                            equals(attrInfo.getName()))) {
 
                         resourceSchemaNames.add(attrInfo.getName());
                     }
@@ -482,7 +481,7 @@ public class ConnectorFacadeProxy {
 
     @Override
     public String toString() {
-        return "ConnectorFacadeProxy{" + "connector=" + connector + "capabitilies="
+        return "ConnectorFacadeProxy{connector=" + connector + "capabitilies="
                 + activeConnInstance.getCapabilities() + '}';
     }
 
@@ -502,8 +501,8 @@ public class ConnectorFacadeProxy {
         // -------------------------------------
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
-        final Set<String> attributesToGet = new HashSet<String>(Arrays.asList(new String[] { Name.NAME, Uid.NAME,
-                OperationalAttributes.ENABLE_NAME }));
+        final Set<String> attributesToGet = new HashSet<String>(Arrays.asList(new String[]{Name.NAME, Uid.NAME,
+                    OperationalAttributes.ENABLE_NAME}));
 
         for (SchemaMapping mapping : resource.getMappings()) {
             final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
@@ -526,8 +525,8 @@ public class ConnectorFacadeProxy {
 
         if (values != null && !values.isEmpty()) {
             try {
-                final Class propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils
-                        .getDefaultClassLoader());
+                final Class propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
+                        getDefaultClassLoader());
 
                 if (GuardedString.class.equals(propertySchemaClass)) {
                     value = new GuardedString((values.get(0).toString()).toCharArray());
@@ -552,7 +551,7 @@ public class ConnectorFacadeProxy {
                 } else if (File.class.equals(propertySchemaClass)) {
                     value = new File(values.get(0).toString());
                 } else if (String[].class.equals(propertySchemaClass)) {
-                    value = values.toArray(new String[] {});
+                    value = values.toArray(new String[]{});
                 } else {
                     value = values.get(0).toString();
                 }

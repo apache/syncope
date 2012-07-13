@@ -70,6 +70,8 @@ under the License.
                inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
                inheritPasswordPolicy="1" inheritAccountPolicy="1"/>
   <SyncopeRole id="11" name="roleForWorkflowOptIn" parent_id="1"/>
+  <SyncopeRole id="12" name="aRoleForPropagation" parent_id="1"/>
+  <SyncopeRole id="13" name="bRoleForPropagation" parent_id="1"/>
 
   <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
   <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
@@ -337,6 +339,8 @@ under the License.
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1" />
   <SyncopeRole_ExternalResource role_id="7" resource_name="ws-target-resource-nopropagation" />
   <SyncopeRole_ExternalResource role_id="10" resource_name="ws-target-resource-nopropagation3" />
+  <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv" />
+  <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv" />
 
   <SchemaMapping id="99" extAttrName="userid"
                  resource_name="ws-target-resource-1"
@@ -631,6 +635,8 @@ under the License.
   <Entitlement name="ROLE_9"/>
   <Entitlement name="ROLE_10"/>
   <Entitlement name="ROLE_11"/>
+  <Entitlement name="ROLE_12"/>
+  <Entitlement name="ROLE_13"/>
 
   <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
   <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>
