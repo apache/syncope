@@ -237,7 +237,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setChangePwdDate(new Date());
 
-            propByRes.addAll(PropagationOperation.UPDATE, user.getResourceNames());
+            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
         }
 
         // username
@@ -246,7 +246,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             String oldUsername = user.getUsername();
 
             user.setUsername(userMod.getUsername());
-            propByRes.addAll(PropagationOperation.UPDATE, user.getResourceNames());
+            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
 
             for (ExternalResource resource : user.getResources()) {
                 for (SchemaMapping mapping : resource.getMappings()) {
@@ -266,6 +266,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipToBeAddedRoleIds.add(membToBeAdded.getRole());
         }
 
+        final Set<String> toBeDeprovisioned = new HashSet<String>();
+        final Set<String> toBeProvisioned = new HashSet<String>();
+
         // memberships to be removed
         Membership membership = null;
         for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
@@ -275,12 +278,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             if (membership == null) {
                 LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
-                for (ExternalResource resource : membership.getSyncopeRole().getResources()) {
 
-                    if (!membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
-
-                        propByRes.add(PropagationOperation.DELETE, resource.getName());
-                    }
+                if (!membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
+                    toBeDeprovisioned.addAll(membership.getSyncopeRole().getResourceNames());
                 }
 
                 // In order to make the removeMembership() below to work,
@@ -342,7 +342,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     user.addMembership(membership);
 
-                    propByRes.addAll(PropagationOperation.UPDATE, role.getResourceNames());
+                    toBeProvisioned.addAll(role.getResourceNames());
                 }
 
                 propByRes.merge(fill(membership, membershipMod,
@@ -350,8 +350,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        // now, let's see if there are new resource subscriptions without
-        // providing password
+        // now, let's see if there are new resource subscriptions without providing password
         Set<String> updatedResources = user.getResourceNames();
         updatedResources.removeAll(currentResources);
         if (!updatedResources.isEmpty() && StringUtils.isBlank(userMod.getPassword())) {
@@ -361,6 +360,18 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             scce.addException(sce);
 
             throw scce;
+        }
+
+        propByRes.addAll(PropagationOperation.DELETE, toBeDeprovisioned);
+        propByRes.addAll(PropagationOperation.UPDATE, toBeProvisioned);
+
+        /**
+         * In case of new memberships all the current resources have to be updated in order to propagate new role and
+         * membership attribute values.
+         */
+        if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
+            currentResources.removeAll(toBeDeprovisioned);
+            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
         }
 
         return propByRes;

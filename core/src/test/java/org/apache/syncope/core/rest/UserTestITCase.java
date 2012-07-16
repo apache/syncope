@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.springframework.util.StringUtils;
 
 public class UserTestITCase extends AbstractTest {
 
@@ -1847,6 +1848,93 @@ public class UserTestITCase extends AbstractTest {
         }
 
         assertNotNull(t);
+        // -----------------------------------
+    }
+
+    @Test
+    public void issueSYNCOPE111() {
+        UserTO userTO = getSampleTO("syncope111@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+
+        AttributeTO csvuserid = new AttributeTO();
+        csvuserid.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuserid);
+
+        MembershipTO memb12 = new MembershipTO();
+        memb12.setRoleId(12L);
+
+        AttributeTO description = new AttributeTO();
+        description.setSchema("description");
+        description.addValue("description");
+
+        memb12.addAttribute(description);
+
+        userTO.addMembership(memb12);
+
+        MembershipTO memb13 = new MembershipTO();
+        memb13.setRoleId(13L);
+
+        userTO.addMembership(memb13);
+
+        userTO.addResource("resource-ldap");
+
+        UserTO actual = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(actual);
+        assertEquals(2, actual.getMemberships().size());
+
+        ConnObjectTO connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class,
+                "resource-ldap",
+                userTO.getUsername());
+
+        assertNotNull(connObjectTO);
+
+        description = connObjectTO.getAttributeMap().get("description");
+        assertNotNull(description);
+        assertEquals(1, description.getValues().size());
+        assertEquals("description", description.getValues().get(0));
+
+        AttributeTO title = connObjectTO.getAttributeMap().get("title");
+        assertNotNull(title);
+        assertEquals(2, title.getValues().size());
+        assertTrue(title.getValues().contains("r12") && title.getValues().contains("r13"));
+
+        // -----------------------------------
+        // Remove the first membership and check for membership attr propagation and role attr propagation
+        // -----------------------------------
+        UserMod userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        MembershipTO membershipTO = actual.getMemberships().get(0).getRoleId() == 12L
+                ? actual.getMemberships().get(0) : actual.getMemberships().get(1);
+
+        userMod.addMembershipToBeRemoved(membershipTO.getId());
+
+        actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(actual);
+        assertEquals(1, actual.getMemberships().size());
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class,
+                "resource-ldap",
+                userTO.getUsername());
+
+        assertNotNull(connObjectTO);
+
+        description = connObjectTO.getAttributeMap().get("description");
+        assertTrue(description == null
+                || description.getValues().isEmpty() || StringUtils.hasText(description.getValues().get(0)));
+
+        title = connObjectTO.getAttributeMap().get("title");
+        assertNotNull(title);
+        assertEquals(1, title.getValues().size());
+        assertTrue(title.getValues().contains("r13"));
         // -----------------------------------
     }
 }

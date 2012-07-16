@@ -358,14 +358,12 @@ public class PropagationManager {
             default:
         }
 
-        final Entry<AbstractSchema, List<AbstractAttrValue>> entry = SchemaMappingUtil.getIntValues(mapping,
-                attributables, password, schemaDAO);
+        final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
+                SchemaMappingUtil.getIntValues(mapping, attributables, password, schemaDAO);
 
         final List<AbstractAttrValue> values = entry.getValue();
         final AbstractSchema schema = entry.getKey();
-        final SchemaType schemaType = schema == null
-                ? SchemaType.String
-                : schema.getType();
+        final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
 
         final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
 
@@ -725,15 +723,32 @@ public class PropagationManager {
                             final SyncopeUser user = getSyncopeUser(task.getSyncopeUser().getId());
 
                             if (user == null || !user.getResourceNames().contains(task.getResource().getName())) {
+                                // perform de-provisioning
+                                LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
+
                                 connector.delete(
                                         task.getPropagationMode(),
                                         ObjectClass.ACCOUNT,
                                         before.getUid(),
                                         null,
                                         propagationAttempted);
-                            }
+                            } else {
+                                // Update remote profile.
+                                // This is absolutely needed because otherwise the resource won't be updated: 
+                                // resources to be deleted won't be considered by UserDataBinder.update() for the update
+                                // but, often, this have to be done.
+                                LOG.debug("Update remote object on {}", task.getResource().getName());
 
+                                connector.update(
+                                        task.getPropagationMode(),
+                                        ObjectClass.ACCOUNT,
+                                        before.getUid(),
+                                        task.getAttributes(),
+                                        null,
+                                        propagationAttempted);
+                            }
                         }
+
                         break;
 
                     default:

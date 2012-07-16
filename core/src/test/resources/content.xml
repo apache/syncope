@@ -123,6 +123,9 @@ under the License.
 
   <RSchema name="rderived_dx" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+           
+  <RSchema name="title" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
   <MSchema name="subscriptionDate" type="Date"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
@@ -132,6 +135,9 @@ under the License.
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <MSchema name="mderived_dx" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+           
+  <MSchema name="description" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <UAttr id="100" owner_id="1" schema_name="fullname"/>
@@ -188,6 +194,12 @@ under the License.
     
     <!-- rderiveddata is used to verify der schema deletion -->
   <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  
+  <RAttr id="1004" owner_id="12" schema_name="title"/>
+  <RAttrValue attribute_id="1004" id="94" stringValue="r12"/>
+  
+  <RAttr id="1005" owner_id="13" schema_name="title"/>
+  <RAttrValue attribute_id="1005" id="95" stringValue="r13"/>
 
   <MAttr id="100" owner_id="4" schema_name="subscriptionDate"/>
 
@@ -524,6 +536,12 @@ under the License.
                  mandatoryCondition="true" resource_name="resource-ldap"/>
   <SchemaMapping id="315" accountid="0" password="0"
                  extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
+                 mandatoryCondition="false" resource_name="resource-ldap"/>
+  <SchemaMapping id="316" accountid="0" password="0"
+                 extAttrName="title" intAttrName="title" intMappingType="RoleSchema"
+                 mandatoryCondition="false" resource_name="resource-ldap"/>
+  <SchemaMapping id="317" accountid="0" password="0"
+                 extAttrName="description" intAttrName="description" intMappingType="MembershipSchema"
                  mandatoryCondition="false" resource_name="resource-ldap"/>
                    
   <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
