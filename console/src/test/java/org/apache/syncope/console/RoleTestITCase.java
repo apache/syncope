@@ -168,7 +168,7 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/table[12]/tbody/tr/td[6]/table/tbody/tr/td[2]/a");
+        selenium.click("//div[3]/span/div/div/table[12]/tbody/tr/td[5]/table/tbody/tr/td[2]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div/p/span[2]/span/a[3]\");", "30000");
 

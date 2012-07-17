@@ -20,9 +20,12 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -54,10 +57,10 @@ public class ResourceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] MAPPING_IGNORE_PROPERTIES = { "id", "resource", "syncToken" };
+    private static final String[] MAPPING_IGNORE_PROPERTIES = {"id", "resource", "syncToken"};
 
     @Autowired
-    private ConnInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private JexlUtil jexlUtil;
@@ -65,7 +68,11 @@ public class ResourceDataBinder {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public ExternalResource create(final ResourceTO resourceTO) throws SyncopeClientCompositeErrorException {
+    @Autowired
+    private ConnInstanceDataBinder connInstancebinder;
+
+    public ExternalResource create(final ResourceTO resourceTO)
+            throws SyncopeClientCompositeErrorException {
 
         return update(new ExternalResource(), resourceTO);
     }
@@ -80,7 +87,7 @@ public class ResourceDataBinder {
         resource.setName(resourceTO.getName());
 
         if (resourceTO.getConnectorId() != null) {
-            ConnInstance connector = connectorInstanceDAO.find(resourceTO.getConnectorId());
+            ConnInstance connector = connInstanceDAO.find(resourceTO.getConnectorId());
             resource.setConnector(connector);
 
             if (!connector.getResources().contains(resource)) {
@@ -311,5 +318,60 @@ public class ResourceDataBinder {
         LOG.debug("Obtained SchemaMappingTO {}", schemaMappingTO);
 
         return schemaMappingTO;
+    }
+
+    public ConnInstance getConnInstance(ExternalResource resource)
+            throws NotFoundException {
+
+        final ConnInstance connInstanceClone =
+                (ConnInstance) org.apache.commons.lang.SerializationUtils.clone(resource.getConnector());
+
+        return getConnInstance(connInstanceClone, resource.getConfiguration());
+    }
+
+    public ConnInstance getConnInstance(final ResourceTO resourceTO)
+            throws NotFoundException {
+        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnectorId());
+
+        final ConnInstance connInstanceClone =
+                (ConnInstance) org.apache.commons.lang.SerializationUtils.clone(connInstance);
+
+        if (connInstance == null) {
+            throw new NotFoundException("Connector '" + resourceTO.getConnectorId() + "'");
+        }
+
+        return getConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
+    }
+
+    private ConnInstance getConnInstance(
+            final ConnInstance connInstance, final Set<ConnConfProperty> overridden)
+            throws NotFoundException {
+
+        final Set<ConnConfProperty> configuration = new HashSet<ConnConfProperty>();
+        final Map<String, ConnConfProperty> overridable = new HashMap<String, ConnConfProperty>();
+
+        // add not overridable properties
+        for (ConnConfProperty prop : connInstance.getConfiguration()) {
+            if (prop.isOverridable()) {
+                overridable.put(prop.getSchema().getName(), prop);
+            } else {
+                configuration.add(prop);
+            }
+        }
+
+        // add overridden properties
+        for (ConnConfProperty prop : overridden) {
+            if (overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()) {
+                configuration.add(prop);
+                overridable.remove(prop.getSchema().getName());
+            }
+        }
+
+        // add overridable properties not overridden
+        configuration.addAll(overridable.values());
+
+        connInstance.setConfiguration(configuration);
+
+        return connInstance;
     }
 }

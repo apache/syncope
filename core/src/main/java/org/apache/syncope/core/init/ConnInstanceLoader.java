@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.init;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import javassist.NotFoundException;
@@ -27,6 +26,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.types.ConnConfProperty;
@@ -54,6 +54,9 @@ public class ConnInstanceLoader {
     @Autowired
     private ConnBundleManager connBundleManager;
 
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
     private DefaultListableBeanFactory getBeanFactory() {
         ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
@@ -71,7 +74,8 @@ public class ConnInstanceLoader {
      * @return live connector bran for given resource
      * @throws BeansException in case the connector is not registered in the context
      */
-    public ConnectorFacadeProxy getConnector(final ExternalResource resource) throws BeansException, NotFoundException {
+    public ConnectorFacadeProxy getConnector(final ExternalResource resource)
+            throws BeansException, NotFoundException {
 
         // Try to re-create connector bean from underlying resource
         // (useful for managing failover scenarios)
@@ -82,32 +86,11 @@ public class ConnInstanceLoader {
         return (ConnectorFacadeProxy) getBeanFactory().getBean(getBeanName(resource));
     }
 
-    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource) throws NotFoundException {
+    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource)
+            throws NotFoundException {
 
-        final Set<ConnConfProperty> configuration = new HashSet<ConnConfProperty>();
-
-        // to be used to control managed prop (needed by overridden mechanism)
-        final Set<String> propertyNames = new HashSet<String>();
-
-        // get overridden connector configuration properties
-        for (ConnConfProperty prop : resource.getConfiguration()) {
-            if (!propertyNames.contains(prop.getSchema().getName())) {
-                configuration.add(prop);
-                propertyNames.add(prop.getSchema().getName());
-            }
-        }
-
-        final ConnInstance connInstance = resource.getConnector();
-
-        // get connector configuration properties
-        for (ConnConfProperty prop : connInstance.getConfiguration()) {
-            if (!propertyNames.contains(prop.getSchema().getName())) {
-                configuration.add(prop);
-                propertyNames.add(prop.getSchema().getName());
-            }
-        }
-
-        return createConnectorBean(connInstance, configuration);
+        final ConnInstance connInstanceClone = resourceDataBinder.getConnInstance(resource);
+        return createConnectorBean(resource.getConnector(), connInstanceClone.getConfiguration());
     }
 
     /**
@@ -120,7 +103,8 @@ public class ConnInstanceLoader {
      * @throws NotFoundException when not able to fetch all the required data.
      */
     public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
-            final Set<ConnConfProperty> configuration) throws NotFoundException {
+            final Set<ConnConfProperty> configuration)
+            throws NotFoundException {
 
         final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(connInstance);
 
@@ -129,7 +113,8 @@ public class ConnInstanceLoader {
         return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
     }
 
-    public void registerConnector(final ExternalResource resource) throws NotFoundException {
+    public void registerConnector(final ExternalResource resource)
+            throws NotFoundException {
 
         final ConnectorFacadeProxy connector = createConnectorBean(resource);
         LOG.debug("Connector to be registered: {}", connector);
@@ -160,8 +145,8 @@ public class ConnInstanceLoader {
                 LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
                 registerConnector(resource);
             } catch (Exception e) {
-                LOG.error("While registering resource-connector pair {}-{}", new Object[] { resource,
-                        resource.getConnector(), e });
+                LOG.error("While registering resource-connector pair {}-{}", new Object[]{resource,
+                            resource.getConnector(), e});
             }
         }
 

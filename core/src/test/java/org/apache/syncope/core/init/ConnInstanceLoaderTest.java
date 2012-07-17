@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
 
@@ -42,11 +43,15 @@ public class ConnInstanceLoaderTest extends AbstractTest {
     @Autowired
     private ConnBundleManager connBundleManager;
 
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
     @Before
     public void before() {
         cil = new ConnInstanceLoader();
         ReflectionTestUtils.setField(cil, "resourceDAO", resourceDAO);
         ReflectionTestUtils.setField(cil, "connBundleManager", connBundleManager);
+        ReflectionTestUtils.setField(cil, "resourceDataBinder", resourceDataBinder);
 
         // Remove any other connector instance bean set up by
         // standard ConnInstanceLoader.load()

@@ -39,10 +39,12 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
+import org.apache.syncope.types.IntMappingType;
 
 public class ConnInstanceTestITCase extends AbstractTest {
 
@@ -534,5 +536,89 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 String[].class, conn));
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE112() {
+
+        // ----------------------------------------
+        // Create a new connector
+        // ----------------------------------------
+        ConnInstanceTO connectorTO = new ConnInstanceTO();
+
+        // set connector version
+        connectorTO.setVersion(connidSoapVersion);
+
+        // set connector name
+        connectorTO.setConnectorName(WebServiceConnector.class.getName());
+
+        // set bundle name
+        connectorTO.setBundleName("org.connid.bundles.soap");
+
+        // set display name
+        connectorTO.setDisplayName("WSSoap");
+
+        // set the connector configuration using PropertyTO
+        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+
+        ConnConfPropSchema userSchema = new ConnConfPropSchema();
+        userSchema.setName("endpoint");
+        userSchema.setType(String.class.getName());
+        userSchema.setRequired(true);
+        ConnConfProperty endpoint = new ConnConfProperty();
+        endpoint.setSchema(userSchema);
+        endpoint.setValues(Collections.singletonList("http://localhost:9080/does_not_work"));
+        endpoint.setOverridable(true);
+
+        ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
+        keyColumnSchema.setName("servicename");
+        keyColumnSchema.setType(String.class.getName());
+        keyColumnSchema.setRequired(true);
+        ConnConfProperty servicename = new ConnConfProperty();
+        servicename.setSchema(keyColumnSchema);
+        servicename.setValues(
+                Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.setOverridable(false);
+
+        conf.add(endpoint);
+        conf.add(servicename);
+
+        // set connector configuration
+        connectorTO.setConfiguration(conf);
+
+        assertFalse(restTemplate.postForObject(BASE_URL + "connector/check.json", connectorTO, Boolean.class));
+
+        connectorTO = restTemplate.postForObject(BASE_URL + "connector/create.json", connectorTO, ConnInstanceTO.class);
+        assertNotNull(connectorTO);
+        // ----------------------------------------
+
+        // ----------------------------------------
+        // create a resourceTO
+        // ----------------------------------------
+        String resourceName = "checkForPropOverriding";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(connectorTO.getId());
+
+        conf = new HashSet<ConnConfProperty>();
+        endpoint.setValues(Collections.singletonList("http://localhost:9080/wssample/services/provisioning"));
+        conf.add(endpoint);
+
+        resourceTO.setConnectorConfigurationProperties(conf);
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setExtAttrName("uid");
+        schemaMappingTO.setIntAttrName("userId");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+        // ----------------------------------------
+
+        // ----------------------------------------
+        // Check connection without saving the resource ....
+        // ----------------------------------------
+        assertTrue(restTemplate.postForObject(BASE_URL + "resource/check.json", resourceTO, Boolean.class));
+        // ----------------------------------------
     }
 }

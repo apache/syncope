@@ -41,9 +41,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.util.ConnConfPropUtils;
 import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
@@ -116,13 +114,7 @@ public class ResourceConnConfPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                ConnInstanceTO connectorTO = connRestClient.read(resourceTO.getConnectorId());
-
-                connectorTO.setConfiguration(ConnConfPropUtils.joinConnInstanceProperties(connectorTO.
-                        getConfigurationMap(),
-                        ConnConfPropUtils.getConnConfPropertyMap(resourceTO.getConnConfProperties())));
-
-                if (connRestClient.check(connectorTO).booleanValue()) {
+                if (connRestClient.check(resourceTO).booleanValue()) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));

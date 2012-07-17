@@ -28,6 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.types.ConnConfProperty;
@@ -144,7 +145,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Test connection.
+     * Test connector connection.
      *
      * @param connectorTO connector.
      * @return Connection status.
@@ -161,6 +162,23 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
                     baseURL + "connector/check.json", connector, Boolean.class);
         } catch (Exception e) {
             LOG.error("Connector not found {}", connector, e);
+            return false;
+        }
+    }
+
+    /**
+     * Test resource connection.
+     *
+     * @param connectorTO connector.
+     * @return Connection status.
+     */
+    public Boolean check(final ResourceTO resourceTO) {
+
+        try {
+            return SyncopeSession.get().getRestTemplate().postForObject(
+                    baseURL + "resource/check.json", resourceTO, Boolean.class);
+        } catch (Exception e) {
+            LOG.error("Connector not found {}", resourceTO.getConnectorId(), e);
             return false;
         }
     }

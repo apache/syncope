@@ -51,11 +51,15 @@ import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
+import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.ConnObjectUtil;
+import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.ResourceSubCategory;
 import org.apache.syncope.types.AuditElements.Result;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/resource")
@@ -76,6 +80,9 @@ public class ResourceController extends AbstractController {
     @Autowired
     private ResourceDataBinder binder;
 
+    @Autowired
+    private ConnInstanceDataBinder connInstancebinder;
+
     /**
      * ConnectorObject util.
      */
@@ -84,6 +91,9 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ConnInstanceLoader connLoader;
+
+    @Autowired
+    private ConnBundleManager bundleManager;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
@@ -131,14 +141,14 @@ public class ResourceController extends AbstractController {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
-        
+
         ResourceTO resourceToDelete = binder.getResourceTO(resource);
 
         auditManager.audit(Category.resource, ResourceSubCategory.delete, Result.success,
                 "Successfully deleted resource: " + resource.getName());
 
         resourceDAO.delete(resourceName);
-        
+
         return resourceToDelete;
     }
 
@@ -240,5 +250,34 @@ public class ResourceController extends AbstractController {
                 "Successfully read object " + objectId + " from resource " + resourceName);
 
         return connObjectUtil.getConnObjectTO(connectorObject);
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.POST, value = "/check")
+    @Transactional(readOnly = true)
+    public ModelAndView check(final HttpServletResponse response, @RequestBody final ResourceTO resourceTO)
+            throws SyncopeClientCompositeErrorException, NotFoundException {
+
+        final ConnInstance connInstance = binder.getConnInstance(resourceTO);
+
+        final ConnectorFacadeProxy connector =
+                new ConnectorFacadeProxy(connInstance, bundleManager);
+
+        boolean result;
+        try {
+            connector.test();
+            result = true;
+
+            auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.success,
+                    "Successfully checked connector: " + resourceTO);
+        } catch (Exception ex) {
+            auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.failure,
+                    "Unsuccessful check for connector: " + resourceTO, ex);
+
+            LOG.error("Test connection failure {}", ex);
+            result = false;
+        }
+
+        return new ModelAndView().addObject(result);
     }
 }

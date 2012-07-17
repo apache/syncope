@@ -32,7 +32,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@name='version:textField']\");", "30000");
 
-        selenium.select("//select[@name='bundle:dropDownChoiceField']", "label=org.connid.bundles.soap 1.2");
+        selenium.select("//select[@name='bundle:dropDownChoiceField']", "label=org.connid.bundles.soap 1.2.2");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//form/div[@id='tabs']/ul/li[1]/a/span");
@@ -55,7 +55,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertEquals("ConnInstance103", selenium.getAttribute("//input[@name='displayName:textField']/@value"));
 
-        assertEquals("org.connid.bundles.soap#1.2", selenium
+        assertEquals("org.connid.bundles.soap#1.2.2", selenium
                 .getSelectedValue("//select[@name='bundle:dropDownChoiceField']"));
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
