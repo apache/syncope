@@ -2,6 +2,26 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.0-RC3-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-101] - 	Release process creates three source artifacts
+    * [SYNCOPE-102] - 	Concurrent execution of the same report might lead to inconsistencies
+    * [SYNCOPE-103] - 	Export function in console not working
+    * [SYNCOPE-104] - 	UTF-8 characters do not appear in notification mails
+    * [SYNCOPE-106] - 	User search based on Enum attribute doesn't work
+    * [SYNCOPE-108] - 	Wrong de-provisioning in case of different role with the same externat resource
+    * [SYNCOPE-111] - 	Failure during role attribute propagation
+    * [SYNCOPE-112] - 	Resource test connection doesn't work fine
+
+** New Feature
+    * [SYNCOPE-105] - Support Oracle WebLogic
+
+** Task
+    * [SYNCOPE-109] - Support JBoss AS 7.1 with native OpenJPA
+
+--------------------------------------------------------------------------------
+
 Release Notes - Syncope - Version 1.0.0-RC2-incubating
 ================================================================================
 ** Bug

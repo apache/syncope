@@ -36,22 +36,58 @@ under the License.
     <section name="Introduction">
       <p>Apache Syncope artifacts are distributed in source and binary form under the terms of the 
         <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
-        See the included <tt>LICENSE</tt> and <tt>NOTICE</tt> files included in each artifact for additional license 
+        See the included 
+        <tt>LICENSE</tt> and 
+        <tt>NOTICE</tt> files included in each artifact for additional license 
         information.
       </p>
       <p>Use the links below to download a source distribution of Apache Syncope.
-      It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.</p>
+        It is good practice to 
+        <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
+      </p>
       <div style="border: 1px solid black; border-radius: 15px;padding:5px;background-color:#F5F5F5;text-align:center;margin-top:5px;margin-bottom:10px;">
         <strong>Note</strong> that the preferred way to create an Apache Syncope project is to 
-      <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven 
-      project</a> starting from published archetype.
+        <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven 
+          project
+        </a> starting from published archetype.
       </div>
     </section>
 
     <section name="Current Releases">
+      <subsection name="1.0.0-RC3-incubating Espressivo">
+        <p>Release date: July 18th, 2012</p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Signatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/incubator/syncope/1.0.0-RC3-incubating/syncope-root-1.0.0-RC3-incubating-source-release.zip">syncope-root-1.0.0-RC3-incubating-source-release.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC3-incubating/syncope-root-1.0.0-RC3-incubating-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC3-incubating/syncope-root-1.0.0-RC3-incubating-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/incubator/syncope/1.0.0-RC3-incubating/syncope-root-1.0.0-RC3-incubating-source-release.zip.sha1">sha1</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>
+    </section>
+
+    <section name="Older Releases">
       <subsection name="1.0.0-RC2-incubating Espressivo">
         <p>Release date: June 25th, 2012</p>
-        <p><a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a></p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
+        </p>
         <table>
           <thead>
             <tr>
@@ -73,12 +109,12 @@ under the License.
           </tbody>
         </table>
       </subsection>
-    </section>
-
-    <section name="Older Releases">
-        <subsection name="1.0.0-RC1-incubating Espressivo">
+      
+      <subsection name="1.0.0-RC1-incubating Espressivo">
         <p>Release date: June 1st, 2012</p>
-        <p><a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a></p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
+        </p>
         <table>
           <thead>
             <tr>
@@ -105,39 +141,44 @@ under the License.
     <section name="Verifying Releases">
       <p>We strongly recommend you verify the integrity of the downloaded files with both PGP and MD5.</p>
       
-      <p>The PGP signatures can be verified using <a href="http://www.pgpi.org/">PGP</a> or 
-      <a href="http://www.gnupg.org/">GPG</a>. 
-      First download the <a href="http://apache.org/dist/incubator/syncope/KEYS">KEYS</a> as well as the 
-      <tt>*.asc</tt> signature file for the particular distribution. Make sure you get these files from the main 
-      distribution directory, rather than from a mirror. Then verify the signatures using one of the following sets of
-      commands:
+      <p>The PGP signatures can be verified using 
+        <a href="http://www.pgpi.org/">PGP</a> or 
+        <a href="http://www.gnupg.org/">GPG</a>. 
+        First download the 
+        <a href="http://apache.org/dist/incubator/syncope/KEYS">KEYS</a> as well as the 
+        <tt>*.asc</tt> signature file for the particular distribution. Make sure you get these files from the main 
+        distribution directory, rather than from a mirror. Then verify the signatures using one of the following sets of
+        commands:
       
         <source>$ pgpk -a KEYS
-$ pgpv syncope-*.zip.asc</source>
+          $ pgpv syncope-*.zip.asc
+        </source>
         
         <source>$ pgp -ka KEYS
-$ pgp syncope-*.zip.asc</source>
+          $ pgp syncope-*.zip.asc
+        </source>
       
         <source>$ gpg --import KEYS
-$ gpg --verify syncope-*.zip.asc</source>
-       </p>
-    <p>Alternatively, you can verify the MD5 signature on the files. A Unix/Linux program called  
-      <code>md5</code> or 
-      <code>md5sum</code> is included in most distributions.  It is also available as part of
-      <a href="http://www.gnu.org/software/textutils/textutils.html">GNU Textutils</a>.
-      Windows users can get binary md5 programs from these (and likely other) places:
-      <ul>
-        <li>
-          <a href="http://www.md5summer.org/">http://www.md5summer.org/</a>
-        </li>
-        <li>
-          <a href="http://www.fourmilab.ch/md5/">http://www.fourmilab.ch/md5/</a>
-        </li>
-        <li>
-          <a href="http://www.pc-tools.net/win32/md5sums/">http://www.pc-tools.net/win32/md5sums/</a>
-        </li>
-      </ul>
-    </p>
+          $ gpg --verify syncope-*.zip.asc
+        </source>
+      </p>
+      <p>Alternatively, you can verify the MD5 signature on the files. A Unix/Linux program called  
+        <code>md5</code> or 
+        <code>md5sum</code> is included in most distributions.  It is also available as part of
+        <a href="http://www.gnu.org/software/textutils/textutils.html">GNU Textutils</a>.
+        Windows users can get binary md5 programs from these (and likely other) places:
+        <ul>
+          <li>
+            <a href="http://www.md5summer.org/">http://www.md5summer.org/</a>
+          </li>
+          <li>
+            <a href="http://www.fourmilab.ch/md5/">http://www.fourmilab.ch/md5/</a>
+          </li>
+          <li>
+            <a href="http://www.pc-tools.net/win32/md5sums/">http://www.pc-tools.net/win32/md5sums/</a>
+          </li>
+        </ul>
+      </p>
     </section>
   </body>
 </document>
