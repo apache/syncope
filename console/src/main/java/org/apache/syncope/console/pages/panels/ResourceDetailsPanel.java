@@ -75,8 +75,8 @@ public class ResourceDetailsPanel extends Panel {
 
         connInstanceTO = getConectorInstanceTO(connectors.getObject(), resourceTO);
 
-        final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel("name", new ResourceModel("name", "name")
-                .getObject(), new PropertyModel<String>(resourceTO, "name"));
+        final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel("name", new ResourceModel("name", "name").
+                getObject(), new PropertyModel<String>(resourceTO, "name"));
 
         resourceName.setEnabled(createFlag);
         resourceName.addRequiredLabel();
@@ -94,7 +94,7 @@ public class ResourceDetailsPanel extends Panel {
 
         final AjaxNumberFieldPanel propagationPriority = new AjaxNumberFieldPanel("propagationPriority",
                 new ResourceModel("propagationPriority", "propagationPriority").getObject(), new PropertyModel<Number>(
-                        resourceTO, "propagationPriority"), Integer.class);
+                resourceTO, "propagationPriority"), Integer.class);
         add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(
@@ -123,7 +123,7 @@ public class ResourceDetailsPanel extends Panel {
 
         final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(), new PropertyModel(
-                        resourceTO, "syncTraceLevel"));
+                resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
 
@@ -189,17 +189,33 @@ public class ResourceDetailsPanel extends Panel {
      *
      * @param connectorTOs list of all connectors.
      * @param resourceTO resource.
-     * @return selected connector instance.
+     * @return selected connector instance. In case of no connectors available return null. In case of new resource
+     * specification return the first on connector available.
      */
     private ConnInstanceTO getConectorInstanceTO(final List<ConnInstanceTO> connectorTOs, final ResourceTO resourceTO) {
 
-        for (ConnInstanceTO to : connectorTOs) {
-            if (Long.valueOf(to.getId()).equals(resourceTO.getConnectorId())) {
-                return to;
+        if (connectorTOs.isEmpty()) {
+
+            resourceTO.setConnectorId(null);
+            return null;
+
+        } else {
+
+            // use the first element as default
+            ConnInstanceTO res = connectorTOs.get(0);
+
+            for (ConnInstanceTO to : connectorTOs) {
+                if (Long.valueOf(to.getId()).equals(resourceTO.getConnectorId())) {
+                    res = to;
+                }
             }
+
+            // in case of no match
+            resourceTO.setConnectorId(res.getId());
+
+            return res;
         }
 
-        return new ConnInstanceTO();
     }
 
     /**

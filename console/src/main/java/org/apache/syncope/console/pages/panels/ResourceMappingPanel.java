@@ -87,37 +87,32 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Resource schema name.
      */
-    private List<String> schemaNames;
+    private transient List<String> schemaNames;
 
     /**
      * Internal attribute types.
      */
-    private List<IntMappingType> attrTypes = new ArrayList<IntMappingType>();
+    private transient List<IntMappingType> attrTypes = new ArrayList<IntMappingType>();
 
     /**
      * Add mapping button.
      */
-    private final AjaxButton addMappingBtn;
+    private final transient AjaxButton addMappingBtn;
 
     /**
      * All mappings.
      */
-    private final ListView mappings;
+    private final transient ListView mappings;
 
     /**
      * External resource to be updated.
      */
-    private final ResourceTO resourceTO;
+    private final transient ResourceTO resourceTO;
 
     /**
      * Mapping container.
      */
-    private final WebMarkupContainer mappingContainer;
-
-    /**
-     * Create flag.
-     */
-    private final boolean createFlag;
+    private final transient WebMarkupContainer mappingContainer;
 
     /**
      * OnChange event name.
@@ -144,15 +139,13 @@ public class ResourceMappingPanel extends Panel {
      *
      * @param panelid panel id.
      * @param resourceTO external resource.
-     * @param createFlag create flag.
      */
-    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final boolean createFlag) {
+    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO) {
 
         super(panelid);
         setOutputMarkupId(true);
 
         this.resourceTO = resourceTO;
-        this.createFlag = createFlag;
 
         initResourceSchemaNames();
 
@@ -177,12 +170,12 @@ public class ResourceMappingPanel extends Panel {
                 final SchemaMappingTO mappingTO = item.getModelObject();
 
                 final AttributableType entity;
-                if (mappingTO.getIntMappingType() != null){
+                if (mappingTO.getIntMappingType() != null) {
                     entity = mappingTO.getIntMappingType().getAttributableType();
                 } else {
                     entity = null;
                 }
-                        
+
                 attrTypes = getAttributeTypes(entity);
 
                 item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
@@ -281,7 +274,7 @@ public class ResourceMappingPanel extends Panel {
                 if (mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword()) {
                     required = true;
                 }
-                
+
 
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
@@ -377,7 +370,7 @@ public class ResourceMappingPanel extends Panel {
         };
 
         addMappingBtn.setDefaultFormProcessing(false);
-        addMappingBtn.setEnabled(!createFlag);
+        addMappingBtn.setEnabled(resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0);
         mappingContainer.add(addMappingBtn);
 
     }
@@ -498,7 +491,7 @@ public class ResourceMappingPanel extends Panel {
                 case UserVirtualSchema:
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
-                    // Virtual accountId is not permitted
+                // Virtual accountId is not permitted
                 case Password:
                     // AccountId cannot be derived from password.
                     accountId.setReadOnly(true);
