@@ -68,6 +68,7 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 
 public class ReportModalPage extends BaseModalPage {
 
@@ -281,7 +282,7 @@ public class ReportModalPage extends BaseModalPage {
         reportlets.setAddLink(new AjaxLink(ADD_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
-
+            
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
@@ -305,6 +306,7 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                target.focusComponent(this);
             }
 
             @Override
