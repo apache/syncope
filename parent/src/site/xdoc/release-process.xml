@@ -121,8 +121,8 @@ under the License.
           <li>
             Update the 
             <a href="downloads.html">downloads</a> site page by adding the new release artifacts with base 
-            URL
-            <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
+            URL <source>http://www.apache.org/dyn/closer.cgi/incubator/syncope/&lt;version&gt;/</source>
+            and by moving current release artifacts to 'Older Releases' section, also changing base URL to <source>http://archive.apache.org/dist/incubator/syncope/</source>
           </li>
           <li>
             Commit any changes back to svn:
