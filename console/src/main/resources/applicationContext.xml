@@ -71,7 +71,7 @@ under the License.
   <bean id="httpClientConnManager" class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
   
   <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
-    <property name="parameters">
+    <property name="parameterMap">
       <map key-type="java.lang.String">
         <entry>
           <key>

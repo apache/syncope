@@ -23,7 +23,7 @@ import org.apache.http.params.SyncBasicHttpParams;
 
 public class HttpClientParams extends SyncBasicHttpParams {
 
-    public void setParameters(final Map<String, Object> parameters) {
+    public void setParameterMap(final Map<String, Object> parameters) {
         clear();
         
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
