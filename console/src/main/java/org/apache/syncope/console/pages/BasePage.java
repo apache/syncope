@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.SyncopeApplication;
+import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.rest.UserRequestRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -39,12 +45,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.SyncopeApplication;
-import org.apache.syncope.console.SyncopeSession;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.rest.UserRequestRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 
 /**
  * Syncope Wicket base-page.

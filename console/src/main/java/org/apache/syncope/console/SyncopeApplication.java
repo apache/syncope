@@ -48,9 +48,6 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * SyncopeApplication class.
@@ -81,7 +78,8 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
     public void setupNavigationPanel(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel,
             final String version) {
 
-        page.add(new Label("version", "Console: " + version + "; Core: " + SyncopeSession.get().getCoreVersion()));
+        page.add(new Label("consoleVersion", "Console: " + version));
+        page.add(new Label("coreVersion", "Core: " + SyncopeSession.get().getCoreVersion()));
 
         BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorizeAll(schemaLink, WebPage.ENABLE);

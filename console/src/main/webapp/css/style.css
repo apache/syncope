@@ -17,6 +17,11 @@ body {
     /*background-color: #FFF;*/
 }
 
+#logo {
+  margin-top: 7px;
+  margin-bottom: 6px;
+}
+
 #splash {
     background: url(../img/sf_testa.png) top repeat-x #B9CFB3;
     width: 400px;
@@ -39,6 +44,7 @@ body {
 #splash h2 {
     color: #FFF;
     margin: 0px;
+    margin-top: 8px;
     margin-bottom: 20px;
     font-size: 14px;
     text-align: center;
