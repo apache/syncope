@@ -149,8 +149,7 @@ public class TaskDataBinder {
 
             case SYNC:
                 if (!(taskTO instanceof SyncTaskTO)) {
-                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
-                            getClass().getName());
+                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.getClass().getName());
                 }
                 SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
@@ -177,8 +176,7 @@ public class TaskDataBinder {
                         getName());
             }
             if (!(taskTO instanceof SyncTaskTO)) {
-                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
-                        getClass().getName());
+                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.getClass().getName());
             }
 
             fill((SyncTask) task, (SyncTaskTO) taskTO);
@@ -225,6 +223,14 @@ public class TaskDataBinder {
         taskTO.setLatestExecStatus(latestExec == null
                 ? ""
                 : latestExec.getStatus());
+
+        taskTO.setStartDate(latestExec == null
+                ? null
+                : latestExec.getStartDate());
+        
+        taskTO.setEndDate(latestExec == null
+                ? null
+                : latestExec.getEndDate());
 
         for (TaskExec execution : task.getExecs()) {
             taskTO.addExecution(getTaskExecTO(execution));

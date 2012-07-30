@@ -121,6 +121,14 @@ public class ReportDataBinder {
                 ? ""
                 : latestExec.getStatus());
 
+        reportTO.setStartDate(latestExec == null
+                ? null
+                : latestExec.getStartDate());
+
+        reportTO.setEndDate(latestExec == null
+                ? null
+                : latestExec.getEndDate());
+
         for (ReportExec reportExec : report.getExecs()) {
             reportTO.addExecution(getReportExecTO(reportExec));
         }

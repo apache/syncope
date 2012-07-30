@@ -44,6 +44,10 @@ public class ReportTO extends AbstractBaseBean {
 
     private Date nextExec;
 
+    private Date startDate;
+
+    private Date endDate;
+
     public ReportTO() {
         super();
 
@@ -136,6 +140,30 @@ public class ReportTO extends AbstractBaseBean {
     public void setNextExec(Date nextExec) {
         if (nextExec != null) {
             this.nextExec = new Date(nextExec.getTime());
+        }
+    }
+     
+    public Date getStartDate() {
+        return startDate == null
+                ? null
+                : new Date(startDate.getTime());
+    }
+
+    public void setStartDate(Date startDate) {
+        if (startDate != null) {
+            this.startDate = new Date(startDate.getTime());
+        }
+    }
+
+    public Date getEndDate() {
+        return endDate == null
+                ? null
+                : new Date(endDate.getTime());
+    }
+
+    public void setEndDate(Date endDate) {
+        if (endDate != null) {
+            this.endDate = new Date(endDate.getTime());
         }
     }
 }

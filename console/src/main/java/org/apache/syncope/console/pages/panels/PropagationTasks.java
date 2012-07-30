@@ -50,6 +50,7 @@ import org.apache.syncope.console.pages.PropagationTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
@@ -108,6 +109,10 @@ public class PropagationTasks extends Panel {
 
         columns.add(new PropertyColumn(new ResourceModel("propagationOperation"), "propagationOperation",
                 "propagationOperation"));
+        
+        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
+        
+        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
 
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 

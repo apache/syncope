@@ -19,6 +19,7 @@
 package org.apache.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.AbstractBaseBean;
 
@@ -31,6 +32,10 @@ public class TaskTO extends AbstractBaseBean {
     private String latestExecStatus;
 
     private List<TaskExecTO> executions;
+    
+    private Date startDate;
+    
+    private Date endDate;
 
     public TaskTO() {
         super();
@@ -68,5 +73,29 @@ public class TaskTO extends AbstractBaseBean {
 
     public void setExecutions(List<TaskExecTO> executions) {
         this.executions = executions;
+    }
+
+    public Date getStartDate() {
+        return startDate == null
+                ? null
+                : new Date(startDate.getTime());
+    }
+
+    public void setStartDate(Date startDate) {
+        if (startDate != null) {
+            this.startDate = new Date(startDate.getTime());
+        }
+    }
+
+    public Date getEndDate() {
+        return endDate == null
+                ? null
+                : new Date(endDate.getTime());
+    }
+
+    public void setEndDate(Date endDate) {
+        if (endDate != null) {
+            this.endDate = new Date(endDate.getTime());
+        }
     }
 }

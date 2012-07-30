@@ -131,6 +131,8 @@ public class Reports extends BasePage {
         columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
         columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
         columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
         columns.add(new AbstractColumn<ReportTO>(new ResourceModel("actions", "")) {
 

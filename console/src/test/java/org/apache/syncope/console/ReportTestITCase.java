@@ -27,7 +27,7 @@ public class ReportTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Reports\"]");
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[6]/span/span[7]/a");
+        selenium.click("//table/tbody/tr/td[8]/span/span[7]/a");
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[2]/div/div/span/div/div[5]/div[2]/span/div[2]/div/a\");", "30000");
 
@@ -49,7 +49,7 @@ public class ReportTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[6]/span/span[3]/a");
+        selenium.click("//table/tbody/tr/td[8]/span/span[3]/a");
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }
