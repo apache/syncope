@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -53,14 +54,18 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
     @Override
     public <T extends Task> List<T> findToExec(final Class<T> reference) {
         StringBuilder queryString = buildfindAllQuery(reference);
-        
+
         if (SchedTask.class.equals(reference)) {
             queryString.append("AND ");
         } else {
             queryString.append("WHERE ");
         }
-        
-        queryString.append("e.latestExecStatus IS NULL ");
+
+        if (reference.equals(NotificationTask.class)) {
+            queryString.append("e.executed = 0 ");
+        } else {
+            queryString.append("e.executions IS EMPTY ");
+        }
         queryString.append("ORDER BY e.id DESC");
 
         final Query query = entityManager.createQuery(queryString.toString());

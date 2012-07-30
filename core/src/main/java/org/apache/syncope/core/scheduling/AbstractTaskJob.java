@@ -88,7 +88,6 @@ public abstract class AbstractTaskJob implements StatefulJob {
 
     @Override
     public final void execute(final JobExecutionContext context) throws JobExecutionException {
-
         task = taskDAO.find(taskId);
         if (task == null) {
             throw new JobExecutionException("Task " + taskId + " not found");
@@ -117,7 +116,6 @@ public abstract class AbstractTaskJob implements StatefulJob {
             taskExecDAO.save(execution);
         }
 
-        task.setLatestExecStatus(execution.getStatus());
         task = taskDAO.save(task);
     }
 

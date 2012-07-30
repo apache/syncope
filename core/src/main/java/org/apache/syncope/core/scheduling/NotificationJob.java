@@ -201,8 +201,6 @@ public class NotificationJob implements StatefulJob {
 
         if (hasToBeRegistered(execution)) {
             execution = notificationManager.storeExecAndUpdateLatestExecStatus(execution);
-        } else {
-            notificationManager.updateLatestExecStatus(execution);
         }
 
         return execution;

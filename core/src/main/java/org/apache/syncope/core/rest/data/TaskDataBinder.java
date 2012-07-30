@@ -20,16 +20,6 @@ package org.apache.syncope.core.rest.data;
 
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
@@ -49,9 +39,20 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TaskDataBinder {
@@ -61,12 +62,15 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource", "user"};
+    private static final String[] IGNORE_TASK_PROPERTIES = {"latestExecStatus", "executions", "resource", "user"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
     @Autowired
     private ResourceDAO resourceDAO;
+
+    @Autowired
+    private TaskExecDAO taskExecDAO;
 
     @Autowired
     private SchedulerFactoryBean scheduler;
@@ -216,6 +220,11 @@ public class TaskDataBinder {
     public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
         TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
+
+        TaskExec latestExec = taskExecDAO.findLatestStarted(task);
+        taskTO.setLatestExecStatus(latestExec == null
+                ? ""
+                : latestExec.getStatus());
 
         for (TaskExec execution : task.getExecs()) {
             taskTO.addExecution(getTaskExecTO(execution));

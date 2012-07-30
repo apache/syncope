@@ -20,16 +20,6 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
@@ -40,6 +30,16 @@ import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.report.ReportletConfClass;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 @Component
 public class ReportDataBinder {

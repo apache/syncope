@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -27,6 +28,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.types.TraceLevel;
 
@@ -56,6 +59,11 @@ public class NotificationTask extends Task {
     @Lob
     private String htmlBody;
 
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer executed;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private TraceLevel traceLevel;
@@ -64,6 +72,7 @@ public class NotificationTask extends Task {
         super();
 
         recipients = new HashSet<String>();
+        executed = getBooleanAsInteger(false);
     }
 
     public Set<String> getRecipients() {
@@ -115,6 +124,14 @@ public class NotificationTask extends Task {
 
     public void setHtmlBody(final String htmlBody) {
         this.htmlBody = htmlBody;
+    }
+
+    public boolean isExecuted() {
+        return isBooleanAsInteger(executed);
+    }
+
+    public void setExecuted(boolean executed) {
+        this.executed = getBooleanAsInteger(executed);
     }
 
     public TraceLevel getTraceLevel() {
