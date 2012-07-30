@@ -149,7 +149,7 @@ under the License.
             causing problems with the release. It also provides a future maintenance branch (like 1.0.x.)
             <br/>
             A branch can be made by running:
-            <source>mvn -P apache-release release:branch -DbranchName=1.0.x</source>
+            <source>mvn -P apache-release release:branch -DbranchName=1_0_X</source>
           </li>
           <li>
             Checkout a clean copy of the trunk/branch to release using command line svn:
