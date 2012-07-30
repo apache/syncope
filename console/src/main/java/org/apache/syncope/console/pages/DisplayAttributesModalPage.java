@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -56,12 +57,15 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     private static final long serialVersionUID = -4274117450918385110L;
 
     /**
-     * Max permitted selections.
+     * Max allowed selections.
      */
     private static final int MAX_SELECTIONS = 9;
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] { "attributes", "derivedAttributes",
-            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationTOs" });
+    private static final String[] ATTRIBUTES_TO_HIDE = new String[]{
+        "attributes", "derivedAttributes", "virtualAttributes", "memberships", "resources",
+        "serialVersionUID", "password", "propagationTOs"};
+
+    public static final List<String> DEFAULT_SELECTION = Arrays.asList(new String[]{"id", "username", "status"});
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -86,7 +90,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             // loop on class and all superclasses searching for field
             while (clazz != null && clazz != Object.class) {
                 for (Field field : clazz.getDeclaredFields()) {
-                    if (!ATTRIBUTES_NOTINCLUDED.contains(field.getName())) {
+                    if (!ArrayUtils.contains(ATTRIBUTES_TO_HIDE, field.getName())) {
                         details.add(field.getName());
                     }
                 }
@@ -149,7 +153,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         }
     };
 
-    private final List<String> userDetails;
+    private final List<String> selectedDetails;
 
     private final List<String> selectedSchemas;
 
@@ -164,7 +168,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         final Form form = new Form("form");
         form.setModel(new CompoundPropertyModel(this));
 
-        userDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
+        selectedDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
 
         selectedSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
@@ -172,7 +176,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         selectedDerSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
 
-        final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "userDetails"));
+        final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "selectedDetails"));
         form.add(dgroup);
 
         final ListView<String> details = new ListView<String>("details", dnames) {
@@ -269,13 +273,16 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
-                if (userDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
+                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
+                        size()
+                        > MAX_SELECTIONS) {
+
                     error(getString("tooMuchSelections"));
                     onError(target, form);
                 } else {
                     final Map<String, List<String>> prefs = new HashMap<String, List<String>>();
 
-                    prefs.put(Constants.PREF_USERS_DETAILS_VIEW, userDetails);
+                    prefs.put(Constants.PREF_USERS_DETAILS_VIEW, selectedDetails);
 
                     prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedSchemas);
 

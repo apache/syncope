@@ -28,8 +28,6 @@ public final class Constants {
 
     public static final String PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW = "users.virtual.attributes.view";
 
-    public static final String PREFS_COOKIE_NAME = "syncopeConsolePrefs";
-
     public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS = "user.schema.paginator.rows";
 
     public static final String PREF_USER_DER_SCHEMA_PAGINATOR_ROWS = "user.derived.schema.paginator.rows";

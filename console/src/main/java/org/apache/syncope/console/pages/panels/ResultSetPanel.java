@@ -121,7 +121,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
      * Application preferences.
      */
     @SpringBean
-    private PreferenceManager preferences;
+    private PreferenceManager prefMan;
 
     /**
      * Role reader for authorizations management.
@@ -224,7 +224,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // Result table initialization
         // ---------------------------
         // preferences and container must be not null to use it ...
-        rows = preferences.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+        rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
         updateResultTable(false);
         // ---------------------------
 
@@ -284,7 +284,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.add(paginatorForm);
 
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
-                "rowsChooser", new PropertyModel(this, "rows"), preferences.getPaginatorChoices());
+                "rowsChooser", new PropertyModel(this, "rows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -292,7 +292,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                preferences.set(getRequest(), getResponse(), Constants.PREF_USERS_PAGINATOR_ROWS, String.valueOf(rows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_USERS_PAGINATOR_ROWS, String.valueOf(rows));
 
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
@@ -342,7 +342,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private List<IColumn<UserTO>> getColumns() {
         final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
 
-        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
 
             Field field = null;
 
@@ -366,23 +366,26 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
         }
 
-        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
             columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.schema));
         }
 
-        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
             columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.derivedSchema));
         }
 
-        for (String name : preferences.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
             columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.virtualSchema));
         }
 
-        // Add defaults in case of empty selections
+        // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            columns.add(new PropertyColumn(new ResourceModel("id", "id"), "id", "id"));
-            columns.add(new PropertyColumn(new ResourceModel("username", "username"), "username", "username"));
-            columns.add(new PropertyColumn(new ResourceModel("status", "status"), "status", "status"));
+            for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
+                columns.add(new PropertyColumn(new ResourceModel(name, name), name, name));
+            }
+
+            prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
+                    DisplayAttributesModalPage.DEFAULT_SELECTION);
         }
 
         columns.add(new AbstractColumn<UserTO>(new ResourceModel("actions", "")) {
@@ -487,7 +490,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             } else {
                 updateResultTable(data.isCreate(), data.getRows());
             }
-            
+
             data.getTarget().add(container);
         }
     }

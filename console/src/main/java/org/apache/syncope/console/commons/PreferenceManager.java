@@ -26,11 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.servlet.http.Cookie;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
-import org.apache.wicket.request.http.WebRequest;
-import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.util.cookies.CookieDefaults;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.apache.wicket.util.crypt.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -45,29 +44,39 @@ public class PreferenceManager {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
+
+    private static final String PREFMAN_KEY = "prefMan";
+
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
+
     private static final TypeReference MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
+
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[]{10, 25, 50});
+
     @Autowired
     private ObjectMapper mapper;
+
+    private final CookieUtils cookieUtils;
+
+    public PreferenceManager() {
+        CookieDefaults cookieDefaults = new CookieDefaults();
+        cookieDefaults.setMaxAge(ONE_YEAR_TIME);
+        cookieUtils = new CookieUtils(cookieDefaults);
+    }
 
     public List<Integer> getPaginatorChoices() {
         return PAGINATOR_CHOICES;
     }
 
     private Map<String, String> getPrefs(final String value) {
-
-        HashMap<String, String> prefs;
-
+        Map<String, String> prefs;
         try {
-
             if (StringUtils.hasText(value)) {
                 prefs = mapper.readValue(value, MAP_TYPE_REF);
             } else {
                 throw new Exception("Invalid cookie value '" + value + "'");
             }
-
         } catch (Exception e) {
             LOG.debug("No preferences found", e);
             prefs = new HashMap<String, String>();
@@ -77,7 +86,6 @@ public class PreferenceManager {
     }
 
     private String setPrefs(final Map<String, String> prefs) throws IOException {
-
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, prefs);
 
@@ -87,25 +95,16 @@ public class PreferenceManager {
     public String get(final Request request, final String key) {
         String result = null;
 
-        Cookie prefCookie = null;
-        if (request instanceof WebRequest) {
-            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
-        }
-        if (prefCookie != null) {
-
-            final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes())));
-
+        String prefString = cookieUtils.load(PREFMAN_KEY);
+        if (prefString != null) {
+            final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefString.getBytes())));
             result = prefs.get(key);
-
-        } else {
-            LOG.debug("Could not find cookie []", Constants.PREFS_COOKIE_NAME);
         }
 
         return result;
     }
 
     public Integer getPaginatorRows(final Request request, final String key) {
-
         Integer result = getPaginatorChoices().get(0);
 
         String value = get(request, key);
@@ -121,7 +120,6 @@ public class PreferenceManager {
     }
 
     public List<String> getList(final Request request, final String key) {
-
         final List<String> result = new ArrayList<String>();
 
         final String compound = get(request, key);
@@ -134,27 +132,12 @@ public class PreferenceManager {
         return result;
     }
 
-    /**
-     * Get the existing preference from the cookie (if present).
-     * Write the preferences to a cookie.
-     * 
-     * @param request
-     * @param response
-     * @param prefs 
-     */
     public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
-
-        Cookie prefCookie = null;
-        if (request instanceof WebRequest) {
-            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
-        }
+        String prefString = cookieUtils.load(PREFMAN_KEY);
 
         final Map<String, String> current = new HashMap<String, String>();
-
-        if (prefCookie == null || !StringUtils.hasText(prefCookie.getValue())) {
-            prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, null);
-        } else {
-            current.putAll(getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes()))));
+        if (prefString != null) {
+            current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
@@ -163,54 +146,35 @@ public class PreferenceManager {
         }
 
         try {
-            prefCookie.setValue(new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
-            LOG.error("Could not set preferences " + current, e);
-        }
-
-        prefCookie.setMaxAge(ONE_YEAR_TIME);
-        if (response instanceof WebResponse) {
-            ((WebResponse) response).addCookie(prefCookie);
+            LOG.error("Could not save {} info: {}", new Object[]{getClass().getSimpleName(), current, e});
         }
     }
 
     public void set(final Request request, final Response response, final String key, final String value) {
+        String prefString = cookieUtils.load(PREFMAN_KEY);
 
-        Cookie prefCookie = null;
-        if (request instanceof WebRequest) {
-            prefCookie = ((WebRequest) request).getCookie(Constants.PREFS_COOKIE_NAME);
-        }
-
-        final Map<String, String> prefs = new HashMap<String, String>();
-
-        if (prefCookie == null || !StringUtils.hasText(prefCookie.getValue())) {
-            prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, null);
-        } else {
-            prefs.putAll(getPrefs(new String(Base64.decodeBase64(prefCookie.getValue().getBytes()))));
+        final Map<String, String> current = new HashMap<String, String>();
+        if (prefString != null) {
+            current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.put(key, value);
+        current.put(key, value);
 
         try {
-            prefCookie.setValue(new String(Base64.encodeBase64(setPrefs(prefs).getBytes())));
+            cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
-            LOG.error("Could not set preferences " + prefs, e);
-        }
-
-        prefCookie.setMaxAge(ONE_YEAR_TIME);
-        if (response instanceof WebResponse) {
-            ((WebResponse) response).addCookie(prefCookie);
+            LOG.error("Could not save {} info: {}", new Object[]{getClass().getSimpleName(), current, e});
         }
     }
 
     public void setList(final Request request, final Response response, final String key, final List<String> values) {
-
         set(request, response, key, StringUtils.collectionToDelimitedString(values, ";"));
     }
 
     public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {
-
         set(request, response, prefs);
     }
 }
