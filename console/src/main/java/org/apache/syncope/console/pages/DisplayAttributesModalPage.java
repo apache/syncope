@@ -25,6 +25,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -42,11 +47,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.types.AttributableType;
 
 /**
  * Modal window with Display attributes form.
@@ -61,7 +61,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     private static final int MAX_SELECTIONS = 9;
 
     private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] { "attributes", "derivedAttributes",
-            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password" });
+            "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationTOs" });
 
     @SpringBean
     private PreferenceManager prefMan;
