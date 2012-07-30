@@ -2,25 +2,36 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.0-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-114] - Cannot edit an existing reportlet
+    * [SYNCOPE-113] - Adding schema mapping to new resource requires changing connector
+    * [SYNCOPE-115] - Spring warns about 'Ambiguous write methods found' for HttpClientParams
+    * [SYNCOPE-118] - User list: 'propagationTOs' shouldn't be shown for display attributes
+    * [SYNCOPE-117] - Empty default user list display attributes selection
+    * [SYNCOPE-116] - Display execution date on Task and Report lists
+
+** Improvement
+    * [SYNCOPE-116] - Display execution date on Task and Report lists
+
 Release Notes - Syncope - Version 1.0.0-RC3-incubating
 ================================================================================
 ** Bug
-    * [SYNCOPE-101] - 	Release process creates three source artifacts
-    * [SYNCOPE-102] - 	Concurrent execution of the same report might lead to inconsistencies
-    * [SYNCOPE-103] - 	Export function in console not working
-    * [SYNCOPE-104] - 	UTF-8 characters do not appear in notification mails
-    * [SYNCOPE-106] - 	User search based on Enum attribute doesn't work
-    * [SYNCOPE-108] - 	Wrong de-provisioning in case of different role with the same externat resource
-    * [SYNCOPE-111] - 	Failure during role attribute propagation
-    * [SYNCOPE-112] - 	Resource test connection doesn't work fine
+    * [SYNCOPE-101] - Release process creates three source artifacts
+    * [SYNCOPE-102] - Concurrent execution of the same report might lead to inconsistencies
+    * [SYNCOPE-103] - Export function in console not working
+    * [SYNCOPE-104] - UTF-8 characters do not appear in notification mails
+    * [SYNCOPE-106] - User search based on Enum attribute doesn't work
+    * [SYNCOPE-108] - Wrong de-provisioning in case of different role with the same externat resource
+    * [SYNCOPE-111] - Failure during role attribute propagation
+    * [SYNCOPE-112] - Resource test connection doesn't work fine
 
 ** New Feature
     * [SYNCOPE-105] - Support Oracle WebLogic
 
 ** Task
     * [SYNCOPE-109] - Support JBoss AS 7.1 with native OpenJPA
-
---------------------------------------------------------------------------------
 
 Release Notes - Syncope - Version 1.0.0-RC2-incubating
 ================================================================================
@@ -42,8 +53,6 @@ Release Notes - Syncope - Version 1.0.0-RC2-incubating
     * [SYNCOPE-89] - ReportTestITCase.executeAndExport hangs with oracle
     * [SYNCOPE-91] - More UserController RESTful method consistency
     * [SYNCOPE-98] - Method to check if token has expired
-
---------------------------------------------------------------------------------
 
 Release Notes - Syncope - Version 1.0.0-RC1-incubating
 ================================================================================
