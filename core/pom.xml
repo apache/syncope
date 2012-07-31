@@ -557,33 +557,33 @@ under the License.
                 <tofile>context.xml</tofile>
               </configfile>
             </configfiles>
-            <deployables>
-              <deployable>
-                <location>${cargo.run.dir}</location>
-                <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
-                <pingTimeout>60000</pingTimeout>
-                <properties>
-                  <context>syncope</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.connid.bundles.soap</groupId>
-                <artifactId>wssample</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>wssample</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-build-tools</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>syncope-build-tools</context>
-                </properties>
-              </deployable>
-            </deployables>
           </configuration>
+          <deployables>
+            <deployable>
+              <location>${cargo.run.dir}</location>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+              <pingTimeout>60000</pingTimeout>
+              <properties>
+                <context>syncope</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.connid.bundles.soap</groupId>
+              <artifactId>wssample</artifactId>
+              <type>war</type>
+              <properties>
+                <context>wssample</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.apache.syncope</groupId>
+              <artifactId>syncope-build-tools</artifactId>
+              <type>war</type>
+              <properties>
+                <context>syncope-build-tools</context>
+              </properties>
+            </deployable>
+          </deployables>
         </configuration>
         <executions>
           <execution>
@@ -1177,32 +1177,31 @@ under the License.
                 <properties>
                   <cargo.weblogic.bea.home>${weblogic.home}</cargo.weblogic.bea.home>
                 </properties>
-                
-                <deployables>
-                  <deployable>
-                    <location>${cargo.run.dir}</location>
-                    <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
-                    <pingTimeout>1200000</pingTimeout>
-                    <properties>
-                      <context>syncope</context>
-                    </properties>
-                  </deployable>
-                  <deployable>
-                    <groupId>org.connid.bundles.soap</groupId>
-                    <artifactId>wssample</artifactId>
-                    <type>war</type>
-                    <properties>
-                      <context>wssample</context>
-                    </properties>
-                  </deployable>
-                  <deployable>
-                    <location>${project.build.directory}/syncope-build-tools-test</location>
-                    <properties>
-                      <context>syncope-build-tools</context>
-                    </properties>
-                  </deployable>
-                </deployables>
               </configuration>
+              <deployables>
+                <deployable>
+                  <location>${cargo.run.dir}</location>
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+                  <pingTimeout>1200000</pingTimeout>
+                  <properties>
+                    <context>syncope</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <groupId>org.connid.bundles.soap</groupId>
+                  <artifactId>wssample</artifactId>
+                  <type>war</type>
+                  <properties>
+                    <context>wssample</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <location>${project.build.directory}/syncope-build-tools-test</location>
+                  <properties>
+                    <context>syncope-build-tools</context>
+                  </properties>
+                </deployable>
+              </deployables>
             </configuration>
           </plugin>
         </plugins>

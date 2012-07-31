@@ -134,15 +134,15 @@ under the License.
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
             </properties>
-            <deployables>
-              <deployable>
-                <location>${basedir}/target/syncope-build-tools-${project.version}.war</location>
-                <properties>
-                  <context>syncope-build-tools</context>
-                </properties>
-              </deployable>
-            </deployables>
           </configuration>
+          <deployables>
+            <deployable>
+              <location>${basedir}/target/syncope-build-tools-${project.version}.war</location>
+              <properties>
+                <context>syncope-build-tools</context>
+              </properties>
+            </deployable>
+          </deployables>
         </configuration>
       </plugin>
     </plugins>
