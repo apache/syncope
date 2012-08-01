@@ -101,6 +101,11 @@ under the License.
     <appender-ref ref="main"/>
   </logger>
 
+  <logger name="org.apache.syncope.core.scheduling" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
+  
   <logger name="org.apache.syncope.core.rest" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="rest"/>
