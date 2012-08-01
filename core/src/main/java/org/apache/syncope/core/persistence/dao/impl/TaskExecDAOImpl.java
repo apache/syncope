@@ -24,12 +24,18 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Override
     public TaskExec find(final Long id) {
@@ -73,19 +79,25 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
         return query.getResultList();
     }
 
+    @Override
+    public TaskExec save(final TaskExec execution) {
+        return entityManager.merge(execution);
+    }
+
     /**
-     * This method has an explicit @Transactional annotation because it is 
-     * called by AbstractJob.
-     * 
+     * This method has an explicit @Transactional annotation because it is called by AbstractJob.
+     *
      * @see org.apache.syncope.core.scheduling.AbstractJob
-     * 
+     *
      * @param execution entity to be merged
      * @return the same entity, updated
      */
     @Override
-    @Transactional(rollbackFor = { Throwable.class })
-    public TaskExec save(final TaskExec execution) {
-        return entityManager.merge(execution);
+    @Transactional(rollbackFor = {Throwable.class})
+    public void saveAndAdd(Long taskId, TaskExec execution) throws InvalidEntityException {
+        Task task = taskDAO.find(taskId);
+        task.addExec(execution);
+        taskDAO.save(task);
     }
 
     @Override
