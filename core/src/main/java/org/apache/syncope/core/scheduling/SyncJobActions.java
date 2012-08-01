@@ -19,11 +19,11 @@
 package org.apache.syncope.core.scheduling;
 
 import java.util.List;
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.quartz.JobExecutionException;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
@@ -41,7 +41,7 @@ public interface SyncJobActions {
     /**
      * Action to be executed before to create a synchronized user locally.
      *
-     * @param delta rerieved synchronization information.
+     * @param delta retrieved synchronization information.
      * @param user user to be created.
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
@@ -74,12 +74,11 @@ public interface SyncJobActions {
      * Action to be executed after each local user synchronization.
      *
      * @param delta retrieved synchronization information (may be modified by 'beforeCreate/beforeUpdate/beforeDelete').
-     * @param user synchronizad local user.
+     * @param user synchronized local user.
      * @param result global synchronization results at the current synchronization step.
-     * @return synchronization information.
      * @throws JobExecutionException in case of generic failure.
      */
-    SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result) throws JobExecutionException;
+    void after(final SyncDelta delta, final UserTO user, final SyncResult result) throws JobExecutionException;
 
     /**
      * Action to be executed after the synchronization task completion.

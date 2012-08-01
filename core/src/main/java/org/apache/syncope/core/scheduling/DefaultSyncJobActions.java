@@ -19,11 +19,11 @@
 package org.apache.syncope.core.scheduling;
 
 import java.util.List;
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.quartz.JobExecutionException;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.quartz.JobExecutionException;
 
 /**
  * Default (empty) implementation of SyncJobActions.
@@ -53,9 +53,8 @@ public class DefaultSyncJobActions implements SyncJobActions {
     }
 
     @Override
-    public SyncDelta after(final SyncDelta delta, final UserTO user, final SyncResult result)
+    public void after(final SyncDelta delta, final UserTO user, final SyncResult result)
             throws JobExecutionException {
-        return delta;
     }
 
     @Override

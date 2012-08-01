@@ -24,21 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javassist.NotFoundException;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
@@ -74,6 +59,21 @@ import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.ConflictResolutionAction;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.apache.syncope.types.TraceLevel;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Job for executing synchronization tasks.
@@ -352,7 +352,7 @@ public class SyncJob extends AbstractTaskJob {
             }
         }
 
-        delta = actions.after(delta, userTO, result);
+        actions.after(delta, userTO, result);
 
         return result;
     }
@@ -405,7 +405,7 @@ public class SyncJob extends AbstractTaskJob {
                     LOG.error("Could not update user " + delta.getUid().getUidValue(), e);
                 }
 
-                delta = actions.after(delta, userTO, result);
+                actions.after(delta, userTO, result);
                 results.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find user {}", userId, e);
@@ -457,7 +457,7 @@ public class SyncJob extends AbstractTaskJob {
                     }
                 }
 
-                delta = actions.after(delta, userTO, result);
+                actions.after(delta, userTO, result);
                 results.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find user {}", userId, e);
@@ -642,9 +642,8 @@ public class SyncJob extends AbstractTaskJob {
                     @Override
                     public boolean handle(final SyncDelta delta) {
                         try {
-
-                            return results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
-
+                            results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
+                            return true;
                         } catch (JobExecutionException e) {
                             LOG.error("Reconciliation failed", e);
                             return false;
@@ -658,8 +657,8 @@ public class SyncJob extends AbstractTaskJob {
                     public boolean handle(final SyncDelta delta) {
                         try {
 
-                            return results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
-
+                            results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
+                            return true;
                         } catch (JobExecutionException e) {
                             LOG.error("Synchronization failed", e);
                             return false;
@@ -707,12 +706,12 @@ public class SyncJob extends AbstractTaskJob {
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
         LOG.debug("Process '{}' for '{}'", delta.getDeltaType(), delta.getUid().getUidValue());
-
+        
         final List<Long> users = findExistingUsers(delta);
-
+        
         switch (delta.getDeltaType()) {
             case CREATE_OR_UPDATE:
-                if (users.isEmpty()) {
+                if (users.isEmpty()) { 
                     if (syncTask.isPerformCreate()) {
                         results.add(createUser(delta, dryRun));
                     } else {
