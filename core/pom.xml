@@ -393,7 +393,7 @@ under the License.
             </goals>
             <configuration>
               <source>
-                project.properties['urlencoded.java.io.tmpdir'] = java.net.URLEncoder.encode(System.properties['java.io.tmpdir'])
+                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
               </source>
             </configuration>
           </execution>
@@ -503,7 +503,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
               </target>
             </configuration>
             <goals>
@@ -988,7 +988,7 @@ under the License.
                 <zipUrlInstaller>
                   <url>http://download.java.net/glassfish/3.1.2.2/release/glassfish-3.1.2.2.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
-                  <extractDir>${java.io.tmpdir}</extractDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
@@ -1043,7 +1043,7 @@ under the License.
                 <zipUrlInstaller>
                   <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
-                  <extractDir>${java.io.tmpdir}</extractDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
