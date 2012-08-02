@@ -209,7 +209,7 @@ under the License.
             </goals>
             <configuration>
               <source>
-                project.properties['urlencoded.java.io.tmpdir'] = java.net.URLEncoder.encode(System.properties['java.io.tmpdir'])
+                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
               </source>
             </configuration>
           </execution>
@@ -267,7 +267,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
               </target>
             </configuration>
             <goals>
