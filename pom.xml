@@ -27,7 +27,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-root</artifactId>
-  <version>1.0.1-incubating-SNAPSHOT</version>
+  <version>1.0.0-incubating-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
