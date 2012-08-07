@@ -3,3 +3,21 @@ Copyright 2012 The Apache Software Foundation
 
 This product includes software developed by:
 The Apache Software Foundation (http://www.apache.org/).
+
+The following copyright notice(s) were affixed to portions of this code
+with which this file is now or was at one time distributed.
+
+==
+
+This product includes the jQuery JavaScript Library.
+Copyright (c) 2012 jQuery Foundation and other contributors, 
+jQuery is dually licensed under the MIT and GPL licenses, and
+is included in this software distribution under the MIT license.
+For details, see the jQuery web site: http://jquery.com/
+
+==
+
+This product includes the CodeMirror JavaScript component.
+Copyright (C) 2012 by Marijn Haverbeke <marijnh@gmail.com>
+
+==
