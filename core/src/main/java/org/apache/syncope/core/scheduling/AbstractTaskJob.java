@@ -21,16 +21,16 @@ package org.apache.syncope.core.scheduling;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import org.apache.syncope.core.persistence.beans.Task;
+import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.persistence.beans.Task;
-import org.apache.syncope.core.persistence.beans.TaskExec;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 
 /**
  * Base job implementation that delegates to concrete implementation the actual job execution and provides some
@@ -112,8 +112,9 @@ public abstract class AbstractTaskJob implements StatefulJob {
             execution.setStatus(Status.FAILURE.name());
         }
         execution.setEndDate(new Date());
+
         if (hasToBeRegistered(execution)) {
-            taskExecDAO.save(execution);
+            taskExecDAO.saveAndAdd(taskId, execution);
         }
 
         task = taskDAO.save(task);

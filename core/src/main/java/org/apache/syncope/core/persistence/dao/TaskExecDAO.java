@@ -35,6 +35,8 @@ public interface TaskExecDAO extends DAO {
 
     TaskExec save(TaskExec execution) throws InvalidEntityException;
 
+    void saveAndAdd(Long taskId, TaskExec execution) throws InvalidEntityException;
+
     void delete(Long id);
 
     void delete(TaskExec execution);
