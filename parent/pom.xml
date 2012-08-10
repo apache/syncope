@@ -246,7 +246,7 @@ under the License.
     <activiti.version>5.9</activiti.version>
 
     <spring.version>3.1.2.RELEASE</spring.version>
-    <spring-security.version>3.1.1.RELEASE</spring-security.version>
+    <spring-security.version>3.1.2.RELEASE</spring-security.version>
     <aspectj.version>1.6.12</aspectj.version>
     <jackson.version>1.9.8</jackson.version>
     <xstream.version>1.4.2</xstream.version>
