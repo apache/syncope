@@ -10,7 +10,10 @@ Release Notes - Syncope - Version 1.0.0-incubating
     * [SYNCOPE-115] - Spring warns about 'Ambiguous write methods found' for HttpClientParams
     * [SYNCOPE-118] - User list: 'propagationTOs' shouldn't be shown for display attributes
     * [SYNCOPE-117] - Empty default user list display attributes selection
-    * [SYNCOPE-116] - Display execution date on Task and Report lists
+    * [SYNCOPE-178] - Incomplete processing during synchronization / full reconciliation
+    * [SYNCOPE-179] - Synchronization task executions not connected to owning task
+    * [SYNCOPE-180] - After test execution spare files aren't all cleaned up
+    * [SYNCOPE-181] - Missing entries in LICENSE & NOTICE for JQuery and CodeMirror
 
 ** Improvement
     * [SYNCOPE-116] - Display execution date on Task and Report lists
