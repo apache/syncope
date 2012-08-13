@@ -23,15 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
-import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.GroupManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SyncopeGroupManager extends GroupManager implements SyncopeSession {
 
@@ -75,17 +74,6 @@ public class SyncopeGroupManager extends GroupManager implements SyncopeSession 
         }
 
         return result;
-    }
-
-    @Override
-    public List<Group> findGroupByQueryCriteria(final Object query, final Page page) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long findGroupCountByQueryCriteria(final Object query) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -24,17 +24,16 @@ import java.util.List;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
-import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoEntity;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
 import org.activiti.engine.impl.persistence.entity.UserManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SyncopeUserManager extends UserManager implements SyncopeSession {
 
@@ -95,17 +94,6 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
         }
 
         return result;
-    }
-
-    @Override
-    public List<User> findUserByQueryCriteria(final Object query, final Page page) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long findUserCountByQueryCriteria(final Object query) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -133,7 +133,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
         return new UserEntity(syncopeUser.getUsername());
     }
 
-    private void execute() {
+    private void execute(int page, int itemsPerPage) {
         if (username != null) {
             SyncopeUser user = userDAO.find(username);
             if (user != null) {
@@ -163,8 +163,11 @@ public class SyncopeUserQueryImpl implements UserQuery {
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
             result = new ArrayList<User>();
-            for (SyncopeUser user : userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()))) {
 
+            List<SyncopeUser> users = page == -1 && itemsPerPage == -1
+                    ? userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()))
+                    : userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), page, itemsPerPage);
+            for (SyncopeUser user : users) {
                 result.add(fromSyncopeUser(user));
             }
         }
@@ -173,7 +176,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public long count() {
         if (result == null) {
-            execute();
+            execute(-1, -1);
         }
         return result.size();
     }
@@ -181,7 +184,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public User singleResult() {
         if (result == null) {
-            execute();
+            execute(-1, -1);
         }
         if (result.isEmpty()) {
             throw new ActivitiException("Empty result");
@@ -193,13 +196,21 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public List<User> list() {
         if (result == null) {
-            execute();
+            execute(-1, -1);
         }
         return result;
     }
 
     @Override
     public List<User> listPage(final int firstResult, final int maxResults) {
+        if (result == null) {
+            execute((firstResult / maxResults) + 1, maxResults);
+        }
+        return result;
+    }
+
+    @Override
+    public UserQuery potentialStarter(String string) {
         throw new UnsupportedOperationException();
     }
 }

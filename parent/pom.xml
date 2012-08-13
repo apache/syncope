@@ -243,7 +243,7 @@ under the License.
         
     <httpcomponents.version>4.2.1</httpcomponents.version>
 
-    <activiti.version>5.9</activiti.version>
+    <activiti.version>5.10</activiti.version>
 
     <spring.version>3.1.2.RELEASE</spring.version>
     <spring-security.version>3.1.2.RELEASE</spring-security.version>

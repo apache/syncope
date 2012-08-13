@@ -146,6 +146,11 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
 
     @Override
     public List<Group> listPage(final int firstResult, final int maxResults) {
+        return list();
+    }
+
+    @Override
+    public GroupQuery potentialStarter(String procDefId) {
         throw new UnsupportedOperationException();
     }
 }
