@@ -27,6 +27,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.to.WorkflowFormPropertyTO;
+import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.MapChoiceRenderer;
+import org.apache.syncope.console.rest.ApprovalRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -40,17 +50,8 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.WorkflowFormPropertyTO;
-import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.MapChoiceRenderer;
-import org.apache.syncope.console.rest.ApprovalRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 
 public class ApprovalModalPage extends BaseModalPage {
 
@@ -63,7 +64,6 @@ public class ApprovalModalPage extends BaseModalPage {
         super();
 
         IModel<List<WorkflowFormPropertyTO>> formProps = new LoadableDetachableModel<List<WorkflowFormPropertyTO>>() {
-
             private static final long serialVersionUID = 3169142472626817508L;
 
             @Override
@@ -73,7 +73,6 @@ public class ApprovalModalPage extends BaseModalPage {
         };
 
         final ListView<WorkflowFormPropertyTO> propView = new ListView<WorkflowFormPropertyTO>("propView", formProps) {
-
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -116,7 +115,6 @@ public class ApprovalModalPage extends BaseModalPage {
 
                         field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
                                 new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
-
                             private static final long serialVersionUID = -858521070366432018L;
 
                             @Override
@@ -147,7 +145,6 @@ public class ApprovalModalPage extends BaseModalPage {
         };
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -199,9 +196,25 @@ public class ApprovalModalPage extends BaseModalPage {
             }
         };
 
+        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         Form form = new Form("form");
         form.add(propView);
         form.add(submit);
+        form.add(cancel);
 
         MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getAllAllowedRoles("Approval",
                 "submit"));

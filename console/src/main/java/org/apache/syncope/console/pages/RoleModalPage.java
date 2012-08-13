@@ -23,6 +23,8 @@ import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.pages.panels.RoleAttributesPanel;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -34,8 +36,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.pages.panels.RoleAttributesPanel;
-import org.apache.syncope.console.rest.RoleRestClient;
 
 /**
  * Modal window with Role form.
@@ -71,7 +71,6 @@ public class RoleModalPage extends BaseModalPage {
         form.add(attributesPanel);
 
         final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -109,12 +108,28 @@ public class RoleModalPage extends BaseModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
                 createFlag
-                        ? "create"
-                        : "update"));
+                ? "create"
+                : "update"));
 
         form.add(submit);
+        form.add(cancel);
 
         add(form);
     }

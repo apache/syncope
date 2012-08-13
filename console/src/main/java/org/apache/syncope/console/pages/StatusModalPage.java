@@ -20,6 +20,10 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.pages.panels.StatusPanel;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -28,10 +32,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 
 public class StatusModalPage extends BaseModalPage {
 
@@ -53,7 +53,6 @@ public class StatusModalPage extends BaseModalPage {
         form.add(statusPanel);
 
         final AjaxButton disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -82,7 +81,6 @@ public class StatusModalPage extends BaseModalPage {
         };
 
         final AjaxButton enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -108,7 +106,23 @@ public class StatusModalPage extends BaseModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+
+        cancel.setDefaultFormProcessing(false);
+        
         form.add(disable);
         form.add(enable);
+        form.add(cancel);
     }
 }

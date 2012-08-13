@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.SchemaMappingTO;
+import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
+import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
+import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
+import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
+import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -28,13 +35,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
-import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
-import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
-import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
-import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
-import org.apache.syncope.console.rest.ResourceRestClient;
 
 /**
  * Modal window with Resource form.
@@ -79,7 +79,6 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit", "submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -126,12 +125,29 @@ public class ResourceModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+
+        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+
         add(form);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
                 createFlag
-                        ? "create"
-                        : "update"));
+                ? "create"
+                : "update"));
     }
 
     /**

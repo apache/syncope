@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -31,7 +32,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Schema form.
@@ -67,7 +67,6 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         name.setEnabled(createFlag);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -99,6 +98,21 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         String allowedRoles;
 
         if (createFlag) {
@@ -113,6 +127,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(expression);
 
         schemaForm.add(submit);
+        schemaForm.add(cancel);
 
         add(schemaForm);
     }

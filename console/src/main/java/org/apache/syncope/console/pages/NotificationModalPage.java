@@ -24,6 +24,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.to.NotificationTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.rest.NotificationRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.TraceLevel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -40,18 +52,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.rest.NotificationRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.TraceLevel;
 
 class NotificationModalPage extends BaseModalPage {
 
@@ -125,7 +125,6 @@ class NotificationModalPage extends BaseModalPage {
         form.add(recipientAttrName);
 
         recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
-
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 recipientAttrName.setChoices(getSchemaNames(notificationTO.getRecipientAttrType()));
@@ -162,7 +161,6 @@ class NotificationModalPage extends BaseModalPage {
         recipients.setEnabled(checkRecipients.getModelObject());
 
         selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -178,7 +176,6 @@ class NotificationModalPage extends BaseModalPage {
         });
 
         checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -194,7 +191,6 @@ class NotificationModalPage extends BaseModalPage {
         });
 
         AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -202,7 +198,7 @@ class NotificationModalPage extends BaseModalPage {
 
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
-                
+
                 try {
                     if (createFlag) {
                         restClient.createNotification(notificationTO);
@@ -228,12 +224,28 @@ class NotificationModalPage extends BaseModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+
+        cancel.setDefaultFormProcessing(false);
+
         String allowedRoles = createFlag
                 ? xmlRolesReader.getAllAllowedRoles("Notification", "create")
                 : xmlRolesReader.getAllAllowedRoles("Notification", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);
+        form.add(cancel);
 
         add(form);
     }

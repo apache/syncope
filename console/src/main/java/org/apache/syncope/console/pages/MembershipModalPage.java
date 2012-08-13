@@ -30,6 +30,7 @@ import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
 /**
  * MembershipModalPage.
@@ -50,7 +51,6 @@ public class MembershipModalPage extends BaseModalPage {
         form.setModel(new CompoundPropertyModel(membershipTO));
 
         submit = new AjaxButton("submit", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -72,6 +72,22 @@ public class MembershipModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
 
         //--------------------------------
         // Attributes panel

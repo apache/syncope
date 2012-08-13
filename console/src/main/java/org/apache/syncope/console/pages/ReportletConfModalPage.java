@@ -67,13 +67,14 @@ import org.apache.syncope.console.wicket.markup.html.form.CheckBoxMultipleChoice
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
 public class ReportletConfModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 3910027601200382958L;
 
-    private static final String[] EXCLUDE_PROPERTIES = new String[] { "serialVersionUID", "class", "name",
-            "reportletClassName" };
+    private static final String[] EXCLUDE_PROPERTIES = new String[]{"serialVersionUID", "class", "name",
+        "reportletClassName"};
 
     @SpringBean
     private ReportRestClient restClient;
@@ -110,37 +111,35 @@ public class ReportletConfModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> reportletClass = new AjaxDropDownChoicePanel<String>("reportletClass",
                 "reportletClass", new IModel<String>() {
+            private static final long serialVersionUID = -2316468110411802130L;
 
-                    private static final long serialVersionUID = -2316468110411802130L;
+            @Override
+            public String getObject() {
+                return ReportletConfModalPage.this.reportletConf == null
+                        ? null
+                        : ReportletConfModalPage.this.reportletConf.getClass().getName();
+            }
 
-                    @Override
-                    public String getObject() {
-                        return ReportletConfModalPage.this.reportletConf == null
-                                ? null
-                                : ReportletConfModalPage.this.reportletConf.getClass().getName();
-                    }
+            @Override
+            public void setObject(final String object) {
+                try {
+                    Class reportletClass = Class.forName(object);
+                    ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
+                    propertiesContainer.replace(buildPropView());
+                } catch (Exception e) {
+                    LOG.error("Cannot find or initialize {}", object, e);
+                }
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        try {
-                            Class reportletClass = Class.forName(object);
-                            ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
-                            propertiesContainer.replace(buildPropView());
-                        } catch (Exception e) {
-                            LOG.error("Cannot find or initialize {}", object, e);
-                        }
-                    }
-
-                    @Override
-                    public void detach() {
-                    }
-                });
+            @Override
+            public void detach() {
+            }
+        });
         reportletClass.setStyleShet("long_dynamicsize");
         reportletClass.setChoices(restClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();
         reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
@@ -155,7 +154,6 @@ public class ReportletConfModalPage extends BaseModalPage {
         propertiesContainer.add(buildPropView());
 
         final AjaxButton submit = new AjaxButton("apply", new ResourceModel("apply")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -187,6 +185,22 @@ public class ReportletConfModalPage extends BaseModalPage {
             }
         };
         form.add(submit);
+
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
     }
 
     private FieldPanel buildSinglePanel(final Class<?> type, final String fieldName, final String id) {
@@ -215,7 +229,6 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private ListView<String> buildPropView() {
         LoadableDetachableModel<List<String>> propViewModel = new LoadableDetachableModel<List<String>>() {
-
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -234,7 +247,6 @@ public class ReportletConfModalPage extends BaseModalPage {
         };
 
         propView = new ListView<String>("propView", propViewModel) {
-
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -248,8 +260,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 try {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
-                    LOG.error("Could not find field {} in class {}", new Object[] { fieldName,
-                            ReportletConfModalPage.this.reportletConf.getClass(), e });
+                    LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
+                                ReportletConfModalPage.this.reportletConf.getClass(), e});
                 }
                 if (field == null) {
                     return;

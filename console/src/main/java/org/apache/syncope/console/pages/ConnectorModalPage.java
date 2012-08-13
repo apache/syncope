@@ -105,7 +105,6 @@ public class ConnectorModalPage extends BaseModalPage {
                 : connectorTO.getCapabilities());
 
         final IModel<List<ConnectorCapability>> capabilities = new LoadableDetachableModel<List<ConnectorCapability>>() {
-
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -115,7 +114,6 @@ public class ConnectorModalPage extends BaseModalPage {
         };
 
         final IModel<List<ConnBundleTO>> bundles = new LoadableDetachableModel<List<ConnBundleTO>>() {
-
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -147,7 +145,6 @@ public class ConnectorModalPage extends BaseModalPage {
         bundle.setStyleShet("long_dynamicsize");
         bundle.setChoices(bundles.getObject());
         bundle.setChoiceRenderer(new ChoiceRenderer<ConnBundleTO>() {
-
             private static final long serialVersionUID = -1945543182376191187L;
 
             @Override
@@ -166,7 +163,6 @@ public class ConnectorModalPage extends BaseModalPage {
         ((DropDownChoice) bundle.getField()).setNullValid(true);
         bundle.setRequired(true);
         bundle.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -184,7 +180,6 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         });
         bundle.getField().setModel(new IModel<ConnBundleTO>() {
-
             private static final long serialVersionUID = -3736598995576061229L;
 
             @Override
@@ -212,7 +207,6 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final ListView<ConnConfProperty> view = new ListView<ConnConfProperty>(
                 "connectorProperties", new PropertyModel(this, "properties")) {
-
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -314,7 +308,6 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorPropForm.add(view);
 
         final AjaxLink check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
-
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -335,7 +328,6 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorPropForm.add(check);
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -373,6 +365,21 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         String roles = connectorTO.getId() == 0
                 ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
                 : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
@@ -389,6 +396,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(capabilitiesPalette);
 
         connectorForm.add(submit);
+        connectorForm.add(cancel);
 
         add(connectorForm);
     }

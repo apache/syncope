@@ -77,7 +77,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     private SchemaRestClient schemaRestClient;
 
     final private IModel<List<String>> dnames = new LoadableDetachableModel<List<String>>() {
-
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
@@ -103,7 +102,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     };
 
     final private IModel<List<String>> names = new LoadableDetachableModel<List<String>>() {
-
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
@@ -120,7 +118,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     };
 
     final private IModel<List<String>> dsnames = new LoadableDetachableModel<List<String>>() {
-
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
@@ -137,7 +134,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     };
 
     final private IModel<List<String>> vsnames = new LoadableDetachableModel<List<String>>() {
-
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
@@ -180,7 +176,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         form.add(dgroup);
 
         final ListView<String> details = new ListView<String>("details", dnames) {
-
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -199,7 +194,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             fragment.add(sgroup);
 
             final ListView<String> schemas = new ListView<String>("schemas", names) {
-
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
@@ -224,7 +218,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             fragment.add(vsgroup);
 
             final ListView<String> virSchemas = new ListView<String>("virSchemas", vsnames) {
-
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
@@ -249,7 +242,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             fragment.add(dsgroup);
 
             final ListView<String> derSchemas = new ListView<String>("derSchemas", dsnames) {
-
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
@@ -267,7 +259,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         }
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
@@ -305,6 +296,22 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
 
         add(form);
     }

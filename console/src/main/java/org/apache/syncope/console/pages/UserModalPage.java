@@ -49,7 +49,6 @@ public abstract class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
-
     }
 
     private static final long serialVersionUID = 5002005009737457667L;
@@ -176,12 +175,27 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment.add(form);
         form.add(submit);
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = 530608535790823587L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+
         return form;
     }
 
     protected AjaxButton getOnSubmit() {
         return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override

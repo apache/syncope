@@ -25,6 +25,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.AbstractBaseBean;
+import org.apache.syncope.client.to.SchemaTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -42,15 +51,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SchemaType;
 
 /**
  * Modal window with Schema form.
@@ -88,7 +88,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
         final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
-
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -133,7 +132,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -163,7 +161,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         });
 
         final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
-
             private static final long serialVersionUID = -2428903969518079100L;
 
             @Override
@@ -186,7 +183,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -204,7 +200,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -245,6 +240,21 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         String allowedRoles;
 
         if (createFlag) {
@@ -265,6 +275,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(uniqueConstraint);
 
         schemaForm.add(submit);
+        schemaForm.add(cancel);
 
         add(schemaForm);
     }
