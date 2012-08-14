@@ -18,9 +18,37 @@
  */
 package org.apache.syncope.console;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ConnInstanceTestITCase extends AbstractTest {
+
+    private static String connidSoapVersion;
+
+    @BeforeClass
+    public static void init() {
+        Properties props = new Properties();
+        InputStream propStream = null;
+        try {
+            propStream = ConnInstanceTestITCase.class.getResourceAsStream("/bundles.properties");
+            props.load(propStream);
+            connidSoapVersion = props.getProperty("connid.soap.version");
+        } catch (Exception e) {
+            LOG.error("Could not load bundles.properties", e);
+        } finally {
+            if (propStream != null) {
+                try {
+                    propStream.close();
+                } catch (IOException e) {
+                    LOG.error("While reading bundles.properties", e);
+                }
+            }
+        }
+        assertNotNull(connidSoapVersion);
+    }
 
     @Test
     public void browseCreateModal() {
@@ -32,7 +60,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@name='version:textField']\");", "30000");
 
-        selenium.select("//select[@name='bundle:dropDownChoiceField']", "label=org.connid.bundles.soap 1.2.2");
+        selenium.select("//select[@name='bundle:dropDownChoiceField']",
+                "label=org.connid.bundles.soap " + connidSoapVersion);
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//form/div[@id='tabs']/ul/li[1]/a/span");
@@ -55,7 +84,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertEquals("ConnInstance103", selenium.getAttribute("//input[@name='displayName:textField']/@value"));
 
-        assertEquals("org.connid.bundles.soap#1.2.2", selenium
+        assertEquals("org.connid.bundles.soap#" + connidSoapVersion, selenium
                 .getSelectedValue("//select[@name='bundle:dropDownChoiceField']"));
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
