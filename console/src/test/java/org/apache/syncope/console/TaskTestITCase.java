@@ -56,4 +56,21 @@ public class TaskTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }
+
+    @Test
+    public void issueSYNCOPE148() {
+        selenium.click("css=img[alt=\"Tasks\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        selenium.click("//a[contains(text(),'Create new task')]");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/span/div/div[2]/div/label\");", "30000");
+
+        selenium.click("//div[2]/form/div[3]/input[2]");
+
+        selenium.waitForCondition("selenium.isTextPresent(\"Id\");", "30000");
+    }
 }

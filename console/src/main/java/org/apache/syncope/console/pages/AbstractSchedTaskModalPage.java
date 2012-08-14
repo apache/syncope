@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.SchedTaskTO;
+import org.apache.syncope.client.to.SyncTaskTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.DateFormatROModel;
+import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -27,12 +33,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.DateFormatROModel;
-import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -63,7 +63,6 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         profile.add(nextExec);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -106,6 +105,21 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             }
         };
 
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
+
         if (taskTO.getId() > 0) {
             MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
                     "update"));
@@ -115,5 +129,6 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         }
 
         form.add(submit);
+        form.add(cancel);
     }
 }
