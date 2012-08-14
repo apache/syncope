@@ -467,7 +467,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
                             editmodal.show(target);
 
                         } catch (SyncopeClientCompositeErrorException scce) {
-                            error(scce.getMessage());
+                            error(getString("operation_error") + ": " + scce.getMessage());
+                            target.add(feedbackPanel);
                         }
                     }
                 }, ActionLink.ActionType.DELETE, "Users", "delete");
