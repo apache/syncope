@@ -146,13 +146,13 @@ public class UserRestClient extends AbstractBaseRestClient {
                 // perform on resource if and only if resources have been speciofied
                 append("performRemotely=").append(!statuses.isEmpty()).append("&");
 
-        boolean performLoacal = false;
+        boolean performLocal = false;
 
         for (StatusBean status : statuses) {
             if ((enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
 
                 if ("Syncope".equals(status.getResourceName())) {
-                    performLoacal = true;
+                    performLocal = true;
                 } else {
                     query.append("resourceNames=").append(status.getResourceName()).append("&");
                 }
@@ -160,7 +160,7 @@ public class UserRestClient extends AbstractBaseRestClient {
         }
 
         // perform on syncope if and only if it has been requested
-        query.append("performLocally=").append(performLoacal);
+        query.append("performLocally=").append(performLocal);
 
         return SyncopeSession.get().getRestTemplate().getForObject(query.toString(), UserTO.class);
     }
