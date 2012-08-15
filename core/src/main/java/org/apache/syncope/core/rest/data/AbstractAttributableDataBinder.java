@@ -263,7 +263,7 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil))) {
 
                 LOG.error("Mandatory schema " + schema.getName() + " not provided with values");
-
+                
                 requiredValuesMissing.addElement(schema.getName());
             }
         }
@@ -661,11 +661,6 @@ public abstract class AbstractAttributableDataBinder {
             compositeErrorException.addException(invalidValues);
         }
 
-        SyncopeClientException requiredValuesMissing = checkMandatory(attributableUtil, attributable);
-        if (!requiredValuesMissing.isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
-        }
-
         // 2. derived attributes
         AbstractDerSchema derivedSchema;
         AbstractDerAttr derivedAttribute;
@@ -706,6 +701,11 @@ public abstract class AbstractAttributableDataBinder {
             if (resource != null) {
                 attributable.addResource(resource);
             }
+        }
+        
+        SyncopeClientException requiredValuesMissing = checkMandatory(attributableUtil, attributable);
+        if (!requiredValuesMissing.isEmpty()) {
+            compositeErrorException.addException(requiredValuesMissing);
         }
 
         // Throw composite exception if there is at least one element set

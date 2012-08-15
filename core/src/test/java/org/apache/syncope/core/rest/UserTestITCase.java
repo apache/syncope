@@ -308,6 +308,35 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNull(sce);
     }
+    
+    @Test
+    public void testMandatoryContraintsUserCreation() {
+        UserTO userTO = getSampleTO("issue183@apache.org");
+        userTO.addResource("ws-target-resource-2");
+        userTO.setPassword("newPassword");
+        
+        AttributeTO type = null;
+        for (AttributeTO attr : userTO.getAttributes()) {
+            if ("type".equals(attr.getSchema())) {
+                type = attr;
+            }
+        }
+        assertNotNull(type);
+        userTO.removeAttribute(type);
+
+        SyncopeClientException sce = null;
+        try {
+            userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+        }
+        assertNotNull(sce);
+        
+        userTO.addAttribute(type);
+        
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+    }
 
     @Test
     public void issue147() {
