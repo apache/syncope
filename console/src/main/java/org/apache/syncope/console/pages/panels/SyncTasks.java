@@ -34,12 +34,14 @@ import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -47,6 +49,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -238,6 +241,35 @@ public class SyncTasks extends Panel {
                 0);
 
         container.add(table);
+            
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {
+                    target.add(table);
+                }
+            }
+        };
+
+        reload.add(new Behavior() {
+            private static final long serialVersionUID = 1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+
+                if (table.getRowCount() > paginatorRows) {
+                    tag.remove("class");
+                    tag.put("class", "settingsPosMultiPage");
+                } else {
+                    tag.remove("class");
+                    tag.put("class", "settingsPos");
+                }
+            }
+        });
+        
+        container.add(reload);
 
         Form paginatorForm = new Form("PaginatorForm");
 

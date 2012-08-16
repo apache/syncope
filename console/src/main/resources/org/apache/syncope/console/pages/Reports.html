@@ -12,6 +12,25 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <style>
+        .settingsPos{
+            position:relative; 
+            top:34px;
+            left:93.2%;
+            width:10px;
+            text-decoration: none;
+        }
+
+        .settingsPosMultiPage{
+            position:relative; 
+            top:64px;
+            left:93.2%;
+            width:10px;
+            text-decoration: none;
+        }
+    </style>
+</wicket:head>
 <wicket:extend>
 
   <div id="tabs">
@@ -23,6 +42,9 @@
     <div id="tabs-1">
       <div id="users-contain" class="ui-widget" style="width:inherit;">
         <span wicket:id="reportContainer">
+          <a wicket:id="reload" class="settingsPos">
+            <img src="img/reload.png" alt="reload" class="drop_button" />
+          </a>
           <table class="ui-widget ui-widget-content table-hover" wicket:id="reportTable"/>
         </span>
         <span style="float:right">

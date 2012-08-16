@@ -40,6 +40,11 @@ public class ReportRestClient extends AbstractBaseRestClient implements Executio
         }
         return reportletClasses;
     }
+    
+    public ReportTO read(final Long reportId) {
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "report/read/{taskId}", ReportTO.class, reportId);
+    }
 
     public List<ReportTO> list() {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(

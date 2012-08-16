@@ -61,6 +61,7 @@ import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.pages.TaskModalPage.TaskExecutionsProvider;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -464,6 +465,29 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
+        
+                final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {                
+                    final ReportTO currentReportTO = reportTO.getId() == 0
+                            ? reportTO
+                            : restClient.read(reportTO.getId());
+                    reportTO.setExecutions(currentReportTO.getExecutions());   
+                    final AjaxFallbackDefaultDataTable currentTable = 
+                            new AjaxFallbackDefaultDataTable("executionsTable", columns,
+                            new ReportExecutionsProvider(reportTO), 10);
+                    currentTable.setOutputMarkupId(true);
+                    executions.addOrReplace(currentTable);
+                    target.add(currentTable);
+                    target.add(executions);
+                }
+            }
+        };
+
+        executions.add(reload);
     }
 
     public void setExportFormat(final String exportFormat) {

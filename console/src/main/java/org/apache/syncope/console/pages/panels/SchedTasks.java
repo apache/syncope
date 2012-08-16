@@ -57,6 +57,9 @@ import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 
 public class SchedTasks extends Panel {
 
@@ -218,6 +221,35 @@ public class SchedTasks extends Panel {
                 0);
 
         container.add(table);
+                      
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {
+                    target.add(table);
+                }
+            }
+        };
+
+        reload.add(new Behavior() {
+            private static final long serialVersionUID = 1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+
+                if (table.getRowCount() > paginatorRows) {
+                    tag.remove("class");
+                    tag.put("class", "settingsPosMultiPage");
+                } else {
+                    tag.remove("class");
+                    tag.put("class", "settingsPos");
+                }
+            }
+        });
+        
+        container.add(reload);
 
         Form paginatorForm = new Form("PaginatorForm");
 

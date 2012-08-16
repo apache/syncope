@@ -74,6 +74,9 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditLoggerName;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 
 /**
  * Auditing and Reporting.
@@ -216,6 +219,36 @@ public class Reports extends BasePage {
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
+        
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {
+                    target.add(reportTable);
+                }
+            }
+        };
+
+        reload.add(new Behavior() {
+            
+            private static final long serialVersionUID = 1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+
+                if (reportTable.getRowCount() > paginatorRows) {
+                    tag.remove("class");
+                    tag.put("class", "settingsPosMultiPage");
+                } else {
+                    tag.remove("class");
+                    tag.put("class", "settingsPos");
+                }
+            }
+        });
+
+        reportContainer.add(reload);
 
         add(reportContainer);
 

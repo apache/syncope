@@ -275,6 +275,36 @@ public class ResultSetPanel extends Panel implements IEventSource {
                 displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
 
         container.add(displayAttrsLink);
+
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {
+                    target.add(resultTable);
+                }
+            }
+        };
+
+        reload.add(new Behavior() {
+            private static final long serialVersionUID = 1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+
+                if (resultTable.getRowCount() > rows) {
+                    tag.remove("class");
+                    tag.put("class", "settingsPosMultiPage");
+                } else {
+                    tag.remove("class");
+                    tag.put("class", "settingsPos");
+                }
+            }
+        });
+        
+        container.add(reload);
+
         // ---------------------------
 
         // ---------------------------

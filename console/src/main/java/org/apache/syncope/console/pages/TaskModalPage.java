@@ -37,6 +37,8 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -74,17 +76,6 @@ public abstract class TaskModalPage extends BaseModalPage {
     protected Form form;
 
     public TaskModalPage(final TaskTO taskTO) {
-        final TaskTO actual = taskTO.getId() == 0
-                ? taskTO
-                : taskTO instanceof PropagationTaskTO
-                        ? taskRestClient.readPropagationTask(taskTO.getId())
-                        : taskTO instanceof NotificationTaskTO
-                                ? taskRestClient.readNotificationTask(taskTO.getId())
-                                : taskTO instanceof SyncTaskTO
-                                        ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
-                                        : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
-
-        taskTO.setExecutions(actual.getExecutions());
 
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -183,9 +174,28 @@ public abstract class TaskModalPage extends BaseModalPage {
         });
 
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                new TaskExecutionsProvider(taskTO), 10);
+                new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), 10);
 
         executions.add(table);
+
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (target != null) {
+                    final AjaxFallbackDefaultDataTable currentTable = 
+                            new AjaxFallbackDefaultDataTable("executionsTable", columns,
+                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), 10);
+                    currentTable.setOutputMarkupId(true);
+                    executions.addOrReplace(currentTable);
+                    target.add(currentTable);
+                    target.add(executions);
+                }
+            }
+        };
+
+        executions.add(reload);
     }
 
     protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
@@ -231,5 +241,20 @@ public abstract class TaskModalPage extends BaseModalPage {
                 }
             };
         }
+    }
+
+    private TaskTO getCurrentTaskExecution(final TaskTO taskTO) {
+        final TaskTO currentTask = taskTO.getId() == 0
+                ? taskTO
+                : taskTO instanceof PropagationTaskTO
+                ? taskRestClient.readPropagationTask(taskTO.getId())
+                : taskTO instanceof NotificationTaskTO
+                ? taskRestClient.readNotificationTask(taskTO.getId())
+                : taskTO instanceof SyncTaskTO
+                ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
+                : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
+
+        taskTO.setExecutions(currentTask.getExecutions());
+        return taskTO;
     }
 }
