@@ -242,7 +242,7 @@ cd syncope-&lt;version&gt;
 mvn clean install
 mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
 cd ../site/&lt;version&gt;
-rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality
+rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-quality
 cd ..
 svn add &lt;version&gt;
 svn commit -m "staging site for release"</source>
