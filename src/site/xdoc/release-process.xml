@@ -130,7 +130,7 @@ under the License.
           </li>
           <li>
             Perform a full build and deploy the SNAPSHOT artifacts:
-            <source>mvn -P all clean deploy</source>
+            <source>mvn clean deploy</source>
           </li>
         </ol>
       </subsection>
@@ -239,8 +239,8 @@ cd &lt;version&gt;</source>
             <source>svn checkout https://svn.apache.org/repos/asf/incubator/syncope/site/ site
 svn checkout https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
 cd syncope-&lt;version&gt;
-mvn -Pall clean install
-mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+mvn clean install
+mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
 cd ../site/&lt;version&gt;
 rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality
 cd ..
@@ -280,7 +280,7 @@ svn commit -m "staging site for release"</source>
                     files (see 
                     <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
                     <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
-                    The <code>syncope-root-&lt;version&gt;-source-release.zip</code> of <code>syncope-root</code>
+                    The <code>syncope-&lt;version&gt;-source-release.zip</code>
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
@@ -329,7 +329,7 @@ Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
 Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-root-&lt;version&gt;-source-release.zip
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip
 
 Staging site:
 http://incubator.apache.org/syncope/&lt;version&gt;/
@@ -417,7 +417,7 @@ Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
 Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope-root/&lt;version&gt;/syncope-root-&lt;version&gt;-source-release.zip
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip
 
 Staging site:
 http://incubator.apache.org/syncope/&lt;version&gt;/
@@ -504,7 +504,7 @@ Best regards.
 <source>ssh people.apache.org
 cd /x1/www/www.apache.org/dist/incubator/syncope/
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
 </source>
           </li>
           <li>

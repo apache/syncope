@@ -22,11 +22,9 @@ under the License.
 
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Parent POM is not Syncope parent POM but Syncope root POM: this is due to avoid circular dependencies between 
-       this POM and Syncope parent POM; specific items related to this are marked below as <SyncopeRootPOM />. -->
   <parent>
     <groupId>org.apache.syncope</groupId>
-    <artifactId>syncope-root</artifactId>
+    <artifactId>syncope</artifactId>
     <version>1.1.0-incubating-SNAPSHOT</version>
   </parent>
 

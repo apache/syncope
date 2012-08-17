@@ -26,7 +26,6 @@ under the License.
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
     <version>1.1.0-incubating-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
   </parent>
 
   <name>Apache Syncope Client</name>
