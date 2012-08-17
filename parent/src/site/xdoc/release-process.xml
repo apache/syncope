@@ -93,7 +93,7 @@ under the License.
       </activation>
       <properties>
         <mavenExecutorId>forked-path</mavenExecutorId>
-        <gpg.keyname>your-gpg-keyname</gpg.keyname>\
+        <gpg.keyname>your-gpg-keyname</gpg.keyname>
         <!-- optional -->
         <gpg.passphrase>your-gpg-passphrase</gpg.passphrase>
       </properties>
