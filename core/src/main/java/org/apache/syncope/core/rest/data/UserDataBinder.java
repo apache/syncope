@@ -21,13 +21,7 @@ package org.apache.syncope.core.rest.data;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.mod.MembershipMod;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.MembershipTO;
@@ -51,12 +45,18 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = {Throwable.class})
@@ -270,7 +270,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         final Set<String> toBeProvisioned = new HashSet<String>();
 
         // memberships to be removed
-        Membership membership = null;
+        Membership membership;
         for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
             LOG.debug("Membership to be removed: {}", membershipId);
 

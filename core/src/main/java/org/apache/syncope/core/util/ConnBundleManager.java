@@ -22,7 +22,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javassist.NotFoundException;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;
@@ -34,9 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 
 @Component
 public class ConnBundleManager {

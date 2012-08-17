@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-import javassist.NotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.IntMappingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

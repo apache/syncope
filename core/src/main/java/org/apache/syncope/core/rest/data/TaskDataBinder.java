@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.data;
 
-import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
@@ -41,6 +40,7 @@ import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.quartz.Scheduler;

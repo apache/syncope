@@ -22,9 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javassist.NotFoundException;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
@@ -32,7 +30,9 @@ import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.PropagationOperation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple implementation basically not involving any workflow engine.

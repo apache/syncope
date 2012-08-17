@@ -21,15 +21,15 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javassist.NotFoundException;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.util.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstanceDAO {

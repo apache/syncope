@@ -21,15 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.apache.syncope.client.to.AccountPolicyTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
@@ -42,10 +34,18 @@ import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.rest.data.PolicyDataBinder;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.PolicySubCategory;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/policy")

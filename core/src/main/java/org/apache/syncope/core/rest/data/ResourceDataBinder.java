@@ -25,29 +25,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javassist.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ResourceDataBinder {

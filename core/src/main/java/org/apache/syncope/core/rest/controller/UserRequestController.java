@@ -20,8 +20,20 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import javassist.NotFoundException;
 import javax.persistence.RollbackException;
+import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.to.UserRequestTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.UserRequest;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.UserRequestDAO;
+import org.apache.syncope.core.rest.data.UserRequestDataBinder;
+import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.AuditElements.UserRequestSubCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +45,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.beans.UserRequest;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.persistence.dao.UserRequestDAO;
-import org.apache.syncope.core.rest.data.UserRequestDataBinder;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditElements.UserRequestSubCategory;
 
 @Controller
 @RequestMapping("/user/request")

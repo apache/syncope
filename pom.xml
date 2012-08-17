@@ -76,7 +76,6 @@ under the License.
             <!-- Need to explicitely exclude these modules since they are not part of the default build
                  profile: they will be checked anyway in the apache-release profile, as submodules. -->
             <exclude>archetype/**</exclude>
-            <exclude>hibernate-enhancer/**</exclude>
             <exclude>quality/**</exclude>
           </excludes>
         </configuration>
@@ -138,7 +137,6 @@ under the License.
       <modules>
         <module>quality</module>
         <module>archetype</module>
-        <module>hibernate-enhancer</module>
       </modules>
     </profile>
   </profiles>

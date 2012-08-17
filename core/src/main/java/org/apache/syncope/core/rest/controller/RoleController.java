@@ -21,17 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -42,9 +32,19 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.RoleSubCategory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/role")

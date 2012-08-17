@@ -20,13 +20,13 @@ package org.apache.syncope.core.workflow;
 
 import java.util.List;
 import java.util.Map;
-import javassist.NotFoundException;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.util.NotFoundException;
 
 /**
  * Interface for calling underlying workflow implementations.

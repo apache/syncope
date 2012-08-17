@@ -20,8 +20,17 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.syncope.client.to.DerivedSchemaTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
+import org.apache.syncope.core.rest.data.DerivedSchemaDataBinder;
+import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.AuditElements.SchemaSubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,15 +38,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
-import org.apache.syncope.core.rest.data.DerivedSchemaDataBinder;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditElements.SchemaSubCategory;
 
 @Controller
 @RequestMapping("/derivedSchema")

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.Map;
-import javassist.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,7 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnBundleManager;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.SyncopeClientExceptionType;

@@ -329,12 +329,6 @@ under the License.
         <artifactId>geronimo-javamail_1.4_provider</artifactId>
         <version>1.8.3</version>
       </dependency>
-            
-      <dependency>
-        <groupId>org.javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <version>3.16.1-GA</version>
-      </dependency>
 
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -1076,7 +1070,6 @@ under the License.
       <modules>
         <module>../quality</module>
         <module>../archetype</module>
-        <module>../hibernate-enhancer</module>
       </modules>
     </profile>
     
@@ -1139,7 +1132,6 @@ under the License.
       <modules>
         <module>../quality</module>
         <module>../archetype</module>
-        <module>../hibernate-enhancer</module>
         <module>../build-tools</module>
         <module>../client</module>
         <module>../core</module>

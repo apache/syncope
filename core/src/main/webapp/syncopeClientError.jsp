@@ -32,9 +32,9 @@ under the License.
 <%@page import="org.apache.syncope.core.propagation.PropagationException"%>
 <%@page import="org.apache.syncope.core.workflow.WorkflowException"%>
 <%@page import="org.apache.syncope.types.SyncopeClientExceptionType"%>
+<%@page import="org.apache.syncope.core.util.NotFoundException"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
 <%@page import="org.apache.syncope.client.validation.SyncopeClientErrorHandler"%>
-<%@page import="javassist.NotFoundException"%>
 <%@page import="org.slf4j.LoggerFactory"%>
 <%@page import="org.slf4j.Logger"%>
 <%@page import="org.apache.syncope.core.rest.controller.AbstractController"%>
