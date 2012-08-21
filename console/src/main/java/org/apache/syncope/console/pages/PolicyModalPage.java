@@ -31,6 +31,7 @@ import org.apache.syncope.client.to.AccountPolicyTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.SyncPolicyTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -149,6 +150,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
+        add(new CloseOnESCBehavior(window));
     }
 
     private AbstractPolicySpec getPolicySpecification(final PolicyTO policyTO) {

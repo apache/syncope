@@ -28,6 +28,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -72,7 +73,7 @@ public class MembershipModalPage extends BaseModalPage {
         };
 
         form.add(submit);
-
+        
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -108,5 +109,6 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
 
         add(form);
+        add(new CloseOnESCBehavior(window));
     }
 }

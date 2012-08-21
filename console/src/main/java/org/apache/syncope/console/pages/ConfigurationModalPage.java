@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
@@ -128,5 +129,6 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(submit);
 
         add(form);
+        add(new CloseOnESCBehavior(window));
     }
 }

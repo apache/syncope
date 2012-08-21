@@ -54,6 +54,7 @@ import org.springframework.util.ClassUtils;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -399,6 +400,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(cancel);
 
         add(connectorForm);
+        add(new CloseOnESCBehavior(window));
     }
 
     private ConnBundleTO getSelectedBundleTO(final List<ConnBundleTO> bundles, final ConnInstanceTO connTO) {

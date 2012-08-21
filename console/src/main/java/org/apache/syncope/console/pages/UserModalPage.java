@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
@@ -79,6 +80,7 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment = new Fragment("userModalFrag", "userModalEditFrag", this);
         fragment.setOutputMarkupId(true);
         add(fragment);
+        add(new CloseOnESCBehavior(window));
     }
 
     public UserModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
@@ -100,6 +102,7 @@ public abstract class UserModalPage extends BaseModalPage {
         result.setOutputMarkupId(true);
 
         fragment.add(result);
+        add(new CloseOnESCBehavior(window));
     }
 
     public UserTO getUserTO() {

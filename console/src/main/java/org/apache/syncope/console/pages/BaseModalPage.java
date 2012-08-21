@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -41,11 +42,13 @@ public abstract class BaseModalPage extends WebPage {
     protected XMLRolesReader xmlRolesReader;
 
     protected FeedbackPanel feedbackPanel;
+    
+    protected CloseOnESCBehavior closeOnEscBehavior;
 
     public BaseModalPage() {
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);
+        add(feedbackPanel);     
     }
 
     public FeedbackPanel getFeedbackPanel() {

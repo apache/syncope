@@ -31,6 +31,7 @@ import org.apache.syncope.annotation.FormAttributeField;
 import org.apache.syncope.client.SyncopeConstants;
 import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -97,6 +98,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
         Form form = new Form("form");
         add(form);
+        add(new CloseOnESCBehavior(window));
 
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);

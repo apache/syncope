@@ -29,6 +29,7 @@ import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -81,6 +82,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
         add(taskExecMessageWin);
+        add(new CloseOnESCBehavior(taskExecMessageWin));
 
         form = new Form("form");
         form.setModel(new CompoundPropertyModel(taskTO));

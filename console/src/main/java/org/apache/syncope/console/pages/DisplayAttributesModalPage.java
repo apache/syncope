@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -296,7 +297,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         };
 
         form.add(submit);
-
+        
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -314,5 +315,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         form.add(cancel);
 
         add(form);
+        add(new CloseOnESCBehavior(window));
     }
 }

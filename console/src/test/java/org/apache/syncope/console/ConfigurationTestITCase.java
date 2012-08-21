@@ -171,7 +171,20 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[2]/div[4]/div/div[2]/label\");", "30000");
-        
+
         selenium.click("//div[2]/form/div[3]/input");
+    }
+
+    @Test
+    public void issueSYNCOPE189() {
+        selenium.click("css=img[alt=\"Configuration\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//a[contains(text(),'Create new configuration')]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
+
+        selenium.keyPressNative("27");
     }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -94,6 +95,21 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                 target.add(feedbackPanel);
             }
         };
+        
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                window.close(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form form) {
+            }
+        };
+        
+        cancel.setDefaultFormProcessing(false);
 
         String allowedRoles;
 
@@ -108,7 +124,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(name);
 
         schemaForm.add(submit);
+        schemaForm.add(cancel);
 
         add(schemaForm);
+        add(new CloseOnESCBehavior(window));
     }
 }
