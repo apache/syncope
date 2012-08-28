@@ -13,58 +13,58 @@
  under the License.
 -->
 <wicket:extend>
-    <div id="dialog-form">
-        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-        <form wicket:id="form">
-            <div id="tabs">
-                <ul>
-                    <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
-                    <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
-                </ul>
-                <div id="profile">
-                    <div id="users-contain" class="ui-widget">
-                        <span wicket:id="profile">
-                            <div id="formtable">
+  <div id="dialog-form">
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <form wicket:id="form">
+      <div id="tabs">
+        <ul>
+          <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
+          <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
+        </ul>
+        <div id="profile">
+          <div id="users-contain" class="ui-widget">
+            <span wicket:id="profile">
+              <div id="formtable">
 
-                                <div class="tablerow">
-                                    <div class="tablecolumn_label short_dynamicsize">
-                                        <span wicket:id="idLabel">[Id]</span>
-                                    </div>
-                                    <div class="tablecolumn_field medium_dynamicsize">
-                                        <span wicket:id="id">[id]</span>
-                                    </div>
-                                </div>
-
-                                <div class="tablerow">
-                                    <div class="tablecolumn_label short_dynamicsize">
-                                        <label for="accountId"><wicket:message key="accountId"/></label>
-                                    </div>
-                                    <div class="tablecolumn_field medium_dynamicsize">
-                                        <span wicket:id="accountId">[accountId]</span>
-                                    </div>
-                                </div>
-
-                                <div class="tablerow">
-                                    <div class="tablecolumn_label short_dynamicsize">
-                                        <label for="resource"><wicket:message key="resource"/></label>
-                                    </div>
-                                    <div class="tablecolumn_field medium_dynamicsize">
-                                        <span wicket:id="resource">[resource]</span>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </span>
-                    </div>
+                <div class="tablerow">
+                  <div class="tablecolumn_label short_dynamicsize">
+                    <span wicket:id="idLabel">[Id]</span>
+                  </div>
+                  <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="id">[id]</span>
+                  </div>
                 </div>
-                <div id="executions">
-                    <span wicket:id="executions">
-                        <table id="executions" class="ui-widget ui-widget-content"
-                               wicket:id="executionsTable" style="width: 100%"/>
-                    </span>
+
+                <div class="tablerow">
+                  <div class="tablecolumn_label short_dynamicsize">
+                    <label for="accountId"><wicket:message key="accountId"/></label>
+                  </div>
+                  <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="accountId">[accountId]</span>
+                  </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <div wicket:id="taskExecMessageWin"/>
+
+                <div class="tablerow">
+                  <div class="tablecolumn_label short_dynamicsize">
+                    <label for="resource"><wicket:message key="resource"/></label>
+                  </div>
+                  <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="resource">[resource]</span>
+                  </div>
+                </div>
+
+              </div>
+            </span>
+          </div>
+        </div>
+        <div id="executions" class="ui-widget">
+          <span wicket:id="executions" id="executions">
+            <table class="ui-widget ui-widget-content"
+                   wicket:id="executionsTable" style="width: 100%"/>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div wicket:id="taskExecMessageWin"/>
 </wicket:extend>
