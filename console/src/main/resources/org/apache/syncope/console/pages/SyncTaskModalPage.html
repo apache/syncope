@@ -16,7 +16,7 @@
   <style>
     .settingsPos{
       position:relative; 
-      top:19px;
+      top:30px;
       left:90%;
       width:10px;
       text-decoration: none;
@@ -158,12 +158,12 @@
             </div>
           </span>
         </div>
-        <div id="executions">
-          <span wicket:id="executions" style="width: 100%">
+        <div id="executions" class="ui-widget">
+          <span wicket:id="executions" id="executions">
             <a wicket:id="reload" class="settingsPos">
               <img src="img/reload.png" alt="reload" class="drop_button" />
             </a>
-            <table id="executions" class="ui-widget ui-widget-content"
+            <table class="ui-widget ui-widget-content"
                    wicket:id="executionsTable" style="width: 100%"/>
           </span>
         </div>

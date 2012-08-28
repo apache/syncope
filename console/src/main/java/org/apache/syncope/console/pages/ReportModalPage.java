@@ -482,9 +482,8 @@ public class ReportModalPage extends BaseModalPage {
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new ReportExecutionsProvider(reportTO), 10);
                     currentTable.setOutputMarkupId(true);
-                    executions.addOrReplace(currentTable);
                     target.add(currentTable);
-                    target.add(executions);
+                    executions.addOrReplace(currentTable);
                 }
             }
         };

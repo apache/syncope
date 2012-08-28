@@ -190,14 +190,13 @@ public abstract class TaskModalPage extends BaseModalPage {
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), 10);
                     currentTable.setOutputMarkupId(true);
-                    executions.addOrReplace(currentTable);
                     target.add(currentTable);
-                    target.add(executions);
+                    executions.addOrReplace(currentTable);   
                 }
             }
         };
 
-        executions.add(reload);
+        executions.addOrReplace(reload);
     }
 
     protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
