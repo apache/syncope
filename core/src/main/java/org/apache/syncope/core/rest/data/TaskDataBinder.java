@@ -32,6 +32,7 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -149,7 +150,8 @@ public class TaskDataBinder {
 
             case SYNC:
                 if (!(taskTO instanceof SyncTaskTO)) {
-                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.getClass().getName());
+                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
+                            getClass().getName());
                 }
                 SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
@@ -176,7 +178,8 @@ public class TaskDataBinder {
                         getName());
             }
             if (!(taskTO instanceof SyncTaskTO)) {
-                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.getClass().getName());
+                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
+                        getClass().getName());
             }
 
             fill((SyncTask) task, (SyncTaskTO) taskTO);
@@ -227,7 +230,7 @@ public class TaskDataBinder {
         taskTO.setStartDate(latestExec == null
                 ? null
                 : latestExec.getStartDate());
-        
+
         taskTO.setEndDate(latestExec == null
                 ? null
                 : latestExec.getEndDate());
@@ -265,6 +268,9 @@ public class TaskDataBinder {
                 break;
 
             case NOTIFICATION:
+                if (((NotificationTask) task).isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
+                    taskTO.setLatestExecStatus("[EXECUTED]");
+                }
                 break;
 
             default:

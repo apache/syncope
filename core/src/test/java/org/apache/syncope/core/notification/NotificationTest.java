@@ -31,9 +31,11 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.Notification;
@@ -48,6 +50,7 @@ import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.TraceLevel;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -152,6 +155,24 @@ public class NotificationTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    @Before
+    public void setupSMTP() {
+        try {
+            SyncopeConf smtpHostConf = confDAO.find("smtp.host");
+            smtpHostConf.setValue(smtpHost);
+            confDAO.save(smtpHostConf);
+
+            SyncopeConf smtpPortConf = confDAO.find("smtp.port");
+            smtpPortConf.setValue(Integer.toString(smtpPort));
+            confDAO.save(smtpPortConf);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
+            fail("Unexpected exception while setting SMTP host and port");
+        }
+
+        confDAO.flush();
+    }
+
     private boolean verifyMail(final String sender, final String subject) {
         LOG.info("Waiting for notification to be sent...");
         try {
@@ -216,23 +237,7 @@ public class NotificationTest {
 
         notificationDAO.flush();
 
-        // 2. use test SMTP server
-        try {
-            SyncopeConf smtpHostConf = confDAO.find("smtp.host");
-            smtpHostConf.setValue(smtpHost);
-            confDAO.save(smtpHostConf);
-
-            SyncopeConf smtpPortConf = confDAO.find("smtp.port");
-            smtpPortConf.setValue(Integer.toString(smtpPort));
-            confDAO.save(smtpPortConf);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while setting SMTP host and port");
-        }
-
-        confDAO.flush();
-
-        // 3. create user
+        // 2. create user
         UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
@@ -245,19 +250,18 @@ public class NotificationTest {
             fail("Unexpected exception while creating");
         }
 
-        // 4. force Quartz job execution and verify e-mail
+        // 3. force Quartz job execution and verify e-mail
         try {
             notificationJob.execute(null);
         } catch (SchedulerException e) {
             LOG.error("Unexpected exception", e);
             fail("Unexpected exception while triggering notification job");
         }
-
         assertTrue(verifyMail(sender, subject));
 
-        List<NotificationTask> tasks = taskDAO.findAll(NotificationTask.class);
+        // 4. get NotificationTask id
         Long taskId = null;
-        for (NotificationTask task : tasks) {
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
             if (sender.equals(task.getSender())) {
                 taskId = task.getId();
             }
@@ -271,7 +275,82 @@ public class NotificationTest {
             LOG.error("Unexpected exception", e);
             fail("Unexpected exception while executing notification task");
         }
-
         assertTrue(verifyMail(sender, subject));
+    }
+
+    @Test
+    public void issueSYNCOPE192() {
+        // 1. create suitable notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("create");
+
+        MembershipCond membCond = new MembershipCond();
+        membCond.setRoleId(7L);
+        notification.setAbout(NodeCond.getLeafCond(membCond));
+
+        membCond = new MembershipCond();
+        membCond.setRoleId(8L);
+        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncope192-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+        notification.setTraceLevel(TraceLevel.NONE);
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.addMembership(membershipTO);
+
+        try {
+            userController.create(new MockHttpServletResponse(), userTO);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
+            fail("Unexpected exception while creating");
+        }
+
+        // 3. force Quartz job execution and verify e-mail
+        try {
+            notificationJob.execute(null);
+        } catch (SchedulerException e) {
+            LOG.error("Unexpected exception", e);
+            fail("Unexpected exception while triggering notification job");
+        }
+        assertTrue(verifyMail(sender, subject));
+
+        // 4. get NotificationTask id
+        Long taskId = null;
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
+            if (sender.equals(task.getSender())) {
+                taskId = task.getId();
+            }
+        }
+        assertNotNull(taskId);
+
+        // 5. verify that last exec status was updated
+        NotificationTaskTO task = null;
+        try {
+            task = (NotificationTaskTO) taskController.read(taskId);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
+            fail("Unexpected exception while reading notification task");
+        }
+        assertNotNull(task);
+        assertTrue(task.getExecutions().isEmpty());
+        assertTrue(task.isExecuted());
+        assertTrue(StringUtils.isNotBlank(task.getLatestExecStatus()));
     }
 }
