@@ -308,13 +308,13 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNull(sce);
     }
-    
+
     @Test
     public void testMandatoryContraintsUserCreation() {
         UserTO userTO = getSampleTO("issue183@apache.org");
         userTO.addResource("ws-target-resource-2");
         userTO.setPassword("newPassword");
-        
+
         AttributeTO type = null;
         for (AttributeTO attr : userTO.getAttributes()) {
             if ("type".equals(attr.getSchema())) {
@@ -331,9 +331,9 @@ public class UserTestITCase extends AbstractTest {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         assertNotNull(sce);
-        
+
         userTO.addAttribute(type);
-        
+
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
     }
@@ -552,7 +552,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+        Boolean verify = restTemplate.
+                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
                 Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
@@ -868,7 +869,8 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
+        users = Arrays.
+                asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
@@ -1435,7 +1437,8 @@ public class UserTestITCase extends AbstractTest {
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
                 + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, dbTable.getName(), dbTableUID);
 
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).getValues().
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
+                getValues().
                 get(0)));
 
         String ldapUID = userTO.getUsername();
@@ -1456,7 +1459,8 @@ public class UserTestITCase extends AbstractTest {
         connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
 
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).getValues().
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
+                getValues().
                 get(0)));
 
         query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check also performLocally
@@ -1469,7 +1473,8 @@ public class UserTestITCase extends AbstractTest {
         connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
 
-        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).getValues().
+        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
+                getValues().
                 get(0)));
     }
 
@@ -1911,7 +1916,6 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("resource-ldap");
 
         UserTO actual = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
-
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
@@ -1965,5 +1969,35 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, title.getValues().size());
         assertTrue(title.getValues().contains("r13"));
         // -----------------------------------
+    }
+
+    @Test
+    public void issueSYNCOPE185() {
+        // 1. create user with LDAP resource, succesfully propagated
+        UserTO userTO = getSampleTO("syncope185@syncope.apache.org");
+        userTO.getVirtualAttributes().clear();
+        userTO.addResource("resource-ldap");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("resource-ldap", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationTOs().get(0).getStatus());
+
+        // 2. delete this user
+        restTemplate.getForObject(BASE_URL + "user/delete/{userId}", UserTO.class, userTO.getId());
+
+        // 3. try (and fail) to find this user on the external LDAP resource
+        SyncopeClientException sce = null;
+        try {
+            ConnObjectTO connObjectTO = restTemplate.getForObject(
+                    BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                    ConnObjectTO.class, "resource-ldap", userTO.getUsername());
+            fail("This entry should not be present on this resource");
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            sce = sccee.getException(SyncopeClientExceptionType.NotFound);
+
+        }
+        assertNotNull(sce);
     }
 }
