@@ -1895,11 +1895,11 @@ public class UserTestITCase extends AbstractTest {
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
 
-        AttributeTO description = new AttributeTO();
-        description.setSchema("description");
-        description.addValue("description");
+        AttributeTO postalAddress = new AttributeTO();
+        postalAddress.setSchema("postalAddress");
+        postalAddress.addValue("postalAddress");
 
-        memb12.addAttribute(description);
+        memb12.addAttribute(postalAddress);
 
         userTO.addMembership(memb12);
 
@@ -1923,10 +1923,10 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(connObjectTO);
 
-        description = connObjectTO.getAttributeMap().get("description");
-        assertNotNull(description);
-        assertEquals(1, description.getValues().size());
-        assertEquals("description", description.getValues().get(0));
+        postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
+        assertNotNull(postalAddress);
+        assertEquals(1, postalAddress.getValues().size());
+        assertEquals("postalAddress", postalAddress.getValues().get(0));
 
         AttributeTO title = connObjectTO.getAttributeMap().get("title");
         assertNotNull(title);
@@ -1956,9 +1956,9 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(connObjectTO);
 
-        description = connObjectTO.getAttributeMap().get("description");
-        assertTrue(description == null
-                || description.getValues().isEmpty() || StringUtils.hasText(description.getValues().get(0)));
+        postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
+        assertTrue(postalAddress == null
+                || postalAddress.getValues().isEmpty() || StringUtils.hasText(postalAddress.getValues().get(0)));
 
         title = connObjectTO.getAttributeMap().get("title");
         assertNotNull(title);
