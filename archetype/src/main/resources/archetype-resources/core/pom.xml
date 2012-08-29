@@ -254,33 +254,33 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-                            <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
+              <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
             </properties>
-            <deployables>
-              <deployable>
-                <location>${cargo.run.dir}</location>
-                <properties>
-                  <context>syncope</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.connid.bundles.soap</groupId>
-                <artifactId>wssample</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>wssample</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-build-tools</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>syncope-build-tools</context>
-                </properties>
-              </deployable>
-            </deployables>
           </configuration>
+          <deployables>
+            <deployable>
+              <location>${cargo.run.dir}</location>
+              <properties>
+                <context>syncope</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.connid.bundles.soap</groupId>
+              <artifactId>wssample</artifactId>
+              <type>war</type>
+              <properties>
+                <context>wssample</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.apache.syncope</groupId>
+              <artifactId>syncope-build-tools</artifactId>
+              <type>war</type>
+              <properties>
+                <context>syncope-build-tools</context>
+              </properties>
+            </deployable>
+          </deployables>
         </configuration>
         <executions>
           <execution>

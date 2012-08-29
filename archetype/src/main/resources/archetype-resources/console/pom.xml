@@ -215,37 +215,37 @@ under the License.
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
               <cargo.jvmargs>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</cargo.jvmargs>
             </properties>
-            <deployables>
-              <deployable>
-                <location>${cargo.run.dir}</location>
-                <properties>
-                  <context>syncope</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <location>${project.build.directory}/${project.build.finalName}.war</location>
-                <properties>
-                  <context>syncope-console</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.connid.bundles.soap</groupId>
-                <artifactId>wssample</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>wssample</context>
-                </properties>
-              </deployable>
-              <deployable>
-                <groupId>org.apache.syncope</groupId>
-                <artifactId>syncope-build-tools</artifactId>
-                <type>war</type>
-                <properties>
-                  <context>syncope-build-tools</context>
-                </properties>
-              </deployable>
-            </deployables>
           </configuration>
+          <deployables>
+            <deployable>
+              <location>${cargo.run.dir}</location>
+              <properties>
+                <context>syncope</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <location>${project.build.directory}/${project.build.finalName}.war</location>
+              <properties>
+                <context>syncope-console</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.connid.bundles.soap</groupId>
+              <artifactId>wssample</artifactId>
+              <type>war</type>
+              <properties>
+                <context>wssample</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <groupId>org.apache.syncope</groupId>
+              <artifactId>syncope-build-tools</artifactId>
+              <type>war</type>
+              <properties>
+                <context>syncope-build-tools</context>
+              </properties>
+            </deployable>
+          </deployables>
         </configuration>
       </plugin>
             
