@@ -168,7 +168,7 @@ public class NotificationManager {
 
         final Map<String, Object> model = new HashMap<String, Object>();
         model.put("user", userDataBinder.getUserTO(user));
-        model.put("syncopeConf", this.findAll());
+        model.put("syncopeConf", this.findAllSyncopeConfs());
 
         String htmlBody;
         String textBody;
@@ -251,12 +251,12 @@ public class NotificationManager {
     }
 
     /**
-     * Store execution of a NotificationTask and update latest execution status of related NotificationTask.
+     * Store execution of a NotificationTask.
      *
      * @param execution task execution.
      * @return merged task execution.
      */
-    public TaskExec storeExecAndUpdateLatestExecStatus(final TaskExec execution) {
+    public TaskExec storeExec(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
         task.addExec(execution);
         task.setExecuted(true);
@@ -265,7 +265,18 @@ public class NotificationManager {
         return task.getExecs().get(0);
     }
 
-    public Map<String, String> findAll() {
+    /**
+     * Mark NotificationTask with provided id as executed.
+     * 
+     * @param taskId task to be updated
+     */
+    public void setTaskExecuted(final Long taskId) {
+        NotificationTask task = taskDAO.find(taskId);
+        task.setExecuted(true);
+        taskDAO.save(task);
+    }
+
+    public Map<String, String> findAllSyncopeConfs() {
         Map<String, String> syncopeConfMap = new HashMap<String, String>();
         for (SyncopeConf conf : confDAO.findAll()) {
             syncopeConfMap.put(conf.getKey(), conf.getValue());

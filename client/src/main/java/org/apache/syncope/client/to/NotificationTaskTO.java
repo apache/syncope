@@ -36,6 +36,8 @@ public class NotificationTaskTO extends TaskTO {
 
     private String htmlBody;
 
+    private boolean executed;
+
     private TraceLevel traceLevel;
 
     public NotificationTaskTO() {
@@ -93,6 +95,14 @@ public class NotificationTaskTO extends TaskTO {
 
     public void setHtmlBody(final String htmlBody) {
         this.htmlBody = htmlBody;
+    }
+
+    public boolean isExecuted() {
+        return executed;
+    }
+
+    public void setExecuted(boolean executed) {
+        this.executed = executed;
     }
 
     public TraceLevel getTraceLevel() {
