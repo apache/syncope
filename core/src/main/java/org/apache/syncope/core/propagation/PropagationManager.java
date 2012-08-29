@@ -35,7 +35,6 @@ import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
@@ -183,7 +182,7 @@ public class PropagationManager {
             propByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
         }
 
-        return provision(user, password, wfResult.getResult().getValue(), propByRes);
+        return provision(user, password, wfResult.getResult().getValue(), false, propByRes);
     }
 
     /**
@@ -285,7 +284,7 @@ public class PropagationManager {
             localPropByRes.get(PropagationOperation.DELETE).removeAll(syncResourceNames);
         }
 
-        return provision(user, password, enable, localPropByRes);
+        return provision(user, password, enable, false, localPropByRes);
     }
 
     /**
@@ -324,7 +323,7 @@ public class PropagationManager {
             propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }
 
-        return provision(user, null, false, propByRes);
+        return provision(user, null, false, true, propByRes);
     }
 
     /**
@@ -367,12 +366,16 @@ public class PropagationManager {
 
         final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
 
-        LOG.debug("Define mapping for: " + "\n* ExtAttrName " + extAttrName + "\n* is accountId "
-                + mapping.isAccountid() + "\n* is password "
-                + (mapping.isPassword() || mapping.getIntMappingType().equals(IntMappingType.Password))
-                + "\n* mandatory condition " + mapping.getMandatoryCondition() + "\n* Schema "
-                + mapping.getIntAttrName() + "\n* IntMappingType " + mapping.getIntMappingType().toString()
-                + "\n* ClassType " + schemaType.getClassName() + "\n* Values " + values);
+        LOG.debug("Define mapping for: "
+                + "\n* ExtAttrName " + extAttrName
+                + "\n* is accountId " + mapping.isAccountid()
+                + "\n* is password " + (mapping.isPassword() || mapping.getIntMappingType().equals(
+                IntMappingType.Password))
+                + "\n* mandatory condition " + mapping.getMandatoryCondition()
+                + "\n* Schema " + mapping.getIntAttrName()
+                + "\n* IntMappingType " + mapping.getIntMappingType().toString()
+                + "\n* ClassType " + schemaType.getClassName()
+                + "\n* Values " + values);
 
         List<Object> objValues = new ArrayList<Object>();
 
@@ -387,18 +390,13 @@ public class PropagationManager {
         Map.Entry<String, Attribute> res;
 
         if (mapping.isAccountid()) {
-
             res = new DefaultMapEntry(objValues.iterator().next().toString(), null);
-
         } else if (mapping.isPassword()) {
-
-            res = new DefaultMapEntry(null, AttributeBuilder.buildPassword(objValues.iterator().next().toString().
-                    toCharArray()));
-
+            res = new DefaultMapEntry(null,
+                    AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
             if (schema != null && schema.isMultivalue()) {
                 res = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
-
             } else {
                 res = new DefaultMapEntry(null, objValues.isEmpty()
                         ? AttributeBuilder.build(extAttrName)
@@ -421,8 +419,8 @@ public class PropagationManager {
     private Map.Entry<String, Set<Attribute>> prepareAttributes(final SyncopeUser user, final String password,
             final Boolean enable, final ExternalResource resource) {
 
-        LOG.debug("Preparing resource attributes for {}" + " on resource {}" + " with attributes {}", new Object[]{
-                    user, resource, user.getAttributes()});
+        LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
+                new Object[]{user, resource, user.getAttributes()});
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -496,11 +494,12 @@ public class PropagationManager {
      * @param user user to be provisioned
      * @param password cleartext password to be provisioned
      * @param enable whether user must be enabled or not
+     * @param deleteOnResource whether user must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
     protected List<PropagationTask> provision(final SyncopeUser user, final String password, final Boolean enable,
-            final PropagationByResource propByRes) {
+            final boolean deleteOnResource, final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
 
@@ -519,16 +518,16 @@ public class PropagationManager {
             }
 
             for (ExternalResource resource : resourcesByPriority) {
-
                 PropagationTask task = new PropagationTask();
                 task.setResource(resource);
-                task.setSyncopeUser(user);
+                if (!deleteOnResource) {
+                    task.setSyncopeUser(user);
+                }
                 task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
                 Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password, enable, resource);
-
                 task.setAccountId(preparedAttrs.getKey());
                 task.setAttributes(preparedAttrs.getValue());
 
@@ -550,6 +549,7 @@ public class PropagationManager {
      * Execute a list of PropagationTask, in given order.
      *
      * @param tasks to be execute, in given order
+     * @param handler propagation handler
      * @throws PropagationException if propagation goes wrong: propagation is interrupted as soon as the result of the
      * communication with a primary resource is in error
      */
@@ -573,7 +573,6 @@ public class PropagationManager {
                 execStatus = PropagationTaskExecStatus.FAILURE;
             }
             if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
-
                 throw new PropagationException(task.getResource().getName(), execution.getMessage());
             }
         }
@@ -648,15 +647,10 @@ public class PropagationManager {
         ConnectorObject after = null;
 
         try {
-            final ConnInstance connInstance = task.getResource().getConnector();
-
             final ConnectorFacadeProxy connector = connLoader.getConnector(task.getResource());
-
             if (connector == null) {
-                final String msg = String.format("Connector instance bean for resource %s and "
-                        + "connInstance %s not found", task.getResource(), connInstance);
-
-                throw new NoSuchBeanDefinitionException(msg);
+                throw new NoSuchBeanDefinitionException(String.format(
+                        "Connector instance bean for resource %s not found", task.getResource()));
             }
 
             // Try to read user BEFORE any actual operation
@@ -669,26 +663,7 @@ public class PropagationManager {
                         // set of attributes to be propagated
                         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
 
-                        if (before != null) {
-
-                            // 1. check if rename is really required
-                            final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
-
-                            LOG.debug("Rename required with value {}", newName);
-
-                            if (newName != null && newName.equals(before.getName())
-                                    && !before.getUid().getUidValue().equals(newName.getNameValue())) {
-
-                                LOG.debug("Remote object name unchanged");
-                                attributes.remove(newName);
-                            }
-
-                            LOG.debug("Attributes to be replaced {}", attributes);
-
-                            // 2. update with a new "normalized" attribute set
-                            connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, before.getUid(),
-                                    attributes, null, propagationAttempted);
-                        } else {
+                        if (before == null) {
                             // 1. get accountId
                             final String accountId = task.getAccountId();
 
@@ -713,17 +688,59 @@ public class PropagationManager {
                             // 4. provision entry
                             connector.create(task.getPropagationMode(), ObjectClass.ACCOUNT, attributes, null,
                                     propagationAttempted);
+                        } else {
+
+                            // 1. check if rename is really required
+                            final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
+
+                            LOG.debug("Rename required with value {}", newName);
+
+                            if (newName != null && newName.equals(before.getName())
+                                    && !before.getUid().getUidValue().equals(newName.getNameValue())) {
+
+                                LOG.debug("Remote object name unchanged");
+                                attributes.remove(newName);
+                            }
+
+                            LOG.debug("Attributes to be replaced {}", attributes);
+
+                            // 2. update with a new "normalized" attribute set
+                            connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, before.getUid(),
+                                    attributes, null, propagationAttempted);
                         }
                         break;
 
                     case DELETE:
                         if (before == null) {
-                            LOG.debug("{} not found on external resource:" + " ignoring delete", task.getAccountId());
+                            LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
                         } else {
-                            final SyncopeUser user = getSyncopeUser(task.getSyncopeUser().getId());
+                            /*
+                             * We must choose here whether to
+                             *  a. actually delete the provided user from the external resource
+                             *  b. just update the provided user data onto the external resource
+                             *
+                             * (a) happens when either there is no user associated with the PropagationTask (this takes
+                             * place when the task is generated via UserController.delete()) or the provided updated
+                             * user hasn't the current resource assigned (when the task is generated via
+                             * UserController.update()).
+                             *
+                             * (b) happens when the provided updated user does have the current resource assigned
+                             * (when the task is generated via UserController.update()): this basically means that
+                             * before such update, this user used to have the current resource assigned by more than
+                             * one mean (for example, two different memberships with the same resource).
+                             */
+
+                            SyncopeUser user = null;
+                            if (task.getSyncopeUser() != null) {
+                                try {
+                                    user = getSyncopeUser(task.getSyncopeUser().getId());
+                                } catch (NotFoundException e) {
+                                    LOG.warn("Requesting to delete a non-existing user from {}",
+                                            task.getResource().getName(), e);
+                                }
+                            }
 
                             if (user == null || !user.getResourceNames().contains(task.getResource().getName())) {
-                                // perform de-provisioning
                                 LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
 
                                 connector.delete(
@@ -733,10 +750,6 @@ public class PropagationManager {
                                         null,
                                         propagationAttempted);
                             } else {
-                                // Update remote profile.
-                                // This is absolutely needed because otherwise the resource won't be updated: 
-                                // resources to be deleted won't be considered by UserDataBinder.update() for the update
-                                // but, often, this have to be done.
                                 LOG.debug("Update remote object on {}", task.getResource().getName());
 
                                 connector.update(
@@ -762,12 +775,10 @@ public class PropagationManager {
 
                 // Try to read user AFTER any actual operation
                 after = getRemoteObject(connector, task, true);
-
             } catch (Exception e) {
                 after = getRemoteObject(connector, task, false);
                 throw e;
             }
-
         } catch (Exception e) {
             LOG.error("Exception during provision on resource " + task.getResource().getName(), e);
 
@@ -808,12 +819,11 @@ public class PropagationManager {
 
                 taskDAO.save(task);
 
-                // Flush call is needed to value the id field of execution (used by deal test of TaskTestITCase).
+                // This flush call is needed to generate a value for the execution id
+                // An alternative to this would be the following statement that might cause troubles with
+                // concurrent calls.
+                // taskExecDAO.findLatestStarted(task);
                 taskDAO.flush();
-
-                // An alternative to the flush call could be the following statement but we should accept the risk to  
-                // have a not so probable trouble coming from concurrent calls.
-                //final TaskExec latestExec = taskExecDAO.findLatestStarted(taskDAO.save(task));
             }
         }
 

@@ -24,7 +24,6 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 
 public class PropagationTaskValidator extends AbstractValidator implements
@@ -45,8 +44,7 @@ public class PropagationTaskValidator extends AbstractValidator implements
             isValid = object.getPropagationMode() != null
                     && object.getPropagationOperation() != null
                     && !object.getAttributes().isEmpty()
-                    && object.getResource() != null
-                    && (PropagationOperation.DELETE == object.getPropagationOperation() || object.getSyncopeUser() != null);
+                    && object.getResource() != null;
 
             if (isValid) {
                 List<TaskExec> executions = object.getExecs();

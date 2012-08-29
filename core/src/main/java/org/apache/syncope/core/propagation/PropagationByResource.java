@@ -27,8 +27,7 @@ import java.util.Set;
 import org.apache.syncope.types.PropagationOperation;
 
 /**
- * Utility class for encapsulating operations to be performed on various
- * resources.
+ * Utility class for encapsulating operations to be performed on various resources.
  */
 public class PropagationByResource implements Serializable {
 
@@ -66,9 +65,8 @@ public class PropagationByResource implements Serializable {
     }
 
     /**
-     * Avoid potential conflicts by not doing create or update on any
-     * resource for which a delete is requested, and by not doing any create
-     * on any resource for which an update is requested.
+     * Avoid potential conflicts by not doing create or update on any resource for which a delete is requested, and by
+     * not doing any create on any resource for which an update is requested.
      */
     public final void purge() {
         toBeCreated.removeAll(toBeDeleted);
@@ -85,7 +83,6 @@ public class PropagationByResource implements Serializable {
      * @return whether the operation was successful or not
      */
     public final boolean add(final PropagationOperation type, final String resourceName) {
-
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -113,7 +110,6 @@ public class PropagationByResource implements Serializable {
      * @return whether the operation was successful or not
      */
     public boolean addAll(final PropagationOperation type, final Set<String> resourceNames) {
-
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -141,7 +137,6 @@ public class PropagationByResource implements Serializable {
      * @return whether the operation was successful or not
      */
     public final boolean remove(final PropagationOperation type, final String resourceName) {
-
         boolean result = false;
 
         switch (type) {
@@ -200,7 +195,6 @@ public class PropagationByResource implements Serializable {
     public final void set(final PropagationOperation type, final Set<String> resourceNames) {
 
         switch (type) {
-
             case CREATE:
                 toBeCreated.clear();
                 toBeCreated.addAll(resourceNames);
@@ -235,8 +229,7 @@ public class PropagationByResource implements Serializable {
     /**
      * whether no operations are present.
      *
-     * @return true if no operations (create / update / delete) and no
-     * old account ids are present
+     * @return true if no operations (create / update / delete) and no old account ids are present
      */
     public final boolean isEmpty() {
         return toBeCreated.isEmpty() && toBeUpdated.isEmpty() && toBeDeleted.isEmpty() && oldAccountIds.isEmpty();
@@ -268,7 +261,6 @@ public class PropagationByResource implements Serializable {
      * @param oldAccountId old account id
      */
     public void addOldAccountId(final String resourceName, final String oldAccountId) {
-
         if (resourceName != null && oldAccountId != null) {
             oldAccountIds.put(resourceName, oldAccountId);
         }
@@ -276,7 +268,9 @@ public class PropagationByResource implements Serializable {
 
     @Override
     public String toString() {
-        return "To be Created: " + toBeCreated + ";\n" + "To be Updated: " + toBeUpdated + ";\n" + "To be Deleted: "
-                + toBeDeleted + ";\n" + "Old account Ids: " + oldAccountIds;
+        return "To be Created: " + toBeCreated + ";\n"
+                + "To be Updated: " + toBeUpdated + ";\n"
+                + "To be Deleted: " + toBeDeleted + ";\n"
+                + "Old account Ids: " + oldAccountIds;
     }
 }
