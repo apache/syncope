@@ -2,6 +2,22 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.1-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-182] - LICENSE & NOTICE: duplicated entries
+    * [SYNCOPE-183] - 'Enforce mandatory constraints' not working
+    * [SYNCOPE-185] - Could not delete an user with LDAP resource
+    * [SYNCOPE-187] - When deleting an user, REST error doesn't bring error message to display
+    * [SYNCOPE-191] - UI Error when sorting Synchronization Task executions
+    * [SYNCOPE-192] - With trace level NONE notification tasks don't get updated
+
+** Improvement
+    * [SYNCOPE-184] - LDAP test connector should provide status information
+
+** Task
+    * [SYNCOPE-188] - Upgrade to Apache Wicket 1.5.8
+
 Release Notes - Syncope - Version 1.0.0-incubating
 ================================================================================
 ** Bug
