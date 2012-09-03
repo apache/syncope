@@ -85,7 +85,7 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
      * @return paginated list.
      */
     public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
-        List<T> result = Collections.EMPTY_LIST;
+        List<T> result = Collections.emptyList();
 
         if (PropagationTaskTO.class == reference) {
             result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(

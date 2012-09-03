@@ -74,7 +74,7 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
 
     @Override
     public List<Group> findGroupsByUser(final String userId) {
-        List<Group> result = Collections.EMPTY_LIST;
+        List<Group> result = Collections.emptyList();
         SyncopeUser user = userDAO.find(userId);
         if (user != null) {
             result = new ArrayList<Group>();

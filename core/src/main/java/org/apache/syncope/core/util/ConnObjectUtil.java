@@ -155,7 +155,7 @@ public class ConnObjectUtil {
                     attributeTO.setSchema(mapping.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
-                            ? Collections.EMPTY_LIST
+                            ? Collections.emptyList()
                             : attribute.getValue()) {
                         attributeTO.addValue(value.toString());
                     }
@@ -174,7 +174,7 @@ public class ConnObjectUtil {
                     attributeTO.setSchema(mapping.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
-                            ? Collections.EMPTY_LIST
+                            ? Collections.emptyList()
                             : attribute.getValue()) {
                         attributeTO.addValue(value.toString());
                     }

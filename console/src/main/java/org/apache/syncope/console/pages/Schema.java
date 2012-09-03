@@ -594,7 +594,7 @@ public class Schema extends BasePage {
                     break;
 
                 default:
-                    list = Collections.EMPTY_LIST;
+                    list = Collections.emptyList();
             }
 
             return list;

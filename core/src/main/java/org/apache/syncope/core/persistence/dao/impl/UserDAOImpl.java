@@ -126,7 +126,7 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
         UDerSchema schema = derSchemaDAO.find(schemaName, UDerSchema.class);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         // query string
@@ -170,7 +170,7 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
         USchema schema = schemaDAO.find(schemaName, USchema.class);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         final String entityName = schema.isUniqueConstraint()

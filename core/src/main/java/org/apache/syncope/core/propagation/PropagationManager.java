@@ -175,7 +175,7 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = wfResult.getPropByRes();
         if (propByRes == null || propByRes.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         if (syncResourceNames != null) {

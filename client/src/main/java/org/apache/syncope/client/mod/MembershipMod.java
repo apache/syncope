@@ -48,12 +48,12 @@ public class MembershipMod extends AbstractAttributableMod {
 
     @Override
     public Set<String> getResourcesToBeAdded() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Set<String> getResourcesToBeRemoved() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override

@@ -165,7 +165,7 @@ public class PropagationByResource implements Serializable {
      * @return resource matching the given type
      */
     public final Set<String> get(final PropagationOperation type) {
-        Set<String> result = Collections.EMPTY_SET;
+        Set<String> result = Collections.emptySet();
 
         switch (type) {
             case CREATE:

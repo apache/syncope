@@ -105,7 +105,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
             if (role != null) {
                 result = Collections.singletonList(fromSyncopeRole(role));
             } else {
-                result = Collections.EMPTY_LIST;
+                result = Collections.emptyList();
             }
         }
         if (result == null) {

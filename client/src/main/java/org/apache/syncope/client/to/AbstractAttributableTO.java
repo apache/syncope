@@ -60,7 +60,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         Map<String, AttributeTO> result;
 
         if (derivedAttributes == null) {
-            result = Collections.EMPTY_MAP;
+            result = Collections.emptyMap();
         } else {
             result = new HashMap<String, AttributeTO>(derivedAttributes.size());
             for (AttributeTO attributeTO : derivedAttributes) {
@@ -77,7 +77,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         Map<String, AttributeTO> result;
 
         if (derivedAttributes == null) {
-            result = Collections.EMPTY_MAP;
+            result = Collections.emptyMap();
         } else {
             result = new HashMap<String, AttributeTO>(virtualAttributes.size());
             for (AttributeTO attributeTO : virtualAttributes) {

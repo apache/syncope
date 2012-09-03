@@ -316,7 +316,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             default:
-                                choices = Collections.EMPTY_LIST;
+                                choices = Collections.emptyList();
                         }
 
                         panel = new AjaxPalettePanel("value", new PropertyModel<List<String>>(

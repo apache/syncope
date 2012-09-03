@@ -91,7 +91,7 @@ public class UserTO extends AbstractAttributableTO {
         Map<Long, MembershipTO> result;
 
         if (getMemberships() == null) {
-            result = Collections.EMPTY_MAP;
+            result = Collections.emptyMap();
         } else {
             result = new HashMap<Long, MembershipTO>(getMemberships().size());
             for (MembershipTO membership : getMemberships()) {

@@ -210,14 +210,14 @@ public class UserManagementResultPanel extends Panel {
             beforeAttrMap = before.getAttributeMap();
             attributes.addAll(beforeAttrMap.keySet());
         } else {
-            beforeAttrMap = Collections.EMPTY_MAP;
+            beforeAttrMap = Collections.emptyMap();
         }
 
         if (after != null) {
             afterAttrMap = after.getAttributeMap();
             attributes.addAll(afterAttrMap.keySet());
         } else {
-            afterAttrMap = Collections.EMPTY_MAP;
+            afterAttrMap = Collections.emptyMap();
         }
 
         final List<String> profile = new ArrayList<String>();

@@ -127,7 +127,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     public List<SyncopeUser> search(
             final Set<Long> adminRoles, final NodeCond searchCondition, final int page, final int itemsPerPage) {
 
-        List<SyncopeUser> result = Collections.EMPTY_LIST;
+        List<SyncopeUser> result = Collections.emptyList();
 
         if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);

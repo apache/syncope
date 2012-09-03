@@ -240,7 +240,7 @@ class NotificationModalPage extends BaseModalPage {
 
     private List<String> getSchemaNames(final IntMappingType type) {
         if (type == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         switch (type) {
@@ -253,7 +253,7 @@ class NotificationModalPage extends BaseModalPage {
             case Username:
                 return Collections.singletonList("Username");
             default:
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
         }
     }
 }

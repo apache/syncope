@@ -65,6 +65,6 @@ public class MVirAttr extends AbstractVirAttr {
 
     @Override
     public List<String> getValues() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }
