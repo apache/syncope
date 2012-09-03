@@ -37,11 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    private static final List<String> TASKS = Arrays.asList(new String[] { "create", "activate", "update", "suspend",
-            "reactivate", "delete" });
+    private static final List<String> TASKS = Arrays.asList(new String[]{"create", "activate", "update", "suspend",
+                "reactivate", "delete"});
 
     public static final String ENABLED = "enabled";
 
@@ -53,7 +53,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled) throws WorkflowException {
+            final Boolean enabled)
+            throws WorkflowException {
 
         SyncopeUser user = new SyncopeUser();
         dataBinder.create(user, userTO);
@@ -88,7 +89,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token) throws WorkflowException {
+    protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token)
+            throws WorkflowException {
 
         if (!user.checkToken(token)) {
             throw new WorkflowException(new RuntimeException("Wrong token: " + token));
@@ -114,7 +116,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final SyncopeUser user) throws WorkflowException {
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
+            throws WorkflowException {
 
         user.setStatus("suspended");
         SyncopeUser updated = userDAO.save(user);
@@ -123,7 +126,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final SyncopeUser user) throws WorkflowException {
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
+            throws WorkflowException {
 
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
@@ -132,7 +136,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final SyncopeUser user) throws WorkflowException {
+    protected void doDelete(final SyncopeUser user)
+            throws WorkflowException {
 
         userDAO.delete(user);
     }
@@ -145,19 +150,22 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition() throws WorkflowException {
+    public WorkflowDefinitionTO getDefinition()
+            throws WorkflowException {
 
         return new WorkflowDefinitionTO();
     }
 
     @Override
-    public void updateDefinition(final WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException {
+    public void updateDefinition(final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public List<String> getDefinedTasks() throws WorkflowException {
+    public List<String> getDefinedTasks()
+            throws WorkflowException {
 
         return TASKS;
     }
@@ -168,7 +176,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId) throws NotFoundException, WorkflowException {
+    public WorkflowFormTO getForm(final String workflowId)
+            throws NotFoundException, WorkflowException {
 
         return null;
     }

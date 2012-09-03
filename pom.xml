@@ -273,6 +273,8 @@ under the License.
     <apacheds.version>1.5.7</apacheds.version>
 
     <tomcat.version>7.0.29</tomcat.version>
+
+    <jasypt.version>1.9.0</jasypt.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <log.directory>${project.build.directory}/log</log.directory>

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,10 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -56,9 +53,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.springframework.security.crypto.codec.Base64;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -67,6 +62,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
+import org.apache.syncope.core.security.PasswordEncoder;
 import org.apache.syncope.types.CipherAlgorithm;
 
 @Entity
@@ -75,16 +71,6 @@ import org.apache.syncope.types.CipherAlgorithm;
 public class SyncopeUser extends AbstractAttributable {
 
     private static final long serialVersionUID = -3905046855521446823L;
-
-    private static SecretKeySpec keySpec;
-
-    static {
-        try {
-            keySpec = new SecretKeySpec(ArrayUtils.subarray("1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
-        } catch (Exception e) {
-            LOG.error("Error during key specification", e);
-        }
-    }
 
     @Id
     private Long id;
@@ -514,42 +500,7 @@ public class SyncopeUser extends AbstractAttributable {
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
-        String encodedPassword = null;
-
-        if (password != null) {
-            if (cipherAlgoritm == null || cipherAlgoritm == CipherAlgorithm.AES) {
-
-                final byte[] cleartext = password.getBytes("UTF8");
-
-                final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
-
-                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-                byte[] encoded = cipher.doFinal(cleartext);
-
-                encodedPassword = new String(Base64.encode(encoded));
-            } else {
-                MessageDigest algorithm = MessageDigest.getInstance(cipherAlgoritm.getAlgorithm());
-
-                algorithm.reset();
-                algorithm.update(password.getBytes());
-
-                byte[] messageDigest = algorithm.digest();
-
-                StringBuilder hexString = new StringBuilder();
-                for (int i = 0; i < messageDigest.length; i++) {
-                    String hex = Integer.toHexString(0xff & messageDigest[i]);
-                    if (hex.length() == 1) {
-                        hexString.append('0');
-                    }
-                    hexString.append(hex);
-                }
-
-                encodedPassword = hexString.toString();
-            }
-        }
-
-        return encodedPassword;
+        return PasswordEncoder.encodePassword(password, cipherAlgoritm);
     }
 
     public boolean verifyPasswordHistory(final String password, final int size) {

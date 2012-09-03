@@ -19,24 +19,24 @@
 package org.apache.syncope.core.security;
 
 import java.util.Date;
+import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.CipherAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.types.CipherAlgorithm;
-import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.springframework.security.authentication.DisabledException;
 
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
@@ -56,21 +56,43 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
     private String adminUser;
 
-    private String adminMD5Password;
+    private String adminPassword;
 
-    public String getAdminMD5Password() {
-        return adminMD5Password;
+    /**
+     * @return the adminPassword
+     */
+    public String getAdminPassword() {
+        return adminPassword;
     }
 
-    public void setAdminMD5Password(String adminMD5Password) {
-        this.adminMD5Password = adminMD5Password;
+    /**
+     * @param adminPassword the adminPassword to set
+     */
+    public void setAdminPassword(final String adminPassword) {
+        this.adminPassword = adminPassword;
     }
+
+    /**
+     * @return the adminPasswordAlgorithm
+     */
+    public String getAdminPasswordAlgorithm() {
+        return adminPasswordAlgorithm;
+    }
+
+    /**
+     * @param adminPasswordAlgorithm the adminPasswordAlgorithm to set
+     */
+    public void setAdminPasswordAlgorithm(final String adminPasswordAlgorithm) {
+        this.adminPasswordAlgorithm = adminPasswordAlgorithm;
+    }
+
+    private String adminPasswordAlgorithm;
 
     public String getAdminUser() {
         return adminUser;
     }
 
-    public void setAdminUser(String adminUser) {
+    public void setAdminUser(final String adminUser) {
         this.adminUser = adminUser;
     }
 
@@ -95,8 +117,10 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getPrincipal().toString();
 
         if (adminUser.equals(username)) {
-            passwordUser.setPassword(authentication.getCredentials().toString(), CipherAlgorithm.MD5, 0);
-            authenticated = adminMD5Password.equalsIgnoreCase(passwordUser.getPassword());
+            authenticated = PasswordEncoder.verifyPassword(
+                    authentication.getCredentials().toString(),
+                    CipherAlgorithm.valueOf(adminPasswordAlgorithm),
+                    adminPassword);
         } else {
             user = userDAO.find(username);
 
@@ -104,9 +128,10 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 if (user.getSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
-
-                passwordUser.setPassword(authentication.getCredentials().toString(), user.getCipherAlgoritm(), 0);
-                authenticated = user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
+                authenticated = PasswordEncoder.verifyPassword(
+                        authentication.getCredentials().toString(),
+                        user.getCipherAlgoritm(),
+                        user.getPassword());
             }
         }
 

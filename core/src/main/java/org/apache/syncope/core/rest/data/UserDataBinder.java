@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.security.PasswordEncoder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -95,22 +96,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public boolean verifyPassword(final String username, final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = getUserFromUsername(username);
-
-        SyncopeUser passwordUser = new SyncopeUser();
-        passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
-
-        return user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
+        return verifyPassword(getUserFromUsername(username), password);
     }
 
     @Transactional(readOnly = true)
     public boolean verifyPassword(final SyncopeUser user, final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser passwordUser = new SyncopeUser();
-        passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
-
-        return user.getPassword().equalsIgnoreCase(passwordUser.getPassword());
+        return PasswordEncoder.verifyPassword(password, user.getCipherAlgoritm(), user.getPassword());
     }
 
     @Transactional(readOnly = true)
@@ -137,8 +130,23 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return user;
     }
 
-    private CipherAlgorithm getCipherAlgoritm() {
-        return CipherAlgorithm.valueOf(confDAO.find("password.cipher.algorithm", "AES").getValue());
+    /**
+     * Get pre-configured password cipher algorithm.
+     *
+     * @return cipher algorithm.
+     * @throws NotFoundException in case of algorithm not included into
+     * <code>CipherAlgorithm</code>.
+     */
+    private CipherAlgorithm getCipherAlgoritm()
+            throws NotFoundException {
+
+        final String algorithm = confDAO.find("password.cipher.algorithm", "AES").getValue();
+
+        try {
+            return CipherAlgorithm.valueOf(algorithm);
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException("Cipher algorithm " + algorithm);
+        }
     }
 
     public void create(final SyncopeUser user, final UserTO userTO)
@@ -191,7 +199,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
             LOG.error("No password provided");
         } else {
-            user.setPassword(userTO.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+            try {
+                user.setPassword(userTO.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+            } catch (NotFoundException e) {
+                final SyncopeClientException invalidAlgorith =
+                        new SyncopeClientException(SyncopeClientExceptionType.NotFound);
+                invalidAlgorith.addElement(e.getMessage());
+                scce.addException(invalidAlgorith);
+
+                throw scce;
+            }
         }
 
         // set username
@@ -233,7 +250,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // ignore exceptions
             }
 
-            user.setPassword(userMod.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+            try {
+                user.setPassword(userMod.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+            } catch (NotFoundException e) {
+                final SyncopeClientException invalidAlgorith =
+                        new SyncopeClientException(SyncopeClientExceptionType.NotFound);
+                invalidAlgorith.addElement(e.getMessage());
+                scce.addException(invalidAlgorith);
+
+                throw scce;
+            }
 
             user.setChangePwdDate(new Date());
 

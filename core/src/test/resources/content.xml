@@ -24,7 +24,7 @@ under the License.
   <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
-  <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
+  <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
 
   <!-- sample policies -->
@@ -36,13 +36,13 @@ under the License.
   <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3Corg.apache.syncope.types.AccountPolicySpec%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E4%3C%2FminLength%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A++%3CallUpperCase%3Efalse%3C%2FallUpperCase%3E%0A++%3CallLowerCase%3Efalse%3C%2FallLowerCase%3E%0A++%3CpropagateSuspension%3Efalse%3C%2FpropagateSuspension%3E%0A++%3CpermittedLoginRetries%3E3%3C%2FpermittedLoginRetries%3E%0A%3C%2Forg.apache.syncope.types.AccountPolicySpec%3E"/>
   <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
     
-  <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+  <SyncopeUser id="1" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="user1" creationDate="2010-10-20 11:00:00"/>
-  <SyncopeUser id="2" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+  <SyncopeUser id="2" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="user2" creationDate="2010-10-20 11:00:00"/>
-  <SyncopeUser id="3" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+  <SyncopeUser id="3" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="user3" creationDate="2010-10-20 11:00:00"/>
-  <SyncopeUser id="4" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+  <SyncopeUser id="4" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="user4" creationDate="2010-10-20 11:00:00"/>
 
   <SyncopeRole id="1" name="root"/>

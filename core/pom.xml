@@ -274,6 +274,12 @@ under the License.
       <groupId>org.connid</groupId>
       <artifactId>framework-internal</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>${jasypt.version}</version>
+    </dependency> 
 
     <!-- TEST -->
     <dependency>
@@ -669,6 +675,7 @@ under the License.
                   <skip>false</skip>
                   <includes>
                     <include>**/dao/**Test.java</include>
+                    <include>**/security/**Test.java</include>
                   </includes>
                   <excludes>
                     <exclude>**/relationships/**Test.java</exclude>
@@ -689,6 +696,7 @@ under the License.
                   </includes>
                   <excludes>
                     <exclude>**/dao/**Test.java</exclude>
+                    <exclude>**/security/**Test.java</exclude>
                     <exclude>${sureExcludes}</exclude>
                   </excludes>
                 </configuration>

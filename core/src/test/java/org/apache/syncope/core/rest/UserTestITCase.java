@@ -47,6 +47,7 @@ import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
+import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
@@ -552,8 +553,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.
-                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
                 Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
@@ -869,8 +869,7 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.
-                asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
+        users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
@@ -1122,7 +1121,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5, 0);
+        passwordTestUser.setPassword("newPassword", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
@@ -1174,7 +1173,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO.getChangePwdDate());
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5, 0);
+        passwordTestUser.setPassword("newPassword", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         List<PropagationTaskTO> afterTasks = Arrays.asList(restTemplate.getForObject(
@@ -1999,5 +1998,36 @@ public class UserTestITCase extends AbstractTest {
 
         }
         assertNotNull(sce);
+    }
+
+    @Test()
+    public void issueSYNCOPE51() {
+        ConfigurationTO defaultConfigurationTO = restTemplate.getForObject(
+                BASE_URL + "configuration/read/{key}.json", ConfigurationTO.class, "password.cipher.algorithm");
+
+        ConfigurationTO configurationTO = new ConfigurationTO();
+        configurationTO.setKey("password.cipher.algorithm");
+        configurationTO.setValue("MD5");
+
+        ConfigurationTO newConfTO =
+                restTemplate.postForObject(BASE_URL + "configuration/update", configurationTO, ConfigurationTO.class);
+
+        assertEquals(configurationTO, newConfTO);
+
+        UserTO userTO = getSampleTO("syncope51@syncope.apache.org");
+        userTO.setPassword("password");
+
+        try {
+            restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            assertTrue(
+                    e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next().contains("MD5"));
+        }
+
+        ConfigurationTO oldConfTO = restTemplate.postForObject(
+                BASE_URL + "configuration/update", defaultConfigurationTO, ConfigurationTO.class);
+
+        assertEquals(defaultConfigurationTO, oldConfTO);
     }
 }

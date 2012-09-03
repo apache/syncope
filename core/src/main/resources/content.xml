@@ -24,7 +24,7 @@ under the License.
   <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
-  <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
+  <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
     
   <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="GLOBAL_SYNC"

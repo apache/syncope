@@ -20,10 +20,13 @@ package org.apache.syncope.types;
 
 public enum CipherAlgorithm {
 
-    MD5("MD5"),
     SHA1("SHA-1"),
     SHA256("SHA-256"),
-    AES("AES");
+    AES("AES"),
+    SMD5("S-MD5"),
+    SSHA1("S-SHA-1"),
+    SSHA256("S-SHA-256"),
+    BCRYPT("BCRYPT");
 
     final private String algorithm;
 
