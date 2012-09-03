@@ -172,7 +172,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public List<WorkflowFormTO> getForms() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

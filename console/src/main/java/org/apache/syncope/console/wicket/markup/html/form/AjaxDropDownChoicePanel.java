@@ -36,7 +36,7 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable 
 
         super(id, name, model);
 
-        field = new DropDownChoice("dropDownChoiceField", model, Collections.EMPTY_LIST, new ChoiceRenderer());
+        field = new DropDownChoice("dropDownChoiceField", model, Collections.emptyList(), new ChoiceRenderer());
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {

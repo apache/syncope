@@ -91,8 +91,8 @@ public abstract class AbstractBaseBean implements Serializable {
         PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(getClass());
         for (int i = 0; i < propertyDescriptors.length; i++) {
 
-            if (propertyDescriptors[i].getPropertyType().isInstance(Collections.EMPTY_SET)
-                    || propertyDescriptors[i].getPropertyType().isInstance(Collections.EMPTY_LIST)) {
+            if (propertyDescriptors[i].getPropertyType().isInstance(Collections.emptySet())
+                    || propertyDescriptors[i].getPropertyType().isInstance(Collections.emptyList())) {
 
                 excludeFields.add(propertyDescriptors[i].getName());
             }

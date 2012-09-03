@@ -59,7 +59,7 @@ public class ConnObjectTO extends AbstractBaseBean {
         Map<String, AttributeTO> result;
 
         if (attributes == null) {
-            result = Collections.EMPTY_MAP;
+            result = Collections.emptyMap();
         } else {
             result = new HashMap<String, AttributeTO>(attributes.size());
             for (AttributeTO attributeTO : attributes) {

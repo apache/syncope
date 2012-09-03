@@ -34,7 +34,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 238940918106696068L;
 
-    private List<String> choices = Collections.EMPTY_LIST;
+    private List<String> choices = Collections.emptyList();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
 

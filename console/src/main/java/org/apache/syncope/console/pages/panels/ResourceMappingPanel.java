@@ -250,7 +250,7 @@ public class ResourceMappingPanel extends Panel {
                         attrTypes = getAttributeTypes((AttributableType) mappingTypesPanel.getModelObject());
 
                         typesPanel.setChoices(attrTypes);
-                        intAttrNames.setChoices(Collections.EMPTY_LIST);
+                        intAttrNames.setChoices(Collections.emptyList());
 
                         target.add(typesPanel.getField());
                         target.add(intAttrNames.getField());
@@ -382,7 +382,7 @@ public class ResourceMappingPanel extends Panel {
         if (resourceTO != null && resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0) {
             schemaNames = getResourceSchemaNames(resourceTO.getConnectorId(), resourceTO.getConnConfProperties());
         } else {
-            schemaNames = Collections.EMPTY_LIST;
+            schemaNames = Collections.emptyList();
         }
     }
 
@@ -442,7 +442,7 @@ public class ResourceMappingPanel extends Panel {
         toBeUpdated.setEnabled(true);
 
         if (type == null || type.getAttributableType() == null) {
-            toBeUpdated.setChoices(Collections.EMPTY_LIST);
+            toBeUpdated.setChoices(Collections.emptyList());
         } else {
 
             switch (type) {
@@ -471,7 +471,7 @@ public class ResourceMappingPanel extends Panel {
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
-                    toBeUpdated.setChoices(Collections.EMPTY_LIST);
+                    toBeUpdated.setChoices(Collections.emptyList());
             }
         }
     }

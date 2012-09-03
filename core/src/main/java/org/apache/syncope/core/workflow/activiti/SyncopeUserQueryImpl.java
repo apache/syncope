@@ -141,7 +141,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
                     result = Collections.singletonList(fromSyncopeUser(user));
                 }
             } else {
-                result = Collections.EMPTY_LIST;
+                result = Collections.emptyList();
             }
         }
         if (memberOf != null) {
@@ -157,7 +157,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
                     }
                 }
             } else {
-                result = Collections.EMPTY_LIST;
+                result = Collections.emptyList();
             }
         }
         // THIS CAN BE *VERY* DANGEROUS

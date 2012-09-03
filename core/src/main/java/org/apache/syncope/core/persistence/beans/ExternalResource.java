@@ -323,7 +323,7 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result = Collections.EMPTY_SET;
+        Set<ConnConfProperty> result = Collections.emptySet();
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {

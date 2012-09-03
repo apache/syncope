@@ -87,7 +87,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
         Map<String, ConnConfProperty> result;
 
         if (getConfiguration() == null) {
-            result = Collections.EMPTY_MAP;
+            result = Collections.emptyMap();
         } else {
             result = new HashMap<String, ConnConfProperty>();
             for (ConnConfProperty prop : getConfiguration()) {
