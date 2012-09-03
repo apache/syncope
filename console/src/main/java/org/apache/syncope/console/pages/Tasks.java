@@ -75,7 +75,7 @@ public class Tasks extends BasePage {
 
             //Default sorting
             this.taskTO = taskTO;
-            setSort("startDate", SortOrder.ASCENDING);
+            setSort("startDate", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
@@ -133,7 +133,7 @@ public class Tasks extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", SortOrder.DESCENDING);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<T>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;
