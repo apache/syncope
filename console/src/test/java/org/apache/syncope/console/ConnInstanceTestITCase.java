@@ -121,7 +121,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='version:textField']\");", "30000");
 
-        selenium.click("//div[2]/form/div[2]/" + "div[2]/div/span/div[2]/div[27]/a/img");
+        selenium.click("//div[2]/form/div[2]/div[2]/div/span/div[2]/div[29]/a/img");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div/ul/li/span[contains(text(),'Successful connection')]\");", "30000");

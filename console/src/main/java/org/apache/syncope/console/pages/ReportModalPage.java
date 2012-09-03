@@ -487,7 +487,7 @@ public class ReportModalPage extends BaseModalPage {
 
         public ReportExecutionsProvider(final ReportTO reportTO) {
             this.reportTO = reportTO;
-            setSort("startDate", SortOrder.ASCENDING);
+            setSort("startDate", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<ReportExecTO>(this);
         }
 
