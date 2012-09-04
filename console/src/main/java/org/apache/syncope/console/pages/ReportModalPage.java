@@ -62,7 +62,6 @@ import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.pages.TaskModalPage.TaskExecutionsProvider;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -127,7 +126,7 @@ public class ReportModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 ReportTO reportTO = (ReportTO) form.getModelObject();
                 reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
                         ? crontab.getCronExpression()
@@ -151,7 +150,7 @@ public class ReportModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 target.add(feedbackPanel);
             }
         };
@@ -170,12 +169,12 @@ public class ReportModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 

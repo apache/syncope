@@ -230,7 +230,7 @@ public class PolicyBeanPanel extends Panel {
 
         private static final long serialVersionUID = -6770429509752964215L;
 
-        private Class type;
+        private Class<?> type;
 
         private String name;
 
@@ -244,11 +244,11 @@ public class PolicyBeanPanel extends Panel {
             this.name = name;
         }
 
-        public Class getType() {
+        public Class<?> getType() {
             return type;
         }
 
-        public void setType(final Class type) {
+        public void setType(final Class<?> type) {
             this.type = type;
         }
 

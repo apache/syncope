@@ -68,7 +68,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 VirtualSchemaTO schemaTO = (VirtualSchemaTO) form.getDefaultModelObject();
 
@@ -90,7 +90,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -100,12 +100,12 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
         

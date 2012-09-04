@@ -152,7 +152,7 @@ class NotificationModalPage extends BaseModalPage {
 
         final AjaxCheckBoxPanel checkRecipients =
                 new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
-                new Model(notificationTO.getRecipients() == null ? false : true));
+                new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
         recipientsContainer.add(checkRecipients);
 
         final UserSearchPanel recipients =
@@ -195,7 +195,7 @@ class NotificationModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
@@ -219,7 +219,7 @@ class NotificationModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -229,12 +229,12 @@ class NotificationModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 

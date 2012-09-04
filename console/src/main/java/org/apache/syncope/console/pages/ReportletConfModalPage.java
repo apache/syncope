@@ -125,7 +125,7 @@ public class ReportletConfModalPage extends BaseModalPage {
             @Override
             public void setObject(final String object) {
                 try {
-                    Class reportletClass = Class.forName(object);
+                    Class<?> reportletClass = Class.forName(object);
                     ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
                     propertiesContainer.replace(buildPropView());
                 } catch (Exception e) {
@@ -192,12 +192,12 @@ public class ReportletConfModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 
@@ -277,15 +277,15 @@ public class ReportletConfModalPage extends BaseModalPage {
                 if (NodeCond.class.equals(field.getType())) {
                     panel = new UserSearchPanel("value", (NodeCond) wrapper.getPropertyValue(fieldName), false);
                     // This is needed in order to manually update this.reportletConf with search panel selections
-                    panel.setDefaultModel(new Model(fieldName));
+                    panel.setDefaultModel(new Model<String>(fieldName));
                 } else if (List.class.equals(field.getType())) {
                     if (wrapper.getPropertyValue(fieldName) == null) {
                         wrapper.setPropertyValue(fieldName, new ArrayList());
                     }
 
-                    Class listItemType = String.class;
+                    Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     }
 
                     FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);

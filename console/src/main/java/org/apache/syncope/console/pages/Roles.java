@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
@@ -34,8 +33,6 @@ import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 public class Roles extends BasePage {
 
     private static final long serialVersionUID = -2147758241610831969L;
-
-    private TreeTable tree;
 
     private ModalWindow createRoleWin = null;
 

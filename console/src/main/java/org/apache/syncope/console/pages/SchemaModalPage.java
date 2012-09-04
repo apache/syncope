@@ -165,7 +165,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -2428903969518079100L;
 
             @Override
-            protected Iterator getChoices(String input) {
+            protected Iterator<String> getChoices(String input) {
                 List<String> choices = new ArrayList<String>();
 
                 if (Strings.isEmpty(input)) {
@@ -204,7 +204,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 final SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
@@ -235,7 +235,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -245,12 +245,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
         

@@ -238,7 +238,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     required = property.getSchema().isRequired();
 
                 } else {
-                    Class propertySchemaClass;
+                    Class<?> propertySchemaClass;
 
                     try {
                         propertySchemaClass =
@@ -328,11 +328,11 @@ public class ConnectorModalPage extends BaseModalPage {
 
         connectorPropForm.add(check);
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 final ConnInstanceTO conn = (ConnInstanceTO) form.getDefaultModelObject();
 
                 conn.setBundleName(bundleTO.getBundleName());
@@ -360,7 +360,7 @@ public class ConnectorModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -370,12 +370,12 @@ public class ConnectorModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
         

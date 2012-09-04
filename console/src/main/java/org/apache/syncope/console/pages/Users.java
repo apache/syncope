@@ -110,7 +110,7 @@ public class Users extends BasePage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(searchPanel.getSearchFeedback());
             }

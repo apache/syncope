@@ -66,7 +66,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
                 taskTO.setCronExpression(!StringUtils.hasText(taskTO.getCronExpression())
@@ -99,7 +99,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -109,12 +109,12 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
         

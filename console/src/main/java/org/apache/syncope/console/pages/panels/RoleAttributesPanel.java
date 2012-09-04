@@ -98,7 +98,7 @@ public class RoleAttributesPanel extends Panel {
 
         ListModel<String> availableEntitlements = new ListModel<String>(entitlementRestClient.getAllEntitlements());
 
-        entitlementsPalette = new Palette("entitlementsPalette", selectedEntitlements, availableEntitlements,
+        entitlementsPalette = new Palette<String>("entitlementsPalette", selectedEntitlements, availableEntitlements,
                 new SelectChoiceRenderer(), 20, false);
 
         this.add(entitlementsPalette);
