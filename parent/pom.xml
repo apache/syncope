@@ -945,6 +945,9 @@ under the License.
             <exclude>**/archetype-resources/**</exclude>
             <exclude>.externalToolBuilders/**</exclude>
             <exclude>maven-eclipse.xml</exclude>
+            <exclude>.git/**</exclude>
+            <exclude>.idea/**</exclude>
+            <exclude>**/*.iml</exclude>
           </excludes>
         </configuration>
         <executions>
