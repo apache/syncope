@@ -178,7 +178,7 @@ public class ResourceMappingPanel extends Panel {
 
                 attrTypes = getAttributeTypes(entity);
 
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
 
                     private static final long serialVersionUID = 7170946748485726506L;
 
@@ -358,7 +358,7 @@ public class ResourceMappingPanel extends Panel {
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 resourceTO.getMappings().add(new SchemaMappingTO());
                 target.add(mappingContainer);
             }

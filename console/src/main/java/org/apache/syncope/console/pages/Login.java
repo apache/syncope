@@ -100,7 +100,7 @@ public class Login extends WebPage {
 
         form.add(languageSelect);
 
-        Button submitButton = new Button("submit", new Model(getString("submit"))) {
+        Button submitButton = new Button("submit", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = 429178684321093953L;
 

@@ -42,14 +42,10 @@ public class RoleTabPanel extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    private RoleTO roleTO;
-
     public RoleTabPanel(final String id, final RoleTO roleTO, final ModalWindow window,
             final PageReference callerPageRef) {
 
         super(id);
-
-        this.roleTO = roleTO;
 
         final Form form = new Form("RoleForm");
 
@@ -90,7 +86,7 @@ public class RoleTabPanel extends Panel {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         });
 

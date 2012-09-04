@@ -269,9 +269,9 @@ public class ReportletConfModalPage extends BaseModalPage {
                         wrapper.setPropertyValue(fieldName, new ArrayList());
                     }
 
-                    Class listItemType = String.class;
+                    Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     }
 
                     FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);

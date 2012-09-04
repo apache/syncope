@@ -243,7 +243,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     required = property.getSchema().isRequired();
 
                 } else {
-                    Class propertySchemaClass;
+                    Class<?> propertySchemaClass;
 
                     try {
                         propertySchemaClass =
@@ -367,7 +367,7 @@ public class ConnectorModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }

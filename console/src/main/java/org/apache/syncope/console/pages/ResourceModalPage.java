@@ -83,7 +83,7 @@ public class ResourceModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
 
@@ -119,7 +119,7 @@ public class ResourceModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }

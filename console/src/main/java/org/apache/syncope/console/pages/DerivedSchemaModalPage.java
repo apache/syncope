@@ -93,7 +93,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }

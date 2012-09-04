@@ -195,7 +195,7 @@ public class Tasks extends BasePage {
             final WebMarkupContainer container,
             final int currentPage) {
 
-        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable<TaskTO>(
+        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>(
                 "datatable", columns, dataProvider, dataProvider.paginatorRows);
 
         table.setCurrentPage(currentPage);

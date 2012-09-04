@@ -161,7 +161,7 @@ public class ResourceConnConfPanel extends Panel {
                     required = property.getSchema().isRequired();
 
                 } else {
-                    Class propertySchemaClass;
+                    Class<?> propertySchemaClass;
 
                     try {
                         propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.

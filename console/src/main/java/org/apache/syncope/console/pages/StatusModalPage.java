@@ -75,7 +75,7 @@ public class StatusModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
@@ -86,7 +86,7 @@ public class StatusModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
                 try {
                     userRestClient.reactivate(userTO.getId(), statuses);
@@ -102,7 +102,7 @@ public class StatusModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
                 target.add(feedbackPanel);
             }
