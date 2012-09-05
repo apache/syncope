@@ -199,7 +199,7 @@ public class PropagationTasks extends Panel {
 
         table = Tasks.updateTaskTable(
                 columns,
-                new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class),
+                new TasksProvider<PropagationTaskTO>(restClient, paginatorRows, getId(), PropagationTaskTO.class),
                 container,
                 0);
 
@@ -268,7 +268,7 @@ public class PropagationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider(restClient, paginatorRows, getId(), PropagationTaskTO.class),
+                        new TasksProvider<PropagationTaskTO>(restClient, paginatorRows, getId(), PropagationTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 
