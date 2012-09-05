@@ -213,7 +213,7 @@ public class SchedTasks extends Panel {
 
         table = Tasks.updateTaskTable(
                 columns,
-                new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
                 container,
                 0);
 
@@ -235,7 +235,7 @@ public class SchedTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                        new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 

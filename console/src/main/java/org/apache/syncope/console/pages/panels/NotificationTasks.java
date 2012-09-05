@@ -181,7 +181,7 @@ public class NotificationTasks extends Panel {
 
         table = Tasks.updateTaskTable(
                 columns,
-                new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
                 container,
                 0);
 
@@ -223,7 +223,7 @@ public class NotificationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 

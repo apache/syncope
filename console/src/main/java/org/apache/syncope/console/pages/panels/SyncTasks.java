@@ -233,7 +233,7 @@ public class SyncTasks extends Panel {
 
         table = Tasks.updateTaskTable(
                 columns,
-                new TasksProvider(restClient, paginatorRows, getId(), SyncTaskTO.class),
+                new TasksProvider<SyncTaskTO>(restClient, paginatorRows, getId(), SyncTaskTO.class),
                 container,
                 0);
 
@@ -255,7 +255,7 @@ public class SyncTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider(restClient, paginatorRows, getId(), SyncTaskTO.class),
+                        new TasksProvider<SyncTaskTO>(restClient, paginatorRows, getId(), SyncTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 
