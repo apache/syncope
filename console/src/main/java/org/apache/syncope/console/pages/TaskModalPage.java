@@ -36,9 +36,11 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -48,6 +50,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -69,13 +72,13 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     @SpringBean
     protected TaskRestClient taskRestClient;
-
+    
     protected WebMarkupContainer profile;
 
     protected WebMarkupContainer executions;
 
     protected Form form;
-
+    
     public TaskModalPage(final TaskTO taskTO) {
 
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
@@ -104,7 +107,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         id.setEnabled(false);
         profile.add(id);
-
+        
         final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -175,8 +178,9 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
         });
 
+        final int paginatorRows = 10;
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), 10);
+                new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
 
         executions.add(table);
 
@@ -188,13 +192,28 @@ public abstract class TaskModalPage extends BaseModalPage {
                 if (target != null) {
                     final AjaxFallbackDefaultDataTable currentTable = 
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), 10);
+                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                     currentTable.setOutputMarkupId(true);
                     target.add(currentTable);
                     executions.addOrReplace(currentTable);   
                 }
             }
         };
+        
+        reload.add(new Behavior() {
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+
+                if (table.getRowCount() > paginatorRows) {
+                    tag.remove("class");
+                    tag.put("class", "settingsPosMultiPage");
+                } else {
+                    tag.remove("class");
+                    tag.put("class", "settingsPos");
+                }
+            }
+        });
 
         executions.addOrReplace(reload);
     }
