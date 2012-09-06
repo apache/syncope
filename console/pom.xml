@@ -350,6 +350,57 @@ under the License.
           </deployables>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+            <configuration>
+              <instructions>
+                <Bundle-Name>${project.name}</Bundle-Name>
+                <Bundle-SymbolicName>org.apache.syncope.console</Bundle-SymbolicName>
+                <Bundle-Version>${project.version}</Bundle-Version>
+                <Export-Package>
+                  org.apache.syncope.console*;version=${project.version};-split-package:=merge-first
+                </Export-Package>
+                <Import-Package>
+                  javax.servlet,
+                  javax.xml*,
+                  org.w3c.dom,
+                  org.apache.commons.lang*;version="[2.6,3)",
+                  org.apache.http*;version="[4,5)",
+                  org.apache.syncope.annotation;version=${project.version},
+                  org.apache.syncope.client*;version=${project.version},
+                  org.apache.syncope.types;version=${project.version},
+                  org.apache.wicket*;version="[1.5,2)",
+                  org.codehaus.jackson*;version="[1.9,2)",
+                  org.springframework*;version="[3,4)",
+                  ch.qos.logback.classic;resolution:=optional,
+                  javax.swing.tree;resolution:=optional,
+                  org.slf4j;resolution:=optional
+                </Import-Package>
+              </instructions>
+            </configuration>
+          </execution>
+        </executions>
+       </plugin>
+
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-war-plugin</artifactId>
+         <configuration>
+           <archive>
+             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+           </archive>
+         </configuration>
+       </plugin>
+
     </plugins>
 
     <resources>
