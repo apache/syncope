@@ -607,9 +607,76 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+            <configuration>
+              <instructions>
+                <Bundle-Name>${project.name}</Bundle-Name>
+                <Bundle-SymbolicName>org.apache.syncope.core</Bundle-SymbolicName>
+                <Bundle-Version>${project.version}</Bundle-Version>
+                <Export-Package>
+                  org.apache.syncope.core*;version=${project.version};-split-package:=merge-first
+                </Export-Package>
+                <Import-Package>
+                  javax.annotation,
+                  javax.crypto*,
+                  javax.mail.internet,
+                  javax.naming,
+                  javax.persistence,
+                  javax.rmi,
+                  javax.servlet*,
+                  javax.sql,
+                  javax.validation*,
+                  javax.xml*,
+                  org.w3c.dom,
+                  org.xml.sax*,
+                  org.activiti*;version="[5,6)",
+                  org.apache.cocoon*;version="[2,4)",
+                  org.apache.commons.collections.keyvalue;version="[3.2,4)",
+                  org.apache.commons.io;version="[1.3,2)",
+                  org.apache.commons.jexl2*;version="[2.1,3)",
+                  org.apache.commons.lang*;version="[2.6,3)",
+                  org.apache.openjpa*;version="[2,3)",
+                  org.apache.syncope.client*;version=${project.version},
+                  org.apache.syncope.types;version=${project.version},
+                  org.apache.velocity*;version="[1.7,2)",
+                  org.aspectj.lang*;version="[1.7,2)",
+                  org.codehaus.jackson*;version="[1.9,2)",
+                  org.jasypt.digest;version="[1.9,2)",
+                  org.quartz*;version="[1.8,2)",
+                  org.springframework*;version="[3,4)",
+                  ch.qos.logback*;resolution:=optional,
+                  org.identityconnectors*;resolution:=optional,
+                  org.slf4j;resolution:=optional
+                </Import-Package>
+              </instructions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
 
