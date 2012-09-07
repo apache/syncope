@@ -108,10 +108,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         type.setChoices(Arrays.asList(SchemaType.values()));
         type.addRequiredLabel();
 
+        final AjaxTextFieldPanel enumerationValuesPanel = 
+            new AjaxTextFieldPanel("panel", "enumerationValues", new Model(null));
         final MultiValueSelectorPanel<String> enumerationValues =
                 new MultiValueSelectorPanel<String>("enumerationValues",
                 new Model(),
-                new AjaxTextFieldPanel("panel", "enumerationValues", new Model(null)).addRequiredLabel());
+                enumerationValuesPanel);
         schemaForm.add(enumerationValues);
 
         enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
@@ -127,6 +129,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         if (schema != null && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
             enumerationValues.setEnabled(Boolean.TRUE);
             enumerationKeys.setEnabled(Boolean.TRUE);
+            enumerationValuesPanel.addRequiredLabel();
         } else {
             enumerationValues.setEnabled(Boolean.FALSE);
             enumerationKeys.setEnabled(Boolean.FALSE);
@@ -138,12 +141,18 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (SchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
+                    if (!enumerationValuesPanel.isRequired()) {
+                        enumerationValuesPanel.addRequiredLabel();
+                    }
                     enumerationValues.setEnabled(Boolean.TRUE);
                     enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
 
                     enumerationKeys.setEnabled(Boolean.TRUE);
                     enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
                 } else {
+                    if (enumerationValuesPanel.isRequired()) {
+                        enumerationValuesPanel.removeRequiredLabel();
+                    }
                     final List<String> values = new ArrayList<String>();
                     values.add("");
 
