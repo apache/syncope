@@ -33,7 +33,7 @@ under the License.
   <description>Apache Syncope Client</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-client</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <distributionManagement>
     <site>
@@ -99,33 +99,6 @@ under the License.
         </includes>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Bundle-Name>${project.name}</Bundle-Name>
-            <Bundle-SymbolicName>org.apache.syncope.client</Bundle-SymbolicName>
-            <Bundle-Version>${project.version}</Bundle-Version>
-            <Export-Package>
-              org.apache.syncope*;version=${project.version};-split-package:=merge-first
-            </Export-Package>
-            <Import-Package>
-              com.thoughtworks.xstream;version="[1.4,2)",
-              org.apache.commons.lang*;version="[2.6,3)",
-              org.apache.http*;version="[4,5)",
-              org.codehaus.jackson.annotate;version="[1.9,2)",
-              org.springframework*;version="[3,4)",
-              ch.qos.logback.classic;resolution:=optional,
-              org.slf4j;resolution:=optional
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-
-    </plugins>
   </build>
 
   <reporting>
