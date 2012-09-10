@@ -354,7 +354,7 @@ under the License.
   <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv" />
   <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv" />
 
-  <SchemaMapping id="99" extAttrName="userid"
+  <SchemaMapping id="99"
                  resource_name="ws-target-resource-1"
                  intMappingType="SyncopeUserId" mandatoryCondition="true"
                  accountid="1" password="0"/>
@@ -364,12 +364,12 @@ under the License.
                  intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="0" password="0"/>
 
-  <SchemaMapping id="101" extAttrName="userId"
+  <SchemaMapping id="101"
                  resource_name="ws-target-resource-2"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
 
-  <SchemaMapping id="102" extAttrName="email"
+  <SchemaMapping id="102"
                  resource_name="ws-target-resource-list-mappings-1"
                  intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
@@ -379,7 +379,7 @@ under the License.
                  intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="0" password="0"/>
 
-  <SchemaMapping id="104" extAttrName="userid"
+  <SchemaMapping id="104"
                  resource_name="ws-target-resource-list-mappings-2"
                  intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
@@ -389,12 +389,12 @@ under the License.
                  intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="0" password="0"/>
 
-  <SchemaMapping id="106" extAttrName="password"
+  <SchemaMapping id="106"
                  resource_name="ws-target-resource-1"
                  intMappingType="Password" mandatoryCondition="true"
                  accountid="0" password="1"/>
 
-  <SchemaMapping id="107" extAttrName="password"
+  <SchemaMapping id="107"
                  resource_name="ws-target-resource-2"
                  intMappingType="Password" mandatoryCondition="true"
                  accountid="0" password="1"/>
@@ -434,40 +434,40 @@ under the License.
                  intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                  accountid="0" password="0"/>
 
-  <SchemaMapping id="115" extAttrName="name"
+  <SchemaMapping id="115"
                  resource_name="ws-target-resource-nopropagation"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
                  
-  <SchemaMapping id="116" extAttrName="name"
+  <SchemaMapping id="116"
                  resource_name="ws-target-resource-nopropagation2"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
                  
-  <SchemaMapping id="117" extAttrName="name"
+  <SchemaMapping id="117"
                  resource_name="ws-target-resource-nopropagation3"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
                  
-  <SchemaMapping id="118" extAttrName="name"
+  <SchemaMapping id="118"
                  resource_name="ws-target-resource-nopropagation4"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                  accountid="1" password="0"/>
                    
-  <SchemaMapping id="119" extAttrName="ID"
+  <SchemaMapping id="119"
                  resource_name="resource-testdb"
                  intMappingType="Username" mandatoryCondition="true"
                  accountid="1" password="0"/>
-  <SchemaMapping id="120" extAttrName="PASSWORD"
+  <SchemaMapping id="120"
                  resource_name="resource-testdb"
                  intMappingType="Password" mandatoryCondition="true"
                  accountid="0" password="1"/>
                  
-  <SchemaMapping id="121" extAttrName="ID"
+  <SchemaMapping id="121"
                  resource_name="resource-testdb2"
                  intMappingType="Username" mandatoryCondition="true"
                  accountid="1" password="0"/>
-  <SchemaMapping id="122" extAttrName="PASSWORD"
+  <SchemaMapping id="122"
                  resource_name="resource-testdb2"
                  intMappingType="Password" mandatoryCondition="true"
                  accountid="0" password="1"/>
@@ -513,11 +513,11 @@ under the License.
                  intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
                  accountid="0" password="0"/>
                    
-  <SchemaMapping id="300" extAttrName="userId"
+  <SchemaMapping id="300"
                  resource_name="ws-target-resource-update-resetsynctoken"
                  intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
                  accountid="1" password="0"/>
-  <SchemaMapping id="301" extAttrName="test3"
+  <SchemaMapping id="301"
                  resource_name="ws-target-resource-update-resetsynctoken"
                  intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
                  accountid="0" password="1"/>
