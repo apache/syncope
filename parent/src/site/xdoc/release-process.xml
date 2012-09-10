@@ -505,6 +505,9 @@ Best regards.
 cd /x1/www/www.apache.org/dist/incubator/syncope/
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+chgrp -R incubator &lt;version&gt;
+chmod 775 &lt;version&gt;
+chmod 664 &lt;version&gt;/*
 </source>
           </li>
           <li>
