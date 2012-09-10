@@ -33,6 +33,10 @@ public class SchedTask extends Task {
     @NotNull
     protected String jobClassName;
 
+    protected String name;
+
+    protected String description;
+
     public String getCronExpression() {
         return cronExpression;
     }
@@ -47,5 +51,21 @@ public class SchedTask extends Task {
 
     public void setJobClassName(String jobClassName) {
         this.jobClassName = jobClassName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

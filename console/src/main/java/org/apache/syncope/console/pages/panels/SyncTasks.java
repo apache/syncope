@@ -110,6 +110,10 @@ public class SyncTasks extends Panel {
 
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
+        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+
+        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
+
         columns.add(new PropertyColumn(new ResourceModel("resourceName"), "resource", "resource"));
 
         columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
@@ -241,8 +245,9 @@ public class SyncTasks extends Panel {
                 0);
 
         container.add(table);
-            
+
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -254,6 +259,7 @@ public class SyncTasks extends Panel {
         };
 
         reload.add(new Behavior() {
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -268,7 +274,7 @@ public class SyncTasks extends Panel {
                 }
             }
         });
-        
+
         container.add(reload);
 
         Form paginatorForm = new Form("PaginatorForm");

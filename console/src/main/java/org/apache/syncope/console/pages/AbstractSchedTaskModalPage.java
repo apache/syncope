@@ -48,9 +48,19 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
 
         super(taskTO);
 
-        crontab = new CrontabContainer("crontab", new PropertyModel<String>(taskTO, "cronExpression"), taskTO
-                .getCronExpression());
+        crontab = new CrontabContainer("crontab", new PropertyModel<String>(taskTO, "cronExpression"),
+                taskTO.getCronExpression());
         form.add(crontab);
+
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"));
+        name.setEnabled(true);
+        profile.add(name);
+
+        final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
+                new PropertyModel<String>(taskTO, "description"));
+        description.setEnabled(true);
+        profile.add(description);
 
         final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
                 new DateFormatROModel(new PropertyModel<String>(taskTO, "lastExec")));
@@ -63,6 +73,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         profile.add(nextExec);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -106,6 +117,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -117,7 +129,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
 
         if (taskTO.getId() > 0) {

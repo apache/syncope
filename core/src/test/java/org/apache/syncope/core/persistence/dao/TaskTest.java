@@ -18,19 +18,11 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -42,6 +34,11 @@ import org.apache.syncope.core.persistence.validation.entity.InvalidEntityExcept
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class TaskTest extends AbstractTest {
@@ -175,5 +172,34 @@ public class TaskTest extends AbstractTest {
         resource = resourceDAO.find(resource.getName());
         assertNotNull(resource);
         assertFalse(taskDAO.findAll(resource, PropagationTask.class).contains(task));
+    }
+
+    @Test
+    public void issueSYNCOPE144() {
+        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
+        assertNotNull(resource);
+
+        SyncTask task = new SyncTask();
+
+        task.setResource(resource);
+        task.setName("issueSYNCOPE144");
+        task.setDescription("issueSYNCOPE144 Description");
+        task.setJobActionsClassName(TestSyncJobActions.class.getName());
+
+        task = taskDAO.save(task);
+        assertNotNull(task);
+
+        SyncTask actual = taskDAO.find(task.getId());
+        assertEquals(task, actual);
+        assertEquals("issueSYNCOPE144", actual.getName());
+        assertEquals("issueSYNCOPE144 Description", actual.getDescription());
+
+        actual.setName("issueSYNCOPE144_2");
+        actual.setDescription("issueSYNCOPE144 Description_2");
+
+        actual = taskDAO.save(actual);
+        assertNotNull(actual);
+        assertEquals("issueSYNCOPE144_2", actual.getName());
+        assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
     }
 }

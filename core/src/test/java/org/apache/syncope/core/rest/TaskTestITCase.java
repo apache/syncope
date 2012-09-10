@@ -38,6 +38,7 @@ import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.core.scheduling.SyncJob;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
 import org.apache.syncope.types.IntMappingType;
@@ -689,5 +690,31 @@ public class TaskTestITCase extends AbstractTest {
 
         assertEquals(2, userTO.getMemberships().size());
         assertEquals(4, userTO.getResources().size());
+    }
+
+    @Test
+    public void issueSYNCOPE144() {
+        SchedTaskTO task = new SchedTaskTO();
+        task.setName("issueSYNCOPE144");
+        task.setDescription("issueSYNCOPE144 Description");
+        task.setJobClassName(SyncJob.class.getName());
+
+        SchedTaskTO actual = restTemplate.postForObject(BASE_URL + "task/create/sched", task, SchedTaskTO.class);
+        assertNotNull(actual);
+        assertEquals("issueSYNCOPE144", actual.getName());
+        assertEquals("issueSYNCOPE144 Description", actual.getDescription());
+
+        task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SchedTaskTO.class, actual.getId());
+        assertNotNull(task);
+        assertEquals("issueSYNCOPE144", task.getName());
+        assertEquals("issueSYNCOPE144 Description", task.getDescription());
+
+        task.setName("issueSYNCOPE144_2");
+        task.setDescription("issueSYNCOPE144 Description_2");
+
+        actual = restTemplate.postForObject(BASE_URL + "task/create/sched", task, SchedTaskTO.class);
+        assertNotNull(actual);
+        assertEquals("issueSYNCOPE144_2", actual.getName());
+        assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
     }
 }

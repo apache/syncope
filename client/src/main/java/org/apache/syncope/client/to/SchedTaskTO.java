@@ -28,6 +28,10 @@ public class SchedTaskTO extends TaskTO {
 
     private String jobClassName;
 
+    private String name;
+
+    private String description;
+
     private Date lastExec;
 
     private Date nextExec;
@@ -70,5 +74,21 @@ public class SchedTaskTO extends TaskTO {
         if (nextExec != null) {
             this.nextExec = new Date(nextExec.getTime());
         }
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

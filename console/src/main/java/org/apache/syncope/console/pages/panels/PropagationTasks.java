@@ -224,6 +224,7 @@ public class PropagationTasks extends Panel {
         window.setCookieName("view-task-win");
 
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -235,6 +236,7 @@ public class PropagationTasks extends Panel {
         };
 
         reload.add(new Behavior() {
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -268,7 +270,8 @@ public class PropagationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider<PropagationTaskTO>(restClient, paginatorRows, getId(), PropagationTaskTO.class),
+                        new TasksProvider<PropagationTaskTO>(restClient, paginatorRows,
+                        getId(), PropagationTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 

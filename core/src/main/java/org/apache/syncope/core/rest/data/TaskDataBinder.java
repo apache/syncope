@@ -142,6 +142,8 @@ public class TaskDataBinder {
 
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
+        task.setName(taskTO.getName());
+        task.setDescription(taskTO.getDescription());
 
         switch (taskUtil) {
             case SCHED:
@@ -169,8 +171,9 @@ public class TaskDataBinder {
     }
 
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
-
         task.setCronExpression(taskTO.getCronExpression());
+        task.setName(taskTO.getName());
+        task.setDescription(taskTO.getDescription());
 
         if (taskUtil == TaskUtil.SYNC) {
             if (!(task instanceof SyncTask)) {
@@ -254,11 +257,14 @@ public class TaskDataBinder {
 
             case SCHED:
                 setExecTime((SchedTaskTO) taskTO, task);
+                ((SchedTaskTO) taskTO).setName(((SchedTask) task).getName());
+                ((SchedTaskTO) taskTO).setDescription(((SchedTask) task).getDescription());
                 break;
 
             case SYNC:
                 setExecTime((SchedTaskTO) taskTO, task);
-
+                ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
+                ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
                 if (!(task instanceof SyncTask)) {
                     throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: " + task.getClass().
                             getName());
