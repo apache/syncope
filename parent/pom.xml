@@ -33,7 +33,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>10</version>
+    <version>11</version>
     <relativePath />
   </parent>
 
@@ -247,9 +247,9 @@ under the License.
 
     <spring.version>3.1.2.RELEASE</spring.version>
     <spring-security.version>3.1.2.RELEASE</spring-security.version>
-    <aspectj.version>1.6.12</aspectj.version>
-    <jackson.version>1.9.8</jackson.version>
-    <xstream.version>1.4.2</xstream.version>
+    <aspectj.version>1.7.0</aspectj.version>
+    <jackson.version>1.9.9</jackson.version>
+    <xstream.version>1.4.3</xstream.version>
     <velocity.version>1.7</velocity.version>
     <quartz.version>1.8.6</quartz.version>
 
@@ -262,17 +262,17 @@ under the License.
 
     <groovy.version>1.6.9</groovy.version>
 
-    <h2.version>1.3.167</h2.version>
+    <h2.version>1.3.168</h2.version>
 
-    <logback.version>1.0.6</logback.version>
-    <slf4j.version>1.6.6</slf4j.version>
+    <logback.version>1.0.7</logback.version>
+    <slf4j.version>1.7.0</slf4j.version>
 
     <junit.version>4.10</junit.version>
     <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
-    <tomcat.version>7.0.29</tomcat.version>
+    <tomcat.version>7.0.30</tomcat.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <log.directory>${project.build.directory}/log</log.directory>
@@ -913,7 +913,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.1</version>
+        <version>1.1.1</version>
         <executions>
           <execution>
             <id>enforce-java</id>
@@ -1077,7 +1077,7 @@ under the License.
                 <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-project-info-reports-plugin</artifactId>
-                  <version>2.4</version>
+                  <version>2.5.1</version>
                   <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
