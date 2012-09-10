@@ -81,14 +81,14 @@ public class ConnObjectUtil {
      * Build an UserTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
+     * @param syncTask synchronization task
      * @return UserTO for the user to be created
      */
     @Transactional(readOnly = true)
     public UserTO getUserTO(final ConnectorObject obj, final SyncTask syncTask) {
-
         UserTO userTO = getUserTOFromConnObject(obj, syncTask);
 
-        // 3. if password was not set above, generate a random string
+        // if password was not set above, generate a random string
         if (StringUtils.isBlank(userTO.getPassword())) {
             userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
         }
@@ -101,6 +101,7 @@ public class ConnObjectUtil {
      *
      * @param userId user to be updated
      * @param obj connector object
+     * @param syncTask synchronization task
      * @return UserMod for the user to be updated
      */
     @Transactional(readOnly = true)
@@ -113,11 +114,9 @@ public class ConnObjectUtil {
         final UserTO updated = getUserTOFromConnObject(obj, syncTask);
         updated.setId(userId);
 
-        if (StringUtils.isNotBlank(updated.getPassword())) {
-            // update password if and only if password has really changed
-            if (userDataBinder.verifyPassword(user, updated.getPassword())) {
-                updated.setPassword(null);
-            }
+        // update password if and only if password is really changed
+        if (StringUtils.isBlank(updated.getPassword()) || userDataBinder.verifyPassword(user, updated.getPassword())) {
+            updated.setPassword(null);
         }
 
         final UserMod userMod = AttributableOperations.diff(updated, original, true);
