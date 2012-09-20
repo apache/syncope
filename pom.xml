@@ -990,6 +990,7 @@ under the License.
             <exclude>**/archetype-resources/**</exclude>
             <exclude>.externalToolBuilders/**</exclude>
             <exclude>maven-eclipse.xml</exclude>
+            <exclude>.gitignore</exclude>
             <exclude>.git/**</exclude>
             <exclude>.idea/**</exclude>
             <exclude>**/*.iml</exclude>
