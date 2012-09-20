@@ -123,12 +123,13 @@ public class AttrTest extends AbstractTest {
         assertEquals(membership.getAttribute(schema.getName()).getValues().size(), 1);
     }
 
+    @Test
     public void derAttrFromSpecialAttrs() {
         UDerSchema sderived = new UDerSchema();
         sderived.setName("sderived");
-        sderived.setExpression("username - creationDate[failedLogins]");
+        sderived.setExpression("username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
-        derSchemaDAO.save(sderived);
+        sderived = derSchemaDAO.save(sderived);
         derSchemaDAO.flush();
 
         UDerSchema actual = derSchemaDAO.find("sderived", UDerSchema.class);
@@ -152,6 +153,6 @@ public class AttrTest extends AbstractTest {
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("user3 - 2010-10-20T11:00:00"));
-        assertTrue(value.endsWith("[]"));
+        assertTrue(value.endsWith("[0]"));
     }
 }
