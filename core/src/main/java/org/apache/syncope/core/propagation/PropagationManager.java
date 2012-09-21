@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.init.ConnInstanceLoader;
@@ -464,7 +466,11 @@ public class PropagationManager {
         }
 
         // Evaluate AccountLink expression
-        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), user);
+        final JexlContext jexlContext = new MapContext();
+        jexlUtil.addFieldsToContext(user, jexlContext);
+        jexlUtil.addAttrsToContext(user.getAttributes(), jexlContext);
+        jexlUtil.addDerAttrsToContext(user.getDerivedAttributes(), user.getAttributes(), jexlContext);
+        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), jexlContext);
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)

@@ -40,8 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Throwable.class})
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    private static final List<String> TASKS = Arrays.asList(new String[]{"create", "activate", "update", "suspend",
-                "reactivate", "delete"});
+    private static final List<String> TASKS = Arrays.asList(new String[]{
+                "create", "activate", "update", "suspend", "reactivate", "delete"});
 
     public static final String ENABLED = "enabled";
 

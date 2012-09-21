@@ -18,23 +18,25 @@
  */
 package org.apache.syncope.core.util;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
+import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
@@ -43,8 +45,11 @@ public class JexlUtil {
 
     /**
      * Logger.
+     *
      */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
+
+    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID"};
 
     @Autowired
     private JexlEngine jexlEngine;
@@ -63,11 +68,9 @@ public class JexlUtil {
     }
 
     public String evaluate(final String expression, final JexlContext jexlContext) {
-
         String result = "";
 
-        if (expression != null && !expression.isEmpty() && jexlContext != null) {
-
+        if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
                 Expression jexlExpression = jexlEngine.createExpression(expression);
                 Object evaluated = jexlExpression.evaluate(jexlContext);
@@ -76,7 +79,6 @@ public class JexlUtil {
                 }
             } catch (JexlException e) {
                 LOG.error("Invalid jexl expression: " + expression, e);
-                result = "";
             }
         } else {
             LOG.debug("Expression not provided or invalid context");
@@ -85,36 +87,38 @@ public class JexlUtil {
         return result;
     }
 
-    public String evaluate(final String expression, final AbstractAttributable attributable) {
+    public JexlContext addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
+        JexlContext context = jexlContext == null
+                ? new MapContext()
+                : jexlContext;
 
-        final JexlContext jexlContext = new MapContext();
+        final Field[] fields = attributable.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            try {
+                Field field = fields[i];
+                field.setAccessible(true);
+                final String fieldName = field.getName();
+                if ((!field.isSynthetic()) && (!fieldName.startsWith("pc"))
+                        && (!ArrayUtils.contains(IGNORE_FIELDS, fieldName))
+                        && (!Iterable.class.isAssignableFrom(field.getType()))
+                        && (!field.getType().isArray())) {
 
-        if (attributable instanceof SyncopeUser) {
-            SyncopeUser user = (SyncopeUser) attributable;
+                    final Object fieldValue = field.get(attributable);
 
-            jexlContext.set("username", user.getUsername() != null
-                    ? user.getUsername()
-                    : "");
-            jexlContext.set("creationDate", user.getCreationDate() != null
-                    ? user.getDateFormatter().format(user.getCreationDate())
-                    : "");
-            jexlContext.set("lastLoginDate", user.getLastLoginDate() != null
-                    ? user.getDateFormatter().format(user.getLastLoginDate())
-                    : "");
-            jexlContext.set("failedLogins", user.getFailedLogins() != null
-                    ? user.getFailedLogins()
-                    : "");
-            jexlContext.set("changePwdDate", user.getChangePwdDate() != null
-                    ? user.getDateFormatter().format(user.getChangePwdDate())
-                    : "");
+                    context.set(fieldName, fieldValue == null
+                            ? ""
+                            : (field.getType().equals(Date.class)
+                            ? ((AbstractBaseBean) attributable).getDateFormatter().format(fieldValue)
+                            : fieldValue));
+
+                    LOG.debug("Add field {} with value {}", fieldName, fieldValue);
+                }
+            } catch (Exception e) {
+                LOG.error("Reading class attributes error", e);
+            }
         }
 
-        addAttrsToContext(attributable.getAttributes(), jexlContext);
-
-        addDerAttrsToContext(attributable.getDerivedAttributes(), attributable.getAttributes(), jexlContext);
-
-        // Evaluate expression using the context prepared before
-        return evaluate(expression, jexlContext);
+        return context;
     }
 
     public JexlContext addAttrsToContext(final Collection<? extends AbstractAttr> attributes,
@@ -130,8 +134,7 @@ public class JexlUtil {
                     ? ""
                     : attributeValues.get(0);
 
-            LOG.debug("Add attribute {} with value {}",
-                    new Object[] { attribute.getSchema().getName(), expressionValue });
+            LOG.debug("Add attribute {} with value {}", attribute.getSchema().getName(), expressionValue);
 
             context.set(attribute.getSchema().getName(), expressionValue);
         }
@@ -139,42 +142,31 @@ public class JexlUtil {
         return context;
     }
 
-    public JexlContext addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttributes,
-            final Collection<? extends AbstractAttr> attributes, final JexlContext jexlContext) {
+    public JexlContext addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttrs,
+            final Collection<? extends AbstractAttr> attrs, final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
                 ? new MapContext()
                 : jexlContext;
 
-        for (AbstractDerAttr attribute : derAttributes) {
-            String expressionValue = attribute.getValue(attributes);
+        for (AbstractDerAttr derAttr : derAttrs) {
+            String expressionValue = derAttr.getValue(attrs);
             if (expressionValue == null) {
                 expressionValue = "";
             }
 
-            LOG.debug("Add derived attribute {} with value {}", new Object[] { attribute.getDerivedSchema().getName(),
-                    expressionValue });
+            LOG.debug("Add derived attribute {} with value {}", derAttr.getDerivedSchema().getName(), expressionValue);
 
-            context.set(attribute.getDerivedSchema().getName(), expressionValue);
+            context.set(derAttr.getDerivedSchema().getName(), expressionValue);
         }
 
         return context;
     }
 
     public String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
-
         final JexlContext context = new MapContext();
 
-        if (attributableTO instanceof UserTO) {
-            UserTO user = (UserTO) attributableTO;
-
-            context.set("username", user.getUsername() != null
-                    ? user.getUsername()
-                    : "");
-            context.set("password", user.getPassword() != null
-                    ? user.getPassword()
-                    : "");
-        }
+        addFieldsToContext(attributableTO, context);
 
         for (AttributeTO attribute : attributableTO.getAttributes()) {
             List<String> attributeValues = attribute.getValues();
@@ -182,7 +174,7 @@ public class JexlUtil {
                     ? ""
                     : attributeValues.get(0);
 
-            LOG.debug("Add attribute {} with value {}", new Object[] { attribute.getSchema(), expressionValue });
+            LOG.debug("Add attribute {} with value {}", attribute.getSchema(), expressionValue);
 
             context.set(attribute.getSchema(), expressionValue);
         }
@@ -192,7 +184,7 @@ public class JexlUtil {
                     ? ""
                     : attributeValues.get(0);
 
-            LOG.debug("Add attribute {} with value {}", new Object[] { attribute.getSchema(), expressionValue });
+            LOG.debug("Add derived attribute {} with value {}", attribute.getSchema(), expressionValue);
 
             context.set(attribute.getSchema(), expressionValue);
         }
@@ -202,7 +194,7 @@ public class JexlUtil {
                     ? ""
                     : attributeValues.get(0);
 
-            LOG.debug("Add attribute {} with value {}", new Object[] { attribute.getSchema(), expressionValue });
+            LOG.debug("Add virtual attribute {} with value {}", attribute.getSchema(), expressionValue);
 
             context.set(attribute.getSchema(), expressionValue);
         }
