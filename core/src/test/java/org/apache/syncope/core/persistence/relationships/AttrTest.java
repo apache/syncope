@@ -153,6 +153,6 @@ public class AttrTest extends AbstractTest {
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("user3 - 2010-10-20T11:00:00"));
-        assertTrue(value.endsWith("[0]"));
+        assertTrue(value.endsWith("[]"));
     }
 }

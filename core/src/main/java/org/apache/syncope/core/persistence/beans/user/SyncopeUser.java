@@ -422,12 +422,12 @@ public class SyncopeUser extends AbstractAttributable {
         return tokenExpireTime.before(new Date());
     }
 
-    public CipherAlgorithm getCipherAlgoritm() {
+    public CipherAlgorithm getCipherAlgorithm() {
         return cipherAlgorithm;
     }
 
-    public void setCipherAlgoritm(final CipherAlgorithm cipherAlgoritm) {
-        this.cipherAlgorithm = cipherAlgoritm;
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        this.cipherAlgorithm = cipherAlgorithm;
     }
 
     public List<String> getPasswordHistory() {

@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.DerAttrDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.dao.MembershipDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -74,7 +69,8 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveUDerAttribute() throws ClassNotFoundException {
+    public void saveUDerAttribute()
+            throws ClassNotFoundException {
         UDerSchema cnSchema = derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull(cnSchema);
 
@@ -99,7 +95,8 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveMDerAttribute() throws ClassNotFoundException {
+    public void saveMDerAttribute()
+            throws ClassNotFoundException {
         MDerSchema deriveddata = derSchemaDAO.find("mderiveddata", MDerSchema.class);
         assertNotNull(deriveddata);
 
@@ -123,7 +120,8 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveRDerAttribute() throws ClassNotFoundException {
+    public void saveRDerAttribute()
+            throws ClassNotFoundException {
         RDerSchema deriveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNotNull(deriveddata);
 
@@ -158,5 +156,102 @@ public class DerAttrTest extends AbstractTest {
 
         UDerSchema attributeSchema = derSchemaDAO.find(attributeSchemaName, UDerSchema.class);
         assertNotNull("user derived attribute schema deleted " + "when deleting values", attributeSchema);
+    }
+
+    @Test
+    public void issueSYNCOPE134User() {
+        UDerSchema sderived = new UDerSchema();
+        sderived.setName("sderived");
+        sderived.setExpression("status + ' - ' + username + ' - ' + creationDate + '[' + failedLogins + ']'");
+
+        sderived = derSchemaDAO.save(sderived);
+        derSchemaDAO.flush();
+
+        UDerSchema actual = derSchemaDAO.find("sderived", UDerSchema.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(sderived, actual);
+
+        SyncopeUser owner = userDAO.find(3L);
+        assertNotNull("did not get expected user", owner);
+
+        UDerAttr derAttr = new UDerAttr();
+        derAttr.setOwner(owner);
+        derAttr.setDerivedSchema(sderived);
+
+        derAttr = derAttrDAO.save(derAttr);
+        derAttrDAO.flush();
+
+        derAttr = derAttrDAO.find(derAttr.getId(), UDerAttr.class);
+        assertNotNull("expected save to work", derAttr);
+
+        String value = derAttr.getValue(owner.getAttributes());
+        assertNotNull(value);
+        assertFalse(value.isEmpty());
+        assertTrue(value.startsWith("active - user3 - 2010-10-20"));
+        assertTrue(value.endsWith("[]"));
+    }
+
+    @Test
+    public void issueSYNCOPE134Role() {
+        RDerSchema sderived = new RDerSchema();
+        sderived.setName("sderived");
+        sderived.setExpression("name");
+
+        sderived = derSchemaDAO.save(sderived);
+        derSchemaDAO.flush();
+
+        RDerSchema actual = derSchemaDAO.find("sderived", RDerSchema.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(sderived, actual);
+
+        SyncopeRole owner = roleDAO.find(7L);
+        assertNotNull("did not get expected user", owner);
+
+        RDerAttr derAttr = new RDerAttr();
+        derAttr.setOwner(owner);
+        derAttr.setDerivedSchema(sderived);
+
+        derAttr = derAttrDAO.save(derAttr);
+        derAttrDAO.flush();
+
+        derAttr = derAttrDAO.find(derAttr.getId(), RDerAttr.class);
+        assertNotNull("expected save to work", derAttr);
+
+        String value = derAttr.getValue(owner.getAttributes());
+        assertNotNull(value);
+        assertFalse(value.isEmpty());
+        assertTrue(value.startsWith("managingDirector"));
+    }
+
+    @Test
+    public void issueSYNCOPE134Memb() {
+        MDerSchema sderived = new MDerSchema();
+        sderived.setName("sderived");
+        sderived.setExpression("id");
+
+        sderived = derSchemaDAO.save(sderived);
+        derSchemaDAO.flush();
+
+        MDerSchema actual = derSchemaDAO.find("sderived", MDerSchema.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(sderived, actual);
+
+        Membership owner = membershipDAO.find(4L);
+        assertNotNull("did not get expected user", owner);
+
+        MDerAttr derAttr = new MDerAttr();
+        derAttr.setOwner(owner);
+        derAttr.setDerivedSchema(sderived);
+
+        derAttr = derAttrDAO.save(derAttr);
+        derAttrDAO.flush();
+
+        derAttr = derAttrDAO.find(derAttr.getId(), MDerAttr.class);
+        assertNotNull("expected save to work", derAttr);
+
+        String value = derAttr.getValue(owner.getAttributes());
+        assertNotNull(value);
+        assertFalse(value.isEmpty());
+        assertTrue(value.equalsIgnoreCase("4"));
     }
 }

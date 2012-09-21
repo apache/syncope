@@ -103,7 +103,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public boolean verifyPassword(final SyncopeUser user, final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return PasswordEncoder.verifyPassword(password, user.getCipherAlgoritm(), user.getPassword());
+        return PasswordEncoder.verifyPassword(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
     @Transactional(readOnly = true)

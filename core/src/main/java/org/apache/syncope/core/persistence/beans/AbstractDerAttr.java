@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.JexlUtil;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -33,6 +37,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 public abstract class AbstractDerAttr extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4740924251090424771L;
+
+    private final List<String> ignoredFields = Arrays.asList(
+            new String[]{"password", "clearPassword", "serialVersionUID"});
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -55,27 +62,35 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
         // Prepare context using user attributes
         final JexlContext jexlContext = jexlUtil.addAttrsToContext(attributes, null);
 
-        final AbstractAttributable owner = getOwner();
-        if (owner instanceof SyncopeUser) {
-            jexlContext.set("username", ((SyncopeUser) owner).getUsername() != null
-                    ? ((SyncopeUser) owner).getUsername()
-                    : "");
-            jexlContext.set("creationDate", ((SyncopeUser) owner).getCreationDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getCreationDate())
-                    : "");
-            jexlContext.set("lastLoginDate", ((SyncopeUser) owner).getLastLoginDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getLastLoginDate())
-                    : "");
-            jexlContext.set("failedLogins", ((SyncopeUser) owner).getFailedLogins() != null
-                    ? ((SyncopeUser) owner).getFailedLogins()
-                    : "");
-            jexlContext.set("changePwdDate", ((SyncopeUser) owner).getChangePwdDate() != null
-                    ? ((SyncopeUser) owner).getDateFormatter().format(((SyncopeUser) owner).getChangePwdDate())
-                    : "");
-        }
+        createJexlContext(jexlContext);
 
         // Evaluate expression using the context prepared before
         return jexlUtil.evaluate(getDerivedSchema().getExpression(), jexlContext);
+    }
+
+    private void createJexlContext(final JexlContext jexlContext) {
+        AbstractAttributable instance = getOwner();
+        Field[] fields = instance.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            try {
+                Field field = fields[i];
+                field.setAccessible(true);
+                if ((!field.isSynthetic()) && (!field.getName().startsWith("pc"))
+                        && (!ArrayUtils.contains(ignoredFields.toArray(), field.getName()))
+                        && (!Iterable.class.isAssignableFrom(field.getType()))
+                        && (!field.getType().isArray())) {
+                    if (field.getType().equals(Date.class)) {
+                        jexlContext.set(field.getName(), field.get(instance) != null
+                                ? ((AbstractBaseBean) instance).getDateFormatter().format(field.get(instance)) : "");
+                    } else {
+                        jexlContext.set(field.getName(), field.get(instance) != null ? field.get(instance) : "");
+                    }
+                }
+
+            } catch (Exception ex) {
+                LOG.error("Reading class attributes error", ex);
+            }
+        }
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();

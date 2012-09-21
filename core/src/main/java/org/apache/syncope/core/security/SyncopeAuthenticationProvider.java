@@ -130,7 +130,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 }
                 authenticated = PasswordEncoder.verifyPassword(
                         authentication.getCredentials().toString(),
-                        user.getCipherAlgoritm(),
+                        user.getCipherAlgorithm(),
                         user.getPassword());
             }
         }
