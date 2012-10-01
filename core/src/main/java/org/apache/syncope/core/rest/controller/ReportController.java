@@ -353,7 +353,6 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
     public ReportExecTO execute(@PathVariable("reportId") final Long reportId) throws NotFoundException {
-
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -361,45 +360,34 @@ public class ReportController extends AbstractController {
 
         ReportExecTO result;
 
-        ReportExec latestExec = reportExecDAO.findLatestStarted(report);
-        if (latestExec != null
-                && (ReportExecStatus.STARTED.name().equals(latestExec.getStatus())
-                || ReportExecStatus.RUNNING.name().equals(latestExec.getStatus()))) {
+        LOG.debug("Triggering new execution of report {}", report);
 
-            LOG.debug("Found a non-terminated execution for report {}: not triggering a new execution", report);
-            
-            result = binder.getReportExecTO(latestExec);
-        } else {
-            LOG.debug("Triggering a new execution of report {}", report);
+        try {
+            jobInstanceLoader.registerJob(report);
 
-            try {
-                jobInstanceLoader.registerJob(report);
+            scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP);
 
-                JobDataMap map = new JobDataMap();
-                scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
+                    "Successfully started execution for report: " + report.getId());
+        } catch (Exception e) {
+            LOG.error("While executing report {}", report, e);
 
-                auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
-                        "Successfully started execution for report: " + report.getId());
-            } catch (Exception e) {
-                LOG.error("While executing report {}", report, e);
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
+                    "Could not start execution for report: " + report.getId(), e);
 
-                auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
-                        "Could not start execution for report: " + report.getId(), e);
-
-                SyncopeClientCompositeErrorException scce =
-                        new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-                SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-                sce.addElement(e.getMessage());
-                scce.addException(sce);
-                throw scce;
-            }
-
-            result = new ReportExecTO();
-            result.setReport(reportId);
-            result.setStartDate(new Date());
-            result.setStatus(ReportExecStatus.STARTED);
-            result.setMessage("Job fired; waiting for results...");
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
+            sce.addElement(e.getMessage());
+            scce.addException(sce);
+            throw scce;
         }
+
+        result = new ReportExecTO();
+        result.setReport(reportId);
+        result.setStartDate(new Date());
+        result.setStatus(ReportExecStatus.STARTED);
+        result.setMessage("Job fired; waiting for results...");
 
         return result;
     }

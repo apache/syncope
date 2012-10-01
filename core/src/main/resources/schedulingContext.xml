@@ -37,13 +37,12 @@ under the License.
     </property>
     <property name="quartzProperties">
       <props>
-		<!-- Job store -->
         <prop key="org.quartz.jobStore.misfireThreshold">6000000</prop>
         <prop key="org.quartz.jobStore.driverDelegateClass">${quartz.jobstore}</prop>
 
         <prop key="org.quartz.jobStore.isClustered">true</prop>
         <prop key="org.quartz.jobStore.clusterCheckinInterval">20000</prop>
-
+        
         <prop key="org.quartz.scheduler.instanceName">ClusteredScheduler</prop>
         <prop key="org.quartz.scheduler.instanceId">AUTO</prop>
         <prop key="org.quartz.scheduler.jmx.export">true</prop>

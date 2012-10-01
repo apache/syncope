@@ -902,7 +902,7 @@ under the License.
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>sqljdbc4</artifactId>
-          <version>3.0</version>
+          <version>4.0</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -992,7 +992,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.18</version>
+          <version>5.1.21</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

@@ -42,6 +42,10 @@ public abstract class AbstractTest {
 
     protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
+    public static final String ADMIN_UID = "admin";
+
+    public static final String ADMIN_PWD = "password";
+
     @Autowired
     protected RestTemplate restTemplate;
 
@@ -62,6 +66,6 @@ public abstract class AbstractTest {
 
     @Before
     public void resetRestTemplate() {
-        setupRestTemplate("admin", "password");
+        setupRestTemplate(ADMIN_UID, ADMIN_PWD);
     }
 }
