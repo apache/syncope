@@ -658,7 +658,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("JOB_FIRED", execution.getStatus());
 
         int i = 0;
-        int maxit = 20;
+        int maxit = 50;
 
         // wait for sync completion (executions incremented)
         do {
@@ -668,25 +668,20 @@ public class TaskTestITCase extends AbstractTest {
             }
 
             actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
-
             assertNotNull(actual);
             assertNotNull(actual.getExecutions());
 
             i++;
-
         } while (preSyncSize == actual.getExecutions().size() && i < maxit);
-
-        assertEquals(1, actual.getExecutions().size());
+        assertEquals(preSyncSize + 1, actual.getExecutions().size());
 
         final String status = actual.getExecutions().get(0).getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser2");
-
         assertNotNull(userTO);
         assertEquals("testuser2@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
-
         assertEquals(2, userTO.getMemberships().size());
         assertEquals(4, userTO.getResources().size());
     }

@@ -44,10 +44,16 @@ under the License.
   <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
   <!-- Use JNDI datasource as default but, when not available, revert to
-       local datasource, using different properties for execution and testing -->
-  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-    <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
-    <property name="defaultObject" ref="localDataSource"/>
+  local datasource, with different properties for execution and testing. 
+  In any case, get all JDBC connections with a determined isolation level. -->
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
+    <property name="targetDataSource">
+      <bean class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
+        <property name="defaultObject" ref="localDataSource"/>
+      </bean>
+    </property>
+    <property name="isolationLevelName" value="ISOLATION_READ_COMMITTED"/>
   </bean>
   <bean id="localDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="${jpa.driverClassName}"/>

@@ -23,14 +23,6 @@ import java.io.StringWriter;
 import java.util.Date;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
@@ -41,6 +33,14 @@ import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.NotificationSubCategory;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.TraceLevel;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
  * Periodically checks for notification to send.

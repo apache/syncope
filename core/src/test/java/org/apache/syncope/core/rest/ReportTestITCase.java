@@ -21,26 +21,17 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.report.UserReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
@@ -157,111 +148,106 @@ public class ReportTestITCase extends AbstractTest {
         }
     }
 
+    private void checkExport(final long execId, final String fmt, final String encodedAuth) throws IOException {
+        URL url = new URL(BASE_URL + "report/execution/export/" + execId + "?fmt=" + fmt);
+        int responseCode = 0;
+        String export = null;
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
+
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(connection.getInputStream(), writer);
+            export = writer.toString();
+            responseCode = connection.getResponseCode();
+        } catch (IOException e) {
+            LOG.error("This should be a temporary exception: ignore", e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        assertEquals(200, responseCode);
+        assertNotNull(export);
+        assertFalse(export.isEmpty());
+    }
+
     @Test
     public void executeAndExport()
             throws IOException {
 
         ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        reportTO.setId(0);
+        reportTO.setName("executeAndExport");
+        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
         assertNotNull(reportTO);
-
-        Set<Long> preExecIds = new HashSet<Long>();
-        for (ReportExecTO exec : reportTO.getExecutions()) {
-            preExecIds.add(exec.getId());
-        }
 
         ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
                 ReportExecTO.class, reportTO.getId());
         assertNotNull(execution);
 
         int maxit = 50;
-
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
 
             maxit--;
-        } while (preExecIds.size() == reportTO.getExecutions().size() && maxit > 0);
+        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
 
-        Set<Long> postExecIds = new HashSet<Long>();
-        for (ReportExecTO exec : reportTO.getExecutions()) {
-            postExecIds.add(exec.getId());
-        }
-
-        postExecIds.removeAll(preExecIds);
-        assertEquals(1, postExecIds.size());
+        long execId = reportTO.getExecutions().iterator().next().getId();
 
         // Export
-        // 1. XML (default)
+        String encodedAuth = Base64.encodeBase64String((ADMIN_UID + ":" + ADMIN_PWD).getBytes());
+        URL url = new URL(BASE_URL + "report/execution/export/" + execId);
 
-        final HttpClient client = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient();
-        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getAuthScope();
-        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
-
-
-        // Add AuthCache to the execution context
-        BasicHttpContext localcontext = new BasicHttpContext();
-
-        // Generate BASIC scheme object and add it to the local auth cache
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-
-        HttpResponse response = null;
-
-        maxit = 10;
-
-        // issueSYNCOPE89
-        ((PoolingClientConnectionManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
-
-        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next());
-
+        // 1. XML
+        maxit = 30;
+        int responseCode = 0;
+        String export = null;
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
 
-            response = client.execute(targetHost, getMethod, localcontext);
-
             maxit--;
-        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && maxit > 0);
 
-        assertEquals(200, response.getStatusLine().getStatusCode());
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
 
-        String export = EntityUtils.toString(response.getEntity()).trim();
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(connection.getInputStream(), writer);
+                export = writer.toString();
+                responseCode = connection.getResponseCode();
+            } catch (IOException e) {
+                LOG.error("This should be a temporary exception: ignore", e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        } while (responseCode != 200 && maxit > 0);
+        assertEquals(200, responseCode);
         assertNotNull(export);
         assertFalse(export.isEmpty());
 
         // 2. HTML
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=HTML");
-        response = client.execute(targetHost, getMethod, localcontext);
-        assertEquals(200, response.getStatusLine().getStatusCode());
-
-        export = EntityUtils.toString(response.getEntity()).trim();
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
+        checkExport(execId, "HTML", encodedAuth);
 
         // 3. PDF
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=PDF");
-        response = client.execute(targetHost, getMethod, localcontext);
-        assertEquals(200, response.getStatusLine().getStatusCode());
-
-        export = EntityUtils.toString(response.getEntity()).trim();
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
+        checkExport(execId, "PDF", encodedAuth);
 
         // 4. RTF
-        getMethod = new HttpGet(BASE_URL + "report/execution/export/" + postExecIds.iterator().next() + "?fmt=RTF");
-        response = client.execute(targetHost, getMethod, localcontext);
-        assertEquals(200, response.getStatusLine().getStatusCode());
-
-        export = EntityUtils.toString(response.getEntity()).trim();
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
+        checkExport(execId, "RTF", encodedAuth);
     }
 
     @Test
@@ -318,47 +304,6 @@ public class ReportTestITCase extends AbstractTest {
 
             maxit--;
         } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-
-        assertTrue(!reportTO.getExecutions().isEmpty());
-
-        // Export
-        final HttpClient client = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient();
-        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory()).getAuthScope();
-        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
-
-        // Add AuthCache to the execution context
-        BasicHttpContext localcontext = new BasicHttpContext();
-
-        // Generate BASIC scheme object and add it to the local auth cache
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-
-        HttpResponse response = null;
-
-        maxit = 10;
-
-        // issueSYNCOPE89
-        ((PoolingClientConnectionManager) client.getConnectionManager()).setDefaultMaxPerRoute(10);
-
-        HttpGet getMethod = new HttpGet(BASE_URL + "report/execution/export/" + reportTO.getExecutions().
-                iterator().next().getId());
-
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            response = client.execute(targetHost, getMethod, localcontext);
-
-            maxit--;
-        } while ((response == null || response.getStatusLine().getStatusCode() != 200) && maxit > 0);
-
-        assertEquals(200, response.getStatusLine().getStatusCode());
-
-        String export = EntityUtils.toString(response.getEntity()).trim();
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
+        assertFalse(reportTO.getExecutions().isEmpty());
     }
 }

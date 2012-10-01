@@ -35,6 +35,7 @@ under the License.
   <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
     <property name="dataSource" ref="dataSource" />
     <property name="transactionManager" ref="transactionManager" />
+    <property name="transactionsExternallyManaged" value="true"/>
     <property name="databaseSchemaUpdate" value="true" />
         
     <property name="jpaEntityManagerFactory" ref="entityManagerFactory" />

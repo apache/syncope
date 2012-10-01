@@ -45,10 +45,6 @@ under the License.
         <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
         <entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
                 
-        <entry key="openjpa.ReadLockLevel" value="none"/>
-        <entry key="openjpa.WriteLockLevel" value="write"/>
-        <entry key="openjpa.LockTimeout" value="30000"/>
-                                
         <entry key="openjpa.DataCache" value="true" />
         <entry key="openjpa.QueryCache" value="true"/>
         <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>

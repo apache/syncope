@@ -19,6 +19,7 @@
 package org.apache.syncope.core.init;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.scheduling.SyncJobActions;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -110,6 +112,24 @@ public class JobInstanceLoader {
     }
 
     private void registerJob(final String jobName, final Job jobInstance, final String cronExpression) throws Exception {
+        synchronized (scheduler.getScheduler()) {
+            boolean jobAlreadyRunning = false;
+            for (JobExecutionContext jobCtx : (List<JobExecutionContext>) scheduler.getScheduler().
+                    getCurrentlyExecutingJobs()) {
+
+                if (jobName.equals(jobCtx.getJobDetail().getName())
+                        && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getGroup())) {
+
+                    jobAlreadyRunning = true;
+
+                    LOG.debug("Job {} already running, cancel", jobCtx.getJobDetail().getFullName());
+                }
+            }
+
+            if (jobAlreadyRunning) {
+                return;
+            }
+        }
 
         // 0. unregister job
         unregisterJob(jobName);
@@ -149,8 +169,8 @@ public class JobInstanceLoader {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
                 } catch (Exception e) {
-                    LOG.error("Class {} not found, reverting to {}", new Object[] { jobActionsClassName,
-                            syncJobActionsClass.getName(), e });
+                    LOG.error("Class {} not found, reverting to {}", new Object[]{jobActionsClassName,
+                                syncJobActionsClass.getName(), e});
                 }
             }
             SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,

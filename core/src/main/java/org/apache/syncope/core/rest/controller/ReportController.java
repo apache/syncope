@@ -37,22 +37,6 @@ import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
-import org.apache.xmlgraphics.util.MimeConstants;
-import org.quartz.JobDataMap;
-import org.quartz.Scheduler;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
@@ -72,6 +56,22 @@ import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.ReportExecExportFormat;
 import org.apache.syncope.types.ReportExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.xmlgraphics.util.MimeConstants;
+import org.quartz.JobDataMap;
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/report")
@@ -353,7 +353,6 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
     public ReportExecTO execute(@PathVariable("reportId") final Long reportId) throws NotFoundException {
-
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -361,45 +360,34 @@ public class ReportController extends AbstractController {
 
         ReportExecTO result;
 
-        ReportExec latestExec = reportExecDAO.findLatestStarted(report);
-        if (latestExec != null
-                && (ReportExecStatus.STARTED.name().equals(latestExec.getStatus())
-                || ReportExecStatus.RUNNING.name().equals(latestExec.getStatus()))) {
+        LOG.debug("Triggering new execution of report {}", report);
 
-            LOG.debug("Found a non-terminated execution for report {}: not triggering a new execution", report);
-            
-            result = binder.getReportExecTO(latestExec);
-        } else {
-            LOG.debug("Triggering a new execution of report {}", report);
+        try {
+            jobInstanceLoader.registerJob(report);
 
-            try {
-                jobInstanceLoader.registerJob(report);
+            scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP);
 
-                JobDataMap map = new JobDataMap();
-                scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP, map);
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
+                    "Successfully started execution for report: " + report.getId());
+        } catch (Exception e) {
+            LOG.error("While executing report {}", report, e);
 
-                auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
-                        "Successfully started execution for report: " + report.getId());
-            } catch (Exception e) {
-                LOG.error("While executing report {}", report, e);
+            auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
+                    "Could not start execution for report: " + report.getId(), e);
 
-                auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
-                        "Could not start execution for report: " + report.getId(), e);
-
-                SyncopeClientCompositeErrorException scce =
-                        new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-                SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-                sce.addElement(e.getMessage());
-                scce.addException(sce);
-                throw scce;
-            }
-
-            result = new ReportExecTO();
-            result.setReport(reportId);
-            result.setStartDate(new Date());
-            result.setStatus(ReportExecStatus.STARTED);
-            result.setMessage("Job fired; waiting for results...");
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
+            sce.addElement(e.getMessage());
+            scce.addException(sce);
+            throw scce;
         }
+
+        result = new ReportExecTO();
+        result.setReport(reportId);
+        result.setStartDate(new Date());
+        result.setStatus(ReportExecStatus.STARTED);
+        result.setMessage("Job fired; waiting for results...");
 
         return result;
     }

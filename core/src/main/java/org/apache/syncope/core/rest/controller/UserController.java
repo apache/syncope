@@ -67,8 +67,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Note that this controller does not extend AbstractController, hence does not provide any Spring's @Transactional
- * logic at class level.
+ * Note that this controller does not extend AbstractController, hence does not provide any Spring's Transactional logic
+ * at class level.
  *
  * @see AbstractController
  */
@@ -380,7 +380,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activate/{userId}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = {Throwable.class})
     public UserTO activate(
             @PathVariable("userId") final Long userId,
             @RequestParam(required = true) final String token,
@@ -401,7 +401,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activateByUsername/{username}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = {Throwable.class})
     public UserTO activate(
             @PathVariable("username") final String username,
             @RequestParam(required = true) final String token,
@@ -558,7 +558,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/{userId}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = {Throwable.class})
     public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId)
             throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
