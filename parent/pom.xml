@@ -27,7 +27,7 @@ under the License.
         
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>1.0.2-incubating-SNAPSHOT</version>
+  <version>1.0.2-incubating</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -50,9 +50,9 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X/parent</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X/parent</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/syncope/branches/1_0_X/parent</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.2-incubating/parent</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/tags/syncope-1.0.2-incubating/parent</developerConnection>
+    <url>http://svn.apache.org/viewvc/incubator/syncope/tags/syncope-1.0.2-incubating/parent</url>
   </scm>
   
   <issueManagement>
