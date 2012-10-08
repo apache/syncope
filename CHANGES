@@ -2,6 +2,22 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.2-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-193] - LDAP test connector status management does not work with synchronization
+    * [SYNCOPE-194] - User attributes not sychronized properly from LDAP resource
+    * [SYNCOPE-196] - Change Display Attributes button misaligned
+    * [SYNCOPE-202] - MySQL and Oracle integration test hangs
+    * [SYNCOPE-208] - Resources: schema mapping form shows incorrect external field names for SyncopeUserId and Password
+    * [SYNCOPE-211] - Test org.apache.syncope.core.persistence.relationships.derAttrFromSpecialAttrs not enabled
+
+** Improvement
+    * [SYNCOPE-124] - Prevent task execution request for running tasks
+    * [SYNCOPE-195] - Make default sorting order consistent
+    * [SYNCOPE-200] - Improve rat-plugin configuration
+    * [SYNCOPE-207] - Clear test configuration in order to avoid AccountId/Password mapping explicitely valued
+
 Release Notes - Syncope - Version 1.0.1-incubating
 ================================================================================
 ** Bug
