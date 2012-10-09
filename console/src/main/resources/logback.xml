@@ -74,7 +74,7 @@ under the License.
   </logger>
     
   <root>
-    <priority value="INFO"/>
+    <level value="INFO"/>
     <appender-ref ref="main"/>
   </root>
 </configuration>
