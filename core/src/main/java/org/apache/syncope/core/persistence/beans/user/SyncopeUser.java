@@ -434,7 +434,7 @@ public class SyncopeUser extends AbstractAttributable {
 
     public boolean hasTokenExpired() {
         return tokenExpireTime == null
-                ? null
+                ? false
                 : tokenExpireTime.before(new Date());
     }
 
