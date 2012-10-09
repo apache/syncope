@@ -63,7 +63,16 @@ public abstract class AbstractExec extends AbstractBaseBean {
         return message;
     }
 
+    /**
+     * Set a message for this execution, taking care of replacing every null character with newline.
+     *
+     * @see https://issues.apache.org/jira/browse/SYNCOPE-214
+     * @param message the message to set for this execution
+     */
     public void setMessage(String message) {
+        if (message != null) {
+            message = message.replace('\0', '\n');
+        }
         this.message = message;
     }
 

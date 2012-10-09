@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import java.util.Date;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.types.PropagationTaskExecStatus;
 
 @Transactional
 public class TaskExecTest extends AbstractTest {
@@ -65,5 +67,28 @@ public class TaskExecTest extends AbstractTest {
         TaskExec latestStarted = taskExecDAO.findLatestStarted(task);
         assertNotNull(latestStarted);
         assertEquals(Long.valueOf(1L), latestStarted.getId());
+    }
+
+    @Test
+    public void issueSYNCOPE214() {
+        PropagationTask task = taskDAO.find(1L);
+        assertNotNull(task);
+
+        String faultyMessage = "A faulty message";
+        faultyMessage = faultyMessage.replace('a', '\0');
+
+        TaskExec exec = new TaskExec();
+        exec.setStartDate(new Date());
+        exec.setEndDate(new Date());
+        exec.setStatus(PropagationTaskExecStatus.SUCCESS.name());
+        exec.setMessage(faultyMessage);
+
+        task.addExec(exec);
+        exec.setTask(task);
+
+        exec = taskExecDAO.save(exec);
+        assertNotNull(exec);
+
+        assertEquals(faultyMessage.replace('\0', '\n'), exec.getMessage());
     }
 }
