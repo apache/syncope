@@ -34,6 +34,7 @@ import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
+import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,15 +129,15 @@ public class JexlUtil {
                 ? new MapContext()
                 : jexlContext;
 
-        for (AbstractAttr attribute : attributes) {
-            List<String> attributeValues = attribute.getValuesAsStrings();
+        for (AbstractAttr attr : attributes) {
+            List<String> attributeValues = attr.getValuesAsStrings();
             String expressionValue = attributeValues.isEmpty()
                     ? ""
                     : attributeValues.get(0);
 
-            LOG.debug("Add attribute {} with value {}", attribute.getSchema().getName(), expressionValue);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema().getName(), expressionValue);
 
-            context.set(attribute.getSchema().getName(), expressionValue);
+            context.set(attr.getSchema().getName(), expressionValue);
         }
 
         return context;
@@ -163,40 +164,61 @@ public class JexlUtil {
         return context;
     }
 
+    public JexlContext addVirAttrsToContext(final Collection<? extends AbstractVirAttr> virAttrs,
+            final JexlContext jexlContext) {
+
+        JexlContext context = jexlContext == null
+                ? new MapContext()
+                : jexlContext;
+
+        for (AbstractVirAttr virAttr : virAttrs) {
+            List<String> attributeValues = virAttr.getValues();
+            String expressionValue = attributeValues.isEmpty()
+                    ? ""
+                    : attributeValues.get(0);
+
+            LOG.debug("Add virtual attribute {} with value {}", virAttr.getVirtualSchema().getName(), expressionValue);
+
+            context.set(virAttr.getVirtualSchema().getName(), expressionValue);
+        }
+
+        return context;
+    }
+
     public String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
         final JexlContext context = new MapContext();
 
         addFieldsToContext(attributableTO, context);
 
-        for (AttributeTO attribute : attributableTO.getAttributes()) {
-            List<String> attributeValues = attribute.getValues();
-            String expressionValue = attributeValues.isEmpty()
+        for (AttributeTO attr : attributableTO.getAttributes()) {
+            List<String> values = attr.getValues();
+            String expressionValue = values.isEmpty()
                     ? ""
-                    : attributeValues.get(0);
+                    : values.get(0);
 
-            LOG.debug("Add attribute {} with value {}", attribute.getSchema(), expressionValue);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema(), expressionValue);
 
-            context.set(attribute.getSchema(), expressionValue);
+            context.set(attr.getSchema(), expressionValue);
         }
-        for (AttributeTO attribute : attributableTO.getDerivedAttributes()) {
-            List<String> attributeValues = attribute.getValues();
-            String expressionValue = attributeValues.isEmpty()
+        for (AttributeTO derAttr : attributableTO.getDerivedAttributes()) {
+            List<String> values = derAttr.getValues();
+            String expressionValue = values.isEmpty()
                     ? ""
-                    : attributeValues.get(0);
+                    : values.get(0);
 
-            LOG.debug("Add derived attribute {} with value {}", attribute.getSchema(), expressionValue);
+            LOG.debug("Add derived attribute {} with value {}", derAttr.getSchema(), expressionValue);
 
-            context.set(attribute.getSchema(), expressionValue);
+            context.set(derAttr.getSchema(), expressionValue);
         }
-        for (AttributeTO attribute : attributableTO.getVirtualAttributes()) {
-            List<String> attributeValues = attribute.getValues();
-            String expressionValue = attributeValues.isEmpty()
+        for (AttributeTO virAttr : attributableTO.getVirtualAttributes()) {
+            List<String> values = virAttr.getValues();
+            String expressionValue = values.isEmpty()
                     ? ""
-                    : attributeValues.get(0);
+                    : values.get(0);
 
-            LOG.debug("Add virtual attribute {} with value {}", attribute.getSchema(), expressionValue);
+            LOG.debug("Add virtual attribute {} with value {}", virAttr.getSchema(), expressionValue);
 
-            context.set(attribute.getSchema(), expressionValue);
+            context.set(virAttr.getSchema(), expressionValue);
         }
 
         // Evaluate expression using the context prepared before

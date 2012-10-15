@@ -91,7 +91,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public IntMappingType derivedIntMappingType() {
+    public IntMappingType derIntMappingType() {
         IntMappingType result;
 
         switch (type) {
@@ -110,7 +110,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public IntMappingType virtualIntMappingType() {
+    public IntMappingType virIntMappingType() {
         IntMappingType result;
 
         switch (type) {
@@ -165,7 +165,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractDerSchema> Class<T> derivedSchemaClass() {
+    public <T extends AbstractDerSchema> Class<T> derSchemaClass() {
         Class result = null;
 
         switch (type) {
@@ -183,7 +183,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractVirSchema> Class<T> virtualSchemaClass() {
+    public <T extends AbstractVirSchema> Class<T> virSchemaClass() {
         Class result = null;
 
         switch (type) {
@@ -201,7 +201,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractDerSchema> T newDerivedSchema() {
+    public <T extends AbstractDerSchema> T newDerSchema() {
         T result = null;
 
         switch (type) {
@@ -219,7 +219,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractAttr> Class<T> attributeClass() {
+    public <T extends AbstractAttr> Class<T> attrClass() {
         Class result = null;
 
         switch (type) {
@@ -237,7 +237,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractAttr> T newAttribute() {
+    public <T extends AbstractAttr> T newAttr() {
         T result = null;
 
         switch (type) {
@@ -255,7 +255,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractDerAttr> Class<T> derivedAttributeClass() {
+    public <T extends AbstractDerAttr> Class<T> derAttrClass() {
         Class result = null;
 
         switch (type) {
@@ -273,7 +273,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractVirAttr> Class<T> virtualAttributeClass() {
+    public <T extends AbstractVirAttr> Class<T> virAttrClass() {
         Class result = null;
 
         switch (type) {
@@ -291,7 +291,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractDerAttr> T newDerivedAttribute() {
+    public <T extends AbstractDerAttr> T newDerAttr() {
         T result = null;
 
         switch (type) {
@@ -309,7 +309,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractVirAttr> T newVirtualAttribute() {
+    public <T extends AbstractVirAttr> T newVirAttr() {
         T result = null;
 
         switch (type) {
@@ -327,7 +327,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractVirSchema> T newVirtualSchema() {
+    public <T extends AbstractVirSchema> T newVirSchema() {
         T result = null;
 
         switch (type) {
@@ -345,7 +345,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractAttrValue> Class<T> attributeValueClass() {
+    public <T extends AbstractAttrValue> Class<T> attrValueClass() {
         Class result = null;
 
         switch (type) {
@@ -363,7 +363,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractAttrValue> T newAttributeValue() {
+    public <T extends AbstractAttrValue> T newAttrValue() {
         T result = null;
 
         switch (type) {
@@ -381,7 +381,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractAttrValue> T newAttributeUniqueValue() {
+    public <T extends AbstractAttrValue> T newAttrUniqueValue() {
         T result = null;
 
         switch (type) {

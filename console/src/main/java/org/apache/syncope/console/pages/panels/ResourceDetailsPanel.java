@@ -20,6 +20,16 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
+import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.types.PropagationMode;
+import org.apache.syncope.types.TraceLevel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
@@ -33,16 +43,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
-import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.TraceLevel;
 
 public class ResourceDetailsPanel extends Panel {
 
@@ -82,10 +82,10 @@ public class ResourceDetailsPanel extends Panel {
         resourceName.addRequiredLabel();
         add(resourceName);
 
-        final AjaxCheckBoxPanel forceMandatoryConstraint = new AjaxCheckBoxPanel("forceMandatoryConstraint",
-                new ResourceModel("forceMandatoryConstraint", "forceMandatoryConstraint").getObject(),
-                new PropertyModel<Boolean>(resourceTO, "forceMandatoryConstraint"));
-        add(forceMandatoryConstraint);
+        final AjaxCheckBoxPanel enforceMandatoryCondition = new AjaxCheckBoxPanel("enforceMandatoryCondition",
+                new ResourceModel("enforceMandatoryCondition", "enforceMandatoryCondition").getObject(),
+                new PropertyModel<Boolean>(resourceTO, "enforceMandatoryCondition"));
+        add(enforceMandatoryCondition);
 
         final AjaxCheckBoxPanel propagationPrimary = new AjaxCheckBoxPanel("propagationPrimary", new ResourceModel(
                 "propagationPrimary", "propagationPrimary").getObject(), new PropertyModel<Boolean>(resourceTO,

@@ -61,14 +61,14 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     @Override
     public void delete(final String name, final AttributableUtil attributableUtil) {
 
-        final AbstractDerSchema derivedSchema = find(name, attributableUtil.derivedSchemaClass());
+        final AbstractDerSchema derivedSchema = find(name, attributableUtil.derSchemaClass());
 
         if (derivedSchema == null) {
             return;
         }
 
         List<? extends AbstractDerAttr> attributes = getAttributes(derivedSchema, attributableUtil
-                .derivedAttributeClass());
+                .derAttrClass());
 
         final Set<Long> derivedAttributeIds = new HashSet<Long>(attributes.size());
 
@@ -83,7 +83,7 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
             derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(name, attributableUtil.derivedIntMappingType());
+        resourceDAO.deleteMappings(name, attributableUtil.derIntMappingType());
 
         entityManager.remove(derivedSchema);
     }

@@ -59,7 +59,7 @@ public class VirtualSchemaController extends AbstractController {
             throws SyncopeClientCompositeErrorException {
 
         AbstractVirSchema virtualSchema = virtualSchemaDAO.save(virtualSchemaDataBinder.create(
-                virtualSchemaTO, getAttributableUtil(kind).newVirtualSchema(),
+                virtualSchemaTO, getAttributableUtil(kind).newVirSchema(),
                 getAttributableUtil(kind).schemaClass()));
 
         auditManager.audit(Category.schema, SchemaSubCategory.createVirtual, Result.success,
@@ -74,7 +74,7 @@ public class VirtualSchemaController extends AbstractController {
     public VirtualSchemaTO delete(@PathVariable("kind") final String kind,
             @PathVariable("schema") final String virtualSchemaName) throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).virtualSchemaClass();
+        Class reference = getAttributableUtil(kind).virSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaName, reference);
         if (virtualSchema == null) {
             throw new NotFoundException("Virtual schema '" + virtualSchemaName + "'");
@@ -90,7 +90,7 @@ public class VirtualSchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<VirtualSchemaTO> list(@PathVariable("kind") final String kind) {
-        Class reference = getAttributableUtil(kind).virtualSchemaClass();
+        Class reference = getAttributableUtil(kind).virSchemaClass();
         List<AbstractVirSchema> virtualAttributeSchemas = virtualSchemaDAO.findAll(reference);
 
         List<VirtualSchemaTO> virtualSchemaTOs = new ArrayList<VirtualSchemaTO>(virtualAttributeSchemas.size());
@@ -109,7 +109,7 @@ public class VirtualSchemaController extends AbstractController {
     public VirtualSchemaTO read(@PathVariable("kind") final String kind,
             @PathVariable("virtualSchema") final String virtualSchemaName) throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).virtualSchemaClass();
+        Class reference = getAttributableUtil(kind).virSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaName, reference);
         if (virtualSchema == null) {
             throw new NotFoundException("Virtual schema '" + virtualSchemaName + "'");
@@ -126,7 +126,7 @@ public class VirtualSchemaController extends AbstractController {
     public VirtualSchemaTO update(@RequestBody final VirtualSchemaTO virtualSchemaTO,
             @PathVariable("kind") final String kind) throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        Class reference = getAttributableUtil(kind).virtualSchemaClass();
+        Class reference = getAttributableUtil(kind).virSchemaClass();
         AbstractVirSchema virtualSchema = virtualSchemaDAO.find(virtualSchemaTO.getName(), reference);
         if (virtualSchema == null) {
             throw new NotFoundException("Virtual schema is null");

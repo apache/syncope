@@ -77,14 +77,14 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
             return;
         }
 
-        List<? extends AbstractAttr> attributes = getAttributes(schema, attributableUtil.attributeClass());
+        List<? extends AbstractAttr> attributes = getAttributes(schema, attributableUtil.attrClass());
 
         Set<Long> attributeIds = new HashSet<Long>(attributes.size());
         for (AbstractAttr attribute : attributes) {
             attributeIds.add(attribute.getId());
         }
         for (Long attributeId : attributeIds) {
-            attributeDAO.delete(attributeId, attributableUtil.attributeClass());
+            attributeDAO.delete(attributeId, attributableUtil.attrClass());
         }
 
         resourceDAO.deleteMappings(name, attributableUtil.intMappingType());

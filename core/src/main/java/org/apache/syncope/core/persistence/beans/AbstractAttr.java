@@ -39,10 +39,10 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
         T attrValue;
         if (getSchema().isUniqueConstraint()) {
-            attrValue = (T) attributableUtil.newAttributeUniqueValue();
+            attrValue = (T) attributableUtil.newAttrUniqueValue();
             ((AbstractAttrUniqueValue) attrValue).setSchema(getSchema());
         } else {
-            attrValue = (T) attributableUtil.newAttributeValue();
+            attrValue = (T) attributableUtil.newAttrValue();
         }
 
         attrValue.setAttribute(this);

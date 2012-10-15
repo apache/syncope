@@ -80,7 +80,7 @@ public class SchemaDataBinder {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attributeClass());
+        List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attrClass());
         if (!attrs.isEmpty()) {
             if (schema.getType() != schemaTO.getType()) {
                 SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"

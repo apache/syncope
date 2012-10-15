@@ -31,9 +31,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
-        T attribute;
         for (Iterator<? extends AbstractAttr> itor = getAttributes().iterator(); result == null && itor.hasNext();) {
-            attribute = (T) itor.next();
+            final T attribute = (T) itor.next();
             if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
                 result = attribute;
             }
@@ -42,13 +41,11 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public <T extends AbstractDerAttr> T getDerivedAttribute(final String derivedSchemaName) {
-
         T result = null;
-        T derivedAttribute;
         for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator(); result == null
                 && itor.hasNext();) {
 
-            derivedAttribute = (T) itor.next();
+            final T derivedAttribute = (T) itor.next();
             if (derivedAttribute.getDerivedSchema() != null
                     && derivedSchemaName.equals(derivedAttribute.getDerivedSchema().getName())) {
 
@@ -60,14 +57,11 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public <T extends AbstractVirAttr> T getVirtualAttribute(final String virtualSchemaName) {
-
         T result = null;
-        T virtualAttribute;
         for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator(); result == null
                 && itor.hasNext();) {
 
-            virtualAttribute = (T) itor.next();
-
+            final T virtualAttribute = (T) itor.next();
             if (virtualAttribute.getVirtualSchema() != null
                     && virtualSchemaName.equals(virtualAttribute.getVirtualSchema().getName())) {
 

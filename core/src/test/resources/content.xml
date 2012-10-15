@@ -309,38 +309,38 @@ under the License.
   <ConnInstance_capabilities ConnInstance_id="106" capabilities="SEARCH"/>
   <ConnInstance_capabilities ConnInstance_id="106" capabilities="SYNC"/>
     
-  <ExternalResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-delete" connector_id="102" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-update" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-testdb" connector_id="101" forceMandatoryConstraint="1" propagationMode="ONE_PHASE"
+  <ExternalResource name="resource-testdb" connector_id="101" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-testdb2" connector_id="106" forceMandatoryConstraint="1" propagationMode="ONE_PHASE"
+  <ExternalResource name="resource-testdb2" connector_id="106" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
+  <ExternalResource name="resource-csv" connector_id="104" enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" serializedSyncToken="%3Corg.identityconnectors.framework.common.objects.SyncToken%2F%3E"/>
-  <ExternalResource name="resource-ldap" connector_id="105" forceMandatoryConstraint="1" propagationMode="ONE_PHASE"
+  <ExternalResource name="resource-ldap" connector_id="105" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
-  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" passwordPolicy_id="4"/>
   
   <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
-  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
-  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
-  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" forceMandatoryConstraint="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
                     
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete" />

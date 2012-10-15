@@ -321,7 +321,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                         attributeIds.add(attribute.getId());
                     }
                     for (Long attributeId : attributeIds) {
-                        attributeDAO.delete(attributeId, MAttr.class);
+                        attrDAO.delete(attributeId, MAttr.class);
                     }
                     attributeIds.clear();
 

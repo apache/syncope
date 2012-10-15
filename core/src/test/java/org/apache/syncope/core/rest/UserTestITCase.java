@@ -311,7 +311,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testMandatoryContraintsUserCreation() {
+    public void testEnforceMandatoryCondition() {
         UserTO userTO = getSampleTO("issue183@apache.org");
         userTO.addResource("ws-target-resource-2");
         userTO.setPassword("newPassword");
@@ -337,6 +337,37 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
+    }
+
+    @Test
+    public void testEnforceMandatoryConditionOnDerived() {
+        ResourceTO resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "resource-csv");
+        assertNotNull(resourceTO);
+        resourceTO.setName("resource-csv-enforcing");
+        resourceTO.setEnforceMandatoryCondition(true);
+        resourceTO = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        assertNotNull(resourceTO);
+
+        UserTO userTO = getSampleTO("syncope222@apache.org");
+        userTO.addResource(resourceTO.getName());
+        userTO.setPassword("newPassword");
+
+        SyncopeClientException sce = null;
+        try {
+            userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+        }
+        assertNotNull(sce);
+
+        AttributeTO derAttTO = new AttributeTO();
+        derAttTO.setSchema("csvuserid");
+        userTO.addDerivedAttribute(derAttTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(Collections.singleton("resource-csv-enforcing"), userTO.getResources());
     }
 
     @Test
@@ -553,7 +584,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+        Boolean verify = restTemplate.
+                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
                 Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
@@ -869,7 +901,8 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
+        users = Arrays.
+                asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());

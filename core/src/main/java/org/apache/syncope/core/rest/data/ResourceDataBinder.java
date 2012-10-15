@@ -95,7 +95,7 @@ public class ResourceDataBinder {
             }
         }
 
-        resource.setForceMandatoryConstraint(resourceTO.isForceMandatoryConstraint());
+        resource.setEnforceMandatoryCondition(resourceTO.isEnforceMandatoryCondition());
 
         resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
 
@@ -165,7 +165,7 @@ public class ResourceDataBinder {
 
         resourceTO.setAccountLink(resource.getAccountLink());
 
-        resourceTO.setForceMandatoryConstraint(resource.isForceMandatoryConstraint());
+        resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
 
         resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
 

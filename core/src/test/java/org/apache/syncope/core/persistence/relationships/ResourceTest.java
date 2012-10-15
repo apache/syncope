@@ -123,7 +123,7 @@ public class ResourceTest extends AbstractTest {
         resourceTO.setConnectorId(100L);
         resourceTO.setMappings(schemaMappingTOs);
         resourceTO.setPropagationMode(PropagationMode.ONE_PHASE);
-        resourceTO.setForceMandatoryConstraint(true);
+        resourceTO.setEnforceMandatoryCondition(true);
 
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);

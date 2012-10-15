@@ -69,19 +69,17 @@ public class ExternalResource extends AbstractBaseBean {
     @Basic
     @Min(0)
     @Max(1)
-    private Integer forceMandatoryConstraint;
+    private Integer enforceMandatoryCondition;
 
     /**
      * The resource type is identified by the associated connector.
      */
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @NotNull
     private ConnInstance connector;
 
     /**
      * Attribute mappings.
-     *
-     * List type cannot be used. Please, take a look at https://hibernate.onjira.com/browse/HHH-1718
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
@@ -155,7 +153,7 @@ public class ExternalResource extends AbstractBaseBean {
     public ExternalResource() {
         super();
 
-        forceMandatoryConstraint = getBooleanAsInteger(false);
+        enforceMandatoryCondition = getBooleanAsInteger(false);
         mappings = new HashSet<SchemaMapping>();
         propagationPrimary = 0;
         propagationPriority = 0;
@@ -167,12 +165,12 @@ public class ExternalResource extends AbstractBaseBean {
         syncTraceLevel = TraceLevel.FAILURES;
     }
 
-    public boolean isForceMandatoryConstraint() {
-        return isBooleanAsInteger(forceMandatoryConstraint);
+    public boolean isEnforceMandatoryCondition() {
+        return isBooleanAsInteger(enforceMandatoryCondition);
     }
 
-    public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
-        this.forceMandatoryConstraint = getBooleanAsInteger(forceMandatoryConstraint);
+    public void setEnforceMandatoryCondition(boolean enforceMandatoryCondition) {
+        this.enforceMandatoryCondition = getBooleanAsInteger(enforceMandatoryCondition);
     }
 
     public ConnInstance getConnector() {
@@ -214,7 +212,6 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public Set<SchemaMapping> getMappings(final String intAttrName, final IntMappingType intMappingType) {
-
         Set<SchemaMapping> result = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
             if (intAttrName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
@@ -225,7 +222,7 @@ public class ExternalResource extends AbstractBaseBean {
         return result;
     }
 
-    public boolean removeMapping(SchemaMapping mapping) {
+    public boolean removeMapping(final SchemaMapping mapping) {
         return mappings.remove(mapping);
     }
 
@@ -248,7 +245,7 @@ public class ExternalResource extends AbstractBaseBean {
         return accountLink;
     }
 
-    public void setAccountLink(String accountLink) {
+    public void setAccountLink(final String accountLink) {
         this.accountLink = accountLink;
     }
 
@@ -256,7 +253,7 @@ public class ExternalResource extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -264,7 +261,7 @@ public class ExternalResource extends AbstractBaseBean {
         return createTraceLevel;
     }
 
-    public void setCreateTraceLevel(TraceLevel createTraceLevel) {
+    public void setCreateTraceLevel(final TraceLevel createTraceLevel) {
         this.createTraceLevel = createTraceLevel;
     }
 
@@ -272,7 +269,7 @@ public class ExternalResource extends AbstractBaseBean {
         return deleteTraceLevel;
     }
 
-    public void setDeleteTraceLevel(TraceLevel deleteTraceLevel) {
+    public void setDeleteTraceLevel(final TraceLevel deleteTraceLevel) {
         this.deleteTraceLevel = deleteTraceLevel;
     }
 
@@ -280,7 +277,7 @@ public class ExternalResource extends AbstractBaseBean {
         return updateTraceLevel;
     }
 
-    public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
+    public void setUpdateTraceLevel(final TraceLevel updateTraceLevel) {
         this.updateTraceLevel = updateTraceLevel;
     }
 
@@ -288,7 +285,7 @@ public class ExternalResource extends AbstractBaseBean {
         return syncTraceLevel;
     }
 
-    public void setSyncTraceLevel(TraceLevel syncTraceLevel) {
+    public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
         this.syncTraceLevel = syncTraceLevel;
     }
 
@@ -296,7 +293,7 @@ public class ExternalResource extends AbstractBaseBean {
         return accountPolicy;
     }
 
-    public void setAccountPolicy(AccountPolicy accountPolicy) {
+    public void setAccountPolicy(final AccountPolicy accountPolicy) {
         this.accountPolicy = accountPolicy;
     }
 
@@ -304,7 +301,7 @@ public class ExternalResource extends AbstractBaseBean {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
+    public void setPasswordPolicy(final PasswordPolicy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 
@@ -312,12 +309,11 @@ public class ExternalResource extends AbstractBaseBean {
         return syncPolicy;
     }
 
-    public void setSyncPolicy(SyncPolicy syncPolicy) {
+    public void setSyncPolicy(final SyncPolicy syncPolicy) {
         this.syncPolicy = syncPolicy;
     }
 
     public void setConnectorConfigurationProperties(final Set<ConnConfProperty> properties) {
-
         // create new set to make sure it's a serializable set implementation.
         xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(properties));
     }
@@ -327,7 +323,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>> deserialize(xmlConfiguration);
+            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }
@@ -343,7 +339,7 @@ public class ExternalResource extends AbstractBaseBean {
     public SyncToken getSyncToken() {
         return serializedSyncToken == null
                 ? null
-                : XMLSerializer.<SyncToken> deserialize(serializedSyncToken);
+                : XMLSerializer.<SyncToken>deserialize(serializedSyncToken);
     }
 
     public void setSerializedSyncToken(final String serializedSyncToken) {

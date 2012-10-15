@@ -59,7 +59,7 @@ public class DerivedSchemaController extends AbstractController {
             throws SyncopeClientCompositeErrorException {
 
         AbstractDerSchema derivedSchema = derivedSchemaDAO.save(
-                derivedSchemaDataBinder.create(derivedSchemaTO, getAttributableUtil(kind).newDerivedSchema()));
+                derivedSchemaDataBinder.create(derivedSchemaTO, getAttributableUtil(kind).newDerSchema()));
 
         auditManager.audit(Category.schema, SchemaSubCategory.createDerived, Result.success,
                 "Successfully created derived schema: " + kind + "/" + derivedSchema.getName());
@@ -73,7 +73,7 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO delete(@PathVariable("kind") final String kind,
             @PathVariable("schema") final String derivedSchemaName) throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        Class reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
@@ -91,7 +91,7 @@ public class DerivedSchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<DerivedSchemaTO> list(@PathVariable("kind") final String kind) {
-        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        Class reference = getAttributableUtil(kind).derSchemaClass();
         List<AbstractDerSchema> derivedAttributeSchemas = derivedSchemaDAO.findAll(reference);
 
         List<DerivedSchemaTO> derivedSchemaTOs = new ArrayList<DerivedSchemaTO>(derivedAttributeSchemas.size());
@@ -110,7 +110,7 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO read(@PathVariable("kind") final String kind,
             @PathVariable("derivedSchema") final String derivedSchemaName) throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        Class reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
@@ -127,7 +127,7 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO update(@RequestBody final DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") final String kind) throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        Class reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaTO.getName(), reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaTO.getName() + "'");

@@ -54,10 +54,7 @@ public class ResourceTO extends AbstractBaseBean {
 
     private PropagationMode propagationMode;
 
-    /**
-     * Force mandatory constraint.
-     */
-    private boolean forceMandatoryConstraint;
+    private boolean enforceMandatoryCondition;
 
     private TraceLevel createTraceLevel;
 
@@ -89,12 +86,12 @@ public class ResourceTO extends AbstractBaseBean {
         syncTraceLevel = TraceLevel.ALL;
     }
 
-    public boolean isForceMandatoryConstraint() {
-        return forceMandatoryConstraint;
+    public boolean isEnforceMandatoryCondition() {
+        return enforceMandatoryCondition;
     }
 
-    public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
-        this.forceMandatoryConstraint = forceMandatoryConstraint;
+    public void setEnforceMandatoryCondition(boolean enforceMandatoryCondition) {
+        this.enforceMandatoryCondition = enforceMandatoryCondition;
     }
 
     public Long getConnectorId() {

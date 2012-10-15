@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import static javax.persistence.EnumType.STRING;
-
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -47,7 +46,7 @@ public class SchemaMapping extends AbstractBaseBean {
     private String intAttrName;
 
     @Column(nullable = false)
-    @Enumerated(STRING)
+    @Enumerated(EnumType.STRING)
     private IntMappingType intMappingType;
 
     /**
