@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.init;
 
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.scheduling.AbstractTaskJob;
@@ -67,6 +69,9 @@ public class JobInstanceLoader {
 
     @Autowired
     private ReportDAO reportDAO;
+
+    @Autowired
+    private ConfDAO confDAO;
 
     private DefaultListableBeanFactory getBeanFactory() {
         ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
@@ -111,7 +116,9 @@ public class JobInstanceLoader {
         return "Trigger_" + jobName;
     }
 
-    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression) throws Exception {
+    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
+            throws SchedulerException, ParseException {
+
         synchronized (scheduler.getScheduler()) {
             boolean jobAlreadyRunning = false;
             for (JobExecutionContext jobCtx : (List<JobExecutionContext>) scheduler.getScheduler().
@@ -155,7 +162,8 @@ public class JobInstanceLoader {
         }
     }
 
-    public void registerJob(final Task task, final String jobClassName, final String cronExpression) throws Exception {
+    public void registerJob(final Task task, final String jobClassName, final String cronExpression)
+            throws ClassNotFoundException, SchedulerException, ParseException {
 
         Class jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) getBeanFactory().createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
@@ -182,8 +190,7 @@ public class JobInstanceLoader {
         registerJob(getJobName(task), jobInstance, cronExpression);
     }
 
-    public void registerJob(final Report report) throws Exception {
-
+    public void registerJob(final Report report) throws SchedulerException, ParseException {
         Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE,
                 false);
         ((ReportJob) jobInstance).setReportId(report.getId());
@@ -226,10 +233,19 @@ public class JobInstanceLoader {
         }
 
         // 2. NotificationJob
-        try {
-            registerJob(null, NotificationJob.class.getName(), "0 0/2 * * * ?");
-        } catch (Exception e) {
-            LOG.error("While loading NotificationJob instance", e);
+        final String notificationJobCronExp =
+                confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP).getValue();
+        if (StringUtils.isBlank(notificationJobCronExp)) {
+            LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
+        } else {
+            LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
+                    notificationJobCronExp);
+
+            try {
+                registerJob(null, NotificationJob.class.getName(), notificationJobCronExp);
+            } catch (Exception e) {
+                LOG.error("While loading NotificationJob instance", e);
+            }
         }
 
         // 3. ReportJobs

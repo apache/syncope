@@ -19,13 +19,18 @@ under the License.
 
 -->
 <dataset>
-  <SyncopeConf confKey="token.length" confValue="256"/>
-  <SyncopeConf confKey="token.expireTime" confValue="60"/>
-  <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
-  <SyncopeConf confKey="smtp.port" confValue="25"/>
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
-  <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
+  <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
+  <SyncopeConf confKey="smtp.port" confValue="25"/>
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeConf confKey="notificationjob.cronExpression" confValue="0 0/5 * * * ?"/>
+  <SyncopeConf confKey="token.length" confValue="256"/>
+  <SyncopeConf confKey="token.expireTime" confValue="60"/>
+  <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
     
   <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="GLOBAL_SYNC"
           specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
@@ -48,7 +53,7 @@ under the License.
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
            conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
-    <!-- Authentication and authorization -->
+  <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>
   <Entitlement name="SCHEMA_UPDATE"/>

@@ -19,12 +19,17 @@ under the License.
 
 -->
 <dataset>
-  <SyncopeConf confKey="token.length" confValue="256"/>
-  <SyncopeConf confKey="token.expireTime" confValue="60"/>
-  <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
-  <SyncopeConf confKey="smtp.port" confValue="25"/>
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
+  <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
+  <SyncopeConf confKey="smtp.port" confValue="25"/>
+  <!-- notificationjob.cronExpression:
+       + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+       + provided as empty string: NotificationJob disabled
+       + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
+  <SyncopeConf confKey="token.length" confValue="256"/>
+  <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
 
   <!-- sample policies -->

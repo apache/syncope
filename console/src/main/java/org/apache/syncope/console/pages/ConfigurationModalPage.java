@@ -69,7 +69,6 @@ public class ConfigurationModalPage extends BaseModalPage {
         final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value", new PropertyModel(configurationTO,
                 "value"));
         form.add(value);
-        value.addRequiredLabel();
 
         submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
             private static final long serialVersionUID = -958724007591692537L;
