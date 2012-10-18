@@ -40,8 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Throwable.class})
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    private static final List<String> TASKS = Arrays.asList(new String[]{
-                "create", "activate", "update", "suspend", "reactivate", "delete"});
+    private static final List<String> TASKS =
+            Arrays.asList(new String[]{"create", "activate", "update", "suspend", "reactivate", "delete"});
 
     public static final String ENABLED = "enabled";
 
@@ -66,16 +66,15 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         String status;
-        boolean propagate_enable;
-
+        boolean propagateEnable;
         if (enabled == null) {
             status = "created";
-            propagate_enable = true;
+            propagateEnable = true;
         } else {
             status = enabled
                     ? "active"
                     : "suspended";
-            propagate_enable = enabled;
+            propagateEnable = enabled;
         }
 
         user.setStatus(status);
@@ -84,7 +83,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagate_enable),
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagateEnable),
                 propByRes, "create");
     }
 

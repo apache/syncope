@@ -39,6 +39,7 @@ import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.scheduling.SyncJob;
+import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
 import org.apache.syncope.types.IntMappingType;
@@ -317,7 +318,7 @@ public class TaskTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
-        assertEquals("active", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);

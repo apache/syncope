@@ -60,10 +60,12 @@ import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
+import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.Assume;
 import org.springframework.util.StringUtils;
 
 public class UserTestITCase extends AbstractTest {
@@ -665,6 +667,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithReject() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+
         UserTO userTO = getSampleTO("createWithReject@syncope.apache.org");
 
         // User with role 9 are defined in workflow as subject to approval
@@ -727,6 +731,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithApproval() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         UserTO userTO = getSampleTO("createWithApproval@syncope.apache.org");
@@ -1330,6 +1336,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createActivate() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+
         UserTO userTO = getSampleTO("createActivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1356,6 +1364,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createActivateByUsername() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+
         UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1392,7 +1402,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals("active", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
 
@@ -1416,7 +1426,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals("active", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class, userTO.getUsername());
@@ -1453,7 +1463,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals("active", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
 
         String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
                 + "&performLocally=true"; // check also performLocally

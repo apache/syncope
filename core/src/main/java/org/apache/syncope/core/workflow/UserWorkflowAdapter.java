@@ -24,6 +24,8 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.core.init.SpringContextInitializer;
+import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
@@ -32,6 +34,15 @@ import org.apache.syncope.core.util.NotFoundException;
  * Interface for calling underlying workflow implementations.
  */
 public interface UserWorkflowAdapter {
+
+    /**
+     * Give the class to be instantiated and invoked by SpringContextInitializer for loading anything needed by this
+     * adapter.
+     *
+     * @return null if no init is needed or the WorkflowLoader class for handling initialization
+     * @see SpringContextInitializer
+     */
+    Class<? extends WorkflowLoader> getLoaderClass();
 
     /**
      * Create an user.

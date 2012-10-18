@@ -59,6 +59,8 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormPropertyTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.core.init.ActivitiWorkflowLoader;
+import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
@@ -128,6 +130,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Override
+    public Class<? extends WorkflowLoader> getLoaderClass() {
+        return ActivitiWorkflowLoader.class;
+    }
 
     private void updateStatus(final SyncopeUser user) {
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();

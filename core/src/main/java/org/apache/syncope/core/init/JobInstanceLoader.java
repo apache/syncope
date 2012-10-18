@@ -74,9 +74,9 @@ public class JobInstanceLoader {
     private ConfDAO confDAO;
 
     private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        ConfigurableApplicationContext ctx = ApplicationContextProvider.getApplicationContext();
 
-        return (DefaultListableBeanFactory) context.getBeanFactory();
+        return (DefaultListableBeanFactory) ctx.getBeanFactory();
     }
 
     private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
