@@ -55,23 +55,25 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.lang.StringUtils;
-import org.identityconnectors.common.security.EncryptorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormPropertyTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.core.init.ActivitiWorkflowLoader;
+import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.WorkflowFormPropertyType;
+import org.identityconnectors.common.security.EncryptorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -128,6 +130,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Override
+    public Class<? extends WorkflowLoader> getLoaderClass() {
+        return ActivitiWorkflowLoader.class;
+    }
 
     private void updateStatus(final SyncopeUser user) {
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();

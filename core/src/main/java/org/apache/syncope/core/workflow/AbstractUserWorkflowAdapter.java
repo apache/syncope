@@ -21,16 +21,17 @@ package org.apache.syncope.core.workflow;
 import java.util.Map;
 import java.util.Map.Entry;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
 
     @Autowired
@@ -38,6 +39,11 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Autowired
     protected UserDAO userDAO;
+
+    @Override
+    public Class<? extends WorkflowLoader> getLoaderClass() {
+        return null;
+    }
 
     @Override
     public WorkflowResult<Entry<Long, Boolean>> create(final UserTO userTO)

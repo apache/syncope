@@ -21,12 +21,13 @@ package org.apache.syncope.core;
 import static org.junit.Assert.*;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
-        "classpath:schedulingContext.xml", "classpath:workflowContext.xml" })
+@ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
 public abstract class AbstractTest {
 
     /**
@@ -76,16 +77,21 @@ public abstract class AbstractTest {
         }
     }
 
-    @Before
-    public void setUpIdentityConnectorsBundles() {
+    @BeforeClass
+    public static void setUpIdentityConnectorsBundles() throws IOException {
         Properties props = new java.util.Properties();
+        InputStream propStream = null;
         try {
-            InputStream propStream = getClass().getResourceAsStream("/bundles.properties");
+            propStream = AbstractTest.class.getResourceAsStream("/bundles.properties");
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Exception e) {
             LOG.error("Could not load bundles.properties", e);
+        } finally {
+            if (propStream != null) {
+                propStream.close();
+            }
         }
         assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);

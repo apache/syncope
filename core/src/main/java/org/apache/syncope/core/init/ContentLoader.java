@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Level;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -39,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * If empty, load default content to Syncope database by reading from
- * <code>content.xml</code>.
+ * <code>ckasspath:/content.xml</code>.
  */
 @Component
 public class ContentLoader {
@@ -66,7 +65,8 @@ public class ContentLoader {
         boolean existingData = false;
         try {
             final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
-            statement = conn.prepareStatement(queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            statement = conn.prepareStatement(
+                    queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             resultSet = statement.executeQuery();
             resultSet.last();
 
@@ -156,17 +156,20 @@ public class ContentLoader {
             LOG.error("While creating indexes", e);
         }
 
-        try {
-            statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    LOG.error("Error closing statement of ACT_GE_PROPERTY delete rows", e);
+        // Can't test wfAdapter.getClass() because it is @Autowired
+        if (SpringContextInitializer.isActivitiConfigured()) {
+            try {
+                statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
+            } finally {
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        LOG.error("Error closing statement of ACT_GE_PROPERTY delete rows", e);
+                    }
                 }
             }
         }

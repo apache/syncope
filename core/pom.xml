@@ -794,7 +794,9 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" overwrite="true" />
+                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" 
+                          file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" 
+                          overwrite="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -815,6 +817,90 @@ under the License.
           </testResource>
           <testResource>
             <directory>src/test/resources/oracle</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>noopworkflow</id>
+      <properties>
+        <javaagent />
+      </properties>
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>remove-activiti</id>
+                <phase>process-test-resources</phase>
+                <configuration>
+                  <target>
+                    <copy tofile="${project.build.directory}/classes/workflowContext.xml" 
+                          file="${basedir}/src/test/resources/noopworkflow/workflowContext.xml" 
+                          overwrite="true" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <!-- Strip Activiti-related entries from content.xml -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <forceCreation>true</forceCreation>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/test-classes</dir>
+                  <includes>
+                    <include>content.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/test-classes/</outputDir>
+                  <stylesheet>${basedir}/src/test/resources/noopworkflow/stripActivitiFromContent.xsl</stylesheet>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>
+
+        </plugins>
+        
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>workflow.properties</exclude>
+            </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/test/resources/noopworkflow</directory>
             <filtering>true</filtering>
           </testResource>
         </testResources>
