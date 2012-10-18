@@ -40,18 +40,19 @@ import org.apache.syncope.core.scheduling.SyncJob;
 import org.apache.syncope.core.scheduling.SyncJobActions;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
+import org.quartz.impl.JobDetailImpl;
+import org.quartz.impl.triggers.CronTriggerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.JobDetailBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,12 +125,12 @@ public class JobInstanceLoader {
             for (JobExecutionContext jobCtx : (List<JobExecutionContext>) scheduler.getScheduler().
                     getCurrentlyExecutingJobs()) {
 
-                if (jobName.equals(jobCtx.getJobDetail().getName())
-                        && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getGroup())) {
+                if (jobName.equals(jobCtx.getJobDetail().getKey().getName())
+                        && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getKey().getGroup())) {
 
                     jobAlreadyRunning = true;
 
-                    LOG.debug("Job {} already running, cancel", jobCtx.getJobDetail().getFullName());
+                    LOG.debug("Job {} already running, cancel", jobCtx.getJobDetail().getKey());
                 }
             }
 
@@ -145,7 +146,7 @@ public class JobInstanceLoader {
         getBeanFactory().registerSingleton(jobName, jobInstance);
 
         // 2. JobDetail bean
-        JobDetail jobDetail = new JobDetailBean();
+        JobDetailImpl jobDetail = new JobDetailImpl();
         jobDetail.setName(jobName);
         jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
         jobDetail.setJobClass(jobInstance.getClass());
@@ -154,7 +155,7 @@ public class JobInstanceLoader {
         if (cronExpression == null) {
             scheduler.getScheduler().addJob(jobDetail, true);
         } else {
-            CronTriggerBean cronTrigger = new CronTriggerBean();
+            CronTriggerImpl cronTrigger = new CronTriggerImpl();
             cronTrigger.setName(getTriggerName(jobName));
             cronTrigger.setCronExpression(cronExpression);
 
@@ -200,8 +201,8 @@ public class JobInstanceLoader {
 
     private void unregisterJob(final String jobName) {
         try {
-            scheduler.getScheduler().unscheduleJob(jobName, Scheduler.DEFAULT_GROUP);
-            scheduler.getScheduler().deleteJob(jobName, Scheduler.DEFAULT_GROUP);
+            scheduler.getScheduler().unscheduleJob(new TriggerKey(jobName, Scheduler.DEFAULT_GROUP));
+            scheduler.getScheduler().deleteJob(new JobKey(jobName, Scheduler.DEFAULT_GROUP));
         } catch (SchedulerException e) {
             LOG.error("Could not remove job " + jobName, e);
         }

@@ -25,9 +25,10 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Base job implementation that delegates to concrete implementation the actual job execution and provides some
  * background settings (like as the corresponding Task, for example).
  */
-public abstract class AbstractTaskJob implements StatefulJob {
+@DisallowConcurrentExecution
+public abstract class AbstractTaskJob implements Job {
 
     public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 

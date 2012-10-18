@@ -52,6 +52,7 @@ import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.quartz.JobDataMap;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -322,8 +323,8 @@ public class TaskController extends AbstractController {
 
                     JobDataMap map = new JobDataMap();
                     map.put(AbstractTaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
-                    scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(task), Scheduler.DEFAULT_GROUP,
-                            map);
+                    scheduler.getScheduler().triggerJob(
+                            new JobKey(JobInstanceLoader.getJobName(task), Scheduler.DEFAULT_GROUP), map);
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
@@ -425,7 +426,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
         TaskUtil taskUtil = getTaskUtil(task);
-        
+
         TaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
 
         if (TaskUtil.SCHED == taskUtil || TaskUtil.SYNC == taskUtil) {
@@ -436,7 +437,7 @@ public class TaskController extends AbstractController {
 
         auditManager.audit(Category.task, TaskSubCategory.delete, Result.success,
                 "Successfully deleted task: " + task.getId() + "/" + taskUtil);
-        
+
         return taskToDelete;
     }
 
@@ -449,7 +450,7 @@ public class TaskController extends AbstractController {
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
         }
-        
+
         TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
 
         taskExecDAO.delete(taskExec);

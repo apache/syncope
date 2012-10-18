@@ -33,9 +33,10 @@ import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.NotificationSubCategory;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.TraceLevel;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
  *
  * @see NotificationTask
  */
-public class NotificationJob implements StatefulJob {
+@DisallowConcurrentExecution
+public class NotificationJob implements Job {
 
     enum Status {
 

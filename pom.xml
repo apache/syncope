@@ -251,7 +251,7 @@ under the License.
     <jackson.version>1.9.10</jackson.version>
     <xstream.version>1.4.3</xstream.version>
     <velocity.version>1.7</velocity.version>
-    <quartz.version>1.8.6</quartz.version>
+    <quartz.version>2.1.6</quartz.version>
 
     <openjpa.version>2.2.0</openjpa.version>
     <bval.version>0.5</bval.version>

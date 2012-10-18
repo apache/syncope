@@ -33,6 +33,7 @@ import org.apache.syncope.core.report.ReportletConfClass;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -137,7 +138,7 @@ public class ReportDataBinder {
 
         Trigger trigger;
         try {
-            trigger = scheduler.getScheduler().getTrigger(triggerName, Scheduler.DEFAULT_GROUP);
+            trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
             trigger = null;

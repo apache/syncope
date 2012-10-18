@@ -24,8 +24,13 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
+import org.apache.syncope.core.report.Reportlet;
+import org.apache.syncope.core.scheduling.NotificationJob;
+import org.apache.syncope.core.scheduling.ReportJob;
+import org.apache.syncope.core.scheduling.SyncJob;
+import org.apache.syncope.core.scheduling.SyncJobActions;
 import org.quartz.Job;
-import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +40,6 @@ import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
-import org.apache.syncope.core.report.Reportlet;
-import org.apache.syncope.core.scheduling.NotificationJob;
-import org.apache.syncope.core.scheduling.ReportJob;
-import org.apache.syncope.core.scheduling.SyncJob;
-import org.apache.syncope.core.scheduling.SyncJobActions;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -87,7 +86,7 @@ public class ImplementationClassNamesLoader {
                         classNames.get(Type.REPORTLET).add(clazz.getName());
                     }
 
-                    if ((interfaces.contains(Job.class) || interfaces.contains(StatefulJob.class))
+                    if ((interfaces.contains(Job.class))
                             && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())
                             && !ReportJob.class.getName().equals(metadata.getClassName())
                             && !NotificationJob.class.getName().equals(metadata.getClassName())) {

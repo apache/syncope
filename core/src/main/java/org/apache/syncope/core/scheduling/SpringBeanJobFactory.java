@@ -51,8 +51,8 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
     }
 
     /**
-     * An implementation of SpringBeanJobFactory that retrieves the bean from
-     * the Spring context so that autowiring and transactions work.
+     * An implementation of SpringBeanJobFactory that retrieves the bean from the Spring context so that autowiring and
+     * transactions work.
      *
      * {@inheritDoc}
      */
@@ -63,8 +63,8 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
 
         // Try to re-create job bean from underlying task (useful for managing
         // failover scenarios)
-        if (!ctx.containsBean(bundle.getJobDetail().getName())) {
-            Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getName());
+        if (!ctx.containsBean(bundle.getJobDetail().getKey().getName())) {
+            Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getKey().getName());
             if (taskId != null) {
                 TaskDAO taskDAO = ctx.getBean(TaskDAO.class);
                 SchedTask task = taskDAO.find(taskId);
@@ -73,7 +73,7 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
                 jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
             }
 
-            Long reportId = JobInstanceLoader.getReportIdFromJobName(bundle.getJobDetail().getName());
+            Long reportId = JobInstanceLoader.getReportIdFromJobName(bundle.getJobDetail().getKey().getName());
             if (reportId != null) {
                 ReportDAO reportDAO = ctx.getBean(ReportDAO.class);
                 Report report = reportDAO.find(reportId);
@@ -83,7 +83,7 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
             }
         }
 
-        final Object job = ctx.getBean(bundle.getJobDetail().getName());
+        final Object job = ctx.getBean(bundle.getJobDetail().getKey().getName());
         final BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
         if (isEligibleForPropertyPopulation(wrapper.getWrappedInstance())) {
             final MutablePropertyValues pvs = new MutablePropertyValues();

@@ -57,7 +57,7 @@ import org.apache.syncope.types.ReportExecExportFormat;
 import org.apache.syncope.types.ReportExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.apache.xmlgraphics.util.MimeConstants;
-import org.quartz.JobDataMap;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -365,7 +365,8 @@ public class ReportController extends AbstractController {
         try {
             jobInstanceLoader.registerJob(report);
 
-            scheduler.getScheduler().triggerJob(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP);
+            scheduler.getScheduler().triggerJob(
+                    new JobKey(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP));
 
             auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
                     "Successfully started execution for report: " + report.getId());

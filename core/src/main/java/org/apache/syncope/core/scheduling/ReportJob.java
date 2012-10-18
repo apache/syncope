@@ -44,9 +44,10 @@ import static org.apache.syncope.core.scheduling.ReportXMLConst.ELEMENT_REPORT;
 import static org.apache.syncope.core.scheduling.ReportXMLConst.XSD_STRING;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.types.ReportExecStatus;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,8 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Quartz job for executing a given report.
  */
-public class ReportJob implements StatefulJob {
+@DisallowConcurrentExecution
+public class ReportJob implements Job {
 
     /**
      * Logger.
