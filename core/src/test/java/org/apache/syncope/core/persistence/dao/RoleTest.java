@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -43,12 +41,12 @@ public class RoleTest extends AbstractTest {
     @Test
     public void findAll() {
         List<SyncopeRole> list = roleDAO.findAll();
-        assertEquals("did not get expected number of roles ", 13, list.size());
+        assertEquals("did not get expected number of roles ", 14, list.size());
     }
 
     @Test
     public void findChildren() {
-        assertEquals(2, roleDAO.findChildren(4L).size());
+        assertEquals(3, roleDAO.findChildren(4L).size());
     }
 
     @Test

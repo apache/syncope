@@ -18,12 +18,7 @@
  */
 package org.apache.syncope.core.policy;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Policy;
@@ -31,6 +26,10 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.types.AbstractPolicySpec;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PasswordPolicySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PolicyEvaluator {
@@ -51,17 +50,17 @@ public class PolicyEvaluator {
             switch (policy.getType()) {
                 case PASSWORD:
                 case GLOBAL_PASSWORD:
-                    final PasswordPolicySpec pspec = policy.getSpecification();
-                    final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
+                    final PasswordPolicySpec ppSpec = policy.getSpecification();
+                    final PasswordPolicySpec evaluatedPPSpec = new PasswordPolicySpec();
 
-                    BeanUtils.copyProperties(pspec, passwordPolicy, new String[]{"schemasNotPermitted"});
+                    BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[]{"schemasNotPermitted"});
 
-                    for (String schema : pspec.getSchemasNotPermitted()) {
+                    for (String schema : ppSpec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
                         if (attribute != null) {
                             values = attribute.getValuesAsStrings();
                             if (values != null && !values.isEmpty()) {
-                                passwordPolicy.getWordsNotPermitted().add(values.get(0));
+                                evaluatedPPSpec.getWordsNotPermitted().add(values.get(0));
                             }
                         }
                     }
@@ -69,27 +68,16 @@ public class PolicyEvaluator {
                     // Password history verification and update
 
                     if (!(attributable instanceof SyncopeUser)) {
-                        LOG.error("Cannot check previous passwords. attributable is not a user object: " + attributable.getClass().toString());
-                        result = (T) passwordPolicy;
+                        LOG.error("Cannot check previous passwords. attributable is not a user object: {}",
+                                attributable.getClass().getName());
+                        result = (T) evaluatedPPSpec;
                         break;
                     }
                     SyncopeUser user = (SyncopeUser) attributable;
-                    final String password = user.getPassword();
-                    final List<String> passwordHistory = user.getPasswordHistory();
-
-                    if (user.verifyPasswordHistory(user.getClearPassword(), pspec.getHistoryLength())) {
-                        passwordPolicy.getWordsNotPermitted().add(user.getClearPassword());
-                    } else {
-                        if (pspec.getHistoryLength() > 0 && password != null) {
-                            passwordHistory.add(password);
-                        }
-                        if (pspec.getHistoryLength() < passwordHistory.size()) {
-                            for (int i = 0; i < passwordHistory.size() - pspec.getHistoryLength(); i++) {
-                                passwordHistory.remove(i);
-                            }
-                        }
+                    if (user.verifyPasswordHistory(user.getClearPassword(), ppSpec.getHistoryLength())) {
+                        evaluatedPPSpec.getWordsNotPermitted().add(user.getClearPassword());
                     }
-                    result = (T) passwordPolicy;
+                    result = (T) evaluatedPPSpec;
                     break;
                 case ACCOUNT:
                 case GLOBAL_ACCOUNT:

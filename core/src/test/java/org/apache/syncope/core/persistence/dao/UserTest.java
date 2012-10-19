@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
 import static org.junit.Assert.*;
 
 import java.util.Date;
@@ -119,7 +117,7 @@ public class UserTest extends AbstractTest {
         assertNotNull("did not find expected user", user);
         user = userDAO.find(3L);
         assertNotNull("did not find expected user", user);
-        user = userDAO.find(5L);
+        user = userDAO.find(6L);
         assertNull("found user but did not expect it", user);
     }
 
@@ -129,7 +127,7 @@ public class UserTest extends AbstractTest {
         assertNotNull("did not find expected user", user);
         user = userDAO.find("user3");
         assertNotNull("did not find expected user", user);
-        user = userDAO.find("user5");
+        user = userDAO.find("user6");
         assertNull("found user but did not expect it", user);
     }
 
@@ -185,6 +183,16 @@ public class UserTest extends AbstractTest {
         user.setCreationDate(new Date());
 
         user.setPassword("password", CipherAlgorithm.AES, 0);
+
+        SyncopeUser actual = userDAO.save(user);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void issueSYNCOPE226() {
+        SyncopeUser user = userDAO.find(5L);
+
+        user.setPassword("123password", CipherAlgorithm.AES, 0);
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull(actual);
