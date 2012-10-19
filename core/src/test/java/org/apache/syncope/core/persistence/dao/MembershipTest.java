@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.MembershipDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -47,7 +44,7 @@ public class MembershipTest extends AbstractTest {
     @Test
     public void findAll() {
         List<Membership> list = membershipDAO.findAll();
-        assertEquals(6, list.size());
+        assertEquals(7, list.size());
     }
 
     @Test

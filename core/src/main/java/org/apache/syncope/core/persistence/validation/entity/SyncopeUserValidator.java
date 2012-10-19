@@ -58,7 +58,6 @@ public class SyncopeUserValidator extends AbstractValidator implements
 
     @Override
     public boolean isValid(final SyncopeUser object, final ConstraintValidatorContext context) {
-
         context.disableDefaultConstraintViolation();
 
         // ------------------------------
@@ -66,31 +65,41 @@ public class SyncopeUserValidator extends AbstractValidator implements
         // ------------------------------
         LOG.debug("Password Policy enforcement");
 
-        try {
-            for (Policy policy : getPasswordPolicies(object)) {
-                // clearPassword must exist during creation/password update
-                final String password = object.getClearPassword();
-
-                // evaluate/enforce only during creation or password update
-                if (password != null) {
+        if (object.getClearPassword() != null) {
+            try {
+                int maxPPSpecHistory = 0;
+                for (Policy policy : getPasswordPolicies(object)) {
                     // evaluate policy
-                    final PasswordPolicySpec passwordPolicy = evaluator.evaluate(policy, object);
-
+                    final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, object);
                     // enforce policy
-                    ppEnforcer.enforce(passwordPolicy, policy.getType(), password);
+                    ppEnforcer.enforce(ppSpec, policy.getType(), object.getClearPassword());
+
+                    if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
+                        maxPPSpecHistory = ppSpec.getHistoryLength();
+                    }
                 }
+
+                // update user's password history with encrypted password
+                if (maxPPSpecHistory > 0 && object.getPassword() != null) {
+                    object.getPasswordHistory().add(object.getPassword());
+                }
+                // keep only the last maxPPSpecHistory items in user's password history
+                if (maxPPSpecHistory < object.getPasswordHistory().size()) {
+                    for (int i = 0; i < object.getPasswordHistory().size() - maxPPSpecHistory; i++) {
+                        object.getPasswordHistory().remove(i);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.debug("Invalid password");
+
+                context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
+                        EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
+
+                return false;
+            } finally {
+                // password has been validated, let's remove its clear version
+                object.removeClearPassword();
             }
-        } catch (Exception e) {
-            LOG.debug("Invalid password");
-
-            context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
-                    EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
-
-            return false;
-        } finally {
-            // password has been validated, let's remove its
-            // clear version
-            object.removeClearPassword();
         }
         // ------------------------------
 
