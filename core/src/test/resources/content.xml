@@ -670,6 +670,7 @@ under the License.
   <Entitlement name="ROLE_11"/>
   <Entitlement name="ROLE_12"/>
   <Entitlement name="ROLE_13"/>
+  <Entitlement name="ROLE_14"/>
 
   <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
   <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>

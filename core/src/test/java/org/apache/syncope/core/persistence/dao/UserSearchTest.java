@@ -180,7 +180,7 @@ public class UserSearchTest {
         users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getNotLeafCond(membershipCond));
         assertNotNull(users);
-        assertEquals(4, users.size());
+        assertEquals(5, users.size());
     }
 
     @Test
@@ -191,7 +191,7 @@ public class UserSearchTest {
         List<SyncopeUser> users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getLeafCond(coolLeafCond));
         assertNotNull(users);
-        assertEquals(3, users.size());
+        assertEquals(4, users.size());
 
         coolLeafCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         coolLeafCond.setSchema("cool");
@@ -289,7 +289,7 @@ public class UserSearchTest {
         matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition);
 
         assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
+        assertEquals(2, matchingUsers.size());
         assertEquals(4L, matchingUsers.iterator().next().getId().longValue());
     }
 
@@ -308,7 +308,7 @@ public class UserSearchTest {
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition);
         assertNotNull(users);
-        assertEquals(1, users.size());
+        assertEquals(2, users.size());
         assertEquals(4L, users.iterator().next().getId().longValue());
     }
 
@@ -339,6 +339,6 @@ public class UserSearchTest {
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition);
         assertNotNull(users);
-        assertEquals(4, users.size());
+        assertEquals(5, users.size());
     }
 }
