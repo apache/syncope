@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.init.ConnInstanceLoader;
@@ -74,7 +75,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 /**
  * Manage the data propagation to external resources.
@@ -334,7 +334,7 @@ public class PropagationManager {
      * @param mapping schema mapping for the given attribute
      * @param user given user
      * @param password clear-text password
-     * @return account link + prepare attributes
+     * @return account link + prepared attribute
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
     private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
@@ -427,12 +427,11 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
 
-        Map.Entry<String, Attribute> preparedAttribute;
         for (SchemaMapping mapping : resource.getMappings()) {
             LOG.debug("Processing schema {}", SchemaMappingUtil.getIntAttrName(mapping));
 
             try {
-                preparedAttribute = prepareAttribute(mapping, user, password);
+                Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(mapping, user, password);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
@@ -459,31 +458,32 @@ public class PropagationManager {
             }
         }
 
-        if (!StringUtils.hasText(accountId)) {
-            // LOG error but avoid to throw exception: leave it to the 
-            //external resource
+        if (StringUtils.isNotBlank(accountId)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
             LOG.error("Missing accountId for '{}': ", resource.getName());
         }
 
         // Evaluate AccountLink expression
-        final JexlContext jexlContext = new MapContext();
-        jexlUtil.addFieldsToContext(user, jexlContext);
-        jexlUtil.addAttrsToContext(user.getAttributes(), jexlContext);
-        jexlUtil.addDerAttrsToContext(user.getDerivedAttributes(), user.getAttributes(), jexlContext);
-        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), jexlContext);
+        String evalAccountLink = null;
+        if (StringUtils.isNotBlank(resource.getAccountLink())) {
+            final JexlContext jexlContext = new MapContext();
+            jexlUtil.addFieldsToContext(user, jexlContext);
+            jexlUtil.addAttrsToContext(user.getAttributes(), jexlContext);
+            jexlUtil.addDerAttrsToContext(user.getDerivedAttributes(), user.getAttributes(), jexlContext);
+            evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), jexlContext);
+        }
 
-        // AccountId must be propagated. It could be a simple attribute for
-        // the target resource or the key (depending on the accountLink)
-        if (evalAccountLink.isEmpty()) {
-            // add accountId as __NAME__ attribute ...
+        // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),
+        // otherwise evaluated AccountLink expression is taken as Name().
+        if (StringUtils.isBlank(evalAccountLink)) {
+            // add AccountId as __NAME__ attribute ...
             LOG.debug("Add AccountId [{}] as __NAME__", accountId);
             attributes.add(new Name(accountId));
         } else {
             LOG.debug("Add AccountLink [{}] as __NAME__", evalAccountLink);
             attributes.add(new Name(evalAccountLink));
 
-            // AccountId not propagated: 
-            // it will be used to set the value for __UID__ attribute
+            // AccountId not propagated: it will be used to set the value for __UID__ attribute
             LOG.debug("AccountId will be used just as __UID__ attribute");
         }
 
@@ -513,33 +513,30 @@ public class PropagationManager {
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
-        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
+        final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
+        final List<ExternalResource> allResByPriority = resourceDAO.findAllByPriority();
         for (PropagationOperation operation : PropagationOperation.values()) {
-            List<ExternalResource> resourcesByPriority = new ArrayList<ExternalResource>();
-            for (ExternalResource resource : resourceDAO.findAllByPriority()) {
+            for (ExternalResource resource : allResByPriority) {
                 if (propByRes.get(operation).contains(resource.getName())) {
-                    resourcesByPriority.add(resource);
+                    PropagationTask task = new PropagationTask();
+                    task.setResource(resource);
+                    if (!deleteOnResource) {
+                        task.setSyncopeUser(user);
+                    }
+                    task.setPropagationOperation(operation);
+                    task.setPropagationMode(resource.getPropagationMode());
+                    task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
+
+                    Map.Entry<String, Set<Attribute>> preparedAttrs =
+                            prepareAttributes(user, password, enable, resource);
+                    task.setAccountId(preparedAttrs.getKey());
+                    task.setAttributes(preparedAttrs.getValue());
+
+                    tasks.add(task);
+
+                    LOG.debug("Execution started for {}", task);
                 }
-            }
-
-            for (ExternalResource resource : resourcesByPriority) {
-                PropagationTask task = new PropagationTask();
-                task.setResource(resource);
-                if (!deleteOnResource) {
-                    task.setSyncopeUser(user);
-                }
-                task.setPropagationOperation(operation);
-                task.setPropagationMode(resource.getPropagationMode());
-                task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
-
-                Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password, enable, resource);
-                task.setAccountId(preparedAttrs.getKey());
-                task.setAttributes(preparedAttrs.getValue());
-
-                tasks.add(task);
-
-                LOG.debug("Execution started for {}", task);
             }
         }
 
@@ -679,7 +676,7 @@ public class PropagationManager {
                             // 3. check if:
                             //      * accountId is not blank;
                             //      * accountId is not equal to Name.
-                            if (StringUtils.hasText(accountId)
+                            if (StringUtils.isNotBlank(accountId)
                                     && (name == null || !accountId.equals(name.getNameValue()))) {
 
                                 // 3.a retrieve uid
