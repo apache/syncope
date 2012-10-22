@@ -19,6 +19,7 @@
 package org.apache.syncope.core.scheduling;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +62,6 @@ import org.apache.syncope.types.SyncPolicySpec;
 import org.apache.syncope.types.TraceLevel;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -168,83 +168,20 @@ public class SyncJob extends AbstractTaskJob {
         // ---------------------------------
         // Get sync policy specification
         // ---------------------------------
-        final SyncPolicy policy = syncTask.getResource().getSyncPolicy();
-        final SyncPolicySpec policySpec = policy != null
-                ? (SyncPolicySpec) policy.getSpecification()
-                : null;
+        SyncPolicySpec policySpec = null;
+        if (syncTask.getResource().getSyncPolicy() != null) {
+            policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
+        }
         // ---------------------------------
 
         final List<Long> result = new ArrayList<Long>();
 
-        if (policySpec != null && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
-
-            // search external attribute name/value
-            // about each specified name
-            final ConnectorObject object = delta.getObject();
-
-            final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
-
-            for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-                extValues.put(SchemaMappingUtil.getIntAttrName(mapping), object.getAttributeByName(SchemaMappingUtil
-                        .getExtAttrName(mapping)));
-            }
-
-            // search user by attributes specified into the policy
-            NodeCond searchCondition = null;
-
-            for (String schema : policySpec.getAlternativeSearchAttrs()) {
-                Attribute value = extValues.get(schema);
-
-                AttributeCond.Type type;
-                String expression = null;
-
-                if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
-                    type = AttributeCond.Type.ISNULL;
-                } else {
-                    type = AttributeCond.Type.EQ;
-                    expression = value.getValue().size() > 1
-                            ? value.getValue().toString()
-                            : value.getValue().get(0).toString();
-                }
-
-                NodeCond nodeCond;
-
-                // just Username or SyncopeUserId can be selected to be used
-                if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)) {
-
-                    final SyncopeUserCond cond = new SyncopeUserCond();
-                    cond.setSchema(schema);
-                    cond.setType(type);
-                    cond.setExpression(expression);
-
-                    nodeCond = NodeCond.getLeafCond(cond);
-
-                } else {
-                    final AttributeCond cond = new AttributeCond();
-                    cond.setSchema(schema);
-                    cond.setType(type);
-                    cond.setExpression(expression);
-
-                    nodeCond = NodeCond.getLeafCond(cond);
-                }
-
-                searchCondition = searchCondition != null
-                        ? NodeCond.getAndCond(searchCondition, nodeCond)
-                        : nodeCond;
-            }
-
-            List<SyncopeUser> users = userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                    searchCondition);
-            for (SyncopeUser user : users) {
-                result.add(user.getId());
-            }
-        } else {
-            final SyncopeUser found;
+        if (policySpec == null || policySpec.getAlternativeSearchAttrs().isEmpty()) {
+            SyncopeUser found;
             List<SyncopeUser> users;
 
-            final SchemaMapping accountIdMap = SchemaMappingUtil.getAccountIdMapping(syncTask.getResource()
-                    .getMappings());
-
+            final SchemaMapping accountIdMap =
+                    SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
             switch (accountIdMap.getIntMappingType()) {
                 case Username:
                     found = userDAO.find(uid);
@@ -283,20 +220,72 @@ public class SyncJob extends AbstractTaskJob {
                 default:
                     LOG.error("Invalid accountId type '{}'", accountIdMap.getIntMappingType());
             }
+        } else {
+            // search for external attribute's name/value of each specified name
+
+            final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
+
+            for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
+                extValues.put(SchemaMappingUtil.getIntAttrName(mapping),
+                        delta.getObject().getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping)));
+            }
+
+            // search for user by attribute(s) specified in the policy
+            NodeCond searchCond = null;
+
+            for (String schema : policySpec.getAlternativeSearchAttrs()) {
+                Attribute value = extValues.get(schema);
+
+                AttributeCond.Type type;
+                String expression = null;
+
+                if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
+                    type = AttributeCond.Type.ISNULL;
+                } else {
+                    type = AttributeCond.Type.EQ;
+                    expression = value.getValue().size() > 1
+                            ? value.getValue().toString()
+                            : value.getValue().get(0).toString();
+                }
+
+                NodeCond nodeCond;
+                // just Username or SyncopeUserId can be selected to be used
+                if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)) {
+                    SyncopeUserCond cond = new SyncopeUserCond();
+                    cond.setSchema(schema);
+                    cond.setType(type);
+                    cond.setExpression(expression);
+
+                    nodeCond = NodeCond.getLeafCond(cond);
+                } else {
+                    AttributeCond cond = new AttributeCond();
+                    cond.setSchema(schema);
+                    cond.setType(type);
+                    cond.setExpression(expression);
+
+                    nodeCond = NodeCond.getLeafCond(cond);
+                }
+
+                searchCond = searchCond == null
+                        ? nodeCond
+                        : NodeCond.getAndCond(searchCond, nodeCond);
+            }
+
+            final List<SyncopeUser> users =
+                    userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond);
+            for (SyncopeUser user : users) {
+                result.add(user.getId());
+            }
         }
 
         return result;
     }
 
-    /**
-     * Creates user and stores the result in parameter delta (!)
-     *
-     * @param delta
-     * @param dryRun
-     * @return
-     * @throws JobExecutionException
-     */
-    private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
+    private List<SyncResult> createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
+        if (!((SyncTask) task).isPerformCreate()) {
+            LOG.debug("SyncTask not configured for create");
+            return Collections.EMPTY_LIST;
+        }
 
         final SyncResult result = new SyncResult();
         result.setOperation(Operation.CREATE);
@@ -352,19 +341,20 @@ public class SyncJob extends AbstractTaskJob {
         }
 
         actions.after(delta, userTO, result);
-
-        return result;
+        return Collections.singletonList(result);
     }
 
-    private void updateUsers(SyncDelta delta, final List<Long> users, final boolean dryRun,
-            final List<SyncResult> results) throws JobExecutionException {
+    private List<SyncResult> updateUsers(SyncDelta delta, final List<Long> users, final boolean dryRun)
+            throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         LOG.debug("About to update {}", users);
+
+        List<SyncResult> results = new ArrayList<SyncResult>();
 
         for (Long userId : users) {
             final SyncResult result = new SyncResult();
@@ -411,17 +401,21 @@ public class SyncJob extends AbstractTaskJob {
                 LOG.error("Not allowed to read user {}", userId, e);
             }
         }
+
+        return results;
     }
 
-    private void deleteUsers(SyncDelta delta, final List<Long> users, final boolean dryRun,
-            final List<SyncResult> results) throws JobExecutionException {
+    private List<SyncResult> deleteUsers(SyncDelta delta, final List<Long> users, final boolean dryRun)
+            throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         LOG.debug("About to delete {}", users);
+
+        List<SyncResult> results = new ArrayList<SyncResult>();
 
         for (Long userId : users) {
             try {
@@ -463,6 +457,8 @@ public class SyncJob extends AbstractTaskJob {
                 LOG.error("Not allowed to read user {}", userId, e);
             }
         }
+
+        return results;
     }
 
     /**
@@ -535,8 +531,7 @@ public class SyncJob extends AbstractTaskJob {
             }
         }
 
-        // Summary, also to be included for FAILURE and ALL, so create it
-        // anyway.
+        // Summary, also to be included for FAILURE and ALL, so create it anyway.
         report.append("Users [created/failures]: ").append(created.size()).append('/').append(createdFailed.size())
                 .append(' ').append("[updated/failures]: ").append(updated.size()).append('/').append(
                 updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
@@ -629,48 +624,24 @@ public class SyncJob extends AbstractTaskJob {
         try {
             final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
 
-            final ConflictResolutionAction conflictResolutionAction = syncPolicy != null
-                    && syncPolicy.getSpecification() != null
-                    ? ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction()
-                    : ConflictResolutionAction.IGNORE;
+            final ConflictResolutionAction resAct = syncPolicy == null || syncPolicy.getSpecification() == null
+                    ? ConflictResolutionAction.IGNORE
+                    : ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction();
 
+            final SyncJobResultsHandler handler = new SyncJobResultsHandler(results, syncTask, resAct, dryRun);
             if (syncTask.isFullReconciliation()) {
-                connector.getAllObjects(ObjectClass.ACCOUNT, new SyncResultsHandler() {
-
-                    @Override
-                    public boolean handle(final SyncDelta delta) {
-                        try {
-                            results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
-                            return true;
-                        } catch (JobExecutionException e) {
-                            LOG.error("Reconciliation failed", e);
-                            return false;
-                        }
-                    }
-                }, connector.getOperationOptions(syncTask.getResource()));
+                connector.getAllObjects(ObjectClass.ACCOUNT, handler,
+                        connector.getOperationOptions(syncTask.getResource()));
             } else {
-                connector.sync(syncTask.getResource().getSyncToken(), new SyncResultsHandler() {
-
-                    @Override
-                    public boolean handle(final SyncDelta delta) {
-                        try {
-
-                            results.addAll(handleDelta(syncTask, delta, conflictResolutionAction, dryRun));
-                            return true;
-                        } catch (JobExecutionException e) {
-                            LOG.error("Synchronization failed", e);
-                            return false;
-                        }
-                    }
-                }, connector.getOperationOptions(syncTask.getResource()));
+                connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getSyncToken(), handler,
+                        connector.getOperationOptions(syncTask.getResource()));
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
                     ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
-                    resource.setSyncToken(connector.getLatestSyncToken());
+                    resource.setSyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
                     resourceDAO.save(resource);
-
                 } catch (Exception e) {
                     throw new JobExecutionException("While updating SyncToken", e);
                 }
@@ -693,13 +664,13 @@ public class SyncJob extends AbstractTaskJob {
      *
      * @param syncTask sync task.
      * @param delta delta.
-     * @param conflictResolutionAction conflict resolution action.
+     * @param resAct conflict resolution action.
      * @param dryRun dry run.
      * @return list of synchronization results.
      * @throws JobExecutionException in case of synchronization failure.
      */
     protected final List<SyncResult> handleDelta(final SyncTask syncTask, final SyncDelta delta,
-            final ConflictResolutionAction conflictResolutionAction, final boolean dryRun) throws JobExecutionException {
+            final ConflictResolutionAction resAct, final boolean dryRun) throws JobExecutionException {
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
@@ -710,29 +681,25 @@ public class SyncJob extends AbstractTaskJob {
         switch (delta.getDeltaType()) {
             case CREATE_OR_UPDATE:
                 if (users.isEmpty()) {
-                    if (syncTask.isPerformCreate()) {
-                        results.add(createUser(delta, dryRun));
-                    } else {
-                        LOG.debug("SyncTask not configured for create");
-                    }
+                    results.addAll(createUser(delta, dryRun));
                 } else if (users.size() == 1) {
-                    updateUsers(delta, users.subList(0, 1), dryRun, results);
+                    results.addAll(updateUsers(delta, users.subList(0, 1), dryRun));
                 } else {
-                    switch (conflictResolutionAction) {
+                    switch (resAct) {
                         case IGNORE:
                             LOG.error("More than one match {}", users);
                             break;
 
                         case FIRSTMATCH:
-                            updateUsers(delta, users.subList(0, 1), dryRun, results);
+                            results.addAll(updateUsers(delta, users.subList(0, 1), dryRun));
                             break;
 
                         case LASTMATCH:
-                            updateUsers(delta, users.subList(users.size() - 1, users.size()), dryRun, results);
+                            results.addAll(updateUsers(delta, users.subList(users.size() - 1, users.size()), dryRun));
                             break;
 
                         case ALL:
-                            updateUsers(delta, users, dryRun, results);
+                            results.addAll(updateUsers(delta, users, dryRun));
                             break;
 
                         default:
@@ -744,23 +711,23 @@ public class SyncJob extends AbstractTaskJob {
                 if (users.isEmpty()) {
                     LOG.debug("No match found for deletion");
                 } else if (users.size() == 1) {
-                    deleteUsers(delta, users, dryRun, results);
+                    results.addAll(deleteUsers(delta, users, dryRun));
                 } else {
-                    switch (conflictResolutionAction) {
+                    switch (resAct) {
                         case IGNORE:
                             LOG.error("More than one match {}", users);
                             break;
 
                         case FIRSTMATCH:
-                            deleteUsers(delta, users.subList(0, 1), dryRun, results);
+                            results.addAll(deleteUsers(delta, users.subList(0, 1), dryRun));
                             break;
 
                         case LASTMATCH:
-                            deleteUsers(delta, users.subList(users.size() - 1, users.size()), dryRun, results);
+                            results.addAll(deleteUsers(delta, users.subList(users.size() - 1, users.size()), dryRun));
                             break;
 
                         case ALL:
-                            deleteUsers(delta, users, dryRun, results);
+                            results.addAll(deleteUsers(delta, users, dryRun));
                             break;
 
                         default:
@@ -775,17 +742,44 @@ public class SyncJob extends AbstractTaskJob {
         return results;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean hasToBeRegistered(final TaskExec execution) {
         SyncTask syncTask = (SyncTask) task;
 
-        // True if either failed and failures have to be registered, or if ALL
-        // has to be registered.
-        return (Status.valueOf(execution.getStatus()) == Status.FAILURE && syncTask.getResource().getSyncTraceLevel()
-                .ordinal() >= TraceLevel.FAILURES.ordinal())
+        // True if either failed and failures have to be registered, or if ALL has to be registered.
+        return (Status.valueOf(execution.getStatus()) == Status.FAILURE
+                && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || syncTask.getResource().getSyncTraceLevel() == TraceLevel.ALL;
+    }
+
+    private class SyncJobResultsHandler implements SyncResultsHandler {
+
+        private final Collection<SyncResult> results;
+
+        private final SyncTask syncTask;
+
+        private final ConflictResolutionAction resAct;
+
+        private final boolean dryRun;
+
+        public SyncJobResultsHandler(final Collection<SyncResult> results, final SyncTask syncTask,
+                final ConflictResolutionAction resAct, final boolean dryRun) {
+
+            this.results = results;
+            this.syncTask = syncTask;
+            this.resAct = resAct;
+            this.dryRun = dryRun;
+        }
+
+        @Override
+        public boolean handle(final SyncDelta delta) {
+            try {
+                results.addAll(handleDelta(syncTask, delta, resAct, dryRun));
+                return true;
+            } catch (JobExecutionException e) {
+                LOG.error("Synchronization failed", e);
+                return false;
+            }
+        }
     }
 }

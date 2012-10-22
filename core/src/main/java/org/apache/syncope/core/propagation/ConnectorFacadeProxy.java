@@ -256,13 +256,15 @@ public class ConnectorFacadeProxy {
     /**
      * Sync users from a connector instance.
      *
+     * @param objectClass ConnId's object class.
      * @param token to be passed to the underlying connector
      * @param handler to be used to handle deltas.
      */
-    public void sync(final SyncToken token, final SyncResultsHandler handler, final OperationOptions options) {
+    public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
+            final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
-            connector.sync(ObjectClass.ACCOUNT, token, handler, options);
+            connector.sync(objectClass, token, handler, options);
         } else {
             LOG.info("Sync was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
@@ -272,13 +274,14 @@ public class ConnectorFacadeProxy {
     /**
      * Read latest sync token from a connector instance.
      *
+     * @param objectClass ConnId's object class.
      * @return latest sync token
      */
-    public SyncToken getLatestSyncToken() {
+    public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
         SyncToken result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
-            result = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
+            result = connector.getLatestSyncToken(objectClass);
         } else {
             LOG.info("getLatestSyncToken was attempted, although the "
                     + "connector only has these capabilities: {}. No action.", activeConnInstance.getCapabilities());
@@ -296,7 +299,6 @@ public class ConnectorFacadeProxy {
      * @return ConnId's connector object for given uid
      */
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-
         return getObject(null, null, objectClass, uid, options);
     }
 
@@ -448,11 +450,7 @@ public class ConnectorFacadeProxy {
         try {
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall
-                            || (!Name.NAME.equals(attrInfo.getName())
-                            && !OperationalAttributes.PASSWORD_NAME.equals(attrInfo.getName()) && !OperationalAttributes.ENABLE_NAME.
-                            equals(attrInfo.getName()))) {
-
+                    if (showall || !isSpecialName(attrInfo.getName())) {
                         resourceSchemaNames.add(attrInfo.getName());
                     }
                 }
@@ -477,12 +475,6 @@ public class ConnectorFacadeProxy {
      */
     public void test() {
         connector.test();
-    }
-
-    @Override
-    public String toString() {
-        return "ConnectorFacadeProxy{connector=" + connector + "capabitilies="
-                + activeConnInstance.getCapabilities() + '}';
     }
 
     /**
@@ -561,5 +553,15 @@ public class ConnectorFacadeProxy {
         }
 
         return value;
+    }
+
+    private boolean isSpecialName(final String name) {
+        return (name.startsWith("__") && name.endsWith("__"));
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectorFacadeProxy{"
+                + "connector=" + connector + "\n" + "capabitilies=" + activeConnInstance.getCapabilities() + '}';
     }
 }
