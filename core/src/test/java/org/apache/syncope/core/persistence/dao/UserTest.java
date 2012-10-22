@@ -46,14 +46,14 @@ public class UserTest extends AbstractTest {
     @Test
     public void findAll() {
         List<SyncopeUser> list = userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
-        assertEquals("did not get expected number of users ", 4, list.size());
+        assertEquals("did not get expected number of users ", 5, list.size());
     }
 
     @Test
     public void count() {
         Integer count = userDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertNotNull(count);
-        assertEquals(4, count.intValue());
+        assertEquals(5, count.intValue());
     }
 
     @Test
@@ -70,11 +70,11 @@ public class UserTest extends AbstractTest {
 
         // get second page with uncomplete set
         list = userDAO.findAll(allRoleIds, 2, 3);
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals("did not get expected number of users ", 2, list.size());
 
         // get unexistent page
         list = userDAO.findAll(allRoleIds, 3, 2);
-        assertEquals("did not get expected number of users ", 0, list.size());
+        assertEquals("did not get expected number of users ", 1, list.size());
     }
 
     @Test
