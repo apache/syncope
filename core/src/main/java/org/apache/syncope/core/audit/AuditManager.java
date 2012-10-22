@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.audit;
 
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.AuditLoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.apache.syncope.types.AuditLoggerName;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
 
 public class AuditManager {
 

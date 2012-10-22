@@ -32,7 +32,6 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
@@ -40,9 +39,10 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
-import org.apache.syncope.core.propagation.PropagationManager;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.TaskDataBinder;
 import org.apache.syncope.core.scheduling.AbstractTaskJob;
+import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.AuditElements.Category;
@@ -83,10 +83,10 @@ public class TaskController extends AbstractController {
     private TaskDataBinder binder;
 
     @Autowired
-    private PropagationManager propagationManager;
+    private PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    private NotificationManager notificationManager;
+    private NotificationJob notificationJob;
 
     @Autowired
     private JobInstanceLoader jobInstanceLoader;
@@ -306,12 +306,12 @@ public class TaskController extends AbstractController {
         LOG.debug("Execution started for {}", task);
         switch (taskUtil) {
             case PROPAGATION:
-                final TaskExec propExec = propagationManager.execute((PropagationTask) task);
+                final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
                 result = binder.getTaskExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                final TaskExec notExec = notificationManager.execute((NotificationTask) task);
+                final TaskExec notExec = notificationJob.executeSingle((NotificationTask) task);
                 result = binder.getTaskExecTO(notExec);
                 break;
 

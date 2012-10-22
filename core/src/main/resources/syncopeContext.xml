@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -67,7 +66,10 @@ under the License.
   </bean>
   
   <bean id="propagationManager" class="org.apache.syncope.core.propagation.PropagationManager"/>
+  <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.PriorityPropagationTaskExecutor"/>
+    
   <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
+  
   <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
           
   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">

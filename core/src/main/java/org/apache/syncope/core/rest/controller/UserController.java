@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.core.propagation.PropagationManager;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -99,6 +100,9 @@ public class UserController {
 
     @Autowired
     private PropagationManager propagationManager;
+
+    @Autowired
+    private PropagationTaskExecutor taskExecutor;
 
     @Autowired
     private NotificationManager notificationManager;
@@ -292,7 +296,7 @@ public class UserController {
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
 
-        propagationManager.execute(tasks, new PropagationHandler() {
+        taskExecutor.execute(tasks, new PropagationHandler() {
 
             @Override
             public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
@@ -342,7 +346,7 @@ public class UserController {
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
 
-        propagationManager.execute(tasks, new PropagationHandler() {
+        taskExecutor.execute(tasks, new PropagationHandler() {
 
             @Override
             public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
@@ -502,7 +506,7 @@ public class UserController {
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", userId);
 
-        return deleteByUserId(userId);
+        return doDelete(userId);
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
@@ -514,7 +518,7 @@ public class UserController {
         UserTO result = userDataBinder.getUserTO(username);
         long userId = result.getId();
 
-        return deleteByUserId(userId);
+        return doDelete(userId);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -529,7 +533,7 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new DefaultMapEntry(updated.getResult(), null), updated.getPropByRes(), updated.getPerformedTasks()));
 
-        propagationManager.execute(tasks);
+        taskExecutor.execute(tasks);
 
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
@@ -599,7 +603,7 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE), updated.getPropByRes(), updated.
                 getPerformedTasks()), updated.getResult().getValue(), null, null);
-        propagationManager.execute(tasks);
+        taskExecutor.execute(tasks);
 
         final UserTO savedTO = userDataBinder.getUserTO(updated.getResult().getKey());
 
@@ -643,7 +647,7 @@ public class UserController {
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, status, resources);
 
-        propagationManager.execute(tasks);
+        taskExecutor.execute(tasks);
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
         final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
@@ -656,7 +660,7 @@ public class UserController {
         return savedTO;
     }
 
-    private UserTO deleteByUserId(final Long userId)
+    protected UserTO doDelete(final Long userId)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
@@ -670,7 +674,7 @@ public class UserController {
         final UserTO userTO = new UserTO();
         userTO.setId(userId);
 
-        propagationManager.execute(tasks, new PropagationHandler() {
+        taskExecutor.execute(tasks, new PropagationHandler() {
 
             @Override
             public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,

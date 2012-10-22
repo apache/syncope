@@ -22,17 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationManager;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
@@ -42,6 +43,9 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
 
     @Autowired
     private PropagationManager propagationManager;
+
+    @Autowired
+    private PropagationTaskExecutor taskExecutor;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -116,11 +120,12 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager
-                            .getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated
-                                    .getResult(), Boolean.FALSE), updated.getPropByRes(), updated.getPerformedTasks()));
+                    final List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                            new WorkflowResult<Map.Entry<Long, Boolean>>(
+                            new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
+                            updated.getPropByRes(), updated.getPerformedTasks()));
 
-                    propagationManager.execute(tasks);
+                    taskExecutor.execute(tasks);
                 }
 
                 if (LOG.isDebugEnabled()) {

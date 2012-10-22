@@ -211,10 +211,6 @@ public class NotificationManager {
         }
     }
 
-    public TaskExec execute(final NotificationTask task) {
-        return notificationJob.executeSingle(task);
-    }
-
     private String getRecipientEmail(
             final IntMappingType recipientAttrType, final String recipientAttrName, final SyncopeUser user) {
 

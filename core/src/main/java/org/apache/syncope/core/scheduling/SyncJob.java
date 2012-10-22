@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -124,6 +125,12 @@ public class SyncJob extends AbstractTaskJob {
      */
     @Autowired
     private PropagationManager propagationManager;
+
+    /**
+     * PropagationTask executor.
+     */
+    @Autowired
+    private PropagationTaskExecutor taskExecutor;
 
     /**
      * User data binder.
@@ -322,7 +329,7 @@ public class SyncJob extends AbstractTaskJob {
                 List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(), userTO
                         .getVirtualAttributes(), Collections.singleton(((SyncTask) this.task).getResource().getName()));
 
-                propagationManager.execute(tasks);
+                taskExecutor.execute(tasks);
 
                 notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
@@ -379,7 +386,7 @@ public class SyncJob extends AbstractTaskJob {
                                 .getVirtualAttributesToBeUpdated(), Collections.singleton(((SyncTask) this.task)
                                 .getResource().getName()));
 
-                        propagationManager.execute(tasks);
+                        taskExecutor.execute(tasks);
 
                         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
@@ -432,10 +439,9 @@ public class SyncJob extends AbstractTaskJob {
                     try {
                         List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId,
                                 ((SyncTask) this.task).getResource().getName());
-                        propagationManager.execute(tasks);
+                        taskExecutor.execute(tasks);
 
                         notificationManager.createTasks(userId, Collections.singleton("delete"));
-
                     } catch (Exception e) {
                         LOG.error("Could not propagate user " + userId, e);
                     }
