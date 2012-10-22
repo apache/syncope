@@ -173,8 +173,12 @@ public class TaskDataBinder {
 
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
         task.setCronExpression(taskTO.getCronExpression());
-        task.setName(taskTO.getName());
-        task.setDescription(taskTO.getDescription());
+        if (StringUtils.isNotBlank(taskTO.getName())) {
+            task.setName(taskTO.getName());
+        }
+        if (StringUtils.isNotBlank(taskTO.getDescription())) {
+            task.setDescription(taskTO.getDescription());
+        }
 
         if (taskUtil == TaskUtil.SYNC) {
             if (!(task instanceof SyncTask)) {

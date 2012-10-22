@@ -113,6 +113,8 @@ public class TaskTest extends AbstractTest {
         assertNotNull(resource);
 
         SyncTask task = new SyncTask();
+        task.setName("saveSyncTask");
+        task.setDescription("SyncTask description");
         task.setUserTemplate(new UserTO());
         task.setCronExpression("BLA BLA");
 

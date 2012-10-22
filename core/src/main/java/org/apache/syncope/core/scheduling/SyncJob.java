@@ -290,11 +290,11 @@ public class SyncJob extends AbstractTaskJob {
 
     /**
      * Creates user and stores the result in parameter delta (!)
-     * 
+     *
      * @param delta
      * @param dryRun
      * @return
-     * @throws JobExecutionException 
+     * @throws JobExecutionException
      */
     private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
 
@@ -335,8 +335,7 @@ public class SyncJob extends AbstractTaskJob {
 
                 propagationManager.execute(tasks);
 
-                notificationManager.createTasks(new WorkflowResult<Long>(created.getResult().getKey(),
-                        created.getPropByRes(), created.getPerformedTasks()));
+                notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
                 userTO = userDataBinder.getUserTO(created.getResult().getKey());
 
@@ -392,8 +391,7 @@ public class SyncJob extends AbstractTaskJob {
 
                         propagationManager.execute(tasks);
 
-                        notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(),
-                                updated.getPropByRes(), updated.getPerformedTasks()));
+                        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
                         userTO = userDataBinder.getUserTO(updated.getResult().getKey());
                     }
@@ -442,7 +440,7 @@ public class SyncJob extends AbstractTaskJob {
                                 ((SyncTask) this.task).getResource().getName());
                         propagationManager.execute(tasks);
 
-                        notificationManager.createTasks(new WorkflowResult<Long>(userId, null, "delete"));
+                        notificationManager.createTasks(userId, Collections.singleton("delete"));
 
                     } catch (Exception e) {
                         LOG.error("Could not propagate user " + userId, e);
@@ -541,7 +539,7 @@ public class SyncJob extends AbstractTaskJob {
         // anyway.
         report.append("Users [created/failures]: ").append(created.size()).append('/').append(createdFailed.size())
                 .append(' ').append("[updated/failures]: ").append(updated.size()).append('/').append(
-                        updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
+                updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
                 .append('/').append(deletedFailed.size());
 
         // Failures
@@ -706,12 +704,12 @@ public class SyncJob extends AbstractTaskJob {
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
         LOG.debug("Process '{}' for '{}'", delta.getDeltaType(), delta.getUid().getUidValue());
-        
+
         final List<Long> users = findExistingUsers(delta);
-        
+
         switch (delta.getDeltaType()) {
             case CREATE_OR_UPDATE:
-                if (users.isEmpty()) { 
+                if (users.isEmpty()) {
                     if (syncTask.isPerformCreate()) {
                         results.add(createUser(delta, dryRun));
                     } else {

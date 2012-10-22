@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.VelocityException;
@@ -99,12 +97,6 @@ public class NotificationManager {
      */
     @Autowired
     private TaskDAO taskDAO;
-
-    /**
-     * TaskExec DAO.
-     */
-    @Autowired
-    private TaskExecDAO taskExecDAO;
 
     /**
      * Velocity template engine.
@@ -190,23 +182,24 @@ public class NotificationManager {
     }
 
     /**
-     * Create notification tasks for each notification matching the passed workflow result.
+     * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
      *
-     * @param wfResult workflow result
+     * @param userId user id
+     * @param performedTasks set of actions performed on given user id
      * @throws NotFoundException if user contained in the workflow result cannot be found
      */
-    public void createTasks(final WorkflowResult<Long> wfResult)
+    public void createTasks(final Long userId, final Set<String> performedTasks)
             throws NotFoundException {
 
-        SyncopeUser user = userDAO.find(wfResult.getResult());
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
-            throw new NotFoundException("User " + wfResult.getResult());
+            throw new NotFoundException("User " + userId);
         }
 
         for (Notification notification : notificationDAO.findAll()) {
             if (searchDAO.matches(user, notification.getAbout())) {
                 Set<String> events = new HashSet<String>(notification.getEvents());
-                events.retainAll(wfResult.getPerformedTasks());
+                events.retainAll(performedTasks);
 
                 if (!events.isEmpty()) {
                     LOG.debug("Creating notification task for events {} about {}", events, user);
@@ -267,7 +260,7 @@ public class NotificationManager {
 
     /**
      * Mark NotificationTask with provided id as executed.
-     * 
+     *
      * @param taskId task to be updated
      */
     public void setTaskExecuted(final Long taskId) {

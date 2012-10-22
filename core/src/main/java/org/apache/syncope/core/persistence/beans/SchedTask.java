@@ -33,6 +33,7 @@ public class SchedTask extends Task {
     @NotNull
     protected String jobClassName;
 
+    @NotNull
     protected String name;
 
     protected String description;

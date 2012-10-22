@@ -64,6 +64,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void create() {
         SyncTaskTO task = new SyncTaskTO();
+        task.setName("Test create Sync");
         task.setResource("ws-target-resource-2");
 
         UserTO template = new UserTO();

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -313,8 +314,7 @@ public class UserController {
             }
         });
 
-        notificationManager.createTasks(new WorkflowResult<Long>(created.getResult().getKey(), created.getPropByRes(),
-                created.getPerformedTasks()));
+        notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
         final UserTO savedTO = userDataBinder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationTOs(propagations);
@@ -364,8 +364,7 @@ public class UserController {
             }
         });
 
-        notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(), updated.getPropByRes(),
-                updated.getPerformedTasks()));
+        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
         final UserTO updatedTO = userDataBinder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationTOs(propagations);
@@ -532,7 +531,7 @@ public class UserController {
 
         propagationManager.execute(tasks);
 
-        notificationManager.createTasks(updated);
+        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
         final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
 
@@ -645,7 +644,7 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, status, resources);
 
         propagationManager.execute(tasks);
-        notificationManager.createTasks(updated);
+        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
         final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
 
@@ -664,7 +663,7 @@ public class UserController {
         // information could only be available after wfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        notificationManager.createTasks(new WorkflowResult<Long>(userId, null, "delete"));
+        notificationManager.createTasks(userId, Collections.singleton("delete"));
 
         List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId);
 
