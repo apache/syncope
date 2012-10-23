@@ -77,12 +77,17 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
         StringBuilder message = new StringBuilder();
 
         message.append("{");
-        for (SyncopeClientException e : getExceptions()) {
+        Iterator<SyncopeClientException> iter = getExceptions().iterator();
+        while (iter.hasNext()) {
+            SyncopeClientException e = iter.next();
             message.append("[");
             message.append(e.getType());
             message.append(" ");
             message.append(e.getElements());
-            message.append("], ");
+            message.append("]");
+            if (iter.hasNext()) {
+                message.append(", ");
+            }
         }
         message.append("}");
 

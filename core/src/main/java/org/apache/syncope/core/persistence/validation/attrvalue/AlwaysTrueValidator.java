@@ -33,7 +33,8 @@ public class AlwaysTrueValidator extends AbstractValidator {
 
         Boolean value = attributeValue.getValue();
         if (!value) {
-            throw new InvalidAttrValueException(attributeValue);
+            String error = "This attribute must be set to \"true\"";
+            throw new InvalidAttrValueException(error);
         }
     }
 }

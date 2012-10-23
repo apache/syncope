@@ -22,12 +22,20 @@ import javax.validation.ValidationException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class InvalidAttrValueException extends ValidationException {
+    
+    public InvalidAttrValueException(String errorMessage) {
+        super(errorMessage);
+    }
+    
+    public InvalidAttrValueException(String errorMessage, Throwable t) {
+        super(errorMessage, t);
+    }
 
     public InvalidAttrValueException(final AbstractAttrValue value) {
-        super("Could not validate " + value);
+        this("Could not validate " + value.getValue());
     }
 
     public InvalidAttrValueException(final AbstractAttrValue value, Throwable t) {
-        super("Could not validate " + value, t);
+        this("Could not validate " + value.getValue(), t);
     }
 }

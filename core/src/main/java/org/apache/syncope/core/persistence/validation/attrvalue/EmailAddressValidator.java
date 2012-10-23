@@ -37,7 +37,8 @@ public class EmailAddressValidator extends AbstractValidator {
 
         Matcher matcher = EMAIL_PATTERN.matcher((CharSequence) attributeValue.getValue());
         if (!matcher.matches()) {
-            throw new InvalidAttrValueException(attributeValue);
+            String error = "\"" + attributeValue.getValue() + "\" is not a valid email address";
+            throw new InvalidAttrValueException(error);
         }
     }
 }

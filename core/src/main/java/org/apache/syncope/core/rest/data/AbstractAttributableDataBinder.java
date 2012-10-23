@@ -196,7 +196,8 @@ public abstract class AbstractAttributableDataBinder {
                 } catch (ValidationException e) {
                     LOG.error("Invalid value for attribute " + schema.getName() + ": " + value, e);
 
-                    invalidValues.addElement(schema.getName() + ": " + value);
+                    invalidValues.addElement(schema.getName() + ": " + value 
+                            + " - " + e.getMessage());
                 }
             }
         }

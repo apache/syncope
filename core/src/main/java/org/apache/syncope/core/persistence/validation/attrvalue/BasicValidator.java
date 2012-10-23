@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
+import java.util.Arrays;
+
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.types.SchemaType;
@@ -47,7 +49,8 @@ public class BasicValidator extends AbstractValidator {
             }
 
             if (!found) {
-                throw new InvalidAttrValueException(attributeValue);
+                String error = "\"" + value + "\" is not one of: " + Arrays.toString(enumeration);
+                throw new InvalidAttrValueException(error);
             }
         }
     }
