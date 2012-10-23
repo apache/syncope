@@ -1138,7 +1138,7 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.setPassword("newPassword");
+        userMod.setPassword("new2Password");
 
         userMod.addAttributeToBeRemoved("userId");
         attributeMod = new AttributeMod();
@@ -1160,7 +1160,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword", CipherAlgorithm.SHA1, 0);
+        passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
@@ -1204,7 +1204,7 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.setPassword("newPassword");
+        userMod.setPassword("newPassword123");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
 
@@ -1212,7 +1212,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO.getChangePwdDate());
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword", CipherAlgorithm.SHA1, 0);
+        passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         List<PropagationTaskTO> afterTasks = Arrays.asList(restTemplate.getForObject(

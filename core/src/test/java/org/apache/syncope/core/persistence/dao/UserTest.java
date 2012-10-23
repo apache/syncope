@@ -18,24 +18,28 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import static org.junit.Assert.*;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.IncompatiblePolicyException;
+import org.apache.syncope.core.util.PasswordGenerator;
 import org.apache.syncope.types.CipherAlgorithm;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class UserTest extends AbstractTest {
+
+    @Autowired
+    private PasswordGenerator passwordGenerator;
 
     @Autowired
     private UserDAO userDAO;
@@ -78,18 +82,21 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findByDerAttributeValue() throws InvalidSearchConditionException {
+    public void findByDerAttributeValue()
+            throws InvalidSearchConditionException {
         final List<SyncopeUser> list = userDAO.findByDerAttrValue("cn", "Doe, John");
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
     @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrValue() throws InvalidSearchConditionException {
+    public void findByInvalidDerAttrValue()
+            throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
     }
 
     @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrExpression() throws InvalidSearchConditionException {
+    public void findByInvalidDerAttrExpression()
+            throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
     }
 
@@ -191,8 +198,16 @@ public class UserTest extends AbstractTest {
     @Test
     public void issueSYNCOPE226() {
         SyncopeUser user = userDAO.find(5L);
+        String password = "";
+        try {
+            password = passwordGenerator.generateUserPassword(user);
+            System.out.println("PASSWORD GENERATA: " + password);
+        } catch (IncompatiblePolicyException ex) {
+            fail(ex.getMessage());
+        }
+        assertNotNull(password);
 
-        user.setPassword("123password", CipherAlgorithm.AES, 0);
+        user.setPassword(password, CipherAlgorithm.AES, 0);
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull(actual);

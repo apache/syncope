@@ -18,35 +18,12 @@
  */
 package org.apache.syncope.core.policy;
 
-import java.util.regex.Pattern;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, String> {
-
-    private static final Pattern DIGIT = Pattern.compile(".*\\d+.*");
-
-    private static final Pattern ALPHA_LOWERCASE = Pattern.compile(".*[a-z]+.*");
-
-    private static final Pattern ALPHA_UPPERCASE = Pattern.compile(".*[A-Z]+.*");
-
-    private static final Pattern FIRSTDIGIT = Pattern.compile("\\d.*");
-
-    private static final Pattern LASTDIGIT = Pattern.compile(".*\\d");
-
-    private static final Pattern ALPHANUMERIC = Pattern.compile(".*\\w.*");
-
-    private static final Pattern FIRSTALPHANUMERIC = Pattern.compile("\\w.*");
-
-    private static final Pattern LASTALPHANUMERIC = Pattern.compile(".*\\w");
-
-    private static final Pattern NONALPHANUMERIC = Pattern.compile(".*\\W.*");
-
-    private static final Pattern FIRSTNONALPHANUMERIC = Pattern.compile("\\W.*");
-
-    private static final Pattern LASTNONALPHANUMERIC = Pattern.compile(".*\\W");
 
     @Override
     public void enforce(final PasswordPolicySpec policy, final PolicyType type, final String password)
@@ -171,46 +148,46 @@ public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, S
     }
 
     private boolean checkForDigit(String str) {
-        return DIGIT.matcher((CharSequence) str).matches();
+        return PolicyPattern.DIGIT.matcher((CharSequence) str).matches();
     }
 
     private boolean checkForLowercase(String str) {
-        return ALPHA_LOWERCASE.matcher((CharSequence) str).matches();
+        return PolicyPattern.ALPHA_LOWERCASE.matcher((CharSequence) str).matches();
     }
 
     private boolean checkForUppercase(String str) {
-        return ALPHA_UPPERCASE.matcher((CharSequence) str).matches();
+        return PolicyPattern.ALPHA_UPPERCASE.matcher((CharSequence) str).matches();
     }
 
     private boolean checkForFirstDigit(String str) {
-        return FIRSTDIGIT.matcher((CharSequence) str).matches();
+        return PolicyPattern.FIRST_DIGIT.matcher((CharSequence) str).matches();
     }
 
     private boolean checkForLastDigit(String str) {
-        return LASTDIGIT.matcher((CharSequence) str).matches();
+        return PolicyPattern.LAST_DIGIT.matcher((CharSequence) str).matches();
     }
 
     private boolean checkForAlphanumeric(String str) {
-        return ALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.ALPHANUMERIC.matcher(str).matches();
     }
 
     private boolean checkForFirstAlphanumeric(String str) {
-        return FIRSTALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.FIRST_ALPHANUMERIC.matcher(str).matches();
     }
 
     private boolean checkForLastAlphanumeric(String str) {
-        return LASTALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.LAST_ALPHANUMERIC.matcher(str).matches();
     }
 
     private boolean checkForNonAlphanumeric(String str) {
-        return NONALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.NON_ALPHANUMERIC.matcher(str).matches();
     }
 
     private boolean checkForFirstNonAlphanumeric(String str) {
-        return FIRSTNONALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.FIRST_NON_ALPHANUMERIC.matcher(str).matches();
     }
 
     private boolean checkForLastNonAlphanumeric(String str) {
-        return LASTNONALPHANUMERIC.matcher(str).matches();
+        return PolicyPattern.LAST_NON_ALPHANUMERIC.matcher(str).matches();
     }
 }
