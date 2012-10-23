@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.init.ConnInstanceLoader;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
@@ -65,6 +67,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected ConnInstanceLoader connLoader;
+
+    @Autowired
+    protected ConnObjectUtil connObjectUtil;
 
     /**
      * User DAO.
@@ -162,7 +167,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         connector.create(task.getPropagationMode(), ObjectClass.ACCOUNT, attributes, null,
                                 propagationAttempted);
                     } else {
-
                         // 1. check if rename is really required
                         final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
 
@@ -175,11 +179,38 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             attributes.remove(newName);
                         }
 
-                        LOG.debug("Attributes to be replaced {}", attributes);
+                        // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
+                        // difference between beforeObj - just read above from the connector - and the values to
+                        // be propagated
+                        Map<String, Attribute> originalAttrMap = connObjectUtil.toMap(beforeObj.getAttributes());
+                        Map<String, Attribute> updateAttrMap = connObjectUtil.toMap(attributes);
 
-                        // 2. update with a new "normalized" attribute set
-                        connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, beforeObj.getUid(),
-                                attributes, null, propagationAttempted);
+                        // Only compare attribute from beforeObj that are also being updated
+                        Set<String> skipAttrNames = originalAttrMap.keySet();
+                        skipAttrNames.removeAll(updateAttrMap.keySet());
+                        for (String attrName : new HashSet<String>(skipAttrNames)) {
+                            originalAttrMap.remove(attrName);
+                        }
+
+                        Set<Attribute> originalAttrs = new HashSet<Attribute>(originalAttrMap.values());
+
+                        if (originalAttrs.equals(attributes)) {
+                            LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
+                        } else {
+                            LOG.debug("Attributes that would be updated {}", attributes);
+
+                            Set<Attribute> strictlyModified = new HashSet<Attribute>();
+                            for (Attribute attr : attributes) {
+                                if (!originalAttrs.contains(attr)) {
+                                    strictlyModified.add(attr);
+                                }
+                            }
+
+                            LOG.debug("Attributes that will be actually propagated for update {}", strictlyModified);
+
+                            connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, beforeObj.getUid(),
+                                    strictlyModified, null, propagationAttempted);
+                        }
                     }
                     break;
 

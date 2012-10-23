@@ -398,4 +398,25 @@ public class ConnObjectUtil {
 
         return result;
     }
+
+    /**
+     * Transform a
+     * <code>Collection</code> of {@link Attribute} instances into a {@link Map}. The key to each element in the map is
+     * the <i>name</i> of an
+     * <code>Attribute</code>. The value of each element in the map is the
+     * <code>Attribute</code> instance with that name. <br/> Different from the original because: <ul> <li>map keys are
+     * transformed toUpperCase()</li> <li>returned map is mutable</li> </ul>
+     *
+     * @param attributes set of attribute to transform to a map.
+     * @return a map of string and attribute.
+     *
+     * @see org.identityconnectors.framework.common.objects.AttributeUtil#toMap(java.util.Collection)
+     */
+    public Map<String, Attribute> toMap(final Collection<? extends Attribute> attributes) {
+        final Map<String, Attribute> map = new HashMap<String, Attribute>();
+        for (Attribute attr : attributes) {
+            map.put(attr.getName().toUpperCase(), attr);
+        }
+        return map;
+    }
 }

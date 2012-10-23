@@ -511,7 +511,7 @@ public class PropagationManager {
 
                     tasks.add(task);
 
-                    LOG.debug("Execution started for {}", task);
+                    LOG.debug("PropagationTasl created: {}", task);
                 }
             }
         }
