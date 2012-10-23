@@ -41,8 +41,8 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.TaskDataBinder;
-import org.apache.syncope.core.scheduling.AbstractTaskJob;
-import org.apache.syncope.core.scheduling.NotificationJob;
+import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.AuditElements.Category;
@@ -250,14 +250,14 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/jobActionsClasses")
-    public ModelAndView getJobActionClasses() {
-        Set<String> jobActionsClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.JOB_ACTIONS);
+    @RequestMapping(method = RequestMethod.GET, value = "/syncActionsClasses")
+    public ModelAndView getSyncActionsClasses() {
+        Set<String> actionsClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
 
-        auditManager.audit(Category.task, TaskSubCategory.getJobActionClasses, Result.success,
-                "Successfully listed all SyncJobActions classes: " + jobActionsClasses.size());
+        auditManager.audit(Category.task, TaskSubCategory.getSyncActionsClasses, Result.success,
+                "Successfully listed all SyncActions classes: " + actionsClasses.size());
 
-        return new ModelAndView().addObject(jobActionsClasses);
+        return new ModelAndView().addObject(actionsClasses);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")

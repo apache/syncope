@@ -54,14 +54,14 @@ public class TaskRestClient extends AbstractBaseRestClient implements ExecutionR
         return jobClasses;
     }
 
-    public List<String> getJobActionsClasses() {
+    public List<String> getSyncActionsClasses() {
         List<String> actions = null;
 
         try {
             actions = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/jobActionsClasses.json", String[].class));
+                    baseURL + "task/syncActionsClasses.json", String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While getting all job actions classes", e);
+            LOG.error("While getting all sync actions classes", e);
         }
         return actions;
     }

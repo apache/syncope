@@ -484,7 +484,8 @@ under the License.
                     <exclude name="**/workflow.properties" />
                   </patternset>
                 </unzip>
-                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/scheduling/TestSyncJobActions.class" todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/scheduling" />
+                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/quartz/TestSyncActions.class" 
+                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/quartz" />
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">

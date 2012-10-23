@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
-import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
 import org.junit.AfterClass;

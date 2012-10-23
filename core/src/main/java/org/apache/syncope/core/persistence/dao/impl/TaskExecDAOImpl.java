@@ -85,16 +85,17 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
     }
 
     /**
-     * This method has an explicit @Transactional annotation because it is called by AbstractJob.
+     * This method has an explicit Transactional annotation because it is called by AbstractJob.
      *
-     * @see org.apache.syncope.core.scheduling.AbstractJob
+     * @see AbstractJob
      *
-     * @param execution entity to be merged
-     * @return the same entity, updated
+     * @param taskId task id
+     * @param execution task execution
+     * @throws InvalidEntityException if any bean validation fails
      */
     @Override
     @Transactional(rollbackFor = {Throwable.class})
-    public void saveAndAdd(Long taskId, TaskExec execution) throws InvalidEntityException {
+    public void saveAndAdd(final Long taskId, final TaskExec execution) throws InvalidEntityException {
         Task task = taskDAO.find(taskId);
         task.addExec(execution);
         taskDAO.save(task);

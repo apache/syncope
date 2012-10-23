@@ -16,26 +16,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.quartz;
 
-public class ReportXMLConst {
-
-    public static final String XSD_STRING = "xsd:string";
-
-    public static final String XSD_INT = "xsd:integer";
-
-    public static final String XSD_LONG = "xsd:long";
-
-    public static final String XSD_BOOLEAN = "xsd:boolean";
-
-    public static final String XSD_DATETIME = "xsd:dateTime";
-
-    public static final String ELEMENT_REPORT = "report";
-
-    public static final String ATTR_NAME = "name";
-
-    public static final String ATTR_CLASS = "class";
-
-    public static final String ELEMENT_REPORTLET = "reportlet";
-
-}

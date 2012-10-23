@@ -27,7 +27,7 @@ import javax.validation.constraints.Min;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
-import org.apache.syncope.core.scheduling.SyncJob;
+import org.apache.syncope.core.sync.SyncJob;
 
 @Entity
 @SyncTaskCheck
@@ -69,7 +69,7 @@ public class SyncTask extends SchedTask {
     @Max(1)
     private Integer fullReconciliation;
 
-    private String jobActionsClassName;
+    private String actionsClassName;
 
     /**
      * Default constructor.
@@ -95,7 +95,7 @@ public class SyncTask extends SchedTask {
     public UserTO getUserTemplate() {
         return userTemplate == null
                 ? new UserTO()
-                : XMLSerializer.<UserTO> deserialize(userTemplate);
+                : XMLSerializer.<UserTO>deserialize(userTemplate);
     }
 
     public void setUserTemplate(final UserTO userTemplate) {
@@ -142,11 +142,11 @@ public class SyncTask extends SchedTask {
         this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
     }
 
-    public String getJobActionsClassName() {
-        return jobActionsClassName;
+    public String getActionsClassName() {
+        return actionsClassName;
     }
 
-    public void setJobActionsClassName(String jobActionsClassName) {
-        this.jobActionsClassName = jobActionsClassName;
+    public void setActionsClassName(String actionsClassName) {
+        this.actionsClassName = actionsClassName;
     }
 }

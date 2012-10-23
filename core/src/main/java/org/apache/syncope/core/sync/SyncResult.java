@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.sync;
 
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.syncope.core.scheduling.AbstractTaskJob.Status;
+import org.apache.syncope.core.quartz.AbstractTaskJob.Status;
 import org.apache.syncope.types.TraceLevel;
 
 public class SyncResult {

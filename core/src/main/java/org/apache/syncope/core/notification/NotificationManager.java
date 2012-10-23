@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.scheduling.NotificationJob;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;

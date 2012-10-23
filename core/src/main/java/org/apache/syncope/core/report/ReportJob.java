@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,9 +39,9 @@ import org.apache.syncope.core.persistence.dao.ReportExecDAO;
 import org.apache.syncope.core.report.ReportException;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.rest.data.ReportDataBinder;
-import static org.apache.syncope.core.scheduling.ReportXMLConst.ATTR_NAME;
-import static org.apache.syncope.core.scheduling.ReportXMLConst.ELEMENT_REPORT;
-import static org.apache.syncope.core.scheduling.ReportXMLConst.XSD_STRING;
+import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
+import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORT;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.types.ReportExecStatus;
 import org.quartz.DisallowConcurrentExecution;

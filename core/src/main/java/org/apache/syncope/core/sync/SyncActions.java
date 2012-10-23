@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.sync;
 
 import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
@@ -28,7 +28,7 @@ import org.quartz.JobExecutionException;
 /**
  * Interface for actions to be performed during SyncJob execution.
  */
-public interface SyncJobActions {
+public interface SyncActions {
 
     /**
      * Action to be executed before to start the synchronization task execution.

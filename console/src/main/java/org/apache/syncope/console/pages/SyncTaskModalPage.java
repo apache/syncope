@@ -20,18 +20,18 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -79,12 +79,12 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
             @Override
             protected List<String> load() {
-                return taskRestClient.getJobActionsClasses();
+                return taskRestClient.getSyncActionsClasses();
             }
         };
 
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
-                "jobActionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "jobActionsClassName"));
+                "actionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "actionsClassName"));
         actionsClassName.setChoices(classNames.getObject());
         actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);

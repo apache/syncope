@@ -67,7 +67,7 @@ public class ReportExecDAOImpl extends AbstractDAOImpl implements ReportExecDAO 
     /**
      * This method is annotated as transactional because called from ReportJob.
      *
-     * @see org.apache.syncope.core.scheduling.ReportJob
+     * @see org.apache.syncope.core.report.ReportJob
      * @param execution to be merged
      * @return merged execution
      * @throws InvalidEntityException if any validation error occurs
@@ -75,7 +75,6 @@ public class ReportExecDAOImpl extends AbstractDAOImpl implements ReportExecDAO 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public ReportExec save(final ReportExec execution) throws InvalidEntityException {
-
         return entityManager.merge(execution);
     }
 

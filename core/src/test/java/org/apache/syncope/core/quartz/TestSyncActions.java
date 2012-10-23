@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.quartz;
 
-import org.apache.syncope.core.scheduling.DefaultSyncJobActions;
 import java.util.Collections;
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.quartz.JobExecutionException;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.core.sync.DefaultSyncActions;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.quartz.JobExecutionException;
 
-public class TestSyncJobActions extends DefaultSyncJobActions {
+public class TestSyncActions extends DefaultSyncActions {
 
     private int counter = 0;
 

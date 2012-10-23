@@ -135,7 +135,7 @@ public class TaskDataBinder {
         task.setSyncStatus(taskTO.isSyncStatus());
         task.setFullReconciliation(taskTO.isFullReconciliation());
 
-        task.setJobActionsClassName(taskTO.getJobActionsClassName());
+        task.setActionsClassName(taskTO.getActionsClassName());
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil)

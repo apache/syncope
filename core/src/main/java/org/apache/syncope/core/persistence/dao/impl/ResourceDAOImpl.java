@@ -83,16 +83,15 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     }
 
     /**
-     * This method has an explicit @Transactional annotation because it is
-     * called by SyncJob.
+     * This method has an explicit Transactional annotation because it is called by SyncJob.
      *
-     * @see org.apache.syncope.core.scheduling.SyncJob
+     * @see org.apache.syncope.core.sync.SyncJob
      *
      * @param resource entity to be merged
      * @return the same entity, updated
      */
     @Override
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager.merge(resource);
         try {

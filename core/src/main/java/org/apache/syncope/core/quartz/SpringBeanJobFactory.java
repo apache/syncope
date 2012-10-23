@@ -16,8 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.quartz;
 
+import org.apache.syncope.core.init.JobInstanceLoader;
+import org.apache.syncope.core.persistence.beans.Report;
+import org.apache.syncope.core.persistence.beans.SchedTask;
+import org.apache.syncope.core.persistence.dao.ReportDAO;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.quartz.SchedulerContext;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeanWrapper;
@@ -25,11 +30,6 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.apache.syncope.core.init.JobInstanceLoader;
-import org.apache.syncope.core.persistence.beans.Report;
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.dao.ReportDAO;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
 
 public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.SpringBeanJobFactory {
 

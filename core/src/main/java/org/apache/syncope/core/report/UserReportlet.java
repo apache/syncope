@@ -36,7 +36,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import static org.apache.syncope.core.scheduling.ReportXMLConst.*;
+import static org.apache.syncope.core.report.ReportXMLConst.*;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

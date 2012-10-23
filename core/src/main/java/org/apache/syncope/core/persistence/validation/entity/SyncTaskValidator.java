@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.SyncTask;
-import org.apache.syncope.core.scheduling.SyncJobActions;
+import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.types.EntityViolationType;
 
 public class SyncTaskValidator extends AbstractValidator implements ConstraintValidator<SyncTaskCheck, SyncTask> {
@@ -59,23 +59,23 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                             .addNode(object + ".resource is NULL").addConstraintViolation();
                 }
 
-                if (StringUtils.isNotBlank(object.getJobActionsClassName())) {
-                    Class<?> syncJobActionsClass = null;
+                if (StringUtils.isNotBlank(object.getActionsClassName())) {
+                    Class<?> syncActionsClass = null;
                     boolean isAssignable = false;
                     try {
-                        syncJobActionsClass = Class.forName(object.getJobActionsClassName());
-                        isAssignable = SyncJobActions.class.isAssignableFrom(syncJobActionsClass);
+                        syncActionsClass = Class.forName(object.getActionsClassName());
+                        isAssignable = SyncActions.class.isAssignableFrom(syncActionsClass);
                     } catch (Exception e) {
-                        LOG.error("Invalid SyncJobActions specified", e);
+                        LOG.error("Invalid SyncActions specified", e);
                         isValid = false;
                     }
 
-                    if (syncJobActionsClass == null || !isAssignable) {
+                    if (syncActionsClass == null || !isAssignable) {
                         isValid = false;
 
                         context.disableDefaultConstraintViolation();
                         context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSyncTask.toString())
-                                .addNode(object + ".syncJobActionsClassName is not valid").addConstraintViolation();
+                                .addNode(object + ".actionsClassName is not valid").addConstraintViolation();
                     }
                 }
             }

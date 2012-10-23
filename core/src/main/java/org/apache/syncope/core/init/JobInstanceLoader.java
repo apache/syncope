@@ -32,12 +32,12 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.scheduling.AbstractTaskJob;
-import org.apache.syncope.core.scheduling.DefaultSyncJobActions;
-import org.apache.syncope.core.scheduling.NotificationJob;
-import org.apache.syncope.core.scheduling.ReportJob;
-import org.apache.syncope.core.scheduling.SyncJob;
-import org.apache.syncope.core.scheduling.SyncJobActions;
+import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.sync.DefaultSyncActions;
+import org.apache.syncope.core.notification.NotificationJob;
+import org.apache.syncope.core.report.ReportJob;
+import org.apache.syncope.core.sync.SyncJob;
+import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -172,20 +172,20 @@ public class JobInstanceLoader {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
         if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
-            String jobActionsClassName = ((SyncTask) task).getJobActionsClassName();
-            Class syncJobActionsClass = DefaultSyncJobActions.class;
+            String jobActionsClassName = ((SyncTask) task).getActionsClassName();
+            Class syncActionsClass = DefaultSyncActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
-                    syncJobActionsClass = Class.forName(jobActionsClassName);
+                    syncActionsClass = Class.forName(jobActionsClassName);
                 } catch (Exception e) {
                     LOG.error("Class {} not found, reverting to {}", new Object[]{jobActionsClassName,
-                                syncJobActionsClass.getName(), e});
+                                syncActionsClass.getName(), e});
                 }
             }
-            SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,
+            SyncActions syncActions = (SyncActions) getBeanFactory().createBean(syncActionsClass,
                     AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
-            ((SyncJob) jobInstance).setActions(syncJobActions);
+            ((SyncJob) jobInstance).setActions(syncActions);
         }
 
         registerJob(getJobName(task), jobInstance, cronExpression);

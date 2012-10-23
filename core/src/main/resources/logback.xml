@@ -101,7 +101,19 @@ under the License.
     <appender-ref ref="main"/>
   </logger>
 
-  <logger name="org.apache.syncope.core.scheduling" additivity="false">
+  <logger name="org.apache.syncope.core.quartz" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
+  <logger name="org.apache.syncope.core.sync" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
+  <logger name="org.apache.syncope.core.notification" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
+  <logger name="org.apache.syncope.core.report" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="main"/>
   </logger>

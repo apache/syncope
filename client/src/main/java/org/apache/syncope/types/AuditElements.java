@@ -198,7 +198,7 @@ public final class AuditElements {
         delete,
         listExecutions,
         getJobClasses,
-        getJobActionClasses,
+        getSyncActionsClasses,
         readExecution,
         execute,
         report,

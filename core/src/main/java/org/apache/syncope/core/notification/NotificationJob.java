@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.notification;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

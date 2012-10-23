@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.scheduling.TestSyncJobActions;
+import org.apache.syncope.core.quartz.TestSyncActions;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -138,7 +138,7 @@ public class TaskTest extends AbstractTest {
         assertNotNull(exception);
 
         task.setResource(resource);
-        task.setJobActionsClassName(getClass().getName());
+        task.setActionsClassName(getClass().getName());
 
         // this save() fails because jobActionsClassName does not implement 
         // the right interface
@@ -150,7 +150,7 @@ public class TaskTest extends AbstractTest {
         }
         assertNotNull(exception);
 
-        task.setJobActionsClassName(TestSyncJobActions.class.getName());
+        task.setActionsClassName(TestSyncActions.class.getName());
         // this save() finally works
         task = taskDAO.save(task);
         assertNotNull(task);
@@ -186,7 +186,7 @@ public class TaskTest extends AbstractTest {
         task.setResource(resource);
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
-        task.setJobActionsClassName(TestSyncJobActions.class.getName());
+        task.setActionsClassName(TestSyncActions.class.getName());
 
         task = taskDAO.save(task);
         assertNotNull(task);

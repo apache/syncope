@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.scheduling;
+package org.apache.syncope.core.sync;
 
 import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
@@ -26,11 +26,11 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
 /**
- * Default (empty) implementation of SyncJobActions.
+ * Default (empty) implementation of SyncActions.
  *
- * @see SyncJobActions
+ * @see SyncActions
  */
-public class DefaultSyncJobActions implements SyncJobActions {
+public class DefaultSyncActions implements SyncActions {
 
     @Override
     public void beforeAll(final SyncTask task) throws JobExecutionException {

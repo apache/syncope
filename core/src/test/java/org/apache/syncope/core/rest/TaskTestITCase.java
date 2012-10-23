@@ -38,10 +38,10 @@ import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.scheduling.SyncJob;
+import org.apache.syncope.core.sync.SyncJob;
 import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.apache.syncope.core.scheduling.TestSyncJobActions;
+import org.apache.syncope.core.quartz.TestSyncActions;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
 
@@ -55,8 +55,8 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void getJobActionsClasses() {
-        Set<String> actions = restTemplate.getForObject(BASE_URL + "task/jobActionsClasses.json", Set.class);
+    public void getSyncActionsClasses() {
+        Set<String> actions = restTemplate.getForObject(BASE_URL + "task/syncActionsClasses.json", Set.class);
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -253,7 +253,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(task);
 
         //  add custom SyncJob actions
-        task.setJobActionsClassName(TestSyncJobActions.class.getName());
+        task.setActionsClassName(TestSyncActions.class.getName());
 
         //  add user template
         UserTO template = new UserTO();
@@ -282,7 +282,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
-        assertEquals(TestSyncJobActions.class.getName(), actual.getJobActionsClassName());
+        assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
 
         SyncTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
 

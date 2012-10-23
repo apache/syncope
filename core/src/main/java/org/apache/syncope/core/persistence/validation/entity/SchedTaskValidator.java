@@ -22,7 +22,7 @@ import java.text.ParseException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.scheduling.AbstractTaskJob;
+import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.types.EntityViolationType;
 import org.quartz.CronExpression;
 
