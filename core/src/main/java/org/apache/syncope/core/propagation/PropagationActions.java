@@ -18,23 +18,13 @@
  */
 package org.apache.syncope.core.propagation;
 
-import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-/**
- * Handle propagation executions.
- */
-public interface PropagationHandler {
+public interface PropagationActions {
 
-    /**
-     *
-     * Handle propagation executions.
-     *
-     * @param resourceName resource name.
-     * @param execStatus propagation execution status.
-     * @param beforeObj retrieved connector object before operation execution.
-     * @param afterObj retrieved connector object after operation execution.
-     */
-    void handle(String resourceName, PropagationTaskExecStatus execStatus,
-            ConnectorObject beforeObj, ConnectorObject afterObj);
+    void before(PropagationTask task, ConnectorObject beforeObj);
+
+    void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj);
 }

@@ -194,8 +194,8 @@ public class UserManagementResultPanel extends Panel {
      * @return list view.
      */
     private ListView getConnObjectView(final PropagationTO propTO) {
-        final ConnObjectTO before = propTO.getBefore();
-        final ConnObjectTO after = propTO.getAfter();
+        final ConnObjectTO before = propTO.getBeforeObj();
+        final ConnObjectTO after = propTO.getAfterObj();
 
         // sorted in reversed presentation order
         final List<String> head = Arrays.asList(new String[] { "__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__" });

@@ -27,8 +27,6 @@ import org.quartz.JobExecutionException;
 
 /**
  * Default (empty) implementation of SyncActions.
- *
- * @see SyncActions
  */
 public class DefaultSyncActions implements SyncActions {
 

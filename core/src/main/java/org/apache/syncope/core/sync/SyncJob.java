@@ -216,7 +216,6 @@ public class SyncJob extends AbstractTaskJob {
         if (!(task instanceof SyncTask)) {
             throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
         }
-
         final SyncTask syncTask = (SyncTask) this.task;
 
         ConnectorFacadeProxy connector;
@@ -230,7 +229,6 @@ public class SyncJob extends AbstractTaskJob {
         }
 
         final SchemaMapping accountIdMap = SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
-
         if (accountIdMap == null) {
             throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());
         }
@@ -238,8 +236,6 @@ public class SyncJob extends AbstractTaskJob {
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getSyncToken());
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
-
-        actions.beforeAll(syncTask);
 
         final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
         final ConflictResolutionAction resAct = syncPolicy == null || syncPolicy.getSpecification() == null
@@ -257,6 +253,7 @@ public class SyncJob extends AbstractTaskJob {
         handler.setResults(results);
         handler.setSyncTask(syncTask);
 
+        actions.beforeAll(syncTask);
         try {
             if (syncTask.isFullReconciliation()) {
                 connector.getAllObjects(ObjectClass.ACCOUNT, handler,
@@ -278,7 +275,6 @@ public class SyncJob extends AbstractTaskJob {
         } catch (Exception e) {
             throw new JobExecutionException("While syncing on connector", e);
         }
-
         actions.afterAll(syncTask, results);
 
         final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);

@@ -20,8 +20,10 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.types.EntityViolationType;
 
 public class ExternalResourceValidator extends AbstractValidator implements
@@ -51,8 +53,28 @@ public class ExternalResourceValidator extends AbstractValidator implements
                 LOG.error("Mappings for " + object + " have 0 or >1 account ids");
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidAccountIdCount.toString())
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
                         .addNode(object + ".accountIds.size==" + accountIds).addConstraintViolation();
+            }
+
+            if (StringUtils.isNotBlank(object.getActionsClassName())) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(object.getActionsClassName());
+                    isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid PropagationActions specified", e);
+                    isValid = false;
+                }
+
+                if (actionsClass == null || !isAssignable) {
+                    isValid = false;
+
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
+                            .addNode(object + ".actionsClassName is not valid").addConstraintViolation();
+                }
             }
         }
 

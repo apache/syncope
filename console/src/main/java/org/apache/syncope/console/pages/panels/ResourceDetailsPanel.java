@@ -58,7 +58,8 @@ public class ResourceDetailsPanel extends Panel {
 
     private ConnInstanceTO connInstanceTO;
 
-    public ResourceDetailsPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
+    public ResourceDetailsPanel(final String id, final ResourceTO resourceTO, final List<String> actionClassNames,
+            final boolean createFlag) {
 
         super(id);
         setOutputMarkupId(true);
@@ -102,6 +103,13 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel(resourceTO, "propagationMode"));
         propagationMode.setChoices(Arrays.asList(PropagationMode.values()));
         add(propagationMode);
+
+        final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
+                "actionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
+                new PropertyModel(resourceTO, "actionsClassName"));
+        actionsClassName.setChoices(actionClassNames);
+        actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
+        add(actionsClassName);
 
         final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "createTraceLevel", new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),

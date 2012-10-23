@@ -186,7 +186,7 @@ public class ResourceSecurityPanel extends Panel {
         }
 
         @Override
-        public String getIdValue(Long object, int index) {
+        public String getIdValue(final Long object, final int index) {
             return String.valueOf(object != null
                     ? object
                     : 0L);

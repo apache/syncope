@@ -73,19 +73,9 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
         profile.add(resource);
 
-        final IModel<List<String>> classNames = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return taskRestClient.getSyncActionsClasses();
-            }
-        };
-
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
                 "actionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "actionsClassName"));
-        actionsClassName.setChoices(classNames.getObject());
+        actionsClassName.setChoices(taskRestClient.getSyncActionsClasses());
         actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);
 

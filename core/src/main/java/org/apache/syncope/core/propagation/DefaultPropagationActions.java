@@ -18,23 +18,20 @@
  */
 package org.apache.syncope.core.propagation;
 
-import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
- * Handle propagation executions.
+ * Default (empty) implementation of PropagationActions.
  */
-public interface PropagationHandler {
+public class DefaultPropagationActions implements PropagationActions {
 
-    /**
-     *
-     * Handle propagation executions.
-     *
-     * @param resourceName resource name.
-     * @param execStatus propagation execution status.
-     * @param beforeObj retrieved connector object before operation execution.
-     * @param afterObj retrieved connector object after operation execution.
-     */
-    void handle(String resourceName, PropagationTaskExecStatus execStatus,
-            ConnectorObject beforeObj, ConnectorObject afterObj);
+    @Override
+    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
+    }
+
+    @Override
+    public void after(final PropagationTask task, final TaskExec execution, final ConnectorObject afterObj) {
+    }
 }

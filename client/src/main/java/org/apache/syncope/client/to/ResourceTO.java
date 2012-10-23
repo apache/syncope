@@ -74,6 +74,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private String syncToken;
 
+    private String actionsClassName;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         connConfProperties = new HashSet<ConnConfProperty>();
@@ -218,7 +220,7 @@ public class ResourceTO extends AbstractBaseBean {
         return syncTraceLevel;
     }
 
-    public void setSyncTraceLevel(TraceLevel syncTraceLevel) {
+    public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
         this.syncTraceLevel = syncTraceLevel;
     }
 
@@ -226,7 +228,15 @@ public class ResourceTO extends AbstractBaseBean {
         return syncToken;
     }
 
-    public void setSyncToken(String syncToken) {
+    public void setSyncToken(final String syncToken) {
         this.syncToken = syncToken;
+    }
+
+    public String getActionsClassName() {
+        return actionsClassName;
+    }
+
+    public void setActionsClassName(final String actionsClassName) {
+        this.actionsClassName = actionsClassName;
     }
 }

@@ -20,10 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Resources services.
@@ -31,12 +31,24 @@ import org.apache.syncope.console.SyncopeSession;
 @Component
 public class ResourceRestClient extends AbstractBaseRestClient {
 
+    public List<String> getPropagationActionsClasses() {
+        List<String> actions = null;
+
+        try {
+            actions = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "resource/propagationActionsClasses.json", String[].class));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting all propagation actions classes", e);
+        }
+        return actions;
+    }
+
     public List<ResourceTO> getAllResources() {
         List<ResourceTO> resources = null;
 
         try {
-            resources = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject
-                    (baseURL + "resource/list.json", ResourceTO[].class));
+            resources = Arrays.asList(SyncopeSession.get().getRestTemplate().
+                    getForObject(baseURL + "resource/list.json", ResourceTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all resources", e);
         }

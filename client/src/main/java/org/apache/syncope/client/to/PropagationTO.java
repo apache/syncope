@@ -34,12 +34,12 @@ public class PropagationTO extends AbstractBaseBean {
     /**
      * Object before propagation.
      */
-    private ConnObjectTO before;
+    private ConnObjectTO beforeObj;
 
     /**
      * Object after propagation.
      */
-    private ConnObjectTO after;
+    private ConnObjectTO afterObj;
 
     /**
      * Propagated resource name.
@@ -56,17 +56,17 @@ public class PropagationTO extends AbstractBaseBean {
      *
      * @return after object.
      */
-    public ConnObjectTO getAfter() {
-        return after;
+    public ConnObjectTO getAfterObj() {
+        return afterObj;
     }
 
     /**
      * After object setter.
      *
-     * @param after object.
+     * @param afterObj object.
      */
-    public void setAfter(final ConnObjectTO after) {
-        this.after = after;
+    public void setAfterObj(final ConnObjectTO afterObj) {
+        this.afterObj = afterObj;
     }
 
     /**
@@ -74,17 +74,17 @@ public class PropagationTO extends AbstractBaseBean {
      *
      * @return before object.
      */
-    public ConnObjectTO getBefore() {
-        return before;
+    public ConnObjectTO getBeforeObj() {
+        return beforeObj;
     }
 
     /**
      * Before object setter.
      *
-     * @param before object.
+     * @param beforeObj object.
      */
-    public void setBefore(final ConnObjectTO before) {
-        this.before = before;
+    public void setBeforeObj(final ConnObjectTO beforeObj) {
+        this.beforeObj = beforeObj;
     }
 
     /**

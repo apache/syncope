@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -130,6 +131,8 @@ public class ResourceDataBinder {
             resource.setSerializedSyncToken(null);
         }
 
+        resource.setActionsClassName(resourceTO.getActionsClassName());
+
         return resource;
     }
 
@@ -193,10 +196,13 @@ public class ResourceDataBinder {
         resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
         resourceTO.setSyncToken(resource.getSerializedSyncToken());
 
+        resourceTO.setActionsClassName(resource.getActionsClassName());
+
         return resourceTO;
     }
 
-    private Set<SchemaMapping> getSchemaMappings(ExternalResource resource, List<SchemaMappingTO> mappings) {
+    private Set<SchemaMapping> getSchemaMappings(final ExternalResource resource,
+            final List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
@@ -215,11 +221,10 @@ public class ResourceDataBinder {
         return schemaMappings;
     }
 
-    private SchemaMapping getSchemaMapping(ExternalResource resource, SchemaMappingTO mappingTO)
+    private SchemaMapping getSchemaMapping(final ExternalResource resource, final SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
@@ -253,7 +258,7 @@ public class ResourceDataBinder {
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
         if (!requiredValuesMissing.isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
+            scce.addException(requiredValuesMissing);
         }
 
         // no mandatory condition implies mandatory condition false
@@ -266,11 +271,11 @@ public class ResourceDataBinder {
 
             invalidMandatoryCondition.addElement(mappingTO.getMandatoryCondition());
 
-            compositeErrorException.addException(invalidMandatoryCondition);
+            scce.addException(invalidMandatoryCondition);
         }
 
-        if (compositeErrorException.hasExceptions()) {
-            throw compositeErrorException;
+        if (scce.hasExceptions()) {
+            throw scce;
         }
 
         SchemaMapping mapping = new SchemaMapping();
@@ -282,8 +287,7 @@ public class ResourceDataBinder {
         return mapping;
     }
 
-    public List<SchemaMappingTO> getSchemaMappingTOs(Collection<SchemaMapping> mappings) {
-
+    public List<SchemaMappingTO> getSchemaMappingTOs(final Collection<SchemaMapping> mappings) {
         if (mappings == null) {
             LOG.error("No mapping provided.");
 
@@ -302,7 +306,7 @@ public class ResourceDataBinder {
         return schemaMappingTOs;
     }
 
-    public SchemaMappingTO getSchemaMappingTO(SchemaMapping schemaMapping) {
+    public SchemaMappingTO getSchemaMappingTO(final SchemaMapping schemaMapping) {
         if (schemaMapping == null) {
             LOG.error("Provided null mapping");
 
@@ -320,33 +324,25 @@ public class ResourceDataBinder {
         return schemaMappingTO;
     }
 
-    public ConnInstance getConnInstance(ExternalResource resource)
-            throws NotFoundException {
-
-        final ConnInstance connInstanceClone =
-                (ConnInstance) org.apache.commons.lang.SerializationUtils.clone(resource.getConnector());
+    public ConnInstance getConnInstance(final ExternalResource resource) {
+        final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(resource.getConnector());
 
         return getConnInstance(connInstanceClone, resource.getConfiguration());
     }
 
     public ConnInstance getConnInstance(final ResourceTO resourceTO)
             throws NotFoundException {
+
         ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnectorId());
-
-        final ConnInstance connInstanceClone =
-                (ConnInstance) org.apache.commons.lang.SerializationUtils.clone(connInstance);
-
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + resourceTO.getConnectorId() + "'");
         }
 
+        final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(connInstance);
         return getConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
     }
 
-    private ConnInstance getConnInstance(
-            final ConnInstance connInstance, final Set<ConnConfProperty> overridden)
-            throws NotFoundException {
-
+    private ConnInstance getConnInstance(final ConnInstance connInstance, final Set<ConnConfProperty> overridden) {
         final Set<ConnConfProperty> configuration = new HashSet<ConnConfProperty>();
         final Map<String, ConnConfProperty> overridable = new HashMap<String, ConnConfProperty>();
 

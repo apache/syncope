@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.notification.NotificationJob;
+import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.sync.SyncJob;
 import org.apache.syncope.core.sync.SyncActions;
@@ -52,6 +53,7 @@ public class ImplementationClassNamesLoader {
         REPORTLET,
         JOB,
         SYNC_ACTIONS,
+        PROPAGATION_ACTIONS,
         VALIDATOR
 
     }
@@ -96,6 +98,10 @@ public class ImplementationClassNamesLoader {
 
                     if (interfaces.contains(SyncActions.class) && !metadata.isAbstract()) {
                         classNames.get(Type.SYNC_ACTIONS).add(metadata.getClassName());
+                    }
+
+                    if (interfaces.contains(PropagationActions.class) && !metadata.isAbstract()) {
+                        classNames.get(Type.PROPAGATION_ACTIONS).add(metadata.getClassName());
                     }
 
                     if (interfaces.contains(Validator.class) && !metadata.isAbstract()) {

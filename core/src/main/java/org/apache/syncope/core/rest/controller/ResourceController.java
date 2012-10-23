@@ -28,6 +28,7 @@ import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -35,7 +36,6 @@ import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
-import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.ConnObjectUtil;
@@ -81,7 +81,7 @@ public class ResourceController extends AbstractController {
     private ResourceDataBinder binder;
 
     @Autowired
-    private ConnInstanceDataBinder connInstancebinder;
+    private ImplementationClassNamesLoader classNamesLoader;
 
     /**
      * ConnectorObject util.
@@ -167,6 +167,18 @@ public class ResourceController extends AbstractController {
                 "Successfully read resource: " + resource.getName());
 
         return binder.getResourceTO(resource);
+    }
+
+    @PreAuthorize("hasRole('RESOURCE_READ')")
+    @RequestMapping(method = RequestMethod.GET, value = "/propagationActionsClasses")
+    public ModelAndView getPropagationActionsClasses() {
+        Set<String> actionsClasses = classNamesLoader.getClassNames(
+                ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS);
+
+        auditManager.audit(Category.resource, AuditElements.ResourceSubCategory.getPropagationActionsClasses,
+                Result.success, "Successfully listed all PropagationActions classes: " + actionsClasses.size());
+
+        return new ModelAndView().addObject(actionsClasses);
     }
 
     @Transactional(readOnly = true)

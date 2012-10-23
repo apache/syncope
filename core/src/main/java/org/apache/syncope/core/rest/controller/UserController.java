@@ -300,18 +300,18 @@ public class UserController {
 
             @Override
             public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                    final ConnectorObject before, final ConnectorObject after) {
+                    final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
                 final PropagationTO propagation = new PropagationTO();
                 propagation.setResourceName(resourceName);
                 propagation.setStatus(executionStatus);
 
-                if (before != null) {
-                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
+                if (beforeObj != null) {
+                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(beforeObj));
                 }
 
-                if (after != null) {
-                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
+                if (afterObj != null) {
+                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(afterObj));
                 }
 
                 propagations.add(propagation);
@@ -357,11 +357,11 @@ public class UserController {
                 propagation.setStatus(executionStatus);
 
                 if (before != null) {
-                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
+                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(before));
                 }
 
                 if (after != null) {
-                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
+                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(after));
                 }
 
                 propagations.add(propagation);
@@ -685,11 +685,11 @@ public class UserController {
                 propagation.setStatus(executionStatus);
 
                 if (before != null) {
-                    propagation.setBefore(connObjectUtil.getConnObjectTO(before));
+                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(before));
                 }
 
                 if (after != null) {
-                    propagation.setAfter(connObjectUtil.getConnObjectTO(after));
+                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(after));
                 }
 
                 userTO.addPropagationTO(propagation);

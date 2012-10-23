@@ -295,8 +295,6 @@ public class ConnObjectUtil {
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
-                final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
-
                 final SchemaMappingUtil.SchemaMappingsWrapper mappings = new SchemaMappingUtil.SchemaMappingsWrapper(
                         resource.getMappings());
 
@@ -319,8 +317,9 @@ public class ConnObjectUtil {
                         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
                         oob.setAttributesToGet(extAttrNames);
 
-                        final ConnectorObject connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(
-                                accountId), oob.build());
+                        final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+                        final ConnectorObject connectorObject =
+                                connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
 
                         if (connectorObject != null) {
                             remoteObjects.put(mappings, connectorObject);
@@ -362,7 +361,6 @@ public class ConnObjectUtil {
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
-
         Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
         for (AttributeTO attrTO : template.getAttributes()) {
             if (!currentAttrMap.containsKey(attrTO.getSchema())) {
@@ -386,7 +384,6 @@ public class ConnObjectUtil {
     }
 
     private AttributeTO evaluateAttrTemplate(final AbstractAttributableTO attributableTO, final AttributeTO template) {
-
         AttributeTO result = new AttributeTO();
         result.setSchema(template.getSchema());
 

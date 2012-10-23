@@ -40,6 +40,14 @@ import org.apache.syncope.types.SyncopeClientExceptionType;
 
 public class ResourceTestITCase extends AbstractTest {
 
+    @Test
+    public void getPropagationActionsClasses() {
+        Set<String> actions = restTemplate.getForObject(
+                BASE_URL + "resource/propagationActionsClasses.json", Set.class);
+        assertNotNull(actions);
+        assertFalse(actions.isEmpty());
+    }
+
     @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createExistingResource() {
         final String resourceName = "ws-target-resource-1";
@@ -316,7 +324,7 @@ public class ResourceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             restTemplate.getForObject(
-                BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
+                    BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -342,9 +350,9 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
-        ResourceTO deletedResource = 
-                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, 
-                        resourceName);
+        ResourceTO deletedResource =
+                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class,
+                resourceName);
         assertNotNull(deletedResource);
 
         try {

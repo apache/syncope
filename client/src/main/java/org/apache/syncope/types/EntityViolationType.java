@@ -22,7 +22,6 @@ public enum EntityViolationType {
 
     Standard(""),
     MultivalueAndUniqueConstraint("org.apache.syncope.core.validation.schema.multivalueAndUniqueConstraint"),
-    InvalidAccountIdCount("org.apache.syncope.core.validation.externalresource.invalidAccountIdCount"),
     MoreThanOneNonNull("org.apache.syncope.core.validation.attrvalue.moreThanOneNonNull"),
     InvalidUSchema("org.apache.syncope.core.validation.attrvalue.invalidUSchema"),
     InvalidUDerSchema("org.apache.syncope.core.validation.attrvalue.invalidUDerSchema"),
@@ -37,12 +36,13 @@ public enum EntityViolationType {
     InvalidValueList("org.apache.syncope.core.validation.attr.invalidValueList"),
     InvalidEntitlementName("org.apache.syncope.core.validation.entitlement.invalidName"),
     InvalidPropagationTask("org.apache.syncope.core.validation.propagationtask.invalid"),
+    InvalidResource("org.apache.syncope.core.validation.externalresource.invalid"),
     InvalidSchedTask("org.apache.syncope.core.validation.schedtask.invalid"),
     InvalidSyncTask("org.apache.syncope.core.validation.synctask.invalid"),
     InvalidPassword("org.apache.syncope.core.validation.password.invalid"),
     InvalidUsername("org.apache.syncope.core.validation.username.invalid"),
-    InvalidPolicy(// not throwable using rest interface because the TO is typed
-            "org.apache.syncope.core.validation.policy.invalid"),
+    // not throwable using rest interface because the TO is typed
+    InvalidPolicy("org.apache.syncope.core.validation.policy.invalid"),
     InvalidPasswordPolicy("org.apache.syncope.core.validation.policy.invalid"),
     InvalidAccountPolicy("org.apache.syncope.core.validation.policy.invalid"),
     InvalidSyncPolicy("org.apache.syncope.core.validation.policy.invalid"),

@@ -51,8 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,12 +71,6 @@ public class JobInstanceLoader {
 
     @Autowired
     private ConfDAO confDAO;
-
-    private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext ctx = ApplicationContextProvider.getApplicationContext();
-
-        return (DefaultListableBeanFactory) ctx.getBeanFactory();
-    }
 
     private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
         Long result = null;
@@ -143,7 +135,7 @@ public class JobInstanceLoader {
         unregisterJob(jobName);
 
         // 1. Job bean
-        getBeanFactory().registerSingleton(jobName, jobInstance);
+        ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
 
         // 2. JobDetail bean
         JobDetailImpl jobDetail = new JobDetailImpl();
@@ -167,7 +159,8 @@ public class JobInstanceLoader {
             throws ClassNotFoundException, SchedulerException, ParseException {
 
         Class jobClass = Class.forName(jobClassName);
-        Job jobInstance = (Job) getBeanFactory().createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
+                createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
         }
@@ -182,8 +175,8 @@ public class JobInstanceLoader {
                                 syncActionsClass.getName(), e});
                 }
             }
-            SyncActions syncActions = (SyncActions) getBeanFactory().createBean(syncActionsClass,
-                    AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+            SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().
+                    createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
             ((SyncJob) jobInstance).setActions(syncActions);
         }
@@ -192,8 +185,8 @@ public class JobInstanceLoader {
     }
 
     public void registerJob(final Report report) throws SchedulerException, ParseException {
-        Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE,
-                false);
+        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
+                createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
         registerJob(getJobName(report), jobInstance, report.getCronExpression());
@@ -207,8 +200,8 @@ public class JobInstanceLoader {
             LOG.error("Could not remove job " + jobName, e);
         }
 
-        if (getBeanFactory().containsSingleton(jobName)) {
-            getBeanFactory().destroySingleton(jobName);
+        if (ApplicationContextProvider.getBeanFactory().containsSingleton(jobName)) {
+            ApplicationContextProvider.getBeanFactory().destroySingleton(jobName);
         }
     }
 

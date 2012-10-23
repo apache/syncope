@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,6 +29,10 @@ public class ApplicationContextProvider implements ApplicationContextAware {
 
     public static ConfigurableApplicationContext getApplicationContext() {
         return ctx;
+    }
+
+    public static DefaultListableBeanFactory getBeanFactory() {
+        return (DefaultListableBeanFactory) ctx.getBeanFactory();
     }
 
     /**

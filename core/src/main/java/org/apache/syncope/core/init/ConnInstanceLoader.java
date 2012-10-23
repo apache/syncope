@@ -35,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,12 +55,6 @@ public class ConnInstanceLoader {
     @Autowired
     private ResourceDataBinder resourceDataBinder;
 
-    private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-
-        return (DefaultListableBeanFactory) context.getBeanFactory();
-    }
-
     private String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%d-%s", resource.getConnector().getId(), resource.getName());
     }
@@ -72,18 +64,19 @@ public class ConnInstanceLoader {
      *
      * @param resource the resource.
      * @return live connector bran for given resource
-     * @throws BeansException in case the connector is not registered in the context
+     * @throws BeansException if there is any problem with Spring
+     * @throws NotFoundException if the connector is not registered in the context
      */
     public ConnectorFacadeProxy getConnector(final ExternalResource resource)
             throws BeansException, NotFoundException {
 
         // Try to re-create connector bean from underlying resource
         // (useful for managing failover scenarios)
-        if (!getBeanFactory().containsBean(getBeanName(resource))) {
+        if (!ApplicationContextProvider.getBeanFactory().containsBean(getBeanName(resource))) {
             registerConnector(resource);
         }
 
-        return (ConnectorFacadeProxy) getBeanFactory().getBean(getBeanName(resource));
+        return (ConnectorFacadeProxy) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
     }
 
     public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource)
@@ -121,16 +114,16 @@ public class ConnInstanceLoader {
 
         final String beanName = getBeanName(resource);
 
-        if (getBeanFactory().containsSingleton(beanName)) {
+        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
             unregisterConnector(beanName);
         }
 
-        getBeanFactory().registerSingleton(beanName, connector);
+        ApplicationContextProvider.getBeanFactory().registerSingleton(beanName, connector);
         LOG.debug("Successfully registered bean {}", beanName);
     }
 
     public void unregisterConnector(final String id) {
-        getBeanFactory().destroySingleton(id);
+        ApplicationContextProvider.getBeanFactory().destroySingleton(id);
     }
 
     @Transactional(readOnly = true)
@@ -150,6 +143,7 @@ public class ConnInstanceLoader {
             }
         }
 
-        LOG.info("Done loading {} connectors.", getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class).size());
+        LOG.info("Done loading {} connectors.", ApplicationContextProvider.getBeanFactory().
+                getBeansOfType(ConnectorFacadeProxy.class).size());
     }
 }

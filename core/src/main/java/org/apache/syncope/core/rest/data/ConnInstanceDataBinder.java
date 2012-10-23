@@ -19,11 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.Map;
-import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
@@ -34,7 +29,12 @@ import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ConnInstanceDataBinder {
@@ -50,8 +50,7 @@ public class ConnInstanceDataBinder {
     public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException = new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeErrorException scee = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
@@ -80,11 +79,11 @@ public class ConnInstanceDataBinder {
         // in the composing exceptions
 
         if (!requiredValuesMissing.isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
+            scee.addException(requiredValuesMissing);
         }
 
-        if (compositeErrorException.hasExceptions()) {
-            throw compositeErrorException;
+        if (scee.hasExceptions()) {
+            throw scee;
         }
 
         return connectorInstance;

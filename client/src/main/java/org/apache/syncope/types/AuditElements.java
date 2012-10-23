@@ -152,7 +152,8 @@ public final class AuditElements {
         update,
         delete,
         getObject,
-        getRoleResourcesMapping
+        getRoleResourcesMapping,
+        getPropagationActionsClasses
 
     }
 
@@ -231,8 +232,7 @@ public final class AuditElements {
         read,
         update,
         delete,
-        isCreateAllowed,
-    }
+        isCreateAllowed,}
 
     public enum WorkflowSubCategory {
 

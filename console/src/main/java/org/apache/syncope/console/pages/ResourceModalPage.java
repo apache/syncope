@@ -45,7 +45,7 @@ public class ResourceModalPage extends BaseModalPage {
     private static final long serialVersionUID = 1734415311027284221L;
 
     @SpringBean
-    private ResourceRestClient resourceRestClient;
+    private ResourceRestClient restClient;
 
     public ResourceModalPage(final PageReference pageref, final ModalWindow window, final ResourceTO resourceTO,
             final boolean createFlag) {
@@ -58,7 +58,8 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource details panel
         //--------------------------------
-        form.add(new ResourceDetailsPanel("details", resourceTO, createFlag));
+        form.add(new ResourceDetailsPanel("details", resourceTO,
+                restClient.getPropagationActionsClasses(), createFlag));
         //--------------------------------
 
         //--------------------------------
@@ -80,6 +81,7 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit", "submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -102,9 +104,9 @@ public class ResourceModalPage extends BaseModalPage {
                     try {
 
                         if (createFlag) {
-                            resourceRestClient.create(resourceTO);
+                            restClient.create(resourceTO);
                         } else {
-                            resourceRestClient.update(resourceTO);
+                            restClient.update(resourceTO);
                         }
 
                         ((Resources) pageref.getPage()).setModalResult(true);
@@ -128,6 +130,7 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(submit);
 
         final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override

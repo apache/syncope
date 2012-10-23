@@ -21,7 +21,6 @@ package org.apache.syncope.console.rest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.SchedTaskTO;
@@ -30,6 +29,7 @@ import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Tasks services.

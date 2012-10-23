@@ -60,17 +60,17 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                 }
 
                 if (StringUtils.isNotBlank(object.getActionsClassName())) {
-                    Class<?> syncActionsClass = null;
+                    Class<?> actionsClass = null;
                     boolean isAssignable = false;
                     try {
-                        syncActionsClass = Class.forName(object.getActionsClassName());
-                        isAssignable = SyncActions.class.isAssignableFrom(syncActionsClass);
+                        actionsClass = Class.forName(object.getActionsClassName());
+                        isAssignable = SyncActions.class.isAssignableFrom(actionsClass);
                     } catch (Exception e) {
                         LOG.error("Invalid SyncActions specified", e);
                         isValid = false;
                     }
 
-                    if (syncActionsClass == null || !isAssignable) {
+                    if (actionsClass == null || !isAssignable) {
                         isValid = false;
 
                         context.disableDefaultConstraintViolation();

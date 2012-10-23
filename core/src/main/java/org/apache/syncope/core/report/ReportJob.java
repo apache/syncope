@@ -36,12 +36,10 @@ import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
-import org.apache.syncope.core.report.ReportException;
-import org.apache.syncope.core.report.Reportlet;
-import org.apache.syncope.core.rest.data.ReportDataBinder;
 import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
 import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORT;
 import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
+import org.apache.syncope.core.rest.data.ReportDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.types.ReportExecStatus;
 import org.quartz.DisallowConcurrentExecution;
@@ -51,7 +49,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -78,6 +75,9 @@ public class ReportJob implements Job {
     @Autowired
     private ReportExecDAO reportExecDAO;
 
+    /**
+     * Report data binder.
+     */
     @Autowired
     private ReportDataBinder dataBinder;
 
@@ -97,7 +97,6 @@ public class ReportJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new JobExecutionException("Report " + reportId + " not found");
@@ -120,8 +119,8 @@ public class ReportJob implements Job {
         ZipOutputStream zos = new ZipOutputStream(baos);
         zos.setLevel(Deflater.BEST_COMPRESSION);
         try {
-            SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-            handler = transformerFactory.newTransformerHandler();
+            SAXTransformerFactory tFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            handler = tFactory.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
             serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -138,9 +137,6 @@ public class ReportJob implements Job {
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
-        ConfigurableListableBeanFactory beanFactory =
-                ApplicationContextProvider.getApplicationContext().getBeanFactory();
-
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
         StringWriter exceptionWriter = new StringWriter();
@@ -156,8 +152,8 @@ public class ReportJob implements Job {
                 Class<Reportlet> reportletClass =
                         dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
                 if (reportletClass != null) {
-                    Reportlet autowired = (Reportlet) beanFactory.createBean(reportletClass,
-                            AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    Reportlet autowired = (Reportlet) ApplicationContextProvider.getBeanFactory().
+                            createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     autowired.setConf(reportletConf);
 
                     // invoke reportlet
