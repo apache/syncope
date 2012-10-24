@@ -128,18 +128,18 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes);
 
-    protected abstract Set<ExternalResource> resources();
+    protected abstract Set<ExternalResource> internalGetResources();
 
     public boolean addResource(final ExternalResource resource) {
-        return resources().add(resource);
+        return internalGetResources().add(resource);
     }
 
     public boolean removeResource(final ExternalResource resource) {
-        return resources().remove(resource);
+        return internalGetResources().remove(resource);
     }
 
     public Set<ExternalResource> getResources() {
-        return resources();
+        return internalGetResources();
     }
 
     public Set<String> getResourceNames() {
@@ -154,9 +154,9 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public void setResources(final Set<ExternalResource> resources) {
-        resources().clear();
+        internalGetResources().clear();
         if (resources != null) {
-            resources().addAll(resources);
+            internalGetResources().addAll(resources);
         }
     }
 }

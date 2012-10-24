@@ -44,18 +44,24 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 public class Membership extends AbstractAttributable {
 
     private static final long serialVersionUID = 5030106264797289469L;
+
     @Id
     private Long id;
+
     @ManyToOne
     private SyncopeUser syncopeUser;
+
     @ManyToOne
     private SyncopeRole syncopeRole;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MAttr> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MDerAttr> derivedAttributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<MVirAttr> virtualAttributes;
@@ -74,7 +80,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
+    protected Set<ExternalResource> internalGetResources() {
         return Collections.emptySet();
     }
 
@@ -82,7 +88,7 @@ public class Membership extends AbstractAttributable {
         return syncopeRole;
     }
 
-    public void setSyncopeRole(SyncopeRole syncopeRole) {
+    public void setSyncopeRole(final SyncopeRole syncopeRole) {
         this.syncopeRole = syncopeRole;
     }
 
@@ -90,12 +96,12 @@ public class Membership extends AbstractAttributable {
         return syncopeUser;
     }
 
-    public void setSyncopeUser(SyncopeUser syncopeUser) {
+    public void setSyncopeUser(final SyncopeUser syncopeUser) {
         this.syncopeUser = syncopeUser;
     }
 
     @Override
-    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
         if (!(attribute instanceof MAttr)) {
             throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
         }
@@ -103,7 +109,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
         if (!(attribute instanceof MAttr)) {
             throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
         }
@@ -116,25 +122,28 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttr> attributes) {
-        this.attributes = (List<MAttr>) attributes;
+    public void setAttributes(final List<? extends AbstractAttr> attributes) {
+        this.attributes.clear();
+        if (attributes != null && !attributes.isEmpty()) {
+            this.attributes.addAll((List<MAttr>) attributes);
+        }
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
-        if (!(derivedAttribute instanceof MDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derivedAttribute.getClass().getName());
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof MDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.add((MDerAttr) derivedAttribute);
+        return derivedAttributes.add((MDerAttr) derAttr);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
-        if (!(derivedAttribute instanceof MDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derivedAttribute.getClass().getName());
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof MDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derAttr.getClass().getName());
         }
 
-        return derivedAttributes.remove((MDerAttr) derivedAttribute);
+        return derivedAttributes.remove((MDerAttr) derAttr);
     }
 
     @Override
@@ -143,27 +152,29 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes) {
-
-        this.derivedAttributes = (List<MDerAttr>) derivedAttributes;
+    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
+        this.derivedAttributes.clear();
+        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
+            this.derivedAttributes.addAll((List<MDerAttr>) derivedAttributes);
+        }
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
-        if (!(virtualAttribute instanceof MVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virtualAttribute.getClass().getName());
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof MVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virAttr.getClass().getName());
         }
 
-        return virtualAttributes.add((MVirAttr) virtualAttribute);
+        return virtualAttributes.add((MVirAttr) virAttr);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
-        if (!(virtualAttribute instanceof MVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virtualAttribute.getClass().getName());
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof MVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virAttr.getClass().getName());
         }
 
-        return virtualAttributes.remove((MVirAttr) virtualAttribute);
+        return virtualAttributes.remove((MVirAttr) virAttr);
     }
 
     @Override
@@ -172,9 +183,11 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes) {
-
-        this.virtualAttributes = (List<MVirAttr>) virtualAttributes;
+    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
+        this.virtualAttributes.clear();
+        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
+            this.virtualAttributes.addAll((List<MVirAttr>) virtualAttributes);
+        }
     }
 
     @Override

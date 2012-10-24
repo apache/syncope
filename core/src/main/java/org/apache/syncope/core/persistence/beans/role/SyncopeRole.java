@@ -61,56 +61,73 @@ import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 public class SyncopeRole extends AbstractAttributable {
 
     private static final long serialVersionUID = -5281258853142421875L;
+
     @Id
     private Long id;
+
     @NotNull
     private String name;
+
     @ManyToOne(optional = true)
     private SyncopeRole parent;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"), inverseJoinColumns =
+    @JoinColumn(name = "role_id"),
+    inverseJoinColumns =
     @JoinColumn(name = "entitlement_name"))
     private Set<Entitlement> entitlements;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RAttr> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RDerAttr> derivedAttributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RVirAttr> virtualAttributes;
+
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritAttributes;
+
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritDerivedAttributes;
+
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritVirtualAttributes;
+
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritPasswordPolicy;
+
     @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritAccountPolicy;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private PasswordPolicy passwordPolicy;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private AccountPolicy accountPolicy;
+
     /**
      * Provisioning external resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"), inverseJoinColumns =
+    @JoinColumn(name = "role_id"),
+    inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
@@ -136,7 +153,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
+    protected Set<ExternalResource> internalGetResources() {
         return resources;
     }
 
@@ -144,7 +161,7 @@ public class SyncopeRole extends AbstractAttributable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -152,7 +169,7 @@ public class SyncopeRole extends AbstractAttributable {
         return parent;
     }
 
-    public void setParent(SyncopeRole parent) {
+    public void setParent(final SyncopeRole parent) {
         this.parent = parent;
     }
 
@@ -176,7 +193,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
         if (!(attribute instanceof RAttr)) {
             throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
         }
@@ -184,7 +201,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
         if (!(attribute instanceof RAttr)) {
             throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
         }
@@ -197,24 +214,27 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttr> attributes) {
-        this.attributes = (List<RAttr>) attributes;
+    public void setAttributes(final List<? extends AbstractAttr> attributes) {
+        this.attributes.clear();
+        if (attributes != null && !attributes.isEmpty()) {
+            this.attributes.addAll((List<RAttr>) attributes);
+        }
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute) {
-        if (!(derivedAttribute instanceof RDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derivedAttribute.getClass().getName());
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof RDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.add((RDerAttr) derivedAttribute);
+        return derivedAttributes.add((RDerAttr) derAttr);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
-        if (!(derivedAttribute instanceof RDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derivedAttribute.getClass().getName());
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof RDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.remove((RDerAttr) derivedAttribute);
+        return derivedAttributes.remove((RDerAttr) derAttr);
     }
 
     @Override
@@ -223,25 +243,27 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes) {
-
-        this.derivedAttributes = (List<RDerAttr>) derivedAttributes;
+    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
+        this.attributes.clear();
+        if (attributes != null && !attributes.isEmpty()) {
+            this.attributes.addAll((List<RAttr>) attributes);
+        }
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttribute) {
-        if (!(virtualAttribute instanceof RVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virtualAttribute.getClass().getName());
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof RVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.add((RVirAttr) virtualAttribute);
+        return virtualAttributes.add((RVirAttr) virAttr);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute) {
-        if (!(virtualAttribute instanceof RVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virtualAttribute.getClass().getName());
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof RVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.remove((RVirAttr) virtualAttribute);
+        return virtualAttributes.remove((RVirAttr) virAttr);
     }
 
     @Override
@@ -250,16 +272,18 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes) {
-
-        this.virtualAttributes = (List<RVirAttr>) virtualAttributes;
+    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
+        this.virtualAttributes.clear();
+        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
+            this.virtualAttributes.addAll((List<RVirAttr>) virtualAttributes);
+        }
     }
 
     public boolean isInheritAttributes() {
         return isBooleanAsInteger(inheritAttributes);
     }
 
-    public void setInheritAttributes(boolean inheritAttributes) {
+    public void setInheritAttributes(final boolean inheritAttributes) {
         this.inheritAttributes = getBooleanAsInteger(inheritAttributes);
     }
 
@@ -296,7 +320,7 @@ public class SyncopeRole extends AbstractAttributable {
         return isBooleanAsInteger(inheritDerivedAttributes);
     }
 
-    public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
+    public void setInheritDerivedAttributes(final boolean inheritDerivedAttributes) {
         this.inheritDerivedAttributes = getBooleanAsInteger(inheritDerivedAttributes);
 
     }
@@ -335,7 +359,7 @@ public class SyncopeRole extends AbstractAttributable {
         return isBooleanAsInteger(inheritVirtualAttributes);
     }
 
-    public void setInheritVirtualAttributes(boolean inheritVirtualAttributes) {
+    public void setInheritVirtualAttributes(final boolean inheritVirtualAttributes) {
         this.inheritVirtualAttributes = getBooleanAsInteger(inheritVirtualAttributes);
 
     }
@@ -373,8 +397,8 @@ public class SyncopeRole extends AbstractAttributable {
     /**
      * Get first valid password policy.
      *
-     * @return parent password policy if isInheritPasswordPolicy is 'true' and
-     * parent is not null. Return local passowrd policy otherwise.
+     * @return parent password policy if isInheritPasswordPolicy is 'true' and parent is not null, local password policy
+     * otherwise
      */
     public PasswordPolicy getPasswordPolicy() {
         return isInheritPasswordPolicy() && getParent() != null
@@ -382,7 +406,7 @@ public class SyncopeRole extends AbstractAttributable {
                 : passwordPolicy;
     }
 
-    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
+    public void setPasswordPolicy(final PasswordPolicy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 
@@ -390,15 +414,15 @@ public class SyncopeRole extends AbstractAttributable {
         return isBooleanAsInteger(inheritPasswordPolicy);
     }
 
-    public void setInheritPasswordPolicy(boolean inheritPasswordPolicy) {
+    public void setInheritPasswordPolicy(final boolean inheritPasswordPolicy) {
         this.inheritPasswordPolicy = getBooleanAsInteger(inheritPasswordPolicy);
     }
 
     /**
      * Get first valid account policy.
      *
-     * @return parent account policy if isInheritAccountPolicy is 'true' and
-     * parent is not null. Return local account policy otherwise.
+     * @return parent account policy if isInheritAccountPolicy is 'true' and parent is not null, local account policy
+     * otherwise.
      */
     public AccountPolicy getAccountPolicy() {
         return isInheritAccountPolicy() && getParent() != null
@@ -406,7 +430,7 @@ public class SyncopeRole extends AbstractAttributable {
                 : accountPolicy;
     }
 
-    public void setAccountPolicy(AccountPolicy accountPolicy) {
+    public void setAccountPolicy(final AccountPolicy accountPolicy) {
         this.accountPolicy = accountPolicy;
     }
 

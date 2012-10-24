@@ -159,8 +159,10 @@ public class SyncopeUser extends AbstractAttributable {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "user_id"), inverseJoinColumns =
+    @JoinColumn(name = "user_id"),
+    inverseJoinColumns =
     @JoinColumn(name = "resource_name"))
+    @Valid
     private Set<ExternalResource> resources;
 
     public SyncopeUser() {
@@ -182,7 +184,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> resources() {
+    protected Set<ExternalResource> internalGetResources() {
         return resources;
     }
 
@@ -267,9 +269,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
-
         // clear password
-        clearPassword = password;
+        this.clearPassword = password;
 
         try {
             this.password = encodePassword(password, cipherAlgoritm);
@@ -312,22 +313,20 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derivedAttribute) {
-        if (!(derivedAttribute instanceof UDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derivedAttribute.getClass().
-                    getName());
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof UDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derAttr.getClass().getName());
         }
 
-        return derivedAttributes.add((UDerAttr) derivedAttribute);
+        return derivedAttributes.add((UDerAttr) derAttr);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute) {
-        if (!(derivedAttribute instanceof UDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derivedAttribute.getClass().
-                    getName());
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+        if (!(derAttr instanceof UDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.remove((UDerAttr) derivedAttribute);
+        return derivedAttributes.remove((UDerAttr) derAttr);
     }
 
     @Override
@@ -344,21 +343,19 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virtualAttribute) {
-        if (!(virtualAttribute instanceof UVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virtualAttribute.getClass().
-                    getName());
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.add((UVirAttr) virtualAttribute);
+        return virtualAttributes.add((UVirAttr) virAttr);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virtualAttribute) {
-        if (!(virtualAttribute instanceof UVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virtualAttribute.getClass().
-                    getName());
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
+        if (!(virAttr instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.remove((UVirAttr) virtualAttribute);
+        return virtualAttributes.remove((UVirAttr) virAttr);
     }
 
     @Override
@@ -369,7 +366,6 @@ public class SyncopeUser extends AbstractAttributable {
     @Override
     public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
-
         if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
             this.virtualAttributes.addAll((List<UVirAttr>) virtualAttributes);
         }
@@ -379,7 +375,7 @@ public class SyncopeUser extends AbstractAttributable {
         return workflowId;
     }
 
-    public void setWorkflowId(String workflowId) {
+    public void setWorkflowId(final String workflowId) {
         this.workflowId = workflowId;
     }
 
@@ -387,11 +383,11 @@ public class SyncopeUser extends AbstractAttributable {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
-    public void generateToken(int tokenLength, int tokenExpireTime) {
+    public void generateToken(final int tokenLength, final int tokenExpireTime) {
         this.token = RandomStringUtils.randomAlphanumeric(tokenLength);
 
         Calendar calendar = Calendar.getInstance();
