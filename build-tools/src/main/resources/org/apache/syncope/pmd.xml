@@ -26,6 +26,7 @@ under the License.
         
   <rule ref="rulesets/basic.xml"/>
   <rule ref="rulesets/naming.xml">
+    <exclude name="ShortVariable"/>
     <exclude name="LongVariable"/>
   </rule>
   <rule ref="rulesets/unusedcode.xml"/>
@@ -37,7 +38,9 @@ under the License.
     <exclude name="BeanMembersShouldSerialize"/>
   </rule>
   <rule ref="rulesets/coupling.xml"/>
-  <rule ref="rulesets/controversial.xml"/>
+  <rule ref="rulesets/controversial.xml">
+    <exclude name="NullAssignment"/>
+  <rule/>
   <rule ref="rulesets/strictexception.xml"/>
   <rule ref="rulesets/typeresolution.xml"/>
     
