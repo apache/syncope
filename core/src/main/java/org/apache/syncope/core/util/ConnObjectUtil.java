@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
@@ -39,10 +41,15 @@ import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.types.PasswordPolicySpec;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -77,6 +84,18 @@ public class ConnObjectUtil {
     @Autowired
     private UserDataBinder userDataBinder;
 
+    @Autowired
+    private PolicyDAO policyDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
+
+    @Autowired
+    private ResourceDAO resourceDAO;
+
+    @Autowired
+    private PasswordGenerator pwdGen;
+
     /**
      * Build an UserTO out of connector object attributes and schema mapping.
      *
@@ -88,9 +107,37 @@ public class ConnObjectUtil {
     public UserTO getUserTO(final ConnectorObject obj, final SyncTask syncTask) {
         UserTO userTO = getUserTOFromConnObject(obj, syncTask);
 
-        // if password was not set above, generate a random string
+        // if password was not set above, generate
         if (StringUtils.isBlank(userTO.getPassword())) {
-            userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
+            List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
+            ppSpecs.add((PasswordPolicySpec) policyDAO.getGlobalPasswordPolicy().getSpecification());
+
+            for (MembershipTO memb : userTO.getMemberships()) {
+                SyncopeRole role = roleDAO.find(memb.getRoleId());
+                if (role != null && role.getPasswordPolicy() != null
+                        && role.getPasswordPolicy().getSpecification() != null) {
+
+                    ppSpecs.add((PasswordPolicySpec) role.getPasswordPolicy().getSpecification());
+                }
+            }
+            for (String resName : userTO.getResources()) {
+                ExternalResource resource = resourceDAO.find(resName);
+                if (resource != null && resource.getPasswordPolicy() != null
+                        && resource.getPasswordPolicy().getSpecification() != null) {
+
+                    ppSpecs.add((PasswordPolicySpec) resource.getPasswordPolicy().getSpecification());
+                }
+            }
+
+            String password;
+            try {
+                password = pwdGen.generatePasswordFromPwdSpec(ppSpecs);
+            } catch (IncompatiblePolicyException e) {
+                LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
+
+                password = RandomStringUtils.randomAlphanumeric(16);
+            }
+            userTO.setPassword(password);
         }
 
         return userTO;

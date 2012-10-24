@@ -21,7 +21,7 @@ package org.apache.syncope.core.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -45,6 +45,7 @@ public class PasswordGenerator {
 
     public String generatePasswordFromPwdSpec(final List<PasswordPolicySpec> passwordPolicySpecs)
             throws IncompatiblePolicyException {
+
         PasswordPolicySpec policySpec = mergePolicySpecs(passwordPolicySpecs);
 
         evaluateFinalPolicySpec(policySpec);
@@ -53,6 +54,7 @@ public class PasswordGenerator {
 
     public String generateUserPassword(final SyncopeUser user)
             throws IncompatiblePolicyException {
+
         List<PasswordPolicySpec> userPasswordPolicies = new ArrayList<PasswordPolicySpec>();
         PasswordPolicySpec passwordPolicySpec = policyDAO.getGlobalPasswordPolicy().getSpecification();
 
@@ -86,8 +88,7 @@ public class PasswordGenerator {
         return generatePassword(policySpec);
     }
 
-    private PasswordPolicySpec mergePolicySpecs(List<PasswordPolicySpec> userPasswordPolicies) {
-
+    private PasswordPolicySpec mergePolicySpecs(final List<PasswordPolicySpec> userPasswordPolicies) {
         PasswordPolicySpec fpps = new PasswordPolicySpec();
         fpps.setMinLength(0);
         fpps.setMaxLength(1000);
@@ -163,6 +164,7 @@ public class PasswordGenerator {
 
     private void evaluateFinalPolicySpec(final PasswordPolicySpec policySpec)
             throws IncompatiblePolicyException {
+        
         if (policySpec.getMinLength() == 0) {
             LOG.error("Minimum lenght given is zero");
             throw new IncompatiblePolicyException("Minimum lenght given is zero");
@@ -280,7 +282,7 @@ public class PasswordGenerator {
         return generatedPassword.toString();
     }
 
-    private int randomNumber(int range) {
+    private int randomNumber(final int range) {
         int randomNumber = (int) (Math.random() * (range - 1));
         return randomNumber == 0 ? 1 : randomNumber;
     }
