@@ -42,8 +42,9 @@ public class ResourcesPanel extends Panel {
         super(id);
         final IModel<List<String>> allResources = new allResourcesModel(resourceRestClient);
 
-        final AjaxPalettePanel resourcesPalette = new AjaxPalettePanel("resourcesPalette", new PropertyModel(entityTO,
-                "resources"), new ListModel<String>(allResources.getObject()));
+        final AjaxPalettePanel<String> resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette", 
+                new PropertyModel<List<String>>(entityTO, "resources"), 
+                new ListModel<String>(allResources.getObject()));
 
         add(resourcesPalette);
     }

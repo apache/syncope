@@ -49,7 +49,7 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
         };
 
         final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<String>("jobClassName",
-                getString("class"), new PropertyModel(taskTO, "jobClassName"));
+                getString("class"), new PropertyModel<String>(taskTO, "jobClassName"));
         className.setChoices(classNames.getObject());
         className.addRequiredLabel();
         className.setEnabled(taskTO.getId() == 0);

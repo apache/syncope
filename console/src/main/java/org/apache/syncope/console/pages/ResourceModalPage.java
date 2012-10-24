@@ -63,13 +63,13 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
 
         //--------------------------------
-        // Resource mapping panle
+        // Resource mapping panel
         //--------------------------------
         form.add(new ResourceMappingPanel("mapping", resourceTO));
         //--------------------------------
 
         //--------------------------------
-        // Resource mapping panle
+        // Resource mapping panel
         //--------------------------------
         form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag));
         //--------------------------------
