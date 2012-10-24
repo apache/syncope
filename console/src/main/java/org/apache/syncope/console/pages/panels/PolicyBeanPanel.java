@@ -156,7 +156,7 @@ public class PolicyBeanPanel extends Panel {
                             item.add(getActivationControl(component, !((List) classMethod.invoke(policy,
                                     new Object[]{})).isEmpty(), new ArrayList<String>(), new ArrayList<String>()));
                         } else {
-                            final FieldPanel panel = new AjaxTextFieldPanel("panel", field.getName(), new Model(null));
+                            final FieldPanel panel = new AjaxTextFieldPanel("panel", field.getName(), new Model<String>(null));
 
                             panel.setRequired(true);
 

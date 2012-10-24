@@ -172,10 +172,10 @@ public class VirtualAttributesPanel extends Panel {
                 }
 
                 if (templateMode) {
-                    item.add(new AjaxTextFieldPanel("values", "values", new Model()));
+                    item.add(new AjaxTextFieldPanel("values", "values", new Model<String>()));
                 } else {
                     item.add(new MultiValueSelectorPanel("values", new PropertyModel<List<String>>(attributeTO,
-                            "values"), new AjaxTextFieldPanel("panel", "values", new Model(null))));
+                            "values"), new AjaxTextFieldPanel("panel", "values", new Model<String>(null))));
                 }
             }
         };

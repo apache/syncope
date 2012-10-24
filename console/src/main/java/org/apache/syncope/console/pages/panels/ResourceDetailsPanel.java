@@ -136,7 +136,7 @@ public class ResourceDetailsPanel extends Panel {
         add(syncTraceLevel);
 
         final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken", new ResourceModel("resetToken",
-                "resetToken").getObject(), new Model(null));
+                "resetToken").getObject(), new Model<Boolean>(null));
 
         resetToken.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
