@@ -48,7 +48,7 @@ public class ResourcesPanel extends Panel {
         add(resourcesPalette);
     }
     
-    private static class allResourcesModel extends LoadableDetachableModel {
+    private static class allResourcesModel extends LoadableDetachableModel<List<String>> {
         private static final long serialVersionUID = 5275935387613157437L;
 
         private ResourceRestClient client;
@@ -58,7 +58,7 @@ public class ResourcesPanel extends Panel {
         }
 
         @Override
-        protected Object load() {
+        protected List<String> load() {
             final List<String> resourceNames = new ArrayList<String>();
 
             for (ResourceTO resourceTO : client.getAllResources()) {

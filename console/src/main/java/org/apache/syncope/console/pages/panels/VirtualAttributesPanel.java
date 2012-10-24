@@ -112,7 +112,7 @@ public class VirtualAttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
 
                     private static final long serialVersionUID = 7170946748485726506L;
 

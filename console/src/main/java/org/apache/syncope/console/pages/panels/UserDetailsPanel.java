@@ -48,7 +48,7 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel username = new AjaxTextFieldPanel("username", "username", new PropertyModel<String>(userTO,
+        final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username", new PropertyModel<String>(userTO,
                 "username"));
         if (!templateMode) {
             username.addRequiredLabel();
@@ -59,9 +59,9 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Password
         // ------------------------
-        final FieldPanel password;
+        final FieldPanel<String> password;
         final Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
-        final FieldPanel confirmPassword;
+        final FieldPanel<String> confirmPassword;
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
 

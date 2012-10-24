@@ -127,7 +127,7 @@ public class PolicyBeanPanel extends Panel {
                         item.add(component);
 
                         item.add(getActivationControl(component,
-                                (Enum) classMethod.invoke(policy, new Object[]{}) != null,
+                                (Enum<?>) classMethod.invoke(policy, new Object[]{}) != null,
                                 ConflictResolutionAction.IGNORE, ConflictResolutionAction.IGNORE));
 
                     } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
@@ -141,7 +141,7 @@ public class PolicyBeanPanel extends Panel {
                                 new Class[]{});
 
                         if (field.getSchemaList() != null) {
-                            final List values = schemas.getObject();
+                            final List<String> values = schemas.getObject();
 
                             if (field.getSchemaList().extended()) {
                                 values.add("id");

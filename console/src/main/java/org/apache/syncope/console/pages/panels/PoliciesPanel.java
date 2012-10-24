@@ -113,11 +113,11 @@ public class PoliciesPanel extends Panel {
 
         setWindowClosedCallback(mwindow, container);
 
-        final List<IColumn> columns = new ArrayList<IColumn>();
+        final List<IColumn<PolicyTO>> columns = new ArrayList<IColumn<PolicyTO>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<PolicyTO>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<PolicyTO>(new ResourceModel("description"), "description", "description"));
 
         columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("type")) {
 
@@ -269,7 +269,7 @@ public class PoliciesPanel extends Panel {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
-        private SortableDataProviderComparator comparator;
+        private SortableDataProviderComparator<PolicyTO> comparator;
 
         public PolicyDataProvider() {
             super();

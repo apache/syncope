@@ -314,7 +314,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.add(paginatorForm);
 
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
-                "rowsChooser", new PropertyModel(this, "rows"), prefMan.getPaginatorChoices());
+                "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -392,7 +392,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             }
         }
 
@@ -411,7 +411,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,

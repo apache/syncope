@@ -174,7 +174,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     }
 
     @Override
-    public FieldPanel setStyleShet(String classes) {
+    public FieldPanel setStyleSheet(String classes) {
         field.get("date").add(AttributeModifier.replace("class", (classes != null
                 ? classes
                 : "") + " date_size"));

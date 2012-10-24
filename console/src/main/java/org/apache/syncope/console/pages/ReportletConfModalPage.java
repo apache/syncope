@@ -137,7 +137,7 @@ public class ReportletConfModalPage extends BaseModalPage {
             public void detach() {
             }
         });
-        reportletClass.setStyleShet("long_dynamicsize");
+        reportletClass.setStyleSheet("long_dynamicsize");
         reportletClass.setChoices(restClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();

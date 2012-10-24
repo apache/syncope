@@ -108,19 +108,19 @@ public class SchedTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("name"), "name", "name"));
 
-        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("description"), "description", "description"));
 
-        columns.add(new PropertyColumn(new ResourceModel("class"), "jobClassName", "jobClassName"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("class"), "jobClassName", "jobClassName"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 

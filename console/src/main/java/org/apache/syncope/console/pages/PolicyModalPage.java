@@ -63,13 +63,13 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         final AjaxTextFieldPanel policyid = new AjaxTextFieldPanel("id", "id",
                 new PropertyModel<String>(policyTO, "id"));
         policyid.setEnabled(false);
-        policyid.setStyleShet("ui-widget-content ui-corner-all short_fixedsize");
+        policyid.setStyleSheet("ui-widget-content ui-corner-all short_fixedsize");
         form.add(policyid);
 
         final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
                 new PropertyModel<String>(policyTO, "description"));
         description.addRequiredLabel();
-        description.setStyleShet("ui-widget-content ui-corner-all medium_dynamicsize");
+        description.setStyleSheet("ui-widget-content ui-corner-all medium_dynamicsize");
         form.add(description);
 
         final AjaxDropDownChoicePanel<PolicyType> type = new AjaxDropDownChoicePanel<PolicyType>("type", "type",

@@ -99,12 +99,12 @@ public class NotificationTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn(new ResourceModel("sender"), "sender", "sender"));
-        columns.add(new PropertyColumn(new ResourceModel("recipients"), "recipients", "recipients"));
-        columns.add(new PropertyColumn(new ResourceModel("subject"), "subject", "subject"));
-        columns.add(new PropertyColumn(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
-        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("sender"), "sender", "sender"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("recipients"), "recipients", "recipients"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("subject"), "subject", "subject"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 

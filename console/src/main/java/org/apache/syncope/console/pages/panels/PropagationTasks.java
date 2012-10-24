@@ -103,22 +103,22 @@ public class PropagationTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(new ResourceModel("resource"), "resource", "resource"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("resource"), "resource", "resource"));
 
-        columns.add(new PropertyColumn(new ResourceModel("accountId"), "accountId", "accountId"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("accountId"), "accountId", "accountId"));
 
-        columns.add(new PropertyColumn(new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
 
-        columns.add(new PropertyColumn(new ResourceModel("propagationOperation"), "propagationOperation",
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("propagationOperation"), "propagationOperation",
                 "propagationOperation"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("startDate"), "startDate", "startDate"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
+        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("endDate"), "endDate", "endDate"));
 
-        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
 

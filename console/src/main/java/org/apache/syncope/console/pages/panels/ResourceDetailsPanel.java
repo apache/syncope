@@ -100,38 +100,38 @@ public class ResourceDetailsPanel extends Panel {
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(
                 "propagationMode", new ResourceModel("propagationMode", "propagationMode").getObject(),
-                new PropertyModel(resourceTO, "propagationMode"));
+                new PropertyModel<PropagationMode>(resourceTO, "propagationMode"));
         propagationMode.setChoices(Arrays.asList(PropagationMode.values()));
         add(propagationMode);
 
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
                 "actionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
-                new PropertyModel(resourceTO, "actionsClassName"));
+                new PropertyModel<String>(resourceTO, "actionsClassName"));
         actionsClassName.setChoices(actionClassNames);
-        actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
+        actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         add(actionsClassName);
 
         final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "createTraceLevel", new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
-                new PropertyModel(resourceTO, "createTraceLevel"));
+                new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"));
         createTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(createTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> updateTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "updateTraceLevel", new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
-                new PropertyModel(resourceTO, "updateTraceLevel"));
+                new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"));
         updateTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(updateTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> deleteTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "deleteTraceLevel", new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
-                new PropertyModel(resourceTO, "deleteTraceLevel"));
+                new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"));
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(deleteTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
-                "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(), new PropertyModel(
-                resourceTO, "syncTraceLevel"));
+                "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(), 
+                new PropertyModel<TraceLevel>(resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
 
@@ -152,7 +152,8 @@ public class ResourceDetailsPanel extends Panel {
         add(resetToken);
 
         final AjaxDropDownChoicePanel<ConnInstanceTO> conn = new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
-                new ResourceModel("connector", "connector").getObject(), new PropertyModel(this, "connInstanceTO"));
+                new ResourceModel("connector", "connector").getObject(), 
+                new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
         conn.setChoiceRenderer(new ChoiceRenderer("displayName", "id"));
 

@@ -122,7 +122,7 @@ public class RolesPanel extends Panel {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            protected void populateItem(final ListItem item) {
+            protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
                 item.add(new Label("roleId", new Model(membershipTO.getRoleId())));

@@ -53,7 +53,7 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
         className.setChoices(classNames.getObject());
         className.addRequiredLabel();
         className.setEnabled(taskTO.getId() == 0);
-        className.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
+        className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(className);
     }
 }

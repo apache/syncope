@@ -25,6 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.client.to.ConnObjectTO;
+import org.apache.syncope.client.to.PropagationTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -41,15 +49,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.PropagationTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.types.PropagationTaskExecStatus;
 
 /**
  * User management result panel.
@@ -60,11 +59,6 @@ public class UserManagementResultPanel extends Panel {
      * Serial version id.
      */
     private static final long serialVersionUID = 2646115294319713723L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(UserManagementResultPanel.class);
 
     /**
      * Status management utilities.
@@ -119,7 +113,7 @@ public class UserManagementResultPanel extends Panel {
                 private static final long serialVersionUID = -1020475259727720708L;
 
                 @Override
-                protected void populateItem(final ListItem item) {
+                protected void populateItem(final ListItem<PropagationTO> item) {
                     final PropagationTO propTO = (PropagationTO) item.getDefaultModelObject();
 
                     final ListView attributes = getConnObjectView(propTO);

@@ -99,13 +99,13 @@ public class RoleSecurityPanel extends Panel {
         // Password policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
-                "passwordPolicy", new PropertyModel(entityTO, "passwordPolicy"));
+                "passwordPolicy", new PropertyModel<Long>(entityTO, "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
         passwordPolicy.setChoices(new ArrayList<Long>(passwordPolicies.getObject().keySet()));
 
-        ((DropDownChoice) passwordPolicy.getField()).setNullValid(true);
+        ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
 
         securityContainer.add(passwordPolicy);
 
@@ -132,13 +132,13 @@ public class RoleSecurityPanel extends Panel {
         // Account policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
-                "accountPolicy", new PropertyModel(entityTO, "accountPolicy"));
+                "accountPolicy", new PropertyModel<Long>(entityTO, "accountPolicy"));
 
         accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
         accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
 
-        ((DropDownChoice) accountPolicy.getField()).setNullValid(true);
+        ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
 
         securityContainer.add(accountPolicy);
 

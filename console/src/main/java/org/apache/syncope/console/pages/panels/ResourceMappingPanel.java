@@ -214,14 +214,14 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                final AjaxDropDownChoicePanel intAttrNames = new AjaxDropDownChoicePanel<String>("intAttrNames",
-                        getString("intAttrNames"), new PropertyModel(mappingTO, "intAttrName"));
+                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<String>("intAttrNames",
+                        getString("intAttrNames"), new PropertyModel<String>(mappingTO, "intAttrName"));
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
-                intAttrNames.setStyleShet(fieldStyle);
+                intAttrNames.setStyleSheet(fieldStyle);
                 item.add(intAttrNames);
 
-                final AjaxDropDownChoicePanel typesPanel = new AjaxDropDownChoicePanel("intMappingTypes",
+                final AjaxDropDownChoicePanel<IntMappingType> typesPanel = new AjaxDropDownChoicePanel<IntMappingType>("intMappingTypes",
                         new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
                         new PropertyModel<IntMappingType>(mappingTO, "intMappingType"));
 
@@ -229,14 +229,14 @@ public class ResourceMappingPanel extends Panel {
 
                 typesPanel.setRequired(true);
                 typesPanel.setChoices(attrTypes);
-                typesPanel.setStyleShet(fieldStyle);
+                typesPanel.setStyleSheet(fieldStyle);
                 item.add(typesPanel);
 
                 final AjaxDropDownChoicePanel mappingTypesPanel = new AjaxDropDownChoicePanel("mappingTypes",
                         new ResourceModel("mappingTypes", "mappingTypes").getObject(), new Model(entity));
 
                 mappingTypesPanel.setChoices(Arrays.asList(AttributableType.values()));
-                mappingTypesPanel.setStyleShet(defFieldStyle);
+                mappingTypesPanel.setStyleSheet(defFieldStyle);
 
                 item.add(mappingTypesPanel);
 
@@ -250,7 +250,8 @@ public class ResourceMappingPanel extends Panel {
                         attrTypes = getAttributeTypes((AttributableType) mappingTypesPanel.getModelObject());
 
                         typesPanel.setChoices(attrTypes);
-                        intAttrNames.setChoices(Collections.emptyList());
+                        List<String> emptyList = Collections.emptyList();
+                        intAttrNames.setChoices(emptyList);
 
                         target.add(typesPanel.getField());
                         target.add(intAttrNames.getField());
@@ -279,7 +280,7 @@ public class ResourceMappingPanel extends Panel {
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);
 
-                extAttrName.setStyleShet(fieldStyle);
+                extAttrName.setStyleSheet(fieldStyle);
                 item.add(extAttrName);
 
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition", new ResourceModel(
@@ -288,7 +289,7 @@ public class ResourceMappingPanel extends Panel {
 
                 mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
 
-                mandatory.setStyleShet(shortFieldStyle);
+                mandatory.setStyleSheet(shortFieldStyle);
 
                 item.add(mandatory);
 

@@ -143,7 +143,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<ConnBundleTO> bundle =
                 new AjaxDropDownChoicePanel<ConnBundleTO>("bundle", "bundle", new Model<ConnBundleTO>(bundleTO));
-        bundle.setStyleShet("long_dynamicsize");
+        bundle.setStyleSheet("long_dynamicsize");
         bundle.setChoices(bundles.getObject());
         bundle.setChoiceRenderer(new ChoiceRenderer<ConnBundleTO>() {
             private static final long serialVersionUID = -1945543182376191187L;

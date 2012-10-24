@@ -69,14 +69,14 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
         resource.setChoiceRenderer(new SelectChoiceRenderer());
         resource.addRequiredLabel();
         resource.setEnabled(taskTO.getId() == 0);
-        resource.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
+        resource.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
 
         profile.add(resource);
 
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
                 "actionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "actionsClassName"));
         actionsClassName.setChoices(taskRestClient.getSyncActionsClasses());
-        actionsClassName.setStyleShet("ui-widget-content ui-corner-all long_dynamicsize");
+        actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);
 
         final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel("performCreate", getString("creates"),

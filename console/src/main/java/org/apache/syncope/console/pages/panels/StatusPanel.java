@@ -20,7 +20,13 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.StatusUtils.Status;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -35,20 +41,8 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.commons.StatusUtils.Status;
 
 public class StatusPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     @SpringBean
     private StatusUtils statusUtils;

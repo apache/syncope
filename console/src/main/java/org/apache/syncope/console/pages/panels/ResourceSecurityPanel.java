@@ -113,14 +113,14 @@ public class ResourceSecurityPanel extends Panel {
         // Password policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
-                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel(resourceTO,
+                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel<Long>(resourceTO,
                         "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
         passwordPolicy.setChoices(new ArrayList<Long>(passwordPolicies.getObject().keySet()));
 
-        ((DropDownChoice) passwordPolicy.getField()).setNullValid(true);
+        ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
 
         securityContainer.add(passwordPolicy);
         // -------------------------------
@@ -129,14 +129,14 @@ public class ResourceSecurityPanel extends Panel {
         // Account policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
-                new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel(resourceTO,
+                new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel<Long>(resourceTO,
                         "accountPolicy"));
 
         accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
         accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
 
-        ((DropDownChoice) accountPolicy.getField()).setNullValid(true);
+        ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
 
         securityContainer.add(accountPolicy);
         // -------------------------------
@@ -145,13 +145,13 @@ public class ResourceSecurityPanel extends Panel {
         // Sync policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
-                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel(resourceTO, "syncPolicy"));
+                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel<Long>(resourceTO, "syncPolicy"));
 
         syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
 
         syncPolicy.setChoices(new ArrayList<Long>(syncPolicies.getObject().keySet()));
 
-        ((DropDownChoice) syncPolicy.getField()).setNullValid(true);
+        ((DropDownChoice<?>) syncPolicy.getField()).setNullValid(true);
 
         securityContainer.add(syncPolicy);
         // -------------------------------

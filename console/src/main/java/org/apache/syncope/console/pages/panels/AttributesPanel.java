@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.SyncopeConstants;
 import org.apache.syncope.client.to.AbstractAttributableTO;
@@ -52,8 +53,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AttributesPanel extends Panel {
 
@@ -63,8 +62,6 @@ public class AttributesPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     private final boolean templateMode;
-
-    private static Logger LOG = LoggerFactory.getLogger(AttributesPanel.class);
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
             final boolean templateMode) {
@@ -105,7 +102,7 @@ public class AttributesPanel extends Panel {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            protected void populateItem(final ListItem item) {
+            protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
                 item.add(new Label("name", templateMode
@@ -190,12 +187,12 @@ public class AttributesPanel extends Panel {
                         panel.addRequiredLabel();
                         ((DateTimeFieldPanel) panel).setFormValidator(form);
                     }
-                    panel.setStyleShet("ui-widget-content ui-corner-all");
+                    panel.setStyleSheet("ui-widget-content ui-corner-all");
                 }
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model());
+                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model<String>());
                 ((AjaxDropDownChoicePanel) panel).setChoices(getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {

@@ -66,7 +66,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
-    public FieldPanel setStyleShet(final String classes) {
+    public FieldPanel setStyleSheet(final String classes) {
         field.add(AttributeModifier.replace("class", classes != null
                 ? classes
                 : ""));
