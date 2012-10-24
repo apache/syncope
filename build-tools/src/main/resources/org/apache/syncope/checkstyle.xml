@@ -79,7 +79,7 @@ under the License.
     <!-- See http://checkstyle.sf.net/config_misc.html -->
   <module name="RegexpSingleline">
     <property name="format" value="\s+$"/>
-    <property name="minimum" value="2"/>
+    <property name="minimum" value="0"/>
     <property name="maximum" value="2"/>
     <property name="message" value="Line has trailing spaces."/>
   </module>
