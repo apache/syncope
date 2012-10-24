@@ -40,7 +40,7 @@ under the License.
   <rule ref="rulesets/coupling.xml"/>
   <rule ref="rulesets/controversial.xml">
     <exclude name="NullAssignment"/>
-  <rule/>
+  </rule>
   <rule ref="rulesets/strictexception.xml"/>
   <rule ref="rulesets/typeresolution.xml"/>
     
