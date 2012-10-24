@@ -129,9 +129,10 @@ public class SchemaMappingUtil {
     /**
      * Get attribute values.
      *
-     * @param mapping mapping.
-     * @param attributables list of attributables.
-     * @param password password.
+     * @param mapping mapping
+     * @param attributables list of attributables
+     * @param password password
+     * @param schemaDAO schema DAO
      * @return schema and attribute values.
      */
     public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final SchemaMapping mapping,
@@ -240,6 +241,7 @@ public class SchemaMappingUtil {
 
     public static List<String> getIntValueAsStrings(
             final AbstractAttributable attributable, final SchemaMapping mapping) {
+        
         return getIntValueAsStrings(attributable, mapping, null);
     }
 
@@ -347,8 +349,8 @@ public class SchemaMappingUtil {
     /**
      * Get first occurance of accountId mapping from a collection of mappings.
      *
-     * @param mappings collection of SchemaMapping.
-     * @return AccountId mapping or null if no occurences found.
+     * @param mappings collection of SchemaMapping
+     * @return AccountId mapping or null if no occurences found
      */
     public static SchemaMapping getAccountIdMapping(final Collection<SchemaMapping> mappings) {
         for (SchemaMapping mapping : mappings) {
@@ -363,9 +365,9 @@ public class SchemaMappingUtil {
     /**
      * Get accountId internal value.
      *
-     * @param attributable attributable.
-     * @param mappings collection of SchemaMapping.
-     * @return accountId internal value.
+     * @param attributable attributable
+     * @param mappings collection of SchemaMapping
+     * @return accountId internal value
      */
     public static String getAccountIdValue(final AbstractAttributable attributable,
             final Collection<SchemaMapping> mappings) {
@@ -379,170 +381,14 @@ public class SchemaMappingUtil {
     /**
      * Get accountId internal value.
      *
-     * @param attributable attributable.
-     * @param mappings accountId mapping.
-     * @return accountId internal value.
+     * @param attributable attributable
+     * @param mapping accountId mapping
+     * @return accountId internal value
      */
     public static String getAccountIdValue(final AbstractAttributable attributable, final SchemaMapping mapping) {
         final List<String> values = getIntValueAsStrings(attributable, mapping);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0);
-    }
-
-    public static class SchemaMappingsWrapper {
-
-        SchemaMapping accountIdMapping = null;
-
-        SchemaMapping passwordMapping = null;
-
-        final Map<String, Collection<SchemaMapping>> uMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> uVirMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> uDerMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> rMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> rVirMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> rDerMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> mMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> mVirMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        final Map<String, Collection<SchemaMapping>> mDerMappings = new HashMap<String, Collection<SchemaMapping>>();
-
-        public SchemaMappingsWrapper(final Collection<SchemaMapping> mappings) {
-            if (mappings == null) {
-                return;
-            }
-
-            for (SchemaMapping mapping : mappings) {
-                if (mapping.isAccountid() && accountIdMapping == null) {
-
-                    accountIdMapping = mapping;
-
-                } else if (mapping.isPassword() && passwordMapping == null) {
-
-                    passwordMapping = mapping;
-
-                } else {
-                    final String intAttrName = getIntAttrName(mapping);
-
-                    switch (mapping.getIntMappingType()) {
-                        case Password:
-                            if (passwordMapping == null) {
-                                passwordMapping = mapping;
-                            }
-                            break;
-                        case Username:
-                        case SyncopeUserId:
-                        case UserSchema:
-                            if (uMappings.get(intAttrName) == null) {
-                                uMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            uMappings.get(intAttrName).add(mapping);
-                            break;
-                        case RoleSchema:
-                            if (rMappings.get(intAttrName) == null) {
-                                rMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            rMappings.get(intAttrName).add(mapping);
-                            break;
-                        case MembershipSchema:
-                            if (mMappings.get(intAttrName) == null) {
-                                mMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            mMappings.get(intAttrName).add(mapping);
-                            break;
-
-                        case UserDerivedSchema:
-                            if (uDerMappings.get(intAttrName) == null) {
-                                uDerMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            uDerMappings.get(intAttrName).add(mapping);
-                            break;
-                        case RoleDerivedSchema:
-                            if (rDerMappings.get(intAttrName) == null) {
-                                rDerMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            rDerMappings.get(intAttrName).add(mapping);
-                            break;
-                        case MembershipDerivedSchema:
-                            if (mDerMappings.get(intAttrName) == null) {
-                                mDerMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            mDerMappings.get(intAttrName).add(mapping);
-                            break;
-
-                        case UserVirtualSchema:
-                            if (uVirMappings.get(intAttrName) == null) {
-                                uVirMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            uVirMappings.get(intAttrName).add(mapping);
-                            break;
-                        case RoleVirtualSchema:
-                            if (rVirMappings.get(intAttrName) == null) {
-                                rVirMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            rVirMappings.get(intAttrName).add(mapping);
-                            break;
-                        case MembershipVirtualSchema:
-                            if (mVirMappings.get(intAttrName) == null) {
-                                mVirMappings.put(intAttrName, new HashSet<SchemaMapping>());
-                            }
-                            mVirMappings.get(intAttrName).add(mapping);
-                            break;
-                        default:
-                    }
-                }
-            }
-        }
-
-        public SchemaMapping getAccountIdMapping() {
-            return accountIdMapping;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getmDerMappings() {
-            return mDerMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getmMappings() {
-            return mMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getmVirMappings() {
-            return mVirMappings;
-        }
-
-        public SchemaMapping getPasswordMapping() {
-            return passwordMapping;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getrDerMappings() {
-            return rDerMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getrMappings() {
-            return rMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getrVirMappings() {
-            return rVirMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getuDerMappings() {
-            return uDerMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getuMappings() {
-            return uMappings;
-        }
-
-        public Map<String, Collection<SchemaMapping>> getuVirMappings() {
-            return uVirMappings;
-        }
     }
 }

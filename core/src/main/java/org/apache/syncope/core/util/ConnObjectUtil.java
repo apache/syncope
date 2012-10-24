@@ -332,18 +332,22 @@ public class ConnObjectUtil {
         return connObjectTO;
     }
 
+    /**
+     * Query connected external resources for values to populated virtual attributes associated with the given owner.
+     *
+     * @param owner user or role
+     */
     public void retrieveVirAttrValues(final AbstractAttributable owner) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
-        final Map<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject> remoteObjects =
-                new HashMap<SchemaMappingUtil.SchemaMappingsWrapper, ConnectorObject>();
+        final Map<SchemaMappingWrapper, ConnectorObject> remoteObjects =
+                new HashMap<SchemaMappingWrapper, ConnectorObject>();
 
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
-                final SchemaMappingUtil.SchemaMappingsWrapper mappings = new SchemaMappingUtil.SchemaMappingsWrapper(
-                        resource.getMappings());
+                final SchemaMappingWrapper mappings = new SchemaMappingWrapper(resource.getMappings());
 
                 final String accountId = SchemaMappingUtil.getAccountIdValue(owner, mappings.getAccountIdMapping());
 
@@ -353,7 +357,7 @@ public class ConnObjectUtil {
                     // Retrieve attributes to get
                     final Set<String> extAttrNames = new HashSet<String>();
 
-                    for (Collection<SchemaMapping> virAttrMappings : mappings.getuVirMappings().values()) {
+                    for (Set<SchemaMapping> virAttrMappings : mappings.getuVirMappings().values()) {
                         for (SchemaMapping virAttrMapping : virAttrMappings) {
                             extAttrNames.add(SchemaMappingUtil.getExtAttrName(virAttrMapping));
                         }
@@ -383,15 +387,14 @@ public class ConnObjectUtil {
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
             LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
 
-            for (SchemaMappingUtil.SchemaMappingsWrapper mappings : remoteObjects.keySet()) {
-                Collection<SchemaMapping> virAttrMappings = mappings.getuVirMappings().get(
-                        virAttr.getVirtualSchema().getName());
+            for (Map.Entry<SchemaMappingWrapper, ConnectorObject> entry : remoteObjects.entrySet()) {
+                final Set<SchemaMapping> virAttrMappings = entry.getKey().getuVirMappings().
+                        get(virAttr.getVirtualSchema().getName());
 
                 if (virAttrMappings != null) {
                     for (SchemaMapping virAttrMapping : virAttrMappings) {
-                        String extAttrName = SchemaMappingUtil.getExtAttrName(virAttrMapping);
-                        Attribute extAttr = remoteObjects.get(mappings).getAttributeByName(extAttrName);
-
+                        final String extAttrName = SchemaMappingUtil.getExtAttrName(virAttrMapping);
+                        final Attribute extAttr = entry.getValue().getAttributeByName(extAttrName);
                         if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
                             for (Object obj : extAttr.getValue()) {
                                 if (obj != null) {
