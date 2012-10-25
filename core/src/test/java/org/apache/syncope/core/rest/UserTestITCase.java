@@ -690,8 +690,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task from user1, not in role 7 (designated for 
-        // approval in workflow definition): fail
+        // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
                 getRequestFactory());
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
@@ -706,12 +705,12 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        // 4. claim task from user4, in to role 7
+        // 4. claim task from user4, in role 7
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials("user4", "password"));
 
-        form = restTemplate.getForObject(BASE_URL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, form.
-                getTaskId());
+        form = restTemplate.getForObject(BASE_URL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class,
+                form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNotNull(form.getOwner());

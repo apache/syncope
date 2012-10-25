@@ -148,15 +148,14 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.success,
                     "Successfully authenticated, with roles: " + token.getAuthorities());
 
-            LOG.debug("User {} successfully authenticated, with roles {}", authentication.getPrincipal(), token.
-                    getAuthorities());
+            LOG.debug("User {} successfully authenticated, with roles {}",
+                    authentication.getPrincipal(), token.getAuthorities());
 
             if (user != null) {
                 user.setLastLoginDate(new Date());
                 user.setFailedLogins(0);
                 userDAO.save(user);
             }
-
         } else {
             if (user != null) {
                 user.setFailedLogins(user.getFailedLogins() + 1);

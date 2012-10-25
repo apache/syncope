@@ -19,8 +19,9 @@
 package org.apache.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
-import org.junit.Test;
 
+import java.util.List;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
@@ -35,7 +36,9 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 @Transactional
 public class RoleTest extends AbstractTest {
@@ -61,12 +64,52 @@ public class RoleTest extends AbstractTest {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public void createWithPasswordPolicy() {
-        final String ROLE_NAME = "roleWithPasswordPolicy";
+    @Test(expected = InvalidEntityException.class)
+    public void saveWithTwoOwners() {
+        SyncopeRole root = roleDAO.find("root", null);
+        assertNotNull("did not find expected role", root);
 
+        SyncopeUser user = userDAO.find(1L);
+        assertNotNull("did not find expected user", user);
+
+        SyncopeRole role = new SyncopeRole();
+        role.setName("error");
+        role.setUserOwner(user);
+        role.setRoleOwner(root);
+
+        roleDAO.save(role);
+    }
+
+    @Test
+    public void findByOwner() {
+        SyncopeRole role = roleDAO.find(6L);
+        assertNotNull("did not find expected role", role);
+
+        SyncopeUser user = userDAO.find(5L);
+        assertNotNull("did not find expected user", user);
+
+        assertEquals(user, role.getUserOwner());
+
+        SyncopeRole child1 = roleDAO.find(7L);
+        assertNotNull(child1);
+        assertEquals(role, child1.getParent());
+
+        SyncopeRole child2 = roleDAO.find(10L);
+        assertNotNull(child2);
+        assertEquals(role, child2.getParent());
+
+        List<SyncopeRole> ownedRoles = roleDAO.findOwned(user);
+        assertFalse(ownedRoles.isEmpty());
+        assertEquals(2, ownedRoles.size());
+        assertTrue(ownedRoles.contains(role));
+        assertTrue(ownedRoles.contains(child1));
+        assertFalse(ownedRoles.contains(child2));
+    }
+
+    public void createWithPasswordPolicy() {
         PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
         SyncopeRole role = new SyncopeRole();
-        role.setName(ROLE_NAME);
+        role.setName("roleWithPasswordPolicy");
         role.setPasswordPolicy(policy);
 
         SyncopeRole actual = roleDAO.save(role);

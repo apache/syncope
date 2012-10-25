@@ -46,7 +46,7 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void findChildren() {
-        assertEquals(3, roleDAO.findChildren(4L).size());
+        assertEquals(3, roleDAO.findChildren(roleDAO.find(4L)).size());
     }
 
     @Test

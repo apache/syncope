@@ -34,17 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.codec.Base64;
 
-/**
- * TODO: Description of the class.
- *
- * @author bl
- *
- * @since
- *
- */
-public class PasswordEncoder {
+public final class PasswordEncoder {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(PasswordEncoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PasswordEncoder.class);
 
     private static SecretKeySpec keySpec;
 
@@ -64,7 +56,6 @@ public class PasswordEncoder {
 
         if (password != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-
                 final byte[] cleartext = password.getBytes("UTF8");
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
@@ -83,7 +74,8 @@ public class PasswordEncoder {
         return encodedPassword;
     }
 
-    public static boolean verifyPassword(String password, CipherAlgorithm cipherAlgorithm, String digestedPassword) {
+    public static boolean verifyPassword(final String password, final CipherAlgorithm cipherAlgorithm,
+            final String digestedPassword) {
 
         boolean res = false;
 
@@ -111,7 +103,7 @@ public class PasswordEncoder {
         return res;
     }
 
-    private static StandardStringDigester getDigester(CipherAlgorithm cipherAlgorithm) {
+    private static StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
         StandardStringDigester digester = new StandardStringDigester();
 
         if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
@@ -124,10 +116,15 @@ public class PasswordEncoder {
             digester.setAlgorithm(cipherAlgorithm.getAlgorithm());
             digester.setIterations(1);
             digester.setSaltSizeBytes(0);
-
         }
 
         digester.setStringOutputType("hexadecimal");
         return digester;
+    }
+
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private PasswordEncoder() {
     }
 }

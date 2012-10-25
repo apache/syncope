@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.core.rest;
 
+import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.RoleMod;
@@ -36,6 +34,9 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 public class RoleTestITCase extends AbstractTest {
 
@@ -162,8 +163,8 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(userTO.getMembershipMap().containsKey(1L));
         assertFalse(userTO.getMembershipMap().containsKey(3L));
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                (PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory();
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
 
@@ -290,6 +291,40 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(roleTO.getDerivedAttributes().isEmpty());
     }
 
+    @Test
+    public void updateAsRoleOwner() {
+        // 1. read role as admin
+        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 7);
+
+        // 2. prepare update
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setName("Managing Director");
+
+        // 3. try to update as user3, not owner of role 7 - fail
+        PreemptiveAuthHttpRequestFactory requestFactory =
+                (PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory();
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
+
+        try {
+            restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+            fail();
+        } catch (HttpStatusCodeException e) {
+            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        }
+
+        // 4. update as user5, owner of role 7 because owner of role 6 with inheritance - success
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user5", "password"));
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+        assertEquals("Managing Director", roleTO.getName());
+
+        // restore admin authentication
+        super.resetRestTemplate();
+    }
+
     /**
      * Role rename used to fail in case of parent null.
      *
@@ -315,5 +350,47 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals("renamed", actual.getName());
         assertEquals(0L, actual.getParent());
+    }
+
+    @Test
+    public void issueSYNCOPE228() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("issueSYNCOPE228");
+        roleTO.setParent(8L);
+        roleTO.setInheritAccountPolicy(false);
+        roleTO.setAccountPolicy(6L);
+        roleTO.setInheritPasswordPolicy(true);
+        roleTO.setPasswordPolicy(2L);
+
+        AttributeTO icon = new AttributeTO();
+        icon.setSchema("icon");
+        icon.addValue("anIcon");
+        roleTO.addAttribute(icon);
+
+        roleTO.addEntitlement("USER_READ");
+        roleTO.addEntitlement("SCHEMA_READ");
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
+        assertNotNull(roleTO.getEntitlements());
+        assertFalse(roleTO.getEntitlements().isEmpty());
+
+        List<String> entitlements = roleTO.getEntitlements();
+
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setInheritDerivedAttributes(Boolean.TRUE);
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+        assertNotNull(roleTO);
+        assertEquals(entitlements, roleTO.getEntitlements());
+
+        roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setEntitlements(new ArrayList<String>());
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+        assertNotNull(roleTO);
+        assertTrue(roleTO.getEntitlements().isEmpty());
     }
 }

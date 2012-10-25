@@ -59,7 +59,7 @@ under the License.
   <SyncopeRole id="4" name="employee" parent_id="3"/>
   <SyncopeRole id="5" name="secretary" parent_id="4"/>
   <SyncopeRole id="6"
-               name="director" parent_id="4"
+               name="director" parent_id="4" userOwner_id="5"
                inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
                inheritPasswordPolicy="0" inheritAccountPolicy="0"
                passwordPolicy_id="4"
@@ -67,7 +67,7 @@ under the License.
   <SyncopeRole id="7"
                name="managingDirector" parent_id="6"
                inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
-               inheritPasswordPolicy="1" inheritAccountPolicy="1"/>
+               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"/>
   <SyncopeRole id="8"
                name="otherchild" parent_id="1"
                inheritVirtualAttributes="1"
@@ -76,7 +76,7 @@ under the License.
   <SyncopeRole id="10"
                name="managingConsultant" parent_id="6"
                inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
-               inheritPasswordPolicy="1" inheritAccountPolicy="1"/>
+               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"/>
   <SyncopeRole id="11" name="roleForWorkflowOptIn" parent_id="1"/>
   <SyncopeRole id="12" name="aRoleForPropagation" parent_id="1"/>
   <SyncopeRole id="13" name="bRoleForPropagation" parent_id="1"/>

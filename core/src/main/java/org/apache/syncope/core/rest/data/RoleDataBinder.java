@@ -19,10 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.util.AttributableUtil;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -34,10 +30,16 @@ import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
@@ -45,9 +47,20 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    public SyncopeRole create(final RoleTO roleTO) throws SyncopeClientCompositeErrorException {
+    public SyncopeRole getSyncopeRole(final Long roleId) throws NotFoundException {
+        SyncopeRole role = roleDAO.find(roleId);
+        if (role == null) {
+            throw new NotFoundException("Role " + roleId);
+        }
 
+        return role;
+    }
+
+    public SyncopeRole create(final RoleTO roleTO) throws SyncopeClientCompositeErrorException {
         SyncopeRole role = new SyncopeRole();
+
+        role.setInheritOwner(roleTO.isInheritOwner());
+
         role.setInheritAttributes(roleTO.isInheritAttributes());
         role.setInheritDerivedAttributes(roleTO.isInheritDerivedAttributes());
         role.setInheritVirtualAttributes(roleTO.isInheritVirtualAttributes());
@@ -101,98 +114,128 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        role.setPasswordPolicy(roleTO.getPasswordPolicy() != null
-                ? (PasswordPolicy) policyDAO.find(roleTO.getPasswordPolicy())
-                : null);
+        // owner
+        if (roleTO.getUserOwner() != null) {
+            SyncopeUser owner = userDAO.find(roleTO.getUserOwner());
+            if (owner == null) {
+                LOG.warn("Ignoring invalid user specified as owner: {}", roleTO.getUserOwner());
+            } else {
+                role.setUserOwner(owner);
+            }
+        }
+        if (roleTO.getRoleOwner() != null) {
+            SyncopeRole owner = roleDAO.find(roleTO.getRoleOwner());
+            if (owner == null) {
+                LOG.warn("Ignoring invalid role specified as owner: {}", roleTO.getRoleOwner());
+            } else {
+                role.setRoleOwner(owner);
+            }
+        }
 
-        role.setAccountPolicy(roleTO.getAccountPolicy() != null
-                ? (AccountPolicy) policyDAO.find(roleTO.getAccountPolicy())
-                : null);
+        // policies
+        if (roleTO.getPasswordPolicy() != null) {
+            role.setPasswordPolicy((PasswordPolicy) policyDAO.find(roleTO.getPasswordPolicy()));
+        }
+        if (roleTO.getAccountPolicy() != null) {
+            role.setAccountPolicy((AccountPolicy) policyDAO.find(roleTO.getAccountPolicy()));
+        }
 
         return role;
     }
 
-    public PropagationByResource update(SyncopeRole role, RoleMod roleMod) throws SyncopeClientCompositeErrorException {
+    public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod)
+            throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // name
         SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
-            SyncopeRole otherRole = roleDAO.find(roleMod.getName(), role.getParent() != null
-                    ? role.getParent().getId()
-                    : 0L);
-
-            if (otherRole != null) {
-                LOG.error("Another role exists with the same name " + "and the same parent role: " + otherRole);
+            SyncopeRole otherRole = roleDAO.find(roleMod.getName(),
+                    role.getParent() == null ? null : role.getParent().getId());
+            if (otherRole == null || role.equals(otherRole)) {
+                role.setName(roleMod.getName());
+            } else {
+                LOG.error("Another role exists with the same name and the same parent role: " + otherRole);
 
                 invalidRoles.addElement(roleMod.getName());
                 scce.addException(invalidRoles);
-            } else {
-                role.setName(roleMod.getName());
             }
         }
 
-        // inherited attributes
+        if (roleMod.getInheritOwner() != null) {
+            role.setInheritOwner(roleMod.getInheritOwner());
+        }
+
         if (roleMod.getInheritAttributes() != null) {
             role.setInheritAttributes(roleMod.getInheritAttributes());
         }
-
-        // inherited derived attributes
         if (roleMod.getInheritDerivedAttributes() != null) {
             role.setInheritDerivedAttributes(roleMod.getInheritDerivedAttributes());
         }
-
-        // inherited virtual attributes
         if (roleMod.getInheritVirtualAttributes() != null) {
             role.setInheritVirtualAttributes(roleMod.getInheritVirtualAttributes());
         }
 
-        // inherited password Policy
         if (roleMod.getInheritPasswordPolicy() != null) {
             role.setInheritPasswordPolicy(roleMod.getInheritPasswordPolicy());
         }
-
-        // inherited account Policy
         if (roleMod.getInheritAccountPolicy() != null) {
             role.setInheritAccountPolicy(roleMod.getInheritAccountPolicy());
         }
 
         // entitlements
-        role.getEntitlements().clear();
-        Entitlement entitlement;
-        for (String entitlementName : roleMod.getEntitlements()) {
-            entitlement = entitlementDAO.find(entitlementName);
-            if (entitlement == null) {
-                LOG.warn("Ignoring invalid entitlement {}", entitlementName);
-            } else {
-                role.addEntitlement(entitlement);
+        if (roleMod.getEntitlements() != null) {
+            role.getEntitlements().clear();
+            for (String entitlementName : roleMod.getEntitlements()) {
+                Entitlement entitlement = entitlementDAO.find(entitlementName);
+                if (entitlement == null) {
+                    LOG.warn("Ignoring invalid entitlement {}", entitlementName);
+                } else {
+                    role.addEntitlement(entitlement);
+                }
             }
         }
 
+        // policies
         if (roleMod.getPasswordPolicy() != null) {
-            role.setPasswordPolicy(roleMod.getPasswordPolicy().getId() != null
-                    ? (PasswordPolicy) policyDAO.find(roleMod.getPasswordPolicy().getId())
-                    : null);
+            role.setPasswordPolicy(roleMod.getPasswordPolicy().getId() == null
+                    ? null
+                    : (PasswordPolicy) policyDAO.find(roleMod.getPasswordPolicy().getId()));
+        }
+        if (roleMod.getAccountPolicy() != null) {
+            role.setAccountPolicy(roleMod.getAccountPolicy().getId() == null
+                    ? null
+                    : (AccountPolicy) policyDAO.find(roleMod.getAccountPolicy().getId()));
         }
 
-        if (roleMod.getAccountPolicy() != null) {
-            role.setAccountPolicy(roleMod.getAccountPolicy().getId() != null
-                    ? (AccountPolicy) policyDAO.find(roleMod.getAccountPolicy().getId())
-                    : null);
+        // owner
+        if (roleMod.getUserOwner() != null) {
+            role.setUserOwner(roleMod.getUserOwner().getId() == null
+                    ? null
+                    : userDAO.find(roleMod.getUserOwner().getId()));
+        }
+        if (roleMod.getRoleOwner() != null) {
+            role.setRoleOwner(roleMod.getRoleOwner().getId() == null
+                    ? null
+                    : roleDAO.find(roleMod.getRoleOwner().getId()));
         }
 
         // attributes, derived attributes, virtual attributes and resources
         return fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce);
     }
 
-    public RoleTO getRoleTO(SyncopeRole role) {
+    public RoleTO getRoleTO(final SyncopeRole role) {
         RoleTO roleTO = new RoleTO();
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());
+
+        roleTO.setInheritOwner(role.isInheritOwner());
+
         roleTO.setInheritAttributes(role.isInheritAttributes());
         roleTO.setInheritDerivedAttributes(role.isInheritDerivedAttributes());
         roleTO.setInheritVirtualAttributes(role.isInheritVirtualAttributes());
+
         roleTO.setInheritPasswordPolicy(role.isInheritPasswordPolicy());
         roleTO.setInheritAccountPolicy(role.isInheritAccountPolicy());
 
@@ -219,13 +262,12 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.addEntitlement(entitlement.getName());
         }
 
-        roleTO.setPasswordPolicy(role.getPasswordPolicy() != null
-                ? role.getPasswordPolicy().getId()
-                : null);
-
-        roleTO.setAccountPolicy(role.getAccountPolicy() != null
-                ? role.getAccountPolicy().getId()
-                : null);
+        roleTO.setPasswordPolicy(role.getPasswordPolicy() == null
+                ? null
+                : role.getPasswordPolicy().getId());
+        roleTO.setAccountPolicy(role.getAccountPolicy() == null
+                ? null
+                : role.getAccountPolicy().getId());
 
         return roleTO;
     }

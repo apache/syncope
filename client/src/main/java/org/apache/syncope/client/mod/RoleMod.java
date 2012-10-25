@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.mod;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -27,6 +26,12 @@ public class RoleMod extends AbstractAttributableMod {
     private static final long serialVersionUID = 7455805264680210747L;
 
     private String name;
+
+    private ReferenceMod userOwner;
+
+    private ReferenceMod roleOwner;
+
+    private Boolean inheritOwner;
 
     private Boolean inheritAttributes;
 
@@ -44,10 +49,36 @@ public class RoleMod extends AbstractAttributableMod {
 
     private ReferenceMod accountPolicy;
 
-    public RoleMod() {
-        super();
+    public String getName() {
+        return name;
+    }
 
-        entitlements = new ArrayList<String>();
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public ReferenceMod getUserOwner() {
+        return userOwner;
+    }
+
+    public void setUserOwner(ReferenceMod userOwner) {
+        this.userOwner = userOwner;
+    }
+
+    public ReferenceMod getRoleOwner() {
+        return roleOwner;
+    }
+
+    public void setRoleOwner(ReferenceMod roleOwner) {
+        this.roleOwner = roleOwner;
+    }
+
+    public Boolean getInheritOwner() {
+        return inheritOwner;
+    }
+
+    public void setInheritOwner(Boolean inheritOwner) {
+        this.inheritOwner = inheritOwner;
     }
 
     public Boolean getInheritAttributes() {
@@ -74,31 +105,12 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public boolean addEntitlement(final String entitlement) {
-        return entitlements.add(entitlement);
-    }
-
-    public boolean removeEntitlement(final String entitlement) {
-        return entitlements.remove(entitlement);
-    }
-
     public List<String> getEntitlements() {
         return entitlements;
     }
 
     public void setEntitlements(final List<String> entitlements) {
-        this.entitlements.clear();
-        if (entitlements != null && !entitlements.isEmpty()) {
-            this.entitlements.addAll(entitlements);
-        }
+        this.entitlements = entitlements;
     }
 
     public ReferenceMod getPasswordPolicy() {

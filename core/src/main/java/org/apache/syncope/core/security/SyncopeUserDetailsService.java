@@ -19,6 +19,7 @@
 package org.apache.syncope.core.security;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.util.EntitlementUtil;
 
 @Configurable
 public class SyncopeUserDetailsService implements UserDetailsService {
@@ -59,8 +61,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException, DataAccessException {
-
-        Set<SimpleGrantedAuthority> authorities = new HashSet<SimpleGrantedAuthority>();
+        final Set<SimpleGrantedAuthority> authorities = new HashSet<SimpleGrantedAuthority>();
         if (adminUser.equals(username)) {
             for (Entitlement entitlement : entitlementDAO.findAll()) {
                 authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
@@ -72,14 +73,27 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements based on roles owned by user, and their ancestors
-            Set<SyncopeRole> roles = new HashSet<SyncopeRole>(user.getRoles());
+            // Give entitlements based on roles assigned to user (and their ancestors)
+            final Set<SyncopeRole> roles = new HashSet<SyncopeRole>(user.getRoles());
             for (SyncopeRole role : user.getRoles()) {
                 roles.addAll(roleDAO.findAncestors(role));
             }
             for (SyncopeRole role : roles) {
                 for (Entitlement entitlement : role.getEntitlements()) {
                     authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
+                }
+            }
+            // Give role operational entitlements for owned roles
+            List<SyncopeRole> ownedRoles = roleDAO.findOwned(user);
+            if (!ownedRoles.isEmpty()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_CREATE"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_READ"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_UPDATE"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_DELETE"));
+
+                for (SyncopeRole role : ownedRoles) {
+                    authorities.add(new SimpleGrantedAuthority(EntitlementUtil.
+                            getEntitlementNameFromRoleId(role.getId())));
                 }
             }
         }

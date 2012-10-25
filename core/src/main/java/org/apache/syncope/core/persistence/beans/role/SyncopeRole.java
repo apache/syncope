@@ -53,11 +53,14 @@ import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
 
 @Entity
 @Table(uniqueConstraints =
 @UniqueConstraint(columnNames = {"name", "parent_id"}))
 @Cacheable
+@SyncopeRoleCheck
 public class SyncopeRole extends AbstractAttributable {
 
     private static final long serialVersionUID = -5281258853142421875L;
@@ -70,6 +73,12 @@ public class SyncopeRole extends AbstractAttributable {
 
     @ManyToOne(optional = true)
     private SyncopeRole parent;
+
+    @ManyToOne(optional = true)
+    private SyncopeUser userOwner;
+
+    @ManyToOne(optional = true)
+    private SyncopeRole roleOwner;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -89,6 +98,11 @@ public class SyncopeRole extends AbstractAttributable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<RVirAttr> virtualAttributes;
+
+    @Basic(optional = true)
+    @Min(0)
+    @Max(1)
+    private Integer inheritOwner;
 
     @Basic(optional = true)
     @Min(0)
@@ -139,6 +153,7 @@ public class SyncopeRole extends AbstractAttributable {
         attributes = new ArrayList<RAttr>();
         derivedAttributes = new ArrayList<RDerAttr>();
         virtualAttributes = new ArrayList<RVirAttr>();
+        inheritOwner = getBooleanAsInteger(false);
         inheritAttributes = getBooleanAsInteger(false);
         inheritDerivedAttributes = getBooleanAsInteger(false);
         inheritVirtualAttributes = getBooleanAsInteger(false);
@@ -171,6 +186,30 @@ public class SyncopeRole extends AbstractAttributable {
 
     public void setParent(final SyncopeRole parent) {
         this.parent = parent;
+    }
+
+    public boolean isInheritOwner() {
+        return isBooleanAsInteger(inheritOwner);
+    }
+
+    public void setInheritOwner(final boolean inheritOwner) {
+        this.inheritOwner = getBooleanAsInteger(inheritOwner);
+    }
+
+    public SyncopeUser getUserOwner() {
+        return userOwner;
+    }
+
+    public void setUserOwner(final SyncopeUser userOwner) {
+        this.userOwner = userOwner;
+    }
+
+    public SyncopeRole getRoleOwner() {
+        return roleOwner;
+    }
+
+    public void setRoleOwner(final SyncopeRole roleOwner) {
+        this.roleOwner = roleOwner;
     }
 
     public boolean addEntitlement(final Entitlement entitlement) {

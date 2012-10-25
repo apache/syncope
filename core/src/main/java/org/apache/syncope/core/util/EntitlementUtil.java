@@ -22,18 +22,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public class EntitlementUtil {
+/**
+ * Utility class for manipulating entitlements.
+ */
+public final class EntitlementUtil {
 
     private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN = Pattern.compile("^ROLE_([\\d])+");
-    private static final Logger LOG = LoggerFactory.getLogger(EntitlementUtil.class);
 
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementUtil.class);
 
     public static Set<String> getOwnedEntitlementNames() {
         final Set<String> result = new HashSet<String>();
@@ -92,5 +95,11 @@ public class EntitlementUtil {
             names.add(entitlement.getName());
         }
         return getRoleIds(names);
+    }
+
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private EntitlementUtil() {
     }
 }

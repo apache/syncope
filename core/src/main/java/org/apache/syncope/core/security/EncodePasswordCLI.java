@@ -22,25 +22,22 @@ import java.util.Arrays;
 import org.apache.syncope.types.CipherAlgorithm;
 
 /**
- * Command line version of encoder to encode the admin password
+ * Command line version of encoder to encode the admin password.
  */
-public class EncodePasswordCLI {
+public final class EncodePasswordCLI {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
+    public static void main(final String[] args)
             throws Exception {
 
         if (args.length != 2) {
             usage();
-            System.exit(0);
+            System.exit(1);
         }
 
         if (CipherAlgorithm.valueOf(args[1]).getAlgorithm().isEmpty()) {
-            System.out.println("Unsupported algorithm " + args[1]);
+            System.err.println("Unsupported algorithm " + args[1]);
             usage();
-            System.exit(0);
+            System.exit(2);
         }
 
         System.out.println("Encoding password '" + args[0] + "' with " + args[1]);
@@ -50,5 +47,8 @@ public class EncodePasswordCLI {
     private static void usage() {
         System.out.println("Usage: EncodePassword <password> <algorithm>");
         System.out.println("Supported algorithms:" + Arrays.toString(CipherAlgorithm.values()));
+    }
+
+    private EncodePasswordCLI() {
     }
 }

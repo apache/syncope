@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -85,6 +86,40 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
                 : result.get(0);
     }
 
+    private void findSameOwnerDescendants(final List<SyncopeRole> result, final SyncopeRole role) {
+        List<SyncopeRole> children = findChildren(role);
+        if (children != null) {
+            for (SyncopeRole child : children) {
+                if ((child.getUserOwner() == null && child.getRoleOwner() == null && child.isInheritOwner())
+                        || (child.getUserOwner() != null && child.getUserOwner().equals(role.getUserOwner()))
+                        || (child.getRoleOwner() != null && child.getRoleOwner().equals(role.getRoleOwner()))) {
+
+                    findDescendants(result, child);
+                }
+            }
+        }
+        result.add(role);
+    }
+
+    @Override
+    public List<SyncopeRole> findOwned(final SyncopeUser owner) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(SyncopeRole.class.getSimpleName()).
+                append(" e WHERE e.userOwner=:owner ");
+        for (Long roleId : owner.getRoleIds()) {
+            queryString.append("OR e.roleOwner.id=").append(roleId).append(' ');
+        }
+
+        Query query = entityManager.createQuery(queryString.toString());
+        query.setParameter("owner", owner);
+
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
+        for (SyncopeRole role : (List<SyncopeRole>) query.getResultList()) {
+            findSameOwnerDescendants(result, role);
+        }
+
+        return result;
+    }
+
     @Override
     public List<SyncopeRole> findByEntitlement(final Entitlement entitlement) {
         Query query = entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
@@ -118,14 +153,14 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
-    public List<SyncopeRole> findChildren(final Long roleId) {
-        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent.id=:roleId");
-        query.setParameter("roleId", roleId);
+    public List<SyncopeRole> findChildren(final SyncopeRole role) {
+        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent=:role");
+        query.setParameter("role", role);
         return query.getResultList();
     }
 
     private void findDescendants(final List<SyncopeRole> result, final SyncopeRole role) {
-        List<SyncopeRole> children = findChildren(role.getId());
+        List<SyncopeRole> children = findChildren(role);
         if (children != null) {
             for (SyncopeRole child : children) {
                 findDescendants(result, child);
@@ -192,6 +227,8 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
             roleToBeDeleted.getEntitlements().clear();
 
             roleToBeDeleted.setParent(null);
+            roleToBeDeleted.setUserOwner(null);
+            roleToBeDeleted.setRoleOwner(null);
             entityManager.remove(roleToBeDeleted);
 
             entitlementDAO.delete(EntitlementUtil.getEntitlementNameFromRoleId(roleToBeDeleted.getId()));

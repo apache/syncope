@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@JsonIgnoreProperties( { "displayName", "empty" })
+@JsonIgnoreProperties({"displayName", "empty"})
 public class RoleTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
@@ -30,6 +30,12 @@ public class RoleTO extends AbstractAttributableTO {
     private String name;
 
     private long parent;
+
+    private Long userOwner;
+
+    private Long roleOwner;
+
+    private boolean inheritOwner;
 
     private boolean inheritAttributes;
 
@@ -65,6 +71,30 @@ public class RoleTO extends AbstractAttributableTO {
 
     public void setParent(final long parent) {
         this.parent = parent;
+    }
+
+    public Long getUserOwner() {
+        return userOwner;
+    }
+
+    public void setUserOwner(final Long userOwner) {
+        this.userOwner = userOwner;
+    }
+
+    public Long getRoleOwner() {
+        return roleOwner;
+    }
+
+    public void setRoleOwner(final Long roleOwner) {
+        this.roleOwner = roleOwner;
+    }
+
+    public boolean isInheritOwner() {
+        return inheritOwner;
+    }
+
+    public void setInheritOwner(final boolean inheritOwner) {
+        this.inheritOwner = inheritOwner;
     }
 
     public boolean isInheritAttributes() {

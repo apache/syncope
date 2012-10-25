@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +32,6 @@ import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.core.util.PasswordGenerator;
 import org.apache.syncope.types.CipherAlgorithm;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -201,7 +202,6 @@ public class UserTest extends AbstractTest {
         String password = "";
         try {
             password = passwordGenerator.generateUserPassword(user);
-            System.out.println("PASSWORD GENERATA: " + password);
         } catch (IncompatiblePolicyException ex) {
             fail(ex.getMessage());
         }
