@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.mod;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -43,12 +42,6 @@ public class RoleMod extends AbstractAttributableMod {
     private ReferenceMod passwordPolicy;
 
     private ReferenceMod accountPolicy;
-
-    public RoleMod() {
-        super();
-
-        entitlements = new ArrayList<String>();
-    }
 
     public Boolean getInheritAttributes() {
         return inheritAttributes;
@@ -82,23 +75,12 @@ public class RoleMod extends AbstractAttributableMod {
         this.name = name;
     }
 
-    public boolean addEntitlement(final String entitlement) {
-        return entitlements.add(entitlement);
-    }
-
-    public boolean removeEntitlement(final String entitlement) {
-        return entitlements.remove(entitlement);
-    }
-
     public List<String> getEntitlements() {
         return entitlements;
     }
 
     public void setEntitlements(final List<String> entitlements) {
-        this.entitlements.clear();
-        if (entitlements != null && !entitlements.isEmpty()) {
-            this.entitlements.addAll(entitlements);
-        }
+        this.entitlements = entitlements;
     }
 
     public ReferenceMod getPasswordPolicy() {

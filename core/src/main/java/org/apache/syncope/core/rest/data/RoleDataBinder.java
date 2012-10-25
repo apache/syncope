@@ -19,10 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.util.AttributableUtil;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -36,8 +32,12 @@ import org.apache.syncope.core.persistence.beans.role.RVirAttr;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
@@ -159,14 +159,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // entitlements
-        role.getEntitlements().clear();
-        Entitlement entitlement;
-        for (String entitlementName : roleMod.getEntitlements()) {
-            entitlement = entitlementDAO.find(entitlementName);
-            if (entitlement == null) {
-                LOG.warn("Ignoring invalid entitlement {}", entitlementName);
-            } else {
-                role.addEntitlement(entitlement);
+        if (roleMod.getEntitlements() != null) {
+            role.getEntitlements().clear();
+            for (String entitlementName : roleMod.getEntitlements()) {
+                Entitlement entitlement = entitlementDAO.find(entitlementName);
+                if (entitlement == null) {
+                    LOG.warn("Ignoring invalid entitlement {}", entitlementName);
+                } else {
+                    role.addEntitlement(entitlement);
+                }
             }
         }
 

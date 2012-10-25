@@ -306,7 +306,9 @@ public final class AttributableOperations {
         // 4. entitlements
         Set<String> updatedEnts = new HashSet<String>(updated.getEntitlements());
         Set<String> originalEnts = new HashSet<String>(original.getEntitlements());
-        if (!updatedEnts.equals(originalEnts)) {
+        if (updatedEnts.equals(originalEnts)) {
+            result.setEntitlements(null);
+        } else {
             result.setEntitlements(updated.getEntitlements());
         }
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -315,5 +316,47 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals("renamed", actual.getName());
         assertEquals(0L, actual.getParent());
+    }
+
+    @Test
+    public void issueSYNCOPE228() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("issueSYNCOPE228");
+        roleTO.setParent(8L);
+        roleTO.setInheritAccountPolicy(false);
+        roleTO.setAccountPolicy(6L);
+        roleTO.setInheritPasswordPolicy(true);
+        roleTO.setPasswordPolicy(2L);
+
+        AttributeTO icon = new AttributeTO();
+        icon.setSchema("icon");
+        icon.addValue("anIcon");
+        roleTO.addAttribute(icon);
+
+        roleTO.addEntitlement("USER_READ");
+        roleTO.addEntitlement("SCHEMA_READ");
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
+        assertNotNull(roleTO.getEntitlements());
+        assertFalse(roleTO.getEntitlements().isEmpty());
+
+        List<String> entitlements = roleTO.getEntitlements();
+
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setInheritDerivedAttributes(Boolean.TRUE);
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+        assertNotNull(roleTO);
+        assertEquals(entitlements, roleTO.getEntitlements());
+
+        roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setEntitlements(new ArrayList<String>());
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
+        assertNotNull(roleTO);
+        assertTrue(roleTO.getEntitlements().isEmpty());
     }
 }
