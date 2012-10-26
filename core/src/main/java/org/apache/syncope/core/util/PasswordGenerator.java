@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -38,7 +39,7 @@ public class PasswordGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PasswordGenerator.class);
 
-    private static final String[] SPECIAL_CHAR = {"!", "£", "%", "&", "(", ")", "?", "#", "_", "$"};
+    private static final String[] SPECIAL_CHAR = {"", "!", "£", "%", "&", "(", ")", "?", "#", "_", "$"};
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -49,6 +50,7 @@ public class PasswordGenerator {
         PasswordPolicySpec policySpec = mergePolicySpecs(passwordPolicySpecs);
 
         evaluateFinalPolicySpec(policySpec);
+
         return generatePassword(policySpec);
     }
 
@@ -83,7 +85,6 @@ public class PasswordGenerator {
         }
 
         PasswordPolicySpec policySpec = mergePolicySpecs(userPasswordPolicies);
-
         evaluateFinalPolicySpec(policySpec);
         return generatePassword(policySpec);
     }
@@ -164,7 +165,7 @@ public class PasswordGenerator {
 
     private void evaluateFinalPolicySpec(final PasswordPolicySpec policySpec)
             throws IncompatiblePolicyException {
-        
+
         if (policySpec.getMinLength() == 0) {
             LOG.error("Minimum lenght given is zero");
             throw new IncompatiblePolicyException("Minimum lenght given is zero");
@@ -226,60 +227,28 @@ public class PasswordGenerator {
     }
 
     private String generatePassword(final PasswordPolicySpec policySpec) {
-        StringBuilder generatedPassword = new StringBuilder(policySpec.getMinLength());
 
-        if (policySpec.isDigitRequired() || policySpec.isAlphanumericRequired()) {
-            generatedPassword.append(RandomStringUtils.randomAlphanumeric(policySpec.getMinLength()));
+        String[] generatedPassword = new String[policySpec.getMinLength()];
+
+        for (int i = 0; i < generatedPassword.length; i++) {
+            generatedPassword[i] = "";
         }
 
-        if (policySpec.isDigitRequired() && !PolicyPattern.DIGIT.matcher(generatedPassword.toString()).matches()) {
-            int where = randomNumber(policySpec.getMinLength());
-            generatedPassword.deleteCharAt(where);
-            generatedPassword.insert(where, RandomStringUtils.randomNumeric(1));
-        }
-
-        if (!policySpec.isAlphanumericRequired() && !policySpec.isDigitRequired()) {
-            generatedPassword.append(RandomStringUtils.randomAlphabetic(policySpec.getMinLength()));
-        }
-
-        if (policySpec.isUppercaseRequired() && !PolicyPattern.ALPHA_UPPERCASE
-                .matcher(generatedPassword.toString()).matches()) {
-            int where = randomNumber(policySpec.getMinLength());
-            generatedPassword.deleteCharAt(where);
-            generatedPassword.insert(where, RandomStringUtils.randomAlphabetic(1));
-        }
-
-        if (policySpec.isLowercaseRequired() && !PolicyPattern.ALPHA_LOWERCASE.
-                matcher(generatedPassword.toString()).matches()) {
-            int where = randomNumber(policySpec.getMinLength());
-            generatedPassword.deleteCharAt(where);
-            generatedPassword.insert(where, RandomStringUtils.randomAlphabetic(1).toLowerCase());
-        }
-
-        if (policySpec.isNonAlphanumericRequired()) {
-            int where = randomNumber(policySpec.getMinLength());
-            generatedPassword.deleteCharAt(where);
-            generatedPassword.insert(where, SPECIAL_CHAR[randomNumber(SPECIAL_CHAR.length - 1)]);
-        }
+        checkStartChar(generatedPassword, policySpec);
 
         checkEndChar(generatedPassword, policySpec);
 
-        checkstartChar(generatedPassword, policySpec);
+        checkRequired(generatedPassword, policySpec);
 
-        for (Iterator<String> it = policySpec.getPrefixesNotPermitted().iterator(); it.hasNext();) {
-            String prefix = it.next();
-            if (generatedPassword.toString().startsWith(prefix)) {
-                checkstartChar(generatedPassword, policySpec);
-            }
+        //filled empty chars
+        for (int firstEmptyChar = firstEmptyChar(generatedPassword);
+                firstEmptyChar < generatedPassword.length - 1; firstEmptyChar++) {
+            generatedPassword[firstEmptyChar] = RandomStringUtils.randomAlphabetic(1);
         }
 
-        for (Iterator<String> it = policySpec.getSuffixesNotPermitted().iterator(); it.hasNext();) {
-            String suffix = it.next();
-            if (generatedPassword.toString().endsWith(suffix)) {
-                checkEndChar(generatedPassword, policySpec);
-            }
-        }
-        return generatedPassword.toString();
+        checkPrefixAndSuffix(generatedPassword, policySpec);
+
+        return StringUtils.join(generatedPassword);
     }
 
     private int randomNumber(final int range) {
@@ -287,50 +256,90 @@ public class PasswordGenerator {
         return randomNumber == 0 ? 1 : randomNumber;
     }
 
-    private void checkstartChar(final StringBuilder generatedPassword, final PasswordPolicySpec policySpec) {
+    private void checkStartChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustStartWithAlpha()) {
-            generatedPassword.deleteCharAt(0);
-            generatedPassword.insert(0, RandomStringUtils.randomAlphabetic(1));
+            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
         }
         if (policySpec.isMustStartWithNonAlpha() || policySpec.isMustStartWithDigit()) {
-            generatedPassword.deleteCharAt(0);
-            generatedPassword.insert(0, RandomStringUtils.randomNumeric(1));
+            generatedPassword[0] = RandomStringUtils.randomNumeric(1);
         }
         if (policySpec.isMustntStartWithAlpha()) {
-            generatedPassword.deleteCharAt(0);
-            generatedPassword.insert(0, RandomStringUtils.randomNumeric(1));
+            generatedPassword[0] = RandomStringUtils.randomNumeric(1);
+
         }
         if (policySpec.isMustntStartWithDigit()) {
-            generatedPassword.deleteCharAt(0);
-            generatedPassword.insert(0, RandomStringUtils.randomAlphabetic(1));
+            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
+
         }
         if (policySpec.isMustntStartWithNonAlpha()) {
-            generatedPassword.deleteCharAt(0);
-            generatedPassword.insert(0, RandomStringUtils.randomAlphanumeric(1));
+            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
+
         }
     }
 
-    private void checkEndChar(final StringBuilder generatedPassword, final PasswordPolicySpec policySpec) {
+    private void checkEndChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustEndWithAlpha()) {
-            generatedPassword.deleteCharAt(policySpec.getMinLength() - 1);
-            generatedPassword.insert(policySpec.getMinLength() - 1, RandomStringUtils.randomAlphabetic(1));
+            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
         }
         if (policySpec.isMustEndWithNonAlpha() || policySpec.isMustEndWithDigit()) {
-            generatedPassword.deleteCharAt(policySpec.getMinLength() - 1);
-            generatedPassword.insert(policySpec.getMinLength() - 1, RandomStringUtils.randomNumeric(1));
+            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomNumeric(1);
         }
 
         if (policySpec.isMustntEndWithAlpha()) {
-            generatedPassword.deleteCharAt(policySpec.getMinLength() - 1);
-            generatedPassword.insert(policySpec.getMinLength() - 1, RandomStringUtils.randomNumeric(1));
+            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomNumeric(1);
         }
         if (policySpec.isMustntEndWithDigit()) {
-            generatedPassword.deleteCharAt(policySpec.getMinLength() - 1);
-            generatedPassword.insert(policySpec.getMinLength() - 1, RandomStringUtils.randomAlphabetic(1));
+            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
         }
         if (policySpec.isMustntEndWithNonAlpha()) {
-            generatedPassword.deleteCharAt(policySpec.getMinLength() - 1);
-            generatedPassword.insert(policySpec.getMinLength() - 1, RandomStringUtils.randomAlphabetic(1));
+            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
+
+        }
+    }
+    
+    private int firstEmptyChar(String[] generatedPStrings) {
+        int index = 0;
+        while (!generatedPStrings[index].isEmpty()) {
+            index++;
+        }
+        return index;
+    }
+
+    private void checkRequired(String[] generatedPassword, final PasswordPolicySpec policySpec) {
+        if (policySpec.isDigitRequired()
+                && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
+            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomNumeric(1);
+        }
+
+        if (policySpec.isUppercaseRequired()
+                && !PolicyPattern.ALPHA_UPPERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
+            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toUpperCase();
+        }
+
+        if (policySpec.isLowercaseRequired()
+                && !PolicyPattern.ALPHA_LOWERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
+            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toLowerCase();
+        }
+
+        if (policySpec.isNonAlphanumericRequired()
+                && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
+            generatedPassword[firstEmptyChar(generatedPassword)] = SPECIAL_CHAR[randomNumber(SPECIAL_CHAR.length - 1)];
+        }
+    }
+
+    private void checkPrefixAndSuffix(String[] generatedPassword, final PasswordPolicySpec policySpec) {
+        for (Iterator<String> it = policySpec.getPrefixesNotPermitted().iterator(); it.hasNext();) {
+            String prefix = it.next();
+            if (StringUtils.join(generatedPassword).startsWith(prefix)) {
+                checkStartChar(generatedPassword, policySpec);
+            }
+        }
+
+        for (Iterator<String> it = policySpec.getSuffixesNotPermitted().iterator(); it.hasNext();) {
+            String suffix = it.next();
+            if (StringUtils.join(generatedPassword).endsWith(suffix)) {
+                checkEndChar(generatedPassword, policySpec);
+            }
         }
     }
 }
