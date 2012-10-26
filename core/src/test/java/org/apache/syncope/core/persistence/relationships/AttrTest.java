@@ -152,7 +152,8 @@ public class AttrTest extends AbstractTest {
         String value = derAttr.getValue(owner.getAttributes());
         assertNotNull(value);
         assertFalse(value.isEmpty());
-        assertTrue(value.startsWith("user3 - 2010-10-20T11:00:00"));
+        System.out.println("JJJJJJJJJJJJ " + value);
+        assertTrue(value.startsWith("user3 - 2010-10-20"));
         assertTrue(value.endsWith("[]"));
     }
 }

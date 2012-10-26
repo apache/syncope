@@ -760,6 +760,8 @@ under the License.
           <version>2.12.4</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <encoding>utf-8</encoding>
+            <runOrder>alphabetical</runOrder>
           </configuration>
         </plugin>
         <plugin>
