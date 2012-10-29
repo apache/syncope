@@ -40,10 +40,13 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
+import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
@@ -94,6 +97,12 @@ public class SyncJob extends AbstractTaskJob {
      */
     @Autowired
     private ResourceDAO resourceDAO;
+
+    /**
+     * Schema DAO.
+     */
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     /**
      * User DAO.
@@ -262,7 +271,19 @@ public class SyncJob extends AbstractTaskJob {
 
                 case UserSchema:
                     final UAttrValue value = new UAttrValue();
-                    value.setStringValue(uid);
+
+                    USchema schema = schemaDAO.find(accountIdMap.getIntAttrName(), USchema.class);
+                    if (schema == null) {
+                        value.setStringValue(uid);
+                    } else {
+                        try {
+                            value.parseValue(schema, uid);
+                        } catch (ParsingValidationException e) {
+                            LOG.error("While parsing provided __UID__ {}", uid, e);
+                            value.setStringValue(uid);
+                        }
+                    }
+
                     users = userDAO.findByAttrValue(accountIdMap.getIntAttrName(), value);
                     for (SyncopeUser user : users) {
                         result.add(user.getId());
@@ -290,11 +311,11 @@ public class SyncJob extends AbstractTaskJob {
 
     /**
      * Creates user and stores the result in parameter delta (!)
-     * 
+     *
      * @param delta
      * @param dryRun
      * @return
-     * @throws JobExecutionException 
+     * @throws JobExecutionException
      */
     private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
 
@@ -541,7 +562,7 @@ public class SyncJob extends AbstractTaskJob {
         // anyway.
         report.append("Users [created/failures]: ").append(created.size()).append('/').append(createdFailed.size())
                 .append(' ').append("[updated/failures]: ").append(updated.size()).append('/').append(
-                        updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
+                updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
                 .append('/').append(deletedFailed.size());
 
         // Failures
@@ -706,12 +727,12 @@ public class SyncJob extends AbstractTaskJob {
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
         LOG.debug("Process '{}' for '{}'", delta.getDeltaType(), delta.getUid().getUidValue());
-        
+
         final List<Long> users = findExistingUsers(delta);
-        
+
         switch (delta.getDeltaType()) {
             case CREATE_OR_UPDATE:
-                if (users.isEmpty()) { 
+                if (users.isEmpty()) {
                     if (syncTask.isPerformCreate()) {
                         results.add(createUser(delta, dryRun));
                     } else {

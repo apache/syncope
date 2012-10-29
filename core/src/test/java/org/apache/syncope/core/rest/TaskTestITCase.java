@@ -43,6 +43,7 @@ import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class TaskTestITCase extends AbstractTest {
 
@@ -685,5 +686,77 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("testuser2@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertEquals(2, userTO.getMemberships().size());
         assertEquals(4, userTO.getResources().size());
+    }
+
+    @Test
+    public void issueSYNCOPE230() {
+        // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 10);
+        assertNotNull(task);
+
+        int preSyncSize = task.getExecutions().size();
+
+        // 2. execute the SyncTask for the first time
+        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
+                task.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        final int maxit = 20;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, task.getId());
+
+            assertNotNull(task);
+            assertNotNull(task.getExecutions());
+
+            i++;
+        } while (preSyncSize == task.getExecutions().size() && i < maxit);
+        assertEquals(1, task.getExecutions().size());
+
+        // 3. read e-mail address for user created by the SyncTask first execution
+        UserTO userTO = restTemplate.getForObject(
+                BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "issuesyncope230");
+        assertNotNull(userTO);
+        String email = userTO.getAttributeMap().get("email").getValues().iterator().next();
+        assertNotNull(email);
+
+        // 4. update TESTSYNC on external H2 by changing e-mail address
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
+
+        // 5. re-execute the SyncTask
+        execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
+                task.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        preSyncSize = task.getExecutions().size();
+        i = 0;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, task.getId());
+
+            assertNotNull(task);
+            assertNotNull(task.getExecutions());
+
+            i++;
+        } while (preSyncSize == task.getExecutions().size() && i < maxit);
+        assertEquals(2, task.getExecutions().size());
+
+        // 6. verify that the e-mail was updated
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "issuesyncope230");
+        assertNotNull(userTO);
+        email = userTO.getAttributeMap().get("email").getValues().iterator().next();
+        assertNotNull(email);
+        assertEquals("updatedSYNCOPE230@syncope.apache.org", email);
     }
 }
