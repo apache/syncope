@@ -1,0 +1,75 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:panel>
+
+  <div id="tabs-1">
+    <span wicket:id="details">[role details]</span>
+  </div>
+
+  <div id="tabs-2">
+    <div id="formtable">
+      <div class="tablerow alt">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="inheritAttributes"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="inheritAttributes" />
+        </div>
+      </div>
+    </div>
+
+    <span wicket:id="attributes">[role attributes]</span>
+  </div>
+
+  <div id="tabs-3">
+    <div id="formtable">
+      <div class="tablerow alt">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="inheritDerivedAttributes"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="inheritDerivedAttributes" />
+        </div>
+      </div>
+    </div>
+
+    <span wicket:id="derivedAttributes">[role derived attributes]</span>
+  </div>
+
+  <div id="tabs-4">
+    <div id="formtable">
+      <div class="tablerow alt">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="inheritVirtualAttributes"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="inheritVirtualAttributes" />
+        </div>
+      </div>
+    </div>
+
+    <span wicket:id="virtualAttributes">[role virtual attributes]</span>
+  </div>
+
+  <div id="tabs-5">
+    <span wicket:id="resources">[resources]</span>
+  </div>
+  <div id="tabs-6">
+    <span wicket:id="entitlementsPalette">[entitlements]</span>
+  </div>
+  <div id="tabs-7">
+    <span wicket:id="security">[security]</span>
+  </div>
+</wicket:panel>

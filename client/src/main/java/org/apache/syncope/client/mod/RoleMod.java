@@ -148,8 +148,9 @@ public class RoleMod extends AbstractAttributableMod {
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && name == null && inheritAccountPolicy == null && inheritPasswordPolicy == null
+        return super.isEmpty() && name == null && userOwner == null && roleOwner == null
+                && inheritOwner == null && inheritAccountPolicy == null && inheritPasswordPolicy == null
                 && inheritAttributes == null && inheritDerivedAttributes == null && inheritVirtualAttributes == null
-                && accountPolicy == null && passwordPolicy == null && entitlements.isEmpty();
+                && accountPolicy == null && passwordPolicy == null && (entitlements == null || entitlements.isEmpty());
     }
 }

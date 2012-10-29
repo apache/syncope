@@ -24,7 +24,7 @@ import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
-import org.apache.syncope.console.pages.panels.RoleAttributesPanel;
+import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -67,9 +67,8 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
-
-        form.add(attributesPanel);
+        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
+        form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
             private static final long serialVersionUID = -958724007591692537L;
@@ -79,18 +78,18 @@ public class RoleModalPage extends BaseModalPage {
 
                 final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
                 try {
-                    final List<String> entitlementList = new ArrayList<String>(attributesPanel.getEntitlementsPalette()
+                    final List<String> entitlementList = new ArrayList<String>(rolePanel.getEntitlementsPalette()
                             .getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
                     if (createFlag) {
-                        roleRestClient.createRole(roleTO);
+                        roleRestClient.create(roleTO);
                     } else {
                         RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
 
                         // update role just if it is changed
                         if (!roleMod.isEmpty()) {
-                            roleRestClient.updateRole(roleMod);
+                            roleRestClient.update(roleMod);
                         }
                     }
                     ((Roles) callerPageRef.getPage()).setModalResult(true);

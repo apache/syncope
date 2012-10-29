@@ -52,23 +52,12 @@ public class RoleRestClient extends AbstractBaseRestClient {
         return roles;
     }
 
-    /**
-     * Create new role.
-     *
-     * @param roleTO
-     */
-    public void createRole(RoleTO roleTO) {
+    public void create(final RoleTO roleTO) {
         SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "role/create", roleTO, RoleTO.class);
     }
 
-    /**
-     * Load an already existent role by its name.
-     *
-     * @param name (e.g.:surname)
-     * @return schemaTO
-     */
-    public RoleTO readRole(Long id) {
+    public RoleTO read(final Long id) {
         RoleTO roleTO = null;
 
         try {
@@ -80,24 +69,12 @@ public class RoleRestClient extends AbstractBaseRestClient {
         return roleTO;
     }
 
-    /**
-     * Update an already existent role.
-     *
-     * @param roleTO updated
-     * @return true is the operation ends successfully, false otherwise
-     */
-    public void updateRole(RoleMod roleMod) {
+    public void update(final RoleMod roleMod) {
         SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "role/update", roleMod, RoleTO.class);
     }
 
-    /**
-     * Delete an already existent role by its id.
-     *
-     * @param name (e.g.:rolename)
-     * @return roleTO
-     */
-    public RoleTO deleteRole(Long id) {
+    public RoleTO delete(final Long id) {
         return SyncopeSession.get().getRestTemplate().getForObject(
                 baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
     }

@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
-import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.rest.UserRequestRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Component;
@@ -34,27 +33,18 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Syncope Wicket base-page.
  */
-public class BasePage extends WebPage implements IAjaxIndicatorAware {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
+public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
@@ -65,18 +55,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @SpringBean
     private UserRequestRestClient profileRestClient;
 
-    @SpringBean
-    protected XMLRolesReader xmlRolesReader;
-
     @SpringBean(name = "version")
     private String version;
-
-    protected FeedbackPanel feedbackPanel;
-
-    /**
-     * Response flag set by the Modal Window after the operation is completed.
-     */
-    protected boolean modalResult = false;
 
     public BasePage() {
         super();
@@ -84,11 +64,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         pageSetup();
     }
 
-    /**
-     * Constructor that is invoked when page is invoked without a session.
-     *
-     * @param PageParameters parameters
-     */
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
@@ -97,10 +72,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private void pageSetup() {
         ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, true, version);
-
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);
 
         final String kind = getClass().getSimpleName().toLowerCase();
         final BookmarkablePageLink kindLink = (BookmarkablePageLink) get(kind);
@@ -181,18 +152,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @Override
     public String getAjaxIndicatorMarkupId() {
         return "veil";
-    }
-
-    public FeedbackPanel getFeedbackPanel() {
-        return feedbackPanel;
-    }
-
-    public boolean isModalResult() {
-        return modalResult;
-    }
-
-    public void setModalResult(final boolean operationResult) {
-        this.modalResult = operationResult;
     }
 
     /**

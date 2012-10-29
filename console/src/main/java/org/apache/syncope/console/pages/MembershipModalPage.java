@@ -18,24 +18,21 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.wicket.PageReference;
+import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
+import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
+import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
-import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
-import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
-/**
- * MembershipModalPage.
- */
 public class MembershipModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4360802478081432549L;
@@ -52,6 +49,7 @@ public class MembershipModalPage extends BaseModalPage {
         form.setModel(new CompoundPropertyModel(membershipTO));
 
         submit = new AjaxButton("submit", new ResourceModel("submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -67,14 +65,14 @@ public class MembershipModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
 
         form.add(submit);
-        
+
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -86,7 +84,7 @@ public class MembershipModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
 

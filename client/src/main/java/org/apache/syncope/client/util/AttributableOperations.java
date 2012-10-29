@@ -283,6 +283,7 @@ public final class AttributableOperations {
         diff(updated, original, result, false);
 
         // 1. inheritance
+        result.setInheritOwner(updated.isInheritOwner());
         result.setInheritAccountPolicy(updated.isInheritAccountPolicy());
         result.setInheritPasswordPolicy(updated.isInheritPasswordPolicy());
         result.setInheritAttributes(updated.isInheritAttributes());
@@ -290,13 +291,8 @@ public final class AttributableOperations {
         result.setInheritVirtualAttributes(updated.isInheritVirtualAttributes());
 
         // 2. policies
-        ReferenceMod refAccountPolicy = new ReferenceMod();
-        refAccountPolicy.setId(updated.getAccountPolicy());
-        result.setAccountPolicy(refAccountPolicy);
-
-        ReferenceMod refPasswordPolicy = new ReferenceMod();
-        refPasswordPolicy.setId(updated.getPasswordPolicy());
-        result.setPasswordPolicy(refPasswordPolicy);
+        result.setAccountPolicy(new ReferenceMod(updated.getAccountPolicy()));
+        result.setPasswordPolicy(new ReferenceMod(updated.getPasswordPolicy()));
 
         // 3. name
         if (!original.getName().equals(updated.getName())) {
@@ -311,6 +307,10 @@ public final class AttributableOperations {
         } else {
             result.setEntitlements(updated.getEntitlements());
         }
+
+        // 5. owner
+        result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
+        result.setRoleOwner(new ReferenceMod(updated.getRoleOwner()));
 
         return result;
     }

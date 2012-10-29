@@ -26,8 +26,8 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.console.commons.StatusBean;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking rest users services.
@@ -51,24 +51,12 @@ public class UserRestClient extends AbstractBaseRestClient {
                 baseURL + "user/list/{page}/{size}.json", UserTO[].class, page, size));
     }
 
-    /**
-     * Create a new user and start off the workflow.
-     *
-     * @param userTO instance
-     * @throws SyncopeClientCompositeErrorException
-     */
     public UserTO create(final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
 
         return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/create", userTO, UserTO.class);
     }
 
-    /**
-     * Update existing user.
-     *
-     * @param userTO
-     * @return true is the operation ends successfully, false otherwise
-     */
     public UserTO update(UserMod userModTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -97,12 +85,6 @@ public class UserRestClient extends AbstractBaseRestClient {
                 baseURL + "user/search/count.json", searchCond, Integer.class);
     }
 
-    /**
-     * Search an user by its schema values.
-     *
-     * @param userTO
-     * @return UserTOs
-     */
     public List<UserTO> search(final NodeCond searchCond)
             throws SyncopeClientCompositeErrorException {
 

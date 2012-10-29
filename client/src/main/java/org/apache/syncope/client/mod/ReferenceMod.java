@@ -21,9 +21,8 @@ package org.apache.syncope.client.mod;
 import org.apache.syncope.client.AbstractBaseBean;
 
 /**
- * This class is used to specify the willing to modify an external reference id.
- * Use 'null' ReferenceMod to keep the current reference id; use a ReferenceMod
- * with a null id to try to reset the reference id; use a ReferenceMod with a
+ * This class is used to specify the willing to modify an external reference id. Use 'null' ReferenceMod to keep the
+ * current reference id; use a ReferenceMod with a null id to try to reset the reference id; use a ReferenceMod with a
  * not null id to specify a new reference id.
  */
 public class ReferenceMod extends AbstractBaseBean {
@@ -33,6 +32,11 @@ public class ReferenceMod extends AbstractBaseBean {
     private Long id;
 
     public ReferenceMod() {
+        this.id = null;
+    }
+
+    public ReferenceMod(final Long id) {
+        this.id = id;
     }
 
     public Long getId() {

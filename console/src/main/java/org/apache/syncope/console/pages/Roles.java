@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
+import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
+import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
-import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 
 /**
  * Roles WebPage.
@@ -38,7 +38,7 @@ public class Roles extends BasePage {
 
     private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_WIDTH = 700;
+    private static final int WIN_WIDTH = 750;
 
     private final WebMarkupContainer container;
 
@@ -60,11 +60,9 @@ public class Roles extends BasePage {
         treePanel.setOutputMarkupId(true);
         container.add(treePanel);
 
-        final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin, Roles.this
-                .getPageReference());
-
+        final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
+                Roles.this.getPageReference());
         nodePanel.setOutputMarkupId(true);
-
         container.add(nodePanel);
 
         createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {

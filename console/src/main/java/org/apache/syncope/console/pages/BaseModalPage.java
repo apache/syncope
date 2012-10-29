@@ -19,39 +19,17 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.syncope.console.commons.XMLRolesReader;
 
 /**
  * Syncope Modal Window.
  */
-public abstract class BaseModalPage extends WebPage {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
+public abstract class BaseModalPage extends AbstractBasePage {
 
     private static final long serialVersionUID = -1443079028368471943L;
 
-    @SpringBean
-    protected XMLRolesReader xmlRolesReader;
-
-    protected FeedbackPanel feedbackPanel;
-    
     protected CloseOnESCBehavior closeOnEscBehavior;
 
     public BaseModalPage() {
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);     
-    }
-
-    public FeedbackPanel getFeedbackPanel() {
-        return feedbackPanel;
+        super();
     }
 }

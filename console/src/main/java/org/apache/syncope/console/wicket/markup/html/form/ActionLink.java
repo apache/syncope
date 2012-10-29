@@ -35,6 +35,7 @@ public abstract class ActionLink implements Serializable {
         EXECUTE,
         DRYRUN,
         CLAIM,
+        SELECT,
         EXPORT
 
     }

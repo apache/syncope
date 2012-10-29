@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -25,12 +27,9 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
 /**
- * This empty class must exist because there not seems to be alternative to
- * provide specialized HTML for edit links.
+ * This empty class must exist because there not seems to be alternative to provide specialized HTML for edit links.
  */
 public class ActionLinksPanel extends Panel {
 
@@ -53,10 +52,12 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelDelete", "emptyFragment", this));
         super.add(new Fragment("panelExecute", "emptyFragment", this));
         super.add(new Fragment("panelDryRun", "emptyFragment", this));
+        super.add(new Fragment("panelSelect", "emptyFragment", this));
         super.add(new Fragment("panelExport", "emptyFragment", this));
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId, final String actionId) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId,
+            final String actionId) {
 
         add(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
     }
@@ -68,15 +69,16 @@ public class ActionLinksPanel extends Panel {
     }
 
     public void add(final ActionLink link, final ActionLink.ActionType type, final String roles) {
-
         add(link, type, roles, true);
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles, final boolean enabled) {
+    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles,
+            final boolean enabled) {
 
         Fragment fragment = null;
 
         switch (type) {
+
             case CLAIM:
                 fragment = new Fragment("panelClaim", "fragmentClaim", this);
 
@@ -86,11 +88,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case CREATE:
                 fragment = new Fragment("panelCreate", "fragmentCreate", this);
 
@@ -100,7 +102,6 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
@@ -115,11 +116,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case TEMPLATE:
                 fragment = new Fragment("panelTemplate", "fragmentTemplate", this);
 
@@ -129,11 +130,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case SEARCH:
                 fragment = new Fragment("panelSearch", "fragmentSearch", this);
 
@@ -143,11 +144,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case EXECUTE:
                 fragment = new Fragment("panelExecute", "fragmentExecute", this);
 
@@ -157,11 +158,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case DRYRUN:
                 fragment = new Fragment("panelDryRun", "fragmentDryRun", this);
 
@@ -171,11 +172,11 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             case DELETE:
                 fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
@@ -185,12 +186,27 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
 
                 break;
+
+            case SELECT:
+                fragment = new Fragment("panelSelect", "fragmentSelect", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink("selectLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+
+                break;
+
             case EXPORT:
                 fragment = new Fragment("panelExport", "fragmentExport", this);
 
@@ -200,13 +216,13 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         link.onClick(target);
                     }
                 });
                 break;
+
             default:
-                // do nothink
+            // do nothink
         }
 
         if (fragment != null) {
@@ -216,7 +232,7 @@ public class ActionLinksPanel extends Panel {
         }
     }
 
-    public void remove(ActionLink.ActionType type) {
+    public void remove(final ActionLink.ActionType type) {
         switch (type) {
             case CLAIM:
                 super.addOrReplace(new Fragment("panelClaim", "emptyFragment", this));
@@ -229,26 +245,37 @@ public class ActionLinksPanel extends Panel {
             case EDIT:
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
                 break;
+
             case TEMPLATE:
                 super.addOrReplace(new Fragment("panelTemplate", "emptyFragment", this));
                 break;
+
             case SEARCH:
                 super.addOrReplace(new Fragment("panelSearch", "emptyFragment", this));
                 break;
+
             case EXECUTE:
                 super.addOrReplace(new Fragment("panelExecute", "emptyFragment", this));
                 break;
+
             case DRYRUN:
                 super.addOrReplace(new Fragment("panelDryRun", "emptyFragment", this));
                 break;
+
             case DELETE:
                 super.addOrReplace(new Fragment("panelDelete", "emptyFragment", this));
                 break;
+
+            case SELECT:
+                super.addOrReplace(new Fragment("panelSelect", "emptyFragment", this));
+                break;
+
             case EXPORT:
                 super.addOrReplace(new Fragment("panelExport", "emptyFragment", this));
                 break;
+
             default:
-                // do nothink
+            // do nothing
         }
     }
 }

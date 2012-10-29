@@ -107,7 +107,7 @@ public class TreeActionLinkPanel extends Panel {
 
                         @Override
                         public Page createPage() {
-                            RoleTO roleTO = restClient.readRole(idRole);
+                            RoleTO roleTO = restClient.read(idRole);
                             RoleModalPage form = new RoleModalPage(callerPageRef, window, roleTO);
                             return form;
                         }
@@ -127,7 +127,7 @@ public class TreeActionLinkPanel extends Panel {
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        restClient.deleteRole(idRole);
+                        restClient.delete(idRole);
                         getSession().info(getString("operation_succeded"));
                     } catch (SyncopeClientCompositeErrorException e) {
                         LOG.error("While deleting role " + idRole, e);

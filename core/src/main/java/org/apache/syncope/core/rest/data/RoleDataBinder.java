@@ -243,6 +243,13 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
+        if (role.getUserOwner() != null) {
+            roleTO.setUserOwner(role.getUserOwner().getId());
+        }
+        if (role.getRoleOwner() != null) {
+            roleTO.setRoleOwner(role.getRoleOwner().getId());
+        }
+
         // -------------------------
         // Retrieve all [derived/virtual] attributes (inherited and not)
         // -------------------------

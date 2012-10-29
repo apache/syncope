@@ -20,6 +20,13 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.RoleTreeBuilder;
+import org.apache.syncope.console.pages.MembershipModalPage;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -36,15 +43,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.RoleTreeBuilder;
-import org.apache.syncope.console.pages.MembershipModalPage;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
-public class RolesPanel extends Panel {
+public class MembershipsPanel extends Panel {
 
     private static final long serialVersionUID = -2559791301973107191L;
 
@@ -55,8 +55,7 @@ public class RolesPanel extends Panel {
 
     private UserTO userTO = null;
 
-    public RolesPanel(final String id, final UserTO userTO, final boolean templateMode) {
-
+    public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode) {
         super(id);
         this.userTO = userTO;
 
@@ -93,10 +92,9 @@ public class RolesPanel extends Panel {
                     public Page createPage() {
 
                         for (MembershipTO memberTO : membershipsView.getList()) {
-
                             if (memberTO.getRoleId() == roleTO.getId()) {
-                                return new MembershipModalPage(getPage().getPageReference(), membershipWin, memberTO,
-                                        templateMode);
+                                return new MembershipModalPage(getPage().getPageReference(),
+                                        membershipWin, memberTO, templateMode);
                             }
                         }
                         membershipTO = new MembershipTO();
@@ -179,7 +177,7 @@ public class RolesPanel extends Panel {
             public void onClose(final AjaxRequestTarget target) {
                 final UserTO updatedUserTO = ((UserModalPage) getPage()).getUserTO();
 
-                RolesPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
+                MembershipsPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
                 target.add(container);
             }
         });

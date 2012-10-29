@@ -117,7 +117,8 @@ public class Users extends BasePage {
         });
     }
 
-    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond, final ResultSetPanel resultsetPanel) {
+    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
+            final ResultSetPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.checkValidity()) {
             error(getString("search_error"));

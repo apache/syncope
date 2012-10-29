@@ -30,7 +30,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.UserDataProvider;
 import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.BasePage;
+import org.apache.syncope.console.pages.AbstractBasePage;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
@@ -132,23 +132,23 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Number of rows per page.
      */
-    private int rows;
+    private final int rows;
 
     /**
      * Container used to refresh table.
      */
-    final protected WebMarkupContainer container;
+    protected final WebMarkupContainer container;
 
     /**
      * Feedback panel specified by the caller.
      */
-    final private FeedbackPanel feedbackPanel;
+    private final FeedbackPanel feedbackPanel;
 
     /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
      * show results about user list and user search.
      */
-    private boolean filtered;
+    private final boolean filtered;
 
     /**
      * Filter used in case of filtered search.
@@ -173,25 +173,26 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Modal window to be used for attributes choosing to display in tables.
      */
-    final ModalWindow displaymodal = new ModalWindow("displayModal");
+    private final ModalWindow displaymodal = new ModalWindow("displayModal");
 
     /**
      * Modal window to be used for user status management.
      */
-    final ModalWindow statusmodal = new ModalWindow("statusModal");
+    private final ModalWindow statusmodal = new ModalWindow("statusModal");
 
     /**
      * Owner page.
      */
-    private final BasePage page;
+    private final AbstractBasePage page;
 
     public <T extends AbstractAttributableTO> ResultSetPanel(final String id, final boolean filtered,
             final NodeCond searchCond, final PageReference callerRef) {
+
         super(id);
 
         setOutputMarkupId(true);
 
-        page = (BasePage) callerRef.getPage();
+        page = (AbstractBasePage) callerRef.getPage();
 
         this.filtered = filtered;
         this.filter = searchCond;
@@ -277,10 +278,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.add(displayAttrsLink);
 
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 if (target != null) {
                     target.add(resultTable);
                 }
@@ -288,6 +290,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         };
 
         reload.add(new Behavior() {
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -302,7 +305,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                 }
             }
         });
-        
+
         container.add(reload);
 
         // ---------------------------
@@ -340,7 +343,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     public void search(final NodeCond searchCond, final AjaxRequestTarget target) {
-
         this.filter = searchCond;
         dataProvider.setSearchCond(filter);
         target.add(container);
@@ -369,7 +371,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.addOrReplace(resultTable);
     }
 
-    private List<IColumn<UserTO>> getColumns() {
+    protected List<IColumn<UserTO>> getColumns() {
         final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {

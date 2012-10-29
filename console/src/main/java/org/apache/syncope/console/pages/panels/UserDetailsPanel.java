@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -30,26 +34,21 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 
 public class UserDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    public <T extends AbstractAttributableTO> UserDetailsPanel(final String id, final UserTO userTO, final Form form,
-            final boolean resetPassword, final boolean templateMode) {
+    public UserDetailsPanel(final String id, final UserTO userTO, final Form form, final boolean resetPassword,
+            final boolean templateMode) {
 
         super(id);
 
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username", new PropertyModel<String>(userTO,
-                "username"));
+        final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username",
+                new PropertyModel<String>(userTO, "username"));
         if (!templateMode) {
             username.addRequiredLabel();
         }
@@ -59,9 +58,9 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Password
         // ------------------------
-        final FieldPanel<String> password;
-        final Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
-        final FieldPanel<String> confirmPassword;
+        FieldPanel<String> password;
+        Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
+        FieldPanel<String> confirmPassword;
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
 
@@ -70,7 +69,8 @@ public class UserDetailsPanel extends Panel {
             confirmPassword.setEnabled(false);
             confirmPassword.setVisible(false);
         } else {
-            password = new AjaxPasswordFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
+            password = new AjaxPasswordFieldPanel("password", "password",
+                    new PropertyModel<String>(userTO, "password"));
             password.setRequired(userTO.getId() == 0);
             ((PasswordTextField) password.getField()).setResetPassword(resetPassword);
 

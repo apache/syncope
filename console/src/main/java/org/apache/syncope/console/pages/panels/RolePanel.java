@@ -18,39 +18,33 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.rest.EntitlementRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.rest.EntitlementRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
-public class RoleAttributesPanel extends Panel {
+public class RolePanel extends Panel {
 
     private static final long serialVersionUID = 4216376097320768369L;
 
     @SpringBean
     private EntitlementRestClient entitlementRestClient;
 
-    final Palette<String> entitlementsPalette;
+    private final Palette<String> entitlementsPalette;
 
-    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
-
+    public RolePanel(final String id, final Form form, final RoleTO roleTO) {
         super(id);
+
+        this.add(new RoleDetailsPanel("details", roleTO, form));
 
         //--------------------------------
         // Attributes panel
-        //--------------------------------
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
-                new PropertyModel<String>(roleTO, "name"));
-        name.addRequiredLabel();
-        this.add(name);
-
         this.add(new AttributesPanel("attributes", roleTO, form, false));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",

@@ -58,11 +58,9 @@ public class RoleTabPanel extends Panel {
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
 
-        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
-
-        attributesPanel.setEnabled(false);
-
-        form.add(attributesPanel);
+        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
+        rolePanel.setEnabled(false);
+        form.add(rolePanel);
 
         final WebMarkupContainer userListContainer = new WebMarkupContainer("userListContainer");
 

@@ -23,7 +23,7 @@ import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
-import org.apache.syncope.console.pages.panels.RolesPanel;
+import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.UserManagementResultPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
@@ -163,7 +163,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new RolesPanel("roles", userTO, mode == Mode.TEMPLATE));
+        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         final AjaxButton submit = getOnSubmit();
