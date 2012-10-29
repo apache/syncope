@@ -204,6 +204,16 @@ under the License.
       </roles>
       <url>http://people.apache.org/~coheigea/</url>
     </developer>
+    <developer>
+      <id>jbonofre</id>
+      <name>Jean-Baptiste Onofré</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>PPMC member</role>
+      </roles>
+      <url>http://people.apache.org/~jbonofre/</url>
+    </developer>
   </developers>
 
   <contributors>
