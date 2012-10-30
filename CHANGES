@@ -2,6 +2,17 @@ Apache Syncope (incubating) - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.3-incubating
+================================================================================
+** Bug
+    * [SYNCOPE-214] - Error when trying to change readonly attribute
+    * [SYNCOPE-217] - SyncopeUser.hasTokenExpired() can easily cause nullpointer exception
+    * [SYNCOPE-220] - When running in embedded mode, CSVDir configuration shows unresolved ${urlencoded.csvdir.path} property
+    * [SYNCOPE-224] - ActivitiWorkflowLoader called by SpringContextInitializer even when ActivitiUserWorkflowAdapter is not selected
+    * [SYNCOPE-226] - Invalid passwords might fill up user's password history
+    * [SYNCOPE-228] - When updating a role, assigned entitlements get lost
+    * [SYNCOPE-230] - Sync user attributes using a long schema attribute as accountId
+
 Release Notes - Syncope - Version 1.0.2-incubating
 ================================================================================
 ** Bug
