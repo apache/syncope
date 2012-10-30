@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,6 +114,11 @@ public class ResourceMappingPanel extends Panel {
      * Mapping container.
      */
     private final transient WebMarkupContainer mappingContainer;
+    
+    /**
+     * AccountLink container.
+     */
+    private final transient WebMarkupContainer accountLinkContainer;
 
     /**
      * OnChange event name.
@@ -148,10 +154,46 @@ public class ResourceMappingPanel extends Panel {
         this.resourceTO = resourceTO;
 
         initResourceSchemaNames();
+        
+        accountLinkContainer = new WebMarkupContainer("accountLinkContainer");
+        accountLinkContainer.setOutputMarkupId(true);
+        add(accountLinkContainer);
+
+        boolean accountLinkEnabled = false;
+        if (resourceTO.getAccountLink() != null) {
+            accountLinkEnabled = true;
+        }
+        final AjaxCheckBoxPanel accountLinkCheckbox = new AjaxCheckBoxPanel("accountLinkCheckbox", 
+                        new ResourceModel("accountLinkCheckbox", "accountLinkCheckbox").getObject(),
+                        new Model<Boolean>(Boolean.valueOf(accountLinkEnabled)));
+        accountLinkCheckbox.setEnabled(true);
+        
+        accountLinkContainer.add(accountLinkCheckbox);
 
         final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink", new ResourceModel("accountLink",
                 "accountLink").getObject(), new PropertyModel<String>(resourceTO, "accountLink"));
-        add(accountLink);
+        accountLink.setEnabled(accountLinkEnabled);
+        
+        accountLinkContainer.add(accountLink);
+        
+        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (accountLinkCheckbox.getModelObject()) {
+                    accountLink.setEnabled(Boolean.TRUE);
+                    accountLink.setModelObject("");
+                } else {
+                    accountLink.setEnabled(Boolean.FALSE);
+                    accountLink.setModelObject("");
+                }
+                
+                target.add(accountLink);
+            }
+        });
+        
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);

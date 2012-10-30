@@ -67,7 +67,7 @@ public class CrontabContainer extends WebMarkupContainer {
         super(id);
         setOutputMarkupId(true);
 
-        final DropDownChoice<SelectOption> cronTemplateChooser = new DropDownChoice("cronTemplateChooser") {
+        final DropDownChoice<SelectOption> cronTemplateChooser = new DropDownChoice<SelectOption>("cronTemplateChooser") {
 
             private static final long serialVersionUID = -5843424545478691442L;
 

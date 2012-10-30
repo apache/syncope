@@ -109,7 +109,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         type.addRequiredLabel();
 
         final AjaxTextFieldPanel enumerationValuesPanel = 
-            new AjaxTextFieldPanel("panel", "enumerationValues", new Model(null));
+            new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
         final MultiValueSelectorPanel<String> enumerationValues =
                 new MultiValueSelectorPanel<String>("enumerationValues",
                 new Model(),
@@ -121,7 +121,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final MultiValueSelectorPanel<String> enumerationKeys =
                 new MultiValueSelectorPanel<String>("enumerationKeys",
                 new Model(),
-                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model(null)));
+                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>(null)));
         schemaForm.add(enumerationKeys);
 
         enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));

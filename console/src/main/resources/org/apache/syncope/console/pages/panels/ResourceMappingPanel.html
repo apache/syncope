@@ -74,10 +74,31 @@
                 </div>
             </div>
 
-            <div class="tablerow" style="margin-top: 10px">
-                <div class="tablecolumn_label long_fixedsize">
-                    <label for="accountLink"><wicket:message key="accountLink"/></label>
-                    <span wicket:id="accountLink">[accountLink]</span>
+            <div class="tablerow">
+                <div class="tablecolumn_field all_dynamicsize">
+                    <table id="accountLinkTable"
+                           class="ui-widget ui-widget-content ui-corner-all"
+                           style="font-size: 1em;margin-top:2px;"
+                           border-width="1px;" border-color="#cccccc;" border-style="solid;"
+                           width="100%" cellpadding="2px" cellspacing="1px"
+                           wicket:id="accountLinkContainer">
+                        <thead>
+                            <tr class="ui-widget-header">
+                                <th width="10%" align="left"><wicket:message key="enable"/></th>
+                                <th align="left"><wicket:message key="accountLink"/></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="10%" align="left" valign="middle">
+                                    <span wicket:id="accountLinkCheckbox">[accountLinkCheckbox]</span>
+                                </td>
+                                <td align="left" valign="middle">
+                                    <span wicket:id="accountLink">[accountLink]</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

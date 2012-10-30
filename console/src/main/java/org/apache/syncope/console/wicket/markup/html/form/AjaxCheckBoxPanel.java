@@ -52,7 +52,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     }
 
     @Override
-    public FieldPanel addRequiredLabel() {
+    public FieldPanel<Boolean> addRequiredLabel() {
         if (!isRequired()) {
             setRequired(true);
         }
@@ -63,7 +63,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     }
 
     @Override
-    public FieldPanel setNewModel(final List<Serializable> list) {
+    public FieldPanel<Boolean> setNewModel(final List<Serializable> list) {
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 527651414610325237L;
