@@ -35,9 +35,12 @@ import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
+import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -78,13 +81,19 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
     private EntitlementDAO entitlementDAO;
 
     /**
+     * Schema DAO.
+     */
+    @Autowired
+    private SchemaDAO schemaDAO;
+
+    /**
      * User DAO.
      */
     @Autowired
     private UserDAO userDAO;
 
     /**
-     * User DAO.
+     * User search DAO.
      */
     @Autowired
     private UserSearchDAO userSearchDAO;
@@ -214,7 +223,19 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
                 case UserSchema:
                     final UAttrValue value = new UAttrValue();
-                    value.setStringValue(uid);
+
+                    USchema schema = schemaDAO.find(accountIdMap.getIntAttrName(), USchema.class);
+                    if (schema == null) {
+                        value.setStringValue(uid);
+                    } else {
+                        try {
+                            value.parseValue(schema, uid);
+                        } catch (ParsingValidationException e) {
+                            LOG.error("While parsing provided __UID__ {}", uid, e);
+                            value.setStringValue(uid);
+                        }
+                    }
+
                     users = userDAO.findByAttrValue(accountIdMap.getIntAttrName(), value);
                     for (SyncopeUser user : users) {
                         result.add(user.getId());

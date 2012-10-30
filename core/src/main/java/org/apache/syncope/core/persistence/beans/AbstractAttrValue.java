@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.lang.Boolean;
+import java.lang.Double;
+import java.lang.Long;
+import java.lang.String;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.MappedSuperclass;
@@ -27,6 +33,9 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.syncope.client.SyncopeConstants;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
 
 @MappedSuperclass
@@ -99,16 +108,78 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         this.stringValue = stringValue;
     }
 
+    public <T extends AbstractAttrValue> void parseValue(final AbstractSchema schema, final String value)
+            throws ParsingValidationException {
+
+        Exception exception = null;
+
+        switch (schema.getType()) {
+
+            case Boolean:
+                this.setBooleanValue(Boolean.parseBoolean(value));
+                break;
+
+            case Long:
+                try {
+                    if (schema.getFormatter() == null) {
+                        this.setLongValue(Long.valueOf(value));
+                    } else {
+                        this.setLongValue(Long.valueOf(
+                                ((DecimalFormat) schema.getFormatter()).parse(value).longValue()));
+                    }
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
+
+            case Double:
+                try {
+                    if (schema.getFormatter() == null) {
+                        this.setDoubleValue(Double.valueOf(value));
+                    } else {
+                        this.setDoubleValue(Double.valueOf(
+                                ((DecimalFormat) schema.getFormatter()).parse(value).doubleValue()));
+                    }
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
+
+            case Date:
+                try {
+                    if (schema.getFormatter() == null) {
+                        this.setDateValue(DateUtils.parseDate(value, SyncopeConstants.DATE_PATTERNS));
+                    } else {
+                        this.setDateValue(new Date(((DateFormat) schema.getFormatter()).parse(value).getTime()));
+                    }
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
+
+
+            case String:
+            case Enum:
+            default:
+                this.setStringValue(value);
+        }
+
+        if (exception != null) {
+            throw new ParsingValidationException("While trying to parse '" + value + "' as " + schema.getName(),
+                    exception);
+        }
+    }
+
     public <T> T getValue() {
         return (T) (booleanValue != null
                 ? getBooleanValue()
                 : (dateValue != null
-                        ? getDateValue()
-                        : (doubleValue != null
-                                ? getDoubleValue()
-                                : (longValue != null
-                                        ? getLongValue()
-                                        : stringValue))));
+                ? getDateValue()
+                : (doubleValue != null
+                ? getDoubleValue()
+                : (longValue != null
+                ? getLongValue()
+                : stringValue))));
     }
 
     public String getValueAsString() {

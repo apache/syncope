@@ -27,3 +27,13 @@ password VARCHAR(255) NOT NULL,
 status VARCHAR(5));
 
 INSERT INTO test2 VALUES ('testuser2', 'password321', 'false');
+
+-- this table is for issueSYNCOPE230
+DROP TABLE testsync IF EXISTS;
+CREATE TABLE TESTSYNC (
+id NUMBER(10) PRIMARY KEY,
+username VARCHAR(80),
+surname VARCHAR(80),
+email VARCHAR(80));
+
+INSERT INTO testsync VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');

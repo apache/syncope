@@ -19,15 +19,10 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.Date;
-import org.apache.commons.lang.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.SyncopeConstants;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractValidator implements Validator, Serializable {
 
@@ -45,75 +40,13 @@ public abstract class AbstractValidator implements Validator, Serializable {
     }
 
     @Override
-    public <T extends AbstractAttrValue> void validate(final String value, T attributeValue)
+    public <T extends AbstractAttrValue> void validate(final String value, final T attrValue)
             throws ParsingValidationException, InvalidAttrValueException {
 
-        parseValue(value, attributeValue);
-        doValidate(attributeValue);
+        attrValue.parseValue(schema, value);
+        doValidate(attrValue);
     }
 
-    private <T extends AbstractAttrValue> void parseValue(final String value, final T attributeValue)
-            throws ParsingValidationException {
-
-        Exception exception = null;
-
-        switch (schema.getType()) {
-
-            case String:
-            case Enum:
-                attributeValue.setStringValue(value);
-                break;
-
-            case Boolean:
-                attributeValue.setBooleanValue(Boolean.parseBoolean(value));
-                break;
-
-            case Long:
-                try {
-                    if (schema.getFormatter() == null) {
-                        attributeValue.setLongValue(Long.valueOf(value));
-                    } else {
-                        attributeValue.setLongValue(Long.valueOf(((DecimalFormat) schema.getFormatter()).parse(value)
-                                .longValue()));
-                    }
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
-
-            case Double:
-                try {
-                    if (schema.getFormatter() == null) {
-                        attributeValue.setDoubleValue(Double.valueOf(value));
-                    } else {
-                        attributeValue.setDoubleValue(Double.valueOf(((DecimalFormat) schema.getFormatter()).parse(
-                                value).doubleValue()));
-                    }
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
-
-            case Date:
-                try {
-                    if (schema.getFormatter() == null) {
-                        attributeValue.setDateValue(DateUtils.parseDate(value, SyncopeConstants.DATE_PATTERNS));
-                    } else {
-                        attributeValue.setDateValue(new Date(((DateFormat) schema.getFormatter()).parse(value)
-                                .getTime()));
-                    }
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
-
-            default:
-        }
-
-        if (exception != null) {
-            throw new ParsingValidationException("While trying to parse '" + value + "'", exception);
-        }
-    }
-
-    protected abstract <T extends AbstractAttrValue> void doValidate(T attributeValue) throws InvalidAttrValueException;
+    protected abstract <T extends AbstractAttrValue> void doValidate(T attributeValue)
+            throws InvalidAttrValueException;
 }
