@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.0.3-incubating-SNAPSHOT</version>
+    <version>1.0.3-incubating</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -794,9 +794,7 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" 
-                          file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" 
-                          overwrite="true" />
+                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" overwrite="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -843,9 +841,7 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/workflowContext.xml" 
-                          file="${basedir}/src/test/resources/noopworkflow/workflowContext.xml" 
-                          overwrite="true" />
+                    <copy tofile="${project.build.directory}/classes/workflowContext.xml" file="${basedir}/src/test/resources/noopworkflow/workflowContext.xml" overwrite="true" />
                   </target>
                 </configuration>
                 <goals>
