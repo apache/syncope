@@ -213,7 +213,7 @@ public class JobInstanceLoader {
         unregisterJob(getJobName(report));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void load() {
         // 1. jobs for SchedTasks
         Set<SchedTask> tasks = new HashSet(taskDAO.findAll(SchedTask.class));
