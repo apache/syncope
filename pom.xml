@@ -214,6 +214,16 @@ under the License.
       </roles>
       <url>http://people.apache.org/~jbonofre/</url>
     </developer>
+	<developer>
+      <id>jbernhardt</id>
+      <name>Jan Bernhardt</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>PPMC member</role>
+      </roles>
+      <url>http://people.apache.org/~jbernhardt/</url>
+    </developer>
   </developers>
 
   <contributors>
