@@ -22,7 +22,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +29,8 @@ import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.apache.syncope.types.SyncopeLoggerLevel;
 import org.apache.syncope.types.SyncopeLoggerType;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class LoggerLoader {
@@ -48,7 +49,9 @@ public class LoggerLoader {
             loggerLogs.put(syncopeLogger.getName(), syncopeLogger);
         }
 
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+
+        LoggerContext lc = (LoggerContext) loggerFactory;
 
         /*
          * Traverse all defined Logback loggers: if there is a matching SyncopeLogger, set Logback level accordingly,
