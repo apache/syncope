@@ -24,36 +24,606 @@ under the License.
   <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
   <!-- notificationjob.cronExpression:
-  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
-  + provided as empty string: NotificationJob disabled
-  + provided as non-empty string: NotificationJob runs according to the given value -->
-  <SyncopeConf confKey="notificationjob.cronExpression" confValue="0 0/5 * * * ?"/>
+       + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+       + provided as empty string: NotificationJob disabled
+       + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
+
+  <!-- sample policies -->
+  <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="GLOBAL_SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
+  <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3Corg.apache.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E1%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E8%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Efalse%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.apache.syncope.types.PasswordPolicySpec%3E"/>
+  <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%3E%0A++%3CalternativeSearchAttrs%3E%0A++++%3Cstring%3Eusername%3C%2Fstring%3E%0A++++%3Cstring%3Efirstname%3C%2Fstring%3E%0A++%3C%2FalternativeSearchAttrs%3E%0A++%3CconflictResolutionAction%3EALL%3C%2FconflictResolutionAction%3E%0A%3C%2Forg.apache.syncope.types.SyncPolicySpec%3E"/>
+  <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3Corg.apache.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E0%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E10%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Etrue%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.apache.syncope.types.PasswordPolicySpec%3E"/>
+  <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" specification="%3Corg.apache.syncope.types.AccountPolicySpec%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E0%3C%2FminLength%3E%0A++%3CallUpperCase%3Efalse%3C%2FallUpperCase%3E%0A++%3CallLowerCase%3Efalse%3C%2FallLowerCase%3E%0A++%3CpropagateSuspension%3Efalse%3C%2FpropagateSuspension%3E%0A++%3CpermittedLoginRetries%3E0%3C%2FpermittedLoginRetries%3E%0A%3C%2Forg.apache.syncope.types.AccountPolicySpec%3E"/>
+  <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3Corg.apache.syncope.types.AccountPolicySpec%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E4%3C%2FminLength%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A++%3CallUpperCase%3Efalse%3C%2FallUpperCase%3E%0A++%3CallLowerCase%3Efalse%3C%2FallLowerCase%3E%0A++%3CpropagateSuspension%3Efalse%3C%2FpropagateSuspension%3E%0A++%3CpermittedLoginRetries%3E3%3C%2FpermittedLoginRetries%3E%0A%3C%2Forg.apache.syncope.types.AccountPolicySpec%3E"/>
+  <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
+  <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" specification="%3Corg.apache.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E0%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E10%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Etrue%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Etrue%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Etrue%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Etrue%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Etrue%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Etrue%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.apache.syncope.types.PasswordPolicySpec%3E"/>
     
-  <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="GLOBAL_SYNC"
-          specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>
-  <Policy DTYPE="PasswordPolicy" id="2" description="Global Password Policy" type="GLOBAL_PASSWORD"
-          specification="%3Corg.apache.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E0%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E0%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Efalse%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A%3C%2Forg.apache.syncope.types.PasswordPolicySpec%3E"/>
-  <Policy DTYPE="AccountPolicy" id="3" description="Global Account Policy" type="GLOBAL_ACCOUNT"
-          specification="%3Corg.apache.syncope.types.AccountPolicySpec%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E0%3C%2FminLength%3E%0A++%3CallUpperCase%3Efalse%3C%2FallUpperCase%3E%0A++%3CallLowerCase%3Efalse%3C%2FallLowerCase%3E%0A++%3CpropagateSuspension%3Efalse%3C%2FpropagateSuspension%3E%0A++%3CpermittedLoginRetries%3E0%3C%2FpermittedLoginRetries%3E%0A%3C%2Forg.apache.syncope.types.AccountPolicySpec%3E"/>
-    
-  <USchema name="surname" type="String"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <SyncopeUser id="1" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="user1" creationDate="2010-10-20 11:00:00"/>
+  <SyncopeUser id="2" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="user2" creationDate="2010-10-20 11:00:00"/>
+  <SyncopeUser id="3" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="user3" creationDate="2010-10-20 11:00:00"/>
+  <SyncopeUser id="4" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="user4" creationDate="2010-10-20 11:00:00"/>
+  <SyncopeUser id="5" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="user5" creationDate="2010-10-20 11:00:00"/>
+
+  <SyncopeRole id="1" name="root"/>
+  <SyncopeRole id="2" name="child" parent_id="1"/>
+  <SyncopeRole id="3" name="citizen"/>
+  <SyncopeRole id="4" name="employee" parent_id="3"/>
+  <SyncopeRole id="5" name="secretary" parent_id="4"/>
+  <SyncopeRole id="6"
+               name="director" parent_id="4" userOwner_id="5"
+               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritPasswordPolicy="0" inheritAccountPolicy="0"
+               passwordPolicy_id="4"
+               accountPolicy_id="6"/>
+  <SyncopeRole id="7"
+               name="managingDirector" parent_id="6"
+               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"/>
+  <SyncopeRole id="8"
+               name="otherchild" parent_id="1"
+               inheritVirtualAttributes="1"
+               passwordPolicy_id="4"/>
+  <SyncopeRole id="9" name="roleForWorkflowApproval" parent_id="1"/>
+  <SyncopeRole id="10"
+               name="managingConsultant" parent_id="6"
+               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"/>
+  <SyncopeRole id="11" name="roleForWorkflowOptIn" parent_id="1"/>
+  <SyncopeRole id="12" name="aRoleForPropagation" parent_id="1"/>
+  <SyncopeRole id="13" name="bRoleForPropagation" parent_id="1"/>
+  <SyncopeRole id="14"
+               name="artDirector" parent_id="4"
+               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritPasswordPolicy="0" inheritAccountPolicy="0"
+               passwordPolicy_id="8"
+               accountPolicy_id="6"/>
+
+  <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
+  <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
+  <Membership id="3" syncopeUser_id="2" syncopeRole_id="2"/>
+  <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
+  <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
+  <Membership id="6" syncopeUser_id="2" syncopeRole_id="3"/>
+  <Membership id="7" syncopeUser_id="5" syncopeRole_id="14"/>
+
+  <USchema name="fullname" type="String"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <USchema name="userId" type="String"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
+           validatorClass="org.apache.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
+  <USchema name="loginDate" type="Date"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+           conversionPattern="yyyy-MM-dd"/>
   <USchema name="firstname" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <USchema name="surname" type="String"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <USchema name="type" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <USchema name="email" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
            validatorClass="org.apache.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-               
-  <UDerSchema name="fullname" expression="firstname + '.' + surname"/>
+  <USchema name="activationDate" type="Date"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <USchema name="uselessReadonly" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+  <USchema name="cool" type="Boolean"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <USchema name="gender" type="Enum"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           enumerationValues="M;F"/>
+  <USchema name="aLong" type="Long"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
+
+  <RSchema name="icon" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+                
+  <RSchema name="show" type="Boolean"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <RSchema name="rderived_sx" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <RSchema name="rderived_dx" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+           
+  <RSchema name="title" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
   <MSchema name="subscriptionDate" type="Date"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
            conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
+  <MSchema name="mderived_sx" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <MSchema name="mderived_dx" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+           
+  <MSchema name="postalAddress" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <UAttr id="100" owner_id="1" schema_name="fullname"/>
+  <UAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="chicchiricco"/>
+  <UAttr id="200" owner_id="1" schema_name="loginDate"/>
+  <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
+  <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
+
+  <UAttr id="300" owner_id="2" schema_name="fullname"/>
+  <UAttrUniqueValue id="11" attribute_id="300" schema_name="fullname" stringValue="fabio.martelli"/>
+
+  <UAttr id="400" owner_id="3" schema_name="firstname"/>
+  <UAttrValue attribute_id="400" id="30" stringValue="John"/>
+  <UAttr id="500" owner_id="3" schema_name="surname"/>
+  <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
+  <UAttr id="540" owner_id="3" schema_name="fullname"/>
+  <UAttrUniqueValue id="12" attribute_id="540" schema_name="fullname" stringValue="testUsername"/>
+
+  <UAttr id="550" owner_id="4" schema_name="loginDate"/>
+  <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
+  <UAttr id="560" owner_id="4" schema_name="cool"/>
+  <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
+  <UAttr id="561" owner_id="4" schema_name="gender"/>
+  <UAttrValue attribute_id="561" id="24" stringValue="M"/>
+    
+  <RAttr id="600" owner_id="1" schema_name="icon"/>
+  <RAttr id="700" owner_id="2" schema_name="icon"/>
+  <RAttr id="800" owner_id="1" schema_name="show"/>
+  <RAttr id="900" owner_id="6" schema_name="icon"/>
+  <RAttr id="950" owner_id="4" schema_name="icon"/>
+
+  <RAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
+  <RAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
+  <RAttrValue attribute_id="800" id="42" booleanValue="1"/>
+  <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
+  <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
+
+  <RAttr id="992" owner_id="1" schema_name="rderived_sx"/>
+  <RAttrValue attribute_id="992" id="92" stringValue="sx"/>
+
+  <RAttr id="993" owner_id="1" schema_name="rderived_dx"/>
+  <RAttrValue attribute_id="993" id="93" stringValue="dx"/>
+
+  <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+  <RDerAttr id="1000" derivedSchema_name="rderiveddata" owner_id="1"/>
+    
+  <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
+
+  <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
+  <RDerAttr id="1002" derivedSchema_name="displayProperty" owner_id="4"/>
+
+  <RDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+  <RDerAttr id="1003" derivedSchema_name="rderToBePropagated" owner_id="1"/>
+    
+  <!-- rderiveddata is used to verify der schema deletion -->
+  <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  
+  <RAttr id="1004" owner_id="12" schema_name="title"/>
+  <RAttrValue attribute_id="1004" id="94" stringValue="r12"/>
+  
+  <RAttr id="1005" owner_id="13" schema_name="title"/>
+  <RAttrValue attribute_id="1005" id="95" stringValue="r13"/>
+
+  <MAttr id="100" owner_id="4" schema_name="subscriptionDate"/>
+
+  <MAttrValue attribute_id="100" id="90" dateValue="2009-05-26"/>
+  <MAttrValue attribute_id="100" id="91" dateValue="2010-05-26 15:40:04"/>
+
+  <MAttr id="102" owner_id="1" schema_name="mderived_sx"/>
+  <MAttrValue attribute_id="102" id="92" stringValue="sx"/>
+
+  <MAttr id="103" owner_id="1" schema_name="mderived_dx"/>
+  <MAttrValue attribute_id="103" id="93" stringValue="dx"/>
+
+  <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+  <MDerAttr id="100" derivedSchema_name="mderiveddata" owner_id="1"/>
+    
+  <MDerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
+
+  <UVirSchema name="virtualdata"/>
+  <UVirAttr id="100" virtualSchema_name="virtualdata" owner_id="3"/>
+
+  <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
+  <UDerAttr id="100" derivedSchema_name="cn" owner_id="3"/>
+
+  <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
+
+  <MVirSchema name="mvirtualdata"/>
+  <RVirSchema name="rvirtualdata"/>
+  <RVirAttr id="100" virtualSchema_name="rvirtualdata" owner_id="4"/>
+
+  <ConnInstance id="100" displayName="ConnInstance100"
+                bundleName="org.connid.bundles.soap"
+                connectorName="org.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/wssample/services/provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eservicename%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capabilities="SEARCH"/>
+
+  <ConnInstance id="101" displayName="H2"
+                bundleName="org.connid.bundles.db.table"
+                connectorName="org.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.db.table.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Euser%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Esa%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EenabledStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etrue%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EstatusColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Estatus%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdisabledStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Efalse%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EkeyColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eid%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcUrlTemplate%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ejdbc%3Ah2%3Atcp%3A//localhost%3A9092/testdb%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Epassword%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdefaultStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etrue%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Etable%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etest%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Epassword%3C/name%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedString%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Esa%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcDriver%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.h2.Driver%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EcipherAlgorithm%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3ESHA1%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EcipherAlgorithm%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3ESHA1%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capabilities="SYNC"/>
+
+  <ConnInstance id="102" displayName="ConnInstance102"
+                bundleName="org.connid.bundles.soap"
+                connectorName="org.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eservicename%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/wssample/services/provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Etrue%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capabilities="SEARCH"/>
+
+  <ConnInstance id="103" displayName="ConnInstance103"
+                bundleName="org.connid.bundles.soap"
+                connectorName="org.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/wssample/services/provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eservicename%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E"/>
+
+  <ConnInstance id="104" displayName="CSVDir"
+                bundleName="org.connid.bundles.csvdir"
+                connectorName="org.connid.bundles.csvdir.CSVDirConnector"
+                version="${connid.csvdir.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Ekeyseparator%3C/name%3E%0A++++++%3CdisplayName%3EKey+separator%3C/displayName%3E%0A++++++%3ChelpMessage%3ECharacter+used+to+separate+keys+in+a+multi-key+scenario%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3E%2C%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eencoding%3C/name%3E%0A++++++%3CdisplayName%3EFile+encoding%3C/displayName%3E%0A++++++%3ChelpMessage%3EBasic+encoding+of+the+file%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EquotationRequired%3C/name%3E%0A++++++%3CdisplayName%3EValue+quotation+required%3C/displayName%3E%0A++++++%3ChelpMessage%3ESpecify+if+value+quotation+is+required%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.Boolean%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.Boolean%3Efalse%3C/java.lang.Boolean%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EfileMask%3C/name%3E%0A++++++%3CdisplayName%3EFile+mask%3C/displayName%3E%0A++++++%3ChelpMessage%3ERegular+expression+describing+files+to+be+processed%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etest.csv%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordColumnName%3C/name%3E%0A++++++%3CdisplayName%3EPassword+column+name%3C/displayName%3E%0A++++++%3ChelpMessage%3EName+of+the+column+used+to+specify+user+password%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Epassword%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EtextQualifier%3C/name%3E%0A++++++%3CdisplayName%3EText+qualifier%3C/displayName%3E%0A++++++%3ChelpMessage%3EDelimiter+to+determine+begin+and+end+of+text+in+value%3C/helpMessage%3E%0A++++++%3Ctype%3Echar%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdeleteColumnName%3C/name%3E%0A++++++%3CdisplayName%3EDelete+column+name%3C/displayName%3E%0A++++++%3ChelpMessage%3EName+of+the+column+used+to+specify+users+to+be+deleted%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Edeleted%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EsourcePath%3C/name%3E%0A++++++%3CdisplayName%3ESource+path%3C/displayName%3E%0A++++++%3ChelpMessage%3EAbsolute+path+of+a+directory+where+are+located+CSV+files+to+be+processed%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3E${urlencoded.csvdir.path}%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EfieldDelimiter%3C/name%3E%0A++++++%3CdisplayName%3EfieldDelimiter%3C/displayName%3E%0A++++++%3ChelpMessage%3EfieldDelimiter%3C/helpMessage%3E%0A++++++%3Ctype%3Echar%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.Character%3E%2C%3C/java.lang.Character%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EkeyColumnNames%3C/name%3E%0A++++++%3CdisplayName%3EKey+column+name%3C/displayName%3E%0A++++++%3ChelpMessage%3EName+of+the+column+used+to+identify+user+uniquely%3C/helpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ename%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Esurname%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EignoreHeader%3C/name%3E%0A++++++%3CdisplayName%3EIgnore+header%3C/displayName%3E%0A++++++%3ChelpMessage%3ESpecify+it+first+line+file+must+be+ignored%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.Boolean%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.Boolean%3Efalse%3C/java.lang.Boolean%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Efields%3C/name%3E%0A++++++%3CdisplayName%3Efields%3C/displayName%3E%0A++++++%3ChelpMessage%3EColumn+names+separated+by+comma%3C/helpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eid%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Ename%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Esurname%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Eemail%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Epassword%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Erole%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Emembership%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Estatus%3C/java.lang.String%3E%0A%3Cjava.lang.String%3Edeleted%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EstatusColumn%3C/name%3E%0A++++++%3CdisplayName%3EstatusColumn%3C/displayName%3E%0A++++++%3ChelpMessage%3EStatus+column%3C/helpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Estatus%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capabilities="SYNC"/>
+    
+  <ConnInstance id="105" bundleName="org.connid.bundles.ldap" displayName="ApacheDS"
+                connectorName="org.connid.bundles.ldap.LdapConnector"
+                version="${connid.ldap.version}" 
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EattributesToSynchronize%3C%2Fname%3E%0A++++++%3CdisplayName%3EAttributes+to+Synchronize%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+names+of+the+attributes+to+synchronize.+This+ignores+updates+from+the+change+log+if+they+do+not+update+any+of+the+named+attributes.+For+example%2C+if+only+%26quot%3Bdepartment%26quot%3B+is+listed%2C+then+only+changes+that+affect+%26quot%3Bdepartment%26quot%3B+will+be+processed.+All+other+updates+are+ignored.+If+blank+%28the+default%29%2C+then+all+changes+are+processed.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Ecredentials%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EPassword+for+the+principal.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedString%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Esecret%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EsynchronizePasswords%3C%2Fname%3E%0A++++++%3CdisplayName%3EEnable+Password+Synchronization%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EIf+true%2C+the+connector+will+synchronize+passwords.+The+Password+Capture+Plugin+needs+to+be+installed+for+password+synchronization+to+work.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EchangeLogBlockSize%3C%2Fname%3E%0A++++++%3CdisplayName%3EChange+Log+Block+Size%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+number+of+change+log+entries+to+fetch+per+query.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eint%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cint%3E100%3C%2Fint%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EblockSize%3C%2Fname%3E%0A++++++%3CdisplayName%3EBlock+Size%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+maximum+number+of+accounts+that+can+be+in+a+block+when+retrieving+accounts+in+blocks.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eint%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordHashAlgorithm%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Hash+Algorithm%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EIndicates+the+algorithm+that+the+Identity+system+should+use+to+hash+the+password.+Currently+supported+values+are+SSHA%2C+SHA%2C+SSHA1%2C+and+SHA1.+A+blank+value+indicates+that+the+system+will+not+hash+passwords.+This+will+cause+cleartext+passwords+to+be+stored+in+LDAP+unless+the+LDAP+server+performs+the+hash+%28Netscape+Directory+Server+and+iPlanet+Directory+Server+do%29.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EchangeNumberAttribute%3C%2Fname%3E%0A++++++%3CdisplayName%3EChange+Number+Attribute%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+of+the+change+number+attribute+in+the+change+log+entry.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3EchangeNumber%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EmaintainLdapGroupMembership%3C%2Fname%3E%0A++++++%3CdisplayName%3EMaintain+LDAP+Group+Membership%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EWhen+enabled+and+a+user+is+renamed+or+deleted%2C+update+any+LDAP+groups+to+which+the+user+belongs+to+reflect+the+new+name.+Otherwise%2C+the+LDAP+resource+must+maintain+referential+integrity+with+respect+to+group+membership.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EusePagedResultControl%3C%2Fname%3E%0A++++++%3CdisplayName%3EUse+Paged+Result+Control%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EWhen+enabled%2C+the+LDAP+Paged+Results+control+is+preferred+over+the+VLV+control+when+retrieving+accounts.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EuseBlocks%3C%2Fname%3E%0A++++++%3CdisplayName%3EUse+Blocks%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EWhen+performing+operations+on+large+numbers+of+accounts%2C+the+accounts+are+processed+in+blocks+to+reduce+the+amount+of+memory+used+by+the+operation.+Select+this+option+to+process+accounts+in+blocks.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cboolean%3Efalse%3C%2Fboolean%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EuidAttribute%3C%2Fname%3E%0A++++++%3CdisplayName%3EUid+Attribute%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+of+the+LDAP+attribute+which+is+mapped+to+the+Uid+attribute.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Euid%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EobjectClassesToSynchronize%3C%2Fname%3E%0A++++++%3CdisplayName%3EObject+Classes+to+Synchronize%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+object+classes+to+synchronize.+The+change+log+is+for+all+objects%3B+this+filters+updates+to+just+the+listed+object+classes.+You+should+not+list+the+superclasses+of+an+object+class+unless+you+intend+to+synchronize+objects+with+any+of+the+superclass+values.+For+example%2C+if+only+%26quot%3BinetOrgPerson%26quot%3B+objects+should+be+synchronized%2C+but+the+superclasses+of+%26quot%3BinetOrgPerson%26quot%3B+%28%26quot%3Bperson%26quot%3B%2C+%26quot%3Borganizationalperson%26quot%3B+and+%26quot%3Btop%26quot%3B%29+should+be+filtered+out%2C+then+list+only+%26quot%3BinetOrgPerson%26quot%3B+here.+All+objects+in+LDAP+are+subclassed+from+%26quot%3Btop%26quot%3B.+For+this+reason%2C+you+should+never+list+%26quot%3Btop%26quot%3B%2C+otherwise+no+object+would+be+filtered.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Etop%3C%2Fstring%3E%0A++++++%3Cstring%3Eperson%3C%2Fstring%3E%0A++++++%3Cstring%3EorganizationalPerson%3C%2Fstring%3E%0A++++++%3Cstring%3EinetOrgPerson%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EgroupMemberAttribute%3C%2Fname%3E%0A++++++%3CdisplayName%3EGroup+Member+Attribute%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+of+the+group+attribute+that+will+be+updated+with+the+distinguished+name+of+the+user+when+the+user+is+added+to+the+group.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EaccountUserNameAttributes%3C%2Fname%3E%0A++++++%3CdisplayName%3EAccount+User+Name+Attributes%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EAttribute+or+attributes+which+holds+the+account%26apos%3Bs+user+name.+They+will+be+used+when+authenticating+to+find+the+LDAP+entry+for+the+user+name+to+authenticate.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Euid%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EmodifiersNamesToFilterOut%3C%2Fname%3E%0A++++++%3CdisplayName%3EFilter+Out+Changes+By%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+names+%28DNs%29+of+directory+administrators+to+filter+from+the+changes.+Changes+with+the+attribute+%26quot%3BmodifiersName%26quot%3B+that+match+entries+in+this+list+will+be+filtered+out.+The+standard+value+is+the+administrator+name+used+by+this+adapter%2C+to+prevent+loops.+Entries+should+be+of+the+format+%26quot%3Bcn%3DDirectory+Manager%26quot%3B.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Ehost%3C%2Fname%3E%0A++++++%3CdisplayName%3EHost%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+or+IP+address+of+the+host+where+the+LDAP+server+is+running.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Elocalhost%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EbaseContexts%3C%2Fname%3E%0A++++++%3CdisplayName%3EBase+Contexts%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EOne+or+more+starting+points+in+the+LDAP+tree+that+will+be+used+when+searching+the+tree.+Searches+are+performed+when+discovering+users+from+the+LDAP+server+or+when+looking+for+the+groups+of+which+a+user+is+a+member.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Eou%3Dpeople%2Co%3Disp%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EremoveLogEntryObjectClassFromFilter%3C%2Fname%3E%0A++++++%3CdisplayName%3ERemove+Log+Entry+Object+Class+from+Filter%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EIf+this+property+is+set+%28the+default%29%2C+the+filter+used+to+fetch+change+log+entries+does+not+contain+the+%26quot%3BchangeLogEntry%26quot%3B+object+class%2C+expecting+that+there+are+no+entries+of+other+object+types+in+the+change+log.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Essl%3C%2Fname%3E%0A++++++%3CdisplayName%3ESSL%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ESelect+the+check+box+to+connect+to+the+LDAP+server+using+SSL.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EbaseContextsToSynchronize%3C%2Fname%3E%0A++++++%3CdisplayName%3EBase+Contexts+to+Synchronize%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EOne+or+more+starting+points+in+the+LDAP+tree+that+will+be+used+to+determine+if+a+change+should+be+synchronized.+The+base+contexts+attribute+will+be+used+to+synchronize+a+change+if+this+property+is+not+set.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Eou%3Dpeople%2Co%3Disp%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EaccountSearchFilter%3C%2Fname%3E%0A++++++%3CdisplayName%3ELDAP+Filter+for+Retrieving+Accounts%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EAn+optional+LDAP+filter+to+control+which+accounts+are+returned+from+the+LDAP+resource.+If+no+filter+is+specified%2C+only+accounts+that+include+all+specified+object+classes+are+returned.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Euid%3D*%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EaccountSynchronizationFilter%3C%2Fname%3E%0A++++++%3CdisplayName%3ELDAP+Filter+for+Accounts+to+Synchronize%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EAn+optional+LDAP+filter+for+the+objects+to+synchronize.+Because+the+change+log+is+for+all+objects%2C+this+filter+updates+only+objects+that+match+the+specified+filter.+If+you+specify+a+filter%2C+an+object+will+be+synchronized+only+if+it+matches+the+filter+and+includes+a+synchronized+object+class.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Efailover%3C%2Fname%3E%0A++++++%3CdisplayName%3EFailover+Servers%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EList+all+servers+that+should+be+used+for+failover+in+case+the+preferred+server+fails.+If+the+preferred+server+fails%2C+JNDI+will+connect+to+the+next+available+server+in+the+list.+List+all+servers+in+the+form+of+%26quot%3Bldap%3A%2F%2Fldap.example.com%3A389%2F%26quot%3B%2C+which+follows+the+standard+LDAP+v3+URLs+described+in+RFC+2255.+Only+the+host+and+port+parts+of+the+URL+are+relevant+in+this+setting.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordAttribute%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Attribute%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+of+the+LDAP+attribute+which+holds+the+password.+When+changing+an+user%26apos%3Bs+password%2C+the+new+password+is+set+to+this+attribute.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Euserpassword%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EvlvSortAttribute%3C%2Fname%3E%0A++++++%3CdisplayName%3EVLV+Sort+Attribute%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ESpecify+the+sort+attribute+to+use+for+VLV+indexes+on+the+resource.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3ErespectResourcePasswordPolicyChangeAfterReset%3C%2Fname%3E%0A++++++%3CdisplayName%3ERespect+Resource+Password+Policy+Change-After-Reset%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EWhen+this+resource+is+specified+in+a+Login+Module+%28i.e.%2C+this+resource+is+a+pass-through+authentication+target%29+and+the+resource%26apos%3Bs+password+policy+is+configured+for+change-after-reset%2C+a+user+whose+resource+account+password+has+been+administratively+reset+will+be+required+to+change+that+password+after+successfully+authenticating.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EaccountObjectClasses%3C%2Fname%3E%0A++++++%3CdisplayName%3EAccount+Object+Classes%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+object+class+or+classes+that+will+be+used+when+creating+new+user+objects+in+the+LDAP+tree.+When+entering+more+than+one+object+class%2C+each+entry+should+be+on+its+own+line%3B+do+not+use+commas+or+semi-colons+to+separate+multiple+object+classes.+Some+object+classes+may+require+that+you+specify+all+object+classes+in+the+class+hierarchy.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Etop%3C%2Fstring%3E%0A++++++%3Cstring%3Eperson%3C%2Fstring%3E%0A++++++%3Cstring%3EorganizationalPerson%3C%2Fstring%3E%0A++++++%3Cstring%3EinetOrgPerson%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EmaintainPosixGroupMembership%3C%2Fname%3E%0A++++++%3CdisplayName%3EMaintain+POSIX+Group+Membership%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EWhen+enabled+and+a+user+is+renamed+or+deleted%2C+update+any+POSIX+groups+to+which+the+user+belongs+to+reflect+the+new+name.+Otherwise%2C+the+LDAP+resource+must+maintain+referential+integrity+with+respect+to+group+membership.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordDecryptionInitializationVector%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Decryption+Initialization+Vector%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+initialization+vector+to+decrypt+passwords+with+when+performing+password+synchronization.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedByteArray%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EreadSchema%3C%2Fname%3E%0A++++++%3CdisplayName%3ERead+Schema%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EIf+true%2C+the+connector+will+read+the+schema+from+the+server.+If+false%2C+the+connector+will+provide+a+default+schema+based+on+the+object+classes+in+the+configuration.+This+property+must+be+true+in+order+to+use+extended+object+classes.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eprincipal%3C%2Fname%3E%0A++++++%3CdisplayName%3EPrincipal%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+distinguished+name+with+which+to+authenticate+to+the+LDAP+server.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Euid%3Dadmin%2Cou%3Dsystem%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordDecryptionKey%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Decryption+Key%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+key+to+decrypt+passwords+with+when+performing+password+synchronization.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedByteArray%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EstatusManagementClass%3C%2Fname%3E%0A++++++%3CdisplayName%3EStatus+management+class+%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EClass+to+be+used+to+manage+enabled%2Fdisabled+status.+If+no+class+is+specified+then+identity+status+management+wont+be+possible.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Eorg.connid.bundles.ldap.commons.AttributeStatusManagement%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EfilterWithOrInsteadOfAnd%3C%2Fname%3E%0A++++++%3CdisplayName%3EFilter+with+Or+Instead+of+And%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ENormally+the+the+filter+used+to+fetch+change+log+entries+is+an+and-based+filter+retrieving+an+interval+of+change+entries.+If+this+property+is+set%2C+the+filter+will+or+together+the+required+change+numbers+instead.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eport%3C%2Fname%3E%0A++++++%3CdisplayName%3ETCP+Port%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ETCP%2FIP+port+number+used+to+communicate+with+the+LDAP+server.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eint%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cint%3E1389%3C%2Fint%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordAttributeToSynchronize%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Attribute+to+Synchronize%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EThe+name+of+the+password+attribute+to+synchronize+when+performing+password+synchronization.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E0%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A%3C%2Fset%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capabilities="ONE_PHASE_CREATE"/>
+  
+  <ConnInstance id="106" displayName="H2-test2"
+                bundleName="org.connid.bundles.db.table"
+                connectorName="org.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.db.table.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Euser%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Esa%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EenabledStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etrue%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EstatusColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Estatus%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdisabledStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Efalse%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EkeyColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eid%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcUrlTemplate%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ejdbc%3Ah2%3Atcp%3A//localhost%3A9092/testdb%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordColumn%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Epassword%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdefaultStatusValue%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etrue%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Etable%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etest2%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Epassword%3C/name%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedString%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Esa%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcDriver%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.h2.Driver%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EcipherAlgorithm%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3ESHA1%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EretrievePassword%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.Boolean%3C/type%3E%0A++++++%3Crequired%3Efalse%3C/required%3E%0A++++%3C/schema%3E%0A%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Etrue%3C/java.lang.String%3E%0A%3C/values%3E%0A%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.types.ConnConfProperty%3E%0A%3C/set%3E%0A"/>
+  <ConnInstance_capabilities ConnInstance_id="106" capabilities="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="106" capabilities="SYNC"/>
+  
+  <ConnInstance id="107" bundleName="org.connid.bundles.db.table" 
+                connectorName="org.connid.bundles.db.table.DatabaseTableConnector" 
+                displayName="H2-testsync" version="${connid.db.table.version}"
+                xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Edatasource%3C%2Fname%3E%0A++++++%3CdisplayName%3EDatasource+Path%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BJDBC+Data+Source+Name%2FPath%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+JDBC+Data+Source+Name%2FPath+to+connect+to+the+Oracle+server.+If+specified%2C+connector+will+only+try+to+connect+using+Datasource+and+ignore+other+resource+parameters+specified.%26lt%3Bbr%26gt%3Bthe+example+value+is%3A+%26lt%3BCODE%26gt%3Bjdbc%2FSampleDataSourceName%26lt%3B%2FCODE%26gt%3B%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E22%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcDriver%3C%2Fname%3E%0A++++++%3CdisplayName%3EJDBC+Driver%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BJDBC+Driver%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSpecify+the+JDBC+Driver+class+name.+Oracle+is+oracle.jdbc.driver.OracleDriver.+MySQL+is+org.gjt.mm.mysql.Driver.%26lt%3Bbr%26gt%3BCould+be+empty+if+datasource+is+provided.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E14%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Eorg.h2.Driver%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EvalidConnectionQuery%3C%2Fname%3E%0A++++++%3CdisplayName%3EValidate+Connection+Query%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BValidate+Connection+Query%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BThere+can+be+specified+the+check+connection+alive+query.+If+empty%2C+default+implementation+will+test+it+using+the+switch+on%2Foff+the+autocommit.+Some+select+1+from+dummy+table+could+be+more+efficient.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E20%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EenabledStatusValue%3C%2Fname%3E%0A++++++%3CdisplayName%3EEnabled+Status+Value%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BEnabled+Status+Value%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+value+for+enabled+status.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E12%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpwdEncodeToUpperCase%3C%2Fname%3E%0A++++++%3CdisplayName%3EForce+password+encoding+to+upper+case%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EForce+password+encoding+to+upper+case.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E25%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3ErethrowAllSQLExceptions%3C%2Fname%3E%0A++++++%3CdisplayName%3ERethrow+all+SQLExceptions%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EIf+this+is+not+checked%2C+SQL+statements+which+throw+SQLExceptions+with+a+0+ErrorCode+will+be+have+the+exception+caught+and+suppressed.+Check+it+to+have+exceptions+with+0+ErrorCodes+rethrown.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E17%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EchangeLogColumn%3C%2Fname%3E%0A++++++%3CdisplayName%3EChange+Log+Column+%28Sync%29%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%3D%26lt%3Bb%26gt%3BChange+Log+Column%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BThe+change+log+column+store+the+latest+change+time.+Providing+this+value+the+Sync+capabilities+are+activated.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E21%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EenableEmptyString%3C%2Fname%3E%0A++++++%3CdisplayName%3EEnable+writing+empty+string%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BEnable+writing+empty+string%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSelect+to+enable+support+for+writing+an+empty+strings%2C+instead+of+a+NULL+value%2C+in+character+based+columns+defined+as+not-null+in+the+table+schema.+This+option+does+not+influence+the+way+strings+are+written+for+Oracle+based+tables.+By+default+empty+strings+are+written+as+a+NULL+value.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E16%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EallNative%3C%2Fname%3E%0A++++++%3CdisplayName%3EAll+native%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BAll+native%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSelect+to+retrieve+all+data+type+of+the+columns+in+a+native+format+from+the+database+table.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E19%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Edatabase%3C%2Fname%3E%0A++++++%3CdisplayName%3EDatabase%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BDatabase%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+database+on+the+database+server+that+contains+the+table.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E6%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdisabledStatusValue%3C%2Fname%3E%0A++++++%3CdisplayName%3EDisabled+Status+Value%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BDisabled+Status+Value%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+value+for+disabled+status.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E11%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpasswordColumn%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+Column%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BPassword+Column%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+column+in+the+table+that+will+hold+the+password+values.+If+empty%2C+no+validation+on+resource+and+passwords+are+activated.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E9%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjdbcUrlTemplate%3C%2Fname%3E%0A++++++%3CdisplayName%3EJDBC+Connection+URL%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BJDBC+Connection+URL%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSpecify+the+JDBC+Driver+Connection+URL.%26lt%3Bbr%26gt%3B+Oracle+template+is+jdbc%3Aoracle%3Athin%3A%40%5Bhost%5D%3A%5Bport%281521%29%5D%3A%5BDB%5D.%26lt%3Bbr%26gt%3B++MySQL+template+is+jdbc%3Amysql%3A%2F%2F%5Bhost%5D%3A%5Bport%283306%29%5D%2F%5Bdb%5D%2C+for+more+info%2C+read+the+JDBC+driver+documentation.%26lt%3Bbr%26gt%3BCould+be+empty+if+datasource+is+provided.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E15%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Ejdbc%3Ah2%3Atcp%3A%2F%2Flocalhost%3A9092%2Ftestdb%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eport%3C%2Fname%3E%0A++++++%3CdisplayName%3EPort%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BTCP+Port%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+port+number+the+database+server+is+listening+on.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E3%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EkeyColumn%3C%2Fname%3E%0A++++++%3CdisplayName%3EKey+Column%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BKey+Column%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BThis+mandatory+column+value+will+be+used+as+the+unique+identifier+for+rows+in+the+table.%26lt%3Bbr%26gt%3B%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E8%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Eid%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EnativeTimestamps%3C%2Fname%3E%0A++++++%3CdisplayName%3ENative+Timestamps+%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BNative+Timestamps%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSelect+to+retrieve+Timestamp+data+type+of+the+columns+in+java.sql.Timestamp+format+from+the+database+table.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E18%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EstatusColumn%3C%2Fname%3E%0A++++++%3CdisplayName%3EStatus+Column%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BStatus+Column%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+column+in+the+table+that+will+hold+the+status+values.+If+empty+enabled+and+disabled+operation+wont+be+performed.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E10%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Euser%3C%2Fname%3E%0A++++++%3CdisplayName%3EUser%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BUser%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+mandatory+Database+user+with+permission+to+account+table.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E4%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Esa%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Epassword%3C%2Fname%3E%0A++++++%3CdisplayName%3EUser+Password%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BUser+Password%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+a+user+account+that+has+permission+to+access+accounts+table.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eorg.identityconnectors.common.security.GuardedString%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E5%3C%2Forder%3E%0A++++++%3Cconfidential%3Etrue%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Esa%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Equoting%3C%2Fname%3E%0A++++++%3CdisplayName%3EName+Quoting%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BName+Quoting%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BSelect+whether+database+column+names+for+this+resource+should+be+quoted%2C+and+the+quoting+characters.+By+default%2C+database+column+names+are+not+quoted+%28None%29.+For+other+selections+%28Single%2C+Double%2C+Back%2C+or+Brackets%29%2C+column+names+will+appear+between+single+quotes%2C+double+quotes%2C+back+quotes%2C+or+brackets+in+the+SQL+generated+to+access+the+database.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E1%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EcipherAlgorithm%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+cipher+algorithm+%28defaults+to+CLEARTEXT%29%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ECipher+algorithm+used+to+encode+password+before+to+store+it+onto+the+database+table.%0ASpecify+one+of+the+values+among+CLEARTEXT%2CAES%2C+MD5%2C+SHA1%2C+SHA256+or+a+custom+implementation+identified+by+its+class+name.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E24%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EpwdEncodeToLowerCase%3C%2Fname%3E%0A++++++%3CdisplayName%3EForce+password+encoding+to+lower+case%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3EForce+password+encoding+to+lower+case.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E26%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EcipherKey%3C%2Fname%3E%0A++++++%3CdisplayName%3EPassword+cipher+key%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ESpecify+key+in+case+of+reversible+algorithm.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E25%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EdefaultStatusValue%3C%2Fname%3E%0A++++++%3CdisplayName%3EDefault+Status+Value%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BDefault+Status+Value%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+value+for+status+in+case+of+status+not+specified.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E13%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Etable%3C%2Fname%3E%0A++++++%3CdisplayName%3ETable%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BTable%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+table+in+the+database+that+contains+the+accounts.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E7%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Etestsync%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EjndiProperties%3C%2Fname%3E%0A++++++%3CdisplayName%3EInitial+JNDI+Properties%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BInitial+JNDI+Properties%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BCould+be+empty+or+enter+the+JDBC+JNDI+Initial+context+factory%2C+context+provider+in+a+format%3A+key+%3D+value.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3E%5BLjava.lang.String%3B%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E23%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3EretrievePassword%3C%2Fname%3E%0A++++++%3CdisplayName%3ERetrieve+password%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3ESpecify+if+password+must+be+retrieved+by+default.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Eboolean%3C%2Ftype%3E%0A++++++%3Crequired%3Etrue%3C%2Frequired%3E%0A++++++%3Corder%3E27%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%3E%0A++++++%3Cstring%3Efalse%3C%2Fstring%3E%0A++++%3C%2Fvalues%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Ehost%3C%2Fname%3E%0A++++++%3CdisplayName%3EHost%3C%2FdisplayName%3E%0A++++++%3ChelpMessage%3E%26lt%3Bb%26gt%3BHost%26lt%3B%2Fb%26gt%3B%26lt%3Bbr%26gt%3BEnter+the+name+of+the+host+where+the+database+is+running.%3C%2FhelpMessage%3E%0A++++++%3Ctype%3Ejava.lang.String%3C%2Ftype%3E%0A++++++%3Crequired%3Efalse%3C%2Frequired%3E%0A++++++%3Corder%3E2%3C%2Forder%3E%0A++++++%3Cconfidential%3Efalse%3C%2Fconfidential%3E%0A++++%3C%2Fschema%3E%0A++++%3Cvalues%2F%3E%0A++++%3Coverridable%3Efalse%3C%2Foverridable%3E%0A++%3C%2Forg.apache.syncope.types.ConnConfProperty%3E%0A%3C%2Fset%3E"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capabilities="TWO_PHASES_UPDATE"/>
+
+  <ExternalResource name="ws-target-resource-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-delete" connector_id="102" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-update" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="resource-testdb" connector_id="101" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="resource-testdb2" connector_id="106" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="resource-csv" connector_id="104" enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" serializedSyncToken="%3Corg.identityconnectors.framework.common.objects.SyncToken%2F%3E"/>
+  <ExternalResource name="resource-ldap" connector_id="105" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
+  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" passwordPolicy_id="4"/>
+  
+  <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
+  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    
+  <!-- External resource for issue SYNCOPE-230 -->
+  <ExternalResource name="resource-db-sync" connector_id="107"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" 
+                    propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
+  
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete" />
+  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1" />
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-2" />
+  <SyncopeRole_ExternalResource role_id="8" resource_name="ws-target-resource-2" />
+  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-2" />
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1" />
+  <SyncopeRole_ExternalResource role_id="7" resource_name="ws-target-resource-nopropagation" />
+  <SyncopeRole_ExternalResource role_id="10" resource_name="ws-target-resource-nopropagation3" />
+  <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv" />
+  <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv" />
+
+  <SchemaMapping id="99"
+                 resource_name="ws-target-resource-1"
+                 intMappingType="SyncopeUserId" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+
+  <SchemaMapping id="100" extAttrName="email"
+                 resource_name="ws-target-resource-1"
+                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="101"
+                 resource_name="ws-target-resource-2"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+
+  <SchemaMapping id="102"
+                 resource_name="ws-target-resource-list-mappings-1"
+                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+
+  <SchemaMapping id="103" extAttrName="surname"
+                 resource_name="ws-target-resource-list-mappings-1"
+                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="104"
+                 resource_name="ws-target-resource-list-mappings-2"
+                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+
+  <SchemaMapping id="105" extAttrName="surname"
+                 resource_name="ws-target-resource-1"
+                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="106"
+                 resource_name="ws-target-resource-1"
+                 intMappingType="Password" mandatoryCondition="true"
+                 accountid="0" password="1"/>
+
+  <SchemaMapping id="107"
+                 resource_name="ws-target-resource-2"
+                 intMappingType="Password" mandatoryCondition="true"
+                 accountid="0" password="1"/>
+
+  <SchemaMapping id="108" extAttrName="type"
+                 resource_name="ws-target-resource-2"
+                 intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="109" extAttrName="surname"
+                 resource_name="ws-target-resource-2"
+                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="110" extAttrName="email"
+                 resource_name="ws-target-resource-update"
+                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="111" extAttrName="userId"
+                 resource_name="ws-target-resource-update"
+                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+    
+  <SchemaMapping id="112" extAttrName="test3"
+                 resource_name="ws-target-resource-update"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="113" extAttrName="name"
+                 resource_name="ws-target-resource-2"
+                 intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="114" extAttrName="fullname"
+                 resource_name="ws-target-resource-2"
+                 intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+
+  <SchemaMapping id="115"
+                 resource_name="ws-target-resource-nopropagation"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+                 
+  <SchemaMapping id="116"
+                 resource_name="ws-target-resource-nopropagation2"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+                 
+  <SchemaMapping id="117"
+                 resource_name="ws-target-resource-nopropagation3"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+                 
+  <SchemaMapping id="118"
+                 resource_name="ws-target-resource-nopropagation4"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+                   
+  <SchemaMapping id="119"
+                 resource_name="resource-testdb"
+                 intMappingType="Username" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+  <SchemaMapping id="120"
+                 resource_name="resource-testdb"
+                 intMappingType="Password" mandatoryCondition="true"
+                 accountid="0" password="1"/>
+                 
+  <SchemaMapping id="121"
+                 resource_name="resource-testdb2"
+                 intMappingType="Username" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+  <SchemaMapping id="122"
+                 resource_name="resource-testdb2"
+                 intMappingType="Password" mandatoryCondition="true"
+                 accountid="0" password="1"/>
+                   
+  <SchemaMapping id="200" extAttrName="id"
+                 resource_name="resource-csv"
+                 intMappingType="Username" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="201" extAttrName="id"
+                 resource_name="resource-csv"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="202"
+                 resource_name="resource-csv"
+                 intMappingType="Password" mandatoryCondition="true"
+                 accountid="0" password="1"/>
+  <SchemaMapping id="203" extAttrName="name"
+                 resource_name="resource-csv"
+                 intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="204" extAttrName="surname"
+                 resource_name="resource-csv"
+                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="205" extAttrName="email"
+                 resource_name="resource-csv"
+                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="206" extAttrName="email"
+                 resource_name="resource-csv"
+                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="207"
+                 resource_name="resource-csv"
+                 intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+                 accountid="1" password="0"/>
+  <SchemaMapping id="208" extAttrName="role"
+                 resource_name="resource-csv"
+                 intAttrName="rderToBePropagated" intMappingType="RoleDerivedSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+  <SchemaMapping id="209" extAttrName="membership"
+                 resource_name="resource-csv"
+                 intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
+                 accountid="0" password="0"/>
+                   
+  <SchemaMapping id="300"
+                 resource_name="ws-target-resource-update-resetsynctoken"
+                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="1" password="0"/>
+  <SchemaMapping id="301"
+                 resource_name="ws-target-resource-update-resetsynctoken"
+                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                 accountid="0" password="1"/>
+                   
+  <SchemaMapping id="311" accountid="1" password="0"
+                 intAttrName="Username" intMappingType="Username"
+                 mandatoryCondition="true" resource_name="resource-ldap"/>
+  <SchemaMapping id="312" accountid="0" password="1" 
+                 intAttrName="Password" intMappingType="Password"
+                 mandatoryCondition="true" resource_name="resource-ldap"/>
+  <SchemaMapping id="313" accountid="0" password="0"
+                 extAttrName="sn" intAttrName="surname" intMappingType="UserSchema"
+                 mandatoryCondition="true" resource_name="resource-ldap"/>
+  <SchemaMapping id="314" accountid="0" password="0"
+                 extAttrName="cn" intAttrName="firstname" intMappingType="UserSchema"
+                 mandatoryCondition="true" resource_name="resource-ldap"/>
+  <SchemaMapping id="315" accountid="0" password="0"
+                 extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
+                 mandatoryCondition="false" resource_name="resource-ldap"/>
+  <SchemaMapping id="316" accountid="0" password="0"
+                 extAttrName="title" intAttrName="title" intMappingType="RoleSchema"
+                 mandatoryCondition="false" resource_name="resource-ldap"/>
+  <SchemaMapping id="317" accountid="0" password="0"
+                 extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipSchema"
+                 mandatoryCondition="false" resource_name="resource-ldap"/>
+                   
+  <SchemaMapping id="321" accountid="0" extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  <SchemaMapping id="322" accountid="0" extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserSchema" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  <SchemaMapping id="323" accountid="1" intAttrName="aLong" intMappingType="UserSchema" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  <SchemaMapping id="324" accountid="0" extAttrName="SURNAME" intAttrName="surname" intMappingType="UserSchema" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  <SchemaMapping id="325" accountid="0" extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  <SchemaMapping id="326" accountid="0" extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
+                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  
+  <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
+        resource_name="ws-target-resource-2" syncopeUser_id="1"
+        xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
+  <TaskExec id="1" task_id="1" status="SUCCESS"/>
+  <Task DTYPE="PropagationTask" id="2" propagationMode="ONE_PHASE" propagationOperation="CREATE"
+        resource_name="ws-target-resource-2" syncopeUser_id="1"
+        xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
+  <Task DTYPE="PropagationTask" id="3" propagationMode="TWO_PHASES" propagationOperation="DELETE"
+        resource_name="ws-target-resource-2" syncopeUser_id="1"
+        xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>
+  <Task DTYPE="SyncTask" id="4" name="CSV Task" resource_name="resource-csv"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+  <Task DTYPE="SchedTask" id="5" name="SampleJob Task" jobClassName="org.apache.syncope.core.quartz.SampleJob" cronExpression="0 0 0 1 * ?"/>
+  <Task DTYPE="PropagationTask" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
+        resource_name="ws-target-resource-nopropagation" syncopeUser_id="1"
+        xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
+  <Task DTYPE="SyncTask" id="7" name="TestDB Task" resource_name="resource-testdb"
+        performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+  <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
+        textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
+  <Task DTYPE="SyncTask" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+  <Task DTYPE="SyncTask" id="10" name="TestDB Sync Task" resource_name="resource-db-sync"
+        fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+        
+  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>
+
   <!-- Authentication and authorization -->
+  <Entitlement name="base"/>
+  <Entitlement name="advanced" description="Advanced entitlement"/>
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>
   <Entitlement name="SCHEMA_UPDATE"/>
@@ -121,9 +691,59 @@ under the License.
   <Entitlement name="AUDIT_LIST"/>
   <Entitlement name="AUDIT_ENABLE"/>
   <Entitlement name="AUDIT_DISABLE"/>
+  <Entitlement name="ROLE_1"/>
+  <Entitlement name="ROLE_2"/>
+  <Entitlement name="ROLE_3"/>
+  <Entitlement name="ROLE_4"/>
+  <Entitlement name="ROLE_5"/>
+  <Entitlement name="ROLE_6"/>
+  <Entitlement name="ROLE_7"/>
+  <Entitlement name="ROLE_8"/>
+  <Entitlement name="ROLE_9"/>
+  <Entitlement name="ROLE_10"/>
+  <Entitlement name="ROLE_11"/>
+  <Entitlement name="ROLE_12"/>
+  <Entitlement name="ROLE_13"/>
+  <Entitlement name="ROLE_14"/>
 
+  <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
+  <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>
+  <SyncopeRole_Entitlement entitlement_name="base" role_id="2"/>
+  <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="2"/>
+  <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="2"/>
+  <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="ROLE_8" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="ROLE_9" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="ROLE_7" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="ROLE_1" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_SUBMIT" role_id="7"/>
+  <SyncopeRole_Entitlement entitlement_name="SCHEMA_READ" role_id="8"/>
+  <SyncopeRole_Entitlement entitlement_name="ROLE_READ" role_id="8"/>
+  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="8"/>
+    
+  <Notification id="100" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
+                xmlAbout="%3Corg.apache.syncope.client.search.NodeCond%3E%0A++%3Ctype%3EAND%3C%2Ftype%3E%0A++%3CleftNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25o%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FleftNodeCond%3E%0A++%3CrightNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25i%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FrightNodeCond%3E%0A%3C%2Forg.apache.syncope.client.search.NodeCond%3E"
+                xmlRecipients="%3Corg.apache.syncope.client.search.NodeCond%3E%0A++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++%3CmembershipCond%3E%0A++++%3CroleId%3E7%3C%2FroleId%3E%0A++%3C%2FmembershipCond%3E%0A%3C%2Forg.apache.syncope.client.search.NodeCond%3E"
+                recipientAttrType="UserSchema" recipientAttrName="email"/>
+  <Notification id="101" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
+                xmlAbout="%3Corg.apache.syncope.client.search.NodeCond%3E%0A++%3Ctype%3EAND%3C%2Ftype%3E%0A++%3CleftNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25o%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FleftNodeCond%3E%0A++%3CrightNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25i%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FrightNodeCond%3E%0A%3C%2Forg.apache.syncope.client.search.NodeCond%3E"
+                xmlRecipients="%3Corg.apache.syncope.client.search.NodeCond%3E%0A++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++%3CmembershipCond%3E%0A++++%3CroleId%3E7%3C%2FroleId%3E%0A++%3C%2FmembershipCond%3E%0A%3C%2Forg.apache.syncope.client.search.NodeCond%3E"
+                recipientAttrType="UserSchema" recipientAttrName="email"/>
+  <Notification_events Notification_id="100" events="unexisting1"/>
+  <Notification_events Notification_id="100" events="unexisting2"/>
+  <Notification_events Notification_id="101" events="unexisting1"/>
+  <Notification_events Notification_id="101" events="unexisting2"/>
+    
+  <Report id="1" name="test"/>
+  <ReportletConfInstance id="1" Report_id="1" serializedInstance="%3Corg.apache.syncope.client.report.UserReportletConf%3E%0A++%3Cname%3EtestUserReportlet%3C%2Fname%3E%0A++%3Cattrs%3E%0A++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++%3Cstring%3Egender%3C%2Fstring%3E%0A++%3C%2Fattrs%3E%0A++%3CderAttrs+class%3D%22singleton-list%22%3E%0A++++%3Cstring%3Ecn%3C%2Fstring%3E%0A++%3C%2FderAttrs%3E%0A++%3CvirAttrs+class%3D%22singleton-list%22%3E%0A++++%3Cstring%3Evirtualdata%3C%2Fstring%3E%0A++%3C%2FvirAttrs%3E%0A++%3Cfeatures+class%3D%22java.util.Arrays%24ArrayList%22%3E%0A++++%3Ca+class%3D%22org.apache.syncope.client.report.UserReportletConf%24Feature-array%22%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3Eid%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3Eusername%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3EworkflowId%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3Estatus%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3EcreationDate%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3ElastLoginDate%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3EchangePwdDate%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3EpasswordHistorySize%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3EfailedLoginCount%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3Ememberships%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++++%3Corg.apache.syncope.client.report.UserReportletConf_-Feature%3Eresources%3C%2Forg.apache.syncope.client.report.UserReportletConf_-Feature%3E%0A++++%3C%2Fa%3E%0A++%3C%2Ffeatures%3E%0A%3C%2Forg.apache.syncope.client.report.UserReportletConf%3E"/>
+  <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
+  
+  <SyncopeLogger logName="syncope.audit.authentication.getEntitlements.success" logLevel="DEBUG" logType="AUDIT"/>
+  
   <ACT_GE_PROPERTY NAME_="schema.version" VALUE_="${activiti.version}" REV_="1"/>
   <ACT_GE_PROPERTY NAME_="schema.history" VALUE_="create(${activiti.version})" REV_="1"/>
   <ACT_GE_PROPERTY NAME_="next.dbid" VALUE_="1" REV_="1"/>
-  <ACT_GE_PROPERTY NAME_="historyLevel" VALUE_="1" REV_="1"/>    
+  <ACT_GE_PROPERTY NAME_="historyLevel" VALUE_="1" REV_="1"/>
 </dataset>
