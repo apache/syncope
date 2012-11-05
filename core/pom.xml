@@ -214,40 +214,33 @@ under the License.
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId> 
-      <artifactId>geronimo-jpa_2.0_spec</artifactId> 
-      <scope>provided</scope>
+      <artifactId>geronimo-jpa_2.0_spec</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa-all</artifactId>
-      <scope>provided</scope>
+      <artifactId>openjpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-jdbc</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-persistence-jdbc</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.bval</groupId>
       <artifactId>bval-jsr303</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -265,7 +258,6 @@ under the License.
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -527,16 +519,6 @@ under the License.
               <dependency>
                 <groupId>${jdbcdriver.groupId}</groupId>
                 <artifactId>${jdbcdriver.artifactId}</artifactId>
-              </dependency>
-              
-              <dependency>
-                <groupId>org.apache.openjpa</groupId>
-                <artifactId>openjpa-all</artifactId>
-              </dependency>
-
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
               </dependency>
             </dependencies>            
           </container>
@@ -1036,16 +1018,6 @@ under the License.
 
       <dependencies>
         <dependency>
-          <groupId>org.apache.openjpa</groupId>
-          <artifactId>openjpa-all</artifactId>
-        </dependency>
-
-        <dependency>
-          <groupId>org.codehaus.groovy</groupId>
-          <artifactId>groovy-all</artifactId>
-        </dependency>
-
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
@@ -1139,16 +1111,6 @@ under the License.
       
       <dependencies>
         <dependency>
-          <groupId>org.apache.openjpa</groupId>
-          <artifactId>openjpa-all</artifactId>
-        </dependency>
-
-        <dependency>
-          <groupId>org.codehaus.groovy</groupId>
-          <artifactId>groovy-all</artifactId>
-        </dependency>
-
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
@@ -1227,16 +1189,6 @@ under the License.
       </properties>
       
       <dependencies>
-        <dependency>
-          <groupId>org.apache.openjpa</groupId>
-          <artifactId>openjpa-all</artifactId>
-        </dependency>
-
-        <dependency>
-          <groupId>org.codehaus.groovy</groupId>
-          <artifactId>groovy-all</artifactId>
-        </dependency>
-
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>

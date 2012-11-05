@@ -214,7 +214,7 @@ under the License.
       </roles>
       <url>http://people.apache.org/~jbonofre/</url>
     </developer>
-	<developer>
+    <developer>
       <id>jbernhardt</id>
       <name>Jan Bernhardt</name>
       <organization>Talend</organization>
@@ -274,7 +274,7 @@ under the License.
     <velocity.version>1.7</velocity.version>
     <quartz.version>1.8.6</quartz.version>
 
-    <openjpa.version>2.2.0</openjpa.version>
+    <openjpa.version>2.2.1</openjpa.version>
     <bval.version>0.5</bval.version>
         
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
@@ -413,9 +413,14 @@ under the License.
         <artifactId>geronimo-jpa_2.0_spec</artifactId> 
         <version>1.1</version> 
       </dependency>
-      <dependency>
+<!--      <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-all</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>-->
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
         <version>${openjpa.version}</version>
       </dependency>
       <dependency>
