@@ -413,11 +413,6 @@ under the License.
         <artifactId>geronimo-jpa_2.0_spec</artifactId> 
         <version>1.1</version> 
       </dependency>
-<!--      <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-all</artifactId>
-        <version>${openjpa.version}</version>
-      </dependency>-->
       <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>

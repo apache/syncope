@@ -276,16 +276,6 @@ under the License.
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
               </dependency>
-
-              <dependency>
-                <groupId>org.apache.openjpa</groupId>
-                <artifactId>openjpa-all</artifactId>
-              </dependency>
-
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-              </dependency>
             </dependencies>
           </container>
           <configuration>
