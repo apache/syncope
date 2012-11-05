@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.to.VirtualSchemaTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 @Component
 public class VirtualSchemaDataBinder {

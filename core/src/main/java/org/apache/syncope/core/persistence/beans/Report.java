@@ -26,8 +26,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.core.persistence.validation.entity.ReportCheck;
+import org.apache.syncope.report.ReportletConf;
 
 @Entity
 @ReportCheck

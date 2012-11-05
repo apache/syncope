@@ -23,15 +23,15 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.to.AccountPolicyTO;
+import org.apache.syncope.to.PasswordPolicyTO;
+import org.apache.syncope.to.PolicyTO;
+import org.apache.syncope.to.SyncPolicyTO;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PolicyType;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 public class PolicyTestITCase extends AbstractTest {
 

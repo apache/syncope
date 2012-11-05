@@ -19,10 +19,10 @@
 package org.apache.syncope.core.workflow.activiti;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.workflow.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.mod.UserMod;
 
 public class Update extends AbstractActivitiDelegate {
 

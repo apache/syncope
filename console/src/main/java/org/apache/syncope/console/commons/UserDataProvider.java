@@ -25,9 +25,9 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.UserTO;
 
 public class UserDataProvider extends SortableDataProvider<UserTO> {
 

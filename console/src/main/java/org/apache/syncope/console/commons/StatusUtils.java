@@ -26,13 +26,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.ConnObjectTO;
+import org.apache.syncope.to.ResourceTO;
+import org.apache.syncope.to.SchemaMappingTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.IntMappingType;
 
 public class StatusUtils {

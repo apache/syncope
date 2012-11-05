@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.ConnBundleTO;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.ConnBundleTO;
+import org.apache.syncope.to.ConnInstanceTO;
+import org.apache.syncope.to.ResourceTO;
 import org.apache.syncope.types.ConnConfProperty;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking Rest Connectors services.

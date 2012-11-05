@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.NotificationTaskTO;
+import org.apache.syncope.to.TaskTO;
 
 public class NotificationTaskModalPage extends TaskModalPage {
 

@@ -30,10 +30,10 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
+import org.apache.syncope.to.RoleTO;
 
 public class TreeRolePanel extends Panel {
 

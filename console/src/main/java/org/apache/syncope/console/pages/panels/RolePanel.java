@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.rest.EntitlementRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.to.RoleTO;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;

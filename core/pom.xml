@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.1.0-cxf-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core</name>
@@ -54,7 +54,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-client</artifactId>
+      <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -282,6 +282,12 @@ under the License.
     </dependency> 
 
     <!-- TEST -->
+	<dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-client</artifactId>
+      <version>${project.version}</version>
+	  <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>

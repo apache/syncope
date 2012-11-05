@@ -25,16 +25,16 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.to.SchemaTO;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 
 @Component
 public class SchemaDataBinder {

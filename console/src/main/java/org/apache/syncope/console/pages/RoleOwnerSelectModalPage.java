@@ -19,10 +19,10 @@
 package org.apache.syncope.console.pages;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.pages.panels.RoleDetailsPanel;
+import org.apache.syncope.to.RoleTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;

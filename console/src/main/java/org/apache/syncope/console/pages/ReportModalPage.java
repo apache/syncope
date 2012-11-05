@@ -22,12 +22,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.report.ReportletConf;
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
+import org.apache.syncope.console.commons.DateFormatROModel;
+import org.apache.syncope.console.commons.HttpResourceStream;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
+import org.apache.syncope.report.ReportletConf;
+import org.apache.syncope.to.ReportExecTO;
+import org.apache.syncope.to.ReportTO;
 import org.apache.syncope.types.ReportExecStatus;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,6 +49,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -58,18 +71,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.console.commons.DateFormatROModel;
-import org.apache.syncope.console.commons.HttpResourceStream;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 
 public class ReportModalPage extends BaseModalPage {
 
@@ -97,7 +98,7 @@ public class ReportModalPage extends BaseModalPage {
 
     private final ReportTO reportTO;
 
-    private Form<ReportTO> form;
+    private final Form<ReportTO> form;
 
     private String exportFormat;
 
@@ -466,18 +467,18 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
-        
+
                 final AjaxLink reload = new IndicatingAjaxLink("reload") {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                if (target != null) {                
+                if (target != null) {
                     final ReportTO currentReportTO = reportTO.getId() == 0
                             ? reportTO
                             : restClient.read(reportTO.getId());
-                    reportTO.setExecutions(currentReportTO.getExecutions());   
-                    final AjaxFallbackDefaultDataTable currentTable = 
+                    reportTO.setExecutions(currentReportTO.getExecutions());
+                    final AjaxFallbackDefaultDataTable currentTable =
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new ReportExecutionsProvider(reportTO), 10);
                     currentTable.setOutputMarkupId(true);
@@ -502,9 +503,9 @@ public class ReportModalPage extends BaseModalPage {
 
         private static final long serialVersionUID = 2118096121691420539L;
 
-        private SortableDataProviderComparator<ReportExecTO> comparator;
+        private final SortableDataProviderComparator<ReportExecTO> comparator;
 
-        private ReportTO reportTO;
+        private final ReportTO reportTO;
 
         public ReportExecutionsProvider(final ReportTO reportTO) {
             this.reportTO = reportTO;

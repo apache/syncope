@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -34,11 +35,12 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.client.search.NodeCond;
+
 import org.apache.syncope.core.persistence.validation.entity.NotificationCheck;
-import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
+import org.apache.syncope.util.XMLSerializer;
 
 @NotificationCheck
 @Entity
@@ -52,7 +54,7 @@ public class Notification extends AbstractBaseBean {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "events")
-    private List<String> events;
+    private final List<String> events;
 
     @NotNull
     @Lob

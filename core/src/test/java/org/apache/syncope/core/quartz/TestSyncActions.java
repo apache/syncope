@@ -19,11 +19,11 @@
 package org.apache.syncope.core.quartz;
 
 import java.util.Collections;
-import org.apache.syncope.client.mod.AttributeMod;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.sync.DefaultSyncActions;
+import org.apache.syncope.mod.AttributeMod;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.UserTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 

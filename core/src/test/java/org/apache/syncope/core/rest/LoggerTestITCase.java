@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import org.apache.syncope.client.to.LoggerTO;
+import org.apache.syncope.to.LoggerTO;
 import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditLoggerName;
 import org.apache.syncope.types.SyncopeLoggerLevel;

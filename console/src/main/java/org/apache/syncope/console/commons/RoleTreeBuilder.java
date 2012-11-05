@@ -27,8 +27,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.to.RoleTO;
 
 public class RoleTreeBuilder {
 

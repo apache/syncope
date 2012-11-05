@@ -26,9 +26,9 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
+import org.apache.syncope.to.RoleTO;
 
 public class RoleSummaryPanel extends Panel {
 

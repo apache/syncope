@@ -18,19 +18,23 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
+
+import org.apache.syncope.search.AttributeCond;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.NotificationTO;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.apache.syncope.types.TraceLevel;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 import org.junit.Test;
 
 public class NotificationTestITCase extends AbstractTest {

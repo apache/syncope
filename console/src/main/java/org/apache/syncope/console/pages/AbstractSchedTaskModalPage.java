@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.markup.html.CrontabContainer;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.SchedTaskTO;
+import org.apache.syncope.to.SyncTaskTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;

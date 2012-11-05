@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -55,6 +54,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.syncope.to.UserTO;
 
 /**
  * Syncope Login page.

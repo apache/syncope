@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.AccountPolicyTO;
+import org.apache.syncope.to.PasswordPolicyTO;
+import org.apache.syncope.to.PolicyTO;
+import org.apache.syncope.to.SyncPolicyTO;
 import org.apache.syncope.types.PolicyType;
 
 /**

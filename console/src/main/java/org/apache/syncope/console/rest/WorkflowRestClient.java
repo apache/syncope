@@ -19,9 +19,9 @@
 package org.apache.syncope.console.rest;
 
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.WorkflowDefinitionTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 @Component
 public class WorkflowRestClient extends AbstractBaseRestClient {

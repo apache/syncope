@@ -32,10 +32,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.report.UserReportletConf;
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.report.UserReportletConf;
+import org.apache.syncope.to.ReportExecTO;
+import org.apache.syncope.to.ReportTO;
+import org.apache.syncope.to.UserTO;
 
 public class ReportTestITCase extends AbstractTest {
 

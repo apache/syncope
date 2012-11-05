@@ -18,23 +18,21 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import java.lang.Boolean;
-import java.lang.Double;
-import java.lang.Long;
-import java.lang.String;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.syncope.client.SyncopeConstants;
+import org.apache.syncope.SyncopeConstants;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
 

@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -52,9 +53,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.syncope.client.SyncopeConstants;
+import org.apache.syncope.SyncopeConstants;
 import org.apache.syncope.core.util.multiparent.MultiParentNode;
 import org.apache.syncope.core.util.multiparent.MultiParentNodeOp;
 import org.slf4j.Logger;

@@ -22,10 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
@@ -33,6 +29,10 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.TaskUtil;
+import org.apache.syncope.to.PropagationTaskTO;
+import org.apache.syncope.to.SchedTaskTO;
+import org.apache.syncope.to.SyncTaskTO;
+import org.apache.syncope.to.TaskTO;
 
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractController {

@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.DerivedSchemaTO;
 import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;

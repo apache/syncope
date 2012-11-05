@@ -23,9 +23,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.to.SyncTaskTO;
+import org.apache.syncope.to.UserTO;
 
 /**
  * Modal window with User form.

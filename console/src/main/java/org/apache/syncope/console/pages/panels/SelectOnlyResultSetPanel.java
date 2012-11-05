@@ -20,12 +20,12 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.AbstractAttributableTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.ResultSetPanel;
 import org.apache.syncope.console.pages.panels.SelectOnlyResultSetPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.search.NodeCond;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.rest.UserRequestRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;

@@ -30,11 +30,11 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.pages.panels.ResultSetPanel;
 import org.apache.syncope.console.pages.panels.ResultSetPanel.EventDataWrapper;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.UserTO;
 
 public class Users extends BasePage {
 

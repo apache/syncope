@@ -26,7 +26,7 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.to.ConfigurationTO;
 
 public class ConfigurationTestITCase extends AbstractTest {
 

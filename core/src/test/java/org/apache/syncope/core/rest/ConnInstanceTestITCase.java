@@ -36,15 +36,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.to.ConnBundleTO;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.to.ConnBundleTO;
+import org.apache.syncope.to.ConnInstanceTO;
+import org.apache.syncope.to.ResourceTO;
+import org.apache.syncope.to.SchemaMappingTO;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 public class ConnInstanceTestITCase extends AbstractTest {
 

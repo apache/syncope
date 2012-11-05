@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.VirtualSchemaTO;
+
+import org.apache.syncope.AbstractBaseBean;
+import org.apache.syncope.to.DerivedSchemaTO;
+import org.apache.syncope.to.SchemaTO;
+import org.apache.syncope.to.VirtualSchemaTO;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;

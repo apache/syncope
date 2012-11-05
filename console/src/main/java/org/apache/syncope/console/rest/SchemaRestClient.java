@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.DerivedSchemaTO;
+import org.apache.syncope.to.SchemaTO;
+import org.apache.syncope.to.VirtualSchemaTO;
 import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking rest schema services.

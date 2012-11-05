@@ -21,8 +21,8 @@ package org.apache.syncope.console.rest;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.ConfigurationTO;
 
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {

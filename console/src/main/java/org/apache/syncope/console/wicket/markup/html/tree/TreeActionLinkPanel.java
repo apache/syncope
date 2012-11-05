@@ -31,13 +31,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.pages.Roles;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.to.RoleTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Panel for a node element form.

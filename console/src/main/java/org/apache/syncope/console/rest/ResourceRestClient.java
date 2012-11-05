@@ -20,9 +20,9 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.ResourceTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

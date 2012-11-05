@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.UserTO;
 
 public class SortableUserProviderComparator extends SortableDataProviderComparator<UserTO> {
 

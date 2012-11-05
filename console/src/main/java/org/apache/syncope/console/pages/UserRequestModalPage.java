@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.rest.UserRequestRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserRequestTO;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.util.AttributableOperations;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.rest.UserRequestRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.

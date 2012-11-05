@@ -45,9 +45,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -58,7 +55,10 @@ import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.to.UserRequestTO;
+import org.apache.syncope.to.WorkflowFormTO;
 import org.apache.syncope.types.UserRequestType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 public class Todo extends BasePage {
 

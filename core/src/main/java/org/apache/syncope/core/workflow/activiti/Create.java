@@ -19,9 +19,9 @@
 package org.apache.syncope.core.workflow.activiti;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.workflow.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.to.UserTO;
 
 public class Create extends AbstractActivitiDelegate {
 

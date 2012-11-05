@@ -20,10 +20,11 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
+
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserRequestTO;
+import org.apache.syncope.to.UserTO;
 import org.springframework.stereotype.Component;
 
 @Component

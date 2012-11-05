@@ -25,7 +25,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.to.UserTO;
 
 public class UserAttrColumn extends AbstractColumn<UserTO> {
 

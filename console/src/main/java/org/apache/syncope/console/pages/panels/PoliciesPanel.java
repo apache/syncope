@@ -50,11 +50,6 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -63,7 +58,12 @@ import org.apache.syncope.console.pages.PolicyModalPage;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.to.AccountPolicyTO;
+import org.apache.syncope.to.PasswordPolicyTO;
+import org.apache.syncope.to.PolicyTO;
+import org.apache.syncope.to.SyncPolicyTO;
 import org.apache.syncope.types.PolicyType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 public class PoliciesPanel extends Panel {
 

@@ -20,14 +20,14 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.ConnInstanceTO;
+import org.apache.syncope.to.ResourceTO;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.TraceLevel;
 import org.apache.wicket.ajax.AjaxRequestTarget;

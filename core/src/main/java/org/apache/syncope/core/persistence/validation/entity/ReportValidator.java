@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;
-import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.core.persistence.beans.Report;
+import org.apache.syncope.report.ReportletConf;
 import org.apache.syncope.types.EntityViolationType;
 
 public class ReportValidator extends AbstractValidator implements ConstraintValidator<ReportCheck, Report> {

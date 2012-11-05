@@ -19,7 +19,8 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.to.AbstractExecTO;
+
+import org.apache.syncope.to.AbstractExecTO;
 
 public interface ExecutionRestClient {
 

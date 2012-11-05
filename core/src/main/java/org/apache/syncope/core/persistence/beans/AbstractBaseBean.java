@@ -26,12 +26,13 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.syncope.SyncopeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.apache.syncope.client.SyncopeConstants;
 
 public abstract class AbstractBaseBean implements Serializable {
 
@@ -89,12 +90,12 @@ public abstract class AbstractBaseBean implements Serializable {
         Set<String> excludeFields = new HashSet<String>();
 
         PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(getClass());
-        for (int i = 0; i < propertyDescriptors.length; i++) {
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 
-            if (propertyDescriptors[i].getPropertyType().isInstance(Collections.emptySet())
-                    || propertyDescriptors[i].getPropertyType().isInstance(Collections.emptyList())) {
+            if (propertyDescriptor.getPropertyType().isInstance(Collections.emptySet())
+                    || propertyDescriptor.getPropertyType().isInstance(Collections.emptyList())) {
 
-                excludeFields.add(propertyDescriptors[i].getName());
+                excludeFields.add(propertyDescriptor.getName());
             }
         }
 

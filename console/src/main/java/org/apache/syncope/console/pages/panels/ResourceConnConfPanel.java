@@ -41,7 +41,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
@@ -53,6 +52,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel.MultiValueSelectorEvent;
+import org.apache.syncope.to.ResourceTO;
 import org.apache.syncope.types.ConnConfProperty;
 
 public class ResourceConnConfPanel extends Panel {

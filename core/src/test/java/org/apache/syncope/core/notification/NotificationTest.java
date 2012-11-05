@@ -18,25 +18,22 @@
  */
 package org.apache.syncope.core.notification;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
@@ -48,6 +45,11 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.MembershipTO;
+import org.apache.syncope.to.NotificationTaskTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
 import org.junit.AfterClass;
@@ -70,6 +72,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -190,10 +195,10 @@ public class NotificationTest {
             inbox.open(Folder.READ_WRITE);
 
             Message[] messages = inbox.getMessages();
-            for (int i = 0; i < messages.length; i++) {
-                if (sender.equals(messages[i].getFrom()[0].toString()) && subject.equals(messages[i].getSubject())) {
+            for (Message message : messages) {
+                if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
                     found = true;
-                    messages[i].setFlag(Flag.DELETED, true);
+                    message.setFlag(Flag.DELETED, true);
                 }
             }
             inbox.close(true);

@@ -19,16 +19,16 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.Map;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.to.ConnInstanceTO;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.BeanUtils;

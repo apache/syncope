@@ -25,16 +25,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.ResourceCond;
+
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.USchema;
@@ -42,7 +37,14 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import org.apache.syncope.search.AttributeCond;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.search.ResourceCond;
+import org.apache.syncope.search.SyncopeUserCond;
 import org.apache.syncope.types.SchemaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO {

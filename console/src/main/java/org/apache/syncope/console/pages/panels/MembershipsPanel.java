@@ -20,13 +20,13 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
 import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.to.MembershipTO;
+import org.apache.syncope.to.RoleTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;

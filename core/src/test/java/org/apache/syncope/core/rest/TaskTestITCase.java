@@ -18,33 +18,38 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
+
+import org.apache.syncope.core.init.SpringContextInitializer;
+import org.apache.syncope.core.quartz.TestSyncActions;
+import org.apache.syncope.core.sync.SyncJob;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.MembershipTO;
+import org.apache.syncope.to.NotificationTO;
+import org.apache.syncope.to.NotificationTaskTO;
+import org.apache.syncope.to.PropagationTaskTO;
+import org.apache.syncope.to.SchedTaskTO;
+import org.apache.syncope.to.SyncTaskTO;
+import org.apache.syncope.to.TaskExecTO;
+import org.apache.syncope.to.TaskTO;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.types.TraceLevel;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.sync.SyncJob;
-import org.apache.syncope.core.init.SpringContextInitializer;
-import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.apache.syncope.core.quartz.TestSyncActions;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.TraceLevel;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.client.HttpStatusCodeException;
 
 public class TaskTestITCase extends AbstractTest {
 
@@ -344,7 +349,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(usersPost);
         assertTrue("Expected " + (usersPre + 9) + ", found " + usersPost, usersPost == usersPre + 9);
 
-        // Check for issue 215: 
+        // Check for issue 215:
         // * expected disabled user test1
         // * expected enabled user test2
 

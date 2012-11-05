@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.rest;
 
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.junit.Test;
+import org.apache.syncope.to.DerivedSchemaTO;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+
 import static org.junit.Assert.*;
 
 public class DerivedSchemaTestITCase extends AbstractTest {

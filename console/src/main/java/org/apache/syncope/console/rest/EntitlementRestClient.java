@@ -21,8 +21,8 @@ package org.apache.syncope.console.rest;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking Rest Resources services.

@@ -18,27 +18,28 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.search.AttributeCond;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.search.ResourceCond;
+import org.apache.syncope.search.SyncopeUserCond;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.ResourceCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.util.EntitlementUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
@@ -301,7 +302,7 @@ public class UserSearchTest {
         final ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-1");
 
-        final NodeCond searchCondition = 
+        final NodeCond searchCondition =
                 NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getNotLeafCond(ws1));
         assertTrue(searchCondition.checkValidity());
 

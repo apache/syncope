@@ -26,10 +26,10 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.to.AbstractAttributableTO;
+import org.apache.syncope.to.ResourceTO;
 
 public class ResourcesPanel extends Panel {
 

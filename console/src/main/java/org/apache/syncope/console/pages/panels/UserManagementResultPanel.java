@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.PropagationTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.ConnObjectTO;
+import org.apache.syncope.to.PropagationTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;

@@ -19,14 +19,14 @@
 package org.apache.syncope.core.rest.data;
 
 import javax.persistence.RollbackException;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserRequestTO;
+import org.apache.syncope.to.UserTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;

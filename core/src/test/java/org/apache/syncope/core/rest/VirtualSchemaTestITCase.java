@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.to.VirtualSchemaTO;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

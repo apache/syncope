@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest;
 
 import javax.sql.DataSource;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;

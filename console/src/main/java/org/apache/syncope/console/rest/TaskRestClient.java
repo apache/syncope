@@ -21,14 +21,14 @@ package org.apache.syncope.console.rest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.to.NotificationTaskTO;
+import org.apache.syncope.to.PropagationTaskTO;
+import org.apache.syncope.to.SchedTaskTO;
+import org.apache.syncope.to.SyncTaskTO;
+import org.apache.syncope.to.TaskExecTO;
+import org.apache.syncope.to.TaskTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

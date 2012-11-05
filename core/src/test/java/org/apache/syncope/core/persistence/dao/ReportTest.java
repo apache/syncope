@@ -25,9 +25,9 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.client.report.UserReportletConf;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.Report;
+import org.apache.syncope.report.UserReportletConf;
 
 @Transactional
 public class ReportTest extends AbstractTest {

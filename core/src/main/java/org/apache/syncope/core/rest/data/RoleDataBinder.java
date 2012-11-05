@@ -19,10 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -35,8 +31,12 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.mod.RoleMod;
+import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.ConfigurationTO;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;

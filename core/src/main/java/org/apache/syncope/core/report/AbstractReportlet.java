@@ -18,13 +18,18 @@
  */
 package org.apache.syncope.core.report;
 
+import static org.apache.syncope.core.report.ReportXMLConst.ATTR_CLASS;
+import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
+import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORTLET;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
+
 import java.text.SimpleDateFormat;
+
+import org.apache.syncope.SyncopeConstants;
+import org.apache.syncope.report.AbstractReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.client.SyncopeConstants;
-import org.apache.syncope.client.report.AbstractReportletConf;
-import static org.apache.syncope.core.report.ReportXMLConst.*;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;

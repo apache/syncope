@@ -53,7 +53,7 @@ under the License.
 
     <property name="errorHandler">
       <bean id="syncopeClientErrorHandler"
-            class="org.apache.syncope.client.validation.SyncopeClientErrorHandler"/>
+            class="org.apache.syncope.validation.SyncopeClientErrorHandler"/>
     </property>
   </bean>
 

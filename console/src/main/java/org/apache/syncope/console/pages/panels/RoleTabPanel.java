@@ -29,11 +29,11 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
+import org.apache.syncope.search.MembershipCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.RoleTO;
 
 public class RoleTabPanel extends Panel {
 

@@ -25,7 +25,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.to.UserTO;
 
 public class TokenColumn extends AbstractColumn<UserTO> {
 

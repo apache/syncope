@@ -21,10 +21,11 @@ package org.apache.syncope.core.notification;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+
 import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ConfDAO;

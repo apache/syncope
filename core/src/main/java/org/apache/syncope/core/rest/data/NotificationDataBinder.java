@@ -20,8 +20,8 @@ package org.apache.syncope.core.rest.data;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.core.persistence.beans.Notification;
+import org.apache.syncope.to.NotificationTO;
 
 @Component
 public class NotificationDataBinder {

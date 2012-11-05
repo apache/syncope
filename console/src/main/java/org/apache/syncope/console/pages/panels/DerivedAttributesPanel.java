@@ -40,12 +40,12 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.apache.syncope.to.AbstractAttributableTO;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.RoleTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.AttributableType;
 
 public class DerivedAttributesPanel extends Panel {

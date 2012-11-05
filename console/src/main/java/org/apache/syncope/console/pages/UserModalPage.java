@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
@@ -27,6 +26,7 @@ import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.UserManagementResultPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;

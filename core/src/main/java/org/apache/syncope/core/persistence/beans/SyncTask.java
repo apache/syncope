@@ -24,10 +24,10 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.apache.syncope.core.sync.SyncJob;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.util.XMLSerializer;
 
 @Entity
 @SyncTaskCheck

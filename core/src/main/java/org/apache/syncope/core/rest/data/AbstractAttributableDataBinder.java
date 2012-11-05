@@ -32,12 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.client.mod.AbstractAttributableMod;
-import org.apache.syncope.client.mod.AttributeMod;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -64,10 +58,16 @@ import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.mod.AbstractAttributableMod;
+import org.apache.syncope.mod.AttributeMod;
+import org.apache.syncope.to.AbstractAttributableTO;
+import org.apache.syncope.to.AttributeTO;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 
 public abstract class AbstractAttributableDataBinder {
 

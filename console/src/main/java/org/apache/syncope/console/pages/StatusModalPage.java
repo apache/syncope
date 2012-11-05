@@ -20,11 +20,11 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;

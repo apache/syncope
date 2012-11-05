@@ -20,18 +20,19 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.util.AttributableOperations;
+
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.pages.panels.AccountInformationPanel;
+import org.apache.syncope.console.pages.panels.StatusPanel;
+import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.util.AttributableOperations;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.pages.panels.AccountInformationPanel;
-import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.

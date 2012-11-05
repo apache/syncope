@@ -20,14 +20,14 @@ package org.apache.syncope.core.workflow;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

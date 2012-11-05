@@ -19,8 +19,8 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.wicket.model.PropertyModel;
-import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.to.TaskTO;
 
 /**
  * Modal window with Task form (to stop and start execution).

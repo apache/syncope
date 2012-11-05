@@ -20,12 +20,13 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.util.AttributableOperations;
+
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.mod.RoleMod;
+import org.apache.syncope.to.RoleTO;
+import org.apache.syncope.util.AttributableOperations;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -120,7 +121,7 @@ public class RoleModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",

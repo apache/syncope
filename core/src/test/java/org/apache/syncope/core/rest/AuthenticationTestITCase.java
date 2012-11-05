@@ -18,26 +18,31 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.syncope.search.AttributeCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.AttributeTO;
+import org.apache.syncope.to.MembershipTO;
+import org.apache.syncope.to.RoleTO;
+import org.apache.syncope.to.SchemaTO;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.types.SchemaType;
+import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
-import org.apache.syncope.types.SchemaType;
-import org.apache.syncope.types.SyncopeClientExceptionType;
 
 public class AuthenticationTestITCase extends AbstractTest {
 

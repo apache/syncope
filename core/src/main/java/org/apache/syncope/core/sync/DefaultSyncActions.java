@@ -19,9 +19,9 @@
 package org.apache.syncope.core.sync;
 
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.to.UserTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 

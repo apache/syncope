@@ -33,11 +33,11 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.to.AbstractAttributableTO;
+import org.apache.syncope.to.PolicyTO;
 import org.apache.syncope.types.PolicyType;
 
 public class RoleSecurityPanel extends Panel {

@@ -27,8 +27,6 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
@@ -45,6 +43,8 @@ import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.util.SchemaMappingUtil;
+import org.apache.syncope.to.ResourceTO;
+import org.apache.syncope.to.SchemaMappingTO;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.IntMappingType;
 

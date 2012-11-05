@@ -19,8 +19,8 @@
 package org.apache.syncope.console.pages;
 
 import java.util.List;
-import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;

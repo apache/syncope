@@ -33,9 +33,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
+import org.apache.syncope.util.XMLSerializer;
 
 @Entity
 public class ConnInstance extends AbstractBaseBean {

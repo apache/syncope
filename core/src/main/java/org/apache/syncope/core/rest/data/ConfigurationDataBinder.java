@@ -19,8 +19,8 @@
 package org.apache.syncope.core.rest.data;
 
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.to.ConfigurationTO;
 
 @Component
 public class ConfigurationDataBinder {

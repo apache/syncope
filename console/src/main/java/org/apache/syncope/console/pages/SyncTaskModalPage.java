@@ -20,12 +20,12 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.to.ResourceTO;
+import org.apache.syncope.to.SyncTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;

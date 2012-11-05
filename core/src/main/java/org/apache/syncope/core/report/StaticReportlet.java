@@ -19,7 +19,7 @@
 package org.apache.syncope.core.report;
 
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.report.StaticReportletConf;
+import org.apache.syncope.report.StaticReportletConf;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 

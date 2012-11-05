@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.report;
 
-import org.apache.syncope.client.report.ReportletConf;
+import org.apache.syncope.report.ReportletConf;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 

@@ -19,14 +19,14 @@
 package org.apache.syncope.core.rest.data;
 
 import org.springframework.stereotype.Component;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.to.AccountPolicyTO;
+import org.apache.syncope.to.PasswordPolicyTO;
+import org.apache.syncope.to.PolicyTO;
+import org.apache.syncope.to.SyncPolicyTO;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.SyncPolicySpec;

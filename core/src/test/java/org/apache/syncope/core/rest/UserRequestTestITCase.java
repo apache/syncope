@@ -18,26 +18,31 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.search.AttributeCond;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.ConfigurationTO;
+import org.apache.syncope.to.UserRequestTO;
+import org.apache.syncope.to.UserTO;
+import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.validation.SyncopeClientException;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
-import org.apache.syncope.types.SyncopeClientExceptionType;
 
 public class UserRequestTestITCase extends AbstractTest {
 
@@ -199,7 +204,7 @@ public class UserRequestTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), initialPassword));
 
         // 4. now request user delete works
-        UserRequestTO request = restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}", 
+        UserRequestTO request = restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}",
                 UserRequestTO.class, userTO.getId());
         assertNotNull(request);
 
