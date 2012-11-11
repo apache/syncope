@@ -188,17 +188,17 @@ public class ConnObjectUtil {
         // 2. add data from defined template (if any)
         UserTO template = syncTask.getUserTemplate();
         if (template != null) {
-            if (StringUtils.isBlank(userTO.getUsername()) && StringUtils.isNotBlank(template.getUsername())) {
+            if (StringUtils.isNotBlank(template.getUsername())) {
                 String evaluated = jexlUtil.evaluate(template.getUsername(), userTO);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setUsername(template.getUsername());
+                    userTO.setUsername(evaluated);
                 }
             }
 
-            if (StringUtils.isBlank(userTO.getPassword()) && StringUtils.isNotBlank(template.getPassword())) {
+            if (StringUtils.isNotBlank(template.getPassword())) {
                 String evaluated = jexlUtil.evaluate(template.getPassword(), userTO);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setPassword(template.getPassword());
+                    userTO.setPassword(evaluated);
                 }
             }
 
