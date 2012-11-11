@@ -31,7 +31,7 @@ import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -51,7 +51,6 @@ import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.core.workflow.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.ConflictResolutionAction;
@@ -204,9 +203,8 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
             SyncopeUser found;
             List<SyncopeUser> users;
 
-            final SchemaMapping accountIdMap =
-                    SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
-            switch (accountIdMap.getIntMappingType()) {
+            final AbstractMappingItem accountIdItem = syncTask.getResource().getUmapping().getAccountIdItem();
+            switch (accountIdItem.getIntMappingType()) {
                 case Username:
                     found = userDAO.find(uid);
                     if (found != null) {
@@ -224,7 +222,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                 case UserSchema:
                     final UAttrValue value = new UAttrValue();
 
-                    USchema schema = schemaDAO.find(accountIdMap.getIntAttrName(), USchema.class);
+                    USchema schema = schemaDAO.find(accountIdItem.getIntAttrName(), USchema.class);
                     if (schema == null) {
                         value.setStringValue(uid);
                     } else {
@@ -236,7 +234,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                         }
                     }
 
-                    users = userDAO.findByAttrValue(accountIdMap.getIntAttrName(), value);
+                    users = userDAO.findByAttrValue(accountIdItem.getIntAttrName(), value);
                     for (SyncopeUser user : users) {
                         result.add(user.getId());
                     }
@@ -244,7 +242,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
                 case UserDerivedSchema:
                     try {
-                        users = userDAO.findByDerAttrValue(accountIdMap.getIntAttrName(), uid);
+                        users = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid);
                         for (SyncopeUser user : users) {
                             result.add(user.getId());
                         }
@@ -254,16 +252,15 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                     break;
 
                 default:
-                    LOG.error("Invalid accountId type '{}'", accountIdMap.getIntMappingType());
+                    LOG.error("Invalid accountId type '{}'", accountIdItem.getIntMappingType());
             }
         } else {
             // search for external attribute's name/value of each specified name
 
             final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
-            for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-                extValues.put(SchemaMappingUtil.getIntAttrName(mapping),
-                        delta.getObject().getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping)));
+            for (AbstractMappingItem item : syncTask.getResource().getUmapping().getItems()) {
+                extValues.put(item.getIntAttrName(), delta.getObject().getAttributeByName(item.getExtAttrName()));
             }
 
             // search for user by attribute(s) specified in the policy

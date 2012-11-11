@@ -18,26 +18,24 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
+import static org.junit.Assert.*;
+
 import java.util.HashSet;
 import java.util.Set;
-import static org.junit.Assert.*;
-import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
-import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.IntMappingType;
+import org.junit.Test;
 
 @Transactional
 public class SchemaTest extends AbstractTest {
@@ -49,29 +47,29 @@ public class SchemaTest extends AbstractTest {
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private DerSchemaDAO derSchemaDAO;
-
-    @Autowired
     private AttrDAO attrDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Test
-    public void test1() {
+    public void deleteFullname() {
         // search for user schema fullname
         USchema schema = schemaDAO.find("fullname", USchema.class);
-
         assertNotNull(schema);
 
         // check for associated mappings
-        Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
-                mappings.add(mapping);
+        Set<AbstractMappingItem> mapItems = new HashSet<AbstractMappingItem>();
+        for (ExternalResource resource : resourceDAO.findAll()) {
+            if (resource.getUmapping() != null) {
+                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
+                    if (schema.getName().equals(mapItem.getIntAttrName())) {
+                        mapItems.add(mapItem);
+                    }
+                }
             }
         }
-        assertFalse(mappings.isEmpty());
+        assertFalse(mapItems.isEmpty());
 
         // delete user schema fullname
         schemaDAO.delete("fullname", AttributableUtil.getInstance(AttributableType.USER));
@@ -80,17 +78,22 @@ public class SchemaTest extends AbstractTest {
 
         // check for schema deletion
         schema = schemaDAO.find("fullname", USchema.class);
-
         assertNull(schema);
 
+        schemaDAO.clear();
+
         // check for mappings deletion
-        mappings = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if ("fullname".equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
-                mappings.add(mapping);
+        mapItems = new HashSet<AbstractMappingItem>();
+        for (ExternalResource resource : resourceDAO.findAll()) {
+            if (resource.getUmapping() != null) {
+                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
+                    if ("fullname".equals(mapItem.getIntAttrName())) {
+                        mapItems.add(mapItem);
+                    }
+                }
             }
         }
-        assertTrue(mappings.isEmpty());
+        assertTrue(mapItems.isEmpty());
 
         assertNull(attrDAO.find(100L, UAttr.class));
         assertNull(attrDAO.find(300L, UAttr.class));
@@ -99,18 +102,20 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
-    public void test2() {
-
+    public void deleteSurname() {
         // search for user schema fullname
         USchema schema = schemaDAO.find("surname", USchema.class);
-
         assertNotNull(schema);
 
         // check for associated mappings
-        Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
-                mappings.add(mapping);
+        Set<AbstractMappingItem> mappings = new HashSet<AbstractMappingItem>();
+        for (ExternalResource resource : resourceDAO.findAll()) {
+            if (resource.getUmapping() != null) {
+                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
+                    if (schema.getName().equals(mapItem.getIntAttrName())) {
+                        mappings.add(mapItem);
+                    }
+                }
             }
         }
         assertFalse(mappings.isEmpty());
@@ -122,9 +127,18 @@ public class SchemaTest extends AbstractTest {
 
         // check for schema deletion
         schema = schemaDAO.find("surname", USchema.class);
-
         assertNull(schema);
+    }
 
-        assertNull(schemaDAO.find("surname", USchema.class));
+    @Test
+    public void deleteALong() {
+        assertEquals(6, resourceDAO.find("resource-db-sync").getUmapping().getItems().size());
+
+        schemaDAO.delete("aLong", AttributableUtil.getInstance(AttributableType.USER));
+        assertNull(schemaDAO.find("aLong", USchema.class));
+
+        schemaDAO.flush();
+
+        assertEquals(5, resourceDAO.find("resource-db-sync").getUmapping().getItems().size());
     }
 }

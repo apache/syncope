@@ -21,14 +21,15 @@ package org.apache.syncope.client.to;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.IntMappingType;
 
-public class SchemaMappingTO extends AbstractBaseBean {
+public class MappingItemTO extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 2983498836767176862L;
 
     private Long id;
 
     /**
-     * Attribute schema to be mapped.
-     * Consider that we can associate tha same attribute schema more
-     * than once, with different aliases, to different resource attributes.
+     * Attribute schema to be mapped. Consider that we can associate tha same attribute schema more than once, with
+     * different aliases, to different resource attributes.
      */
     private String intAttrName;
 

@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -103,24 +105,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     }
 
     @Override
-    public List<SchemaMapping> findAllMappings() {
-        Query query = entityManager.createQuery("SELECT e FROM " + SchemaMapping.class.getSimpleName() + " e");
-
-        return query.getResultList();
-    }
-
-    @Override
-    public SchemaMapping getMappingForAccountId(final String resourceName) {
-
-        Query query = entityManager.createQuery("SELECT m FROM " + SchemaMapping.class.getSimpleName() + " m "
-                + "WHERE m.resource.name=:resourceName " + "AND m.accountid = 1");
-        query.setParameter("resourceName", resourceName);
-
-        return (SchemaMapping) query.getSingleResult();
-    }
-
-    @Override
-    public void deleteMappings(final String intAttrName, final IntMappingType intMappingType) {
+    public <T extends AbstractMappingItem> void deleteMapping(final String intAttrName,
+            final IntMappingType intMappingType, final Class<T> reference) {
 
         if (intMappingType == IntMappingType.SyncopeUserId || intMappingType == IntMappingType.Password
                 || intMappingType == IntMappingType.Username) {
@@ -128,16 +114,33 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
             return;
         }
 
-        Query query = entityManager.createQuery("DELETE FROM " + SchemaMapping.class.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName " + "AND m.intMappingType=:intMappingType");
+        Query query = entityManager.createQuery("SELECT m FROM " + reference.getSimpleName()
+                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType");
         query.setParameter("intAttrName", intAttrName);
         query.setParameter("intMappingType", intMappingType);
 
-        int items = query.executeUpdate();
-        LOG.debug("Removed {} schema mappings", items);
+        Set<Long> itemIds = new HashSet<Long>();
+        for (T item : (List<T>) query.getResultList()) {
+            itemIds.add(item.getId());
+        }
+        Class mappingRef = null;
+        for (Long itemId : itemIds) {
+            T item = entityManager.find(reference, itemId);
+            if (item != null) {
+                mappingRef = item.getMapping().getClass();
 
-        // Make empty SchemaMapping query cache
-        entityManager.getEntityManagerFactory().getCache().evict(SchemaMapping.class);
+                item.getMapping().removeItem(item);
+                item.setMapping(null);
+
+                entityManager.remove(item);
+            }
+        }
+
+        // Make empty query cache for *MappingItem and related *Mapping
+        entityManager.getEntityManagerFactory().getCache().evict(reference);
+        if (mappingRef != null) {
+            entityManager.getEntityManagerFactory().getCache().evict(mappingRef);
+        }
     }
 
     @Override
@@ -163,6 +166,23 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
             resource.getConnector().getResources().remove(resource);
         }
         resource.setConnector(null);
+
+        if (resource.getUmapping() != null) {
+            for (AbstractMappingItem item : resource.getUmapping().getItems()) {
+                item.setMapping(null);
+            }
+            resource.getUmapping().getItems().clear();
+            resource.getUmapping().setResource(null);
+            resource.setUmapping(null);
+        }
+        if (resource.getRmapping() != null) {
+            for (AbstractMappingItem item : resource.getRmapping().getItems()) {
+                item.setMapping(null);
+            }
+            resource.getRmapping().getItems().clear();
+            resource.getRmapping().setResource(null);
+            resource.setRmapping(null);
+        }
 
         entityManager.remove(resource);
     }

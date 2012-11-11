@@ -20,17 +20,15 @@ package org.apache.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.PropagationMode;
@@ -62,7 +60,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
@@ -397,13 +394,11 @@ public class ConnectorFacadeProxy {
 
         Attribute attribute = null;
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
-
-            attribute = object.getAttributeByName(attributeName);
-        } catch (NullPointerException e) {
-            // ignore exception
+        final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        if (object == null) {
             LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
+            attribute = object.getAttributeByName(attributeName);
         }
 
         return attribute;
@@ -414,7 +409,6 @@ public class ConnectorFacadeProxy {
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
      * @param options ConnId's OperationOptions
-     * @param attributeNames attributes to read
      * @return attributes (if present)
      */
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
@@ -422,15 +416,13 @@ public class ConnectorFacadeProxy {
 
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
-
+        ConnectorObject object = connector.getObject(objectClass, uid, options);
+        if (object == null) {
+            LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
             for (String attribute : options.getAttributesToGet()) {
                 attributes.add(object.getAttributeByName(attribute));
             }
-        } catch (NullPointerException e) {
-            // ignore exception
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
 
         return attributes;
@@ -486,25 +478,22 @@ public class ConnectorFacadeProxy {
         return activeConnInstance;
     }
 
-    public OperationOptions getOperationOptions(final ExternalResource resource) {
-
+    public OperationOptions getOperationOptions(final AbstractMapping mapping) {
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
-        final Set<String> attributesToGet = new HashSet<String>(Arrays.asList(new String[]{Name.NAME, Uid.NAME,
-                    OperationalAttributes.ENABLE_NAME}));
+        final Set<String> attrsToGet = new HashSet<String>();
+        attrsToGet.add(Name.NAME);
+        attrsToGet.add(Uid.NAME);
+        attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        for (SchemaMapping mapping : resource.getMappings()) {
-            final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
-
-            if (StringUtils.hasText(extAttrName)) {
-                attributesToGet.add(extAttrName);
-            }
+        for (AbstractMappingItem item : mapping.getItems()) {
+            attrsToGet.add(item.getExtAttrName());
         }
 
-        oob.setAttributesToGet(attributesToGet);
+        oob.setAttributesToGet(attrsToGet);
         // -------------------------------------
 
         return oob.build();
@@ -521,13 +510,12 @@ public class ConnectorFacadeProxy {
                         getDefaultClassLoader());
 
                 if (GuardedString.class.equals(propertySchemaClass)) {
-                    value = new GuardedString((values.get(0).toString()).toCharArray());
+                    value = new GuardedString(values.get(0).toString().toCharArray());
                 } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
                     value = new GuardedByteArray((byte[]) values.get(0));
                 } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
-                    value = values.get(0) != null && !values.get(0).toString().isEmpty()
-                            ? values.get(0).toString().charAt(0)
-                            : null;
+                    value = values.get(0) == null || values.get(0).toString().isEmpty()
+                            ? null : values.get(0).toString().charAt(0);
                 } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
                     value = Integer.parseInt(values.get(0).toString());
                 } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {

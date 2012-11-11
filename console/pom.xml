@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.1.0-RP-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Console</name>
@@ -49,18 +49,6 @@ under the License.
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-client</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <!-- Only needed for running core -->
-    <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa-all</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -287,16 +275,6 @@ under the License.
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
               </dependency>
-
-              <dependency>
-                <groupId>org.apache.openjpa</groupId>
-                <artifactId>openjpa-all</artifactId>
-              </dependency>
-
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-              </dependency>
             </dependencies>
           </container>
           <configuration>
@@ -306,7 +284,7 @@ under the License.
               <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-              <!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
+              <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
               <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false -Xms512m -Xmx1024m -XX:PermSize=512m -XX:MaxPermSize=1024m</cargo.jvmargs>
             </properties>
             <configfiles>
@@ -546,7 +524,7 @@ under the License.
               </execution>
               <execution>
                 <id>stop-container</id>
-                <phase>post-integration-test</phase>
+                <phase>post-integratison-test</phase>
                 <goals>
                   <goal>stop</goal>
                 </goals>

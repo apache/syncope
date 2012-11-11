@@ -21,9 +21,9 @@ package org.apache.syncope.core.sync;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -33,7 +33,6 @@ import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.ConflictResolutionAction;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.apache.syncope.types.TraceLevel;
@@ -228,8 +227,8 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException(msg, e);
         }
 
-        final SchemaMapping accountIdMap = SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
-        if (accountIdMap == null) {
+        final AbstractMappingItem accountIdItem = syncTask.getResource().getUmapping().getAccountIdItem();
+        if (accountIdItem == null) {
             throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());
         }
 
@@ -257,10 +256,10 @@ public class SyncJob extends AbstractTaskJob {
         try {
             if (syncTask.isFullReconciliation()) {
                 connector.getAllObjects(ObjectClass.ACCOUNT, handler,
-                        connector.getOperationOptions(syncTask.getResource()));
+                        connector.getOperationOptions(syncTask.getResource().getUmapping()));
             } else {
                 connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getSyncToken(), handler,
-                        connector.getOperationOptions(syncTask.getResource()));
+                        connector.getOperationOptions(syncTask.getResource().getUmapping()));
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {

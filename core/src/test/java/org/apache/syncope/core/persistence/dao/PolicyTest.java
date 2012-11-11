@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;

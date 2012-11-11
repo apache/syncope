@@ -23,17 +23,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
+import org.apache.syncope.client.to.MappingItemTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.types.IntMappingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class StatusUtils {
 
@@ -131,8 +131,8 @@ public class StatusUtils {
             final StatusUtils.Status status = enabled == null
                     ? StatusUtils.Status.UNDEFINED
                     : enabled
-                            ? StatusUtils.Status.ACTIVE
-                            : StatusUtils.Status.SUSPENDED;
+                    ? StatusUtils.Status.ACTIVE
+                    : StatusUtils.Status.SUSPENDED;
 
             final String accountLink = getAccountLink(objectTO);
 
@@ -172,10 +172,12 @@ public class StatusUtils {
     public Map.Entry<IntMappingType, String> getAccountId(final ResourceTO resourceTO) {
         Map.Entry<IntMappingType, String> accountId = null;
 
-        for (SchemaMappingTO mapping : resourceTO.getMappings()) {
-            if (mapping.isAccountid()) {
-                accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(mapping.getIntMappingType(), mapping
-                        .getIntAttrName());
+        if (resourceTO.getUmapping() != null) {
+            for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
+                if (item.isAccountid()) {
+                    accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
+                            item.getIntMappingType(), item.getIntAttrName());
+                }
             }
         }
 

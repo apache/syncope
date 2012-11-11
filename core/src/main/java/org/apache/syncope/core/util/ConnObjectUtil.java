@@ -37,9 +37,9 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -175,11 +176,11 @@ public class ConnObjectUtil {
         final UserTO userTO = new UserTO();
 
         // 1. fill with data from connector object
-        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
+        for (AbstractMappingItem item : syncTask.getResource().getUmapping().getItems()) {
+            Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
-            switch (mapping.getIntMappingType()) {
+            switch (item.getIntMappingType()) {
                 case SyncopeUserId:
                     break;
 
@@ -197,7 +198,7 @@ public class ConnObjectUtil {
 
                 case UserSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
+                    attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
@@ -210,13 +211,13 @@ public class ConnObjectUtil {
 
                 case UserDerivedSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
+                    attributeTO.setSchema(item.getIntAttrName());
                     userTO.addDerivedAttribute(attributeTO);
                     break;
 
                 case UserVirtualSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
+                    attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
@@ -341,43 +342,42 @@ public class ConnObjectUtil {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
-        final Map<SchemaMappingWrapper, ConnectorObject> remoteObjects =
-                new HashMap<SchemaMappingWrapper, ConnectorObject>();
+        final Map<ConnectorObject, Set<AbstractMappingItem>> connObj2MapItems =
+                new HashMap<ConnectorObject, Set<AbstractMappingItem>>();
 
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
-                final SchemaMappingWrapper mappings = new SchemaMappingWrapper(resource.getMappings());
-
-                final String accountId = SchemaMappingUtil.getAccountIdValue(owner, mappings.getAccountIdMapping());
+                final String accountId = resource.getUmapping() == null
+                        ? null : MappingUtil.getAccountIdValue(owner, resource.getUmapping());
 
                 LOG.debug("Search for object with accountId '{}'", accountId);
 
                 if (StringUtils.isNotBlank(accountId)) {
                     // Retrieve attributes to get
+                    final Set<AbstractMappingItem> virMapItems = new HashSet<AbstractMappingItem>();
                     final Set<String> extAttrNames = new HashSet<String>();
 
-                    for (Set<SchemaMapping> virAttrMappings : mappings.getuVirMappings().values()) {
-                        for (SchemaMapping virAttrMapping : virAttrMappings) {
-                            extAttrNames.add(SchemaMappingUtil.getExtAttrName(virAttrMapping));
+                    for (AbstractMappingItem item : resource.getUmapping().getItems()) {
+                        if (item.getIntMappingType() == IntMappingType.UserVirtualSchema) {
+                            virMapItems.add(item);
+                            extAttrNames.add(item.getExtAttrName());
                         }
                     }
 
                     // Search for remote object
-                    if (extAttrNames != null) {
-                        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-                        oob.setAttributesToGet(extAttrNames);
+                    final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+                    oob.setAttributesToGet(extAttrNames);
 
-                        final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
-                        final ConnectorObject connectorObject =
-                                connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
+                    final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+                    final ConnectorObject connObj =
+                            connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
 
-                        if (connectorObject != null) {
-                            remoteObjects.put(mappings, connectorObject);
-                        }
-
-                        LOG.debug("Retrieved remotye object {}", connectorObject);
+                    if (connObj != null) {
+                        connObj2MapItems.put(connObj, virMapItems);
                     }
+
+                    LOG.debug("Retrieved remotye object {}", connObj);
                 }
             } catch (Exception e) {
                 LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);
@@ -387,19 +387,14 @@ public class ConnObjectUtil {
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
             LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
 
-            for (Map.Entry<SchemaMappingWrapper, ConnectorObject> entry : remoteObjects.entrySet()) {
-                final Set<SchemaMapping> virAttrMappings = entry.getKey().getuVirMappings().
-                        get(virAttr.getVirtualSchema().getName());
-
-                if (virAttrMappings != null) {
-                    for (SchemaMapping virAttrMapping : virAttrMappings) {
-                        final String extAttrName = SchemaMappingUtil.getExtAttrName(virAttrMapping);
-                        final Attribute extAttr = entry.getValue().getAttributeByName(extAttrName);
-                        if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
-                            for (Object obj : extAttr.getValue()) {
-                                if (obj != null) {
-                                    virAttr.addValue(obj.toString());
-                                }
+            for (Map.Entry<ConnectorObject, Set<AbstractMappingItem>> entry : connObj2MapItems.entrySet()) {
+                for (AbstractMappingItem vAttrMapItem : entry.getValue()) {
+                    final String extAttrName = vAttrMapItem.getExtAttrName();
+                    final Attribute extAttr = entry.getKey().getAttributeByName(extAttrName);
+                    if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
+                        for (Object obj : extAttr.getValue()) {
+                            if (obj != null) {
+                                virAttr.addValue(obj.toString());
                             }
                         }
                     }

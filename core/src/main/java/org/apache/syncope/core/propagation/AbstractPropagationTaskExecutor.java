@@ -416,7 +416,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject obj = null;
         try {
             obj = connector.getObject(task.getPropagationMode(), task.getPropagationOperation(), ObjectClass.ACCOUNT,
-                    new Uid(accountId), connector.getOperationOptions(task.getResource()));
+                    new Uid(accountId), connector.getOperationOptions(task.getResource().getUmapping()));
         } catch (RuntimeException ignore) {
             LOG.debug("While resolving {}", accountId, ignore);
         }

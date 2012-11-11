@@ -24,9 +24,9 @@ under the License.
   <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
   <!-- notificationjob.cronExpression:
-       + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
-       + provided as empty string: NotificationJob disabled
-       + provided as non-empty string: NotificationJob runs according to the given value -->
+  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
   <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
@@ -336,31 +336,44 @@ under the License.
   <ConnInstance_capabilities ConnInstance_id="107" capabilities="ONE_PHASE_CREATE"/>
   <ConnInstance_capabilities ConnInstance_id="107" capabilities="TWO_PHASES_UPDATE"/>
 
-  <ExternalResource name="ws-target-resource-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-1" connector_id="100"
+                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-2" connector_id="100"
+                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100"
+                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100"
+                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-delete" connector_id="102" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-delete" connector_id="102"
+                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="ws-target-resource-update" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+  <ExternalResource name="ws-target-resource-update" connector_id="100"
+                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-testdb" connector_id="101" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+  <ExternalResource name="resource-testdb" connector_id="101"
+                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-testdb2" connector_id="106" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+  <ExternalResource name="resource-testdb2" connector_id="106"
+                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-  <ExternalResource name="resource-csv" connector_id="104" enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
+  <ExternalResource name="resource-csv" connector_id="104"
+                    enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" serializedSyncToken="%3Corg.identityconnectors.framework.common.objects.SyncToken%2F%3E"/>
-  <ExternalResource name="resource-ldap" connector_id="105" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
-                    propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
-                    accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
-  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" passwordPolicy_id="4"/>
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    serializedSyncToken="%3Corg.identityconnectors.framework.common.objects.SyncToken%2F%3E"/>
+  <ExternalResource name="resource-ldap" connector_id="105"
+                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="1"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
+  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
+                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" 
+                    passwordPolicy_id="4"/>
   
   <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
   <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
@@ -387,209 +400,184 @@ under the License.
   <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv" />
   <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv" />
 
-  <SchemaMapping id="99"
-                 resource_name="ws-target-resource-1"
-                 intMappingType="SyncopeUserId" mandatoryCondition="true"
-                 accountid="1" password="0"/>
+  <UMapping id="15" resource_name="ws-target-resource-1"/>
+  <UMappingItem id="99" mapping_id="15" extAttrName="__NAME__"
+                intMappingType="SyncopeUserId" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="100" extAttrName="email" mapping_id="15"
+                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="101" extAttrName="surname" mapping_id="15"
+                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="102" mapping_id="15"
+                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+                accountid="0" password="1"/>
 
-  <SchemaMapping id="100" extAttrName="email"
-                 resource_name="ws-target-resource-1"
-                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
+  <UMapping id="12" resource_name="ws-target-resource-list-mappings-1"/>
+  <UMappingItem id="103" mapping_id="12"
+                extAttrName="__NAME__" intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="104" extAttrName="surname" mapping_id="12"
+                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
 
-  <SchemaMapping id="101"
-                 resource_name="ws-target-resource-2"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
+  <UMapping id="13" resource_name="ws-target-resource-list-mappings-2"/>
+  <UMappingItem id="105" mapping_id="13"
+                extAttrName="__NAME__" intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
 
-  <SchemaMapping id="102"
-                 resource_name="ws-target-resource-list-mappings-1"
-                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-
-  <SchemaMapping id="103" extAttrName="surname"
-                 resource_name="ws-target-resource-list-mappings-1"
-                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="104"
-                 resource_name="ws-target-resource-list-mappings-2"
-                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-
-  <SchemaMapping id="105" extAttrName="surname"
-                 resource_name="ws-target-resource-1"
-                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="106"
-                 resource_name="ws-target-resource-1"
-                 intMappingType="Password" mandatoryCondition="true"
-                 accountid="0" password="1"/>
-
-  <SchemaMapping id="107"
-                 resource_name="ws-target-resource-2"
-                 intMappingType="Password" mandatoryCondition="true"
-                 accountid="0" password="1"/>
-
-  <SchemaMapping id="108" extAttrName="type"
-                 resource_name="ws-target-resource-2"
-                 intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="109" extAttrName="surname"
-                 resource_name="ws-target-resource-2"
-                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="type == 'F'"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="110" extAttrName="email"
-                 resource_name="ws-target-resource-update"
-                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="111" extAttrName="userId"
-                 resource_name="ws-target-resource-update"
-                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
+  <UMapping id="1" resource_name="ws-target-resource-2"/>
+  <UMappingItem id="106" mapping_id="1" extAttrName="__NAME__"
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="107" mapping_id="1"
+                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+                accountid="0" password="1"/>
+  <UMappingItem id="108" extAttrName="type" mapping_id="1"
+                intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="109" extAttrName="surname" mapping_id="1"
+                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                accountid="0" password="0"/>
+  <UMappingItem id="110" extAttrName="name" mapping_id="1"
+                intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+                accountid="0" password="0"/>
+  <UMappingItem id="111" extAttrName="fullname" mapping_id="1"
+                intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
     
-  <SchemaMapping id="112" extAttrName="test3"
-                 resource_name="ws-target-resource-update"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
+  <UMapping id="2" resource_name="ws-target-resource-update"/>
+  <UMappingItem id="112" extAttrName="email" mapping_id="2"
+                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+  <UMappingItem id="113" extAttrName="userId" mapping_id="2"
+                intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+  <UMappingItem id="114" extAttrName="test3" mapping_id="2" 
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+    
+  <UMapping id="3" resource_name="ws-target-resource-nopropagation"/>
+  <UMappingItem id="115" mapping_id="3" extAttrName="__NAME__" 
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+                     
+  <UMapping id="4" resource_name="ws-target-resource-nopropagation2"/>
+  <UMappingItem id="116" mapping_id="4" extAttrName="__NAME__" 
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+                     
+  <UMapping id="5" resource_name="ws-target-resource-nopropagation3"/>
+  <UMappingItem id="117" mapping_id="5" extAttrName="__NAME__"
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+                     
+  <UMapping id="6" resource_name="ws-target-resource-nopropagation4"/>
+  <UMappingItem id="118" mapping_id="6"
+                extAttrName="__NAME__" intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+                       
+  <UMapping id="7" resource_name="resource-testdb"/>
+  <UMappingItem id="119" mapping_id="7"
+                extAttrName="__NAME__" intMappingType="Username" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="120" mapping_id="7"
+                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+                accountid="0" password="1"/>
+                     
+  <UMapping id="8" resource_name="resource-testdb2"/>
+  <UMappingItem id="121" mapping_id="8" extAttrName="__NAME__" 
+                intMappingType="Username" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="122" mapping_id="8" extAttrName="__PASSWORD__" 
+                intMappingType="Password" mandatoryCondition="true"
+                accountid="0" password="1"/>
+                         
+  <UMapping id="9" resource_name="resource-csv"/>
+  <UMappingItem id="200" extAttrName="id" mapping_id="9"
+                intMappingType="Username" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="201" extAttrName="id" mapping_id="9"
+                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="202" mapping_id="9"
+                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+                accountid="0" password="1"/>
+  <UMappingItem id="203" extAttrName="name" mapping_id="9"
+                intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+  <UMappingItem id="204" extAttrName="surname" mapping_id="9"
+                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+  <UMappingItem id="205" extAttrName="email" mapping_id="9"
+                intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="206" extAttrName="email" mapping_id="9"
+                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                accountid="0" password="0"/>
+  <UMappingItem id="207" extAttrName="__NAME__" mapping_id="9"
+                intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+                accountid="1" password="0"/>
+  <UMappingItem id="208" extAttrName="role" mapping_id="9"
+                intAttrName="rderToBePropagated" intMappingType="RoleDerivedSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+  <UMappingItem id="209" extAttrName="membership" mapping_id="9"
+                intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+                         
+  <UMapping id="10" resource_name="ws-target-resource-update-resetsynctoken"/>
+  <UMappingItem id="300" mapping_id="10"
+                extAttrName="__NAME__" intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="1" password="0"/>
+  <UMappingItem id="301" mapping_id="10"
+                extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="1"/>
 
-  <SchemaMapping id="113" extAttrName="name"
-                 resource_name="ws-target-resource-2"
-                 intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
-                 accountid="0" password="0"/>
+  <UMapping id="11" resource_name="resource-ldap"
+            accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
+  <UMappingItem id="311" accountid="1" password="0" mapping_id="11"
+                extAttrName="__NAME__" intAttrName="Username" intMappingType="Username"
+                mandatoryCondition="true"/>
+  <UMappingItem id="312" accountid="0" password="1" mapping_id="11"
+                extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
+                mandatoryCondition="true"/>
+  <UMappingItem id="313" accountid="0" password="0" mapping_id="11"
+                extAttrName="sn" intAttrName="surname" intMappingType="UserSchema"
+                mandatoryCondition="true"/>
+  <UMappingItem id="314" accountid="0" password="0" mapping_id="11"
+                extAttrName="cn" intAttrName="firstname" intMappingType="UserSchema"
+                mandatoryCondition="true"/>
+  <UMappingItem id="315" accountid="0" password="0" mapping_id="11"
+                extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
+                mandatoryCondition="false"/>
+  <UMappingItem id="316" accountid="0" password="0" mapping_id="11"
+                extAttrName="title" intAttrName="title" intMappingType="RoleSchema"
+                mandatoryCondition="false"/>
+  <UMappingItem id="317" accountid="0" password="0" mapping_id="11"
+                extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipSchema"
+                mandatoryCondition="false"/>
 
-  <SchemaMapping id="114" extAttrName="fullname"
-                 resource_name="ws-target-resource-2"
-                 intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-
-  <SchemaMapping id="115"
-                 resource_name="ws-target-resource-nopropagation"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-                 
-  <SchemaMapping id="116"
-                 resource_name="ws-target-resource-nopropagation2"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-                 
-  <SchemaMapping id="117"
-                 resource_name="ws-target-resource-nopropagation3"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-                 
-  <SchemaMapping id="118"
-                 resource_name="ws-target-resource-nopropagation4"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-                   
-  <SchemaMapping id="119"
-                 resource_name="resource-testdb"
-                 intMappingType="Username" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-  <SchemaMapping id="120"
-                 resource_name="resource-testdb"
-                 intMappingType="Password" mandatoryCondition="true"
-                 accountid="0" password="1"/>
-                 
-  <SchemaMapping id="121"
-                 resource_name="resource-testdb2"
-                 intMappingType="Username" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-  <SchemaMapping id="122"
-                 resource_name="resource-testdb2"
-                 intMappingType="Password" mandatoryCondition="true"
-                 accountid="0" password="1"/>
-                   
-  <SchemaMapping id="200" extAttrName="id"
-                 resource_name="resource-csv"
-                 intMappingType="Username" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="201" extAttrName="id"
-                 resource_name="resource-csv"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="202"
-                 resource_name="resource-csv"
-                 intMappingType="Password" mandatoryCondition="true"
-                 accountid="0" password="1"/>
-  <SchemaMapping id="203" extAttrName="name"
-                 resource_name="resource-csv"
-                 intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="204" extAttrName="surname"
-                 resource_name="resource-csv"
-                 intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="205" extAttrName="email"
-                 resource_name="resource-csv"
-                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="206" extAttrName="email"
-                 resource_name="resource-csv"
-                 intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="207"
-                 resource_name="resource-csv"
-                 intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-                 accountid="1" password="0"/>
-  <SchemaMapping id="208" extAttrName="role"
-                 resource_name="resource-csv"
-                 intAttrName="rderToBePropagated" intMappingType="RoleDerivedSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
-  <SchemaMapping id="209" extAttrName="membership"
-                 resource_name="resource-csv"
-                 intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
-                 accountid="0" password="0"/>
-                   
-  <SchemaMapping id="300"
-                 resource_name="ws-target-resource-update-resetsynctoken"
-                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="1" password="0"/>
-  <SchemaMapping id="301"
-                 resource_name="ws-target-resource-update-resetsynctoken"
-                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
-                 accountid="0" password="1"/>
-                   
-  <SchemaMapping id="311" accountid="1" password="0"
-                 intAttrName="Username" intMappingType="Username"
-                 mandatoryCondition="true" resource_name="resource-ldap"/>
-  <SchemaMapping id="312" accountid="0" password="1" 
-                 intAttrName="Password" intMappingType="Password"
-                 mandatoryCondition="true" resource_name="resource-ldap"/>
-  <SchemaMapping id="313" accountid="0" password="0"
-                 extAttrName="sn" intAttrName="surname" intMappingType="UserSchema"
-                 mandatoryCondition="true" resource_name="resource-ldap"/>
-  <SchemaMapping id="314" accountid="0" password="0"
-                 extAttrName="cn" intAttrName="firstname" intMappingType="UserSchema"
-                 mandatoryCondition="true" resource_name="resource-ldap"/>
-  <SchemaMapping id="315" accountid="0" password="0"
-                 extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
-                 mandatoryCondition="false" resource_name="resource-ldap"/>
-  <SchemaMapping id="316" accountid="0" password="0"
-                 extAttrName="title" intAttrName="title" intMappingType="RoleSchema"
-                 mandatoryCondition="false" resource_name="resource-ldap"/>
-  <SchemaMapping id="317" accountid="0" password="0"
-                 extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipSchema"
-                 mandatoryCondition="false" resource_name="resource-ldap"/>
-                   
-  <SchemaMapping id="321" accountid="0" extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  <SchemaMapping id="322" accountid="0" extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserSchema" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  <SchemaMapping id="323" accountid="1" intAttrName="aLong" intMappingType="UserSchema" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  <SchemaMapping id="324" accountid="0" extAttrName="SURNAME" intAttrName="surname" intMappingType="UserSchema" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  <SchemaMapping id="325" accountid="0" extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  <SchemaMapping id="326" accountid="0" extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
-                 mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
-  
+  <UMapping id="16" resource_name="resource-db-sync"/>
+  <UMappingItem id="321" accountid="0" mapping_id="16"
+                extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 
+                mandatoryCondition="false" password="0"/>
+  <UMappingItem id="322" accountid="0" mapping_id="16"
+                extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserSchema" 
+                mandatoryCondition="false" password="0"/>
+  <UMappingItem id="323" accountid="1" mapping_id="16"
+                extAttrName="__NAME__" intAttrName="aLong" intMappingType="UserSchema" 
+                mandatoryCondition="false" password="0"/>
+  <UMappingItem id="324" accountid="0" mapping_id="16"
+                extAttrName="SURNAME" intAttrName="surname" intMappingType="UserSchema" 
+                mandatoryCondition="false" password="0"/>
+  <UMappingItem id="325" accountid="0" mapping_id="16"
+                extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
+                mandatoryCondition="false" password="0"/>
+  <UMappingItem id="326" accountid="0" mapping_id="16"
+                extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
+                mandatoryCondition="false" password="0"/>
+              
   <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         resource_name="ws-target-resource-2" syncopeUser_id="1"
         xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>

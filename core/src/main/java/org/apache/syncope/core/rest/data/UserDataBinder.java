@@ -30,10 +30,10 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.Policy;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
@@ -134,8 +134,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * Get pre-configured password cipher algorithm.
      *
      * @return cipher algorithm.
-     * @throws NotFoundException in case of algorithm not included into
-     * <code>CipherAlgorithm</code>.
+     * @throws NotFoundException in case of algorithm not included into <code>CipherAlgorithm</code>.
      */
     private CipherAlgorithm getCipherAlgoritm()
             throws NotFoundException {
@@ -275,8 +274,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             propByRes.addAll(PropagationOperation.UPDATE, currentResources);
 
             for (ExternalResource resource : user.getResources()) {
-                for (SchemaMapping mapping : resource.getMappings()) {
-                    if (mapping.isAccountid() && mapping.getIntMappingType() == IntMappingType.Username) {
+                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
+                    if (mapItem.isAccountid() && mapItem.getIntMappingType() == IntMappingType.Username) {
                         propByRes.addOldAccountId(resource.getName(), oldUsername);
                     }
                 }
@@ -296,11 +295,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         final Set<String> toBeProvisioned = new HashSet<String>();
 
         // memberships to be removed
-        Membership membership;
         for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
             LOG.debug("Membership to be removed: {}", membershipId);
 
-            membership = membershipDAO.find(membershipId);
+            Membership membership = membershipDAO.find(membershipId);
             if (membership == null) {
                 LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
@@ -360,7 +358,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             if (role == null) {
                 LOG.debug("Ignoring invalid role {}", membershipMod.getRole());
             } else {
-                membership = user.getMembership(role.getId());
+                Membership membership = user.getMembership(role.getId());
                 if (membership == null) {
                     membership = new Membership();
                     membership.setSyncopeRole(role);

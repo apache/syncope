@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.util;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.membership.MAttrValue;
@@ -38,6 +42,7 @@ import org.apache.syncope.core.persistence.beans.role.RAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
+import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
@@ -46,6 +51,7 @@ import org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
@@ -70,6 +76,47 @@ public class AttributableUtil {
 
     public AttributableType getType() {
         return type;
+    }
+
+    public <T extends AbstractMappingItem> List<T> getMappingItems(final ExternalResource resource) {
+        List<T> result = Collections.EMPTY_LIST;
+
+        if (resource != null) {
+            switch (type) {
+                case USER:
+                    if (resource.getUmapping() != null) {
+                        result = resource.getUmapping().getItems();
+                    }
+                    break;
+                case ROLE:
+                    if (resource.getRmapping() != null) {
+                        result = resource.getRmapping().getItems();
+                    }
+                    break;
+                case MEMBERSHIP:
+                default:
+            }
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractMappingItem> Class<T> mappingItemClass() {
+        Class result;
+
+        switch (type) {
+            case USER:
+                result = UMappingItem.class;
+                break;
+            case ROLE:
+                result = RMappingItem.class;
+                break;
+            case MEMBERSHIP:
+            default:
+                result = AbstractMappingItem.class;
+        }
+
+        return result;
     }
 
     public IntMappingType intMappingType() {

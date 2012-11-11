@@ -21,26 +21,18 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.validation.entity.SchemaMappingCheck;
 import org.apache.syncope.types.IntMappingType;
 
-@Entity
+@MappedSuperclass
 @Cacheable
-@SchemaMappingCheck
-public class SchemaMapping extends AbstractBaseBean {
+public abstract class AbstractMappingItem extends AbstractBaseBean {
 
     private static final long serialVersionUID = 7383601853619332424L;
-
-    @Id
-    private Long id;
 
     @Column(nullable = true)
     private String intAttrName;
@@ -50,17 +42,16 @@ public class SchemaMapping extends AbstractBaseBean {
     private IntMappingType intMappingType;
 
     /**
-     * Resource that has fields to be mapped over user attribute schemas.
-     */
-    @ManyToOne
-    @NotNull
-    private ExternalResource resource;
-
-    /**
      * Target resource's field to be mapped.
      */
     @Column(nullable = true)
     private String extAttrName;
+
+    /**
+     * Specify if the mapped target resource's field is nullable.
+     */
+    @Column(nullable = false)
+    private String mandatoryCondition;
 
     /**
      * Specify if the mapped target resource's field is the key.
@@ -80,22 +71,70 @@ public class SchemaMapping extends AbstractBaseBean {
     @Max(1)
     private Integer password;
 
-    /**
-     * Specify if the mapped target resource's field is nullable.
-     */
-    @Column(nullable = false)
-    private String mandatoryCondition;
-
-    public SchemaMapping() {
+    public AbstractMappingItem() {
         super();
+
+        mandatoryCondition = Boolean.FALSE.toString();
 
         accountid = getBooleanAsInteger(false);
         password = getBooleanAsInteger(false);
-        mandatoryCondition = Boolean.FALSE.toString();
     }
 
-    public Long getId() {
-        return id;
+    public abstract Long getId();
+
+    public abstract <T extends AbstractMapping> T getMapping();
+
+    public abstract <T extends AbstractMapping> void setMapping(T mapping);
+
+    public String getExtAttrName() {
+        return extAttrName;
+    }
+
+    public void setExtAttrName(final String extAttrName) {
+        this.extAttrName = extAttrName;
+    }
+
+    public String getMandatoryCondition() {
+        return mandatoryCondition;
+    }
+
+    public void setMandatoryCondition(final String mandatoryCondition) {
+        this.mandatoryCondition = mandatoryCondition;
+    }
+
+    public String getIntAttrName() {
+        final String name;
+
+        switch (getIntMappingType()) {
+            case SyncopeUserId:
+                name = "id";
+                break;
+
+            case Username:
+                name = "username";
+                break;
+
+            case Password:
+                name = "password";
+                break;
+
+            default:
+                name = intAttrName;
+        }
+
+        return name;
+    }
+
+    public void setIntAttrName(final String intAttrName) {
+        this.intAttrName = intAttrName;
+    }
+
+    public IntMappingType getIntMappingType() {
+        return intMappingType;
+    }
+
+    public void setIntMappingType(IntMappingType intMappingType) {
+        this.intMappingType = intMappingType;
     }
 
     public boolean isAccountid() {
@@ -106,51 +145,11 @@ public class SchemaMapping extends AbstractBaseBean {
         this.accountid = getBooleanAsInteger(accountid);
     }
 
-    public String getExtAttrName() {
-        return extAttrName;
-    }
-
-    public void setExtAttrName(String extAttrName) {
-        this.extAttrName = extAttrName;
-    }
-
-    public String getMandatoryCondition() {
-        return mandatoryCondition;
-    }
-
-    public void setMandatoryCondition(String mandatoryCondition) {
-        this.mandatoryCondition = mandatoryCondition;
-    }
-
     public boolean isPassword() {
         return isBooleanAsInteger(password);
     }
 
     public void setPassword(boolean password) {
         this.password = getBooleanAsInteger(password);
-    }
-
-    public ExternalResource getResource() {
-        return resource;
-    }
-
-    public void setResource(ExternalResource resource) {
-        this.resource = resource;
-    }
-
-    public String getIntAttrName() {
-        return intAttrName;
-    }
-
-    public void setIntAttrName(String intAttrName) {
-        this.intAttrName = intAttrName;
-    }
-
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    public void setIntMappingType(IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
     }
 }

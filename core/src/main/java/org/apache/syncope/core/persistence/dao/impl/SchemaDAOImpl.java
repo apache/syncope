@@ -22,14 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
@@ -71,7 +72,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
 
     @Override
     public void delete(final String name, final AttributableUtil attributableUtil) {
-
         AbstractSchema schema = find(name, attributableUtil.schemaClass());
         if (schema == null) {
             return;
@@ -87,7 +87,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
             attributeDAO.delete(attributeId, attributableUtil.attrClass());
         }
 
-        resourceDAO.deleteMappings(name, attributableUtil.intMappingType());
+        resourceDAO.deleteMapping(name, attributableUtil.intMappingType(), UMappingItem.class);
 
         entityManager.remove(schema);
     }

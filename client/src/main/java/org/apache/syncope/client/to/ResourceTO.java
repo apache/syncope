@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.to;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfProperty;
@@ -41,12 +39,9 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private Long connectorId;
 
-    /**
-     * Attribute mappings.
-     */
-    private List<SchemaMappingTO> mappings;
+    private MappingTO umapping;
 
-    private String accountLink;
+    private MappingTO rmapping;
 
     private boolean propagationPrimary;
 
@@ -77,7 +72,8 @@ public class ResourceTO extends AbstractBaseBean {
     private String actionsClassName;
 
     public ResourceTO() {
-        mappings = new ArrayList<SchemaMappingTO>();
+        super();
+
         connConfProperties = new HashSet<ConnConfProperty>();
         propagationMode = PropagationMode.TWO_PHASES;
         propagationPriority = 0;
@@ -86,6 +82,14 @@ public class ResourceTO extends AbstractBaseBean {
         updateTraceLevel = TraceLevel.ALL;
         deleteTraceLevel = TraceLevel.ALL;
         syncTraceLevel = TraceLevel.ALL;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isEnforceMandatoryCondition() {
@@ -104,36 +108,20 @@ public class ResourceTO extends AbstractBaseBean {
         this.connectorId = connectorId;
     }
 
-    public boolean addMapping(SchemaMappingTO mapping) {
-        return mappings.add(mapping);
+    public MappingTO getUmapping() {
+        return umapping;
     }
 
-    public boolean removeMapping(SchemaMappingTO mapping) {
-        return mappings.remove(mapping);
+    public void setUmapping(MappingTO umapping) {
+        this.umapping = umapping;
     }
 
-    public List<SchemaMappingTO> getMappings() {
-        return mappings;
+    public MappingTO getRmapping() {
+        return rmapping;
     }
 
-    public void setMappings(List<SchemaMappingTO> mappings) {
-        this.mappings = mappings;
-    }
-
-    public String getAccountLink() {
-        return accountLink;
-    }
-
-    public void setAccountLink(String accountLink) {
-        this.accountLink = accountLink;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setRmapping(MappingTO rmapping) {
+        this.rmapping = rmapping;
     }
 
     public boolean isPropagationPrimary() {

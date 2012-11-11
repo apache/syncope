@@ -20,13 +20,13 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {

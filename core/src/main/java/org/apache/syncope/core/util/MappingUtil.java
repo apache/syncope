@@ -21,7 +21,6 @@ package org.apache.syncope.core.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +30,10 @@ import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
@@ -47,83 +47,45 @@ import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.types.IntMappingType;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SchemaMappingUtil {
+public final class MappingUtil {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(SchemaMappingUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MappingUtil.class);
 
-    public static String getExtAttrName(final SchemaMapping mapping) {
-        final String name;
-
-        if (mapping.isAccountid()) {
-            name = Uid.NAME;
-        } else if (mapping.isPassword()) {
-            name = OperationalAttributes.PASSWORD_NAME;
-        } else {
-            name = mapping.getExtAttrName();
-        }
-
-        return name;
+    private MappingUtil() {
     }
 
-    public static String getIntAttrName(final SchemaMapping mapping) {
-        final String name;
+    public static <T extends AbstractMappingItem> List<T> getMatchingMappingItems(final Collection<T> items,
+            final String intAttrName, final IntMappingType type) {
 
-        switch (mapping.getIntMappingType()) {
-            case SyncopeUserId:
-                name = "id";
-                break;
-            case Username:
-                name = "username";
-                break;
-            case Password:
-                name = "password";
-                break;
-            default:
-                name = mapping.getIntAttrName();
-        }
+        final List<T> result = new ArrayList<T>();
 
-        return name;
-    }
-
-    public static Set<SchemaMapping> getMappings(final Collection<SchemaMapping> mappings, final String intAttrName,
-            final IntMappingType type) {
-
-        final Set<SchemaMapping> result = new HashSet<SchemaMapping>();
-
-        for (SchemaMapping schemaMapping : mappings) {
-            if (schemaMapping.getIntMappingType() == type && intAttrName.equals(getIntAttrName(schemaMapping))) {
-                result.add(schemaMapping);
+        for (T mapItem : items) {
+            if (mapItem.getIntMappingType() == type && intAttrName.equals(mapItem.getIntAttrName())) {
+                result.add(mapItem);
             }
         }
 
         return result;
     }
 
-    public static Set<SchemaMapping> getMappings(final Collection<SchemaMapping> mappings, final String intAttrName) {
+    public static <T extends AbstractMappingItem> Set<T> getMatchingMappingItems(final Collection<T> mapItems,
+            final String intAttrName) {
 
-        final Set<SchemaMapping> result = new HashSet<SchemaMapping>();
+        final Set<T> result = new HashSet<T>();
 
-        for (SchemaMapping schemaMapping : mappings) {
-            if (intAttrName.equals(getIntAttrName(schemaMapping))) {
-                result.add(schemaMapping);
+        for (T mapItem : mapItems) {
+            if (intAttrName.equals(mapItem.getIntAttrName())) {
+                result.add(mapItem);
             }
         }
 
         return result;
-    }
-
-    public static String getIntAttrName(final SchemaMapping mapping, final IntMappingType type) {
-        return type == mapping.getIntMappingType()
-                ? getIntAttrName(mapping)
-                : null;
     }
 
     /**
@@ -135,7 +97,7 @@ public class SchemaMappingUtil {
      * @param schemaDAO schema DAO
      * @return schema and attribute values.
      */
-    public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final SchemaMapping mapping,
+    public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final AbstractMappingItem mapping,
             final List<AbstractAttributable> attributables, final String password, final SchemaDAO schemaDAO) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mapping.getIntMappingType());
@@ -148,7 +110,7 @@ public class SchemaMappingUtil {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                schema = schemaDAO.find(mapping.getIntAttrName(), SchemaMappingUtil.getIntMappingTypeClass(mapping.
+                schema = schemaDAO.find(mapping.getIntAttrName(), MappingUtil.getIntMappingTypeClass(mapping.
                         getIntMappingType()));
 
                 for (AbstractAttributable attributable : attributables) {
@@ -159,9 +121,11 @@ public class SchemaMappingUtil {
                                 ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
                     }
 
-                    LOG.debug("Retrieved attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}", new Object[]{attr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{attr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
                 }
 
                 break;
@@ -181,9 +145,11 @@ public class SchemaMappingUtil {
                         }
                     }
 
-                    LOG.debug("Retrieved virtual attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}", new Object[]{virAttr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved virtual attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{virAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
                 }
                 break;
 
@@ -199,9 +165,11 @@ public class SchemaMappingUtil {
                         values.add(attrValue);
                     }
 
-                    LOG.debug("Retrieved attribute {}" + "\n* IntAttrName {}" + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}", new Object[]{derAttr, mapping.getIntAttrName(),
-                                mapping.getIntMappingType(), values});
+                    LOG.debug("Retrieved attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            new Object[]{derAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
                 }
                 break;
 
@@ -223,11 +191,9 @@ public class SchemaMappingUtil {
 
             case Password:
                 AbstractAttrValue attrValue = new UAttrValue();
-
                 if (password != null) {
                     attrValue.setStringValue(password);
                 }
-
                 values.add(attrValue);
                 break;
 
@@ -239,19 +205,13 @@ public class SchemaMappingUtil {
         return new DefaultMapEntry(schema, values);
     }
 
-    public static List<String> getIntValueAsStrings(
-            final AbstractAttributable attributable, final SchemaMapping mapping) {
-        
-        return getIntValueAsStrings(attributable, mapping, null);
-    }
-
-    public static List<String> getIntValueAsStrings(
-            final AbstractAttributable attributable, final SchemaMapping mapping, String clearPassword) {
+    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable,
+            final AbstractMappingItem mapItem, final String clearPassword) {
 
         List<String> value = new ArrayList<String>();
 
-        if (mapping != null) {
-            switch (mapping.getIntMappingType()) {
+        if (mapItem != null) {
+            switch (mapItem.getIntMappingType()) {
                 case Username:
                     if (!(attributable instanceof SyncopeUser)) {
                         throw new ClassCastException("mappingtype is Username, but attributable is not SyncopeUser: "
@@ -259,31 +219,35 @@ public class SchemaMappingUtil {
                     }
                     value.add(((SyncopeUser) attributable).getUsername());
                     break;
+
                 case Password:
                     if (clearPassword != null) {
                         value.add(clearPassword);
                     }
                     break;
+
                 case UserSchema:
                 case RoleSchema:
                 case MembershipSchema:
-                    AbstractAttr abstractAttr = attributable.getAttribute(mapping.getIntAttrName());
+                    AbstractAttr abstractAttr = attributable.getAttribute(mapItem.getIntAttrName());
                     if (abstractAttr != null && abstractAttr.getValues() != null) {
                         value.addAll(abstractAttr.getValuesAsStrings());
                     }
                     break;
+
                 case UserVirtualSchema:
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
-                    AbstractVirAttr abstractVirAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
+                    AbstractVirAttr abstractVirAttr = attributable.getVirtualAttribute(mapItem.getIntAttrName());
                     if (abstractVirAttr != null && abstractVirAttr.getValues() != null) {
                         value.addAll(abstractVirAttr.getValues());
                     }
                     break;
+
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                 case MembershipDerivedSchema:
-                    AbstractDerAttr abstractDerAttr = attributable.getDerivedAttribute(mapping.getIntAttrName());
+                    AbstractDerAttr abstractDerAttr = attributable.getDerivedAttribute(mapItem.getIntAttrName());
                     if (abstractDerAttr != null) {
                         String abstractDerAttrValue = abstractDerAttr.getValue(attributable.getAttributes());
                         if (abstractDerAttrValue != null) {
@@ -291,11 +255,32 @@ public class SchemaMappingUtil {
                         }
                     }
                     break;
+
                 default:
             }
         }
 
         return value;
+    }
+
+    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable,
+            final AbstractMappingItem mapItem) {
+
+        return getIntValueAsStrings(attributable, mapItem, null);
+    }
+
+    /**
+     * Get accountId internal value.
+     *
+     * @param attributable attributable
+     * @param mapping mapping
+     * @return accountId internal value
+     */
+    public static String getAccountIdValue(final AbstractAttributable attributable, final AbstractMapping mapping) {
+        final List<String> values = getIntValueAsStrings(attributable, mapping.getAccountIdItem());
+        return values == null || values.isEmpty()
+                ? null
+                : values.get(0);
     }
 
     /**
@@ -305,16 +290,17 @@ public class SchemaMappingUtil {
      * @return corresponding Class object, if any (can be null)
      */
     public static Class getIntMappingTypeClass(final IntMappingType intMappingType) {
-
         Class result;
 
         switch (intMappingType) {
             case UserSchema:
                 result = USchema.class;
                 break;
+
             case RoleSchema:
                 result = RSchema.class;
                 break;
+
             case MembershipSchema:
                 result = MSchema.class;
                 break;
@@ -322,9 +308,11 @@ public class SchemaMappingUtil {
             case UserDerivedSchema:
                 result = UDerSchema.class;
                 break;
+
             case RoleDerivedSchema:
                 result = RDerSchema.class;
                 break;
+
             case MembershipDerivedSchema:
                 result = MDerSchema.class;
                 break;
@@ -332,9 +320,11 @@ public class SchemaMappingUtil {
             case UserVirtualSchema:
                 result = UVirSchema.class;
                 break;
+
             case RoleVirtualSchema:
                 result = RVirSchema.class;
                 break;
+
             case MembershipVirtualSchema:
                 result = MVirSchema.class;
                 break;
@@ -344,51 +334,5 @@ public class SchemaMappingUtil {
         }
 
         return result;
-    }
-
-    /**
-     * Get first occurance of accountId mapping from a collection of mappings.
-     *
-     * @param mappings collection of SchemaMapping
-     * @return AccountId mapping or null if no occurences found
-     */
-    public static SchemaMapping getAccountIdMapping(final Collection<SchemaMapping> mappings) {
-        for (SchemaMapping mapping : mappings) {
-            if (mapping.isAccountid()) {
-                return mapping;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get accountId internal value.
-     *
-     * @param attributable attributable
-     * @param mappings collection of SchemaMapping
-     * @return accountId internal value
-     */
-    public static String getAccountIdValue(final AbstractAttributable attributable,
-            final Collection<SchemaMapping> mappings) {
-
-        final List<String> values = getIntValueAsStrings(attributable, getAccountIdMapping(mappings));
-        return values == null || values.isEmpty()
-                ? null
-                : values.get(0);
-    }
-
-    /**
-     * Get accountId internal value.
-     *
-     * @param attributable attributable
-     * @param mapping accountId mapping
-     * @return accountId internal value
-     */
-    public static String getAccountIdValue(final AbstractAttributable attributable, final SchemaMapping mapping) {
-        final List<String> values = getIntValueAsStrings(attributable, mapping);
-        return values == null || values.isEmpty()
-                ? null
-                : values.get(0);
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
@@ -60,20 +61,16 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
     @Override
     public void delete(final String name, final AttributableUtil attributableUtil) {
-
         final AbstractDerSchema derivedSchema = find(name, attributableUtil.derSchemaClass());
-
         if (derivedSchema == null) {
             return;
         }
 
-        List<? extends AbstractDerAttr> attributes = getAttributes(derivedSchema, attributableUtil
-                .derAttrClass());
+        List<? extends AbstractDerAttr> attributes = getAttributes(derivedSchema, attributableUtil.derAttrClass());
 
         final Set<Long> derivedAttributeIds = new HashSet<Long>(attributes.size());
 
         Class attributeClass = null;
-
         for (AbstractDerAttr attribute : attributes) {
             derivedAttributeIds.add(attribute.getId());
             attributeClass = attribute.getClass();
@@ -83,7 +80,7 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
             derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(name, attributableUtil.derIntMappingType());
+        resourceDAO.deleteMapping(name, attributableUtil.derIntMappingType(), UMappingItem.class);
 
         entityManager.remove(derivedSchema);
     }

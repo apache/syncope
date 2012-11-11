@@ -43,9 +43,6 @@ import org.apache.syncope.core.util.EntitlementUtil;
 public class UserSearchTest {
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -56,13 +53,10 @@ public class UserSearchTest {
 
     @Test
     public void issueSYNCOPE95() {
-
         Set<SyncopeRole> roles = new HashSet<SyncopeRole>(roleDAO.findAll());
-
         for (SyncopeRole role : roles) {
             roleDAO.delete(role.getId());
         }
-
         roleDAO.flush();
 
         final AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);

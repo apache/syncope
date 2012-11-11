@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,25 +31,24 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.Valid;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.persistence.beans.role.RMapping;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.TraceLevel;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 /**
- * A resource to which propagation occurs.
+ * Resource for propagation and synchronization.
  */
 @Entity
-@Cacheable
 @ExternalResourceCheck
 public class ExternalResource extends AbstractBaseBean {
 
@@ -79,17 +77,16 @@ public class ExternalResource extends AbstractBaseBean {
     private ConnInstance connector;
 
     /**
-     * Attribute mappings.
+     * Mapping for user objects.
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
-    @Valid
-    private Set<SchemaMapping> mappings;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
+    private UMapping umapping;
 
     /**
-     * A JEXL expression for determining how to link user account id in Syncope DB to user account id in target
-     * resource's DB.
+     * Mapping for role objects.
      */
-    private String accountLink;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
+    private RMapping rmapping;
 
     /**
      * Is this resource primary, for propagations?
@@ -159,7 +156,6 @@ public class ExternalResource extends AbstractBaseBean {
         super();
 
         enforceMandatoryCondition = getBooleanAsInteger(false);
-        mappings = new HashSet<SchemaMapping>();
         propagationPrimary = 0;
         propagationPriority = 0;
         propagationMode = PropagationMode.TWO_PHASES;
@@ -186,6 +182,22 @@ public class ExternalResource extends AbstractBaseBean {
         this.connector = connector;
     }
 
+    public UMapping getUmapping() {
+        return umapping;
+    }
+
+    public void setUmapping(final UMapping umapping) {
+        this.umapping = umapping;
+    }
+
+    public RMapping getRmapping() {
+        return rmapping;
+    }
+
+    public void setRmapping(final RMapping rmapping) {
+        this.rmapping = rmapping;
+    }
+
     public boolean isPropagationPrimary() {
         return isBooleanAsInteger(propagationPrimary);
     }
@@ -210,48 +222,6 @@ public class ExternalResource extends AbstractBaseBean {
 
     public void setPropagationMode(PropagationMode propagationMode) {
         this.propagationMode = propagationMode;
-    }
-
-    public Set<SchemaMapping> getMappings() {
-        return mappings;
-    }
-
-    public Set<SchemaMapping> getMappings(final String intAttrName, final IntMappingType intMappingType) {
-        Set<SchemaMapping> result = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : mappings) {
-            if (intAttrName.equals(mapping.getIntAttrName()) && mapping.getIntMappingType() == intMappingType) {
-                result.add(mapping);
-            }
-        }
-
-        return result;
-    }
-
-    public boolean removeMapping(final SchemaMapping mapping) {
-        return mappings.remove(mapping);
-    }
-
-    public boolean addMapping(final SchemaMapping mapping) {
-        return mappings.contains(mapping) || mappings.add(mapping);
-    }
-
-    public void setMappings(final Set<SchemaMapping> mappings) {
-        for (SchemaMapping mapping : this.mappings) {
-            mapping.setResource(null);
-        }
-        this.mappings.clear();
-
-        if (mappings != null) {
-            this.mappings.addAll(mappings);
-        }
-    }
-
-    public String getAccountLink() {
-        return accountLink;
-    }
-
-    public void setAccountLink(final String accountLink) {
-        this.accountLink = accountLink;
     }
 
     public String getName() {

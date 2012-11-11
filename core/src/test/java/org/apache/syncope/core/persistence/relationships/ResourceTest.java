@@ -18,20 +18,22 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.to.MappingItemTO;
+import org.apache.syncope.client.to.MappingTO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -42,11 +44,14 @@ import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.IntMappingType;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ResourceTest extends AbstractTest {
@@ -72,6 +77,37 @@ public class ResourceTest extends AbstractTest {
     @Autowired
     private PolicyDAO policyDAO;
 
+    @Test
+    public void databinding() throws IOException {
+        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
+        assertNotNull(resource);
+
+        ResourceTO resourceTO = resourceDataBinder.getResourceTO(resource);
+        assertNotNull(resourceTO);
+
+        ExternalResource fromto = resourceDataBinder.update(resource, resourceTO);
+        assertNotNull(fromto);
+        assertEquals(resource, fromto);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, resourceTO);
+
+        assertEquals(resourceTO, mapper.readValue(writer.toString(), ResourceTO.class));
+
+        List<ResourceTO> resourceTOs = resourceDataBinder.getResourceTOs(resourceDAO.findAll());
+        assertNotNull(resourceTOs);
+        assertFalse(resourceTOs.isEmpty());
+
+        writer = new StringWriter();
+        mapper.writeValue(writer, resourceTOs);
+
+        ResourceTO[] actual = mapper.readValue(writer.toString(), ResourceTO[].class);
+        assertEquals(resourceTOs, Arrays.asList(actual));
+    }
+
+    @Test
     public void createWithPasswordPolicy() {
         final String resourceName = "resourceWithPasswordPolicy";
 
@@ -79,6 +115,10 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = new ExternalResource();
         resource.setName(resourceName);
         resource.setPasswordPolicy(policy);
+
+        ConnInstance connector = connInstanceDAO.find(100L);
+        assertNotNull("connector not found", connector);
+        resource.setConnector(connector);
 
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
@@ -100,33 +140,39 @@ public class ResourceTest extends AbstractTest {
     public void issue42() {
         USchema userId = schemaDAO.find("userId", USchema.class);
 
-        Set<SchemaMapping> beforeUserIdMappings = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (userId.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
-                beforeUserIdMappings.add(mapping);
+        Set<AbstractMappingItem> beforeUserIdMappings = new HashSet<AbstractMappingItem>();
+        for (ExternalResource res : resourceDAO.findAll()) {
+            if (res.getUmapping() != null) {
+                for (AbstractMappingItem mapItem : res.getUmapping().getItems()) {
+                    if (userId.getName().equals(mapItem.getIntAttrName())) {
+                        beforeUserIdMappings.add(mapItem);
+                    }
+                }
             }
         }
-
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntAttrName("userId");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setExtAttrName("campo1");
-        schemaMappingTO.setAccountid(true);
-        schemaMappingTO.setPassword(false);
-        schemaMappingTO.setMandatoryCondition("false");
-
-        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
-        schemaMappingTOs.add(schemaMappingTO);
 
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName("resource-issue42");
         resourceTO.setConnectorId(100L);
-        resourceTO.setMappings(schemaMappingTOs);
         resourceTO.setPropagationMode(PropagationMode.ONE_PHASE);
         resourceTO.setEnforceMandatoryCondition(true);
 
+        MappingTO mapping = new MappingTO();
+        resourceTO.setUmapping(mapping);
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setExtAttrName("campo1");
+        item.setAccountid(true);
+        item.setMandatoryCondition("false");
+        mapping.setAccountIdItem(item);
+
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
+        assertNotNull(resource);
+        assertNotNull(resource.getUmapping());
+        assertEquals(1, resource.getUmapping().getItems().size());
 
         resourceDAO.flush();
 
@@ -136,10 +182,14 @@ public class ResourceTest extends AbstractTest {
 
         userId = schemaDAO.find("userId", USchema.class);
 
-        Set<SchemaMapping> afterUserIdMappings = new HashSet<SchemaMapping>();
-        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (userId.getName().equals(SchemaMappingUtil.getIntAttrName(mapping, IntMappingType.UserSchema))) {
-                afterUserIdMappings.add(mapping);
+        Set<AbstractMappingItem> afterUserIdMappings = new HashSet<AbstractMappingItem>();
+        for (ExternalResource res : resourceDAO.findAll()) {
+            if (res.getUmapping() != null) {
+                for (AbstractMappingItem mapItem : res.getUmapping().getItems()) {
+                    if (userId.getName().equals(mapItem.getIntAttrName())) {
+                        afterUserIdMappings.add(mapItem);
+                    }
+                }
             }
         }
 
@@ -157,39 +207,40 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
+        UMapping mapping = new UMapping();
+        mapping.setResource(resource);
+        resource.setUmapping(mapping);
+
         // specify mappings
         for (int i = 0; i < 3; i++) {
-            SchemaMapping mapping = new SchemaMapping();
-            mapping.setExtAttrName("test" + i);
-            mapping.setIntAttrName("nonexistent" + i);
-            mapping.setIntMappingType(IntMappingType.UserSchema);
-            mapping.setMandatoryCondition("false");
-
-            mapping.setResource(resource);
-            resource.addMapping(mapping);
+            UMappingItem item = new UMappingItem();
+            item.setExtAttrName("test" + i);
+            item.setIntAttrName("nonexistent" + i);
+            item.setIntMappingType(IntMappingType.UserSchema);
+            item.setMandatoryCondition("false");
+            mapping.addItem(item);
+            item.setMapping(mapping);
         }
-        SchemaMapping accountId = new SchemaMapping();
-        accountId.setAccountid(true);
+        UMappingItem accountId = new UMappingItem();
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("username");
         accountId.setIntMappingType(IntMappingType.SyncopeUserId);
-
-        accountId.setResource(resource);
-        resource.addMapping(accountId);
+        mapping.setAccountIdItem(accountId);
+        accountId.setMapping(mapping);
 
         // map a derived attribute
-        SchemaMapping derived = new SchemaMapping();
+        UMappingItem derived = new UMappingItem();
         derived.setAccountid(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
         derived.setIntMappingType(IntMappingType.UserDerivedSchema);
-
-        derived.setResource(resource);
-        resource.addMapping(derived);
+        mapping.addItem(derived);
+        derived.setMapping(mapping);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
+        assertNotNull(actual.getUmapping());
 
         resourceDAO.flush();
         resourceDAO.detach(actual);
@@ -218,9 +269,9 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        Set<SchemaMapping> schemaMappings = resource.getMappings();
-        assertNotNull(schemaMappings);
-        assertEquals(5, schemaMappings.size());
+        List<UMappingItem> items = resource.getUmapping().getItems();
+        assertNotNull(items);
+        assertEquals(5, items.size());
 
         // check user
         user = userDAO.find(1L);
@@ -295,30 +346,19 @@ public class ResourceTest extends AbstractTest {
     public void issue243() {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
-        int origMappings = csv.getMappings().size();
 
-        SchemaMapping newMapping = new SchemaMapping();
-        newMapping.setIntMappingType(IntMappingType.Username);
-        newMapping.setExtAttrName("TEST");
-        newMapping.setResource(csv);
-        csv.addMapping(newMapping);
+        int origMapItems = csv.getUmapping().getItems().size();
+
+        UMappingItem newMapItem = new UMappingItem();
+        newMapItem.setIntMappingType(IntMappingType.Username);
+        newMapItem.setExtAttrName("TEST");
+        csv.getUmapping().addItem(newMapItem);
 
         resourceDAO.save(csv);
         resourceDAO.flush();
 
         csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
-        assertEquals(origMappings + 1, csv.getMappings().size());
-
-        resourceDAO.clear();
-
-        int currentMappings = 0;
-        List<SchemaMapping> allMappings = resourceDAO.findAllMappings();
-        for (SchemaMapping mapping : allMappings) {
-            if ("resource-csv".equals(mapping.getResource().getName())) {
-                currentMappings++;
-            }
-        }
-        assertEquals(csv.getMappings().size(), currentMappings);
+        assertEquals(origMapItems + 1, csv.getUmapping().getItems().size());
     }
 }

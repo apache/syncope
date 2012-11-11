@@ -33,11 +33,10 @@ import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
-import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
@@ -45,8 +44,8 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
@@ -303,53 +302,53 @@ public class PropagationManager {
     }
 
     /**
-     * Prepare an attribute for sending to a connector instance.
+     * Prepare an attribute to be sent to a connector instance.
      *
-     * @param mapping schema mapping for the given attribute
+     * @param mapItem mapping item for the given attribute
      * @param user given user
      * @param password clear-text password
      * @return account link + prepared attribute
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
-    private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
+    private Map.Entry<String, Attribute> prepareAttribute(final AbstractMappingItem mapItem, final SyncopeUser user,
             final String password)
             throws ClassNotFoundException {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
-        switch (mapping.getIntMappingType().getAttributableType()) {
+        switch (mapItem.getIntMappingType().getAttributableType()) {
             case USER:
                 attributables.addAll(Collections.singleton(user));
                 break;
+
             case ROLE:
-                final List<Membership> memberships = user.getMemberships();
-                for (Membership membership : memberships) {
-                    attributables.add(membership.getSyncopeRole());
-                }
+                attributables.addAll(user.getRoles());
                 break;
+
             case MEMBERSHIP:
                 attributables.addAll(user.getMemberships());
                 break;
+
             default:
         }
 
         final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
-                SchemaMappingUtil.getIntValues(mapping, attributables, password, schemaDAO);
+                MappingUtil.getIntValues(mapItem, attributables, password, schemaDAO);
 
         final List<AbstractAttrValue> values = entry.getValue();
         final AbstractSchema schema = entry.getKey();
         final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
 
-        final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
+        final String extAttrName = mapItem.getExtAttrName();
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
-                + "\n* is accountId " + mapping.isAccountid()
-                + "\n* is password " + (mapping.isPassword() || mapping.getIntMappingType().equals(
-                IntMappingType.Password))
-                + "\n* mandatory condition " + mapping.getMandatoryCondition()
-                + "\n* Schema " + mapping.getIntAttrName()
-                + "\n* IntMappingType " + mapping.getIntMappingType().toString()
+                + "\n* is accountId " + mapItem.isAccountid()
+                + "\n* is password "
+                + (mapItem.isPassword() || mapItem.getIntMappingType().equals(IntMappingType.Password))
+                + "\n* mandatory condition " + mapItem.getMandatoryCondition()
+                + "\n* Schema " + mapItem.getIntAttrName()
+                + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
                 + "\n* ClassType " + schemaType.getClassName()
                 + "\n* Values " + values);
 
@@ -363,24 +362,24 @@ public class PropagationManager {
             }
         }
 
-        Map.Entry<String, Attribute> res;
+        Map.Entry<String, Attribute> result;
 
-        if (mapping.isAccountid()) {
-            res = new DefaultMapEntry(objValues.iterator().next().toString(), null);
-        } else if (mapping.isPassword()) {
-            res = new DefaultMapEntry(null,
+        if (mapItem.isAccountid()) {
+            result = new DefaultMapEntry(objValues.iterator().next().toString(), null);
+        } else if (mapItem.isPassword()) {
+            result = new DefaultMapEntry(null,
                     AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
             if (schema != null && schema.isMultivalue()) {
-                res = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
+                result = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
             } else {
-                res = new DefaultMapEntry(null, objValues.isEmpty()
+                result = new DefaultMapEntry(null, objValues.isEmpty()
                         ? AttributeBuilder.build(extAttrName)
                         : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
         }
 
-        return res;
+        return result;
     }
 
     /**
@@ -401,8 +400,8 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
 
-        for (SchemaMapping mapping : resource.getMappings()) {
-            LOG.debug("Processing schema {}", SchemaMappingUtil.getIntAttrName(mapping));
+        for (AbstractMappingItem mapping : resource.getUmapping().getItems()) {
+            LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
                 Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(mapping, user, password);
@@ -428,23 +427,23 @@ public class PropagationManager {
 
                 }
             } catch (Exception e) {
-                LOG.debug("Attribute '{}' processing failed", SchemaMappingUtil.getIntAttrName(mapping), e);
+                LOG.debug("Attribute '{}' processing failed", mapping.getIntAttrName(), e);
             }
         }
 
-        if (StringUtils.isNotBlank(accountId)) {
+        if (StringUtils.isBlank(accountId)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.error("Missing accountId for '{}': ", resource.getName());
         }
 
         // Evaluate AccountLink expression
         String evalAccountLink = null;
-        if (StringUtils.isNotBlank(resource.getAccountLink())) {
+        if (StringUtils.isNotBlank(resource.getUmapping().getAccountLink())) {
             final JexlContext jexlContext = new MapContext();
             jexlUtil.addFieldsToContext(user, jexlContext);
             jexlUtil.addAttrsToContext(user.getAttributes(), jexlContext);
             jexlUtil.addDerAttrsToContext(user.getDerivedAttributes(), user.getAttributes(), jexlContext);
-            evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), jexlContext);
+            evalAccountLink = jexlUtil.evaluate(resource.getUmapping().getAccountLink(), jexlContext);
         }
 
         // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),

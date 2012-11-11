@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.MappingItemTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
@@ -91,8 +91,8 @@ public class ResourceModalPage extends BaseModalPage {
 
                 int accountIdCount = 0;
 
-                for (SchemaMappingTO mapping : resourceTO.getMappings()) {
-                    if (mapping.isAccountid()) {
+                for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
+                    if (item.isAccountid()) {
                         accountIdCount++;
                     }
                 }
