@@ -44,7 +44,7 @@ import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.TaskController;
-import org.apache.syncope.core.rest.controller.UserController;
+import org.apache.syncope.core.rest.controller.UserControllerImpl;
 import org.apache.syncope.search.MembershipCond;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.to.MembershipTO;
@@ -122,7 +122,7 @@ public class NotificationTest {
     private ConfDAO confDAO;
 
     @Autowired
-    private UserController userController;
+    private UserControllerImpl userController;
 
     @Autowired
     private TaskController taskController;

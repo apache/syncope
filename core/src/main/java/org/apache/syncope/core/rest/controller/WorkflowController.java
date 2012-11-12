@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.workflow.WorkflowException;
 import org.apache.syncope.to.WorkflowDefinitionTO;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;

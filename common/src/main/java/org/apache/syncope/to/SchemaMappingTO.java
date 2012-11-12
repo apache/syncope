@@ -23,6 +23,8 @@ import org.apache.syncope.types.IntMappingType;
 
 public class SchemaMappingTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -5948464320236155366L;
+
     private Long id;
 
     /**

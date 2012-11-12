@@ -107,13 +107,8 @@ under the License.
               org.apache.syncope*;version=${project.version};-split-package:=merge-first
             </Export-Package>
             <Import-Package>
-              com.thoughtworks.xstream;version="[1.4,2)",
-              org.apache.commons.lang*;version="[2.6,3)",
               org.apache.http*;version="[4,5)",
-              org.codehaus.jackson.annotate;version="[1.9,2)",
-              org.springframework*;version="[3,4)",
-              ch.qos.logback.classic;resolution:=optional,
-              org.slf4j;resolution:=optional
+			  *
             </Import-Package>
           </instructions>
         </configuration>

@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.controller;
+package org.apache.syncope.controller;
 
 public class InvalidSearchConditionException extends Exception {
+
+    private static final long serialVersionUID = 4142899085950398109L;
 
     public InvalidSearchConditionException() {
         super();

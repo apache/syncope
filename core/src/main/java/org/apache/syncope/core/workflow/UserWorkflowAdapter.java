@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.workflow.WorkflowException;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.core.init.SpringContextInitializer;

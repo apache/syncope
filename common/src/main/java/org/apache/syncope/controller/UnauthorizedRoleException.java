@@ -16,28 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.search;
+package org.apache.syncope.controller;
 
-import org.apache.syncope.AbstractBaseBean;
+import java.util.Collections;
+import java.util.Set;
 
-/**
- * Search condition to be applied when searching for associated resources.
- */
-public class ResourceCond extends AbstractBaseBean {
+public class UnauthorizedRoleException extends Exception {
 
-    private static final long serialVersionUID = -4577460657640881223L;
+    private static final long serialVersionUID = -7794737282296676827L;
 
-    private String resourceName;
+    private final Set<Long> roleIds;
 
-    public String getResourceName() {
-        return resourceName;
+    public UnauthorizedRoleException(final Set<Long> roleIds) {
+        super("Missing entitlement for role(s) " + roleIds);
+        this.roleIds = roleIds;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
+    public UnauthorizedRoleException(final Long roleId) {
+        this(Collections.singleton(roleId));
     }
 
-    public final boolean checkValidity() {
-        return resourceName != null;
+    public Set<Long> getRoleIds() {
+        return roleIds;
     }
 }

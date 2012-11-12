@@ -22,6 +22,8 @@ import org.apache.syncope.AbstractBaseBean;
 
 public class DerivedSchemaTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -5758594647387239936L;
+
     private String name;
 
     private String expression;

@@ -27,7 +27,7 @@ import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
+import org.apache.syncope.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.core.util.PasswordGenerator;

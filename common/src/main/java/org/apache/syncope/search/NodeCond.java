@@ -22,6 +22,8 @@ import org.apache.syncope.AbstractBaseBean;
 
 public class NodeCond extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -8508611056176961293L;
+
     public enum Type {
 
         LEAF,

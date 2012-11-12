@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
+import org.apache.syncope.controller.InvalidSearchConditionException;
 
 @Repository
 public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {

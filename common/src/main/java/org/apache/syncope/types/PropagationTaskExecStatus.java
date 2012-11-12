@@ -26,7 +26,6 @@ package org.apache.syncope.types;
  * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
  * report success or failure).
  *
- * @see TaskExecution
  */
 public enum PropagationTaskExecStatus {
 

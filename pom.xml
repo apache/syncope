@@ -266,6 +266,7 @@ under the License.
 
     <activiti.version>5.10</activiti.version>
 
+	<cxf.version>2.7.0</cxf.version>
     <spring.version>3.1.3.RELEASE</spring.version>
     <spring-security.version>3.1.3.RELEASE</spring-security.version>
     <aspectj.version>1.7.1</aspectj.version>
@@ -324,6 +325,12 @@ under the License.
 
     <dependencies>
 
+	  <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+	
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
@@ -998,7 +1005,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <inherited>true</inherited>
@@ -1027,7 +1034,7 @@ under the License.
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
       <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1188,8 +1195,9 @@ under the License.
     <module>archetype</module>
     <module>build-tools</module>
 	<module>common</module>
-    <module>client</module>
-    <module>core</module>
+	<module>core</module>
+	<module>client</module>
     <module>console</module>
   </modules>
+  
 </project>

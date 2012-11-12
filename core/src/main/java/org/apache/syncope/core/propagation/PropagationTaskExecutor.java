@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.propagation;
 
+import org.apache.syncope.propagation.PropagationException;
 import java.util.Collection;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;

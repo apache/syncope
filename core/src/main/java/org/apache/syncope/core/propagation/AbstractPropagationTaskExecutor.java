@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.propagation;
 
+import org.apache.syncope.propagation.PropagationException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;

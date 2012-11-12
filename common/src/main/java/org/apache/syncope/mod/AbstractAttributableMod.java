@@ -25,7 +25,7 @@ import org.apache.syncope.AbstractBaseBean;
 
 /**
  * Abstract base class for objects that can have attributes removed, added or updated.
- * 
+ *
  * Attributes can be regular attributes, derived attributes, virtual attributes and resources.
  */
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
@@ -67,9 +67,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     /**
      * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     * 
-     * @param name (schema) of attribute to be removed.
-     * @return true on success. 
+     *
+     * @param attribute (schema) of attribute to be removed.
+     * @return true on success.
      */
     public boolean addAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.add(attribute);
@@ -77,9 +77,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     /**
      * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     * 
-     * @param name (schema) of attribute to be removed.
-     * @return true on success. 
+     *
+     * @param attribute (schema) of attribute to be removed.
+     * @return true on success.
      */
     public boolean removeAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.remove(attribute);
@@ -94,8 +94,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
      * @param attribute modification object
      * @see AttributeMod
      * @return true on success
@@ -105,8 +105,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
+     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
      * @param attribute modification object
      * @see AttributeMod
      * @return true on success
@@ -124,9 +124,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
-     * @param attribute modification object
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
+     * @param derivedAttribute modification object
      * @see AttributeMod
      * @return true on success
      */
@@ -135,8 +135,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add a derivedattribute. Value is calculated by its definition. 
-     * 
+     * Add a derivedattribute. Value is calculated by its definition.
+     *
      * @param derivedAttribute
      * @return true on success
      */

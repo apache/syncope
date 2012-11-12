@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.propagation;
 
+import org.apache.syncope.propagation.PropagationException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

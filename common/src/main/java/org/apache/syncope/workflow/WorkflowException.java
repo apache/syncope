@@ -16,36 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.workflow;
 
 /**
- * Bear stacktrace received during propagation towards a certain resource.
+ * Wrapper for all workflow related exceptions. Original exceptions will depend
+ * on UserWorkflowAdapter implementation.
+ *
+ * @see UserWorkflowAdapter
  */
-public class PropagationException extends Exception {
+public class WorkflowException extends Exception {
 
     /**
-     * The resource involved in this exception.
+     * Generated serialVersionUID.
      */
-    private final String resourceName;
+    private static final long serialVersionUID = -6261173250078013869L;
 
     /**
-     * Create a new instance based on resource name and original stacktrace
-     * received during propagation.
+     * Return a new instance wrapping the original workflow exception.
      *
-     * @param resourceName name of resource involved in this exception
-     * @param stackTrace original stacktrace
+     * @param cause original workflow exception
      */
-    public PropagationException(final String resourceName, final String stackTrace) {
-
-        super("Exception during provision on resource " + resourceName + "\n" + stackTrace);
-
-        this.resourceName = resourceName;
-    }
-
-    /**
-     * @return name of resource involved in this exception
-     */
-    public String getResourceName() {
-        return resourceName;
+    public WorkflowException(final Throwable cause) {
+        super(cause);
     }
 }

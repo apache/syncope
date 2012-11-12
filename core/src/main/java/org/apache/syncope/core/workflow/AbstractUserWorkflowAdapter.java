@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.workflow.WorkflowException;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.syncope.core.init.WorkflowLoader;

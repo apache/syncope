@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.workflow.WorkflowException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

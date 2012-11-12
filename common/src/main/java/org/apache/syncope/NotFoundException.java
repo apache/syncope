@@ -16,28 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.search;
-
-import org.apache.syncope.AbstractBaseBean;
+package org.apache.syncope;
 
 /**
- * Search condition to be applied when searching for associated resources.
+ * Thrown when something is not found.
  */
-public class ResourceCond extends AbstractBaseBean {
+public class NotFoundException extends Exception {
 
-    private static final long serialVersionUID = -4577460657640881223L;
+    private static final long serialVersionUID = 4810651769126663580L;
 
-    private String resourceName;
-
-    public String getResourceName() {
-        return resourceName;
+    public NotFoundException(String msg) {
+        super(msg);
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
-    }
-
-    public final boolean checkValidity() {
-        return resourceName != null;
+    public NotFoundException(String msg, Exception e) {
+        super(msg, e);
     }
 }

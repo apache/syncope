@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
+import org.apache.syncope.controller.InvalidSearchConditionException;
 
 public interface UserDAO extends DAO {
 

@@ -43,7 +43,29 @@ under the License.
   </distributionManagement>
   
   <dependencies>
+<dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+<dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+	
   
+  <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+    </dependency>
+    
 	<dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
@@ -55,13 +77,8 @@ under the License.
     </dependency>
 
 	<dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-	
-	<dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
     </dependency>
 	
     <dependency>
@@ -98,12 +115,12 @@ under the License.
             <Import-Package>
               com.thoughtworks.xstream;version="[1.4,2)",
               org.apache.commons.lang*;version="[2.6,3)",
-              org.apache.http*;version="[4,5)",
               org.codehaus.jackson.annotate;version="[1.9,2)",
               org.springframework*;version="[3,4)",
               ch.qos.logback.classic;resolution:=optional,
-              org.slf4j;resolution:=optional
-            </Import-Package>
+              org.slf4j;resolution:=optional,
+			  *
+			  </Import-Package>
           </instructions>
         </configuration>
       </plugin>

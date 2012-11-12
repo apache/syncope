@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.workflow.WorkflowException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
