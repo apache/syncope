@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti.task;
 
 import org.activiti.engine.delegate.DelegateExecution;
 
-public class Reactivate extends AbstractActivitiDelegate {
+public class Suspend extends AbstractActivitiDelegate {
 
     @Override
     protected void doExecute(final DelegateExecution execution) throws Exception {

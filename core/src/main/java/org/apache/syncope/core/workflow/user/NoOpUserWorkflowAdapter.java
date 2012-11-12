@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+package org.apache.syncope.core.workflow.user;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +31,8 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.PropagationOperation;
 import org.springframework.transaction.annotation.Transactional;
 

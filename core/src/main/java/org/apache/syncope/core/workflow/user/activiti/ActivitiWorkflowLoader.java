@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.init;
+package org.apache.syncope.core.workflow.user.activiti;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
-import org.apache.syncope.core.workflow.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.core.init.WorkflowLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

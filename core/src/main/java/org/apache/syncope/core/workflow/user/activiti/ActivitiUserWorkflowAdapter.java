@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+package org.apache.syncope.core.workflow.user.activiti;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -59,12 +59,14 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormPropertyTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.core.init.ActivitiWorkflowLoader;
 import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowResult;
+import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.WorkflowFormPropertyType;
 import org.identityconnectors.common.security.EncryptorFactory;

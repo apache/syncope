@@ -16,11 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.impl.interceptor.Session;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 
-public interface SyncopeSession extends Session {
+public class Delete extends AbstractActivitiDelegate {
 
-    Class<? extends Session> getType();
+    @Override
+    protected void doExecute(final DelegateExecution execution) throws Exception {
+
+        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+
+        // TODO: do something with SyncopeUser...
+        if (user != null) {
+            user.checkToken("");
+        }
+
+
+        // remove SyncopeUser variable
+        execution.removeVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+    }
 }

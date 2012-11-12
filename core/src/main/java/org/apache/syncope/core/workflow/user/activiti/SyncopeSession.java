@@ -16,20 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti;
 
-import org.activiti.engine.impl.variable.SerializableType;
-import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
+import org.activiti.engine.impl.interceptor.Session;
 
-/**
- * Activiti variable type for handling Syncope entities as Activiti variables.
- * Main purpose: avoid Activiti to handle Syncope entities as JPA entities,
- * since this can cause troubles with transactions.
- */
-public class SyncopeEntitiesVariableType extends SerializableType {
+public interface SyncopeSession extends Session {
 
-    @Override
-    public boolean isAbleToStore(final Object value) {
-        return value instanceof AbstractBaseBean;
-    }
+    Class<? extends Session> getType();
 }

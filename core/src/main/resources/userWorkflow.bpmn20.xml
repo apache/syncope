@@ -35,7 +35,8 @@ under the License.
     <!-- Create an user -->
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
       
-    <serviceTask id="create" name="Create" activiti:class="org.apache.syncope.core.workflow.activiti.Create"/>
+    <serviceTask id="create" name="Create" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Create"/>
 
     <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
         
@@ -81,12 +82,13 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
     </sequenceFlow>
     
-    <serviceTask id="activate" name="Activate" activiti:class="org.apache.syncope.core.workflow.activiti.AutoActivate"/>
+    <serviceTask id="activate" name="Activate" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.AutoActivate"/>
     <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
     <!-- Double opt-in required -->
     <serviceTask id="generateToken" name="Generate token" 
-                 activiti:class="org.apache.syncope.core.workflow.activiti.GenerateToken"/>
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.GenerateToken"/>
         
     <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
 
@@ -126,12 +128,14 @@ under the License.
     </sequenceFlow>
 
     <!-- Update an active user -->
-    <serviceTask id="update" name="Update" activiti:class="org.apache.syncope.core.workflow.activiti.Update"/>
+    <serviceTask id="update" name="Update" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Update"/>
 
     <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
 
     <!-- Suspend an active user -->
-    <serviceTask id="suspend" name="Suspend" activiti:class="org.apache.syncope.core.workflow.activiti.Suspend"/>
+    <serviceTask id="suspend" name="Suspend" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Suspend"/>
 
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
 
@@ -148,7 +152,8 @@ under the License.
     </sequenceFlow>
 
     <!-- Reactivate a suspended user -->
-    <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.apache.syncope.core.workflow.activiti.Reactivate"/>
+    <serviceTask id="reactivate" name ="Reactivate" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Reactivate"/>
 
     <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
         
@@ -167,7 +172,8 @@ under the License.
     <sequenceFlow id="flow14" sourceRef="rejected" targetRef="delete"/>
 
     <!-- Delete an user (created, active or suspended) -->
-    <serviceTask id="delete" name="Delete" activiti:class="org.apache.syncope.core.workflow.activiti.Delete"/>
+    <serviceTask id="delete" name="Delete" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Delete"/>
 
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
 

@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.workflow.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;

@@ -16,30 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.interceptor.SessionFactory;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 
-public class SyncopeSessionFactory implements SessionFactory {
-
-    private SyncopeSession syncopeSession;
+public class AutoActivate extends AbstractActivitiDelegate {
 
     @Override
-    public Class<?> getSessionType() {
-        return syncopeSession.getType();
-    }
+    protected void doExecute(final DelegateExecution execution) throws Exception {
 
-    @Override
-    public Session openSession() {
-        return syncopeSession;
-    }
-
-    public SyncopeSession getSyncopeSession() {
-        return syncopeSession;
-    }
-
-    public void setSyncopeSession(final SyncopeSession syncopeSession) {
-        this.syncopeSession = syncopeSession;
+        execution.setVariable(ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

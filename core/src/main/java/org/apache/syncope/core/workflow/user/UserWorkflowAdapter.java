@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+package org.apache.syncope.core.workflow.user;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,8 @@ import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowResult;
 
 /**
  * Interface for calling underlying workflow implementations.

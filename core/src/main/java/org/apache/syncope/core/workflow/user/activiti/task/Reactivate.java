@@ -16,27 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti.task;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.propagation.PropagationByResource;
-import org.apache.syncope.core.workflow.ActivitiUserWorkflowAdapter;
 
-public class Update extends AbstractActivitiDelegate {
+public class Reactivate extends AbstractActivitiDelegate {
 
     @Override
     protected void doExecute(final DelegateExecution execution) throws Exception {
-
-        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-        UserMod userMod = (UserMod) execution.getVariable(ActivitiUserWorkflowAdapter.USER_MOD);
-
-        // update SyncopeUser
-        PropagationByResource propByRes = dataBinder.update(user, userMod);
-
-        // report updated user and propagation by resource as result
-        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
-        execution.setVariable(ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

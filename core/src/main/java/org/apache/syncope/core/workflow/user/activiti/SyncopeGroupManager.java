@@ -16,26 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.identity.UserQuery;
+import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
-import org.activiti.engine.impl.persistence.entity.IdentityInfoEntity;
-import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.activiti.engine.impl.persistence.entity.UserManager;
+import org.activiti.engine.impl.persistence.entity.GroupManager;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeUserManager extends UserManager implements SyncopeSession {
+public class SyncopeGroupManager extends GroupManager implements SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -43,32 +40,40 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
     @Autowired
     private RoleDAO roleDAO;
 
-    @Autowired
-    private EntitlementDAO entitlementDAO;
-
     @Override
     public Class<? extends Session> getType() {
-        return UserManager.class;
+        return GroupManager.class;
     }
 
     @Override
-    public Boolean checkPassword(final String userId, final String password) {
+    public Group createNewGroup(final String groupId) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public User createNewUser(final String userId) {
+    public GroupQuery createNewGroupQuery() {
+        return new SyncopeGroupQueryImpl(roleDAO);
+    }
+
+    @Override
+    public void deleteGroup(final String groupId) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public UserQuery createNewUserQuery() {
-        return new SyncopeUserQueryImpl(userDAO, roleDAO, entitlementDAO);
-    }
+    public GroupEntity findGroupById(final String groupId) {
+        GroupEntity result = null;
 
-    @Override
-    public void deleteUser(final String userId) {
-        throw new UnsupportedOperationException();
+        SyncopeRole role = null;
+        try {
+            role = roleDAO.find(Long.valueOf(groupId));
+        } catch (NumberFormatException e) {
+        }
+        if (role != null) {
+            result = new GroupEntity(groupId);
+        }
+
+        return result;
     }
 
     @Override
@@ -86,35 +91,12 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
     }
 
     @Override
-    public UserEntity findUserById(final String userId) {
-        UserEntity result = null;
-        SyncopeUser user = userDAO.find(userId);
-        if (user != null) {
-            result = new UserEntity(userId);
-        }
-
-        return result;
-    }
-
-    @Override
-    public IdentityInfoEntity findUserInfoByUserIdAndKey(final String userId, final String key) {
-
+    public void insertGroup(final Group group) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<String> findUserInfoKeysByUserIdAndType(final String userId, final String type) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertUser(final User user) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void updateUser(final User updatedUser) {
+    public void updateGroup(final Group updatedGroup) {
         throw new UnsupportedOperationException();
     }
 }

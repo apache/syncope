@@ -16,26 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.user.activiti.task;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.workflow.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 
-public class Create extends AbstractActivitiDelegate {
+public class GenerateToken extends AbstractActivitiDelegate {
 
     @Override
     protected void doExecute(final DelegateExecution execution) throws Exception {
+        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
-        UserTO userTO = (UserTO) execution.getVariable(ActivitiUserWorkflowAdapter.USER_TO);
+        user.generateToken(
+                Integer.parseInt(confDAO.find("token.length", "256").getValue()),
+                Integer.parseInt(confDAO.find("token.expireTime", "60").getValue()));
 
-        // create and set workflow id
-        SyncopeUser user = new SyncopeUser();
-        dataBinder.create(user, userTO);
-        user.setWorkflowId(execution.getProcessInstanceId());
-
-        // report SyncopeUser as result
         execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
     }
 }

@@ -51,7 +51,7 @@ import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.workflow.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.ConflictResolutionAction;
 import org.apache.syncope.types.SyncPolicySpec;

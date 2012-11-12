@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+package org.apache.syncope.core.workflow.user;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,6 +28,8 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
