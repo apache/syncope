@@ -27,7 +27,7 @@ under the License.
     <constructor-arg value="${adminUser}"/>
   </bean>
     
-  <bean id="wfAdapter" class="${wfAdapter}"/>
+  <bean id="uwfAdapter" class="${uwfAdapter}"/>
 
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="velocityProperties">

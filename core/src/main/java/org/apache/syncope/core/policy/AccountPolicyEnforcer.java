@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
 
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
     private PropagationManager propagationManager;
@@ -116,7 +116,7 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
                 user.setFailedLogins(user.getFailedLogins() - 1);
 
                 // disable user
-                final WorkflowResult<Long> updated = wfAdapter.suspend(user);
+                final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {

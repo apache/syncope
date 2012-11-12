@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.servlet.ServletContext;
-import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -47,13 +47,13 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      */
     private static final Logger LOG = LoggerFactory.getLogger(SpringContextInitializer.class);
 
-    private static String wfAdapterClassName;
+    private static String uwfAdapterClassName;
 
     static {
         try {
-            initWFAdapterClassName();
+            initUWFAdapterClassName();
         } catch (IOException e) {
-            LOG.error("Could not init wfAdapterClassName", e);
+            LOG.error("Could not init uwfAdapterClassName", e);
         }
     }
 
@@ -62,13 +62,13 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      *
      * @throws IOException if anything goes wrong
      */
-    public static void initWFAdapterClassName() throws IOException {
+    public static void initUWFAdapterClassName() throws IOException {
         Properties props = new java.util.Properties();
         InputStream propStream = null;
         try {
             propStream = ContentLoader.class.getResourceAsStream("/workflow.properties");
             props.load(propStream);
-            wfAdapterClassName = props.getProperty("wfAdapter");
+            uwfAdapterClassName = props.getProperty("uwfAdapter");
         } catch (Exception e) {
             LOG.error("Could not load workflow.properties", e);
         } finally {
@@ -84,7 +84,7 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      * @return whether Activiti is configured for workflow or not
      */
     public static boolean isActivitiConfigured() {
-        return wfAdapterClassName != null && wfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
+        return uwfAdapterClassName != null && uwfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
     }
 
     @Autowired
@@ -97,7 +97,7 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
     private JobInstanceLoader jobInstanceLoader;
 
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
     private LoggerLoader loggerLoader;
@@ -124,9 +124,9 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
         loggerLoader.load();
         classNamesLoader.load();
 
-        if (wfAdapter.getLoaderClass() != null) {
+        if (uwfAdapter.getLoaderClass() != null) {
             final WorkflowLoader wfLoader = (WorkflowLoader) beanFactory.createBean(
-                    wfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    uwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
             wfLoader.load();
         }
     }

@@ -156,7 +156,7 @@ public class ContentLoader {
             LOG.error("While creating indexes", e);
         }
 
-        // Can't test wfAdapter.getClass() because it is @Autowired
+        // Can't test uwfAdapter.getClass() because it is @Autowired
         if (SpringContextInitializer.isActivitiConfigured()) {
             try {
                 statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");

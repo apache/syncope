@@ -96,7 +96,7 @@ public class UserController {
     private UserDataBinder userDataBinder;
 
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
     private PropagationManager propagationManager;
@@ -289,7 +289,7 @@ public class UserController {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO);
+        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
@@ -339,7 +339,7 @@ public class UserController {
 
         LOG.debug("User update called with {}", userMod);
 
-        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
+        WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated, userMod.getPassword(), userMod.
                 getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated(), null);
@@ -528,7 +528,7 @@ public class UserController {
 
         LOG.debug("About to execute {} on {}", taskId, userTO.getId());
 
-        WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
+        WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new DefaultMapEntry(updated.getResult(), null), updated.getPropByRes(), updated.getPerformedTasks()));
@@ -551,7 +551,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/list")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<WorkflowFormTO> getForms() {
-        List<WorkflowFormTO> forms = wfAdapter.getForms();
+        List<WorkflowFormTO> forms = uwfAdapter.getForms();
 
         auditManager.audit(Category.user, UserSubCategory.getForms, Result.success,
                 "Successfully list workflow forms: " + forms.size());
@@ -566,7 +566,7 @@ public class UserController {
             throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
         SyncopeUser user = userDataBinder.getUserFromId(userId);
-        WorkflowFormTO result = wfAdapter.getForm(user.getWorkflowId());
+        WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
 
         auditManager.audit(Category.user, UserSubCategory.getFormForUser, Result.success,
                 "Successfully read workflow form for user: " + user.getUsername());
@@ -580,7 +580,7 @@ public class UserController {
     public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId)
             throws NotFoundException, WorkflowException {
 
-        WorkflowFormTO result = wfAdapter.claimForm(taskId,
+        WorkflowFormTO result = uwfAdapter.claimForm(taskId,
                 SecurityContextHolder.getContext().getAuthentication().getName());
 
         auditManager.audit(Category.user, UserSubCategory.claimForm, Result.success,
@@ -597,7 +597,7 @@ public class UserController {
 
         LOG.debug("About to process form {}", form);
 
-        WorkflowResult<Map.Entry<Long, String>> updated = wfAdapter.submitForm(form, SecurityContextHolder.getContext().
+        WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form, SecurityContextHolder.getContext().
                 getAuthentication().getName());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
@@ -624,11 +624,11 @@ public class UserController {
         WorkflowResult<Long> updated;
         if (performLocally) {
             if ("suspend".equals(task)) {
-                updated = wfAdapter.suspend(user.getId());
+                updated = uwfAdapter.suspend(user.getId());
             } else if ("reactivate".equals(task)) {
-                updated = wfAdapter.reactivate(user.getId());
+                updated = uwfAdapter.reactivate(user.getId());
             } else {
-                updated = wfAdapter.activate(user.getId(), token);
+                updated = uwfAdapter.activate(user.getId(), token);
             }
         } else {
             updated = new WorkflowResult<Long>(user.getId(), null, task);
@@ -664,7 +664,7 @@ public class UserController {
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
-        // information could only be available after wfAdapter.delete(), which
+        // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
         notificationManager.createTasks(userId, Collections.singleton("delete"));
@@ -696,7 +696,7 @@ public class UserController {
             }
         });
 
-        wfAdapter.delete(userId);
+        uwfAdapter.delete(userId);
 
         auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
                 "Successfully deleted user: " + userTO.getUsername());

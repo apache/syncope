@@ -107,7 +107,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
      * User workflow adapter.
      */
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     /**
      * Propagation Manager.
@@ -346,7 +346,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                 }
                 // --------------------------
 
-                WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
+                WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO, true, enabled);
 
                 List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(),
                         userTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
@@ -401,7 +401,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                     result.setUsername(userMod.getUsername());
 
                     if (!dryRun) {
-                        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
+                        WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
                         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated,
                                 userMod.getPassword(), userMod.getVirtualAttributesToBeRemoved(),
@@ -469,7 +469,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                     }
 
                     try {
-                        wfAdapter.delete(userId);
+                        uwfAdapter.delete(userId);
                     } catch (Exception e) {
                         result.setStatus(AbstractTaskJob.Status.FAILURE);
                         result.setMessage(e.getMessage());

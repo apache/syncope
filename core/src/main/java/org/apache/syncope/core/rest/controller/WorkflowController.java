@@ -44,14 +44,14 @@ public class WorkflowController extends AbstractController {
     private AuditManager auditManager;
 
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/definition")
     @Transactional(readOnly = true)
     public WorkflowDefinitionTO getDefinition() throws WorkflowException {
 
-        WorkflowDefinitionTO result = wfAdapter.getDefinition();
+        WorkflowDefinitionTO result = uwfAdapter.getDefinition();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinition, Result.success,
                 "Successfully got workflow definition");
@@ -64,7 +64,7 @@ public class WorkflowController extends AbstractController {
     public void updateDefinition(@RequestBody final WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException {
 
-        wfAdapter.updateDefinition(definition);
+        uwfAdapter.updateDefinition(definition);
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.updateDefinition, Result.success,
                 "Successfully updated workflow definition");
@@ -74,7 +74,7 @@ public class WorkflowController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/tasks")
     public ModelAndView getDefinedTasks() throws WorkflowException {
 
-        List<String> definedTasks = wfAdapter.getDefinedTasks();
+        List<String> definedTasks = uwfAdapter.getDefinedTasks();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
                 "Successfully got the list of defined workflow tasks: " + definedTasks.size());
