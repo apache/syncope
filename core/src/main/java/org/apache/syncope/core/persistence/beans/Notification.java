@@ -54,7 +54,7 @@ public class Notification extends AbstractBaseBean {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "events")
-    private final List<String> events;
+    private List<String> events;
 
     @NotNull
     @Lob
