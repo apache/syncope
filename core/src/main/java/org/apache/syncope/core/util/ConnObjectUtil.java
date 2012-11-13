@@ -71,7 +71,7 @@ public class ConnObjectUtil {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
 
     /**
      * JEXL engine for evaluating connector's account link.
@@ -96,6 +96,24 @@ public class ConnObjectUtil {
 
     @Autowired
     private PasswordGenerator pwdGen;
+
+    public ObjectClass fromAttributable(final AbstractAttributable attributable) {
+        if (attributable == null
+                || (!(attributable instanceof SyncopeUser) && !(attributable instanceof SyncopeRole))) {
+
+            throw new IllegalArgumentException("No ObjectClass could be provided for " + attributable);
+        }
+
+        ObjectClass result = null;
+        if (attributable instanceof SyncopeUser) {
+            result = ObjectClass.ACCOUNT;
+        }
+        if (attributable instanceof SyncopeRole) {
+            result = ObjectClass.GROUP;
+        }
+
+        return result;
+    }
 
     /**
      * Build an UserTO out of connector object attributes and schema mapping.
@@ -371,13 +389,13 @@ public class ConnObjectUtil {
 
                     final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
                     final ConnectorObject connObj =
-                            connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
+                            connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
 
                     if (connObj != null) {
                         connObj2MapItems.put(connObj, virMapItems);
                     }
 
-                    LOG.debug("Retrieved remotye object {}", connObj);
+                    LOG.debug("Retrieved remote object {}", connObj);
                 }
             } catch (Exception e) {
                 LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);

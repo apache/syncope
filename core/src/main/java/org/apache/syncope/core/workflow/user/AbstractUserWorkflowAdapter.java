@@ -112,7 +112,6 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public void delete(final Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException {
-
         doDelete(dataBinder.getUserFromId(userId));
     }
 }

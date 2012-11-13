@@ -67,6 +67,6 @@ public class NotificationRestClient extends AbstractBaseRestClient {
     public List<String> getEvents()
             throws SyncopeClientCompositeErrorException {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "workflow/tasks.json", String[].class));
+                baseURL + "workflow/tasks/user.json", String[].class));
     }
 }

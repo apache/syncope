@@ -322,16 +322,20 @@ public class ConnectorFacadeProxy {
                 switch (operationType) {
                     case CREATE:
                         if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE))) {
+                                ? activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.ONE_PHASE_CREATE)
+                                : activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.TWO_PHASES_CREATE))) {
 
                             result = connector.getObject(objectClass, uid, options);
                         }
                         break;
                     case UPDATE:
                         if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
+                                ? activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.ONE_PHASE_UPDATE)
+                                : activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
 
                             result = connector.getObject(objectClass, uid, options);
                         }

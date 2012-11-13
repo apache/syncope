@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
@@ -46,6 +48,8 @@ import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -70,12 +74,54 @@ public class AttributableUtil {
         return new AttributableUtil(AttributableType.valueOf(name));
     }
 
+    public static AttributableUtil getInstance(final AbstractAttributable attributable) {
+        AttributableType type = null;
+        if (attributable instanceof SyncopeUser) {
+            type = AttributableType.USER;
+        }
+        if (attributable instanceof SyncopeRole) {
+            type = AttributableType.ROLE;
+        }
+        if (attributable instanceof Membership) {
+            type = AttributableType.MEMBERSHIP;
+        }
+
+        if (type == null) {
+            throw new IllegalArgumentException("Attributable type not supported: " + attributable.getClass().getName());
+        }
+
+        return new AttributableUtil(type);
+    }
+
     private AttributableUtil(final AttributableType type) {
         this.type = type;
     }
 
     public AttributableType getType() {
         return type;
+    }
+
+    public String getAccountLink(final ExternalResource resource) {
+        String result = null;
+
+        if (resource != null) {
+            switch (type) {
+                case USER:
+                    if (resource.getUmapping() != null) {
+                        result = resource.getUmapping().getAccountLink();
+                    }
+                    break;
+                case ROLE:
+                    if (resource.getRmapping() != null) {
+                        result = resource.getRmapping().getAccountLink();
+                    }
+                    break;
+                case MEMBERSHIP:
+                default:
+            }
+        }
+
+        return result;
     }
 
     public <T extends AbstractMappingItem> List<T> getMappingItems(final ExternalResource resource) {

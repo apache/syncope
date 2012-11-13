@@ -348,7 +348,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
                 WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO, true, enabled);
 
-                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(),
+                List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created, userTO.getPassword(),
                         userTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
 
                 taskExecutor.execute(tasks);
@@ -403,7 +403,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
                     if (!dryRun) {
                         WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
-                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated,
+                        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
                                 userMod.getPassword(), userMod.getVirtualAttributesToBeRemoved(),
                                 userMod.getVirtualAttributesToBeUpdated(),
                                 Collections.singleton(syncTask.getResource().getName()));
@@ -459,7 +459,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
                 if (!dryRun) {
                     try {
-                        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId,
+                        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId,
                                 syncTask.getResource().getName());
                         taskExecutor.execute(tasks);
 

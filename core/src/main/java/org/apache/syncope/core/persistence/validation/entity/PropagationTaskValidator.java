@@ -34,20 +34,20 @@ public class PropagationTaskValidator extends AbstractValidator implements
     }
 
     @Override
-    public boolean isValid(final PropagationTask object, final ConstraintValidatorContext context) {
+    public boolean isValid(final PropagationTask task, final ConstraintValidatorContext context) {
 
         boolean isValid;
 
-        if (object == null) {
+        if (task == null) {
             isValid = true;
         } else {
-            isValid = object.getPropagationMode() != null
-                    && object.getPropagationOperation() != null
-                    && !object.getAttributes().isEmpty()
-                    && object.getResource() != null;
+            isValid = task.getPropagationMode() != null
+                    && task.getPropagationOperation() != null
+                    && !task.getAttributes().isEmpty()
+                    && task.getResource() != null;
 
             if (isValid) {
-                List<TaskExec> executions = object.getExecs();
+                List<TaskExec> executions = task.getExecs();
                 for (TaskExec execution : executions) {
                     try {
                         PropagationTaskExecStatus.valueOf(execution.getStatus());
@@ -56,6 +56,11 @@ public class PropagationTaskValidator extends AbstractValidator implements
                         isValid = false;
                     }
                 }
+            }
+
+            if (isValid && task.getSyncopeUser() != null && task.getSyncopeRole() != null) {
+                LOG.error("Cannot associate either user and role to this task");
+                isValid = false;
             }
 
             if (!isValid) {

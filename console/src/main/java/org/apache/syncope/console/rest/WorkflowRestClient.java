@@ -29,11 +29,11 @@ public class WorkflowRestClient extends AbstractBaseRestClient {
     public WorkflowDefinitionTO getDefinition()
             throws SyncopeClientCompositeErrorException {
         return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "workflow/definition.json", WorkflowDefinitionTO.class);
+                baseURL + "workflow/definition/user.json", WorkflowDefinitionTO.class);
     }
 
     public void updateDefinition(final WorkflowDefinitionTO workflowDef)
             throws SyncopeClientCompositeErrorException {
-        SyncopeSession.get().getRestTemplate().put(baseURL + "/workflow/definition.json", workflowDef);
+        SyncopeSession.get().getRestTemplate().put(baseURL + "workflow/definition/user.json", workflowDef);
     }
 }

@@ -25,6 +25,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.types.PropagationMode;
@@ -68,11 +69,19 @@ public class PropagationTask extends Task {
     @Lob
     private String xmlAttributes;
 
+    private String objectClassName;
+
     /**
      * User whose data are propagated.
      */
     @ManyToOne
     private SyncopeUser syncopeUser;
+
+    /**
+     * Role whose data are propagated.
+     */
+    @ManyToOne
+    private SyncopeRole syncopeRole;
 
     /**
      * ExternalResource to which the propagation happens.
@@ -97,7 +106,7 @@ public class PropagationTask extends Task {
     }
 
     public Set<Attribute> getAttributes() {
-        return XMLSerializer.<Set<Attribute>> deserialize(xmlAttributes);
+        return XMLSerializer.<Set<Attribute>>deserialize(xmlAttributes);
     }
 
     public void setAttributes(final Set<Attribute> attributes) {
@@ -129,11 +138,45 @@ public class PropagationTask extends Task {
         this.resource = resource;
     }
 
+    public String getObjectClassName() {
+        return objectClassName;
+    }
+
+    public void setObjectClassName(String objectClassName) {
+        this.objectClassName = objectClassName;
+    }
+
     public SyncopeUser getSyncopeUser() {
         return syncopeUser;
     }
 
     public void setSyncopeUser(SyncopeUser syncopeUser) {
         this.syncopeUser = syncopeUser;
+    }
+
+    public SyncopeRole getSyncopeRole() {
+        return syncopeRole;
+    }
+
+    public void setSyncopeRole(SyncopeRole syncopeRole) {
+        this.syncopeRole = syncopeRole;
+    }
+
+    public <T extends AbstractAttributable> void setSubject(T subject) {
+        if (subject == null) {
+            setSyncopeUser(null);
+            setSyncopeRole(null);
+        } else if (subject instanceof SyncopeUser) {
+            setSyncopeUser((SyncopeUser) subject);
+        } else if (subject instanceof SyncopeRole) {
+            setSyncopeRole((SyncopeRole) subject);
+        } else {
+            throw new IllegalArgumentException("Subject expected to be either user or role, found '"
+                    + subject.getClass().getName() + "' instead");
+        }
+    }
+
+    public <T extends AbstractAttributable> T getSubject() {
+        return syncopeUser == null ? (T) syncopeRole : (T) syncopeUser;
     }
 }

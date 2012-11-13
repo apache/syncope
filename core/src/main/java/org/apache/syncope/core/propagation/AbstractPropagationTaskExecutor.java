@@ -28,10 +28,13 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -76,6 +79,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected UserDAO userDAO;
+
+    /**
+     * Role DAO.
+     */
+    @Autowired
+    protected RoleDAO roleDAO;
 
     /**
      * Task DAO.
@@ -130,7 +139,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             connector = connLoader.getConnector(task.getResource());
 
-            // Try to read user BEFORE any actual operation
+            // Try to read remote object (user / group) BEFORE any actual operation
             beforeObj = getRemoteObject(connector, task, false);
 
             actions.before(task, beforeObj);
@@ -164,8 +173,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         }
 
                         // 4. provision entry
-                        connector.create(task.getPropagationMode(), ObjectClass.ACCOUNT, attributes, null,
-                                propagationAttempted);
+                        connector.create(task.getPropagationMode(), new ObjectClass(task.getObjectClassName()),
+                                attributes, null, propagationAttempted);
                     } else {
                         // 1. check if rename is really required
                         final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
@@ -208,8 +217,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                             LOG.debug("Attributes that will be actually propagated for update {}", strictlyModified);
 
-                            connector.update(task.getPropagationMode(), ObjectClass.ACCOUNT, beforeObj.getUid(),
-                                    strictlyModified, null, propagationAttempted);
+                            connector.update(task.getPropagationMode(), beforeObj.getObjectClass(),
+                                    beforeObj.getUid(), strictlyModified, null, propagationAttempted);
                         }
                     }
                     break;
@@ -220,36 +229,44 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     } else {
                         /*
                          * We must choose here whether to
-                         *  a. actually delete the provided user from the external resource
-                         *  b. just update the provided user data onto the external resource
+                         *  a. actually delete the provided user/role from the external resource
+                         *  b. just update the provided user/role data onto the external resource
                          *
-                         * (a) happens when either there is no user associated with the PropagationTask (this takes
-                         * place when the task is generated via UserController.delete()) or the provided updated
-                         * user hasn't the current resource assigned (when the task is generated via
-                         * UserController.update()).
+                         * (a) happens when either there is no user/role associated with the PropagationTask 
+                         * (this takes place when the task is generated via REST controller's delete()) or the provided
+                         * updated user/role hasn't the current resource assigned (when the task is generated via
+                         * REST Controller0s update()).
                          *
-                         * (b) happens when the provided updated user does have the current resource assigned
-                         * (when the task is generated via UserController.update()): this basically means that
-                         * before such update, this user used to have the current resource assigned by more than
-                         * one mean (for example, two different memberships with the same resource).
+                         * (b) happens when the provided updated user/role does have the current resource assigned
+                         * (when the task is generated via REST Controller's update()): this basically means that
+                         * before such update, this user/role used to have the current resource assigned by more than
+                         * one mean (for example, for users, two different memberships with the same resource).
                          */
 
-                        SyncopeUser user = null;
+                        AbstractAttributable subject = null;
                         if (task.getSyncopeUser() != null) {
                             try {
-                                user = getSyncopeUser(task.getSyncopeUser().getId());
+                                subject = getSyncopeUser(task.getSyncopeUser().getId());
                             } catch (NotFoundException e) {
                                 LOG.warn("Requesting to delete a non-existing user from {}",
                                         task.getResource().getName(), e);
                             }
                         }
+                        if (task.getSyncopeRole() != null) {
+                            try {
+                                subject = getSyncopeRole(task.getSyncopeRole().getId());
+                            } catch (NotFoundException e) {
+                                LOG.warn("Requesting to delete a non-existing role from {}",
+                                        task.getResource().getName(), e);
+                            }
+                        }
 
-                        if (user == null || !user.getResourceNames().contains(task.getResource().getName())) {
+                        if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
                             LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
 
                             connector.delete(
                                     task.getPropagationMode(),
-                                    ObjectClass.ACCOUNT,
+                                    beforeObj.getObjectClass(),
                                     beforeObj.getUid(),
                                     null,
                                     propagationAttempted);
@@ -258,7 +275,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                             connector.update(
                                     task.getPropagationMode(),
-                                    ObjectClass.ACCOUNT,
+                                    beforeObj.getObjectClass(),
                                     beforeObj.getUid(),
                                     task.getAttributes(),
                                     null,
@@ -298,7 +315,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             propagationAttempted.add(task.getPropagationOperation().name().toLowerCase());
         } finally {
-            // Try to read user AFTER any actual operation
+            // Try to read remote object (user / group) AFTER any actual operation
             if (connector != null) {
                 afterObj = getRemoteObject(connector, task, true);
             }
@@ -360,6 +377,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         return user;
+    }
+
+    protected SyncopeRole getSyncopeRole(final Long roleId)
+            throws NotFoundException {
+
+        SyncopeRole role = roleDAO.find(roleId);
+        if (role == null) {
+            throw new NotFoundException("Role " + roleId);
+        }
+
+        return role;
     }
 
     /**

@@ -320,7 +320,7 @@ public class TaskTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);
@@ -433,7 +433,9 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issue196() {
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
+        System.out.println("BBBBBBBB\n" + execution);
         assertNotNull(execution);
         assertEquals(0, execution.getId());
         assertNotNull(execution.getTask());

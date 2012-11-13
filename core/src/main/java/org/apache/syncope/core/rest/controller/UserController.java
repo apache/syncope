@@ -38,8 +38,8 @@ import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import org.apache.syncope.core.propagation.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.PropagationException;
-import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -52,8 +52,6 @@ import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.UserSubCategory;
-import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +91,7 @@ public class UserController {
     private UserSearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    private UserDataBinder dataBinder;
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -123,7 +121,7 @@ public class UserController {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
 
-        return new ModelAndView().addObject(userDataBinder.verifyPassword(username, password));
+        return new ModelAndView().addObject(dataBinder.verifyPassword(username, password));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -159,9 +157,8 @@ public class UserController {
                 userDAO.findAll(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
 
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
-
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -180,7 +177,7 @@ public class UserController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -195,7 +192,7 @@ public class UserController {
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        UserTO result = userDataBinder.getUserTO(userId);
+        UserTO result = dataBinder.getUserTO(userId);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + userId);
@@ -209,7 +206,7 @@ public class UserController {
     public UserTO read(@PathVariable final String username)
             throws NotFoundException, UnauthorizedRoleException {
 
-        UserTO result = userDataBinder.getUserTO(username);
+        UserTO result = dataBinder.getUserTO(username);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + username);
@@ -234,7 +231,7 @@ public class UserController {
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -262,7 +259,7 @@ public class UserController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -291,36 +288,15 @@ public class UserController {
 
         WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO);
 
-        List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
+        List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
-
-        taskExecutor.execute(tasks, new PropagationHandler() {
-
-            @Override
-            public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                    final ConnectorObject beforeObj, final ConnectorObject afterObj) {
-
-                final PropagationTO propagation = new PropagationTO();
-                propagation.setResourceName(resourceName);
-                propagation.setStatus(executionStatus);
-
-                if (beforeObj != null) {
-                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(beforeObj));
-                }
-
-                if (afterObj != null) {
-                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(afterObj));
-                }
-
-                propagations.add(propagation);
-            }
-        });
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
-        final UserTO savedTO = userDataBinder.getUserTO(created.getResult().getKey());
+        final UserTO savedTO = dataBinder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationTOs(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
@@ -341,36 +317,15 @@ public class UserController {
 
         WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated, userMod.getPassword(), userMod.
-                getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated(), null);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated, userMod.getPassword(),
+                userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
 
         final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
-
-        taskExecutor.execute(tasks, new PropagationHandler() {
-
-            @Override
-            public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                    final ConnectorObject before, final ConnectorObject after) {
-
-                final PropagationTO propagation = new PropagationTO();
-                propagation.setResourceName(resourceName);
-                propagation.setStatus(executionStatus);
-
-                if (before != null) {
-                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(before));
-                }
-
-                if (after != null) {
-                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(after));
-                }
-
-                propagations.add(propagation);
-            }
-        });
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
-        final UserTO updatedTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO updatedTO = dataBinder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationTOs(propagations);
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
@@ -515,7 +470,7 @@ public class UserController {
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", username);
 
-        UserTO result = userDataBinder.getUserTO(username);
+        UserTO result = dataBinder.getUserTO(username);
         long userId = result.getId();
 
         return doDelete(userId);
@@ -530,14 +485,16 @@ public class UserController {
 
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getResult(), null), updated.getPropByRes(), updated.getPerformedTasks()));
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated.getResult(), null),
+                updated.getPropByRes(),
+                updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -565,7 +522,7 @@ public class UserController {
     public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId)
             throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
-        SyncopeUser user = userDataBinder.getUserFromId(userId);
+        SyncopeUser user = dataBinder.getUserFromId(userId);
         WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
 
         auditManager.audit(Category.user, UserSubCategory.getFormForUser, Result.success,
@@ -597,15 +554,21 @@ public class UserController {
 
         LOG.debug("About to process form {}", form);
 
-        WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form, SecurityContextHolder.getContext().
+        WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form,
+                SecurityContextHolder.getContext().
                 getAuthentication().getName());
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE), updated.getPropByRes(), updated.
-                getPerformedTasks()), updated.getResult().getValue(), null, null);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE),
+                updated.getPropByRes(),
+                updated.getPerformedTasks()),
+                updated.getResult().getValue(),
+                null,
+                null);
         taskExecutor.execute(tasks);
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult().getKey());
 
         auditManager.audit(Category.user, UserSubCategory.submitForm, Result.success,
                 "Successfully submitted workflow form for user: " + savedTO.getUsername());
@@ -645,12 +608,12 @@ public class UserController {
             resources.addAll(user.getResourceNames());
         }
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, status, resources);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, status, resources);
 
         taskExecutor.execute(tasks);
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         auditManager.audit(Category.user, UserSubCategory.setStatus, Result.success,
                 "Successfully changed status to " + savedTO.getStatus() + " for user: " + savedTO.getUsername());
@@ -669,37 +632,19 @@ public class UserController {
         // impossible by NotificationManager to fetch required user information
         notificationManager.createTasks(userId, Collections.singleton("delete"));
 
-        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
         final UserTO userTO = new UserTO();
         userTO.setId(userId);
 
-        taskExecutor.execute(tasks, new PropagationHandler() {
-
-            @Override
-            public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
-                    final ConnectorObject before, final ConnectorObject after) {
-
-                final PropagationTO propagation = new PropagationTO();
-                propagation.setResourceName(resourceName);
-                propagation.setStatus(executionStatus);
-
-                if (before != null) {
-                    propagation.setBeforeObj(connObjectUtil.getConnObjectTO(before));
-                }
-
-                if (after != null) {
-                    propagation.setAfterObj(connObjectUtil.getConnObjectTO(after));
-                }
-
-                userTO.addPropagationTO(propagation);
-            }
-        });
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        userTO.setPropagationTOs(propagations);
 
         uwfAdapter.delete(userId);
 
         auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
-                "Successfully deleted user: " + userTO.getUsername());
+                "Successfully deleted user: " + userId);
 
         LOG.debug("User successfully deleted: {}", userId);
 

@@ -210,12 +210,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
-    public void delete(final Long id) {
-        SyncopeRole role = find(id);
-        if (role == null) {
-            return;
-        }
-
+    public void delete(final SyncopeRole role) {
         for (SyncopeRole roleToBeDeleted : findDescendants(role)) {
             for (Membership membership : findMemberships(roleToBeDeleted)) {
                 membership.getSyncopeUser().removeMembership(membership);
@@ -233,5 +228,15 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
             entitlementDAO.delete(EntitlementUtil.getEntitlementNameFromRoleId(roleToBeDeleted.getId()));
         }
+    }
+
+    @Override
+    public void delete(final Long id) {
+        SyncopeRole role = find(id);
+        if (role == null) {
+            return;
+        }
+
+        delete(role);
     }
 }

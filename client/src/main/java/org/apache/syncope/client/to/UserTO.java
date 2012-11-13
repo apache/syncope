@@ -37,8 +37,6 @@ public class UserTO extends AbstractAttributableTO {
 
     private List<MembershipTO> memberships;
 
-    private List<PropagationTO> propagationTOs;
-
     private String status;
 
     private String token;
@@ -59,7 +57,6 @@ public class UserTO extends AbstractAttributableTO {
         super();
 
         memberships = new ArrayList<MembershipTO>();
-        propagationTOs = new ArrayList<PropagationTO>();
     }
 
     public String getPassword() {
@@ -169,35 +166,6 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setLastLoginDate(Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
-    }
-
-    public void addPropagationTO(final PropagationTO status) {
-        propagationTOs.add(status);
-    }
-
-    public void removePropagationTO(final String resource) {
-        if (resource != null && getPropagationTOs().isEmpty()) {
-
-            final List<PropagationTO> toBeRemoved = new ArrayList<PropagationTO>();
-
-            for (PropagationTO propagationTO : getPropagationTOs()) {
-                if (resource.equals(propagationTO.getResourceName())) {
-                    toBeRemoved.add(propagationTO);
-                }
-            }
-
-            propagationTOs.removeAll(toBeRemoved);
-        }
-    }
-
-    public List<PropagationTO> getPropagationTOs() {
-        return propagationTOs;
-    }
-
-    public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
-
-        this.propagationTOs.clear();
-        this.propagationTOs.addAll(propagationTOs);
     }
 
     @Override

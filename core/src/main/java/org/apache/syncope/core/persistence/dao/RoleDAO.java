@@ -52,5 +52,7 @@ public interface RoleDAO extends DAO {
 
     SyncopeRole save(SyncopeRole syncopeRole) throws InvalidEntityException;
 
+    void delete(SyncopeRole role);
+
     void delete(Long id);
 }

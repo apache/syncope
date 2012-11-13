@@ -19,25 +19,39 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.client.mod.RoleMod;
+import org.apache.syncope.client.to.PropagationTO;
 import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.propagation.DefaultPropagationHandler;
+import org.apache.syncope.core.propagation.PropagationException;
+import org.apache.syncope.core.propagation.PropagationManager;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowResult;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.RoleSubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,13 +76,28 @@ public class RoleController extends AbstractController {
     @Autowired
     private RoleDataBinder dataBinder;
 
+    @Autowired
+    private RoleWorkflowAdapter rwfAdapter;
+
+    @Autowired
+    private PropagationManager propagationManager;
+
+    @Autowired
+    private PropagationTaskExecutor taskExecutor;
+
+    /**
+     * ConnectorObject util.
+     */
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
+
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{roleId}")
     @Transactional(readOnly = true)
     public RoleTO read(@PathVariable("roleId") final Long roleId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeRole role = dataBinder.getSyncopeRole(roleId);
+        SyncopeRole role = dataBinder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (!allowedRoleIds.contains(role.getId())) {
@@ -87,16 +116,22 @@ public class RoleController extends AbstractController {
     public RoleTO selfRead(@PathVariable("roleId") final Long roleId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeRole role = dataBinder.getSyncopeRole(roleId);
+        // Explicit search instead of using dataBinder.getRoleFromId() in order to bypass auth checks - will do here
+        SyncopeRole role = roleDAO.find(roleId);
+        if (role == null) {
+            throw new NotFoundException("Role " + roleId);
+        }
 
+        Set<Long> ownedRoleIds;
         SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
         if (authUser == null) {
-            throw new NotFoundException("Authenticated user "
-                    + SecurityContextHolder.getContext().getAuthentication().getName());
+            ownedRoleIds = Collections.EMPTY_SET;
+        } else {
+            ownedRoleIds = authUser.getRoleIds();
         }
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        allowedRoleIds.addAll(authUser.getRoleIds());
+        allowedRoleIds.addAll(ownedRoleIds);
         if (!allowedRoleIds.contains(role.getId())) {
             throw new UnauthorizedRoleException(role.getId());
         }
@@ -113,7 +148,7 @@ public class RoleController extends AbstractController {
     public RoleTO parent(@PathVariable("roleId") final Long roleId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeRole role = dataBinder.getSyncopeRole(roleId);
+        SyncopeRole role = dataBinder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (role.getParent() != null && !allowedRoleIds.contains(role.getParent().getId())) {
@@ -135,8 +170,10 @@ public class RoleController extends AbstractController {
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/children/{roleId}")
     @Transactional(readOnly = true)
-    public List<RoleTO> children(@PathVariable("roleId") final Long roleId) throws NotFoundException {
-        SyncopeRole role = dataBinder.getSyncopeRole(roleId);
+    public List<RoleTO> children(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeRole role = dataBinder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -158,6 +195,7 @@ public class RoleController extends AbstractController {
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
         List<SyncopeRole> roles = roleDAO.findAll();
+
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
             roleTOs.add(dataBinder.getRoleTO(role));
@@ -172,7 +210,7 @@ public class RoleController extends AbstractController {
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO)
-            throws SyncopeClientCompositeErrorException, UnauthorizedRoleException {
+            throws UnauthorizedRoleException, WorkflowException, NotFoundException, PropagationException {
 
         LOG.debug("Role create called with parameters {}", roleTO);
 
@@ -181,53 +219,82 @@ public class RoleController extends AbstractController {
             throw new UnauthorizedRoleException(roleTO.getParent());
         }
 
-        SyncopeRole role = roleDAO.save(dataBinder.create(roleTO));
+        WorkflowResult<Long> created = rwfAdapter.create(roleTO);
+
+        // Extend the current authentication context to include the role just created
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+        authorities.add(new SimpleGrantedAuthority(EntitlementUtil.getEntitlementNameFromRoleId(created.getResult())));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(), auth.getCredentials(), authorities);
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirtualAttributes());
+
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+
+        final RoleTO savedTO = dataBinder.getRoleTO(created.getResult());
+        savedTO.setPropagationTOs(propagations);
+
+        LOG.debug("About to return created role\n{}", savedTO);
 
         auditManager.audit(Category.role, RoleSubCategory.create, Result.success,
-                "Successfully created role: " + role.getId());
+                "Successfully created role: " + savedTO.getId());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return dataBinder.getRoleTO(role);
+        return savedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public RoleTO update(@RequestBody final RoleMod roleMod) throws NotFoundException, UnauthorizedRoleException {
-        LOG.debug("Role update called with parameter {}", roleMod);
+    public RoleTO update(@RequestBody final RoleMod roleMod)
+            throws NotFoundException, UnauthorizedRoleException, WorkflowException, PropagationException {
 
-        SyncopeRole role = dataBinder.getSyncopeRole(roleMod.getId());
+        LOG.debug("Role update called with {}", roleMod);
 
-        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        if (!allowedRoleIds.contains(role.getId())) {
-            throw new UnauthorizedRoleException(role.getId());
-        }
+        SyncopeRole role = dataBinder.getRoleFromId(roleMod.getId());
 
-        dataBinder.update(role, roleMod);
-        role = roleDAO.save(role);
+        WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+
+        List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
+                roleMod.getVirtualAttributesToBeRemoved(), roleMod.getVirtualAttributesToBeUpdated());
+
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+
+        final RoleTO updatedTO = dataBinder.getRoleTO(updated.getResult());
+        updatedTO.setPropagationTOs(propagations);
 
         auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
                 "Successfully updated role: " + role.getId());
 
-        return dataBinder.getRoleTO(role);
+        LOG.debug("About to return updated role\n{}", updatedTO);
+
+        return updatedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
-    public RoleTO delete(@PathVariable("roleId") final Long roleId) throws NotFoundException, UnauthorizedRoleException {
-        SyncopeRole role = dataBinder.getSyncopeRole(roleId);
+    public RoleTO delete(@PathVariable("roleId") final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException, WorkflowException, PropagationException {
 
-        RoleTO roleToDelete = dataBinder.getRoleTO(role);
+        SyncopeRole role = dataBinder.getRoleFromId(roleId);
 
-        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        if (!allowedRoleIds.contains(role.getId())) {
-            throw new UnauthorizedRoleException(role.getId());
-        }
+        RoleTO roleTO = dataBinder.getRoleTO(role);
+
+        List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId);
+
+        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+
+        rwfAdapter.delete(roleId);
 
         auditManager.audit(Category.role, RoleSubCategory.delete, Result.success,
-                "Successfully deleted role: " + role.getId());
+                "Successfully deleted role: " + roleId);
 
-        roleDAO.delete(roleId);
+        LOG.debug("Role successfully deleted: {}", roleId);
 
-        return roleToDelete;
+        return roleTO;
     }
 }

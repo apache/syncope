@@ -120,7 +120,7 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                    final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                             new WorkflowResult<Map.Entry<Long, Boolean>>(
                             new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
                             updated.getPropByRes(), updated.getPerformedTasks()));

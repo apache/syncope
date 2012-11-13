@@ -37,7 +37,11 @@ public class PropagationTaskTO extends TaskTO {
 
     private String resource;
 
+    private String objectClassName;
+
     private long user;
+
+    private long role;
 
     public String getAccountId() {
         return accountId;
@@ -88,11 +92,27 @@ public class PropagationTaskTO extends TaskTO {
         this.xmlAttributes = xmlAttributes;
     }
 
+    public String getObjectClassName() {
+        return objectClassName;
+    }
+
+    public void setObjectClassName(String objectClassName) {
+        this.objectClassName = objectClassName;
+    }
+
     public long getUser() {
         return user;
     }
 
     public void setUser(long user) {
         this.user = user;
+    }
+
+    public long getRole() {
+        return role;
+    }
+
+    public void setRole(long role) {
+        this.role = role;
     }
 }

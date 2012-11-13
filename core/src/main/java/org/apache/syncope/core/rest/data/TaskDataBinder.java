@@ -64,7 +64,8 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {"latestExecStatus", "executions", "resource", "user"};
+    private static final String[] IGNORE_TASK_PROPERTIES = {
+        "latestExecStatus", "executions", "resource", "user", "role"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
@@ -146,26 +147,23 @@ public class TaskDataBinder {
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
 
-        switch (taskUtil) {
-            case SCHED:
-                task.setJobClassName(taskTO.getJobClassName());
-                break;
+        if (taskUtil == TaskUtil.SCHED) {
+            task.setJobClassName(taskTO.getJobClassName());
+        }
+        if (taskUtil == TaskUtil.SYNC) {
+            if (!(taskTO instanceof SyncTaskTO)) {
+                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
+                        getClass().getName());
+            }
+            SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
-            case SYNC:
-                if (!(taskTO instanceof SyncTaskTO)) {
-                    throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
-                            getClass().getName());
-                }
-                SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
+            ExternalResource resource = resourceDAO.find(syncTaskTO.getResource());
+            if (resource == null) {
+                throw new NotFoundException("Resource " + syncTaskTO.getResource());
+            }
+            ((SyncTask) task).setResource(resource);
 
-                ExternalResource resource = resourceDAO.find(syncTaskTO.getResource());
-                if (resource == null) {
-                    throw new NotFoundException("Resource " + syncTaskTO.getResource());
-                }
-                ((SyncTask) task).setResource(resource);
-
-                fill((SyncTask) task, syncTaskTO);
-                break;
+            fill((SyncTask) task, syncTaskTO);
         }
 
         return task;
@@ -256,6 +254,9 @@ public class TaskDataBinder {
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
                 if (((PropagationTask) task).getSyncopeUser() != null) {
                     ((PropagationTaskTO) taskTO).setUser(((PropagationTask) task).getSyncopeUser().getId());
+                }
+                if (((PropagationTask) task).getSyncopeRole() != null) {
+                    ((PropagationTaskTO) taskTO).setRole(((PropagationTask) task).getSyncopeRole().getId());
                 }
                 break;
 

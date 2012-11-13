@@ -157,7 +157,7 @@ public class ContentLoader {
         }
 
         // Can't test uwfAdapter.getClass() because it is @Autowired
-        if (SpringContextInitializer.isActivitiConfigured()) {
+        if (SpringContextInitializer.isActivitiEnabledForUsers()) {
             try {
                 statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
                 statement.executeUpdate();

@@ -22,8 +22,10 @@ import java.util.List;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.WorkflowSubCategory;
@@ -46,39 +48,75 @@ public class WorkflowController extends AbstractController {
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/definition")
-    @Transactional(readOnly = true)
-    public WorkflowDefinitionTO getDefinition() throws WorkflowException {
+    @Autowired
+    private RoleWorkflowAdapter rwfAdapter;
 
-        WorkflowDefinitionTO result = uwfAdapter.getDefinition();
+    private WorkflowDefinitionTO getDefinition(final WorkflowAdapter adapter) throws WorkflowException {
+        WorkflowDefinitionTO result = adapter.getDefinition();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinition, Result.success,
-                "Successfully got workflow definition");
+                "Successfully read workflow definition");
 
         return result;
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/definition")
-    public void updateDefinition(@RequestBody final WorkflowDefinitionTO definition)
+    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @RequestMapping(method = RequestMethod.GET, value = "/definition/user")
+    @Transactional(readOnly = true)
+    public WorkflowDefinitionTO getUserDefinition() throws WorkflowException {
+        return getDefinition(uwfAdapter);
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @RequestMapping(method = RequestMethod.GET, value = "/definition/role")
+    @Transactional(readOnly = true)
+    public WorkflowDefinitionTO getRoleDefinition() throws WorkflowException {
+        return getDefinition(rwfAdapter);
+    }
+
+    private void updateDefinition(final WorkflowAdapter adapter, final WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException {
 
-        uwfAdapter.updateDefinition(definition);
+        adapter.updateDefinition(definition);
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.updateDefinition, Result.success,
                 "Successfully updated workflow definition");
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/tasks")
-    public ModelAndView getDefinedTasks() throws WorkflowException {
+    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
+    public void updateUserDefinition(@RequestBody final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
 
-        List<String> definedTasks = uwfAdapter.getDefinedTasks();
+        updateDefinition(uwfAdapter, definition);
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
+    public void updateRoleDefinition(@RequestBody final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
+
+        updateDefinition(rwfAdapter, definition);
+    }
+
+    private List<String> getDefinedTasks(final WorkflowAdapter adapter) throws WorkflowException {
+        List<String> definedTasks = adapter.getDefinedTasks();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
                 "Successfully got the list of defined workflow tasks: " + definedTasks.size());
 
-        return new ModelAndView().addObject(definedTasks);
+        return definedTasks;
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
+    public ModelAndView getDefinedUserTasks() throws WorkflowException {
+        return new ModelAndView().addObject(getDefinedTasks(uwfAdapter));
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET, value = "/tasks/role")
+    public ModelAndView getDefinedRoleTasks() throws WorkflowException {
+        return new ModelAndView().addObject(getDefinedTasks(rwfAdapter));
     }
 }

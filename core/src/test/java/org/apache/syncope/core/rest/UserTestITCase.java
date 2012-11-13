@@ -667,7 +667,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithReject() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createWithReject@syncope.apache.org");
 
@@ -730,7 +730,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithApproval() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
@@ -1335,7 +1335,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createActivate() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createActivate@syncope.apache.org");
 
@@ -1363,7 +1363,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createActivateByUsername() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
 
@@ -1401,7 +1401,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
 
@@ -1425,7 +1425,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class, userTO.getUsername());
@@ -1462,7 +1462,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
                 + "&performLocally=true"; // check also performLocally

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.servlet.ServletContext;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      *
      * @return whether Activiti is configured for workflow or not
      */
-    public static boolean isActivitiConfigured() {
+    public static boolean isActivitiEnabledForUsers() {
         return uwfAdapterClassName != null && uwfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
     }
 
@@ -98,6 +99,9 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
+
+    @Autowired
+    private RoleWorkflowAdapter rwfAdapter;
 
     @Autowired
     private LoggerLoader loggerLoader;
@@ -127,6 +131,11 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
         if (uwfAdapter.getLoaderClass() != null) {
             final WorkflowLoader wfLoader = (WorkflowLoader) beanFactory.createBean(
                     uwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+            wfLoader.load();
+        }
+        if (rwfAdapter.getLoaderClass() != null) {
+            final WorkflowLoader wfLoader = (WorkflowLoader) beanFactory.createBean(
+                    rwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
             wfLoader.load();
         }
     }
