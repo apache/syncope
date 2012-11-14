@@ -77,9 +77,13 @@ under the License.
           <key>
             <value>http.protocol.handle-authentication</value>
           </key>
-          <value type="java.lang.Boolean">
-            false
-          </value>
+          <value type="java.lang.Boolean">false</value>
+        </entry>
+        <entry>
+          <key>
+            <value>http.auth.credential-charset</value>
+          </key>
+          <value type="java.lang.String">false</value>
         </entry>
       </map>
     </property>
