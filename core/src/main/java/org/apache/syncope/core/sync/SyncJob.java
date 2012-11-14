@@ -256,10 +256,10 @@ public class SyncJob extends AbstractTaskJob {
         try {
             if (syncTask.isFullReconciliation()) {
                 connector.getAllObjects(ObjectClass.ACCOUNT, handler,
-                        connector.getOperationOptions(syncTask.getResource().getUmapping()));
+                        connector.getOperationOptions(syncTask.getResource().getUmapping().getItems()));
             } else {
                 connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getSyncToken(), handler,
-                        connector.getOperationOptions(syncTask.getResource().getUmapping()));
+                        connector.getOperationOptions(syncTask.getResource().getUmapping().getItems()));
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {

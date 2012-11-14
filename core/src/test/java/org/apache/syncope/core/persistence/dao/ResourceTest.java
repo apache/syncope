@@ -96,7 +96,7 @@ public class ResourceTest extends AbstractTest {
         UMappingItem accountId = new UMappingItem();
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("fullname");
-        accountId.setIntMappingType(IntMappingType.SyncopeUserId);
+        accountId.setIntMappingType(IntMappingType.UserId);
         mapping.setAccountIdItem(accountId);
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();

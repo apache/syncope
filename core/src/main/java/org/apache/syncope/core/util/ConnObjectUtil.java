@@ -199,7 +199,7 @@ public class ConnObjectUtil {
 
             AttributeTO attributeTO;
             switch (item.getIntMappingType()) {
-                case SyncopeUserId:
+                case UserId:
                     break;
 
                 case Password:

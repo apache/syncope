@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
@@ -110,8 +111,8 @@ public final class MappingUtil {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                schema = schemaDAO.find(mapping.getIntAttrName(), MappingUtil.getIntMappingTypeClass(mapping.
-                        getIntMappingType()));
+                schema = schemaDAO.find(mapping.getIntAttrName(),
+                        MappingUtil.getIntMappingTypeClass(mapping.getIntMappingType()));
 
                 for (AbstractAttributable attributable : attributables) {
                     final AbstractAttr attr = attributable.getAttribute(mapping.getIntAttrName());
@@ -133,7 +134,6 @@ public final class MappingUtil {
             case UserVirtualSchema:
             case RoleVirtualSchema:
             case MembershipVirtualSchema:
-
                 for (AbstractAttributable attributable : attributables) {
                     AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
 
@@ -173,18 +173,20 @@ public final class MappingUtil {
                 }
                 break;
 
-            case Username:
+            case UserId:
+            case RoleId:
+            case MembershipId:
                 for (AbstractAttributable attributable : attributables) {
                     AbstractAttrValue attrValue = new UAttrValue();
-                    attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
+                    attrValue.setStringValue(attributable.getId().toString());
                     values.add(attrValue);
                 }
                 break;
 
-            case SyncopeUserId:
+            case Username:
                 for (AbstractAttributable attributable : attributables) {
                     AbstractAttrValue attrValue = new UAttrValue();
-                    attrValue.setStringValue(attributable.getId().toString());
+                    attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
                     values.add(attrValue);
                 }
                 break;
@@ -195,6 +197,14 @@ public final class MappingUtil {
                     attrValue.setStringValue(password);
                 }
                 values.add(attrValue);
+                break;
+
+            case RoleName:
+                for (AbstractAttributable attributable : attributables) {
+                    attrValue = new UAttrValue();
+                    attrValue.setStringValue(((SyncopeRole) attributable).getName());
+                    values.add(attrValue);
+                }
                 break;
 
             default:

@@ -435,7 +435,6 @@ public class TaskTestITCase extends AbstractTest {
     public void issue196() {
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
-        System.out.println("BBBBBBBB\n" + execution);
         assertNotNull(execution);
         assertEquals(0, execution.getId());
         assertNotNull(execution.getTask());

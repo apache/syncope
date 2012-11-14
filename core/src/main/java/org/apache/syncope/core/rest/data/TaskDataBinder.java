@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
@@ -64,8 +63,7 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {
-        "latestExecStatus", "executions", "resource", "user", "role"};
+    private static final String[] IGNORE_TASK_PROPERTIES = {"latestExecStatus", "executions", "resource",};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
@@ -249,14 +247,6 @@ public class TaskDataBinder {
                 if (!(task instanceof PropagationTask)) {
                     throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: "
                             + task.getClass().getName());
-                }
-
-                ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
-                if (((PropagationTask) task).getSyncopeUser() != null) {
-                    ((PropagationTaskTO) taskTO).setUser(((PropagationTask) task).getSyncopeUser().getId());
-                }
-                if (((PropagationTask) task).getSyncopeRole() != null) {
-                    ((PropagationTaskTO) taskTO).setRole(((PropagationTask) task).getSyncopeRole().getId());
                 }
                 break;
 

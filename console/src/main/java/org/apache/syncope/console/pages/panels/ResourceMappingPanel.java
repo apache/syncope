@@ -512,7 +512,7 @@ public class ResourceMappingPanel extends Panel {
                     toBeUpdated.setChoices(schemaRestClient.getVirtualSchemaNames(type.getAttributableType()));
                     break;
 
-                case SyncopeUserId:
+                case UserId:
                 case Password:
                 case Username:
                 default:

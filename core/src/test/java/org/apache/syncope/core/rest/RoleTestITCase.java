@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.rest;
 
-import java.util.ArrayList;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -77,13 +77,15 @@ public class RoleTestITCase extends AbstractTest {
         AttributeTO icon = new AttributeTO();
         icon.setSchema("icon");
         icon.addValue("anIcon");
+        roleTO.addAttribute(icon);
+
+        roleTO.addResource("resource-ldap");
 
         RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
         roleTO.setId(actual.getId());
-
         roleTO.setPasswordPolicy(4L);
-
+        roleTO.setPropagationTOs(actual.getPropagationTOs());
         assertEquals(roleTO, actual);
 
         assertNotNull(actual.getAccountPolicy());
@@ -91,6 +93,8 @@ public class RoleTestITCase extends AbstractTest {
 
         assertNotNull(actual.getPasswordPolicy());
         assertEquals(4L, (long) actual.getPasswordPolicy());
+
+        assertTrue(actual.getResources().contains("resource-ldap"));
     }
 
     @Test
@@ -101,11 +105,9 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setPasswordPolicy(4L);
 
         RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
         assertNotNull(actual);
 
         actual = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, actual.getId());
-
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
         assertEquals(4L, (long) actual.getPasswordPolicy());
@@ -119,10 +121,20 @@ public class RoleTestITCase extends AbstractTest {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
-        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, 5);
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("toBeDeleted");
+        roleTO.setParent(8L);
+
+        roleTO.addResource("resource-ldap");
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
+        
+        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, roleTO.getId());
         assertNotNull(deletedRole);
+
         try {
-            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 2);
+            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, deletedRole.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -205,6 +217,8 @@ public class RoleTestITCase extends AbstractTest {
         icon.setSchema("icon");
         icon.addValue("anIcon");
         roleTO.addAttribute(icon);
+
+        roleTO.addResource("resource-ldap");
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 

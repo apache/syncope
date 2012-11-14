@@ -32,14 +32,12 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TraceLevel;
@@ -71,26 +69,23 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     @Autowired
     protected ConnInstanceLoader connLoader;
 
+    /**
+     * ConnObjectUtil.
+     */
     @Autowired
     protected ConnObjectUtil connObjectUtil;
-
-    /**
-     * User DAO.
-     */
-    @Autowired
-    protected UserDAO userDAO;
-
-    /**
-     * Role DAO.
-     */
-    @Autowired
-    protected RoleDAO roleDAO;
 
     /**
      * Task DAO.
      */
     @Autowired
     protected TaskDAO taskDAO;
+
+    @Autowired
+    protected UserDataBinder userDataBinder;
+
+    @Autowired
+    protected RoleDataBinder roleDataBinder;
 
     @Override
     public TaskExec execute(final PropagationTask task) {
@@ -118,6 +113,156 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
+    protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
+            final ConnectorFacadeProxy connector, final Set<String> propagationAttempted) {
+
+        // set of attributes to be propagated
+        final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+
+        if (beforeObj == null) {
+            // 1. get accountId
+            final String accountId = task.getAccountId();
+
+            // 2. get name
+            final Name name = (Name) AttributeUtil.find(Name.NAME, attributes);
+
+            // 3. check if:
+            //      * accountId is not blank;
+            //      * accountId is not equal to Name.
+            if (StringUtils.isNotBlank(accountId) && (name == null || !accountId.equals(name.getNameValue()))) {
+                // 3.a retrieve uid
+                final Uid uid = (Uid) AttributeUtil.find(Uid.NAME, attributes);
+
+                // 3.b add Uid if not provided
+                if (uid == null) {
+                    attributes.add(AttributeBuilder.build(Uid.NAME, Collections.singleton(accountId)));
+                }
+            }
+
+            // 4. provision entry
+            connector.create(task.getPropagationMode(), new ObjectClass(task.getObjectClassName()),
+                    attributes, null, propagationAttempted);
+        } else {
+            // 1. check if rename is really required
+            final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
+
+            LOG.debug("Rename required with value {}", newName);
+
+            if (newName != null && newName.equals(beforeObj.getName())
+                    && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
+
+                LOG.debug("Remote object name unchanged");
+                attributes.remove(newName);
+            }
+
+            // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
+            // difference between beforeObj - just read above from the connector - and the values to be propagated
+            Map<String, Attribute> originalAttrMap = connObjectUtil.toMap(beforeObj.getAttributes());
+            Map<String, Attribute> updateAttrMap = connObjectUtil.toMap(attributes);
+
+            // Only compare attribute from beforeObj that are also being updated
+            Set<String> skipAttrNames = originalAttrMap.keySet();
+            skipAttrNames.removeAll(updateAttrMap.keySet());
+            for (String attrName : new HashSet<String>(skipAttrNames)) {
+                originalAttrMap.remove(attrName);
+            }
+
+            Set<Attribute> originalAttrs = new HashSet<Attribute>(originalAttrMap.values());
+
+            if (originalAttrs.equals(attributes)) {
+                LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
+            } else {
+                LOG.debug("Attributes that would be updated {}", attributes);
+
+                Set<Attribute> strictlyModified = new HashSet<Attribute>();
+                for (Attribute attr : attributes) {
+                    if (!originalAttrs.contains(attr)) {
+                        strictlyModified.add(attr);
+                    }
+                }
+
+                LOG.debug("Attributes that will be actually propagated for update {}", strictlyModified);
+
+                connector.update(task.getPropagationMode(), beforeObj.getObjectClass(),
+                        beforeObj.getUid(), strictlyModified, null, propagationAttempted);
+            }
+        }
+    }
+
+    protected AbstractAttributable getSubject(final PropagationTask task) {
+        AbstractAttributable subject = null;
+
+        if (task.getSubjectId() != null) {
+            switch (task.getSubjectType()) {
+                case USER:
+                    try {
+                        subject = userDataBinder.getUserFromId(task.getSubjectId());
+                    } catch (Exception e) {
+                        LOG.error("Could not read user {}", task.getSubjectId(), e);
+                    }
+                    break;
+
+                case ROLE:
+                    try {
+                        subject = roleDataBinder.getRoleFromId(task.getSubjectId());
+                    } catch (Exception e) {
+                        LOG.error("Could not read role {}", task.getSubjectId(), e);
+                    }
+                    break;
+
+                case MEMBERSHIP:
+                default:
+            }
+        }
+
+        return subject;
+    }
+
+    protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
+            final ConnectorFacadeProxy connector, final Set<String> propagationAttempted) {
+
+        if (beforeObj == null) {
+            LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
+        } else {
+            /*
+             * We must choose here whether to
+             *  a. actually delete the provided user from the external resource
+             *  b. just update the provided user data onto the external resource
+             *
+             * (a) happens when either there is no user associated with the PropagationTask (this takes
+             * place when the task is generated via UserController.delete()) or the provided updated
+             * user hasn't the current resource assigned (when the task is generated via
+             * UserController.update()).
+             *
+             * (b) happens when the provided updated user does have the current resource assigned
+             * (when the task is generated via UserController.update()): this basically means that
+             * before such update, this user used to have the current resource assigned by more than
+             * one mean (for example, two different memberships with the same resource).
+             */
+            AbstractAttributable subject = getSubject(task);
+            if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
+                LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
+
+                connector.delete(
+                        task.getPropagationMode(),
+                        beforeObj.getObjectClass(),
+                        beforeObj.getUid(),
+                        null,
+                        propagationAttempted);
+            } else {
+                LOG.debug("Update remote object on {}", task.getResource().getName());
+
+                connector.update(
+                        task.getPropagationMode(),
+                        beforeObj.getObjectClass(),
+                        beforeObj.getUid(),
+                        task.getAttributes(),
+                        null,
+                        propagationAttempted);
+            }
+        }
+    }
+
     @Override
     public TaskExec execute(final PropagationTask task, final PropagationHandler handler) {
         final PropagationActions actions = getPropagationActions(task.getResource());
@@ -140,149 +285,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             connector = connLoader.getConnector(task.getResource());
 
             // Try to read remote object (user / group) BEFORE any actual operation
-            beforeObj = getRemoteObject(connector, task, false);
+            beforeObj = getRemoteObject(task, connector, false);
 
             actions.before(task, beforeObj);
 
             switch (task.getPropagationOperation()) {
                 case CREATE:
                 case UPDATE:
-                    // set of attributes to be propagated
-                    final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
-
-                    if (beforeObj == null) {
-                        // 1. get accountId
-                        final String accountId = task.getAccountId();
-
-                        // 2. get name
-                        final Name name = (Name) AttributeUtil.find(Name.NAME, attributes);
-
-                        // 3. check if:
-                        //      * accountId is not blank;
-                        //      * accountId is not equal to Name.
-                        if (StringUtils.isNotBlank(accountId)
-                                && (name == null || !accountId.equals(name.getNameValue()))) {
-
-                            // 3.a retrieve uid
-                            final Uid uid = (Uid) AttributeUtil.find(Uid.NAME, attributes);
-
-                            // 3.b add Uid if not provided
-                            if (uid == null) {
-                                attributes.add(AttributeBuilder.build(Uid.NAME, Collections.singleton(accountId)));
-                            }
-                        }
-
-                        // 4. provision entry
-                        connector.create(task.getPropagationMode(), new ObjectClass(task.getObjectClassName()),
-                                attributes, null, propagationAttempted);
-                    } else {
-                        // 1. check if rename is really required
-                        final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
-
-                        LOG.debug("Rename required with value {}", newName);
-
-                        if (newName != null && newName.equals(beforeObj.getName())
-                                && !beforeObj.getUid().getUidValue().equals(newName.getNameValue())) {
-
-                            LOG.debug("Remote object name unchanged");
-                            attributes.remove(newName);
-                        }
-
-                        // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
-                        // difference between beforeObj - just read above from the connector - and the values to
-                        // be propagated
-                        Map<String, Attribute> originalAttrMap = connObjectUtil.toMap(beforeObj.getAttributes());
-                        Map<String, Attribute> updateAttrMap = connObjectUtil.toMap(attributes);
-
-                        // Only compare attribute from beforeObj that are also being updated
-                        Set<String> skipAttrNames = originalAttrMap.keySet();
-                        skipAttrNames.removeAll(updateAttrMap.keySet());
-                        for (String attrName : new HashSet<String>(skipAttrNames)) {
-                            originalAttrMap.remove(attrName);
-                        }
-
-                        Set<Attribute> originalAttrs = new HashSet<Attribute>(originalAttrMap.values());
-
-                        if (originalAttrs.equals(attributes)) {
-                            LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
-                        } else {
-                            LOG.debug("Attributes that would be updated {}", attributes);
-
-                            Set<Attribute> strictlyModified = new HashSet<Attribute>();
-                            for (Attribute attr : attributes) {
-                                if (!originalAttrs.contains(attr)) {
-                                    strictlyModified.add(attr);
-                                }
-                            }
-
-                            LOG.debug("Attributes that will be actually propagated for update {}", strictlyModified);
-
-                            connector.update(task.getPropagationMode(), beforeObj.getObjectClass(),
-                                    beforeObj.getUid(), strictlyModified, null, propagationAttempted);
-                        }
-                    }
+                    createOrUpdate(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 case DELETE:
-                    if (beforeObj == null) {
-                        LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
-                    } else {
-                        /*
-                         * We must choose here whether to
-                         *  a. actually delete the provided user/role from the external resource
-                         *  b. just update the provided user/role data onto the external resource
-                         *
-                         * (a) happens when either there is no user/role associated with the PropagationTask 
-                         * (this takes place when the task is generated via REST controller's delete()) or the provided
-                         * updated user/role hasn't the current resource assigned (when the task is generated via
-                         * REST Controller0s update()).
-                         *
-                         * (b) happens when the provided updated user/role does have the current resource assigned
-                         * (when the task is generated via REST Controller's update()): this basically means that
-                         * before such update, this user/role used to have the current resource assigned by more than
-                         * one mean (for example, for users, two different memberships with the same resource).
-                         */
-
-                        AbstractAttributable subject = null;
-                        if (task.getSyncopeUser() != null) {
-                            try {
-                                subject = getSyncopeUser(task.getSyncopeUser().getId());
-                            } catch (NotFoundException e) {
-                                LOG.warn("Requesting to delete a non-existing user from {}",
-                                        task.getResource().getName(), e);
-                            }
-                        }
-                        if (task.getSyncopeRole() != null) {
-                            try {
-                                subject = getSyncopeRole(task.getSyncopeRole().getId());
-                            } catch (NotFoundException e) {
-                                LOG.warn("Requesting to delete a non-existing role from {}",
-                                        task.getResource().getName(), e);
-                            }
-                        }
-
-                        if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
-                            LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
-
-                            connector.delete(
-                                    task.getPropagationMode(),
-                                    beforeObj.getObjectClass(),
-                                    beforeObj.getUid(),
-                                    null,
-                                    propagationAttempted);
-                        } else {
-                            LOG.debug("Update remote object on {}", task.getResource().getName());
-
-                            connector.update(
-                                    task.getPropagationMode(),
-                                    beforeObj.getObjectClass(),
-                                    beforeObj.getUid(),
-                                    task.getAttributes(),
-                                    null,
-                                    propagationAttempted);
-                        }
-                    }
-
+                    delete(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 default:
@@ -317,7 +331,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } finally {
             // Try to read remote object (user / group) AFTER any actual operation
             if (connector != null) {
-                afterObj = getRemoteObject(connector, task, true);
+                afterObj = getRemoteObject(task, connector, true);
             }
 
             LOG.debug("Update execution for {}", task);
@@ -368,28 +382,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     public abstract void execute(Collection<PropagationTask> tasks, PropagationHandler handler)
             throws PropagationException;
 
-    protected SyncopeUser getSyncopeUser(final Long userId)
-            throws NotFoundException {
-
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
-
-        return user;
-    }
-
-    protected SyncopeRole getSyncopeRole(final Long roleId)
-            throws NotFoundException {
-
-        SyncopeRole role = roleDAO.find(roleId);
-        if (role == null) {
-            throw new NotFoundException("Role " + roleId);
-        }
-
-        return role;
-    }
-
     /**
      * Check whether an execution has to be stored, for a given task.
      *
@@ -434,7 +426,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param latest 'FALSE' to retrieve object using old accountId if not null.
      * @return remote connector object.
      */
-    protected ConnectorObject getRemoteObject(final ConnectorFacadeProxy connector, final PropagationTask task,
+    protected ConnectorObject getRemoteObject(final PropagationTask task, final ConnectorFacadeProxy connector,
             final boolean latest) {
 
         String accountId = latest || task.getOldAccountId() == null
@@ -443,8 +435,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(task.getPropagationMode(), task.getPropagationOperation(), ObjectClass.ACCOUNT,
-                    new Uid(accountId), connector.getOperationOptions(task.getResource().getUmapping()));
+            obj = connector.getObject(task.getPropagationMode(),
+                    task.getPropagationOperation(),
+                    new ObjectClass(task.getObjectClassName()),
+                    new Uid(accountId),
+                    connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
+                    getMappingItems(task.getResource())));
         } catch (RuntimeException ignore) {
             LOG.debug("While resolving {}", accountId, ignore);
         }

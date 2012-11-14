@@ -224,7 +224,7 @@ public class ResourceTest extends AbstractTest {
         UMappingItem accountId = new UMappingItem();
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("username");
-        accountId.setIntMappingType(IntMappingType.SyncopeUserId);
+        accountId.setIntMappingType(IntMappingType.UserId);
         mapping.setAccountIdItem(accountId);
         accountId.setMapping(mapping);
 

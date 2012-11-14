@@ -48,7 +48,7 @@ public class RMapping extends AbstractMapping {
     /*
      * Attribute mappings.
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "mapping")
     private List<RMappingItem> items;
 
     public RMapping() {

@@ -20,10 +20,10 @@ package org.apache.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
@@ -145,9 +145,9 @@ public class ConnectorFacadeProxy {
 
         // Set all of the ConfigurationProperties needed by the connector.
         for (ConnConfProperty property : connInstance.getConfiguration()) {
-            final Object propertyValue = getPropertyValue(property);
-            if (propertyValue != null) {
-                properties.setPropertyValue(property.getSchema().getName(), propertyValue);
+            if (property.getValues() != null && !property.getValues().isEmpty()) {
+                properties.setPropertyValue(property.getSchema().getName(),
+                        getPropertyValue(property.getSchema().getType(), property.getValues()));
             }
         }
 
@@ -482,7 +482,7 @@ public class ConnectorFacadeProxy {
         return activeConnInstance;
     }
 
-    public OperationOptions getOperationOptions(final AbstractMapping mapping) {
+    public OperationOptions getOperationOptions(final Collection<AbstractMappingItem> mapItems) {
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
@@ -493,7 +493,7 @@ public class ConnectorFacadeProxy {
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        for (AbstractMappingItem item : mapping.getItems()) {
+        for (AbstractMappingItem item : mapItems) {
             attrsToGet.add(item.getExtAttrName());
         }
 
@@ -503,45 +503,40 @@ public class ConnectorFacadeProxy {
         return oob.build();
     }
 
-    private Object getPropertyValue(final ConnConfProperty property) {
+    private Object getPropertyValue(final String propType, final List<Object> values) {
         Object value = null;
 
-        final List<Object> values = property.getValues();
+        try {
+            final Class propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
-        if (values != null && !values.isEmpty()) {
-            try {
-                final Class propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
-                        getDefaultClassLoader());
-
-                if (GuardedString.class.equals(propertySchemaClass)) {
-                    value = new GuardedString(values.get(0).toString().toCharArray());
-                } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
-                    value = new GuardedByteArray((byte[]) values.get(0));
-                } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
-                    value = values.get(0) == null || values.get(0).toString().isEmpty()
-                            ? null : values.get(0).toString().charAt(0);
-                } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
-                    value = Integer.parseInt(values.get(0).toString());
-                } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
-                    value = Long.parseLong(values.get(0).toString());
-                } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
-                    value = Float.parseFloat(values.get(0).toString());
-                } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
-                    value = Double.parseDouble(values.get(0).toString());
-                } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
-                    value = Boolean.parseBoolean(values.get(0).toString());
-                } else if (URI.class.equals(propertySchemaClass)) {
-                    value = URI.create(values.get(0).toString());
-                } else if (File.class.equals(propertySchemaClass)) {
-                    value = new File(values.get(0).toString());
-                } else if (String[].class.equals(propertySchemaClass)) {
-                    value = values.toArray(new String[]{});
-                } else {
-                    value = values.get(0).toString();
-                }
-            } catch (Exception e) {
-                LOG.error("Invalid ConnConfProperty specified: {}", property, e);
+            if (GuardedString.class.equals(propertySchemaClass)) {
+                value = new GuardedString(values.get(0).toString().toCharArray());
+            } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
+                value = new GuardedByteArray((byte[]) values.get(0));
+            } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
+                value = values.get(0) == null || values.get(0).toString().isEmpty()
+                        ? null : values.get(0).toString().charAt(0);
+            } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
+                value = Integer.parseInt(values.get(0).toString());
+            } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
+                value = Long.parseLong(values.get(0).toString());
+            } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
+                value = Float.parseFloat(values.get(0).toString());
+            } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
+                value = Double.parseDouble(values.get(0).toString());
+            } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
+                value = Boolean.parseBoolean(values.get(0).toString());
+            } else if (URI.class.equals(propertySchemaClass)) {
+                value = URI.create(values.get(0).toString());
+            } else if (File.class.equals(propertySchemaClass)) {
+                value = new File(values.get(0).toString());
+            } else if (String[].class.equals(propertySchemaClass)) {
+                value = values.toArray(new String[]{});
+            } else {
+                value = values.get(0) == null ? null : values.get(0).toString();
             }
+        } catch (Exception e) {
+            LOG.error("Invalid ConnConfProperty specified: {} {}", propType, values, e);
         }
 
         return value;

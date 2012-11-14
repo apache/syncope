@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.to;
 
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
 
@@ -39,9 +40,9 @@ public class PropagationTaskTO extends TaskTO {
 
     private String objectClassName;
 
-    private long user;
+    private AttributableType subjectType;
 
-    private long role;
+    private Long subjectId;
 
     public String getAccountId() {
         return accountId;
@@ -100,19 +101,19 @@ public class PropagationTaskTO extends TaskTO {
         this.objectClassName = objectClassName;
     }
 
-    public long getUser() {
-        return user;
+    public AttributableType getSubjectType() {
+        return subjectType;
     }
 
-    public void setUser(long user) {
-        this.user = user;
+    public void setSubjectType(AttributableType subjectType) {
+        this.subjectType = subjectType;
     }
 
-    public long getRole() {
-        return role;
+    public Long getSubjectId() {
+        return subjectId;
     }
 
-    public void setRole(long role) {
-        this.role = role;
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
     }
 }

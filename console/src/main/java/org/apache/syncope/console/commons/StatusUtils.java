@@ -73,9 +73,9 @@ public class StatusUtils {
 
             switch (accountId != null
                     ? accountId.getKey()
-                    : IntMappingType.SyncopeUserId) {
+                    : IntMappingType.UserId) {
 
-                case SyncopeUserId:
+                case UserId:
                     objectId = String.valueOf(userTO.getId());
                     break;
                 case Username:

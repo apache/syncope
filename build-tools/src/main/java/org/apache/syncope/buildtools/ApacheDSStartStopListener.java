@@ -38,7 +38,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -58,19 +57,15 @@ public class ApacheDSStartStopListener implements ServletContextListener {
     private LdapServer server;
 
     /**
-     * Initialize the schema manager and add the schema partition to
-     * directory service.
+     * Initialize the schema manager and add the schema partition to directory service.
      *
      * @throws Exception if the schema LDIF files are not found on the classpath
      */
     private void initSchemaPartition(final ServletContext servletContext) throws Exception {
-
-        Pattern sharedLdapSchemaManagerPattern = Pattern.compile(".*apacheds-all-.*\\.jar");
+        final Pattern sharedLdapSchemaManagerPattern = Pattern.compile(".*apacheds-all-.*\\.jar");
         File found = null;
-        for (File jarFile : new File(servletContext.getRealPath("/WEB-INF/lib")).listFiles()) {
-
+        for (final File jarFile : new File(servletContext.getRealPath("/WEB-INF/lib")).listFiles()) {
             if (sharedLdapSchemaManagerPattern.matcher(jarFile.getAbsolutePath()).matches()) {
-
                 found = jarFile;
             }
         }
@@ -78,24 +73,26 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             throw new RuntimeException("No apache-ds-all JAR found under WEB-INF/lib");
         }
 
-        SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+        final SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = service.getWorkingDirectory().getPath();
+        final LdifPartition ldifPartition = new LdifPartition();
+        final String workingDirectory = service.getWorkingDirectory().getPath();
         ldifPartition.setWorkingDirectory(workingDirectory + "/schema");
 
         // Extract the schema on disk (a brand new one) and load the registries
-        File schemaRepository = new File(workingDirectory, "schema");
-        SchemaLdifExtractor extractor = new JarSchemaLdifExtractor(new File(workingDirectory), found);
+        final File schemaRepository = new File(workingDirectory, "schema");
+        final SchemaLdifExtractor extractor = new JarSchemaLdifExtractor(new File(workingDirectory), found);
         extractor.extractOrCopy(true);
 
         schemaPartition.setWrappedPartition(ldifPartition);
 
-        SchemaLoader loader = new LdifSchemaLoader(schemaRepository);
-        SchemaManager schemaManager = new DefaultSchemaManager(loader);
+        final SchemaLoader loader = new LdifSchemaLoader(schemaRepository);
+        final SchemaManager schemaManager = new DefaultSchemaManager(loader);
         service.setSchemaManager(schemaManager);
 
+        // Enable nis so that posixAccount and posixGroup are available
+        schemaManager.enable("nis");
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix DN
@@ -103,7 +100,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
 
         schemaPartition.setSchemaManager(schemaManager);
 
-        List<Throwable> errors = schemaManager.getErrors();
+        final List<Throwable> errors = schemaManager.getErrors();
         if (!errors.isEmpty()) {
             throw new RuntimeException("Schema load failed : " + errors);
         }
@@ -118,9 +115,8 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @throws Exception If the partition can't be added
      */
     private Partition addPartition(final String partitionId, final String partitionDn) throws Exception {
-
         // Create a new partition named 'foo'.
-        JdbmPartition partition = new JdbmPartition();
+        final JdbmPartition partition = new JdbmPartition();
         partition.setId(partitionId);
         partition.setPartitionDir(new File(service.getWorkingDirectory(), partitionId));
         partition.setSuffix(partitionDn);
@@ -137,8 +133,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      */
     private void addIndex(final Partition partition, final String... attrs) {
         // Index some attributes on the apache partition
-        HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
-
+        final HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
         for (String attribute : attrs) {
             indexedAttributes.add(new JdbmIndex<String, ServerEntry>(attribute));
         }
@@ -147,14 +142,13 @@ public class ApacheDSStartStopListener implements ServletContextListener {
     }
 
     /**
-     * Initialize the server. It creates the partition, adds the index, and
-     * injects the context entries for the created partitions.
+     * Initialize the server. It creates the partition, adds the index, and injects the context entries for the created
+     * partitions.
      *
      * @param workDir the directory to be used for storing the data
      * @throws Exception if there were some problems while initializing
      */
     private void initDirectoryService(final ServletContext servletContext, final File workDir) throws Exception {
-
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
         service.setWorkingDirectory(workDir);
@@ -164,7 +158,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
 
         // then the system partition
         // this is a MANDATORY partition
-        Partition systemPartition = addPartition("system", ServerDNConstants.SYSTEM_DN);
+        final Partition systemPartition = addPartition("system", ServerDNConstants.SYSTEM_DN);
         service.setSystemPartition(systemPartition);
 
         // Disable the ChangeLog system
@@ -172,28 +166,30 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         service.setDenormalizeOpAttrsEnabled(true);
 
         // Now we can create as many partitions as we need
-        Partition ispPartition = addPartition("isp", "o=isp");
+        final Partition ispPartition = addPartition("isp", "o=isp");
         addIndex(ispPartition, "objectClass", "ou", "uid");
 
         // And start the service
         service.startup();
 
-        // Inject the foo root entry if it does not already exist
-        try {
-            service.getAdminSession().lookup(ispPartition.getSuffixDn());
-        } catch (LdapException lnnfe) {
-            DN dnIsp = new DN("o=isp");
-            ServerEntry rootEntry = service.newEntry(dnIsp);
-            rootEntry.add("objectClass", "top", "organization");
-            rootEntry.add("o", "isp");
-            service.getAdminSession().add(rootEntry);
+        // Finally, build base DN entries
+        final DN dnIsp = new DN("o=isp");
+        final ServerEntry rootEntry = service.newEntry(dnIsp);
+        rootEntry.add("objectClass", "top", "organization");
+        rootEntry.add("o", "isp");
+        service.getAdminSession().add(rootEntry);
 
-            DN dnPeople = new DN("ou=People,o=isp");
-            ServerEntry peopleEntry = service.newEntry(dnPeople);
-            peopleEntry.add("objectClass", "top", "organizationalUnit");
-            peopleEntry.add("ou", "People");
-            service.getAdminSession().add(peopleEntry);
-        }
+        final DN dnPeople = new DN("ou=People,o=isp");
+        final ServerEntry peopleEntry = service.newEntry(dnPeople);
+        peopleEntry.add("objectClass", "top", "organizationalUnit");
+        peopleEntry.add("ou", "People");
+        service.getAdminSession().add(peopleEntry);
+
+        final DN dnGroups = new DN("ou=Groups,o=isp");
+        final ServerEntry groupsEntry = service.newEntry(dnGroups);
+        groupsEntry.add("objectClass", "top", "organizationalUnit");
+        groupsEntry.add("ou", "Groups");
+        service.getAdminSession().add(groupsEntry);
     }
 
     /**

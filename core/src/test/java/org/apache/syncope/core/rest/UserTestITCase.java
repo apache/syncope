@@ -1327,8 +1327,7 @@ public class UserTestITCase extends AbstractTest {
             }
         }
 
-        // default configuration for ws-target-resource2:
-        //             no delete executions have to be registered
+        // default configuration for ws-target-resource2: no delete executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxId, maxId);
     }
@@ -2031,13 +2030,11 @@ public class UserTestITCase extends AbstractTest {
         // 3. try (and fail) to find this user on the external LDAP resource
         SyncopeClientException sce = null;
         try {
-            ConnObjectTO connObjectTO = restTemplate.getForObject(
-                    BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                     ConnObjectTO.class, "resource-ldap", userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
             sce = sccee.getException(SyncopeClientExceptionType.NotFound);
-
         }
         assertNotNull(sce);
     }

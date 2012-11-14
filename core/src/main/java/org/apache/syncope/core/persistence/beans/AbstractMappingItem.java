@@ -106,12 +106,18 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
         final String name;
 
         switch (getIntMappingType()) {
-            case SyncopeUserId:
+            case UserId:
+            case RoleId:
+            case MembershipId:
                 name = "id";
                 break;
 
             case Username:
                 name = "username";
+                break;
+
+            case RoleName:
+                name = "roleName";
                 break;
 
             case Password:

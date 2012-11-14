@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue;
@@ -361,10 +360,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
             entityManager.remove(membership);
         }
         user.getMemberships().clear();
-
-        for (PropagationTask task : taskDAO.findAll(user)) {
-            task.setSyncopeUser(null);
-        }
 
         entityManager.remove(user);
     }

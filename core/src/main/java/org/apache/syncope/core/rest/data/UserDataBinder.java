@@ -267,7 +267,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-
             String oldUsername = user.getUsername();
 
             user.setUsername(userMod.getUsername());

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,9 +109,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     public <T extends AbstractMappingItem> void deleteMapping(final String intAttrName,
             final IntMappingType intMappingType, final Class<T> reference) {
 
-        if (intMappingType == IntMappingType.SyncopeUserId || intMappingType == IntMappingType.Password
-                || intMappingType == IntMappingType.Username) {
-
+        if (IntMappingType.getEmbedded().contains(intMappingType)) {
             return;
         }
 

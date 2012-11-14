@@ -68,7 +68,7 @@ public class ResourceTestITCase extends AbstractTest {
         item = new MappingItemTO();
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -106,7 +106,7 @@ public class ResourceTestITCase extends AbstractTest {
         item = new MappingItemTO();
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -153,7 +153,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -173,7 +173,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -211,7 +211,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -297,7 +297,7 @@ public class ResourceTestITCase extends AbstractTest {
         item = new MappingItemTO();
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.SyncopeUserId);
+        item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 

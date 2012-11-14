@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;

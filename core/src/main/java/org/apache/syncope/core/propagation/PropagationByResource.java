@@ -158,6 +158,28 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
+    public boolean contains(final PropagationOperation type, final String resourceName) {
+        boolean result = false;
+
+        switch (type) {
+            case CREATE:
+                result = toBeCreated.contains(resourceName);
+                break;
+
+            case UPDATE:
+                result = toBeUpdated.contains(resourceName);
+                break;
+
+            case DELETE:
+                result = toBeDeleted.contains(resourceName);
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
     /**
      * Get resources for a given resource operation type.
      *

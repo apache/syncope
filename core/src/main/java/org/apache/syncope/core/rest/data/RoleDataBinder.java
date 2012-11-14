@@ -39,6 +39,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -162,7 +163,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod)
             throws SyncopeClientCompositeErrorException {
 
+        PropagationByResource propByRes = new PropagationByResource();
+
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+
+        Set<String> currentResources = role.getResourceNames();
 
         // name
         SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
@@ -170,7 +175,14 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             SyncopeRole otherRole = roleDAO.find(roleMod.getName(),
                     role.getParent() == null ? null : role.getParent().getId());
             if (otherRole == null || role.equals(otherRole)) {
-                role.setName(roleMod.getName());
+                if (!roleMod.getName().equals(role.getName())) {
+                    propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+                    for (String resource : currentResources) {
+                        propByRes.addOldAccountId(resource, role.getName());
+                    }
+
+                    role.setName(roleMod.getName());
+                }
             } else {
                 LOG.error("Another role exists with the same name and the same parent role: " + otherRole);
 
@@ -238,7 +250,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        return fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce);
+        propByRes.merge(fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce));
+
+        return propByRes;
     }
 
     @Transactional(readOnly = true)

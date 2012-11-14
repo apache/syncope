@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.quartz.TestSyncActions;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -69,15 +70,6 @@ public class TaskTest extends AbstractTest {
 
         List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
         assertEquals(4, sylist.size());
-
-        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
-        assertNotNull(resource);
-
-        SyncopeUser user = userDAO.find(1L);
-        assertNotNull(user);
-
-        plist = taskDAO.findAll(resource, user);
-        assertEquals(3, plist.size());
     }
 
     @Test
@@ -90,7 +82,7 @@ public class TaskTest extends AbstractTest {
 
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
-        task.setSyncopeUser(user);
+        task.setSubjectType(AttributableType.USER);
         task.setPropagationMode(PropagationMode.TWO_PHASES);
         task.setPropagationOperation(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");

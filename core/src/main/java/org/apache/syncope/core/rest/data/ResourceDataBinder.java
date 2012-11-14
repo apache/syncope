@@ -272,21 +272,10 @@ public class ResourceDataBinder {
         }
 
         if (itemTO.getIntAttrName() == null) {
-            switch (itemTO.getIntMappingType()) {
-                case SyncopeUserId:
-                    itemTO.setIntAttrName(IntMappingType.SyncopeUserId.toString());
-                    break;
-
-                case Password:
-                    itemTO.setIntAttrName(IntMappingType.Password.toString());
-                    break;
-
-                case Username:
-                    itemTO.setIntAttrName(IntMappingType.Username.toString());
-                    break;
-
-                default:
-                    requiredValuesMissing.addElement("intAttrName");
+            if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {
+                itemTO.setIntAttrName(itemTO.getIntMappingType().toString());
+            } else {
+                requiredValuesMissing.addElement("intAttrName");
             }
         }
 

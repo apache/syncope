@@ -100,6 +100,9 @@ public class PropagationManager {
     @Autowired
     private SchemaDAO schemaDAO;
 
+    /**
+     * ConnObjectUtil.
+     */
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
@@ -183,7 +186,7 @@ public class PropagationManager {
         if (vAttrs != null && !vAttrs.isEmpty()) {
             roleDataBinder.fillVirtual(role, vAttrs, AttributableUtil.getInstance(AttributableType.ROLE));
         }
-        return getCreateTaskIds(role, null, vAttrs, true, wfResult.getPropByRes(), syncResourceNames);
+        return getCreateTaskIds(role, null, vAttrs, null, wfResult.getPropByRes(), syncResourceNames);
     }
 
     protected List<PropagationTask> getCreateTaskIds(final AbstractAttributable attributable,
@@ -315,7 +318,7 @@ public class PropagationManager {
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
-        return getUpdateTaskIds(role, null, true,
+        return getUpdateTaskIds(role, null, null,
                 vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), syncResourceNames);
     }
 
@@ -564,7 +567,6 @@ public class PropagationManager {
 
                         attributes.add(AttributeBuilder.build(preparedAttribute.getValue().getName(), values));
                     }
-
                 }
             } catch (Exception e) {
                 LOG.debug("Attribute '{}' processing failed", mapping.getIntAttrName(), e);
@@ -641,8 +643,9 @@ public class PropagationManager {
                     PropagationTask task = new PropagationTask();
                     task.setResource(resource);
                     task.setObjectClassName(connObjectUtil.fromAttributable(subject).getObjectClassValue());
+                    task.setSubjectType(AttributableUtil.getInstance(subject).getType());
                     if (!deleteOnResource) {
-                        task.setSubject(subject);
+                        task.setSubjectId(subject.getId());
                     }
                     task.setPropagationOperation(operation);
                     task.setPropagationMode(resource.getPropagationMode());
@@ -655,7 +658,7 @@ public class PropagationManager {
 
                     tasks.add(task);
 
-                    LOG.debug("PropagationTasl created: {}", task);
+                    LOG.debug("PropagationTask created: {}", task);
                 }
             }
         }

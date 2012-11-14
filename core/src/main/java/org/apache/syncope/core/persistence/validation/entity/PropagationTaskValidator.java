@@ -58,11 +58,6 @@ public class PropagationTaskValidator extends AbstractValidator implements
                 }
             }
 
-            if (isValid && task.getSyncopeUser() != null && task.getSyncopeRole() != null) {
-                LOG.error("Cannot associate either user and role to this task");
-                isValid = false;
-            }
-
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidPropagationTask.toString())

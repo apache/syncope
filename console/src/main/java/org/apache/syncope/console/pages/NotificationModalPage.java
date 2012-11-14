@@ -107,7 +107,7 @@ class NotificationModalPage extends BaseModalPage {
                 new PropertyModel<IntMappingType>(notificationTO, "recipientAttrType"));
 
         final Set<IntMappingType> toBeFiltered = new HashSet<IntMappingType>();
-        toBeFiltered.add(IntMappingType.SyncopeUserId);
+        toBeFiltered.add(IntMappingType.UserId);
         toBeFiltered.add(IntMappingType.Password);
 
         recipientAttrType.setChoices(new ArrayList<IntMappingType>(
