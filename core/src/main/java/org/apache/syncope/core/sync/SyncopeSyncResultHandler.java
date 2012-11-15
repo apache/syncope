@@ -67,12 +67,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeSyncResultHanlder implements SyncResultsHandler {
+public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHanlder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
 
     /**
      * Entitlement DAO.
@@ -320,7 +320,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
     private List<SyncResult> createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
         if (!syncTask.isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         final SyncResult result = new SyncResult();
@@ -381,7 +381,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         LOG.debug("About to update {}", users);
@@ -442,7 +442,7 @@ public class SyncopeSyncResultHanlder implements SyncResultsHandler {
 
         if (!syncTask.isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         LOG.debug("About to delete {}", users);
