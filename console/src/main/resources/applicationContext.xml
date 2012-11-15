@@ -83,7 +83,7 @@ under the License.
           <key>
             <value>http.auth.credential-charset</value>
           </key>
-          <value type="java.lang.String">false</value>
+          <value type="java.lang.String">UTF-8</value>
         </entry>
       </map>
     </property>
