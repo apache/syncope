@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -26,9 +29,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 
 public class RoleSummaryPanel extends Panel {
 
@@ -56,21 +56,21 @@ public class RoleSummaryPanel extends Panel {
         this.callerPageRef = callerPageRef;
         this.window = window;
 
-        fragment = new Fragment("rolePanel", this.selectedNode == null
+        fragment = new Fragment("rolePanel",
+                this.selectedNode == null
                 ? "fakerootFrag"
-                : (this.selectedNode.getId() != 0
-                        ? "roleViewPanel"
-                        : "rootPanel"), this);
+                : (this.selectedNode.getId() == 0 ? "rootPanel" : "roleViewPanel"),
+                this);
 
         if (this.selectedNode != null) {
-            if (this.selectedNode.getId() != 0) {
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
-                roleTabPanel.setOutputMarkupId(true);
-                fragment.add(roleTabPanel);
-            } else {
+            if (this.selectedNode.getId() == 0) {
                 actionLink = new TreeActionLinkPanel("actionLink", this.selectedNode.getId(),
                         new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
                 fragment.add(actionLink);
+            } else {
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
+                roleTabPanel.setOutputMarkupId(true);
+                fragment.add(roleTabPanel);
             }
         }
 
@@ -86,25 +86,21 @@ public class RoleSummaryPanel extends Panel {
         super.onEvent(event);
 
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
-
             final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
-            this.selectedNode = restClient.readRole(update.getSelectedNodeId());
+            fragment = new Fragment("rolePanel", (update.getSelectedNodeId() == 0
+                    ? "rootPanel" : "roleViewPanel"), this);
 
-            fragment = new Fragment("rolePanel", (update.getSelectedNodeId() != 0
-                    ? "roleViewPanel"
-                    : "rootPanel"), this);
-
-            if (update.getSelectedNodeId() != 0) {
-
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, callerPageRef);
-                roleTabPanel.setOutputMarkupId(true);
-                fragment.addOrReplace(roleTabPanel);
-            } else {
+            if (update.getSelectedNodeId() == 0) {
                 actionLink = new TreeActionLinkPanel("actionLink", update.getSelectedNodeId(),
                         new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
                 actionLink.setOutputMarkupId(true);
                 fragment.addOrReplace(actionLink);
+            } else {
+                this.selectedNode = restClient.readRole(update.getSelectedNodeId());
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, callerPageRef);
+                roleTabPanel.setOutputMarkupId(true);
+                fragment.addOrReplace(roleTabPanel);
             }
 
             replace(fragment);
@@ -124,7 +120,9 @@ public class RoleSummaryPanel extends Panel {
             this.selectedNodeId = selectedNodeId;
         }
 
-        /** @return ajax request target */
+        /**
+         * @return ajax request target
+         */
         public AjaxRequestTarget getTarget() {
             return target;
         }
