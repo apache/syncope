@@ -211,13 +211,13 @@ public abstract class AbstractAttributableDataBinder {
         return Boolean.parseBoolean(jexlUtil.evaluate(mandatoryCondition, jexlContext));
     }
 
-    private boolean evaluateMandatoryCondition(final ExternalResource resource, final AbstractAttributable attributable,
-            final String intAttrName, final IntMappingType intMappingType) {
+    private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil, final ExternalResource resource,
+            final AbstractAttributable attributable, final String intAttrName, final IntMappingType intMappingType) {
 
         boolean result = false;
 
         final List<AbstractMappingItem> mappings = MappingUtil.getMatchingMappingItems(
-                resource.getUmapping().getItems(), intAttrName, intMappingType);
+                attrUtil.getMappingItems(resource), intAttrName, intMappingType);
         for (Iterator<AbstractMappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
             final AbstractMappingItem mapping = itor.next();
             result |= evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
@@ -226,22 +226,22 @@ public abstract class AbstractAttributableDataBinder {
         return result;
     }
 
-    private boolean evaluateMandatoryCondition(final AbstractAttributable attributable, final String intAttrName,
-            final IntMappingType intMappingType) {
+    private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil,
+            final AbstractAttributable attributable, final String intAttrName, final IntMappingType intMappingType) {
 
         boolean result = false;
 
         for (Iterator<ExternalResource> itor = attributable.getResources().iterator(); itor.hasNext() && !result;) {
             final ExternalResource resource = itor.next();
             if (resource.isEnforceMandatoryCondition()) {
-                result |= evaluateMandatoryCondition(resource, attributable, intAttrName, intMappingType);
+                result |= evaluateMandatoryCondition(attrUtil, resource, attributable, intAttrName, intMappingType);
             }
         }
 
         return result;
     }
 
-    private SyncopeClientException checkMandatory(final AttributableUtil attributableUtil,
+    private SyncopeClientException checkMandatory(final AttributableUtil attrUtil,
             final AbstractAttributable attributable) {
 
         SyncopeClientException reqValMissing = new SyncopeClientException(
@@ -250,31 +250,32 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Check mandatory constraint among resources {}", attributable.getResources());
 
         // Check if there is some mandatory schema defined for which no value has been provided
-        for (AbstractSchema schema : schemaDAO.findAll(attributableUtil.schemaClass())) {
+        for (AbstractSchema schema : schemaDAO.findAll(attrUtil.schemaClass())) {
             if (attributable.getAttribute(schema.getName()) == null
                     && !schema.isReadonly()
                     && (evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable)
-                    || evaluateMandatoryCondition(attributable, schema.getName(), attributableUtil.intMappingType()))) {
+                    || evaluateMandatoryCondition(attrUtil, attributable, schema.getName(),
+                    attrUtil.intMappingType()))) {
 
                 LOG.error("Mandatory schema " + schema.getName() + " not provided with values");
 
                 reqValMissing.addElement(schema.getName());
             }
         }
-        for (AbstractDerSchema derSchema : derSchemaDAO.findAll(attributableUtil.derSchemaClass())) {
+        for (AbstractDerSchema derSchema : derSchemaDAO.findAll(attrUtil.derSchemaClass())) {
             if (attributable.getDerivedAttribute(derSchema.getName()) == null
-                    && evaluateMandatoryCondition(
-                    attributable, derSchema.getName(), attributableUtil.derIntMappingType())) {
+                    && evaluateMandatoryCondition(attrUtil, attributable, derSchema.getName(),
+                    attrUtil.derIntMappingType())) {
 
                 LOG.error("Mandatory derived schema " + derSchema.getName() + " does not evaluate to any value");
 
                 reqValMissing.addElement(derSchema.getName());
             }
         }
-        for (AbstractVirSchema virSchema : virSchemaDAO.findAll(attributableUtil.virSchemaClass())) {
+        for (AbstractVirSchema virSchema : virSchemaDAO.findAll(attrUtil.virSchemaClass())) {
             if (attributable.getAttribute(virSchema.getName()) == null
-                    && evaluateMandatoryCondition(
-                    attributable, virSchema.getName(), attributableUtil.virIntMappingType())) {
+                    && evaluateMandatoryCondition(attrUtil, attributable, virSchema.getName(),
+                    attrUtil.virIntMappingType())) {
 
                 LOG.error("Mandatory virtual schema " + virSchema.getName() + " not provided with values");
 
