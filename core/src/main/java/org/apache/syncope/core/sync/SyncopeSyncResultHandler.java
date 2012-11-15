@@ -66,12 +66,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeSyncResultHanlder implements SyncResultsHandler {
+public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHanlder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
 
     /**
      * Entitlement DAO.

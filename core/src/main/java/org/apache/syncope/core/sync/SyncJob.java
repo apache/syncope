@@ -241,11 +241,11 @@ public class SyncJob extends AbstractTaskJob {
                 ? ConflictResolutionAction.IGNORE
                 : ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction();
 
-        // Prepare hanlder for SyncDelta objects
-        final SyncopeSyncResultHanlder handler =
-                (SyncopeSyncResultHanlder) ((DefaultListableBeanFactory) ApplicationContextProvider.
+        // Prepare handler for SyncDelta objects
+        final SyncopeSyncResultHandler handler =
+                (SyncopeSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                SyncopeSyncResultHanlder.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         handler.setActions(actions);
         handler.setDryRun(dryRun);
         handler.setResAct(resAct);

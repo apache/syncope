@@ -197,7 +197,7 @@ public final class AttributableOperations {
      * @param incremental perform incremental diff (without removing existing info)
      * @return UserMod containing differences
      */
-    public static UserMod diff(final UserTO updated, final UserTO original, boolean incremental) {
+    public static UserMod diff(final UserTO updated, final UserTO original, final boolean  incremental) {
         UserMod result = new UserMod();
 
         diff(updated, original, result, incremental);

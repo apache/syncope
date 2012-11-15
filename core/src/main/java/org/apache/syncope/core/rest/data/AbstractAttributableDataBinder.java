@@ -338,23 +338,23 @@ public abstract class AbstractAttributableDataBinder {
                             propByRes.add(PropagationOperation.UPDATE, resource.getName());
                         }
                     }
-
-                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(virSchema.getName());
-                    if (virAttr == null) {
-                        virAttr = attrUtil.newVirAttr();
-                        virAttr.setVirtualSchema(virSchema);
-                        attributable.addVirtualAttribute(virAttr);
-                    }
-
-                    final List<String> values = new ArrayList<String>(virAttr.getValues());
-                    values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
-                    values.addAll(vAttrToBeUpdated.getValuesToBeAdded());
-
-                    virAttr.setValues(values);
-
-                    // Owner cannot be specified before otherwise a virtual attribute remove will be invalidated.
-                    virAttr.setOwner(attributable);
                 }
+
+                AbstractVirAttr virAttr = attributable.getVirtualAttribute(virSchema.getName());
+                if (virAttr == null) {
+                    virAttr = attrUtil.newVirAttr();
+                    virAttr.setVirtualSchema(virSchema);
+                    attributable.addVirtualAttribute(virAttr);
+                }
+
+                final List<String> values = new ArrayList<String>(virAttr.getValues());
+                values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
+                values.addAll(vAttrToBeUpdated.getValuesToBeAdded());
+
+                virAttr.setValues(values);
+
+                // Owner cannot be specified before otherwise a virtual attribute remove will be invalidated.
+                virAttr.setOwner(attributable);
             }
         }
 
@@ -442,8 +442,6 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Attributes to be removed:\n{}", propByRes);
 
         // 4. attributes to be updated
-        Set<Long> valuesToBeRemoved;
-        List<String> valuesToBeAdded;
         for (AttributeMod attributeMod : attributableMod.getAttributesToBeUpdated()) {
             AbstractSchema schema = getSchema(attributeMod.getSchema(), attrUtil.schemaClass());
             if (schema != null) {
@@ -456,52 +454,51 @@ public abstract class AbstractAttributableDataBinder {
                             propByRes.add(PropagationOperation.UPDATE, resource.getName());
                         }
                     }
+                }
 
-                    AbstractAttr attribute = attributable.getAttribute(schema.getName());
-                    if (attribute == null) {
-                        attribute = attrUtil.newAttr();
-                        attribute.setSchema(schema);
-                        attribute.setOwner(attributable);
+                AbstractAttr attribute = attributable.getAttribute(schema.getName());
+                if (attribute == null) {
+                    attribute = attrUtil.newAttr();
+                    attribute.setSchema(schema);
+                    attribute.setOwner(attributable);
 
-                        attributable.addAttribute(attribute);
-                    }
+                    attributable.addAttribute(attribute);
+                }
 
-                    // 1.1 remove values
-                    valuesToBeRemoved = new HashSet<Long>();
-                    for (String valueToBeRemoved : attributeMod.getValuesToBeRemoved()) {
+                // 1.1 remove values
+                Set<Long> valuesToBeRemoved = new HashSet<Long>();
+                for (String valueToBeRemoved : attributeMod.getValuesToBeRemoved()) {
+                    if (attribute.getSchema().isUniqueConstraint()) {
+                        if (attribute.getUniqueValue() != null
+                                && valueToBeRemoved.equals(attribute.getUniqueValue().getValueAsString())) {
 
-                        if (attribute.getSchema().isUniqueConstraint()) {
-                            if (attribute.getUniqueValue() != null
-                                    && valueToBeRemoved.equals(attribute.getUniqueValue().getValueAsString())) {
-
-                                valuesToBeRemoved.add(attribute.getUniqueValue().getId());
-                            }
-                        } else {
-                            for (AbstractAttrValue mav : attribute.getValues()) {
-                                if (valueToBeRemoved.equals(mav.getValueAsString())) {
-                                    valuesToBeRemoved.add(mav.getId());
-                                }
+                            valuesToBeRemoved.add(attribute.getUniqueValue().getId());
+                        }
+                    } else {
+                        for (AbstractAttrValue mav : attribute.getValues()) {
+                            if (valueToBeRemoved.equals(mav.getValueAsString())) {
+                                valuesToBeRemoved.add(mav.getId());
                             }
                         }
                     }
-                    for (Long attributeValueId : valuesToBeRemoved) {
-                        attributeValueDAO.delete(attributeValueId, attrUtil.attrValueClass());
-                    }
+                }
+                for (Long attributeValueId : valuesToBeRemoved) {
+                    attributeValueDAO.delete(attributeValueId, attrUtil.attrValueClass());
+                }
 
-                    // 1.2 add values
-                    valuesToBeAdded = attributeMod.getValuesToBeAdded();
-                    if (valuesToBeAdded != null
-                            && !valuesToBeAdded.isEmpty()
-                            && (!schema.isUniqueConstraint() || attribute.getUniqueValue() == null || !valuesToBeAdded.
-                            iterator().next().equals(attribute.getUniqueValue().getValueAsString()))) {
+                // 1.2 add values
+                List<String> valuesToBeAdded = attributeMod.getValuesToBeAdded();
+                if (valuesToBeAdded != null
+                        && !valuesToBeAdded.isEmpty()
+                        && (!schema.isUniqueConstraint() || attribute.getUniqueValue() == null
+                        || !valuesToBeAdded.iterator().next().equals(attribute.getUniqueValue().getValueAsString()))) {
 
-                        fillAttribute(attributeMod.getValuesToBeAdded(), attrUtil, schema, attribute, invalidValues);
-                    }
+                    fillAttribute(attributeMod.getValuesToBeAdded(), attrUtil, schema, attribute, invalidValues);
+                }
 
-                    // if no values are in, the attribute can be safely removed
-                    if (attribute.getValuesAsStrings().isEmpty()) {
-                        attrDAO.delete(attribute);
-                    }
+                // if no values are in, the attribute can be safely removed
+                if (attribute.getValuesAsStrings().isEmpty()) {
+                    attrDAO.delete(attribute);
                 }
             }
         }
@@ -513,8 +510,8 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Attributes to be updated:\n{}", propByRes);
 
         // 5. derived attributes to be removed
-        for (String derivedAttributeToBeRemoved : attributableMod.getDerivedAttributesToBeRemoved()) {
-            AbstractDerSchema derSchema = getDerivedSchema(derivedAttributeToBeRemoved, attrUtil.derSchemaClass());
+        for (String derAttrToBeRemoved : attributableMod.getDerivedAttributesToBeRemoved()) {
+            AbstractDerSchema derSchema = getDerivedSchema(derAttrToBeRemoved, attrUtil.derSchemaClass());
 
             if (derSchema != null) {
                 AbstractDerAttr derAttr = attributable.getDerivedAttribute(derSchema.getName());
@@ -547,8 +544,8 @@ public abstract class AbstractAttributableDataBinder {
         LOG.debug("Derived attributes to be removed:\n{}", propByRes);
 
         // 6. derived attributes to be added
-        for (String derivedAttributeToBeAdded : attributableMod.getDerivedAttributesToBeAdded()) {
-            AbstractDerSchema derSchema = getDerivedSchema(derivedAttributeToBeAdded, attrUtil.derSchemaClass());
+        for (String derAttrToBeAdded : attributableMod.getDerivedAttributesToBeAdded()) {
+            AbstractDerSchema derSchema = getDerivedSchema(derAttrToBeAdded, attrUtil.derSchemaClass());
             if (derSchema != null) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
                     for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
@@ -559,12 +556,12 @@ public abstract class AbstractAttributableDataBinder {
                             propByRes.add(PropagationOperation.UPDATE, resource.getName());
                         }
                     }
-
-                    AbstractDerAttr derAttr = attrUtil.newDerAttr();
-                    derAttr.setDerivedSchema(derSchema);
-                    derAttr.setOwner(attributable);
-                    attributable.addDerivedAttribute(derAttr);
                 }
+
+                AbstractDerAttr derAttr = attrUtil.newDerAttr();
+                derAttr.setDerivedSchema(derSchema);
+                derAttr.setOwner(attributable);
+                attributable.addDerivedAttribute(derAttr);
             }
         }
 
@@ -572,8 +569,8 @@ public abstract class AbstractAttributableDataBinder {
 
         // 7. virtual attributes: for users this is delegated to PropagationManager
         if (AttributableType.USER != attrUtil.getType()) {
-            fillVirtual(attributable, attributableMod.getVirtualAttributesToBeRemoved(), attributableMod.
-                    getVirtualAttributesToBeUpdated(), attrUtil);
+            fillVirtual(attributable, attributableMod.getVirtualAttributesToBeRemoved(),
+                    attributableMod.getVirtualAttributesToBeUpdated(), attrUtil);
         }
 
         // Finally, check if mandatory values are missing

@@ -71,6 +71,7 @@ public class RoleModalPage extends BaseModalPage {
         form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -78,8 +79,8 @@ public class RoleModalPage extends BaseModalPage {
 
                 final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
                 try {
-                    final List<String> entitlementList = new ArrayList<String>(rolePanel.getEntitlementsPalette()
-                            .getModelCollection());
+                    final List<String> entitlementList = new ArrayList<String>(
+                            rolePanel.getEntitlementsPalette().getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
                     if (createFlag) {
@@ -109,6 +110,7 @@ public class RoleModalPage extends BaseModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -120,7 +122,7 @@ public class RoleModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
