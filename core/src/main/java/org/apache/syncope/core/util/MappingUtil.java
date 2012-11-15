@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
+import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
@@ -158,9 +159,9 @@ public final class MappingUtil {
             case MembershipDerivedSchema:
                 for (AbstractAttributable attributable : attributables) {
                     AbstractDerAttr derAttr = attributable.getDerivedAttribute(mapping.getIntAttrName());
-
                     if (derAttr != null) {
-                        AbstractAttrValue attrValue = new UAttrValue();
+                        AbstractAttrValue attrValue = (attributable instanceof SyncopeRole)
+                                ? new RAttrValue() : new UAttrValue();
                         attrValue.setStringValue(derAttr.getValue(attributable.getAttributes()));
                         values.add(attrValue);
                     }

@@ -209,6 +209,10 @@ under the License.
     
   <!-- rderiveddata is used to verify der schema deletion -->
   <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+
+  <!-- used for RMapping below -->  
+  <RDerSchema name="ownerDN" 
+              expression="!empty(roleOwner) ? 'cn=' + roleOwner.name + ',ou=groups,o=isp': (!empty(userOwner) ? 'uid=' +  userOwner.username + ',ou=people,o=isp' : '')"/>
   
   <RAttr id="1004" owner_id="12" schema_name="title"/>
   <RAttrValue attribute_id="1004" id="94" stringValue="r12"/>
@@ -562,9 +566,9 @@ under the License.
   <RMappingItem id="1" accountid="1" password="0" mapping_id="1"
                 extAttrName="__NAME__" intAttrName="roleName" intMappingType="RoleName"
                 mandatoryCondition="true"/>
-  <!--<RMappingItem id="2" accountid="0" password="0" mapping_id="1"
-                extAttrName="owner" intAttrName="roleOwnerDN" intMappingType="RoleDerSchema"
-                mandatoryCondition="false"/>-->
+  <RMappingItem id="2" accountid="0" password="0" mapping_id="1"
+                extAttrName="owner" intAttrName="ownerDN" intMappingType="RoleDerivedSchema"
+                mandatoryCondition="false"/>
   <RMappingItem id="3" accountid="0" password="0" mapping_id="1"
                 extAttrName="description" intAttrName="title" intMappingType="RoleSchema"
                 mandatoryCondition="false"/>

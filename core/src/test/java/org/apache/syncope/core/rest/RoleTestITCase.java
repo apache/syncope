@@ -29,6 +29,7 @@ import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -79,22 +80,29 @@ public class RoleTestITCase extends AbstractTest {
         icon.addValue("anIcon");
         roleTO.addAttribute(icon);
 
+        AttributeTO ownerDN = new AttributeTO();
+        ownerDN.setSchema("ownerDN");
+        roleTO.addDerivedAttribute(ownerDN);
+
+        roleTO.setRoleOwner(8L);
+
         roleTO.addResource("resource-ldap");
 
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
 
-        roleTO.setId(actual.getId());
-        roleTO.setPasswordPolicy(4L);
-        roleTO.setPropagationTOs(actual.getPropagationTOs());
-        assertEquals(roleTO, actual);
+        assertNotNull(roleTO.getAccountPolicy());
+        assertEquals(6L, (long) roleTO.getAccountPolicy());
 
-        assertNotNull(actual.getAccountPolicy());
-        assertEquals(6L, (long) actual.getAccountPolicy());
+        assertNotNull(roleTO.getPasswordPolicy());
+        assertEquals(4L, (long) roleTO.getPasswordPolicy());
 
-        assertNotNull(actual.getPasswordPolicy());
-        assertEquals(4L, (long) actual.getPasswordPolicy());
+        assertTrue(roleTO.getResources().contains("resource-ldap"));
 
-        assertTrue(actual.getResources().contains("resource-ldap"));
+        ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
+                + "/resource/resource-ldap/read/ROLE/lastRole.json", ConnObjectTO.class);
+        assertNotNull(connObjectTO);
+        assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }
 
     @Test
@@ -129,7 +137,7 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
         assertNotNull(roleTO);
-        
+
         RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, roleTO.getId());
         assertNotNull(deletedRole);
 

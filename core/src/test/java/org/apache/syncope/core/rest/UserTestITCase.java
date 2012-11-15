@@ -1475,8 +1475,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class,
+                dbTable.getName(), dbTableUID);
         assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1484,21 +1484,18 @@ public class UserTestITCase extends AbstractTest {
         String ldapUID = userTO.getUsername();
         assertNotNull(ldapUID);
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, ldap.getName(), ldapUID);
-
         assertNotNull(connObjectTO);
 
         query = "?resourceNames=" + ldap.getName() + "&performLocally=false"; // check also performLocally
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
-
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
         assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1506,13 +1503,11 @@ public class UserTestITCase extends AbstractTest {
         query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check also performLocally
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
-
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
         assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1730,11 +1725,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
-
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
 
@@ -1777,11 +1770,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
-
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
 
@@ -1853,9 +1844,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getResources().size());
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1871,9 +1861,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
 
         connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
                 actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1891,9 +1880,8 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1914,8 +1902,8 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             restTemplate.getForObject(BASE_URL
-                    + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                    getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+                    + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                    actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
             t = e;
@@ -1960,11 +1948,10 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, actual.getMemberships().size());
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(
-                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class,
                 "resource-ldap",
                 userTO.getUsername());
-
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1993,11 +1980,10 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
 
         connObjectTO = restTemplate.getForObject(
-                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class,
                 "resource-ldap",
                 userTO.getUsername());
-
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -2030,7 +2016,7 @@ public class UserTestITCase extends AbstractTest {
         // 3. try (and fail) to find this user on the external LDAP resource
         SyncopeClientException sce = null;
         try {
-            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                     ConnObjectTO.class, "resource-ldap", userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
