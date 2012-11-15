@@ -140,6 +140,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             // 4. provision entry
+            LOG.debug("Create {} on {}", attributes, task.getResource().getName());
+
             connector.create(task.getPropagationMode(), new ObjectClass(task.getObjectClassName()),
                     attributes, null, propagationAttempted);
         } else {
@@ -181,7 +183,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     }
                 }
 
-                LOG.debug("Attributes that will be actually propagated for update {}", strictlyModified);
+                // 3. provision entry
+                LOG.debug("Update {} on {}", strictlyModified, task.getResource().getName());
 
                 connector.update(task.getPropagationMode(), beforeObj.getObjectClass(),
                         beforeObj.getUid(), strictlyModified, null, propagationAttempted);
@@ -241,7 +244,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              */
             AbstractAttributable subject = getSubject(task);
             if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
-                LOG.debug("Perform deprovisioning on {}", task.getResource().getName());
+                LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getName());
 
                 connector.delete(
                         task.getPropagationMode(),
@@ -250,15 +253,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         null,
                         propagationAttempted);
             } else {
-                LOG.debug("Update remote object on {}", task.getResource().getName());
-
-                connector.update(
-                        task.getPropagationMode(),
-                        beforeObj.getObjectClass(),
-                        beforeObj.getUid(),
-                        task.getAttributes(),
-                        null,
-                        propagationAttempted);
+                createOrUpdate(task, beforeObj, connector, propagationAttempted);
             }
         }
     }
