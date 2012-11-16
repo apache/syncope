@@ -114,7 +114,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         SyncopeUser passwordUser = new SyncopeUser();
         SyncopeUser user = null;
 
-        String username = authentication.getPrincipal().toString();
+        String username = authentication.getName();
 
         if (adminUser.equals(username)) {
             authenticated = PasswordEncoder.verifyPassword(

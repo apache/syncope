@@ -203,7 +203,7 @@ public class UserController {
         return result;
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable final String username)

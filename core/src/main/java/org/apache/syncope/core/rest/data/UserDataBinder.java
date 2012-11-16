@@ -82,11 +82,13 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             throw new NotFoundException("User " + userId);
         }
 
-        Set<Long> roleIds = user.getRoleIds();
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
+        if (!user.getUsername().equals(EntitlementUtil.getAuthenticatedUsername())) {
+            Set<Long> roleIds = user.getRoleIds();
+            Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+            roleIds.removeAll(adminRoleIds);
+            if (!roleIds.isEmpty()) {
+                throw new UnauthorizedRoleException(roleIds);
+            }
         }
 
         return user;
