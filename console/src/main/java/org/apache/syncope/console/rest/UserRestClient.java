@@ -26,8 +26,8 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.console.commons.StatusBean;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking rest users services.
@@ -86,6 +86,17 @@ public class UserRestClient extends AbstractBaseRestClient {
         try {
             userTO = SyncopeSession.get().getRestTemplate().getForObject(
                     baseURL + "user/read/{userId}.json", UserTO.class, id);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While reading a user", e);
+        }
+        return userTO;
+    }
+
+    public UserTO read(String username) {
+        UserTO userTO = null;
+        try {
+            userTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "user/readByUsername/{username}.json", UserTO.class, username);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a user", e);
         }

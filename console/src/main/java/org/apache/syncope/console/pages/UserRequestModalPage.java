@@ -22,13 +22,13 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.rest.UserRequestRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.rest.UserRequestRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.
@@ -82,7 +82,6 @@ public class UserRequestModalPage extends UserModalPage {
     }
 
     public UserRequestModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
-
         super(window, userTO, mode);
     }
 
@@ -107,8 +106,10 @@ public class UserRequestModalPage extends UserModalPage {
                     LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
             }
         } else {
-            final UserMod userMod = AttributableOperations.diff(updatedUserTO,
-                    userRestClient.read(updatedUserTO.getId()));
+            final UserTO originalUserTO = mode == Mode.SELF
+                    ? userRestClient.read(updatedUserTO.getUsername())
+                    : userRestClient.read(updatedUserTO.getId());
+            final UserMod userMod = AttributableOperations.diff(updatedUserTO, originalUserTO);
 
             // update user only if it has changed
             if (!userMod.isEmpty()) {
