@@ -643,7 +643,7 @@ under the License.
             <artifactId>maven-surefire-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <skip>true</skip>
+              <skipTests>true</skipTests>
             </configuration>
             <executions>
               <execution>

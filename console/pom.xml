@@ -363,7 +363,7 @@ under the License.
     <profile>
       <id>dev</id>
       <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <skipTests>true</skipTests>
         <javaagent />
       </properties>
       <build>
