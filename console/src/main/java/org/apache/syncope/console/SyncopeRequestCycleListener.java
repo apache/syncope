@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.console;
 
+import org.apache.syncope.console.pages.ErrorPage;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
+import org.apache.wicket.core.request.handler.ComponentRenderingRequestHandler;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.handler.ComponentRenderingRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
-import org.apache.syncope.console.pages.ErrorPage;
 
 public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
 

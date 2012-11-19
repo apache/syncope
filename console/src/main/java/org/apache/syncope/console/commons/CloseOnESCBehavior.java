@@ -22,7 +22,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 
 public class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
 
@@ -33,7 +34,7 @@ public class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
     public CloseOnESCBehavior(ModalWindow modalWindow) {
         this.modalWindow = modalWindow;
     }
-    
+
     private static final String PRE_JS = "$(document).ready(function() {\n"
             + "$(document).bind('keyup', function(evt) {\n"
             + "    if (evt.keyCode == 27){\n";
@@ -55,14 +56,14 @@ public class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
     }
 
     @Override
-    public void renderHead(final Component component, final IHeaderResponse response) {
-        response.renderJavaScript(new StringBuilder(PRE_JS).append(getCallbackScript())
-                .append(POST_JS).toString(),
-                "closeModalOnEsc");
+    public void renderHead(Component component, IHeaderResponse response) {
+        super.renderHead(component, response);
+        response.render(JavaScriptHeaderItem.forScript(
+                new StringBuilder(PRE_JS).append(getCallbackScript()).append(POST_JS).toString(),
+                "closeModalOnEsc"));
     }
 
     public void setModalWindow(ModalWindow modalWindow) {
         this.modalWindow = modalWindow;
     }
 }
-

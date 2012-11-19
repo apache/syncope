@@ -84,9 +84,9 @@ public class SyncTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    private final List<IColumn<TaskTO>> columns;
+    private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO> table;
+    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
 
     public SyncTasks(String id, final PageReference callerPageRef) {
         super(id);
@@ -106,23 +106,24 @@ public class SyncTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("name"), "name", "name"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("description"), "description", "description"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("resourceName"), "resource", "resource"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("resourceName"), "resource", "resource"));
 
         columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
         columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -295,7 +296,7 @@ public class SyncTasks extends Panel {
                         columns,
                         new TasksProvider<SyncTaskTO>(restClient, paginatorRows, getId(), SyncTaskTO.class),
                         container,
-                        table == null ? 0 : table.getCurrentPage());
+                        table == null ? 0 : (int)table.getCurrentPage());
 
                 target.add(container);
             }

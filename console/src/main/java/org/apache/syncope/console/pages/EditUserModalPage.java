@@ -23,20 +23,22 @@ import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.pages.panels.AccountInformationPanel;
+import org.apache.syncope.console.pages.panels.StatusPanel;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.pages.panels.AccountInformationPanel;
-import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.
  */
 public class EditUserModalPage extends UserModalPage {
+
+    private static final long serialVersionUID = -6479209496805705739L;
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -86,5 +88,5 @@ public class EditUserModalPage extends UserModalPage {
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
         setResponsePage(new EditUserModalPage(window, userTO));
-    }
+    }   
 }

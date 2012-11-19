@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.client.search.MembershipCond;
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -29,16 +34,11 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 
 public class RoleTabPanel extends Panel {
 
     private static final long serialVersionUID = 859236186975983959L;
-
+    
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
@@ -47,7 +47,7 @@ public class RoleTabPanel extends Panel {
 
         super(id);
 
-        final Form form = new Form("RoleForm");
+        final Form form = new Form("roleForm");
 
         final TreeActionLinkPanel actionLink = new TreeActionLinkPanel("actionLink", roleTO.getId(),
                 new CompoundPropertyModel(roleTO), window, callerPageRef);
@@ -57,7 +57,7 @@ public class RoleTabPanel extends Panel {
 
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
-
+        
         final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
         rolePanel.setEnabled(false);
         form.add(rolePanel);
@@ -87,7 +87,7 @@ public class RoleTabPanel extends Panel {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         });
-
+        
         form.add(userListContainer);
         add(form);
     }

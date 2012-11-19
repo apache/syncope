@@ -82,9 +82,9 @@ public class NotificationTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    private final List<IColumn<TaskTO>> columns;
+    private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO> table;
+    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
 
     public NotificationTasks(String id) {
         super(id);
@@ -97,16 +97,17 @@ public class NotificationTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("sender"), "sender", "sender"));
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("recipients"), "recipients", "recipients"));
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("subject"), "subject", "subject"));
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("sender"), "sender", "sender"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("recipients"), "recipients", "recipients"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("subject"), "subject", "subject"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -255,9 +256,10 @@ public class NotificationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows,
+                        getId(), NotificationTaskTO.class),
                         container,
-                        table == null ? 0 : table.getCurrentPage());
+                        table == null ? 0 : (int)table.getCurrentPage());
 
                 target.add(container);
             }

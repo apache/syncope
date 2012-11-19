@@ -22,12 +22,10 @@ import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RoleSummaryPanel extends Panel {
@@ -50,22 +48,26 @@ public class RoleSummaryPanel extends Panel {
     private ModalWindow window;
 
     public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef) {
+        this(id, window, callerPageRef, null);
+    }
+
+    public RoleSummaryPanel(final String id,
+            final ModalWindow window, final PageReference callerPageRef, final Long selectedNodeId) {
 
         super(id);
 
         this.callerPageRef = callerPageRef;
         this.window = window;
 
-        fragment = new Fragment("rolePanel",
-                this.selectedNode == null
-                ? "fakerootFrag"
-                : (this.selectedNode.getId() == 0 ? "rootPanel" : "roleViewPanel"),
-                this);
+        this.selectedNode = selectedNodeId != null && selectedNodeId != 0 ? restClient.read(selectedNodeId) : null;
 
-        if (this.selectedNode != null) {
-            if (this.selectedNode.getId() == 0) {
-                actionLink = new TreeActionLinkPanel("actionLink", this.selectedNode.getId(),
-                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
+        fragment = new Fragment("roleSummaryPanel", selectedNodeId == null ? "fakerootFrag"
+                : (selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"), this);
+
+        if (selectedNodeId != null) {
+            if (selectedNodeId == 0) {
+                actionLink = new TreeActionLinkPanel("actionLink", selectedNodeId, new Model(), window, callerPageRef);
+                actionLink.setOutputMarkupId(true);
                 fragment.add(actionLink);
             } else {
                 roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
@@ -73,66 +75,10 @@ public class RoleSummaryPanel extends Panel {
                 fragment.add(roleTabPanel);
             }
         }
-
         add(fragment);
     }
 
     public RoleTO getSelectedNode() {
         return selectedNode;
-    }
-
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        super.onEvent(event);
-
-        if (event.getPayload() instanceof TreeNodeClickUpdate) {
-            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
-
-            fragment = new Fragment("rolePanel", (update.getSelectedNodeId() == 0
-                    ? "rootPanel" : "roleViewPanel"), this);
-
-            if (update.getSelectedNodeId() == 0) {
-                actionLink = new TreeActionLinkPanel("actionLink", update.getSelectedNodeId(),
-                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
-                actionLink.setOutputMarkupId(true);
-                fragment.addOrReplace(actionLink);
-            } else {
-                this.selectedNode = restClient.read(update.getSelectedNodeId());
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, callerPageRef);
-                roleTabPanel.setOutputMarkupId(true);
-                fragment.addOrReplace(roleTabPanel);
-            }
-
-            replace(fragment);
-            update.getTarget().add(this);
-        }
-    }
-
-    public static class TreeNodeClickUpdate {
-
-        private AjaxRequestTarget target;
-
-        private Long selectedNodeId;
-
-        public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
-
-            this.target = target;
-            this.selectedNodeId = selectedNodeId;
-        }
-
-        /**
-         * @return ajax request target
-         */
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
-
-        public Long getSelectedNodeId() {
-            return selectedNodeId;
-        }
-
-        public void setSelectedNodeId(final Long selectedNodeId) {
-            this.selectedNodeId = selectedNodeId;
-        }
     }
 }

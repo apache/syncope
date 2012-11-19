@@ -86,9 +86,9 @@ public class PropagationTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    private final List<IColumn<TaskTO>> columns;
+    private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO> table;
+    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
 
     public PropagationTasks(final String id) {
         super(id);
@@ -101,26 +101,28 @@ public class PropagationTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO>>();
+        columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("resource"), "resource", "resource"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("resource"), "resource", "resource"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("accountId"), "accountId", "accountId"));
+        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("accountId"), "accountId", "accountId"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("propagationOperation"), "propagationOperation",
-                "propagationOperation"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new ResourceModel("propagationOperation"), "propagationOperation", "propagationOperation"));
 
         columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("startDate"), "startDate", "startDate"));
 
         columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("endDate"), "endDate", "endDate"));
 
-        columns.add(new PropertyColumn<TaskTO>(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -273,7 +275,7 @@ public class PropagationTasks extends Panel {
                         new TasksProvider<PropagationTaskTO>(restClient, paginatorRows,
                         getId(), PropagationTaskTO.class),
                         container,
-                        table == null ? 0 : table.getCurrentPage());
+                        table == null ? 0 : (int)table.getCurrentPage());
 
                 target.add(container);
             }

@@ -24,12 +24,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.client.to.ReportTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
+import org.apache.syncope.console.rest.LoggerRestClient;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.AuditLoggerName;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -41,6 +57,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
@@ -60,23 +77,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
-import org.apache.syncope.console.rest.LoggerRestClient;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditLoggerName;
-import org.apache.wicket.Component;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.markup.ComponentTag;
 
 /**
  * Auditing and Reporting.
@@ -137,7 +137,7 @@ public class Reports extends BasePage {
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
-        columns.add(new AbstractColumn<ReportTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ReportTO,String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -331,7 +331,7 @@ public class Reports extends BasePage {
         form.add(new JQueryTabbedPanel("categoriesTabs", tabs));
     }
 
-    private class ReportProvider extends SortableDataProvider<ReportTO> {
+    private class ReportProvider extends SortableDataProvider<ReportTO, String> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -344,9 +344,9 @@ public class Reports extends BasePage {
         }
 
         @Override
-        public Iterator<ReportTO> iterator(final int first, final int count) {
+        public Iterator<ReportTO> iterator(final long first, final long count) {
 
-            List<ReportTO> list = reportRestClient.list((first / paginatorRows) + 1, paginatorRows);
+            List<ReportTO> list = reportRestClient.list(((int)first / paginatorRows) + 1, paginatorRows);
 
             Collections.sort(list, comparator);
 
@@ -354,7 +354,7 @@ public class Reports extends BasePage {
         }
 
         @Override
-        public int size() {
+        public long size() {
             return reportRestClient.count();
         }
 

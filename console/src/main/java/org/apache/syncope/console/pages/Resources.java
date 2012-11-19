@@ -119,7 +119,7 @@ public class Resources extends BasePage {
         columns.add(new PropertyColumn(new ResourceModel("propagationPriority"), "propagationPriority",
                 "propagationPriority"));
 
-        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ResourceTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -273,7 +273,7 @@ public class Resources extends BasePage {
 
         columns.add(new PropertyColumn(new ResourceModel("bundleName"), "bundleName", "bundleName"));
 
-        columns.add(new AbstractColumn<ConnInstanceTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ConnInstanceTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -415,7 +415,7 @@ public class Resources extends BasePage {
         add(paginatorForm);
     }
 
-    class ResourcesProvider extends SortableDataProvider<ResourceTO> {
+    class ResourcesProvider extends SortableDataProvider<ResourceTO, String> {
 
         private static final long serialVersionUID = -9055916672926643975L;
 
@@ -428,16 +428,16 @@ public class Resources extends BasePage {
         }
 
         @Override
-        public Iterator<ResourceTO> iterator(final int first, final int count) {
+        public Iterator<ResourceTO> iterator(final long first, final long count) {
             List<ResourceTO> list = getResourcesListDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getResourcesListDB().size();
         }
 
@@ -459,7 +459,7 @@ public class Resources extends BasePage {
         }
     }
 
-    class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO> {
+    class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO, String> {
 
         private static final long serialVersionUID = 4445909568349448518L;
 
@@ -472,16 +472,16 @@ public class Resources extends BasePage {
         }
 
         @Override
-        public Iterator<ConnInstanceTO> iterator(int first, int count) {
+        public Iterator<ConnInstanceTO> iterator(long first, long count) {
             List<ConnInstanceTO> list = getConnectorsListDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getConnectorsListDB().size();
         }
 

@@ -61,14 +61,13 @@ public class SelectOnlyResultSetPanel extends ResultSetPanel {
         container.get("displayAttrsLink").setVisible(false);
     }
 
-    @Override
-    protected List<IColumn<UserTO>> getColumns() {
-        final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
+    protected List<IColumn<UserTO, String>> getColumns() {
+        final List<IColumn<UserTO, String>> columns = new ArrayList<IColumn<UserTO, String>>();
         for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
-            columns.add(new PropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
+            columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
         }
 
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<UserTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 

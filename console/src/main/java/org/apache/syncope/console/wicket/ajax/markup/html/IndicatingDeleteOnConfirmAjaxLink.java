@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.console.wicket.ajax.markup.html;
 
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.model.IModel;
 
@@ -36,15 +37,18 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends IndicatingAja
     }
 
     @Override
-    protected IAjaxCallDecorator getAjaxCallDecorator() {
-        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+        super.updateAjaxAttributes(attributes);
 
-            private static final long serialVersionUID = -7927968187160354605L;
+        final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+            
+            private static final long serialVersionUID = 7160235486520935153L;
 
             @Override
-            public CharSequence preDecorateScript(final CharSequence script) {
-                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "}";
+            public CharSequence getPrecondition(final Component component) {
+                return "if (!confirm('" + getString("confirmDelete") + "')) {return false;} else {return true;}";
             }
         };
+        attributes.getAjaxCallListeners().add(ajaxCallListener);
     }
 }

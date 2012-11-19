@@ -113,13 +113,14 @@ public class PoliciesPanel extends Panel {
 
         setWindowClosedCallback(mwindow, container);
 
-        final List<IColumn<PolicyTO>> columns = new ArrayList<IColumn<PolicyTO>>();
+        final List<IColumn<PolicyTO, String>> columns = new ArrayList<IColumn<PolicyTO, String>>();
 
-        columns.add(new PropertyColumn<PolicyTO>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<PolicyTO, String>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn<PolicyTO>(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<PolicyTO, String>(
+                new ResourceModel("description"), "description", "description"));
 
-        columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("type")) {
+        columns.add(new AbstractColumn<PolicyTO, String>(new ResourceModel("type")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
@@ -131,7 +132,7 @@ public class PoliciesPanel extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<PolicyTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<PolicyTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -265,7 +266,7 @@ public class PoliciesPanel extends Panel {
         });
     }
 
-    private class PolicyDataProvider extends SortableDataProvider<PolicyTO> {
+    private class PolicyDataProvider extends SortableDataProvider<PolicyTO, String> {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
@@ -281,18 +282,18 @@ public class PoliciesPanel extends Panel {
         }
 
         @Override
-        public int size() {
+        public long size() {
             return policyRestClient.getPolicies(policyType).size();
         }
 
         @Override
-        public Iterator<PolicyTO> iterator(final int first, final int count) {
+        public Iterator<PolicyTO> iterator(final long first, final long count) {
 
             final List<PolicyTO> policies = policyRestClient.getPolicies(policyType);
 
             Collections.sort(policies, comparator);
 
-            return policies.subList(first, first + count).iterator();
+            return policies.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override

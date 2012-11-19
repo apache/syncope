@@ -71,7 +71,7 @@ public class Users extends BasePage {
                 editModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
-
+                  
                     @Override
                     public Page createPage() {
                         return new EditUserModalPage(Users.this.getPageReference(), editModalWin, new UserTO());
@@ -79,7 +79,7 @@ public class Users extends BasePage {
                 });
 
                 editModalWin.show(target);
-            }
+            }    
         };
         MetaDataRoleAuthorizationStrategy.authorize(
                 createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "create"));

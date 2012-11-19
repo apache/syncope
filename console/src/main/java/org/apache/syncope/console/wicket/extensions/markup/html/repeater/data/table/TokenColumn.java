@@ -27,7 +27,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
 import org.apache.syncope.client.to.UserTO;
 
-public class TokenColumn extends AbstractColumn<UserTO> {
+public class TokenColumn extends AbstractColumn<UserTO, String> {
 
     private static final long serialVersionUID = 8077865338230121496L;
 

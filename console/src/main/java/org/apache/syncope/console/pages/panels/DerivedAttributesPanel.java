@@ -19,9 +19,18 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.apache.syncope.types.AttributableType;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.attributes.IAjaxCallListener;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -40,13 +49,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
-import org.apache.syncope.types.AttributableType;
 
 public class DerivedAttributesPanel extends Panel {
 
@@ -105,7 +107,7 @@ public class DerivedAttributesPanel extends Panel {
         };
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
-
+        
         final ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
                 new PropertyModel<List<? extends AttributeTO>>(entityTO, "derivedAttributes")) {
 
@@ -115,7 +117,7 @@ public class DerivedAttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
+                item.add(new  AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
 
                     private static final long serialVersionUID = 7170946748485726506L;
 
@@ -126,18 +128,18 @@ public class DerivedAttributesPanel extends Panel {
                     }
 
                     @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                        super.updateAjaxAttributes(attributes);
 
-                            private static final long serialVersionUID = -7927968187160354605L;
+                        IAjaxCallListener ajaxCallListener = new AjaxCallListener() {
+                            private static final long serialVersionUID = 7160235486520935153L;
 
                             @Override
-                            public CharSequence preDecorateScript(final CharSequence script) {
-
-                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
-                                        + "else {this.checked = false;}";
+                            public CharSequence getPrecondition(Component component) { 
+                                return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
                             }
                         };
+                        attributes.getAjaxCallListeners().add(ajaxCallListener);
                     }
                 });
 

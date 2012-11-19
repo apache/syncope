@@ -29,7 +29,7 @@ import org.apache.syncope.console.SyncopeSession;
 /**
  * Format column's value as date string.
  */
-public class DatePropertyColumn<T> extends PropertyColumn<T> {
+public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 

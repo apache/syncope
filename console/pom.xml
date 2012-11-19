@@ -77,7 +77,7 @@ under the License.
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
+    </dependency>    
 
     <dependency>
       <groupId>org.apache.wicket</groupId>

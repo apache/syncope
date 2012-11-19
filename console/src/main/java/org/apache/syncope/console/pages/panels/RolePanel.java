@@ -41,24 +41,26 @@ public class RolePanel extends Panel {
     public RolePanel(final String id, final Form form, final RoleTO roleTO) {
         super(id);
 
-        this.add(new RoleDetailsPanel("details", roleTO, form));
+        this.add(new RoleDetailsPanel("details", roleTO, form).setOutputMarkupId(true));
 
         //--------------------------------
         // Attributes panel
-        this.add(new AttributesPanel("attributes", roleTO, form, false));
+        this.add(new AttributesPanel("attributes", roleTO, form, false).setOutputMarkupId(true));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",
                 new PropertyModel<Boolean>(roleTO, "inheritAttributes"));
+        inhAttributes.setOutputMarkupId(true);
         this.add(inhAttributes);
         //--------------------------------
 
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
+        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO).setOutputMarkupId(true));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
                 "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
+        inhDerivedAttributes.setOutputMarkupId(true);
         inhDerivedAttributes.setOutputMarkupId(true);
         this.add(inhDerivedAttributes);
         //--------------------------------
@@ -71,6 +73,7 @@ public class RolePanel extends Panel {
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));
         inhVirtualAttributes.setOutputMarkupId(true);
+        inhVirtualAttributes.setOutputMarkupId(true);
         this.add(inhVirtualAttributes);
         //--------------------------------
 
@@ -78,14 +81,14 @@ public class RolePanel extends Panel {
         // Security container
         //--------------------------------
 
-        this.add(new RoleSecurityPanel("security", roleTO));
+        this.add(new RoleSecurityPanel("security", roleTO).setOutputMarkupId(true));
         //--------------------------------
 
         //--------------------------------
         // Resources container
         //--------------------------------
 
-        this.add(new ResourcesPanel("resources", roleTO));
+        this.add(new ResourcesPanel("resources", roleTO).setOutputMarkupId(true));
         //--------------------------------
 
         ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());

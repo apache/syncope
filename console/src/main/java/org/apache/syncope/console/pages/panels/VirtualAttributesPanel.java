@@ -20,8 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -47,6 +45,9 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.syncope.types.AttributableType;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 
 public class VirtualAttributesPanel extends Panel {
 
@@ -123,18 +124,19 @@ public class VirtualAttributesPanel extends Panel {
                     }
 
                     @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                        super.updateAjaxAttributes(attributes);
 
-                            private static final long serialVersionUID = -7927968187160354605L;
+                        final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+                            
+                            private static final long serialVersionUID = 7160235486520935153L;
 
                             @Override
-                            public CharSequence preDecorateScript(final CharSequence script) {
-
-                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
-                                        + "else {this.checked = false;}";
+                            public CharSequence getPrecondition(final Component component) {
+                                return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
                             }
                         };
+                        attributes.getAjaxCallListeners().add(ajaxCallListener);
                     }
                 });
 

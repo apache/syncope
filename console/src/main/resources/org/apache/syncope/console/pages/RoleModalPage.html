@@ -49,6 +49,11 @@
           <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
         </ul>
         <div wicket:id="rolePanel"/>
+        <script type="text/javascript">
+          $(function() {
+            $('div #formtable div.tablerow:even').addClass("alt");
+          });
+        </script>
       </div>
       <div style="bottom:0;margin:10px">
         <input type="submit"
