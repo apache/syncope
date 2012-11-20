@@ -80,7 +80,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("name=search");
 
         selenium.waitForCondition(
-                "selenium.isElementPresent(\"//*[@id=\"users-contain\"]//*[div=2]\");", "30000");
+                "selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
     }
 
     @Test
