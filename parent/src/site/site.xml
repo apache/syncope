@@ -42,7 +42,13 @@ under the License.
     <artifactId>maven-fluido-skin</artifactId>
     <version>1.3.0</version>
   </skin>
-
+  <custom>
+    <fluidoSkin>
+      <leftColumnClass>span2</leftColumnClass>
+      <bodyColumnClass>span10</bodyColumnClass>
+    </fluidoSkin>
+  </custom>
+  
   <body>
     <links>
       <item name="Apache" href="http://www.apache.org/"/>
@@ -73,6 +79,7 @@ under the License.
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
       <item name="Issue Tracking" href="issue-tracking.html"/>
+      <item name="How to contribute?" href="contributing.html"/>
       <item name="Release Process" href="release-process.html"/>
     </menu>
 
