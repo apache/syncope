@@ -27,7 +27,7 @@ under the License.
         
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>1.0.4-incubating-SNAPSHOT</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -37,7 +37,7 @@ under the License.
     <relativePath />
   </parent>
 
-  <url>http://incubator.apache.org/syncope/</url>
+  <url>http://syncope.apache.org/</url>
 
   <inceptionYear>2010</inceptionYear>
 
@@ -50,9 +50,9 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X/parent</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X/parent</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/syncope/branches/1_0_X/parent</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/branches/1_0_X/parent</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/branches/1_0_X/parent</developerConnection>
+    <url>http://svn.apache.org/viewvc/syncope/branches/1_0_X/parent</url>
   </scm>
   
   <issueManagement>
@@ -76,34 +76,34 @@ under the License.
   <mailingLists>
     <mailingList>
       <name>Syncope User List</name>
-      <subscribe>syncope-user-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>syncope-user-unsubscribe@incubator.apache.org</unsubscribe>
-      <post>syncope-user@incubator.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/incubator-syncope-user/</archive>
+      <subscribe>user-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>user-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>user@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-user/</archive>
       <otherArchives>
-        <otherArchive>http://markmail.org/search/+list:org.apache.incubator.syncope-user</otherArchive>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-user.1051894.n5.nabble.com/</otherArchive>
       </otherArchives>
     </mailingList>
     <mailingList>
       <name>Syncope Developer List</name>
-      <subscribe>syncope-dev-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>syncope-dev-unsubscribe@incubator.apache.org</unsubscribe>
-      <post>syncope-dev@incubator.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/incubator-syncope-dev/</archive>
+      <subscribe>dev-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>dev@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-dev/</archive>
       <otherArchives>
-        <otherArchive>http://markmail.org/search/+list:org.apache.incubator.syncope-dev</otherArchive>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-dev.1063484.n5.nabble.com/</otherArchive>
       </otherArchives>
     </mailingList>
     <mailingList>
       <name>Syncope Commits List</name>
-      <subscribe>syncope-commits-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>syncope-commits-unsubscribe@incubator.apache.org</unsubscribe>
-      <post>syncope-commits@incubator.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/incubator-syncope-commits/</archive>
+      <subscribe>commits-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>commits-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>commits@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-commits/</archive>
       <otherArchives>
-        <otherArchive>http://markmail.org/search/+list:org.apache.incubator.syncope-commits</otherArchive>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
       </otherArchives>
     </mailingList>
   </mailingLists>
@@ -116,7 +116,8 @@ under the License.
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>ASF member</role>
+        <role>PMC chair</role>
       </roles>
       <url>http://people.apache.org/~ilgrosso/</url>
     </developer>
@@ -126,7 +127,7 @@ under the License.
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~fmartelli/</url>
     </developer>
@@ -136,7 +137,7 @@ under the License.
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~mdisabatino/</url>
     </developer>    
@@ -146,7 +147,7 @@ under the License.
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~massi/</url>
     </developer>    
@@ -156,7 +157,7 @@ under the License.
       <organization>Everett</organization>
       <organizationUrl>http://www.everett.nl/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>committer</role>
       </roles>
       <url>http://people.apache.org/~rene/</url>
     </developer>    
@@ -166,9 +167,8 @@ under the License.
       <organization>The Apache Software Foundation</organization>
       <organizationUrl>http://www.apache.org/</organizationUrl>
       <roles>
-        <role>Champion</role>
-        <role>Mentor</role>
-        <role>PPMC member</role>
+        <role>ASF member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~simonetripodi/</url>
     </developer>
@@ -178,8 +178,8 @@ under the License.
       <organization>The Apache Software Foundation</organization>
       <organizationUrl>http://www.apache.org/</organizationUrl>
       <roles>
-        <role>Mentor</role>
-        <role>PPMC member</role>
+        <role>ASF member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~elecharny/</url>
     </developer>
@@ -189,7 +189,7 @@ under the License.
       <organization>Everett Italia</organization>
       <organizationUrl>http://www.everett.it/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>committer</role>
       </roles>
       <url>http://people.apache.org/~anzelld/</url>
     </developer>
@@ -199,8 +199,8 @@ under the License.
       <organization>Talend</organization>
       <organizationUrl>http://www.talend.com/</organizationUrl>
       <roles>
-        <role>Mentor</role>
-        <role>PPMC member</role>
+        <role>ASF member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~coheigea/</url>
     </developer>
@@ -210,7 +210,8 @@ under the License.
       <organization>Talend</organization>
       <organizationUrl>http://www.talend.com/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>ASF member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~jbonofre/</url>
     </developer>
@@ -220,7 +221,7 @@ under the License.
       <organization>Talend</organization>
       <organizationUrl>http://www.talend.com/</organizationUrl>
       <roles>
-        <role>PPMC member</role>
+        <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~jbernhardt/</url>
     </developer>
@@ -823,7 +824,6 @@ under the License.
               <resource>
                 <directory>${project.build.outputDirectory}</directory>
                 <includes>
-                  <include>META-INF/DISCLAIMER*</include>
                   <include>META-INF/DEPENDENCIES*</include>
                 </includes>
               </resource>
@@ -836,7 +836,7 @@ under the License.
                 </includes>
               </resource>
             </webResources>
-            <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DISCLAIMER*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
+            <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
           </configuration>
         </plugin>
         <plugin>
@@ -993,7 +993,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <!-- Put NOTICE, LICENSE and DISCLAIMER files in all javadoc artifacts -->
+      <!-- Put NOTICE and LICENSE files in all javadoc artifacts -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -1004,13 +1004,12 @@ under the License.
             </goals>
             <phase>process-resources</phase>
             <configuration>
-              <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE/DISCLAIMER files for javadoc jars">
+              <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE files for javadoc jars">
                 <mkdir dir="target/apidocs/META-INF" />
                 <copy todir="target/apidocs/META-INF">
                   <fileset dir="..">
                     <include name="NOTICE" />
                     <include name="LICENSE" />
-                    <include name="DISCLAIMER" />
                   </fileset>
                 </copy>
               </target>
@@ -1031,7 +1030,6 @@ under the License.
               <requiredFiles>
                 <requiredFile>LICENSE</requiredFile>
                 <requiredFile>NOTICE</requiredFile>
-                <requiredFile>DISCLAIMER</requiredFile>
               </requiredFiles>
               <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
@@ -1102,9 +1100,9 @@ under the License.
                   <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                    <anonymousConnection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</anonymousConnection>
-                    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-                    <webAccessUrl>http://svn.apache.org/viewvc/incubator/syncope/trunk</webAccessUrl>
+                    <anonymousConnection>scm:svn:http://svn.apache.org/repos/asf/syncope/trunk</anonymousConnection>
+                    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/trunk</developerConnection>
+                    <webAccessUrl>http://svn.apache.org/viewvc/syncope/trunk</webAccessUrl>
                   </configuration>
                   <reportSets>
                     <reportSet>

@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.0.4-incubating-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -158,7 +158,6 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
-          <include>DISCLAIMER</include>
         </includes>
       </resource>
     </resources>

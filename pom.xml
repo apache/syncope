@@ -27,20 +27,20 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-root</artifactId>
-  <version>1.0.4-incubating-SNAPSHOT</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>10</version>
+    <version>12</version>
     <relativePath />
   </parent>
   
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/branches/1_0_X</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/syncope/branches/1_0_X</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/branches/1_0_X</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/branches/1_0_X</developerConnection>
+    <url>http://svn.apache.org/viewvc/syncope/branches/1_0_X</url>
   </scm>
   
   <build>
