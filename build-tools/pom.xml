@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Build Tools</name>
@@ -193,7 +193,6 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
-          <include>DISCLAIMER</include>
         </includes>
       </resource>
     </resources>
