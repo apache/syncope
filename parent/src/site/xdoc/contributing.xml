@@ -116,7 +116,7 @@ under the License.
         </li>
         <li>
           Check out the Syncope sources and test your svn account: 
-          <a href="http://svn.apache.org/viewvc/incubator/syncope/">Subversion Repository</a>.
+          <a href="http://svn.apache.org/viewvc/syncope/">Subversion Repository</a>.
         </li>
       </ul>
       <p>All Contributors and Committers should</p>
