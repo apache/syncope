@@ -748,7 +748,12 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(exception);
 
-        // 2. request if there is any pending task for user just created
+        // 2. request if there is any pending form for user just created
+        List<WorkflowFormTO> forms = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "user/workflow/form/list", WorkflowFormTO[].class));
+        assertNotNull(forms);
+        assertEquals(1, forms.size());
+
         WorkflowFormTO form = restTemplate.getForObject(BASE_URL + "user/workflow/form/{userId}", WorkflowFormTO.class,
                 userTO.getId());
         assertNotNull(form);
