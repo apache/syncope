@@ -50,7 +50,6 @@ public class WorkflowController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/definition")
     @Transactional(readOnly = true)
     public WorkflowDefinitionTO getDefinition() throws WorkflowException {
-
         WorkflowDefinitionTO result = wfAdapter.getDefinition();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinition, Result.success,
@@ -73,7 +72,6 @@ public class WorkflowController extends AbstractController {
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/tasks")
     public ModelAndView getDefinedTasks() throws WorkflowException {
-
         List<String> definedTasks = wfAdapter.getDefinedTasks();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
