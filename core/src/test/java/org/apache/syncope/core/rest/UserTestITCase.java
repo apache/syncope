@@ -67,6 +67,7 @@ import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.Assume;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class UserTestITCase extends AbstractTest {
 
@@ -123,6 +124,24 @@ public class UserTestITCase extends AbstractTest {
         userTO.addVirtualAttribute(virtualdata);
 
         return userTO;
+    }
+
+    @Test
+    public void selfRead() {
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+
+        try {
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+            fail();
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        }
+
+        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/self", UserTO.class);
+        assertEquals("user1", userTO.getUsername());
     }
 
     @Test

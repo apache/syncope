@@ -56,6 +56,7 @@ import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +93,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserTO getAuthenticatedUserTO() throws NotFoundException {
+        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
+        return getUserTO(authUser);
     }
 
     @Transactional(readOnly = true)
@@ -136,8 +143,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * Get pre-configured password cipher algorithm.
      *
      * @return cipher algorithm.
-     * @throws NotFoundException in case of algorithm not included into
-     * <code>CipherAlgorithm</code>.
+     * @throws NotFoundException in case of algorithm not included into <code>CipherAlgorithm</code>.
      */
     private CipherAlgorithm getCipherAlgoritm()
             throws NotFoundException {

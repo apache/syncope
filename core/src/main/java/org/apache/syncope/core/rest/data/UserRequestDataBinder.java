@@ -42,9 +42,8 @@ public class UserRequestDataBinder {
     @Autowired
     private UserDAO userDAO;
 
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public SyncopeUser getUserFromId(final Long userId) throws NotFoundException, UnauthorizedRoleException {
-
         if (userId == null) {
             throw new NotFoundException("Null user id");
         }
@@ -63,9 +62,8 @@ public class UserRequestDataBinder {
         return user;
     }
 
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO getAuthUserTO() throws NotFoundException {
-
         SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
         return userDataBinder.getUserTO(authUser);
     }
@@ -77,7 +75,7 @@ public class UserRequestDataBinder {
         return result;
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public void testCreate(final UserTO userTO) {
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
@@ -86,9 +84,8 @@ public class UserRequestDataBinder {
         throw new RollbackException();
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public void testUpdate(final UserMod userMod) throws NotFoundException, UnauthorizedRoleException {
-
         SyncopeUser user = getUserFromId(userMod.getId());
         userDataBinder.update(user, userMod);
         userDAO.save(user);
@@ -96,9 +93,8 @@ public class UserRequestDataBinder {
         throw new RollbackException();
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public void testDelete(final Long userId) throws NotFoundException, UnauthorizedRoleException {
-
         SyncopeUser user = getUserFromId(userId);
         userDAO.delete(user);
 
