@@ -57,6 +57,7 @@ import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Component
 @Transactional(rollbackFor = {Throwable.class})
@@ -91,6 +92,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserTO getAuthenticatedUserTO() throws NotFoundException {
+        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
+        return getUserTO(authUser);
     }
 
     @Transactional(readOnly = true)

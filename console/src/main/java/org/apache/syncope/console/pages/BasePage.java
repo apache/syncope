@@ -22,7 +22,7 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.rest.UserRequestRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -63,7 +63,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     private final static int EDIT_PROFILE_WIN_WIDTH = 800;
 
     @SpringBean
-    private UserRequestRestClient profileRestClient;
+    private UserRestClient userRestClient;
 
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
@@ -146,7 +146,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             editProfileFrag = new Fragment("editProfile", "adminEmptyFrag", this);
         } else {
             final UserTO userTO = SyncopeSession.get().isAuthenticated()
-                    ? profileRestClient.readProfile()
+                    ? userRestClient.readProfile()
                     : new UserTO();
 
             editProfileFrag = new Fragment("editProfile", "editProfileFrag", this);

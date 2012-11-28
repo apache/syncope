@@ -26,7 +26,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.UserMod;
@@ -40,24 +39,6 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 
 public class UserRequestTestITCase extends AbstractTest {
-
-    @Test
-    public void selfRead() {
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
-
-        try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
-            fail();
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
-        }
-
-        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/request/read/self", UserTO.class);
-        assertEquals("user1", userTO.getUsername());
-    }
 
     @Test
     public void create() {
@@ -168,7 +149,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 9. user password has now changed
-        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=" + userMod.getPassword(),
+        verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=" + userMod.
+                getPassword(),
                 Boolean.class, userTO.getUsername());
         assertTrue(verify);
     }
@@ -199,7 +181,7 @@ public class UserRequestTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userTO.getUsername(), initialPassword));
 
         // 4. now request user delete works
-        UserRequestTO request = restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}", 
+        UserRequestTO request = restTemplate.getForObject(BASE_URL + "user/request/delete/{userId}",
                 UserRequestTO.class, userTO.getId());
         assertNotNull(request);
 

@@ -103,6 +103,10 @@ public class UserRestClient extends AbstractBaseRestClient {
         return userTO;
     }
 
+    public UserTO readProfile() {
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/read/self", UserTO.class);
+    }
+
     public Integer searchCount(final NodeCond searchCond) {
         return SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "user/search/count.json", searchCond, Integer.class);

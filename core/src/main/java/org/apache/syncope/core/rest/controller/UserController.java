@@ -91,7 +91,7 @@ public class UserController {
     private UserSearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    private UserDataBinder dataBinder;
 
     @Autowired
     private UserWorkflowAdapter wfAdapter;
@@ -118,7 +118,7 @@ public class UserController {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
 
-        return new ModelAndView().addObject(userDataBinder.verifyPassword(username, password));
+        return new ModelAndView().addObject(dataBinder.verifyPassword(username, password));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -156,7 +156,7 @@ public class UserController {
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
 
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -175,7 +175,7 @@ public class UserController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -190,7 +190,7 @@ public class UserController {
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        UserTO result = userDataBinder.getUserTO(userId);
+        UserTO result = dataBinder.getUserTO(userId);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + userId);
@@ -204,12 +204,24 @@ public class UserController {
     public UserTO read(@PathVariable final String username)
             throws NotFoundException, UnauthorizedRoleException {
 
-        UserTO result = userDataBinder.getUserTO(username);
+        UserTO result = dataBinder.getUserTO(username);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + username);
 
         return result;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/self")
+    @Transactional(readOnly = true)
+    public UserTO read() throws NotFoundException {
+        UserTO userTO = dataBinder.getAuthenticatedUserTO();
+
+        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
+                "Successfully read own data: " + userTO.getUsername());
+
+        return userTO;
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -229,7 +241,7 @@ public class UserController {
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -257,7 +269,7 @@ public class UserController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -316,7 +328,7 @@ public class UserController {
         notificationManager.createTasks(new WorkflowResult<Long>(created.getResult().getKey(), created.getPropByRes(),
                 created.getPerformedTasks()));
 
-        final UserTO savedTO = userDataBinder.getUserTO(created.getResult().getKey());
+        final UserTO savedTO = dataBinder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationTOs(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
@@ -367,7 +379,7 @@ public class UserController {
         notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(), updated.getPropByRes(),
                 updated.getPerformedTasks()));
 
-        final UserTO updatedTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO updatedTO = dataBinder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationTOs(propagations);
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
@@ -512,7 +524,7 @@ public class UserController {
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
         LOG.debug("User delete called with {}", username);
 
-        UserTO result = userDataBinder.getUserTO(username);
+        UserTO result = dataBinder.getUserTO(username);
         long userId = result.getId();
 
         return deleteByUserId(userId);
@@ -534,7 +546,7 @@ public class UserController {
 
         notificationManager.createTasks(updated);
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -562,7 +574,7 @@ public class UserController {
     public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId)
             throws UnauthorizedRoleException, NotFoundException, WorkflowException {
 
-        SyncopeUser user = userDataBinder.getUserFromId(userId);
+        SyncopeUser user = dataBinder.getUserFromId(userId);
         WorkflowFormTO result = wfAdapter.getForm(user.getWorkflowId());
 
         auditManager.audit(Category.user, UserSubCategory.getFormForUser, Result.success,
@@ -602,7 +614,7 @@ public class UserController {
                 getPerformedTasks()), updated.getResult().getValue(), null, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult().getKey());
 
         auditManager.audit(Category.user, UserSubCategory.submitForm, Result.success,
                 "Successfully submitted workflow form for user: " + savedTO.getUsername());
@@ -647,7 +659,7 @@ public class UserController {
         propagationManager.execute(tasks);
         notificationManager.createTasks(updated);
 
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         auditManager.audit(Category.user, UserSubCategory.setStatus, Result.success,
                 "Successfully changed status to " + savedTO.getStatus() + " for user: " + savedTO.getUsername());
