@@ -422,18 +422,15 @@ Best regards.
           </li>
           <li>
             Add the distribution artifacts to the distribution area
-<source>ssh people.apache.org
-cd /x1/www/www.apache.org/dist/syncope/
+<source>
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist
+cd syncope-dist
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
-chgrp -R syncope &lt;version&gt;
-chmod 775 &lt;version&gt;
-chmod 664 &lt;version&gt;/*
+svn add &lt;version&gt;
+svn rm &lt;any older release artifact (if present)&gt;
+svn commit -m "Promoting the voted release artifacts and cleaning up older releases"
 </source>
-          </li>
-          <li>
-            Remove older distribution artifacts (if present) from the distribution area (i.e. 
-            <tt>people.apache.org:/x1/www/www.apache.org/dist/syncope/</tt>).
           </li>
           <li>
             Add appropriate release notes to
