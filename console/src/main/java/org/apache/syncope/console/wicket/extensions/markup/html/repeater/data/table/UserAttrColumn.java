@@ -27,7 +27,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.client.to.UserTO;
 
-public class UserAttrColumn extends AbstractColumn<UserTO> {
+public class UserAttrColumn extends AbstractColumn<UserTO, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 

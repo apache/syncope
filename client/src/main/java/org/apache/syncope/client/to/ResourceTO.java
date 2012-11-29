@@ -67,7 +67,9 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Set<ConnConfProperty> connConfProperties;
 
-    private String syncToken;
+    private String usyncToken;
+
+    private String rsyncToken;
 
     private String actionsClassName;
 
@@ -212,12 +214,20 @@ public class ResourceTO extends AbstractBaseBean {
         this.syncTraceLevel = syncTraceLevel;
     }
 
-    public String getSyncToken() {
-        return syncToken;
+    public String getUsyncToken() {
+        return usyncToken;
     }
 
-    public void setSyncToken(final String syncToken) {
-        this.syncToken = syncToken;
+    public void setUsyncToken(final String syncToken) {
+        this.usyncToken = syncToken;
+    }
+
+    public String getRsyncToken() {
+        return rsyncToken;
+    }
+
+    public void setRsyncToken(final String syncToken) {
+        this.rsyncToken = syncToken;
     }
 
     public String getActionsClassName() {

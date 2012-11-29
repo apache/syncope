@@ -28,11 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.core.init.ConnInstanceLoader;
@@ -49,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -120,18 +122,22 @@ public class ConnObjectUtil {
      *
      * @param obj connector object
      * @param syncTask synchronization task
+     * @param attrUtil AttributableUtil
+     * @param <T> user/role
      * @return UserTO for the user to be created
      */
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final ConnectorObject obj, final SyncTask syncTask) {
-        UserTO userTO = getUserTOFromConnObject(obj, syncTask);
+    public <T extends AbstractAttributableTO> T getAttributableTO(final ConnectorObject obj, final SyncTask syncTask,
+            final AttributableUtil attrUtil) {
+
+        T subjectTO = getAttributableTOFromConnObject(obj, syncTask, attrUtil);
 
         // if password was not set above, generate
-        if (StringUtils.isBlank(userTO.getPassword())) {
+        if (AttributableType.USER == attrUtil.getType() && StringUtils.isBlank(((UserTO) subjectTO).getPassword())) {
             List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
             ppSpecs.add((PasswordPolicySpec) policyDAO.getGlobalPasswordPolicy().getSpecification());
 
-            for (MembershipTO memb : userTO.getMemberships()) {
+            for (MembershipTO memb : ((UserTO) subjectTO).getMemberships()) {
                 SyncopeRole role = roleDAO.find(memb.getRoleId());
                 if (role != null && role.getPasswordPolicy() != null
                         && role.getPasswordPolicy().getSpecification() != null) {
@@ -139,7 +145,7 @@ public class ConnObjectUtil {
                     ppSpecs.add((PasswordPolicySpec) role.getPasswordPolicy().getSpecification());
                 }
             }
-            for (String resName : userTO.getResources()) {
+            for (String resName : subjectTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
                 if (resource != null && resource.getPasswordPolicy() != null
                         && resource.getPasswordPolicy().getSpecification() != null) {
@@ -152,98 +158,127 @@ public class ConnObjectUtil {
             try {
                 password = pwdGen.generatePasswordFromPwdSpec(ppSpecs);
             } catch (IncompatiblePolicyException e) {
-                LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
+                LOG.error("Could not generate policy-compliant random password for {}", subjectTO, e);
 
                 password = RandomStringUtils.randomAlphanumeric(16);
             }
-            userTO.setPassword(password);
+            ((UserTO) subjectTO).setPassword(password);
         }
 
-        return userTO;
+        return subjectTO;
     }
 
     /**
      * Build an UserMod out of connector object attributes and schema mapping.
      *
-     * @param userId user to be updated
+     * @param id user to be updated
      * @param obj connector object
+     * @param original subject to get diff from
      * @param syncTask synchronization task
-     * @return UserMod for the user to be updated
+     * @param attrUtil AttributableUtil
+     * @param <T> user/role
+     * @return modifications for the user/role to be updated
      */
     @Transactional(readOnly = true)
-    public UserMod getUserMod(final Long userId, final ConnectorObject obj, final SyncTask syncTask)
+    public <T extends AbstractAttributableMod> T getAttributableMod(final Long id, final ConnectorObject obj,
+            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil)
             throws NotFoundException, UnauthorizedRoleException {
 
-        final SyncopeUser user = userDataBinder.getUserFromId(userId);
-        final UserTO original = userDataBinder.getUserTO(user);
+        final AbstractAttributableTO updated = getAttributableTOFromConnObject(obj, syncTask, attrUtil);
+        updated.setId(id);
 
-        final UserTO updated = getUserTOFromConnObject(obj, syncTask);
-        updated.setId(userId);
+        if (AttributableType.USER == attrUtil.getType()) {
+            // update password if and only if password is really changed
+            final SyncopeUser user = userDataBinder.getUserFromId(id);
+            if (StringUtils.isBlank(((UserTO) updated).getPassword())
+                    || userDataBinder.verifyPassword(user, ((UserTO) updated).getPassword())) {
 
-        // update password if and only if password is really changed
-        if (StringUtils.isBlank(updated.getPassword()) || userDataBinder.verifyPassword(user, updated.getPassword())) {
-            updated.setPassword(null);
+                ((UserTO) updated).setPassword(null);
+            }
+
+            return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
+        }
+        if (AttributableType.ROLE == attrUtil.getType()) {
+            return (T) AttributableOperations.diff(((RoleTO) updated), ((RoleTO) original), true);
         }
 
-        final UserMod userMod = AttributableOperations.diff(updated, original, true);
-
-        return userMod;
+        return null;
     }
 
-    private UserTO getUserTOFromConnObject(final ConnectorObject obj, final SyncTask syncTask) {
-        final UserTO userTO = new UserTO();
+    private <T extends AbstractAttributableTO> T getAttributableTOFromConnObject(final ConnectorObject obj,
+            final SyncTask syncTask, final AttributableUtil attrUtil) {
+
+        final T attributableTO = attrUtil.newAttributableTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item : syncTask.getResource().getUmapping().getItems()) {
+        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
             switch (item.getIntMappingType()) {
                 case UserId:
+                case RoleId:
                     break;
 
                 case Password:
-                    if (attribute != null && attribute.getValue() != null && !attribute.getValue().isEmpty()) {
-                        userTO.setPassword(getPassword(attribute.getValue().get(0)));
+                    if (attributableTO instanceof UserTO && attribute != null && attribute.getValue() != null
+                            && !attribute.getValue().isEmpty()) {
+
+                        ((UserTO) attributableTO).setPassword(getPassword(attribute.getValue().get(0)));
                     }
                     break;
 
                 case Username:
-                    userTO.setUsername(attribute == null || attribute.getValue().isEmpty()
-                            ? null
-                            : attribute.getValue().get(0).toString());
+                    if (attributableTO instanceof UserTO) {
+                        ((UserTO) attributableTO).setUsername(attribute == null || attribute.getValue().isEmpty()
+                                ? null
+                                : attribute.getValue().get(0).toString());
+                    }
+                    break;
+
+                case RoleName:
+                    if (attributableTO instanceof RoleTO) {
+                        ((RoleTO) attributableTO).setName(attribute == null || attribute.getValue().isEmpty()
+                                ? null
+                                : attribute.getValue().get(0).toString());
+                    }
                     break;
 
                 case UserSchema:
+                case RoleSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
+
                         attributeTO.addValue(value.toString());
                     }
 
-                    userTO.addAttribute(attributeTO);
+                    attributableTO.addAttribute(attributeTO);
                     break;
 
                 case UserDerivedSchema:
+                case RoleDerivedSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
-                    userTO.addDerivedAttribute(attributeTO);
+                    attributableTO.addDerivedAttribute(attributeTO);
                     break;
 
                 case UserVirtualSchema:
+                case RoleVirtualSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
+
                         attributeTO.addValue(value.toString());
                     }
 
-                    userTO.addVirtualAttribute(attributeTO);
+                    attributableTO.addVirtualAttribute(attributeTO);
                     break;
 
                 default:
@@ -251,43 +286,46 @@ public class ConnObjectUtil {
         }
 
         // 2. add data from defined template (if any)
-        UserTO template = syncTask.getUserTemplate();
+        AbstractAttributableTO template = AttributableType.USER == attrUtil.getType()
+                ? syncTask.getUserTemplate() : syncTask.getRoleTemplate();
         if (template != null) {
-            if (StringUtils.isNotBlank(template.getUsername())) {
-                String evaluated = jexlUtil.evaluate(template.getUsername(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setUsername(evaluated);
+            if (template instanceof UserTO) {
+                if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
+                    String evaluated = jexlUtil.evaluate(((UserTO) template).getUsername(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((UserTO) attributableTO).setUsername(evaluated);
+                    }
+                }
+
+                if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
+                    String evaluated = jexlUtil.evaluate(((UserTO) template).getPassword(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((UserTO) attributableTO).setPassword(evaluated);
+                    }
+                }
+
+                Map<Long, MembershipTO> currentMembs = ((UserTO) attributableTO).getMembershipMap();
+                for (MembershipTO membTO : ((UserTO) template).getMemberships()) {
+                    MembershipTO membTBU;
+                    if (currentMembs.containsKey(membTO.getRoleId())) {
+                        membTBU = currentMembs.get(membTO.getRoleId());
+                    } else {
+                        membTBU = new MembershipTO();
+                        membTBU.setRoleId(membTO.getRoleId());
+                        ((UserTO) attributableTO).addMembership(membTBU);
+                    }
+                    fillFromTemplate(membTBU, membTO);
                 }
             }
 
-            if (StringUtils.isNotBlank(template.getPassword())) {
-                String evaluated = jexlUtil.evaluate(template.getPassword(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setPassword(evaluated);
-                }
-            }
-
-            fillFromTemplate(userTO, template);
+            fillFromTemplate(attributableTO, template);
 
             for (String resource : template.getResources()) {
-                userTO.addResource(resource);
-            }
-
-            Map<Long, MembershipTO> currentMembs = userTO.getMembershipMap();
-            for (MembershipTO membTO : template.getMemberships()) {
-                MembershipTO membTBU;
-                if (currentMembs.containsKey(membTO.getRoleId())) {
-                    membTBU = currentMembs.get(membTO.getRoleId());
-                } else {
-                    membTBU = new MembershipTO();
-                    membTBU.setRoleId(membTO.getRoleId());
-                    userTO.addMembership(membTBU);
-                }
-                fillFromTemplate(membTBU, membTO);
+                attributableTO.addResource(resource);
             }
         }
 
-        return userTO;
+        return attributableTO;
     }
 
     /**

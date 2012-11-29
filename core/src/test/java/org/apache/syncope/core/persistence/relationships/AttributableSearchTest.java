@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
-import org.apache.syncope.core.persistence.dao.*;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
@@ -34,19 +33,24 @@ import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.types.AttributableType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
     "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
 @Transactional
-public class UserSearchTest {
+public class AttributableSearchTest {
 
     @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
-    private UserSearchDAO searchDAO;
+    private AttributableSearchDAO searchDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -66,7 +70,8 @@ public class UserSearchTest {
         final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
         assertTrue(cond.checkValidity());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond);
+        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
+                AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(1, users.size());
 

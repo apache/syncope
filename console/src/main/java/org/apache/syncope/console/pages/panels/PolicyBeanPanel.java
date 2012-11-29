@@ -26,6 +26,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.annotation.SchemaList;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.syncope.types.AbstractPolicySpec;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ConflictResolutionAction;
@@ -45,15 +54,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 
 public class PolicyBeanPanel extends Panel {
 
@@ -210,7 +210,7 @@ public class PolicyBeanPanel extends Panel {
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 if (check.getModelObject()) {
                     panel.setEnabled(true);
                     panel.setModelObject(reinitializedValue);

@@ -28,9 +28,9 @@ public class SortableDataProviderComparator<T> implements Comparator<T>, Seriali
 
     private static final long serialVersionUID = -8897687699977460543L;
 
-    protected final SortableDataProvider<T> provider;
+    protected final SortableDataProvider<T, String> provider;
 
-    public SortableDataProviderComparator(final SortableDataProvider<T> provider) {
+    public SortableDataProviderComparator(final SortableDataProvider<T, String> provider) {
 
         this.provider = provider;
     }

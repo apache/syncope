@@ -197,20 +197,18 @@ public final class AttributableOperations {
      * @param incremental perform incremental diff (without removing existing info)
      * @return UserMod containing differences
      */
-    public static UserMod diff(final UserTO updated, final UserTO original, final boolean  incremental) {
+    public static UserMod diff(final UserTO updated, final UserTO original, final boolean incremental) {
         UserMod result = new UserMod();
 
         diff(updated, original, result, incremental);
 
         // 1. password
         if (original.getPassword() != null && !original.getPassword().equals(updated.getPassword())) {
-
             result.setPassword(updated.getPassword());
         }
 
         // 2. username
         if (original.getUsername() != null && !original.getUsername().equals(updated.getUsername())) {
-
             result.setUsername(updated.getUsername());
         }
 
@@ -278,9 +276,21 @@ public final class AttributableOperations {
      * @return RoleMod containing differences
      */
     public static RoleMod diff(final RoleTO updated, final RoleTO original) {
+        return diff(updated, original, false);
+    }
+
+    /**
+     * Calculate modifications needed by first in order to be equal to second.
+     *
+     * @param updated updated RoleTO
+     * @param original original RoleTO
+     * @param incremental perform incremental diff (without removing existing info)
+     * @return RoleMod containing differences
+     */
+    public static RoleMod diff(final RoleTO updated, final RoleTO original, final boolean incremental) {
         RoleMod result = new RoleMod();
 
-        diff(updated, original, result, false);
+        diff(updated, original, result, incremental);
 
         // 1. inheritance
         result.setInheritOwner(updated.isInheritOwner());
@@ -318,12 +328,13 @@ public final class AttributableOperations {
     private static List<AttributeTO> getUpdateValues(final Map<String, AttributeTO> attrs,
             final Set<String> attrsToBeRemoved, final Set<AttributeMod> attrsToBeUpdated) {
 
+        Map<String, AttributeTO> rwattrs = new HashMap<String, AttributeTO>(attrs);
         for (String attrName : attrsToBeRemoved) {
-            attrs.remove(attrName);
+            rwattrs.remove(attrName);
         }
         for (AttributeMod attrMod : attrsToBeUpdated) {
-            if (attrs.containsKey(attrMod.getSchema())) {
-                AttributeTO attrTO = attrs.get(attrMod.getSchema());
+            if (rwattrs.containsKey(attrMod.getSchema())) {
+                AttributeTO attrTO = rwattrs.get(attrMod.getSchema());
                 attrTO.getValues().removeAll(attrMod.getValuesToBeRemoved());
                 attrTO.getValues().addAll(attrMod.getValuesToBeAdded());
             } else {
@@ -331,26 +342,21 @@ public final class AttributableOperations {
                 attrTO.setSchema(attrMod.getSchema());
                 attrTO.setValues(attrMod.getValuesToBeAdded());
 
-                attrs.put(attrMod.getSchema(), attrTO);
+                rwattrs.put(attrMod.getSchema(), attrTO);
             }
         }
 
-        return new ArrayList<AttributeTO>(attrs.values());
+        return new ArrayList<AttributeTO>(rwattrs.values());
     }
 
     private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(final T to,
             final K mod, final T result) {
 
-        // 1. check same id
-        if (to.getId() != mod.getId()) {
-            throw new IllegalArgumentException("AttributableTO and AttributableMod ids must be the same");
-        }
-
-        // 2. attributes
+        // 1. attributes
         result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(), mod.
                 getAttributesToBeUpdated()));
 
-        // 3. derived attributes
+        // 2. derived attributes
         Map<String, AttributeTO> attrs = to.getDerivedAttributeMap();
         for (String attrName : mod.getDerivedAttributesToBeRemoved()) {
             attrs.remove(attrName);
@@ -363,18 +369,22 @@ public final class AttributableOperations {
         }
         result.setDerivedAttributes(new ArrayList<AttributeTO>(attrs.values()));
 
-        // 4. virtual attributes
+        // 3. virtual attributes
         result.setVirtualAttributes(getUpdateValues(to.getVirtualAttributeMap(), mod.getVirtualAttributesToBeRemoved(),
                 mod.getVirtualAttributesToBeUpdated()));
 
-        // 5. resources
+        // 4. resources
         result.getResources().removeAll(mod.getResourcesToBeRemoved());
         result.getResources().addAll(mod.getResourcesToBeAdded());
     }
 
     public static UserTO apply(final UserTO userTO, final UserMod userMod) {
-        UserTO result = clone(userTO);
+        // 1. check same id
+        if (userTO.getId() != userMod.getId()) {
+            throw new IllegalArgumentException("UserTO and UserMod ids must be the same");
+        }
 
+        UserTO result = clone(userTO);
         apply(userTO, userMod, result);
 
         // 1. password

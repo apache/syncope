@@ -218,7 +218,7 @@ public class Configuration extends BasePage {
 
         confColumns.add(new PropertyColumn(new ResourceModel("value"), "value", "value"));
 
-        confColumns.add(new AbstractColumn<ConfigurationTO>(new ResourceModel("actions", "")) {
+        confColumns.add(new AbstractColumn<ConfigurationTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -387,7 +387,7 @@ public class Configuration extends BasePage {
         notificationCols.add(new PropertyColumn(new ResourceModel("template"), "template", "template"));
         notificationCols.add(new PropertyColumn(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
 
-        notificationCols.add(new AbstractColumn<NotificationTO>(new ResourceModel("actions", "")) {
+        notificationCols.add(new AbstractColumn<NotificationTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -522,7 +522,7 @@ public class Configuration extends BasePage {
         add(notificationPaginatorForm);
     }
 
-    private class SyncopeConfProvider extends SortableDataProvider<ConfigurationTO> {
+    private class SyncopeConfProvider extends SortableDataProvider<ConfigurationTO, String> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -535,16 +535,16 @@ public class Configuration extends BasePage {
         }
 
         @Override
-        public Iterator<ConfigurationTO> iterator(final int first, final int count) {
+        public Iterator<ConfigurationTO> iterator(final long first, final long count) {
             List<ConfigurationTO> list = confRestClient.getAllConfigurations();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return confRestClient.getAllConfigurations().size();
         }
 
@@ -563,7 +563,7 @@ public class Configuration extends BasePage {
         }
     }
 
-    private class NotificationProvider extends SortableDataProvider<NotificationTO> {
+    private class NotificationProvider extends SortableDataProvider<NotificationTO,String> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -576,16 +576,16 @@ public class Configuration extends BasePage {
         }
 
         @Override
-        public Iterator<NotificationTO> iterator(final int first, final int count) {
+        public Iterator<NotificationTO> iterator(final long first, final long count) {
             List<NotificationTO> list = notificationRestClient.getAllNotifications();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return notificationRestClient.getAllNotifications().size();
         }
 

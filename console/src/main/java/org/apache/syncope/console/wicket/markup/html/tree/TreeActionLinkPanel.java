@@ -67,8 +67,10 @@ public class TreeActionLinkPanel extends Panel {
         fragment = new Fragment("menuPanel", idRole == 0
                 ? "fakerootFrag"
                 : "roleFrag", this);
+        
+        fragment.setOutputMarkupId(true);
 
-        AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
+        final AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -94,10 +96,11 @@ public class TreeActionLinkPanel extends Panel {
         MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
                 "create"));
 
+        createRoleLink.setOutputMarkupId(true);
         fragment.add(createRoleLink);
 
         if (idRole != 0) {
-            AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
+            final AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
@@ -120,9 +123,10 @@ public class TreeActionLinkPanel extends Panel {
             MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                     "Roles", "read"));
 
+            updateRoleLink.setOutputMarkupId(true);
             fragment.add(updateRoleLink);
 
-            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink") {
+            final AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink") {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
@@ -141,6 +145,7 @@ public class TreeActionLinkPanel extends Panel {
             MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                     "Roles", "delete"));
 
+            dropRoleLink.setOutputMarkupId(true);
             fragment.add(dropRoleLink);
         }
 

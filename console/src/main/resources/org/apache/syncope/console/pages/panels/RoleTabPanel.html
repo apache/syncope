@@ -13,49 +13,49 @@
  under the License.
 -->
 <wicket:panel>
-    <div style="margin:10px;float:left;width:60%">
-        <p class="ui-widget ui-corner-all ui-widget-header">
-        <wicket:message key="title"/>
-        <span wicket:id="displayName"/>
-        <span wicket:id="actionLink"/>
-        </p>
+  <div style="margin:10px;float:left;width:60%">
+    <p class="ui-widget ui-corner-all ui-widget-header">
+    <wicket:message key="title"/>
+    <span wicket:id="displayName"/>
+    <span wicket:id="actionLink"/>
+    </p>
 
-        <form wicket:id="RoleForm">
-            <div id="tabs">
-                <ul>
-                    <li><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-                    <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-                    <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-                    <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-                    <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
-                    <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
-                    <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
-                    <li><a href="#tabs-8"><span><wicket:message key="tab8"/></span></a></li>
-                </ul>
-                <div wicket:id="rolePanel">
-                </div>
-                <div id="tabs-8">
-                    <div wicket:id="userListContainer">
-                        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                               wicket:id="search"/>
-                        <div id="users-contain" class="ui-widget" style="width:auto">
-                            <span wicket:id="userList"> [userList] </span>
-                        </div>
-                        <script type="text/javascript">
-                            $(function() {
-                                $('#formtable div.tablerow:even').addClass("alt");
-                                $("#tabs").tabs();
-                            });
-                        </script>
-                    </div>
-                </div>
+    <form wicket:id="roleForm">
+      <div id="tabs">
+        <ul>
+          <li><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+          <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+          <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+          <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
+          <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
+          <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
+          <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
+          <li><a href="#tabs-8"><span><wicket:message key="tab8"/></span></a></li>
+        </ul>
+        <div wicket:id="rolePanel">
+        </div>
+        <div id="tabs-8">
+          <div wicket:id="userListContainer">
+            <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="search"/>
+            <div id="users-contain" class="ui-widget" style="width:auto">
+              <span wicket:id="userList"> [userList] </span>
             </div>
-        </form>
-        <script type="text/javascript">
-            $(function() {
+            <script type="text/javascript">
+              $(function() {
                 $('#formtable div.tablerow:even').addClass("alt");
                 $("#tabs").tabs();
-            });
-        </script>
-    </div>
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script type="text/javascript">
+      $(function() {
+        $('#formtable div.tablerow:even').addClass("alt");
+        $("#tabs").tabs();
+      });
+    </script>
+  </div>
 </wicket:panel>

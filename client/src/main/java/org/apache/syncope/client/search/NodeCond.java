@@ -32,7 +32,7 @@ public class NodeCond extends AbstractBaseBean {
 
     private Type type;
 
-    private SyncopeUserCond syncopeUserCond;
+    private AttributableCond attributableCond;
 
     private AttributeCond attributeCond;
 
@@ -44,11 +44,11 @@ public class NodeCond extends AbstractBaseBean {
 
     private NodeCond rightNodeCond;
 
-    public static NodeCond getLeafCond(final SyncopeUserCond syncopeUserCond) {
+    public static NodeCond getLeafCond(final AttributableCond syncopeUserCond) {
         NodeCond nodeCond = new NodeCond();
 
         nodeCond.type = Type.LEAF;
-        nodeCond.syncopeUserCond = syncopeUserCond;
+        nodeCond.attributableCond = syncopeUserCond;
 
         return nodeCond;
     }
@@ -80,7 +80,7 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
-    public static NodeCond getNotLeafCond(final SyncopeUserCond syncopeUserCond) {
+    public static NodeCond getNotLeafCond(final AttributableCond syncopeUserCond) {
         NodeCond nodeCond = getLeafCond(syncopeUserCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
@@ -150,12 +150,12 @@ public class NodeCond extends AbstractBaseBean {
         this.resourceCond = resourceCond;
     }
 
-    public SyncopeUserCond getSyncopeUserCond() {
-        return syncopeUserCond;
+    public AttributableCond getAttributableCond() {
+        return attributableCond;
     }
 
-    public void setSyncopeUserCond(final SyncopeUserCond syncopeUserCond) {
-        this.syncopeUserCond = syncopeUserCond;
+    public void setAttributableCond(final AttributableCond attributableCond) {
+        this.attributableCond = attributableCond;
     }
 
     public final NodeCond getLeftNodeCond() {
@@ -190,13 +190,13 @@ public class NodeCond extends AbstractBaseBean {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                return (syncopeUserCond != null && attributeCond == null && membershipCond == null
-                        && resourceCond == null && syncopeUserCond.checkValidity())
-                        || (syncopeUserCond == null && attributeCond != null && membershipCond == null
+                return (attributableCond != null && attributeCond == null && membershipCond == null
+                        && resourceCond == null && attributableCond.checkValidity())
+                        || (attributableCond == null && attributeCond != null && membershipCond == null
                                 && resourceCond == null && attributeCond.checkValidity())
-                        || (syncopeUserCond == null && attributeCond == null && membershipCond != null
+                        || (attributableCond == null && attributeCond == null && membershipCond != null
                                 && resourceCond == null && membershipCond.checkValidity())
-                        || (syncopeUserCond == null && attributeCond == null && membershipCond == null
+                        || (attributableCond == null && attributeCond == null && membershipCond == null
                                 && resourceCond != null && resourceCond.checkValidity());
             case AND:
             case OR:

@@ -19,10 +19,10 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -62,11 +62,11 @@ public class Roles extends BasePage {
 
         final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
                 Roles.this.getPageReference());
+        
         nodePanel.setOutputMarkupId(true);
         container.add(nodePanel);
 
         createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
@@ -87,5 +87,49 @@ public class Roles extends BasePage {
         });
 
         container.add(createRoleWin);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        super.onEvent(event);
+
+        if (event.getPayload() instanceof TreeNodeClickUpdate) {
+
+            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
+
+            final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
+                    Roles.this.getPageReference(), update.getSelectedNodeId());
+            
+            container.addOrReplace(nodePanel);
+            update.getTarget().add(this);           
+        }
+    }
+
+    public static class TreeNodeClickUpdate {
+
+        private AjaxRequestTarget target;
+
+        private Long selectedNodeId;
+
+        public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
+
+            this.target = target;
+            this.selectedNodeId = selectedNodeId;
+        }
+
+        /**
+         * @return ajax request target
+         */
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public Long getSelectedNodeId() {
+            return selectedNodeId;
+        }
+
+        public void setSelectedNodeId(final Long selectedNodeId) {
+            this.selectedNodeId = selectedNodeId;
+        }
     }
 }

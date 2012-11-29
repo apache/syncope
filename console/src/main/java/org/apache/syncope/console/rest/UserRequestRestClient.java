@@ -29,10 +29,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserRequestRestClient extends AbstractBaseRestClient {
 
-    public UserTO readProfile() {
-        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/request/read/self", UserTO.class);
-    }
-
     public List<UserRequestTO> list() {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
                 baseURL + "user/request/list", UserRequestTO[].class));

@@ -18,22 +18,23 @@
  */
 package org.apache.syncope.console.wicket.markup.html.tree;
 
+
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.commons.RoleTreeBuilder;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.Roles.TreeNodeClickUpdate;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.markup.html.tree.BaseTree;
+import org.apache.wicket.extensions.markup.html.tree.LinkTree;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.html.tree.BaseTree;
-import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.RoleTreeBuilder;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
 
 public class TreeRolePanel extends Panel {
 
@@ -55,10 +56,7 @@ public class TreeRolePanel extends Panel {
         treeContainer = new WebMarkupContainer("treeContainer");
         treeContainer.setOutputMarkupId(true);
         add(treeContainer);
-
         updateTree();
-
-        treeContainer.add(tree);
     }
 
     private void updateTree() {
@@ -73,7 +71,8 @@ public class TreeRolePanel extends Panel {
             }
 
             @Override
-            protected void onNodeLinkClicked(final Object node, final BaseTree baseTree, final AjaxRequestTarget target) {
+            protected void onNodeLinkClicked(
+                    final Object node, final BaseTree baseTree, final AjaxRequestTarget target) {
 
                 DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
                 RoleTO unitObject = (RoleTO) treeNode.getUserObject();

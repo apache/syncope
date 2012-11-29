@@ -43,13 +43,13 @@ under the License.
   </distributionManagement>
   
   <properties>
-    <SVNRepoURL>http://svn.apache.org/repos/asf/incubator/syncope/trunk</SVNRepoURL>
+    <SVNRepoURL>http://svn.apache.org/repos/asf/syncope/trunk</SVNRepoURL>
   </properties>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</developerConnection>
-    <url>http://svn.apache.org/repos/asf/incubator/syncope/trunk/archetype</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/trunk/archetype</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/trunk/archetype</developerConnection>
+    <url>http://svn.apache.org/repos/asf/syncope/trunk/archetype</url>
   </scm>
 
   <build>
@@ -203,7 +203,6 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
-          <include>DISCLAIMER</include>
         </includes>
       </resource>
     </resources>

@@ -25,10 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -42,11 +40,7 @@ import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.MembershipMod;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
@@ -67,6 +61,7 @@ import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.Assume;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class UserTestITCase extends AbstractTest {
 
@@ -123,6 +118,24 @@ public class UserTestITCase extends AbstractTest {
         userTO.addVirtualAttribute(virtualdata);
 
         return userTO;
+    }
+
+    @Test
+    public void selfRead() {
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
+                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+
+        try {
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+            fail();
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        }
+
+        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/self", UserTO.class);
+        assertEquals("user1", userTO.getUsername());
     }
 
     @Test
@@ -873,17 +886,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchCount() {
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        NodeCond searchCond = NodeCond.getLeafCond(isNullCond);
-
-        Integer count = restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCond, Integer.class);
-        assertNotNull(count);
-        assertTrue(count > 0);
-    }
-
-    @Test
     public void list() {
         List<UserTO> users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list.json", UserTO[].class));
         assertNotNull(users);
@@ -927,140 +929,6 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());
         assertFalse(userTO.getAttributes().isEmpty());
-    }
-
-    @Test
-    public void search() {
-        // LIKE
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-        for (UserTO user : matchedUsers) {
-            assertNotNull(user);
-        }
-
-        // ISNULL
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        searchCondition = NodeCond.getLeafCond(isNullCond);
-
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-        assertTrue(userIds.contains(2L));
-        assertTrue(userIds.contains(3L));
-    }
-
-    @Test
-    public void searchByUsernameAndId() {
-        final SyncopeUserCond usernameLeafCond = new SyncopeUserCond(SyncopeUserCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("user1");
-
-        final SyncopeUserCond idRightCond = new SyncopeUserCond(SyncopeUserCond.Type.LT);
-        idRightCond.setSchema("id");
-        idRightCond.setExpression("2");
-
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameLeafCond), NodeCond.
-                getLeafCond(idRightCond));
-
-        assertTrue(searchCondition.checkValidity());
-
-        final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search",
-                searchCondition, UserTO[].class));
-
-        assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
-        assertEquals("user1", matchingUsers.iterator().next().getUsername());
-        assertEquals(1L, matchingUsers.iterator().next().getId());
-    }
-
-    @Test
-    public void searchUserByResourceName() {
-        ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceName("ws-target-resource2");
-
-        ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceName("ws-target-resource-list-mappings-2");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-
-        assertEquals(1, userIds.size());
-        assertTrue(userIds.contains(2L));
-    }
-
-    @Test
-    public void paginatedSearch() {
-        // LIKE
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
-        assertNotNull(matchedUsers);
-
-        assertFalse(matchedUsers.isEmpty());
-        for (UserTO user : matchedUsers) {
-            assertNotNull(user);
-        }
-
-        // ISNULL
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        searchCondition = NodeCond.getLeafCond(isNullCond);
-
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
-
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-        assertEquals(2, userIds.size());
     }
 
     @Test

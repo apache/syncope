@@ -28,22 +28,22 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.types.AttributableType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
+public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO {
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private TaskDAO taskDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -133,15 +133,6 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         return query.getResultList();
     }
 
-    @Override
-    public List<SyncopeRole> findByResource(final ExternalResource resource) {
-        Query query = entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
-                + "WHERE :resource MEMBER OF e.resources");
-        query.setParameter("resource", resource);
-
-        return query.getResultList();
-    }
-
     private void findAncestors(final List<SyncopeRole> result, final SyncopeRole role) {
         if (role.getParent() != null && !result.contains(role.getParent())) {
             result.add(role.getParent());
@@ -178,6 +169,29 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         List<SyncopeRole> result = new ArrayList<SyncopeRole>();
         findDescendants(result, role);
         return result;
+    }
+
+    @Override
+    public List<SyncopeRole> findByDerAttrValue(final String schemaName, final String value)
+            throws InvalidSearchConditionException {
+
+        return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.ROLE));
+    }
+
+    @Override
+    public List<SyncopeRole> findByAttrValue(final String schemaName, final UAttrValue attrValue) {
+        return findByAttrValue(schemaName, attrValue, AttributableUtil.getInstance(AttributableType.ROLE));
+    }
+
+    @Override
+    public SyncopeRole findByAttrUniqueValue(final String schemaName, final UAttrValue attrUniqueValue) {
+        return (SyncopeRole) findByAttrUniqueValue(schemaName, attrUniqueValue,
+                AttributableUtil.getInstance(AttributableType.ROLE));
+    }
+
+    @Override
+    public List<SyncopeRole> findByResource(final ExternalResource resource) {
+        return findByResource(resource, SyncopeRole.class);
     }
 
     @Override

@@ -21,39 +21,49 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.util.AttributableUtil;
 
-public interface UserSearchDAO extends DAO {
+public interface AttributableSearchDAO extends DAO {
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
+     * @param attrUtil AttributeUtil
      * @return size of search result
      */
-    int count(Set<Long> adminRoles, NodeCond searchCondition);
+    int count(Set<Long> adminRoles, NodeCond searchCondition, AttributableUtil attrUtil);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
-     * @return the list of users matching the given search condition
+     * @param attrUtil AttributeUtil
+     * @param <T> user/role
+     * @return the list of users/roles matching the given search condition
      */
-    List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition);
+    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, NodeCond searchCondition,
+            AttributableUtil attrUtil);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
-     * @return the list of users matching the given search condition
+     * @param attrUtil AttributeUtil
+     * @param <T> user/role
+     * @return the list of users/roles matching the given search condition (in the given page)
      */
-    List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition, int page, int itemsPerPage);
+    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, NodeCond searchCondition,
+            int page, int itemsPerPage, AttributableUtil attrUtil);
 
     /**
-     * Verify if user matched the given search condition.
+     * Verify if user/role matches the given search condition.
      *
-     * @param user to be checked
+     * @param subject to be checked
      * @param searchCondition to be verified
-     * @return true if user matched searchCondition
+     * @param attrUtil AttributeUtil
+     * @param <T> user/role
+     * @return true if user/role matches searchCondition
      */
-    boolean matches(SyncopeUser user, NodeCond searchCondition);
+    <T extends AbstractAttributable> boolean matches(T subject, NodeCond searchCondition, AttributableUtil attrUtil);
 }

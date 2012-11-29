@@ -158,7 +158,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Result table.
      */
-    private AjaxFallbackDefaultDataTable<UserTO> resultTable;
+    private AjaxFallbackDefaultDataTable<UserTO, String> resultTable;
 
     /**
      * Data provider used to search for users.
@@ -358,11 +358,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         final int currentPage = resultTable != null
                 ? (create
-                ? resultTable.getPageCount() - 1
-                : resultTable.getCurrentPage())
+                ? (int)resultTable.getPageCount() - 1
+                : (int)resultTable.getCurrentPage())
                 : 0;
 
-        resultTable = new AjaxFallbackDefaultDataTable<UserTO>("resultTable", getColumns(), dataProvider, rows);
+        resultTable = new AjaxFallbackDefaultDataTable<UserTO, String>("resultTable", getColumns(), dataProvider, rows);
 
         resultTable.setCurrentPage(currentPage);
 
@@ -371,8 +371,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.addOrReplace(resultTable);
     }
 
-    protected List<IColumn<UserTO>> getColumns() {
-        final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
+    private List<IColumn<UserTO, String>> getColumns() {
+        final List<IColumn<UserTO, String>> columns = new ArrayList<IColumn<UserTO, String>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
 
@@ -394,7 +394,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
         }
 
@@ -413,14 +413,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
                     DisplayAttributesModalPage.DEFAULT_SELECTION);
         }
 
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<UserTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

@@ -21,12 +21,13 @@ package org.apache.syncope.core.sync;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.init.ConnInstanceLoader;
-import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.beans.role.RMapping;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
@@ -227,12 +228,19 @@ public class SyncJob extends AbstractTaskJob {
             throw new JobExecutionException(msg, e);
         }
 
-        final AbstractMappingItem accountIdItem = syncTask.getResource().getUmapping().getAccountIdItem();
-        if (accountIdItem == null) {
-            throw new JobExecutionException("Invalid account id mapping for resource " + syncTask.getResource());
+        UMapping uMapping = syncTask.getResource().getUmapping();
+        if (uMapping != null && uMapping.getAccountIdItem() == null) {
+            throw new JobExecutionException("Invalid user account id mapping for resource " + syncTask.getResource());
+        }
+        RMapping rMapping = syncTask.getResource().getRmapping();
+        if (rMapping != null && rMapping.getAccountIdItem() == null) {
+            throw new JobExecutionException("Invalid role account id mapping for resource " + syncTask.getResource());
+        }
+        if (uMapping == null && rMapping == null) {
+            return "No mapping configured for both users and roles: aborting...";
         }
 
-        LOG.debug("Execute synchronization with token {}", syncTask.getResource().getSyncToken());
+        LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
@@ -255,17 +263,30 @@ public class SyncJob extends AbstractTaskJob {
         actions.beforeAll(syncTask);
         try {
             if (syncTask.isFullReconciliation()) {
-                connector.getAllObjects(ObjectClass.ACCOUNT, handler,
-                        connector.getOperationOptions(syncTask.getResource().getUmapping().getItems()));
+                if (uMapping != null) {
+                    connector.getAllObjects(ObjectClass.ACCOUNT, handler,
+                            connector.getOperationOptions(uMapping.getItems()));
+                }
+                if (rMapping != null) {
+                    connector.getAllObjects(ObjectClass.GROUP, handler,
+                            connector.getOperationOptions(rMapping.getItems()));
+                }
             } else {
-                connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getSyncToken(), handler,
-                        connector.getOperationOptions(syncTask.getResource().getUmapping().getItems()));
+                if (uMapping != null) {
+                    connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getUsyncToken(), handler,
+                            connector.getOperationOptions(uMapping.getItems()));
+                }
+                if (rMapping != null) {
+                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getUsyncToken(), handler,
+                            connector.getOperationOptions(rMapping.getItems()));
+                }
             }
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
                     ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
-                    resource.setSyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
+                    resource.setUsyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
+                    resource.setRsyncToken(connector.getLatestSyncToken(ObjectClass.GROUP));
                     resourceDAO.save(resource);
                 } catch (Exception e) {
                     throw new JobExecutionException("While updating SyncToken", e);
@@ -280,7 +301,7 @@ public class SyncJob extends AbstractTaskJob {
 
         LOG.debug("Sync result: {}", result);
 
-        return result.toString();
+        return result;
     }
 
     @Override

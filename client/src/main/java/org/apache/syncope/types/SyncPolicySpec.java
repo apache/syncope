@@ -27,36 +27,52 @@ public class SyncPolicySpec extends AbstractPolicySpec {
     private static final long serialVersionUID = -3144027171719498127L;
 
     /**
-     * SyncopeUsers attributes and user schemas used to disambiguate.
+     * SyncopeUser attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private List<String> alternativeSearchAttrs;
+    private List<String> uAltSearchSchemas;
+
+    /**
+     * SyncopeRole attributes and fields for matching during synchronization.
+     */
+    @SchemaList(extended = true)
+    private List<String> rAltSearchSchemas;
 
     /**
      * Conflict resolution action.
      */
     private ConflictResolutionAction conflictResolutionAction;
 
+    public SyncPolicySpec() {
+        super();
+
+        uAltSearchSchemas = new ArrayList<String>();
+        rAltSearchSchemas = new ArrayList<String>();
+    }
+
     public ConflictResolutionAction getConflictResolutionAction() {
-        if (conflictResolutionAction == null) {
-            return ConflictResolutionAction.IGNORE;
-        } else {
-            return conflictResolutionAction;
-        }
+        return conflictResolutionAction == null
+                ? ConflictResolutionAction.IGNORE
+                : conflictResolutionAction;
     }
 
     public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    public List<String> getAlternativeSearchAttrs() {
-        if (alternativeSearchAttrs == null) {
-            alternativeSearchAttrs = new ArrayList<String>();
-        }
-        return alternativeSearchAttrs;
+    public List<String> getuAltSearchSchemas() {
+        return uAltSearchSchemas;
     }
 
-    public void setAlternativeSearchAttrs(final List<String> alternativeSearchAttrs) {
-        this.alternativeSearchAttrs = alternativeSearchAttrs;
+    public void setuAltSearchSchemas(List<String> uAltSearchSchemas) {
+        this.uAltSearchSchemas = uAltSearchSchemas;
+    }
+
+    public List<String> getrAltSearchSchemas() {
+        return rAltSearchSchemas;
+    }
+
+    public void setrAltSearchSchemas(List<String> rAltSearchSchemas) {
+        this.rAltSearchSchemas = rAltSearchSchemas;
     }
 }

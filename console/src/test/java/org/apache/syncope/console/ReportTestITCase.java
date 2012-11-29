@@ -27,17 +27,22 @@ public class ReportTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Reports\"]");
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[8]/span/span[7]/a");
+        selenium.click("//table/tbody/tr/td[8]/div/span[7]/a");
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/span/div/div[5]/div[2]/span/div[2]/div/a\");", "30000");
+                + "\"//div[2]/form/div[2]/div/div/span/div/div/div/span\");", "30000");
 
-        selenium.click("css=img[alt=\"plus icon\"]");
+        selenium.click("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div[2]/div/a");
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/div[2]/div[2]/span/select\");", "30000");
+                + "\"//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select\");", "30000");
+
+        selenium.select("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select", "testUserReportlet");
+        selenium.click("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div[2]/div[2]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[2]/div/div/div/div/label\");", "30000");
 
         selenium.select("//form/div[2]/div/div/div[2]/div[2]/span/select",
                 "label=org.apache.syncope.client.report.UserReportletConf");
-        selenium.waitForCondition("selenium.isElementPresent(\"//form/div[2]/div[2]/div/span/div/div/span\")", "30000");
 
         selenium.click("css=a.w_close");
         selenium.click("css=a.w_close");
@@ -49,7 +54,7 @@ public class ReportTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[8]/span/span[3]/a");
+        selenium.click("//table/tbody/tr/td[8]/div/span[3]/a");
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }

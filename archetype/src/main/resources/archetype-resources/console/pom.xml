@@ -293,7 +293,7 @@ under the License.
     <profile>
       <id>embedded</id>
       <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <skipTests>true</skipTests>
       </properties>
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>    

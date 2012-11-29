@@ -328,14 +328,14 @@ public class ResourceTestITCase extends AbstractTest {
         String resourceName = "ws-target-resource-update-resetsynctoken";
         ResourceTO pre = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
-        assertNotNull(pre.getSyncToken());
+        assertNotNull(pre.getUsyncToken());
 
-        pre.setSyncToken(null);
+        pre.setUsyncToken(null);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", pre, ResourceTO.class);
 
         // check that the synctoken has been reset
-        assertNull(actual.getSyncToken());
+        assertNull(actual.getUsyncToken());
     }
 
     @Test

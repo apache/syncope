@@ -62,7 +62,7 @@ public class Tasks extends BasePage {
         super.setWindowClosedCallback(window, container);
     }
 
-    public static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
+    public static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO, String> {
 
         private static final long serialVersionUID = -5401263348984206145L;
 
@@ -80,17 +80,17 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public Iterator<TaskExecTO> iterator(final int first, final int count) {
+        public Iterator<TaskExecTO> iterator(final long first, final long count) {
 
             List<TaskExecTO> list = getTaskDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getTaskDB().size();
         }
 
@@ -113,7 +113,7 @@ public class Tasks extends BasePage {
         }
     }
 
-    public static class TasksProvider<T extends TaskTO> extends SortableDataProvider<T> {
+    public static class TasksProvider<T extends TaskTO> extends SortableDataProvider<T, String> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -142,10 +142,10 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public Iterator<T> iterator(final int first, final int count) {
+        public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : (List<T>) restClient.listTasks(reference, (first / paginatorRows) + 1, paginatorRows)) {
+            for (T task : (List<T>) restClient.listTasks(reference, ((int)first / paginatorRows) + 1, paginatorRows)) {
 
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
@@ -170,7 +170,7 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public int size() {
+        public long size() {
             return restClient.count(id);
         }
 
@@ -189,13 +189,13 @@ public class Tasks extends BasePage {
      * @param currentPage current page index.
      * @return data table.
      */
-    public static AjaxFallbackDefaultDataTable<TaskTO> updateTaskTable(
-            final List<IColumn<TaskTO>> columns,
+    public static AjaxFallbackDefaultDataTable<TaskTO, String> updateTaskTable(
+            final List<IColumn<TaskTO, String>> columns,
             final TasksProvider dataProvider,
             final WebMarkupContainer container,
             final int currentPage) {
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table = new AjaxFallbackDefaultDataTable<TaskTO>(
+        final AjaxFallbackDefaultDataTable<TaskTO, String> table = new AjaxFallbackDefaultDataTable<TaskTO, String>(
                 "datatable", columns, dataProvider, dataProvider.paginatorRows);
 
         table.setCurrentPage(currentPage);

@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 
-public interface UserDAO extends DAO {
+public interface UserDAO extends AttributableDAO {
 
     SyncopeUser find(Long id);
 

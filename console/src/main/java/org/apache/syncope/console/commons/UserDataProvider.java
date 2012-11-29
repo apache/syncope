@@ -21,15 +21,15 @@ package org.apache.syncope.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.rest.UserRestClient;
 
-public class UserDataProvider extends SortableDataProvider<UserTO> {
+public class UserDataProvider extends SortableDataProvider<UserTO, String> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
@@ -62,15 +62,15 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
     }
 
     @Override
-    public Iterator<UserTO> iterator(final int first, final int count) {
+    public Iterator<UserTO> iterator(final long first, final long count) {
         final List<UserTO> users;
 
         if (filtered) {
             users = filter == null
                     ? Collections.EMPTY_LIST
-                    : restClient.search(filter, (first / paginatorRows) + 1, paginatorRows);
+                    : restClient.search(filter, ((int)first / paginatorRows) + 1, paginatorRows);
         } else {
-            users = restClient.list((first / paginatorRows) + 1, paginatorRows);
+            users = restClient.list(((int)first / paginatorRows) + 1, paginatorRows);
         }
 
         Collections.sort(users, comparator);
@@ -78,7 +78,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
     }
 
     @Override
-    public int size() {
+    public long size() {
         if (filtered) {
             return filter == null
                     ? 0

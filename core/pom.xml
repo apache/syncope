@@ -637,7 +637,6 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
-          <include>DISCLAIMER</include>
         </includes>
       </resource>
     </resources>
@@ -674,7 +673,7 @@ under the License.
             <artifactId>maven-surefire-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <skip>true</skip>
+              <skipTests>true</skipTests>
             </configuration>
           </plugin>
 

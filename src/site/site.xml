@@ -24,14 +24,9 @@ under the License.
                              http://maven.apache.org/xsd/decoration-1.1.0.xsd" 
          name="Apache Syncope">
              
-  <bannerRight>
-    <src>images/apache-incubator-logo.png</src>
-    <href>http://incubator.apache.org/</href>
-  </bannerRight>
-
   <bannerLeft>
     <src>images/apache-syncope-logo-small.jpg</src>
-    <href>http://incubator.apache.org/syncope</href>
+    <href>http://syncope.apache.org/</href>
   </bannerLeft>
 
   <publishDate position="right"/>
@@ -42,15 +37,20 @@ under the License.
     <artifactId>maven-fluido-skin</artifactId>
     <version>1.3.0</version>
   </skin>
-
+  <custom>
+    <fluidoSkin>
+      <leftColumnClass>span2</leftColumnClass>
+      <bodyColumnClass>span10</bodyColumnClass>
+    </fluidoSkin>
+  </custom>
+  
   <body>
     <links>
       <item name="Apache" href="http://www.apache.org/"/>
-      <item name="Apache Incubator" href="http://incubator.apache.org/"/>
     </links>
 
     <breadcrumbs>
-      <item name="Apache Syncope" href="http://incubator.apache.org/syncope/"/>
+      <item name="Apache Syncope" href="http://syncope.apache.org/"/>
     </breadcrumbs>
         
     <menu name="Overview">
@@ -73,6 +73,7 @@ under the License.
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
       <item name="Issue Tracking" href="issue-tracking.html"/>
+      <item name="How to contribute?" href="contributing.html"/>
       <item name="Release Process" href="release-process.html"/>
     </menu>
 
@@ -85,7 +86,7 @@ under the License.
 
     <footer>
       <div class="row span16" style="width:100%">
-        Apache, Syncope, Apache Syncope, the Apache feather logo, the Apache Syncope project logo and the Apache Syncope logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
+        Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
       </div>
     </footer>
   </body>

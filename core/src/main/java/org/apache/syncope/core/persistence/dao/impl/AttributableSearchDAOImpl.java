@@ -28,26 +28,28 @@ import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
-import org.apache.syncope.core.persistence.beans.user.USchema;
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SchemaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO {
+public class AttributableSearchDAOImpl extends AbstractDAOImpl implements AttributableSearchDAO {
 
-    static final private String EMPTY_ATTR_QUERY = "SELECT user_id FROM user_search_attr WHERE 1=2";
+    static final private String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
 
     @Autowired
     private UserDAO userDAO;
@@ -58,20 +60,18 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     @Autowired
     private SchemaDAO schemaDAO;
 
-    public UserSearchDAOImpl() {
-        super();
-    }
-
-    private String getAdminRolesFilter(final Set<Long> adminRoles) {
+    private String getAdminRolesFilter(final Set<Long> adminRoles, final AttributableUtil attrUtil) {
         final StringBuilder adminRolesFilter = new StringBuilder();
 
-        adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").append("FROM Membership M1 ").
-                append("WHERE syncopeRole_id IN (");
+        if (attrUtil.getType() == AttributableType.USER) {
+            adminRolesFilter.append("SELECT syncopeUser_id AS subject_id FROM Membership M1 WHERE syncopeRole_id IN (").
+                    append("SELECT syncopeRole_id FROM Membership M2 WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
+                    append("AND syncopeRole_id NOT IN (");
+        }
 
-        adminRolesFilter.append("SELECT syncopeRole_id ").append("FROM Membership M2 ").
-                append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").append("AND syncopeRole_id NOT IN (");
-
-        adminRolesFilter.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
+        adminRolesFilter.append("SELECT id AS ").
+                append(attrUtil.getType() == AttributableType.USER ? "syncopeRole" : "subject").
+                append("_id FROM SyncopeRole");
 
         boolean firstRole = true;
 
@@ -80,32 +80,34 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                 adminRolesFilter.append(" WHERE");
                 firstRole = false;
             } else {
-                adminRolesFilter.append(" OR");
+                adminRolesFilter.append(attrUtil.getType() == AttributableType.USER ? " OR" : " AND");
             }
-            adminRolesFilter.append(" id=").append(adminRoleId);
+            adminRolesFilter.append(attrUtil.getType() == AttributableType.USER
+                    ? " id=" : " id <>").append(adminRoleId);
         }
 
-        adminRolesFilter.append("))");
+        if (attrUtil.getType() == AttributableType.USER) {
+            adminRolesFilter.append("))");
+        }
 
         return adminRolesFilter.toString();
     }
 
     @Override
-    public int count(final Set<Long> adminRoles, final NodeCond searchCondition) {
-
+    public int count(final Set<Long> adminRoles, final NodeCond searchCondition, final AttributableUtil attrUtil) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        StringBuilder queryString = getQuery(searchCondition, parameters);
+        StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil);
 
         // 2. take into account administrative roles
-        queryString.insert(0, "SELECT u.user_id FROM (");
-        queryString.append(") u WHERE user_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles)).append(")");
+        queryString.insert(0, "SELECT u.subject_id FROM (");
+        queryString.append(") u WHERE subject_id NOT IN (");
+        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(")");
 
         // 3. prepare the COUNT query
-        queryString.insert(0, "SELECT COUNT(user_id) FROM (");
-        queryString.append(") count_user_id");
+        queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
+        queryString.append(") count_subject_id");
 
         Query countQuery = entityManager.createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
@@ -119,27 +121,29 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     @Override
-    public List<SyncopeUser> search(final Set<Long> adminRoles, final NodeCond searchCondition) {
-        return search(adminRoles, searchCondition, -1, -1);
+    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final NodeCond searchCondition,
+            final AttributableUtil attrUtil) {
+
+        return search(adminRoles, searchCondition, -1, -1, attrUtil);
     }
 
     @Override
-    public List<SyncopeUser> search(
-            final Set<Long> adminRoles, final NodeCond searchCondition, final int page, final int itemsPerPage) {
+    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final NodeCond searchCondition,
+            final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
-        List<SyncopeUser> result = Collections.emptyList();
+        List<T> result = Collections.EMPTY_LIST;
 
         if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
-            if (!searchCondition.checkValidity()) {
-                LOG.error("Invalid search condition:\n{}", searchCondition);
-            } else {
+            if (searchCondition.checkValidity()) {
                 try {
-                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
+                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage, attrUtil);
                 } catch (Exception e) {
-                    LOG.error("While searching users", e);
+                    LOG.error("While searching for {}", attrUtil.getType(), e);
                 }
+            } else {
+                LOG.error("Invalid search condition:\n{}", searchCondition);
             }
         }
 
@@ -147,16 +151,17 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     @Override
-    public boolean matches(final SyncopeUser user, final NodeCond searchCondition) {
+    public <T extends AbstractAttributable> boolean matches(final T user, final NodeCond searchCondition,
+            final AttributableUtil attrUtil) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        StringBuilder queryString = getQuery(searchCondition, parameters);
+        StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil);
 
         // 2. take into account the passed user
-        queryString.insert(0, "SELECT u.user_id FROM (");
-        queryString.append(") u WHERE user_id=?").append(setParameter(parameters, user.getId()));
+        queryString.insert(0, "SELECT u.subject_id FROM (");
+        queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
 
         // 3. prepare the search query
         Query query = entityManager.createNativeQuery(queryString.toString());
@@ -165,13 +170,12 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         fillWithParameters(query, parameters);
 
         // 5. executes query
-        List<SyncopeUser> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         return !result.isEmpty();
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
-
         int key;
         synchronized (parameters) {
             parameters.add(parameter);
@@ -182,7 +186,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     private void fillWithParameters(final Query query, final List<Object> parameters) {
-
         for (int i = 0; i < parameters.size(); i++) {
             if (parameters.get(i) instanceof Date) {
                 query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
@@ -196,31 +199,29 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         }
     }
 
-    private List<SyncopeUser> doSearch(
-            final Set<Long> adminRoles, final NodeCond nodeCond, final int page, final int itemsPerPage) {
+    private <T extends AbstractAttributable> List<T> doSearch(final Set<Long> adminRoles, final NodeCond nodeCond,
+            final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        final StringBuilder queryString = getQuery(nodeCond, parameters);
+        final StringBuilder queryString = getQuery(nodeCond, parameters, attrUtil);
 
         // 2. take into account administrative roles
         if (queryString.charAt(0) == '(') {
-            queryString.insert(0, "SELECT u.user_id FROM ");
-            queryString.append(" u WHERE user_id NOT IN (");
+            queryString.insert(0, "SELECT u.subject_id FROM ");
+            queryString.append(" u WHERE subject_id NOT IN (");
         } else {
-            queryString.insert(0, "SELECT u.user_id FROM (");
-            queryString.append(") u WHERE user_id NOT IN (");
+            queryString.insert(0, "SELECT u.subject_id FROM (");
+            queryString.append(") u WHERE subject_id NOT IN (");
         }
-        queryString.append(getAdminRolesFilter(adminRoles)).append(")");
+        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(")");
 
         // 3. prepare the search query
         final Query query = entityManager.createNativeQuery(queryString.toString());
 
         // page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
@@ -232,36 +233,39 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         LOG.debug("Native query\n{}\nwith parameters\n{}", queryString.toString(), parameters);
 
         // 5. Prepare the result (avoiding duplicates - set)
-        final Set<Number> userIds = new HashSet<Number>();
+        final Set<Number> subjectIds = new HashSet<Number>();
         final List resultList = query.getResultList();
 
         //fix for HHH-5902 - bug hibernate
         if (resultList != null) {
             for (Object userId : resultList) {
                 if (userId instanceof Object[]) {
-                    userIds.add((Number) ((Object[]) userId)[0]);
+                    subjectIds.add((Number) ((Object[]) userId)[0]);
                 } else {
-                    userIds.add((Number) userId);
+                    subjectIds.add((Number) userId);
                 }
             }
         }
 
-        final List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
+        final List<T> result = new ArrayList<T>(subjectIds.size());
 
-        SyncopeUser user;
-        for (Object userId : userIds) {
-            user = userDAO.find(((Number) userId).longValue());
-            if (user == null) {
-                LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
+        for (Object subjectId : subjectIds) {
+            T subject = attrUtil.getType() == AttributableType.USER
+                    ? (T) userDAO.find(((Number) subjectId).longValue())
+                    : (T) roleDAO.find(((Number) subjectId).longValue());
+            if (subject == null) {
+                LOG.error("Could not find {} with id {}, even though returned by the native query",
+                        attrUtil.getType(), subjectId);
             } else {
-                result.add(user);
+                result.add(subject);
             }
         }
 
         return result;
     }
 
-    private StringBuilder getQuery(final NodeCond nodeCond, final List<Object> parameters) {
+    private StringBuilder getQuery(final NodeCond nodeCond, final List<Object> parameters,
+            final AttributableUtil attrUtil) {
 
         StringBuilder query = new StringBuilder();
 
@@ -269,32 +273,37 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
             case LEAF:
             case NOT_LEAF:
-                if (nodeCond.getMembershipCond() != null) {
+                if (nodeCond.getMembershipCond() != null && AttributableType.USER == attrUtil.getType()) {
                     query.append(getQuery(nodeCond.getMembershipCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters));
+                            parameters, attrUtil));
                 }
                 if (nodeCond.getResourceCond() != null) {
                     query.append(getQuery(nodeCond.getResourceCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters));
+                            parameters, attrUtil));
                 }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters));
+                            parameters, attrUtil));
                 }
-                if (nodeCond.getSyncopeUserCond() != null) {
-                    query.append(getQuery(nodeCond.getSyncopeUserCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters));
+                if (nodeCond.getAttributableCond() != null) {
+                    query.append(getQuery(nodeCond.getAttributableCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
+                            parameters, attrUtil));
                 }
                 break;
 
             case AND:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters)).append(" AND user_id IN ( ").append(
-                        getQuery(nodeCond.getRightNodeCond(), parameters).append(")"));
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
+                        append(" AND subject_id IN ( ").
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
+                        append(")"));
                 break;
 
             case OR:
-                query.append("(").append(getQuery(nodeCond.getLeftNodeCond(), parameters)).append(" UNION ").append(
-                        getQuery(nodeCond.getRightNodeCond(), parameters).append(")"));
+                query.append("(").
+                        append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
+                        append(" UNION ").
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
+                        append(")"));
                 break;
 
             default:
@@ -303,17 +312,20 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         return query;
     }
 
-    private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters) {
+    private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters,
+            final AttributableUtil attrUtil) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT user_id FROM user_search WHERE ");
+        StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append(attrUtil.searchView()).append(" WHERE ");
 
         if (not) {
-            query.append("user_id NOT IN (");
+            query.append("subject_id NOT IN (");
         } else {
-            query.append("user_id IN (");
+            query.append("subject_id IN (");
         }
 
-        query.append("SELECT DISTINCT user_id ").append("FROM user_search_membership WHERE ");
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").
+                append(attrUtil.searchView()).append("_membership WHERE ");
 
         if (cond.getRoleId() != null) {
             query.append("role_id=?").append(setParameter(parameters, cond.getRoleId()));
@@ -326,17 +338,20 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         return query.toString();
     }
 
-    private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters) {
+    private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters,
+            final AttributableUtil attrUtil) {
 
-        final StringBuilder query = new StringBuilder("SELECT DISTINCT user_id FROM user_search WHERE ");
+        final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append(attrUtil.searchView()).append(" WHERE ");
 
         if (not) {
-            query.append("user_id NOT IN (");
+            query.append("subject_id NOT IN (");
         } else {
-            query.append("user_id IN (");
+            query.append("subject_id IN (");
         }
 
-        query.append("SELECT DISTINCT user_id ").append("FROM user_search_resource WHERE ");
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").
+                append(attrUtil.searchView()).append("_resource WHERE ");
 
         query.append("resource_name=?").append(setParameter(parameters, cond.getResourceName()));
 
@@ -345,10 +360,10 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         return query.toString();
     }
 
-    private void fillAttributeQuery(final StringBuilder query, final UAttrValue attrValue, final USchema schema,
-            final AttributeCond cond, final boolean not, final List<Object> parameters) {
+    private void fillAttributeQuery(final StringBuilder query, final AbstractAttrValue attrValue,
+            final AbstractSchema schema, final AttributeCond cond, final boolean not, final List<Object> parameters) {
 
-        String column = (cond instanceof SyncopeUserCond)
+        String column = (cond instanceof AttributableCond)
                 ? cond.getSchema()
                 : "' AND " + getFieldName(schema.getType());
 
@@ -377,7 +392,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                     query.append(" LIKE '").append(cond.getExpression()).append("'");
 
                 } else {
-                    if (!(cond instanceof SyncopeUserCond)) {
+                    if (!(cond instanceof AttributableCond)) {
                         query.append("' AND");
                     }
                     query.append(" 1=2");
@@ -471,15 +486,16 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         return result;
     }
 
-    private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters) {
+    private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
+            AttributableUtil attrUtil) {
 
-        USchema schema = schemaDAO.find(cond.getSchema(), USchema.class);
+        AbstractSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
-        UAttrValue attrValue = new UAttrValue();
+        AbstractAttrValue attrValue = attrUtil.newAttrValue();
         try {
             if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
@@ -491,21 +507,21 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
             return EMPTY_ATTR_QUERY;
         }
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT user_id FROM user_search_attr WHERE ").append(
-                "schema_name='").append(schema.getName());
+        StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append(attrUtil.searchView()).append("_attr WHERE ").append("schema_name='").append(schema.getName());
         fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
 
         return query.toString();
     }
 
-    private String getQuery(final SyncopeUserCond cond, final boolean not, final List<Object> parameters) {
+    private String getQuery(final AttributableCond cond, final boolean not, final List<Object> parameters,
+            final AttributableUtil attrUtil) {
 
-        Field syncopeUserClassField = null;
-        // loop over SyncopeUser class and all superclasses searching for field
-        for (Class<?> i = SyncopeUser.class; syncopeUserClassField == null && i != Object.class;) {
-
+        Field attributableClassField = null;
+        // loop over attributable class and all superclasses searching for field
+        for (Class i = attrUtil.attributableClass(); attributableClassField == null && i != Object.class;) {
             try {
-                syncopeUserClassField = i.getDeclaredField(cond.getSchema());
+                attributableClassField = i.getDeclaredField(cond.getSchema());
             } catch (Exception ignore) {
                 // ignore exception
                 LOG.debug("Field '{}' not found on class '{}'", new String[]{cond.getSchema(), i.getSimpleName()},
@@ -514,21 +530,20 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                 i = i.getSuperclass();
             }
         }
-        if (syncopeUserClassField == null) {
+        if (attributableClassField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
-        USchema schema = new USchema();
-        schema.setName(syncopeUserClassField.getName());
+        AbstractSchema schema = attrUtil.newSchema();
+        schema.setName(attributableClassField.getName());
         for (SchemaType type : SchemaType.values()) {
-            if (syncopeUserClassField.getType().getName().equals(type.getClassName())) {
-
+            if (attributableClassField.getType().getName().equals(type.getClassName())) {
                 schema.setType(type);
             }
         }
 
-        UAttrValue attrValue = new UAttrValue();
+        AbstractAttrValue attrValue = attrUtil.newAttrValue();
         try {
             if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
@@ -540,7 +555,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
             return EMPTY_ATTR_QUERY;
         }
 
-        final StringBuilder query = new StringBuilder("SELECT DISTINCT user_id FROM user_search WHERE ");
+        final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append(attrUtil.searchView()).append(" WHERE ");
 
         fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
 

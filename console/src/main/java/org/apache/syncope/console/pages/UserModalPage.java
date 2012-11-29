@@ -82,11 +82,11 @@ public abstract class UserModalPage extends BaseModalPage {
         add(fragment);
         add(new CloseOnESCBehavior(window));
     }
-
+  
     public UserModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
 
         super();
-
+        
         this.callerPageRef = null;
         this.window = window;
         this.mode = mode;
@@ -178,7 +178,7 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment.add(form);
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new AjaxButton("cancel", new ResourceModel("cancel")) {
             private static final long serialVersionUID = 530608535790823587L;
 
             @Override

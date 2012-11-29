@@ -21,14 +21,14 @@ package org.apache.syncope.client.search;
 /**
  * Search condition to be applied when comparing bean attribute values.
  */
-public class SyncopeUserCond extends AttributeCond {
+public class AttributableCond extends AttributeCond {
 
     private static final long serialVersionUID = -1880319220462653955L;
 
-    public SyncopeUserCond() {
+    public AttributableCond() {
     }
 
-    public SyncopeUserCond(Type conditionType) {
+    public AttributableCond(Type conditionType) {
         super(conditionType);
     }
 }

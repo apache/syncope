@@ -36,19 +36,21 @@ import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.propagation.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.UserSubCategory;
@@ -88,7 +90,7 @@ public class UserController {
     private UserDAO userDAO;
 
     @Autowired
-    private UserSearchDAO searchDAO;
+    private AttributableSearchDAO searchDAO;
 
     @Autowired
     private UserDataBinder dataBinder;
@@ -144,9 +146,9 @@ public class UserController {
             throw new InvalidSearchConditionException();
         }
 
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-
-        return new ModelAndView().addObject(searchDAO.count(adminRoleIds, searchCondition));
+        final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+        return new ModelAndView().addObject(searchDAO.count(adminRoleIds, searchCondition,
+                AttributableUtil.getInstance(AttributableType.USER)));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -200,7 +202,7 @@ public class UserController {
         return result;
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable final String username)
@@ -212,6 +214,18 @@ public class UserController {
                 "Successfully read user: " + username);
 
         return result;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET, value = "/read/self")
+    @Transactional(readOnly = true)
+    public UserTO read() throws NotFoundException {
+        UserTO userTO = dataBinder.getAuthenticatedUserTO();
+
+        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
+                "Successfully read own data: " + userTO.getUsername());
+
+        return userTO;
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -228,7 +242,7 @@ public class UserController {
         }
 
         List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition);
+                getOwnedEntitlementNames()), searchCondition, AttributableUtil.getInstance(AttributableType.USER));
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(dataBinder.getUserTO(user));
@@ -255,7 +269,8 @@ public class UserController {
         }
 
         final List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition, page, size);
+                getOwnedEntitlementNames()), searchCondition, page, size,
+                AttributableUtil.getInstance(AttributableType.USER));
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {

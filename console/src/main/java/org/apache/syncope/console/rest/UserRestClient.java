@@ -80,6 +80,21 @@ public class UserRestClient extends AbstractBaseRestClient {
         return userTO;
     }
 
+    public UserTO read(String username) {
+        UserTO userTO = null;
+        try {
+            userTO = SyncopeSession.get().getRestTemplate().getForObject(
+                    baseURL + "user/readByUsername/{username}.json", UserTO.class, username);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While reading a user", e);
+        }
+        return userTO;
+    }
+
+    public UserTO readProfile() {
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/read/self", UserTO.class);
+    }
+
     public Integer searchCount(final NodeCond searchCond) {
         return SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "user/search/count.json", searchCond, Integer.class);

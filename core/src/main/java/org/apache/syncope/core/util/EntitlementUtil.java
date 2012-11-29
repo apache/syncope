@@ -38,6 +38,10 @@ public final class EntitlementUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntitlementUtil.class);
 
+    public static String getAuthenticatedUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
     public static Set<String> getOwnedEntitlementNames() {
         final Set<String> result = new HashSet<String>();
 

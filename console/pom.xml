@@ -77,7 +77,7 @@ under the License.
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
+    </dependency>    
 
     <dependency>
       <groupId>org.apache.wicket</groupId>
@@ -400,7 +400,6 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
-          <include>DISCLAIMER</include>
         </includes>
       </resource>
     </resources>
@@ -422,7 +421,7 @@ under the License.
     <profile>
       <id>dev</id>
       <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <skipTests>true</skipTests>
         <javaagent />
       </properties>
       <build>

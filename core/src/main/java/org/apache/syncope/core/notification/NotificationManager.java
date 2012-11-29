@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -32,16 +33,18 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.VelocityException;
@@ -89,7 +92,7 @@ public class NotificationManager {
      * User Search DAO.
      */
     @Autowired
-    private UserSearchDAO searchDAO;
+    private AttributableSearchDAO searchDAO;
 
     /**
      * Task DAO.
@@ -124,11 +127,11 @@ public class NotificationManager {
 
         connObjectUtil.retrieveVirAttrValues(user);
 
-        final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
+        final List<AbstractAttributable> recipients = new ArrayList<AbstractAttributable>();
 
         if (notification.getRecipients() != null) {
-            recipients.addAll(searchDAO.search(EntitlementUtil.getRoleIds(
-                    entitlementDAO.findAll()), notification.getRecipients()));
+            recipients.addAll(searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                    notification.getRecipients(), AttributableUtil.getInstance(AttributableType.USER)));
         }
 
         if (notification.isSelfAsRecipient()) {
@@ -137,13 +140,11 @@ public class NotificationManager {
 
         Set<String> recipientEmails = new HashSet<String>();
 
-        for (SyncopeUser recipient : recipients) {
-
+        for (AbstractAttributable recipient : recipients) {
             connObjectUtil.retrieveVirAttrValues(recipient);
 
-            String email = getRecipientEmail(
-                    notification.getRecipientAttrType(), notification.getRecipientAttrName(), recipient);
-
+            String email = getRecipientEmail(notification.getRecipientAttrType(),
+                    notification.getRecipientAttrName(), (SyncopeUser) recipient);
             if (email == null) {
                 LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
@@ -196,15 +197,15 @@ public class NotificationManager {
         }
 
         for (Notification notification : notificationDAO.findAll()) {
-            if (searchDAO.matches(user, notification.getAbout())) {
+            if (searchDAO.matches(user, notification.getAbout(), AttributableUtil.getInstance(AttributableType.USER))) {
                 Set<String> events = new HashSet<String>(notification.getEvents());
                 events.retainAll(performedTasks);
 
-                if (!events.isEmpty()) {
+                if (events.isEmpty()) {
+                    LOG.debug("No events found about {}", user);
+                } else {
                     LOG.debug("Creating notification task for events {} about {}", events, user);
                     taskDAO.save(getNotificationTask(notification, user));
-                } else {
-                    LOG.debug("No events found about {}", user);
                 }
             }
         }

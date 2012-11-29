@@ -20,8 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.model.IModel;
 
@@ -40,28 +38,16 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
         super(id, model);
 
         add(new AjaxEventBehavior("onclick") {
-
             private static final long serialVersionUID = -295188647830294610L;
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                onUpdate(target);
-            }
-
-            @Override
-            protected IAjaxCallDecorator getAjaxCallDecorator() {
-                return new CancelEventIfNoAjaxDecorator(AjaxDecoratedCheckbox.this.getAjaxCallDecorator());
+                refreshComponent(target);
             }
         });
     }
 
-    /**
-     * Returns ajax call decorator that will be used to decorate the ajax call.
-     *
-     * @return ajax call decorator
-     */
-    @Override
-    protected IAjaxCallDecorator getAjaxCallDecorator() {
-        return null;
+    private void refreshComponent(final AjaxRequestTarget target) {
+        target.add(this);
     }
 }

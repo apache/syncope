@@ -541,7 +541,7 @@ public class Schema extends BasePage {
                 "createMembershipVirtualSchemaWin", allowedCreateRoles));
     }
 
-    private class SchemaProvider extends SortableDataProvider<SchemaTO> {
+    private class SchemaProvider extends SortableDataProvider<SchemaTO, String> {
 
         private static final long serialVersionUID = 712816496206559637L;
 
@@ -560,16 +560,16 @@ public class Schema extends BasePage {
         }
 
         @Override
-        public Iterator<SchemaTO> iterator(final int first, final int count) {
+        public Iterator<SchemaTO> iterator(final long first, final long count) {
             List<SchemaTO> list = getSchemaDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getSchemaDB().size();
         }
 
@@ -601,7 +601,7 @@ public class Schema extends BasePage {
         }
     }
 
-    private class DerivedSchemaProvider extends SortableDataProvider<DerivedSchemaTO> {
+    private class DerivedSchemaProvider extends SortableDataProvider<DerivedSchemaTO, String> {
 
         private static final long serialVersionUID = -8518694430295937917L;
 
@@ -619,16 +619,16 @@ public class Schema extends BasePage {
         }
 
         @Override
-        public Iterator<DerivedSchemaTO> iterator(int first, int count) {
+        public Iterator<DerivedSchemaTO> iterator(final long first, final long count) {
             List<DerivedSchemaTO> list = getDerivedSchemaDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getDerivedSchemaDB().size();
         }
 
@@ -653,7 +653,7 @@ public class Schema extends BasePage {
         }
     }
 
-    private class VirtualSchemaProvider extends SortableDataProvider<VirtualSchemaTO> {
+    private class VirtualSchemaProvider extends SortableDataProvider<VirtualSchemaTO, String> {
 
         private static final long serialVersionUID = -5431560608852987760L;
 
@@ -671,16 +671,16 @@ public class Schema extends BasePage {
         }
 
         @Override
-        public Iterator<VirtualSchemaTO> iterator(int first, int count) {
+        public Iterator<VirtualSchemaTO> iterator(final long first, final long count) {
             List<VirtualSchemaTO> list = getVirtualSchemaDB();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return getVirtualSchemaDB().size();
         }
 
@@ -716,7 +716,7 @@ public class Schema extends BasePage {
             columns.add(new PropertyColumn(new ResourceModel(field), field, field));
         }
 
-        columns.add(new AbstractColumn<AbstractBaseBean>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<AbstractBaseBean, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

@@ -27,16 +27,28 @@ import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
+import org.apache.syncope.console.commons.DateFormatROModel;
+import org.apache.syncope.console.commons.HttpResourceStream;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.types.ReportExecStatus;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -49,27 +61,17 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.console.commons.DateFormatROModel;
-import org.apache.syncope.console.commons.HttpResourceStream;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 
 public class ReportModalPage extends BaseModalPage {
 
@@ -80,6 +82,10 @@ public class ReportModalPage extends BaseModalPage {
     private static final String EDIT_BUTTON_ID = "editButton";
 
     private static final String REMOVE_BUTTON_ID = "removeButton";
+
+    private static final String UP_BUTTON_ID = "upButton";
+
+    private static final String DOWN_BUTTON_ID = "downButton";
 
     private static final int EXEC_EXPORT_WIN_HEIGHT = 100;
 
@@ -106,6 +112,8 @@ public class ReportModalPage extends BaseModalPage {
     private ReportletConf modalReportletConf;
 
     private String modalReportletConfOldName;
+
+    private ListChoice<ReportletConf> reportlets;
 
     public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
         this.reportTO = reportTO;
@@ -213,7 +221,7 @@ public class ReportModalPage extends BaseModalPage {
                     }
                 }
 
-                target.add(profile);
+                target.add(reportlets);
             }
         });
         add(reportletConfWin);
@@ -243,8 +251,7 @@ public class ReportModalPage extends BaseModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        final SingleColumnPalette<ReportletConf> reportlets = new SingleColumnPalette<ReportletConf>("reportlets",
-                new PropertyModel<List<? extends ReportletConf>>(reportTO, "reportletConfs"),
+        reportlets = new ListChoice<ReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
                 new IChoiceRenderer<ReportletConf>() {
                     private static final long serialVersionUID = 1048000918946220007L;
 
@@ -255,43 +262,29 @@ public class ReportModalPage extends BaseModalPage {
 
                     @Override
                     public String getIdValue(final ReportletConf object, int index) {
-
                         return object.getName();
                     }
-                }, 5, true);
-        reportlets.setOutputMarkupId(true);
-        reportlets.addRecordBehavior(new AjaxFormComponentUpdatingBehavior("onchange") {
+                }) {
+            private static final long serialVersionUID = 4022366881854379834L;
+
+            @Override
+            protected CharSequence getDefaultChoice(String selectedValue) {
+                return null;
+            }
+        };
+
+        reportlets.setNullValid(true);
+        profile.add(reportlets);
+        reportlets.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
+            protected void onUpdate(AjaxRequestTarget target) {
+                target.add(reportlets);
             }
         });
-        reportlets.addRecordBehavior(new AjaxFormComponentUpdatingBehavior("onselect") {
-            private static final long serialVersionUID = -1107858522700306810L;
 
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                if (target.getLastFocusedElementId() != null
-                        && target.getLastFocusedElementId().startsWith(EDIT_BUTTON_ID)
-                        && reportlets.getSelectedItem() != null) {
-
-                    reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
-                        private static final long serialVersionUID = -7834632442532690940L;
-
-                        @Override
-                        public Page createPage() {
-                            modalReportletConfOldName = reportlets.getSelectedItem().getName();
-                            modalReportletConf = null;
-                            return new ReportletConfModalPage(reportlets.getSelectedItem(), reportletConfWin,
-                                    ReportModalPage.this.getPageReference());
-                        }
-                    });
-                    reportletConfWin.show(target);
-                }
-            }
-        });
-        reportlets.setAddLink(new AjaxLink(ADD_BUTTON_ID) {
+        profile.add(new AjaxLink(ADD_BUTTON_ID) {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -310,47 +303,103 @@ public class ReportModalPage extends BaseModalPage {
                 reportletConfWin.show(target);
             }
         });
-        reportlets.setEditLink(new AjaxLink(EDIT_BUTTON_ID) {
+
+        profile.add(new AjaxLink(EDIT_BUTTON_ID) {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.focusComponent(this);
-            }
 
-            @Override
-            protected IAjaxCallDecorator getAjaxCallDecorator() {
-                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
-                    private static final long serialVersionUID = -7927968187160354605L;
+                if (reportlets.getModelObject() != null) {
+                    reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
+                        private static final long serialVersionUID = -7834632442532690940L;
 
-                    @Override
-                    public CharSequence preDecorateScript(final CharSequence script) {
-                        return script + reportlets.getEditOnClickJS();
-                    }
-                };
+                        @Override
+                        public Page createPage() {
+                            modalReportletConfOldName = reportlets.getModelObject().getName();
+                            modalReportletConf = null;
+                            return new ReportletConfModalPage(reportlets.getModelObject(), reportletConfWin,
+                                    ReportModalPage.this.getPageReference());
+                        }
+                    });
+                    reportletConfWin.show(target);
+                } else {
+                    target.appendJavaScript("alert('" + getString("selectItem") + "')");
+                }
             }
         });
-        reportlets.setRemoveLink(new AjaxLink(REMOVE_BUTTON_ID) {
+
+        profile.add(new AjaxLink(REMOVE_BUTTON_ID) {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                reportTO.removeReportletConf(reportlets.getModelObject());
+                reportlets.setModelObject(null);
+                target.add(reportlets);
             }
 
             @Override
-            protected IAjaxCallDecorator getAjaxCallDecorator() {
-                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
-                    private static final long serialVersionUID = -7927968187160354605L;
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
 
-                    @Override
-                    public CharSequence preDecorateScript(final CharSequence script) {
-                        return "if (confirm('" + getString("confirmDelete") + "')) {" + script
-                                + reportlets.getRemoveOnClickJS() + "}";
-                    }
-                };
+                if (reportlets.getModelObject() != null) {
+
+                    super.updateAjaxAttributes(attributes);
+
+                    final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+                        private static final long serialVersionUID = 7160235486520935153L;
+
+                        @Override
+                        public CharSequence getPrecondition(final Component component) {
+                            return "if (!confirm('" + getString("confirmDelete") + "')) {return false;}";
+                        }
+                    };
+                    attributes.getAjaxCallListeners().add(ajaxCallListener);
+                }
             }
         });
-        profile.add(reportlets);
+
+        profile.add(new AjaxLink(UP_BUTTON_ID) {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                if (reportlets.getModelObject() != null) {
+                    moveUp(reportlets.getModelObject());
+                    target.add(reportlets);
+                }
+            }
+        });
+
+        profile.add(new AjaxLink(DOWN_BUTTON_ID) {
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                if (reportlets.getModelObject() != null) {
+                    moveDown(reportlets.getModelObject());
+                    target.add(reportlets);
+                }
+            }
+        });
+    }
+
+    private void moveUp(final ReportletConf item) {
+        final List<ReportletConf> list = reportTO.getReportletConfs();
+        int newPosition = list.indexOf(item) - 1;
+        if (newPosition > -1) {
+            list.remove(item);
+            list.add(newPosition, item);
+        }
+    }
+
+    private void moveDown(final ReportletConf item) {
+        final List<ReportletConf> list = reportTO.getReportletConfs();
+        int newPosition = list.indexOf(item) + 1;
+        if (newPosition < list.size()) {
+            list.remove(item);
+            list.add(newPosition, item);
+        }
     }
 
     private void setupExecutions() {
@@ -386,7 +435,7 @@ public class ReportModalPage extends BaseModalPage {
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
-        columns.add(new AbstractColumn<ReportExecTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ReportExecTO, String>(new ResourceModel("actions", "")) {
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
@@ -430,8 +479,8 @@ public class ReportModalPage extends BaseModalPage {
                             @Override
                             public Page createPage() {
                                 ReportModalPage.this.exportExecId = model.getObject().getId();
-                                return new ReportExecResultDownloadModalPage(reportExecExportWin, ReportModalPage.this.
-                                        getPageReference());
+                                return new ReportExecResultDownloadModalPage(reportExecExportWin,
+                                        ReportModalPage.this.getPageReference());
                             }
                         });
                         reportExecExportWin.show(target);
@@ -466,18 +515,18 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
-        
-                final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
+        final AjaxLink reload = new IndicatingAjaxLink("reload") {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                if (target != null) {                
+                if (target != null) {
                     final ReportTO currentReportTO = reportTO.getId() == 0
                             ? reportTO
                             : restClient.read(reportTO.getId());
-                    reportTO.setExecutions(currentReportTO.getExecutions());   
-                    final AjaxFallbackDefaultDataTable currentTable = 
+                    reportTO.setExecutions(currentReportTO.getExecutions());
+                    final AjaxFallbackDefaultDataTable currentTable =
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new ReportExecutionsProvider(reportTO), 10);
                     currentTable.setOutputMarkupId(true);
@@ -498,7 +547,7 @@ public class ReportModalPage extends BaseModalPage {
         this.modalReportletConf = modalReportletConf;
     }
 
-    private static class ReportExecutionsProvider extends SortableDataProvider<ReportExecTO> {
+    private static class ReportExecutionsProvider extends SortableDataProvider<ReportExecTO, String> {
 
         private static final long serialVersionUID = 2118096121691420539L;
 
@@ -513,17 +562,17 @@ public class ReportModalPage extends BaseModalPage {
         }
 
         @Override
-        public Iterator<ReportExecTO> iterator(final int first, final int count) {
+        public Iterator<ReportExecTO> iterator(final long first, final long count) {
 
             List<ReportExecTO> list = reportTO.getExecutions();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return reportTO.getExecutions().size();
         }
 

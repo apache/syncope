@@ -19,7 +19,6 @@
 package org.apache.syncope.core.sync;
 
 import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -42,9 +41,9 @@ public class SyncResult {
 
     private Operation operation;
 
-    private Long userId;
+    private Long id;
 
-    private String username;
+    private String name;
 
     public String getMessage() {
         return message;
@@ -54,20 +53,20 @@ public class SyncResult {
         this.message = message;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(final String username) {
-        this.username = username;
+    public void setName(final String name) {
+        this.name = name;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Status getStatus() {
@@ -93,6 +92,7 @@ public class SyncResult {
 
     /**
      * Human readable report string, using the given trace level.
+     *
      * @param level trace level
      * @return String for certain levels, null for level NONE
      */
@@ -103,10 +103,10 @@ public class SyncResult {
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
 
             // only report failures
-            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, userId, username, message);
+            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, id, name, message);
         } else {
             // All
-            return String.format("%s %s (id/ name): %d/ %s %s", operation, status, userId, username, StringUtils
+            return String.format("%s %s (id/ name): %d/ %s %s", operation, status, id, name, StringUtils
                     .isEmpty(message)
                     ? ""
                     : "with message: " + message);
@@ -114,13 +114,14 @@ public class SyncResult {
     }
 
     /**
-     * Helper method to invoke logging per synchronization result for the
-     * given trace level.
+     * Helper method to invoke logging per synchronization result for the given trace level.
+     *
      * @param results synchronization result
      * @param level trace level
      * @return report as string
      */
-    public static String reportSetOfSynchronizationResult(final Collection<SyncResult> results, final TraceLevel level) {
+    public static String reportSetOfSynchronizationResult(final Collection<SyncResult> results,
+            final TraceLevel level) {
 
         StringBuilder sb = new StringBuilder();
         for (SyncResult sr : results) {

@@ -20,6 +20,10 @@ package org.apache.syncope.core.util;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -61,6 +65,8 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.SyncPolicySpec;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class AttributableUtil {
 
@@ -72,6 +78,22 @@ public class AttributableUtil {
 
     public static AttributableUtil valueOf(final String name) {
         return new AttributableUtil(AttributableType.valueOf(name));
+    }
+
+    public static AttributableUtil getInstance(final ObjectClass objectClass) {
+        AttributableType type = null;
+        if (ObjectClass.ACCOUNT.equals(objectClass)) {
+            type = AttributableType.USER;
+        }
+        if (ObjectClass.GROUP.equals(objectClass)) {
+            type = AttributableType.ROLE;
+        }
+
+        if (type == null) {
+            throw new IllegalArgumentException("ObjectClass not supported: " + objectClass);
+        }
+
+        return new AttributableUtil(type);
     }
 
     public static AttributableUtil getInstance(final AbstractAttributable attributable) {
@@ -97,6 +119,24 @@ public class AttributableUtil {
         this.type = type;
     }
 
+    public <T extends AbstractAttributable> Class<T> attributableClass() {
+        Class result;
+
+        switch (type) {
+            case ROLE:
+                result = SyncopeRole.class;
+                break;
+            case MEMBERSHIP:
+                result = Membership.class;
+            case USER:
+            default:
+                result = SyncopeUser.class;
+                break;
+        }
+
+        return result;
+    }
+
     public AttributableType getType() {
         return type;
     }
@@ -114,6 +154,29 @@ public class AttributableUtil {
                 case ROLE:
                     if (resource.getRmapping() != null) {
                         result = resource.getRmapping().getAccountLink();
+                    }
+                    break;
+                case MEMBERSHIP:
+                default:
+            }
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractMappingItem> T getAccountIdItem(final ExternalResource resource) {
+        T result = null;
+
+        if (resource != null) {
+            switch (type) {
+                case USER:
+                    if (resource.getUmapping() != null) {
+                        result = resource.getUmapping().getAccountIdItem();
+                    }
+                    break;
+                case ROLE:
+                    if (resource.getRmapping() != null) {
+                        result = resource.getRmapping().getAccountIdItem();
                     }
                     break;
                 case MEMBERSHIP:
@@ -474,6 +537,24 @@ public class AttributableUtil {
         return result;
     }
 
+    public <T extends AbstractAttrValue> Class<T> attrUniqueValueClass() {
+        Class result = null;
+
+        switch (type) {
+            case USER:
+                result = UAttrUniqueValue.class;
+                break;
+            case ROLE:
+                result = RAttrUniqueValue.class;
+                break;
+            case MEMBERSHIP:
+                result = MAttrUniqueValue.class;
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractAttrValue> T newAttrUniqueValue() {
         T result = null;
 
@@ -486,6 +567,60 @@ public class AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = (T) new MAttrUniqueValue();
+                break;
+        }
+
+        return result;
+    }
+
+    public List<String> getAltSearchSchemas(final SyncPolicySpec policySpec) {
+        List<String> result = Collections.EMPTY_LIST;
+
+        if (policySpec != null) {
+            switch (type) {
+                case USER:
+                    result = policySpec.getuAltSearchSchemas();
+                    break;
+                case ROLE:
+                    result = policySpec.getrAltSearchSchemas();
+                    break;
+                case MEMBERSHIP:
+                default:
+            }
+        }
+
+        return result;
+    }
+
+    public String searchView() {
+        String result = "";
+
+        switch (type) {
+            case USER:
+                result = "user_search";
+                break;
+            case ROLE:
+                result = "role_search";
+                break;
+            case MEMBERSHIP:
+            default:
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractAttributableTO> T newAttributableTO() {
+        T result = null;
+
+        switch (type) {
+            case USER:
+                result = (T) new UserTO();
+                break;
+            case ROLE:
+                result = (T) new RoleTO();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MembershipTO();
                 break;
         }
 

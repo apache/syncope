@@ -121,7 +121,7 @@ public class Todo extends BasePage {
         columns.add(new DatePropertyColumn(new ResourceModel("createTime"), "createTime", "createTime"));
         columns.add(new DatePropertyColumn(new ResourceModel("dueDate"), "dueDate", "dueDate"));
         columns.add(new PropertyColumn(new ResourceModel("owner"), "owner", "owner"));
-        columns.add(new AbstractColumn<WorkflowFormTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<WorkflowFormTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -233,7 +233,7 @@ public class Todo extends BasePage {
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
         columns.add(new PropertyColumn(new ResourceModel("type"), "type", "type"));
         columns.add(new UserRequestColumn("user"));
-        columns.add(new AbstractColumn<UserRequestTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<UserRequestTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -361,7 +361,7 @@ public class Todo extends BasePage {
         setWindowClosedCallback(editUserRequestWin, userRequestContainer);
     }
 
-    private class ApprovalProvider extends SortableDataProvider<WorkflowFormTO> {
+    private class ApprovalProvider extends SortableDataProvider<WorkflowFormTO, String> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -374,17 +374,17 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public Iterator<WorkflowFormTO> iterator(final int first, final int count) {
+        public Iterator<WorkflowFormTO> iterator(final long first, final long count) {
 
             List<WorkflowFormTO> list = approvalRestClient.getForms();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return approvalRestClient.getForms().size();
         }
 
@@ -403,7 +403,7 @@ public class Todo extends BasePage {
         }
     }
 
-    private class UserRequestProvider extends SortableDataProvider<UserRequestTO> {
+    private class UserRequestProvider extends SortableDataProvider<UserRequestTO, String> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -416,17 +416,17 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public Iterator<UserRequestTO> iterator(final int first, final int count) {
+        public Iterator<UserRequestTO> iterator(final long first, final long count) {
 
             List<UserRequestTO> list = userRequestRestClient.list();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return userRequestRestClient.list().size();
         }
 
@@ -445,7 +445,7 @@ public class Todo extends BasePage {
         }
     }
 
-    private class UserRequestColumn extends AbstractColumn<UserRequestTO> {
+    private class UserRequestColumn extends AbstractColumn<UserRequestTO, String> {
 
         private static final long serialVersionUID = 8077865338230121496L;
 

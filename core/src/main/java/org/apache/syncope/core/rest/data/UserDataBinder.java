@@ -56,6 +56,7 @@ import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,14 +83,22 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             throw new NotFoundException("User " + userId);
         }
 
-        Set<Long> roleIds = user.getRoleIds();
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
+        if (!user.getUsername().equals(EntitlementUtil.getAuthenticatedUsername())) {
+            Set<Long> roleIds = user.getRoleIds();
+            Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+            roleIds.removeAll(adminRoleIds);
+            if (!roleIds.isEmpty()) {
+                throw new UnauthorizedRoleException(roleIds);
+            }
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserTO getAuthenticatedUserTO() throws NotFoundException {
+        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
+        return getUserTO(authUser);
     }
 
     @Transactional(readOnly = true)

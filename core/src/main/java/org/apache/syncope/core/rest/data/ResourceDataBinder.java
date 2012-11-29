@@ -137,8 +137,11 @@ public class ResourceDataBinder {
 
         resource.setConnectorConfigurationProperties(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
 
-        if (resourceTO.getSyncToken() == null) {
-            resource.setSerializedSyncToken(null);
+        if (resourceTO.getUsyncToken() == null) {
+            resource.setUserializedSyncToken(null);
+        }
+        if (resourceTO.getRsyncToken() == null) {
+            resource.setRserializedSyncToken(null);
         }
 
         resource.setActionsClassName(resourceTO.getActionsClassName());
@@ -240,7 +243,9 @@ public class ResourceDataBinder {
                 ? null : resource.getSyncPolicy().getId());
 
         resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
-        resourceTO.setSyncToken(resource.getSerializedSyncToken());
+
+        resourceTO.setUsyncToken(resource.getUserializedSyncToken());
+        resourceTO.setRsyncToken(resource.getRserializedSyncToken());
 
         resourceTO.setActionsClassName(resource.getActionsClassName());
 

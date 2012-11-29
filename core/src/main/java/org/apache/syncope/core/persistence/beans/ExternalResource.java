@@ -139,10 +139,16 @@ public class ExternalResource extends AbstractBaseBean {
     private String xmlConfiguration;
 
     /**
-     * SyncToken for calling ConnId's sync().
+     * SyncToken for calling ConnId's sync() on users.
      */
     @Lob
-    private String serializedSyncToken;
+    private String userializedSyncToken;
+
+    /**
+     * SyncToken for calling ConnId's sync() on roles.
+     */
+    @Lob
+    private String rserializedSyncToken;
 
     /**
      * (Optional) class for PropagationAction.
@@ -307,22 +313,40 @@ public class ExternalResource extends AbstractBaseBean {
         return result;
     }
 
-    public String getSerializedSyncToken() {
-        return serializedSyncToken;
+    public String getUserializedSyncToken() {
+        return userializedSyncToken;
     }
 
-    public SyncToken getSyncToken() {
-        return serializedSyncToken == null
+    public SyncToken getUsyncToken() {
+        return userializedSyncToken == null
                 ? null
-                : XMLSerializer.<SyncToken>deserialize(serializedSyncToken);
+                : XMLSerializer.<SyncToken>deserialize(userializedSyncToken);
     }
 
-    public void setSerializedSyncToken(final String serializedSyncToken) {
-        this.serializedSyncToken = serializedSyncToken;
+    public void setUserializedSyncToken(final String serializedSyncToken) {
+        this.userializedSyncToken = serializedSyncToken;
     }
 
-    public void setSyncToken(final SyncToken syncToken) {
-        serializedSyncToken = XMLSerializer.serialize(syncToken);
+    public void setUsyncToken(final SyncToken syncToken) {
+        userializedSyncToken = XMLSerializer.serialize(syncToken);
+    }
+
+    public String getRserializedSyncToken() {
+        return rserializedSyncToken;
+    }
+
+    public SyncToken getRsyncToken() {
+        return rserializedSyncToken == null
+                ? null
+                : XMLSerializer.<SyncToken>deserialize(rserializedSyncToken);
+    }
+
+    public void setRserializedSyncToken(final String serializedSyncToken) {
+        this.rserializedSyncToken = serializedSyncToken;
+    }
+
+    public void setRsyncToken(final SyncToken syncToken) {
+        rserializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 
     public String getActionsClassName() {

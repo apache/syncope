@@ -117,7 +117,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new AbstractColumn<TaskExecTO>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -201,6 +201,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         };
         
         reload.add(new Behavior() {
+            private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
             public void onComponentTag(final Component component, final ComponentTag tag) {
@@ -218,7 +219,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         executions.addOrReplace(reload);
     }
 
-    protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
+    protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO, String> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 
@@ -234,17 +235,17 @@ public abstract class TaskModalPage extends BaseModalPage {
         }
 
         @Override
-        public Iterator<TaskExecTO> iterator(final int first, final int count) {
+        public Iterator<TaskExecTO> iterator(final long first, final long count) {
 
             List<TaskExecTO> list = taskTO.getExecutions();
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList((int)first, (int)first + (int)count).iterator();
         }
 
         @Override
-        public int size() {
+        public long size() {
             return taskTO.getExecutions().size();
         }
 

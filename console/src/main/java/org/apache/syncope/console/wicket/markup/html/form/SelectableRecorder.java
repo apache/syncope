@@ -185,7 +185,8 @@ public class SelectableRecorder<T> extends Recorder<T> {
         updateIds(getValue());
     }
 
-    private void updateIds(final String value) {
+    @Override
+    protected void updateIds(final String value) {
         if (Strings.isEmpty(value)) {
             ids = EMPTY_IDS;
         } else {

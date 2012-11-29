@@ -40,8 +40,6 @@ import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
@@ -57,6 +55,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 
 /**
  * Resource mapping panel.
@@ -244,18 +245,19 @@ public class ResourceMappingPanel extends Panel {
                     }
 
                     @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                        super.updateAjaxAttributes(attributes);
 
-                            private static final long serialVersionUID = -7927968187160354605L;
+                        final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+                            
+                            private static final long serialVersionUID = 7160235486520935153L;
 
                             @Override
-                            public CharSequence preDecorateScript(final CharSequence script) {
-
-                                return "if (confirm('" + getString("confirmDelete") + "'))" + "{" + script + "} "
-                                        + "else {this.checked = false;}";
+                            public CharSequence getPrecondition(final Component component) {
+                                return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
                             }
                         };
+                        attributes.getAjaxCallListeners().add(ajaxCallListener);
                     }
                 });
 
@@ -266,8 +268,8 @@ public class ResourceMappingPanel extends Panel {
                 intAttrNames.setStyleSheet(fieldStyle);
                 item.add(intAttrNames);
 
-                final AjaxDropDownChoicePanel<IntMappingType> typesPanel = new AjaxDropDownChoicePanel<IntMappingType>(
-                        "intMappingTypes",
+                final AjaxDropDownChoicePanel<IntMappingType> typesPanel =
+                        new AjaxDropDownChoicePanel<IntMappingType>("intMappingTypes",
                         new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
                         new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
 

@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.client.mod.RoleMod;
+import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.PropagationTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.DefaultPropagationHandler;
@@ -37,12 +39,15 @@ import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.RoleSubCategory;
@@ -59,6 +64,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/role")
@@ -72,6 +78,9 @@ public class RoleController extends AbstractController {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private AttributableSearchDAO searchDAO;
 
     @Autowired
     private RoleDataBinder dataBinder;
@@ -189,6 +198,77 @@ public class RoleController extends AbstractController {
                 "Found " + childrenTOs.size() + " children of role " + roleId);
 
         return childrenTOs;
+    }
+
+    @PreAuthorize("hasRole('ROLE_READ')")
+    @RequestMapping(method = RequestMethod.POST, value = "/search")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public List<RoleTO> search(@RequestBody final NodeCond searchCondition)
+            throws InvalidSearchConditionException {
+
+        LOG.debug("Role search called with condition {}", searchCondition);
+
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition: {}", searchCondition);
+            throw new InvalidSearchConditionException();
+        }
+
+        List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
+                getOwnedEntitlementNames()), searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
+        List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
+        for (SyncopeRole role : matchingRoles) {
+            result.add(dataBinder.getRoleTO(role));
+        }
+
+        auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
+                "Successfully searched for roles: " + result.size());
+
+        return result;
+    }
+
+    @PreAuthorize("hasRole('ROLE_READ')")
+    @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public List<RoleTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
+            @PathVariable("size") final int size)
+            throws InvalidSearchConditionException {
+
+        LOG.debug("Role search called with condition {}", searchCondition);
+
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition: {}", searchCondition);
+            throw new InvalidSearchConditionException();
+        }
+
+        final List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
+                getOwnedEntitlementNames()), searchCondition, page, size,
+                AttributableUtil.getInstance(AttributableType.ROLE));
+
+        final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
+        for (SyncopeRole role : matchingRoles) {
+            result.add(dataBinder.getRoleTO(role));
+        }
+
+        auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
+                "Successfully searched for roles (page=" + page + ", size=" + size + "): " + result.size());
+
+        return result;
+    }
+
+    @PreAuthorize("hasRole('ROLE_READ')")
+    @RequestMapping(method = RequestMethod.POST, value = "/search/count")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
+            throws InvalidSearchConditionException {
+
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition: {}", searchCondition);
+            throw new InvalidSearchConditionException();
+        }
+
+        final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+        return new ModelAndView().addObject(searchDAO.count(adminRoleIds, searchCondition,
+                AttributableUtil.getInstance(AttributableType.ROLE)));
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/list")
