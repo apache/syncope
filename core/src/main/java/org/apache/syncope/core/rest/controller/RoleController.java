@@ -53,10 +53,6 @@ import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.RoleSubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -301,13 +297,7 @@ public class RoleController extends AbstractController {
 
         WorkflowResult<Long> created = rwfAdapter.create(roleTO);
 
-        // Extend the current authentication context to include the role just created
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
-        authorities.add(new SimpleGrantedAuthority(EntitlementUtil.getEntitlementNameFromRoleId(created.getResult())));
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                auth.getPrincipal(), auth.getCredentials(), authorities);
-        SecurityContextHolder.getContext().setAuthentication(newAuth);
+        EntitlementUtil.extendAuthContext(created.getResult());
 
         List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirtualAttributes());
 

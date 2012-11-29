@@ -162,7 +162,6 @@ public class SyncJob extends AbstractTaskJob {
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
-
             if (!createdFailed.isEmpty()) {
                 report.append("\n\nFailed to create: ");
                 report.append(SyncResult.reportSetOfSynchronizationResult(createdFailed, syncTraceLevel));

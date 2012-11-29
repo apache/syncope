@@ -427,6 +427,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
 
+                    EntitlementUtil.extendAuthContext(created.getResult());
+
                     List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
                             subjectTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
 
