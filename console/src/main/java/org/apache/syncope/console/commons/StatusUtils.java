@@ -49,7 +49,7 @@ public class StatusUtils {
     private ResourceRestClient resourceRestClient;
 
     public enum Status {
-
+	CREATED,
         ACTIVE,
         SUSPENDED,
         UNDEFINED,
