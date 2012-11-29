@@ -115,6 +115,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String ENCRYPTED_PWD = "encryptedPwd";
 
+    public static final String TASK_IS_FORM = "taskIsForm";
+
     @Resource(name = "adminUser")
     private String adminUser;
 
@@ -147,8 +149,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
-    private boolean waitingForForm(final SyncopeUser user) {
-        boolean result = false;
+    private String getFormTask(final SyncopeUser user) {
+        String result = null;
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
@@ -156,7 +158,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         } else {
             try {
                 TaskFormData formData = formService.getTaskFormData(tasks.get(0).getId());
-                result = formData != null && !formData.getFormProperties().isEmpty();
+                if (formData != null && !formData.getFormProperties().isEmpty()) {
+                    result = tasks.get(0).getId();
+                }
             } catch (ActivitiException e) {
                 LOG.warn("Could not get task form data", e);
             }
@@ -193,6 +197,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck)
             throws WorkflowException {
+
         return create(userTO, disablePwdPolicyCheck, null);
     }
 
@@ -215,8 +220,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser user = (SyncopeUser) runtimeService.getVariable(processInstance.getProcessInstanceId(),
                 SYNCOPE_USER);
 
-        // this will make SyncopeUserValidator not to consider
-        // password policies at all
+        // this will make SyncopeUserValidator not to consider password policies at all
         if (disablePwdPolicyCheck) {
             user.removeClearPassword();
         }
@@ -226,7 +230,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(),
                 PROPAGATE_ENABLE);
-
         if (propagateEnable == null) {
             propagateEnable = enabled;
         }
@@ -236,7 +239,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
 
-        if (waitingForForm(user)) {
+        String formTaskId = getFormTask(user);
+        if (formTaskId != null) {
+            // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
+            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
             runtimeService.setVariable(processInstance.getProcessInstanceId(), PROP_BY_RESOURCE, propByRes);
             propByRes = null;
 
@@ -250,8 +256,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 propByRes, getPerformedTasks(user));
     }
 
-    private Set<String> doExecuteTask(final SyncopeUser user, final String task, final Map<String, Object> moreVariables)
-            throws WorkflowException {
+    private Set<String> doExecuteTask(final SyncopeUser user, final String task,
+            final Map<String, Object> moreVariables) throws WorkflowException {
 
         Set<String> preTasks = getPerformedTasks(user);
 
@@ -268,14 +274,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
-        if (tasks.size() != 1) {
-            LOG.warn("Expected a single task, found {}", tasks.size());
-        } else {
+        if (tasks.size() == 1) {
             try {
                 taskService.complete(tasks.get(0).getId(), variables);
             } catch (ActivitiException e) {
                 throw new WorkflowException(e);
             }
+        } else {
+            LOG.warn("Expected a single task, found {}", tasks.size());
         }
 
         Set<String> postTasks = getPerformedTasks(user);
@@ -307,10 +313,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(),
                 PROP_BY_RESOURCE);
 
-        // save resources to be propagated and password for later -
-        // after form submission - propagation
-        if (waitingForForm(user) && StringUtils.isNotBlank(userMod.getPassword())) {
-            runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(userMod.getPassword()));
+        // save resources to be propagated and password for later - after form submission - propagation
+        String formTaskId = getFormTask(user);
+        if (formTaskId != null) {
+            // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
+            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
+            if (StringUtils.isNotBlank(userMod.getPassword())) {
+                runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(userMod.getPassword()));
+            }
         }
 
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
@@ -471,7 +481,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
-
         WorkflowFormPropertyType result = WorkflowFormPropertyType.String;
 
         if ("string".equals(activitiFormType.getName())) {
@@ -494,7 +503,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) {
-
         WorkflowFormTO formTO = new WorkflowFormTO();
         formTO.setTaskId(task.getId());
         formTO.setKey(formData.getFormKey());
@@ -525,7 +533,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
         TaskFormData formData;
-        for (Task task : taskService.createTaskQuery().list()) {
+        for (Task task : taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).list()) {
             try {
                 formData = formService.getTaskFormData(task.getId());
             } catch (ActivitiException e) {

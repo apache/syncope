@@ -50,7 +50,6 @@ public class WorkflowController extends AbstractController {
 
     @Autowired
     private RoleWorkflowAdapter rwfAdapter;
-
     private WorkflowDefinitionTO getDefinition(final WorkflowAdapter adapter) throws WorkflowException {
         WorkflowDefinitionTO result = adapter.getDefinition();
 
@@ -87,7 +86,6 @@ public class WorkflowController extends AbstractController {
     @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
     public void updateUserDefinition(@RequestBody final WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException {
-
         updateDefinition(uwfAdapter, definition);
     }
 

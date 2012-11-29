@@ -20,10 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.console.SyncopeSession;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Todo services.
