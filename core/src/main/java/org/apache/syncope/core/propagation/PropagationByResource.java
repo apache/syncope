@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 
 /**
  * Utility class for encapsulating operations to be performed on various resources.
@@ -82,7 +82,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceName target resource
      * @return whether the operation was successful or not
      */
-    public final boolean add(final PropagationOperation type, final String resourceName) {
+    public final boolean add(final ResourceOperation type, final String resourceName) {
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -109,7 +109,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceNames target resources
      * @return whether the operation was successful or not
      */
-    public boolean addAll(final PropagationOperation type, final Set<String> resourceNames) {
+    public boolean addAll(final ResourceOperation type, final Set<String> resourceNames) {
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -136,7 +136,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceName target resource
      * @return whether the operation was successful or not
      */
-    public final boolean remove(final PropagationOperation type, final String resourceName) {
+    public final boolean remove(final ResourceOperation type, final String resourceName) {
         boolean result = false;
 
         switch (type) {
@@ -158,7 +158,7 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
-    public boolean contains(final PropagationOperation type, final String resourceName) {
+    public boolean contains(final ResourceOperation type, final String resourceName) {
         boolean result = false;
 
         switch (type) {
@@ -186,7 +186,7 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @return resource matching the given type
      */
-    public final Set<String> get(final PropagationOperation type) {
+    public final Set<String> get(final ResourceOperation type) {
         Set<String> result = Collections.emptySet();
 
         switch (type) {
@@ -214,7 +214,7 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @param resourceNames to be set
      */
-    public final void set(final PropagationOperation type, final Set<String> resourceNames) {
+    public final void set(final ResourceOperation type, final Set<String> resourceNames) {
 
         switch (type) {
             case CREATE:
@@ -242,9 +242,9 @@ public class PropagationByResource implements Serializable {
      * @param propByRes to be merged
      */
     public final void merge(final PropagationByResource propByRes) {
-        toBeCreated.addAll(propByRes.get(PropagationOperation.CREATE));
-        toBeUpdated.addAll(propByRes.get(PropagationOperation.UPDATE));
-        toBeDeleted.addAll(propByRes.get(PropagationOperation.DELETE));
+        toBeCreated.addAll(propByRes.get(ResourceOperation.CREATE));
+        toBeUpdated.addAll(propByRes.get(ResourceOperation.UPDATE));
+        toBeDeleted.addAll(propByRes.get(ResourceOperation.DELETE));
         oldAccountIds.putAll(propByRes.getOldAccountIds());
     }
 

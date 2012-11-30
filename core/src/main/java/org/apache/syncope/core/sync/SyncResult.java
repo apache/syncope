@@ -23,23 +23,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.syncope.core.quartz.AbstractTaskJob.Status;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.TraceLevel;
 
 public class SyncResult {
-
-    static enum Operation {
-
-        CREATE,
-        UPDATE,
-        DELETE
-
-    }
 
     private String message;
 
     private Status status;
 
-    private Operation operation;
+    private AttributableType subjectType;
+
+    private ResourceOperation operation;
 
     private Long id;
 
@@ -77,12 +73,20 @@ public class SyncResult {
         this.status = status;
     }
 
-    public Operation getOperation() {
-        return this.operation;
+    public AttributableType getSubjectType() {
+        return subjectType;
     }
 
-    public void setOperation(Operation t) {
-        this.operation = t;
+    public void setSubjectType(final AttributableType subjectType) {
+        this.subjectType = subjectType;
+    }
+
+    public ResourceOperation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(final ResourceOperation operation) {
+        this.operation = operation;
     }
 
     @Override
@@ -101,13 +105,12 @@ public class SyncResult {
             // No per entry log in this case.
             return null;
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
-
             // only report failures
             return String.format("Failed %s (id/name): %d/%s with message: %s", operation, id, name, message);
         } else {
             // All
-            return String.format("%s %s (id/ name): %d/ %s %s", operation, status, id, name, StringUtils
-                    .isEmpty(message)
+            return String.format("%s %s (id/name): %d/%s %s", operation, status, id, name,
+                    StringUtils.isBlank(message)
                     ? ""
                     : "with message: " + message);
         }
@@ -120,12 +123,10 @@ public class SyncResult {
      * @param level trace level
      * @return report as string
      */
-    public static String reportSetOfSynchronizationResult(final Collection<SyncResult> results,
-            final TraceLevel level) {
-
+    public static String produceReport(final Collection<SyncResult> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
-        for (SyncResult sr : results) {
-            sb.append(sr.getReportString(level)).append("\n");
+        for (SyncResult result : results) {
+            sb.append(result.getReportString(level)).append("\n");
         }
         return sb.toString();
     }

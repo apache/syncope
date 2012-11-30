@@ -32,7 +32,7 @@ import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -310,7 +310,7 @@ public class ConnectorFacadeProxy {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    public ConnectorObject getObject(final PropagationMode propagationMode, final PropagationOperation operationType,
+    public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
         ConnectorObject result = null;

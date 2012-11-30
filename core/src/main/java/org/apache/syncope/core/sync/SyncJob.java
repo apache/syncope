@@ -105,27 +105,63 @@ public class SyncJob extends AbstractTaskJob {
             report.append("==>Dry run only, no modifications were made<==\n\n");
         }
 
-        List<SyncResult> created = new ArrayList<SyncResult>();
-        List<SyncResult> createdFailed = new ArrayList<SyncResult>();
-        List<SyncResult> updated = new ArrayList<SyncResult>();
-        List<SyncResult> updatedFailed = new ArrayList<SyncResult>();
-        List<SyncResult> deleted = new ArrayList<SyncResult>();
-        List<SyncResult> deletedFailed = new ArrayList<SyncResult>();
+        List<SyncResult> uSuccCreate = new ArrayList<SyncResult>();
+        List<SyncResult> uFailCreate = new ArrayList<SyncResult>();
+        List<SyncResult> uSuccUpdate = new ArrayList<SyncResult>();
+        List<SyncResult> uFailUpdate = new ArrayList<SyncResult>();
+        List<SyncResult> uSuccDelete = new ArrayList<SyncResult>();
+        List<SyncResult> uFailDelete = new ArrayList<SyncResult>();
+        List<SyncResult> rSuccCreate = new ArrayList<SyncResult>();
+        List<SyncResult> rFailCreate = new ArrayList<SyncResult>();
+        List<SyncResult> rSuccUpdate = new ArrayList<SyncResult>();
+        List<SyncResult> rFailUpdate = new ArrayList<SyncResult>();
+        List<SyncResult> rSuccDelete = new ArrayList<SyncResult>();
+        List<SyncResult> rFailDelete = new ArrayList<SyncResult>();
 
         for (SyncResult syncResult : syncResults) {
             switch (syncResult.getStatus()) {
                 case SUCCESS:
                     switch (syncResult.getOperation()) {
                         case CREATE:
-                            created.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uSuccCreate.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rSuccCreate.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         case UPDATE:
-                            updated.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uSuccUpdate.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rSuccUpdate.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         case DELETE:
-                            deleted.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uSuccDelete.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rSuccDelete.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         default:
@@ -135,15 +171,45 @@ public class SyncJob extends AbstractTaskJob {
                 case FAILURE:
                     switch (syncResult.getOperation()) {
                         case CREATE:
-                            createdFailed.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uFailCreate.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rFailCreate.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         case UPDATE:
-                            updatedFailed.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uFailUpdate.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rFailUpdate.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         case DELETE:
-                            deletedFailed.add(syncResult);
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uFailDelete.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rFailDelete.add(syncResult);
+                                    break;
+
+                                default:
+                            }
                             break;
 
                         default:
@@ -155,35 +221,63 @@ public class SyncJob extends AbstractTaskJob {
         }
 
         // Summary, also to be included for FAILURE and ALL, so create it anyway.
-        report.append("Users [created/failures]: ").append(created.size()).append('/').append(createdFailed.size())
-                .append(' ').append("[updated/failures]: ").append(updated.size()).append('/').append(
-                updatedFailed.size()).append(' ').append("[deleted/ failures]: ").append(deleted.size())
-                .append('/').append(deletedFailed.size());
+        report.append("Users ").
+                append("[created/failures]: ").append(uSuccCreate.size()).append('/').append(uFailCreate.size()).
+                append(' ').
+                append("[updated/failures]: ").append(uSuccUpdate.size()).append('/').append(uFailUpdate.size()).
+                append(' ').
+                append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
+                append('\n');
+        report.append("Roles ").
+                append("[created/failures]: ").append(rSuccCreate.size()).append('/').append(rFailCreate.size()).
+                append(' ').
+                append("[updated/failures]: ").append(rSuccUpdate.size()).append('/').append(rFailUpdate.size()).
+                append(' ').
+                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
-            if (!createdFailed.isEmpty()) {
-                report.append("\n\nFailed to create: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(createdFailed, syncTraceLevel));
+            if (!uFailCreate.isEmpty()) {
+                report.append("\n\nUsers failed to create: ");
+                report.append(SyncResult.produceReport(uFailCreate, syncTraceLevel));
             }
-            if (!updatedFailed.isEmpty()) {
-                report.append("\nFailed to update: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(updatedFailed, syncTraceLevel));
+            if (!uFailUpdate.isEmpty()) {
+                report.append("\nUsers failed to update: ");
+                report.append(SyncResult.produceReport(uFailUpdate, syncTraceLevel));
             }
-            if (!deletedFailed.isEmpty()) {
-                report.append("\nFailed to delete: ");
-                report.append(SyncResult.reportSetOfSynchronizationResult(deletedFailed, syncTraceLevel));
+            if (!uFailDelete.isEmpty()) {
+                report.append("\nUsers failed to delete: ");
+                report.append(SyncResult.produceReport(uFailDelete, syncTraceLevel));
+            }
+
+            if (!rFailCreate.isEmpty()) {
+                report.append("\n\nRoles failed to create: ");
+                report.append(SyncResult.produceReport(rFailCreate, syncTraceLevel));
+            }
+            if (!rFailUpdate.isEmpty()) {
+                report.append("\nRoles failed to update: ");
+                report.append(SyncResult.produceReport(rFailUpdate, syncTraceLevel));
+            }
+            if (!rFailDelete.isEmpty()) {
+                report.append("\nRoles failed to delete: ");
+                report.append(SyncResult.produceReport(rFailDelete, syncTraceLevel));
             }
         }
 
         // Succeeded, only if on 'ALL' level
         if (syncTraceLevel == TraceLevel.ALL) {
-            report.append("\n\nCreated:\n")
-                    .append(SyncResult.reportSetOfSynchronizationResult(created, syncTraceLevel))
-                    .append("\nUpdated:\n")
-                    .append(SyncResult.reportSetOfSynchronizationResult(updated, syncTraceLevel))
-                    .append("\nDeleted:\n")
-                    .append(SyncResult.reportSetOfSynchronizationResult(deleted, syncTraceLevel));
+            report.append("\n\nUsers created:\n")
+                    .append(SyncResult.produceReport(uSuccCreate, syncTraceLevel))
+                    .append("\nUsers updated:\n")
+                    .append(SyncResult.produceReport(uSuccUpdate, syncTraceLevel))
+                    .append("\nUsers deleted:\n")
+                    .append(SyncResult.produceReport(uSuccDelete, syncTraceLevel));
+            report.append("\n\nRoles created:\n")
+                    .append(SyncResult.produceReport(rSuccCreate, syncTraceLevel))
+                    .append("\nRoles updated:\n")
+                    .append(SyncResult.produceReport(rSuccUpdate, syncTraceLevel))
+                    .append("\nRoles deleted:\n")
+                    .append(SyncResult.produceReport(rSuccDelete, syncTraceLevel));
         }
 
         return report.toString();

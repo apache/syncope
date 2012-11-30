@@ -33,7 +33,7 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -83,7 +83,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user = userDAO.save(user);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagateEnable),
                 propByRes, "create");

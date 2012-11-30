@@ -32,7 +32,7 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -52,7 +52,7 @@ public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
         role = roleDAO.save(role);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE, role.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, role.getResourceNames());
 
         return new WorkflowResult<Long>(role.getId(), propByRes, "create");
     }

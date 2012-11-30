@@ -28,7 +28,7 @@ import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 /**
@@ -50,7 +50,7 @@ public class PropagationTask extends Task {
      * @see PropagationOperation
      */
     @Enumerated(EnumType.STRING)
-    private PropagationOperation propagationOperation;
+    private ResourceOperation propagationOperation;
 
     /**
      * The accountId on the external resource.
@@ -113,11 +113,11 @@ public class PropagationTask extends Task {
         this.propagationMode = propagationMode;
     }
 
-    public PropagationOperation getPropagationOperation() {
+    public ResourceOperation getPropagationOperation() {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(PropagationOperation propagationOperation) {
+    public void setPropagationOperation(ResourceOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }

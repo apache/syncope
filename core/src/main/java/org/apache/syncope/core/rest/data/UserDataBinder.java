@@ -51,7 +51,7 @@ import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -271,7 +271,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setChangePwdDate(new Date());
 
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // username
@@ -279,7 +279,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             String oldUsername = user.getUsername();
 
             user.setUsername(userMod.getUsername());
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
             for (ExternalResource resource : user.getResources()) {
                 for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
@@ -394,8 +394,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             throw scce;
         }
 
-        propByRes.addAll(PropagationOperation.DELETE, toBeDeprovisioned);
-        propByRes.addAll(PropagationOperation.UPDATE, toBeProvisioned);
+        propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
+        propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
         /**
          * In case of new memberships all the current resources have to be updated in order to propagate new role and
@@ -403,7 +403,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
          */
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         return propByRes;

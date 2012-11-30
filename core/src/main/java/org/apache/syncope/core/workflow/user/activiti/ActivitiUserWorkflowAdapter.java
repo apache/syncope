@@ -67,7 +67,7 @@ import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.WorkflowFormPropertyType;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
@@ -237,7 +237,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         // save resources to be propagated and password for later -
         // after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
         String formTaskId = getFormTask(user);
         if (formTaskId != null) {

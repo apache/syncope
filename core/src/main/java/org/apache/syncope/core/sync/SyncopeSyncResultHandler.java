@@ -65,6 +65,7 @@ import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ConflictResolutionAction;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -378,7 +379,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         final SyncResult result = new SyncResult();
-        result.setOperation(SyncResult.Operation.CREATE);
+        result.setOperation(ResourceOperation.CREATE);
+        result.setSubjectType(attrUtil.getType());
 
         AbstractAttributableTO subjectTO = connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
@@ -473,7 +475,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         for (Long id : subjects) {
             final SyncResult result = new SyncResult();
-            result.setOperation(SyncResult.Operation.UPDATE);
+            result.setOperation(ResourceOperation.UPDATE);
+            result.setSubjectType(attrUtil.getType());
 
             try {
                 AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
@@ -567,7 +570,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 if (subjectTO instanceof RoleTO) {
                     result.setName(((RoleTO) subjectTO).getName());
                 }
-                result.setOperation(SyncResult.Operation.DELETE);
+                result.setOperation(ResourceOperation.DELETE);
+                result.setSubjectType(attrUtil.getType());
                 result.setStatus(AbstractTaskJob.Status.SUCCESS);
 
                 if (!dryRun) {

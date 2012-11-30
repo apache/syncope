@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.types;
 
-public enum PropagationOperation {
+public enum ResourceOperation {
 
     CREATE,
     UPDATE,

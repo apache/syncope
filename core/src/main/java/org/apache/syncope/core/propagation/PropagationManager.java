@@ -53,7 +53,7 @@ import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SchemaType;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -198,7 +198,7 @@ public class PropagationManager {
         }
 
         if (syncResourceNames != null) {
-            propByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
+            propByRes.get(ResourceOperation.CREATE).removeAll(syncResourceNames);
         }
 
         return createTasks(attributable, password, enable, false, propByRes);
@@ -338,15 +338,15 @@ public class PropagationManager {
                 : vAttrsToBeUpdated, AttributableUtil.getInstance(AttributableType.USER));
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(PropagationOperation.UPDATE, attributable.getResourceNames());
+            localPropByRes.addAll(ResourceOperation.UPDATE, attributable.getResourceNames());
         } else {
             localPropByRes.merge(propByRes);
         }
 
         if (syncResourceNames != null) {
-            localPropByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
-            localPropByRes.get(PropagationOperation.UPDATE).removeAll(syncResourceNames);
-            localPropByRes.get(PropagationOperation.DELETE).removeAll(syncResourceNames);
+            localPropByRes.get(ResourceOperation.CREATE).removeAll(syncResourceNames);
+            localPropByRes.get(ResourceOperation.UPDATE).removeAll(syncResourceNames);
+            localPropByRes.get(ResourceOperation.DELETE).removeAll(syncResourceNames);
         }
 
         return createTasks(attributable, password, enable, false, localPropByRes);
@@ -424,9 +424,9 @@ public class PropagationManager {
             final String syncResourceName) {
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.DELETE, attributable.getResourceNames());
+        propByRes.set(ResourceOperation.DELETE, attributable.getResourceNames());
         if (syncResourceName != null) {
-            propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
+            propByRes.get(ResourceOperation.DELETE).remove(syncResourceName);
         }
         return createTasks(attributable, null, false, true, propByRes);
     }
@@ -634,7 +634,7 @@ public class PropagationManager {
 
         final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
-        for (PropagationOperation operation : PropagationOperation.values()) {
+        for (ResourceOperation operation : ResourceOperation.values()) {
             for (String resourceName : propByRes.get(operation)) {
                 final ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {

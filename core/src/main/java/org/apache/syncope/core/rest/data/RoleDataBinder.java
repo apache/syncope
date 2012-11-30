@@ -39,7 +39,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -176,7 +176,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     role.getParent() == null ? null : role.getParent().getId());
             if (otherRole == null || role.equals(otherRole)) {
                 if (!roleMod.getName().equals(role.getName())) {
-                    propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+                    propByRes.addAll(ResourceOperation.UPDATE, currentResources);
                     for (String resource : currentResources) {
                         propByRes.addOldAccountId(resource, role.getName());
                     }

@@ -64,7 +64,7 @@ import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -311,7 +311,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
                             // Using virtual attribute as AccountId must be avoided
                             if (mapItem.isAccountid() && virAttr != null && !virAttr.getValues().isEmpty()) {
@@ -335,7 +335,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
                         }
                     }
                 }
@@ -376,7 +376,7 @@ public abstract class AbstractAttributableDataBinder {
         for (String resourceToBeRemoved : attributableMod.getResourcesToBeRemoved()) {
             ExternalResource resource = getResource(resourceToBeRemoved);
             if (resource != null) {
-                propByRes.add(PropagationOperation.DELETE, resource.getName());
+                propByRes.add(ResourceOperation.DELETE, resource.getName());
                 attributable.removeResource(resource);
             }
         }
@@ -387,7 +387,7 @@ public abstract class AbstractAttributableDataBinder {
         for (String resourceToBeAdded : attributableMod.getResourcesToBeAdded()) {
             ExternalResource resource = getResource(resourceToBeAdded);
             if (resource != null) {
-                propByRes.add(PropagationOperation.CREATE, resource.getName());
+                propByRes.add(ResourceOperation.CREATE, resource.getName());
                 attributable.addResource(resource);
             }
         }
@@ -425,7 +425,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.intMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
                             if (mapItem.isAccountid() && attribute != null
                                     && !attribute.getValuesAsStrings().isEmpty()) {
@@ -451,7 +451,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.intMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
                         }
                     }
                 }
@@ -527,7 +527,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
                             if (mapItem.isAccountid() && derAttr != null
                                     && !derAttr.getValue(attributable.getAttributes()).isEmpty()) {
@@ -553,7 +553,7 @@ public abstract class AbstractAttributableDataBinder {
                                 && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
                                 && attributable.getResources().contains(resource)) {
 
-                            propByRes.add(PropagationOperation.UPDATE, resource.getName());
+                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
                         }
                     }
                 }
