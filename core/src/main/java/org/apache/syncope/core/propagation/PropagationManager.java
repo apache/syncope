@@ -335,7 +335,7 @@ public class PropagationManager {
                 ? Collections.EMPTY_SET
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                 ? Collections.EMPTY_SET
-                : vAttrsToBeUpdated, AttributableUtil.getInstance(AttributableType.USER));
+                : vAttrsToBeUpdated, AttributableUtil.getInstance(attributable));
 
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(ResourceOperation.UPDATE, attributable.getResourceNames());
@@ -441,7 +441,7 @@ public class PropagationManager {
      * @return account link + prepared attribute
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
-    private <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
+    protected <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final AbstractMappingItem mapItem, final T subject, final String password)
             throws ClassNotFoundException {
 
@@ -533,7 +533,7 @@ public class PropagationManager {
      * @param attrUtil attributable util to get info about subject
      * @return account link + prepared attributes
      */
-    private <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(final T subject,
+    protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(final T subject,
             final String password, final Boolean enable, final ExternalResource resource,
             final AttributableUtil attrUtil) {
 

@@ -393,8 +393,9 @@ public class ConnObjectUtil {
      * Query connected external resources for values to populated virtual attributes associated with the given owner.
      *
      * @param owner user or role
+     * @param attrUtil attributable util
      */
-    public void retrieveVirAttrValues(final AbstractAttributable owner) {
+    public void retrieveVirAttrValues(final AbstractAttributable owner, final AttributableUtil attrUtil) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
@@ -404,8 +405,8 @@ public class ConnObjectUtil {
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
-                final String accountId = resource.getUmapping() == null
-                        ? null : MappingUtil.getAccountIdValue(owner, resource.getUmapping());
+                final String accountId = attrUtil.getAccountIdItem(resource) == null
+                        ? null : MappingUtil.getAccountIdValue(owner, attrUtil.getAccountIdItem(resource));
 
                 LOG.debug("Search for object with accountId '{}'", accountId);
 
@@ -414,8 +415,12 @@ public class ConnObjectUtil {
                     final Set<AbstractMappingItem> virMapItems = new HashSet<AbstractMappingItem>();
                     final Set<String> extAttrNames = new HashSet<String>();
 
-                    for (AbstractMappingItem item : resource.getUmapping().getItems()) {
-                        if (item.getIntMappingType() == IntMappingType.UserVirtualSchema) {
+                    for (AbstractMappingItem item : attrUtil.getMappingItems(resource)) {
+                        if ((AttributableType.USER == attrUtil.getType()
+                                && item.getIntMappingType() == IntMappingType.UserVirtualSchema)
+                                || (AttributableType.ROLE == attrUtil.getType()
+                                && item.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+
                             virMapItems.add(item);
                             extAttrNames.add(item.getExtAttrName());
                         }
@@ -428,7 +433,6 @@ public class ConnObjectUtil {
                     final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
                     final ConnectorObject connObj =
                             connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
-
                     if (connObj != null) {
                         connObj2MapItems.put(connObj, virMapItems);
                     }

@@ -43,13 +43,11 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Override
     public <T extends AbstractVirSchema> T find(final String name, final Class<T> reference) {
-
         return entityManager.find(reference, name);
     }
 
     @Override
     public <T extends AbstractVirSchema> List<T> findAll(final Class<T> reference) {
-
         Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
@@ -61,7 +59,6 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Override
     public void delete(final String name, final AttributableUtil attributableUtil) {
-
         final AbstractVirSchema virtualSchema = find(name, attributableUtil.virSchemaClass());
 
         if (virtualSchema == null) {

@@ -23,6 +23,7 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
@@ -221,10 +222,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
             role.setPasswordPolicy(null);
         }
 
-        final SyncopeRole savedRole = entityManager.merge(role);
-        entitlementDAO.saveEntitlementRole(savedRole);
+        final SyncopeRole merged = entityManager.merge(role);
+        for (AbstractVirAttr virtual : merged.getVirtualAttributes()) {
+            virtual.setValues(role.getVirtualAttribute(virtual.getVirtualSchema().getName()).getValues());
+        }
 
-        return savedRole;
+        entitlementDAO.saveEntitlementRole(merged);
+
+        return merged;
     }
 
     @Override

@@ -295,7 +295,6 @@ public abstract class AbstractAttributableDataBinder {
         // 1. virtual attributes to be removed
         for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
             AbstractVirSchema virtualSchema = getVirtualSchema(vAttrToBeRemoved, attrUtil.virSchemaClass());
-
             if (virtualSchema != null) {
                 AbstractVirAttr virAttr = attributable.getVirtualAttribute(virtualSchema.getName());
                 if (virAttr == null) {
@@ -365,7 +364,7 @@ public abstract class AbstractAttributableDataBinder {
 
     protected PropagationByResource fill(final AbstractAttributable attributable,
             final AbstractAttributableMod attributableMod, final AttributableUtil attrUtil,
-            final SyncopeClientCompositeErrorException compositeErrorException)
+            final SyncopeClientCompositeErrorException scce)
             throws SyncopeClientCompositeErrorException {
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -397,10 +396,8 @@ public abstract class AbstractAttributableDataBinder {
         // 3. attributes to be removed
         for (String attributeToBeRemoved : attributableMod.getAttributesToBeRemoved()) {
             AbstractSchema schema = getSchema(attributeToBeRemoved, attrUtil.schemaClass());
-
             if (schema != null) {
                 AbstractAttr attribute = attributable.getAttribute(schema.getName());
-
                 if (attribute == null) {
                     LOG.debug("No attribute found for schema {}", schema);
                 } else {
@@ -488,8 +485,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 // 1.2 add values
                 List<String> valuesToBeAdded = attributeMod.getValuesToBeAdded();
-                if (valuesToBeAdded != null
-                        && !valuesToBeAdded.isEmpty()
+                if (valuesToBeAdded != null && !valuesToBeAdded.isEmpty()
                         && (!schema.isUniqueConstraint() || attribute.getUniqueValue() == null
                         || !valuesToBeAdded.iterator().next().equals(attribute.getUniqueValue().getValueAsString()))) {
 
@@ -504,7 +500,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         if (!invalidValues.isEmpty()) {
-            compositeErrorException.addException(invalidValues);
+            scce.addException(invalidValues);
         }
 
         LOG.debug("Attributes to be updated:\n{}", propByRes);
@@ -512,7 +508,6 @@ public abstract class AbstractAttributableDataBinder {
         // 5. derived attributes to be removed
         for (String derAttrToBeRemoved : attributableMod.getDerivedAttributesToBeRemoved()) {
             AbstractDerSchema derSchema = getDerivedSchema(derAttrToBeRemoved, attrUtil.derSchemaClass());
-
             if (derSchema != null) {
                 AbstractDerAttr derAttr = attributable.getDerivedAttribute(derSchema.getName());
                 if (derAttr == null) {
@@ -567,8 +562,8 @@ public abstract class AbstractAttributableDataBinder {
 
         LOG.debug("Derived attributes to be added:\n{}", propByRes);
 
-        // 7. virtual attributes: for users this is delegated to PropagationManager
-        if (AttributableType.USER != attrUtil.getType()) {
+        // 7. virtual attributes: for users and roles this is delegated to PropagationManager
+        if (AttributableType.USER != attrUtil.getType() && AttributableType.ROLE != attrUtil.getType()) {
             fillVirtual(attributable, attributableMod.getVirtualAttributesToBeRemoved(),
                     attributableMod.getVirtualAttributesToBeUpdated(), attrUtil);
         }
@@ -576,13 +571,13 @@ public abstract class AbstractAttributableDataBinder {
         // Finally, check if mandatory values are missing
         SyncopeClientException requiredValuesMissing = checkMandatory(attrUtil, attributable);
         if (!requiredValuesMissing.isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
+            scce.addException(requiredValuesMissing);
         }
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (compositeErrorException.hasExceptions()) {
-            throw compositeErrorException;
+        if (scce.hasExceptions()) {
+            throw scce;
         }
 
         return propByRes;
@@ -593,35 +588,30 @@ public abstract class AbstractAttributableDataBinder {
      *
      * @param attributable attributable.
      * @param vAttrs virtual attributes to be added.
-     * @param attributableUtil attributable util.
+     * @param attrUtil attributable util.
      */
     public void fillVirtual(final AbstractAttributable attributable, final List<AttributeTO> vAttrs,
-            final AttributableUtil attributableUtil) {
+            final AttributableUtil attrUtil) {
 
         for (AttributeTO attributeTO : vAttrs) {
-            AbstractVirAttr virtualAttribute = attributable.getVirtualAttribute(attributeTO.getSchema());
-
-            if (virtualAttribute == null) {
-                AbstractVirSchema virtualSchema = getVirtualSchema(attributeTO.getSchema(),
-                        attributableUtil.virSchemaClass());
-
-                if (virtualSchema != null) {
-                    virtualAttribute = attributableUtil.newVirAttr();
-                    virtualAttribute.setVirtualSchema(virtualSchema);
-                    virtualAttribute.setOwner(attributable);
-                    attributable.addVirtualAttribute(virtualAttribute);
-                    virtualAttribute.setValues(attributeTO.getValues());
+            AbstractVirAttr virAttr = attributable.getVirtualAttribute(attributeTO.getSchema());
+            if (virAttr == null) {
+                AbstractVirSchema virSchema = getVirtualSchema(attributeTO.getSchema(), attrUtil.virSchemaClass());
+                if (virSchema != null) {
+                    virAttr = attrUtil.newVirAttr();
+                    virAttr.setVirtualSchema(virSchema);
+                    virAttr.setOwner(attributable);
+                    attributable.addVirtualAttribute(virAttr);
+                    virAttr.setValues(attributeTO.getValues());
                 }
-
             } else {
-                virtualAttribute.setValues(attributeTO.getValues());
+                virAttr.setValues(attributeTO.getValues());
             }
-
         }
     }
 
     protected void fill(final AbstractAttributable attributable, final AbstractAttributableTO attributableTO,
-            final AttributableUtil attributableUtil, final SyncopeClientCompositeErrorException compositeErrorException)
+            final AttributableUtil attributableUtil, final SyncopeClientCompositeErrorException scce)
             throws SyncopeClientCompositeErrorException {
 
         // 1. attributes
@@ -654,7 +644,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         if (!invalidValues.isEmpty()) {
-            compositeErrorException.addException(invalidValues);
+            scce.addException(invalidValues);
         }
 
         // 2. derived attributes
@@ -672,11 +662,12 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        // 3. user virtual attributes will be valued by the propagation manager only (if needed).
-        if (AttributableType.USER == attributableUtil.getType()) {
+        // 3. user and role virtual attributes will be evaluated by the propagation manager only (if needed).
+        if (AttributableType.USER == attributableUtil.getType()
+                || AttributableType.ROLE == attributableUtil.getType()) {
+
             for (AttributeTO vattrTO : attributableTO.getVirtualAttributes()) {
-                AbstractVirSchema uVirSchema = getVirtualSchema(vattrTO.getSchema(),
-                        attributableUtil.virSchemaClass());
+                AbstractVirSchema uVirSchema = getVirtualSchema(vattrTO.getSchema(), attributableUtil.virSchemaClass());
 
                 if (uVirSchema != null) {
                     AbstractVirAttr vattr = attributableUtil.newVirAttr();
@@ -701,13 +692,13 @@ public abstract class AbstractAttributableDataBinder {
 
         SyncopeClientException requiredValuesMissing = checkMandatory(attributableUtil, attributable);
         if (!requiredValuesMissing.isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
+            scce.addException(requiredValuesMissing);
         }
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (compositeErrorException.hasExceptions()) {
-            throw compositeErrorException;
+        if (scce.hasExceptions()) {
+            throw scce;
         }
     }
 

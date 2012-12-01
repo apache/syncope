@@ -343,7 +343,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     // remove virtual attributes
                     for (AbstractVirAttr virAttr : membership.getVirtualAttributes()) {
-
                         attributeIds.add(virAttr.getId());
                     }
                     for (Long virAttrId : attributeIds) {
@@ -411,13 +410,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public UserTO getUserTO(final SyncopeUser user) {
-
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
 
-        // retrieve virtual values
-        connObjectUtil.retrieveVirAttrValues(user);
+        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
 
         fillTO(userTO, user.getAttributes(), user.getDerivedAttributes(), user.getVirtualAttributes(),
                 user.getResources());

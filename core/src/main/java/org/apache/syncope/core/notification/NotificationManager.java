@@ -120,12 +120,10 @@ public class NotificationManager {
      *
      * @param notification notification to take as model
      * @param user the user this task is about
-     * @param emailSchema name of user schema containing e-mail address
      * @return notification task, fully populated
      */
     private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user) {
-
-        connObjectUtil.retrieveVirAttrValues(user);
+        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
 
         final List<AbstractAttributable> recipients = new ArrayList<AbstractAttributable>();
 
@@ -141,7 +139,7 @@ public class NotificationManager {
         Set<String> recipientEmails = new HashSet<String>();
 
         for (AbstractAttributable recipient : recipients) {
-            connObjectUtil.retrieveVirAttrValues(recipient);
+            connObjectUtil.retrieveVirAttrValues(recipient, AttributableUtil.getInstance(AttributableType.USER));
 
             String email = getRecipientEmail(notification.getRecipientAttrType(),
                     notification.getRecipientAttrName(), (SyncopeUser) recipient);

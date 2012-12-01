@@ -572,7 +572,10 @@ under the License.
   <RMappingItem id="3" accountid="0" password="0" mapping_id="1"
                 extAttrName="description" intAttrName="title" intMappingType="RoleSchema"
                 mandatoryCondition="false"/>
-      
+  <RMappingItem id="4" extAttrName="businessCategory" mapping_id="1"
+                intAttrName="rvirtualdata" intMappingType="RoleVirtualSchema" mandatoryCondition="false"
+                accountid="0" password="0"/>
+        
   <UMapping id="16" resource_name="resource-db-sync"/>
   <UMappingItem id="321" accountid="0" mapping_id="16"
                 extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 

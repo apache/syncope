@@ -84,12 +84,22 @@ public class RoleTestITCase extends AbstractTest {
         ownerDN.setSchema("ownerDN");
         roleTO.addDerivedAttribute(ownerDN);
 
+        AttributeTO rvirtualdata = new AttributeTO();
+        rvirtualdata.setSchema("rvirtualdata");
+        rvirtualdata.addValue("rvirtualvalue");
+        roleTO.addVirtualAttribute(rvirtualdata);
+
         roleTO.setRoleOwner(8L);
 
         roleTO.addResource("resource-ldap");
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
         assertNotNull(roleTO);
+
+        assertNotNull(roleTO.getVirtualAttributeMap());
+        assertNotNull(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues());
+        assertFalse(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().isEmpty());
+        assertEquals("rvirtualvalue", roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().get(0));
 
         assertNotNull(roleTO.getAccountPolicy());
         assertEquals(6L, (long) roleTO.getAccountPolicy());

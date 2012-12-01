@@ -30,7 +30,6 @@ import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
-import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -138,7 +137,7 @@ public final class MappingUtil {
                 for (AbstractAttributable attributable : attributables) {
                     AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
 
-                    if (virAttr != null && virAttr.getValues() != null) {
+                    if (virAttr != null) {
                         for (String value : virAttr.getValues()) {
                             AbstractAttrValue attrValue = new UAttrValue();
                             attrValue.setStringValue(value);
@@ -284,11 +283,13 @@ public final class MappingUtil {
      * Get accountId internal value.
      *
      * @param attributable attributable
-     * @param mapping mapping
+     * @param accountIdItem accountid mapping item
      * @return accountId internal value
      */
-    public static String getAccountIdValue(final AbstractAttributable attributable, final AbstractMapping mapping) {
-        final List<String> values = getIntValueAsStrings(attributable, mapping.getAccountIdItem());
+    public static String getAccountIdValue(final AbstractAttributable attributable,
+            final AbstractMappingItem accountIdItem) {
+
+        final List<String> values = getIntValueAsStrings(attributable, accountIdItem);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0);

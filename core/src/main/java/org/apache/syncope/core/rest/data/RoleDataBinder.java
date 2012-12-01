@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
@@ -49,6 +50,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional(rollbackFor = {Throwable.class})
 public class RoleDataBinder extends AbstractAttributableDataBinder {
+
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -257,6 +261,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public RoleTO getRoleTO(final SyncopeRole role) {
+        connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));
+
         RoleTO roleTO = new RoleTO();
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());

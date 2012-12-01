@@ -194,8 +194,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
     @Override
     public SyncopeUser save(final SyncopeUser user) {
-        SyncopeUser merged = entityManager.merge(user);
-
+        final SyncopeUser merged = entityManager.merge(user);
         for (AbstractVirAttr virtual : merged.getVirtualAttributes()) {
             virtual.setValues(user.getVirtualAttribute(virtual.getVirtualSchema().getName()).getValues());
         }
