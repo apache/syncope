@@ -37,7 +37,10 @@ import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -316,7 +319,7 @@ public class ResourceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             restTemplate.getForObject(
-                BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
+                    BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -342,9 +345,9 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
-        ResourceTO deletedResource = 
-                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, 
-                        resourceName);
+        ResourceTO deletedResource =
+                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class,
+                resourceName);
         assertNotNull(deletedResource);
 
         try {

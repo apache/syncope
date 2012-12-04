@@ -37,7 +37,10 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserRequestTestITCase extends AbstractTest {
 
     @Test

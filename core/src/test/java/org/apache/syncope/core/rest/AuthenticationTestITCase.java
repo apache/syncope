@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,7 +38,10 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SchemaType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
 
     @Test

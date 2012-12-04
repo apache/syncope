@@ -27,7 +27,10 @@ import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditLoggerName;
 import org.apache.syncope.types.SyncopeLoggerLevel;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class LoggerTestITCase extends AbstractTest {
 
     @Test

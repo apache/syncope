@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.core.rest;
 
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.types.SyncopeClientExceptionType;
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.to.VirtualSchemaTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
@@ -65,9 +69,9 @@ public class VirtualSchemaTestITCase extends AbstractTest {
                 VirtualSchemaTO.class);
         assertNotNull(schema);
 
-        VirtualSchemaTO deletedSchema = 
-            restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class, 
-                    schema.getName());
+        VirtualSchemaTO deletedSchema =
+                restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class,
+                schema.getName());
         assertNotNull(deletedSchema);
 
         Throwable t = null;

@@ -27,7 +27,10 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.ConfigurationTO;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
@@ -56,7 +59,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         ConfigurationTO deletedConfig =
                 restTemplate.getForObject(
-                        BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "token.length");
+                BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "token.length");
         assertNotNull(deletedConfig);
         try {
             restTemplate

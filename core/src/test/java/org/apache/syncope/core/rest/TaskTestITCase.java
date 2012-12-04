@@ -43,8 +43,11 @@ import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.scheduling.TestSyncJobActions;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class TaskTestITCase extends AbstractTest {
 
     @Test

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
-import java.util.List;
 import static org.junit.Assert.*;
-import org.junit.Test;
 
+import java.util.List;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.user.UAttr;

@@ -36,7 +36,10 @@ import org.apache.syncope.client.report.UserReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.to.UserTO;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
     @Test

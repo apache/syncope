@@ -45,7 +45,10 @@ import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.IntMappingType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String connidSoapVersion;
@@ -523,7 +526,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
 
-        schemaNames = Arrays.asList(restTemplate.postForObject(BASE_URL + "connector/schema/list", conn, String[].class));
+        schemaNames = Arrays.
+                asList(restTemplate.postForObject(BASE_URL + "connector/schema/list", conn, String[].class));
         assertNotNull(schemaNames);
         assertEquals(0, schemaNames.size());
 
