@@ -76,7 +76,7 @@ under the License.
             <exclude>.idea/**</exclude>
             <exclude>**/*.iml</exclude>
             <!-- Need to explicitely exclude these modules since they are not part of the default build
-                 profile: they will be checked anyway in the apache-release profile, as submodules. -->
+            profile: they will be checked anyway in the apache-release profile, as submodules. -->
             <exclude>archetype/**</exclude>
             <exclude>hibernate-enhancer/**</exclude>
             <exclude>quality/**</exclude>
@@ -95,7 +95,7 @@ under the License.
       
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.2.2</version>
+        <version>2.3.2</version>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
           <autoVersionSubmodules>true</autoVersionSubmodules>
