@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.search;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
 /**
  * Search condition to be applied when searching for memberships.
  */
+@XmlType
 public class MembershipCond extends AbstractBaseBean {
 
     private static final long serialVersionUID = -728155256293925989L;

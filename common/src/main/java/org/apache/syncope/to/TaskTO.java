@@ -22,8 +22,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
+@XmlType
+@XmlRootElement
 public class TaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;

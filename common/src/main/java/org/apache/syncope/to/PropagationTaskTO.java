@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationOperation;
 
+@XmlType
 public class PropagationTaskTO extends TaskTO {
 
     private static final long serialVersionUID = 386450127003321197L;

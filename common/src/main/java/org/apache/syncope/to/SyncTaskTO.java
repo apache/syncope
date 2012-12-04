@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType
 public class SyncTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -2143537546915809016L;

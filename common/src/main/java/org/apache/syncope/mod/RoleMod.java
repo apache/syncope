@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.mod;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement
 public class RoleMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 7455805264680210747L;
@@ -43,7 +48,9 @@ public class RoleMod extends AbstractAttributableMod {
 
     private Boolean inheritPasswordPolicy;
 
-    private List<String> entitlements;
+    protected Set<String> entitlementsToBeAdded = new HashSet<String>();
+
+    protected Set<String> entitlementsToBeRemoved = new HashSet<String>();
 
     private ReferenceMod passwordPolicy;
 
@@ -105,12 +112,28 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
-    public List<String> getEntitlements() {
-        return entitlements;
+    public Set<String> getEntitlementsToBeRemoved() {
+        return entitlementsToBeRemoved;
     }
 
-    public void setEntitlements(final List<String> entitlements) {
-        this.entitlements = entitlements;
+    public Set<String> getEntitlementsToBeAdded() {
+        return entitlementsToBeAdded;
+    }
+
+    public void addEntitlementsToBeRemoved(final String entitlements) {
+        this.entitlementsToBeRemoved.add(entitlements);
+    }
+
+    public void addEntitlementsToBeAdded(final String entitlements) {
+        this.entitlementsToBeAdded.add(entitlements);
+    }
+
+    public void setEntitlementsToBeRemoved(final Set<String> entitlements) {
+        this.entitlementsToBeRemoved = entitlements;
+    }
+
+    public void setEntitlementsToBeAdded(final Set<String> entitlements) {
+        this.entitlementsToBeAdded = entitlements;
     }
 
     public ReferenceMod getPasswordPolicy() {
@@ -150,7 +173,8 @@ public class RoleMod extends AbstractAttributableMod {
     public boolean isEmpty() {
         return super.isEmpty() && name == null && userOwner == null && roleOwner == null
                 && inheritOwner == null && inheritAccountPolicy == null && inheritPasswordPolicy == null
-                && inheritAttributes == null && inheritDerivedAttributes == null && inheritVirtualAttributes == null
-                && accountPolicy == null && passwordPolicy == null && (entitlements == null || entitlements.isEmpty());
+                && inheritAttributes == null && inheritDerivedAttributes == null
+                && inheritVirtualAttributes == null && accountPolicy == null && passwordPolicy == null
+                && (entitlementsToBeAdded.isEmpty()) && (entitlementsToBeRemoved.isEmpty());
     }
 }

@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PolicyType;
 
+@XmlType
 public class PasswordPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -5606086441294799690L;

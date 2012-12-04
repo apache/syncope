@@ -21,6 +21,11 @@ package org.apache.syncope.to;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType
+@XmlRootElement
 public class MembershipTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;

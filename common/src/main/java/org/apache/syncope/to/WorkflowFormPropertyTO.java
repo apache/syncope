@@ -21,9 +21,12 @@ package org.apache.syncope.to;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.WorkflowFormPropertyType;
 
+@XmlType
 public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 9139969592634304261L;

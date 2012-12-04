@@ -25,11 +25,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlType
 public class ConnInstanceTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2707778645445168671L;
@@ -79,6 +84,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
         this.version = bundleversion;
     }
 
+    @XmlElement(name = "connConfProperty")
+    @XmlElementWrapper(name = "configuration")
     public Set<ConnConfProperty> getConfiguration() {
         return this.configuration;
     }
@@ -131,6 +138,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return capabilities.remove(capability);
     }
 
+    @XmlElement(name = "connectorCapability")
+    @XmlElementWrapper(name = "capabilities")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }

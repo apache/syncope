@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.PolicyType;
 
+@XmlType
 public abstract class PolicyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2903888572649721035L;

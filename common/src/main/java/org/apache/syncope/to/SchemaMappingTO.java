@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.IntMappingType;
 
+@XmlType
 public class SchemaMappingTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -5948464320236155366L;

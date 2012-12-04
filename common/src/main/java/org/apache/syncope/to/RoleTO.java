@@ -20,9 +20,18 @@ package org.apache.syncope.to;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@JsonIgnoreProperties({"displayName", "empty"})
+@XmlRootElement
+@XmlType
+@JsonIgnoreProperties({ "displayName", "empty" })
 public class RoleTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
@@ -47,26 +56,31 @@ public class RoleTO extends AbstractAttributableTO {
 
     private boolean inheritAccountPolicy;
 
-    private List<String> entitlements;
+    private final List<String> entitlements = new ArrayList<String>();;
 
     private Long passwordPolicy;
 
     private Long accountPolicy;
 
-    public RoleTO() {
-        entitlements = new ArrayList<String>();
+    public long getParent() {
+        return parent;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    @XmlElement(name = "value")
+    @XmlElementWrapper(name = "entitlements")
+    //WARNING do not rename this method to getEntitlements, it causes strange problems when unmarshalling
+    public List<String> getEntitlementList() {
+        List<String> list = new ArrayList<String>();
+        list.add("Test");
+        return entitlements;
     }
 
-    public long getParent() {
-        return parent;
+    public void setName(final String name) {
+        this.name = name;
     }
 
     public void setParent(final long parent) {
@@ -130,10 +144,6 @@ public class RoleTO extends AbstractAttributableTO {
         return entitlements.remove(entitlement);
     }
 
-    public List<String> getEntitlements() {
-        return entitlements;
-    }
-
     public void setEntitlements(List<String> entitlements) {
         this.entitlements.clear();
         if (entitlements != null && !entitlements.isEmpty()) {
@@ -154,9 +164,11 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     /**
-     * Specify if password policy must be inherited. In this case eventual passwordPolicy occurrence will be ignored.
+     * Specify if password policy must be inherited. In this case eventual
+     * passwordPolicy occurrence will be ignored.
      *
-     * @param inheritPasswordPolicy 'true' to inherit policy, false otherwise.
+     * @param inheritPasswordPolicy
+     *            'true' to inherit policy, false otherwise.
      */
     public void setInheritPasswordPolicy(boolean inheritPasswordPolicy) {
         this.inheritPasswordPolicy = inheritPasswordPolicy;
@@ -175,14 +187,17 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     /**
-     * Specify if account policy must be inherited. In this case eventual accountPolicy occurrence will be ignored.
+     * Specify if account policy must be inherited. In this case eventual
+     * accountPolicy occurrence will be ignored.
      *
-     * @param inheritAccountPolicy 'true' to inherit policy, false otherwise.
+     * @param inheritAccountPolicy
+     *            'true' to inherit policy, false otherwise.
      */
     public void setInheritAccountPolicy(boolean inheritAccountPolicy) {
         this.inheritAccountPolicy = inheritAccountPolicy;
     }
 
+    @XmlTransient
     public String getDisplayName() {
         return getId() + " " + getName();
     }

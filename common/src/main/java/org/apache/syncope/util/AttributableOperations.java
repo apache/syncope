@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.syncope.mod.AbstractAttributableMod;
 import org.apache.syncope.mod.AttributeMod;
@@ -39,7 +40,8 @@ import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.to.UserTO;
 
 /**
- * Utility class for manipulating classes extending AbstractAttributableTO and AbstractAttributableMod.
+ * Utility class for manipulating classes extending AbstractAttributableTO and
+ * AbstractAttributableMod.
  *
  * @see AbstractAttributableTO
  * @see AbstractAttributableMod
@@ -49,6 +51,7 @@ public final class AttributableOperations {
     private AttributableOperations() {
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends AbstractAttributableTO> T clone(final T original) {
         return (T) SerializationUtils.clone(original);
     }
@@ -59,7 +62,8 @@ public final class AttributableOperations {
     }
 
     private static void populate(final Map<String, AttributeTO> updatedAttrs,
-            final Map<String, AttributeTO> originalAttrs, final AbstractAttributableMod result, final boolean virtuals) {
+            final Map<String, AttributeTO> originalAttrs, final AbstractAttributableMod result,
+            final boolean virtuals) {
 
         for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
             AttributeMod mod = new AttributeMod();
@@ -99,11 +103,8 @@ public final class AttributableOperations {
         }
     }
 
-    private static void diff(
-            final AbstractAttributableTO updated,
-            final AbstractAttributableTO original,
-            final AbstractAttributableMod result,
-            final boolean incremental) {
+    private static void diff(final AbstractAttributableTO updated, final AbstractAttributableTO original,
+            final AbstractAttributableMod result, final boolean incremental) {
 
         // 1. check same id
         if (updated.getId() != original.getId()) {
@@ -181,8 +182,10 @@ public final class AttributableOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated UserTO
-     * @param original original UserTO
+     * @param updated
+     *            updated UserTO
+     * @param original
+     *            original UserTO
      * @return UserMod containing differences
      */
     public static UserMod diff(final UserTO updated, final UserTO original) {
@@ -192,9 +195,12 @@ public final class AttributableOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated UserTO
-     * @param original original UserTO
-     * @param incremental perform incremental diff (without removing existing info)
+     * @param updated
+     *            updated UserTO
+     * @param original
+     *            original UserTO
+     * @param incremental
+     *            perform incremental diff (without removing existing info)
      * @return UserMod containing differences
      */
     public static UserMod diff(final UserTO updated, final UserTO original, boolean incremental) {
@@ -273,8 +279,10 @@ public final class AttributableOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated RoleTO
-     * @param original original RoleTO
+     * @param updated
+     *            updated RoleTO
+     * @param original
+     *            original RoleTO
      * @return RoleMod containing differences
      */
     public static RoleMod diff(final RoleTO updated, final RoleTO original) {
@@ -300,13 +308,13 @@ public final class AttributableOperations {
         }
 
         // 4. entitlements
-        Set<String> updatedEnts = new HashSet<String>(updated.getEntitlements());
-        Set<String> originalEnts = new HashSet<String>(original.getEntitlements());
-        if (updatedEnts.equals(originalEnts)) {
-            result.setEntitlements(null);
-        } else {
-            result.setEntitlements(updated.getEntitlements());
-        }
+        Set<String> updatedEnts = new HashSet<String>(updated.getEntitlementList());
+        Set<String> originalEnts = new HashSet<String>(original.getEntitlementList());
+        originalEnts.removeAll(updatedEnts);
+        result.setEntitlementsToBeRemoved(originalEnts);
+        originalEnts = new HashSet<String>(original.getEntitlementList());
+        updatedEnts.removeAll(originalEnts);
+        result.setEntitlementsToBeAdded(updatedEnts);
 
         // 5. owner
         result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
@@ -338,8 +346,8 @@ public final class AttributableOperations {
         return new ArrayList<AttributeTO>(attrs.values());
     }
 
-    private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(final T to,
-            final K mod, final T result) {
+    private static <T extends AbstractAttributableTO, K extends AbstractAttributableMod> void apply(
+            final T to, final K mod, final T result) {
 
         // 1. check same id
         if (to.getId() != mod.getId()) {
@@ -347,8 +355,8 @@ public final class AttributableOperations {
         }
 
         // 2. attributes
-        result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(), mod.
-                getAttributesToBeUpdated()));
+        result.setAttributes(getUpdateValues(to.getAttributeMap(), mod.getAttributesToBeRemoved(),
+                mod.getAttributesToBeUpdated()));
 
         // 3. derived attributes
         Map<String, AttributeTO> attrs = to.getDerivedAttributeMap();
@@ -364,8 +372,8 @@ public final class AttributableOperations {
         result.setDerivedAttributes(new ArrayList<AttributeTO>(attrs.values()));
 
         // 4. virtual attributes
-        result.setVirtualAttributes(getUpdateValues(to.getVirtualAttributeMap(), mod.getVirtualAttributesToBeRemoved(),
-                mod.getVirtualAttributesToBeUpdated()));
+        result.setVirtualAttributes(getUpdateValues(to.getVirtualAttributeMap(),
+                mod.getVirtualAttributesToBeRemoved(), mod.getVirtualAttributesToBeUpdated()));
 
         // 5. resources
         result.getResources().removeAll(mod.getResourcesToBeRemoved());

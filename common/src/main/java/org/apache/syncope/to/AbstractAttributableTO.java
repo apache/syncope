@@ -25,8 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlType
 public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private static final long serialVersionUID = 4083884098736820255L;
@@ -97,6 +103,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return derivedAttributes.remove(derivedAttribute);
     }
 
+    @XmlElement(name="attributeTO")
+    @XmlElementWrapper(name="derivedAttributes")
     public List<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
     }
@@ -114,6 +122,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return virtualAttributes.remove(virtualAttribute);
     }
 
+    @XmlElement(name="attributeTO")
+    @XmlElementWrapper(name="virtualAttributes")
     public List<AttributeTO> getVirtualAttributes() {
         return virtualAttributes;
     }
@@ -130,6 +140,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return resources.remove(resource);
     }
 
+    @XmlElement(name="resource")
+    @XmlElementWrapper(name="resources")
     public Set<String> getResources() {
         return resources;
     }

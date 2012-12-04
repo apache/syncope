@@ -21,8 +21,12 @@ package org.apache.syncope.to;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
+@XmlType
 public class AttributeTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
@@ -59,7 +63,8 @@ public class AttributeTO extends AbstractBaseBean {
     }
 
     /**
-     * @param schema name to be set
+     * @param schema
+     *            name to be set
      */
     public void setSchema(final String schema) {
         this.schema = schema;
@@ -67,7 +72,8 @@ public class AttributeTO extends AbstractBaseBean {
     }
 
     /**
-     * @param value an attribute value to be added
+     * @param value
+     *            an attribute value to be added
      * @return whether the operation succeeded or not
      */
     public boolean addValue(final String value) {
@@ -77,7 +83,8 @@ public class AttributeTO extends AbstractBaseBean {
     }
 
     /**
-     * @param value an attribute value to be removed
+     * @param value
+     *            an attribute value to be removed
      * @return whether the operation succeeded or not
      */
     public boolean removeValue(final String value) {
@@ -89,12 +96,14 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * @return attribute values as strings
      */
+    @XmlElement(name = "value")
     public List<String> getValues() {
         return values;
     }
 
     /**
-     * @param values set of (string) values
+     * @param values
+     *            set of (string) values
      */
     public void setValues(final List<String> values) {
         if (!isReadonly()) {

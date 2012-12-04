@@ -20,13 +20,19 @@ package org.apache.syncope.to;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.types.TraceLevel;
 
+@XmlType
 public class NotificationTaskTO extends TaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
 
-    private Set<String> recipients;
+    private final Set<String> recipients;
 
     private String sender;
 
@@ -46,6 +52,8 @@ public class NotificationTaskTO extends TaskTO {
         recipients = new HashSet<String>();
     }
 
+    @XmlElement(name = "recipient")
+    @XmlElementWrapper(name = "recipients")
     public Set<String> getRecipients() {
         return recipients;
     }

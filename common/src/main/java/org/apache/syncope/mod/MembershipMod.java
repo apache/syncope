@@ -20,8 +20,14 @@ package org.apache.syncope.mod;
 
 import java.util.Collections;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement
+@XmlType
 public class MembershipMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 2511869129977331525L;

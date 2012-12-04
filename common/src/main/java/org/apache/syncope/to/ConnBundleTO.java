@@ -21,9 +21,14 @@ package org.apache.syncope.to;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfPropSchema;
 
+@XmlType
 public class ConnBundleTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 7215115961910138005L;
@@ -66,6 +71,8 @@ public class ConnBundleTO extends AbstractBaseBean {
         this.displayName = displayName;
     }
 
+    @XmlElement(name = "connConfPropSchema")
+    @XmlElementWrapper(name = "properties")
     public List<ConnConfPropSchema> getProperties() {
         return properties;
     }

@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.search;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Search condition to be applied when comparing bean attribute values.
  */
+@XmlType
 public class SyncopeUserCond extends AttributeCond {
 
     private static final long serialVersionUID = -1880319220462653955L;

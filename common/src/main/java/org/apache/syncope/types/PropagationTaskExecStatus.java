@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.types;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Status of a TaskExecution.
  *
@@ -27,6 +29,7 @@ package org.apache.syncope.types;
  * report success or failure).
  *
  */
+@XmlType(name = "PropagationTaskExecStatus")
 public enum PropagationTaskExecStatus {
 
     CREATED,

@@ -20,9 +20,13 @@ package org.apache.syncope.mod;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.AbstractBaseBean;
 
+@XmlRootElement
 public class AttributeMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = -913573979137431406L;

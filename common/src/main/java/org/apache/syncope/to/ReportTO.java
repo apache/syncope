@@ -22,9 +22,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.report.ReportletConf;
 
+@XmlRootElement
+@XmlType
 public class ReportTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5274568072084814410L;

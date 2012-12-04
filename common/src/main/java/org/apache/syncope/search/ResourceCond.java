@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.search;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
 /**
  * Search condition to be applied when searching for associated resources.
  */
+@XmlType
 public class ResourceCond extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4577460657640881223L;

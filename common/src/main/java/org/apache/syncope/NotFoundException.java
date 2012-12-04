@@ -18,6 +18,7 @@
  */
 package org.apache.syncope;
 
+
 /**
  * Thrown when something is not found.
  */

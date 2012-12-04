@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 import org.apache.syncope.types.SyncopeLoggerLevel;
 
+@XmlRootElement
+@XmlType
 public class LoggerTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7794833835668648505L;

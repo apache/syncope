@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
+@XmlType
 public class DerivedSchemaTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -5758594647387239936L;

@@ -25,10 +25,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement
+@XmlType
 public class UserTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
@@ -37,7 +45,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private List<MembershipTO> memberships;
 
-    private List<PropagationTO> propagationTOs;
+    private final List<PropagationTO> propagationTOs;
 
     private String status;
 
@@ -78,6 +86,8 @@ public class UserTO extends AbstractAttributableTO {
         return memberships.remove(membershipTO);
     }
 
+    @XmlElement(name="membershipTO")
+    @XmlElementWrapper(name="memberships")
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
@@ -190,6 +200,8 @@ public class UserTO extends AbstractAttributableTO {
         }
     }
 
+    @XmlElement(name="propagationTO")
+    @XmlElementWrapper(name="propagations")
     public List<PropagationTO> getPropagationTOs() {
         return propagationTOs;
     }

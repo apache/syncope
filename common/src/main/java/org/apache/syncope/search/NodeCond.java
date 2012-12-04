@@ -18,12 +18,18 @@
  */
 package org.apache.syncope.search;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
+@XmlRootElement
+@XmlType(name = "NodeCond")
 public class NodeCond extends AbstractBaseBean {
 
     private static final long serialVersionUID = -8508611056176961293L;
 
+    @XmlType(name = "NodeCondType")
     public enum Type {
 
         LEAF,

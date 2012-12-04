@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.types;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(name = "WorkflowFormPropertyType")
 public enum WorkflowFormPropertyType {
 
     String,

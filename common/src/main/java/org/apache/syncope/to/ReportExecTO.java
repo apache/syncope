@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.types.ReportExecStatus;
 
+@XmlType
 public class ReportExecTO extends AbstractExecTO {
 
     private static final long serialVersionUID = -1025555939724089215L;

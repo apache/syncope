@@ -21,6 +21,10 @@ package org.apache.syncope.mod;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.AbstractBaseBean;
 
 /**
@@ -28,6 +32,7 @@ import org.apache.syncope.AbstractBaseBean;
  *
  * Attributes can be regular attributes, derived attributes, virtual attributes and resources.
  */
+@XmlType
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
@@ -85,6 +90,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeRemoved.remove(attribute);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "attributesToBeRemoved")
     public Set<String> getAttributesToBeRemoved() {
         return attributesToBeRemoved;
     }
@@ -115,6 +122,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeUpdated.remove(attribute);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "attributesToBeUpdated")
     public Set<AttributeMod> getAttributesToBeUpdated() {
         return attributesToBeUpdated;
     }
@@ -144,6 +153,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "derivedAttributesToBeAdded")
     public Set<String> getDerivedAttributesToBeAdded() {
         return derivedAttributesToBeAdded;
     }
@@ -161,6 +172,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeRemoved.remove(derivedAttribute);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
     public Set<String> getDerivedAttributesToBeRemoved() {
         return derivedAttributesToBeRemoved;
     }
@@ -170,6 +183,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "virtualAttributesToBeRemoved")
     public Set<String> getVirtualAttributesToBeRemoved() {
         return virtualAttributesToBeRemoved;
     }
@@ -199,6 +214,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "virtualAttributesToBeUpdated")
     public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
         return virtualAttributesToBeUpdated;
     }
@@ -216,6 +233,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeAdded.remove(resource);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "resourcesToBeAdded")
     public Set<String> getResourcesToBeAdded() {
         return resourcesToBeAdded;
     }
@@ -232,6 +251,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeRemoved.remove(resource);
     }
 
+    @XmlElement(name = "attribute")
+    @XmlElementWrapper(name = "resourcesToBeRemoved")
     public Set<String> getResourcesToBeRemoved() {
         return resourcesToBeRemoved;
     }

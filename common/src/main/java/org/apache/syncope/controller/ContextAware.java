@@ -16,37 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.to;
+package org.apache.syncope.controller;
 
-import javax.xml.bind.annotation.XmlType;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
-import org.apache.syncope.types.PolicyType;
-import org.apache.syncope.types.SyncPolicySpec;
+public interface ContextAware {
 
-@XmlType
-public class SyncPolicyTO extends PolicyTO {
-
-    private static final long serialVersionUID = 993024634238024242L;
-
-    private SyncPolicySpec specification;
-
-    public SyncPolicyTO() {
-        this(false);
-    }
-
-    public SyncPolicyTO(boolean global) {
-        super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
-    }
-
-    public void setSpecification(final SyncPolicySpec specification) {
-        this.specification = specification;
-    }
-
-    public SyncPolicySpec getSpecification() {
-        return specification;
-    }
+    @Context
+    public void setUriInfo(UriInfo ui);
 }
