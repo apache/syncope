@@ -48,7 +48,7 @@ public abstract class AbstractTest {
 
     protected static String bundlesDirectory;
 
-    private void logTableContent(final Connection conn, final String tableName) throws SQLException {
+    protected void logTableContent(final Connection conn, final String tableName) throws SQLException {
 
         LOG.debug("Table: " + tableName);
 

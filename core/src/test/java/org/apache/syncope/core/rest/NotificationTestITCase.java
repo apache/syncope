@@ -39,6 +39,10 @@ import org.junit.Test;
 
 public class NotificationTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void read() {
         NotificationTO notificationTO = restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json",

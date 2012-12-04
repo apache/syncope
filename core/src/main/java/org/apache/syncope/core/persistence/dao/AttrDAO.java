@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.validation.InvalidEntityException;
 
 public interface AttrDAO extends DAO {
 

@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.validation.InvalidEntityException;
 
 public interface DerSchemaDAO extends DAO {
 

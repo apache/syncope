@@ -54,6 +54,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String bundlesDirectory;
 
+    @Override
+    public void setupService() {
+    }
+
     @BeforeClass
     public static void init() {
         Properties props = new Properties();
@@ -224,7 +228,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
-        ConnInstanceTO actual = (ConnInstanceTO) restTemplate.postForObject(BASE_URL + "connector/update.json",
+        ConnInstanceTO actual = restTemplate.postForObject(BASE_URL + "connector/update.json",
                 connectorTO, ConnInstanceTO.class);
 
         assertNotNull(actual);
@@ -309,7 +313,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         connInstanceTO.addCapability(ConnectorCapability.SEARCH);
 
-        ConnInstanceTO actual = (ConnInstanceTO) restTemplate.postForObject(BASE_URL + "connector/update.json",
+        ConnInstanceTO actual = restTemplate.postForObject(BASE_URL + "connector/update.json",
                 connInstanceTO, ConnInstanceTO.class);
 
         assertNotNull(actual);

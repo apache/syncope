@@ -19,8 +19,9 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.UserWorkflowAdapter;
 import org.apache.syncope.workflow.WorkflowException;
 import org.apache.syncope.to.WorkflowDefinitionTO;

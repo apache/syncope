@@ -46,6 +46,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 public class UserRequestTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void selfRead() {
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
@@ -75,7 +79,7 @@ public class UserRequestTestITCase extends AbstractTest {
                 ConfigurationTO.class);
         assertNotNull(configurationTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO("selfcreate@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("selfcreate@syncope.apache.org");
 
         // 2. get unauthorized when trying to request user create
         SyncopeClientException exception = null;
@@ -119,7 +123,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void update() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleTO("selfupdate@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("selfupdate@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -181,7 +185,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void delete() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleTO("selfdelete@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("selfdelete@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);

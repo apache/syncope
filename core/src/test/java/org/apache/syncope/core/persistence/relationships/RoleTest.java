@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.validation.InvalidEntityException;
 
 @Transactional
 public class RoleTest extends AbstractTest {

@@ -19,10 +19,11 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.Map;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnBundleManager;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.ConnInstanceTO;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;

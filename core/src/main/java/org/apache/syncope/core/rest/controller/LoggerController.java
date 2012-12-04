@@ -23,10 +23,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.LoggerTO;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.LoggerSubCategory;

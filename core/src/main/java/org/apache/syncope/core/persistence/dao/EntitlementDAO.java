@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.validation.InvalidEntityException;
 
 public interface EntitlementDAO extends DAO {
 

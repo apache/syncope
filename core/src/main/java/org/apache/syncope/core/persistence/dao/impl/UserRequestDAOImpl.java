@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.validation.InvalidEntityException;
 
 @Repository
 @Transactional(noRollbackFor = { Throwable.class })

@@ -40,6 +40,10 @@ import org.apache.syncope.validation.SyncopeClientException;
 
 public class ResourceTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void getPropagationActionsClasses() {
         Set<String> actions = restTemplate.getForObject(

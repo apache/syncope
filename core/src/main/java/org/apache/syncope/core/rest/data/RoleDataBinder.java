@@ -19,6 +19,8 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -30,7 +32,6 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.mod.RoleMod;
 import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.types.AttributableType;
@@ -105,7 +106,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // entitlements
         Entitlement entitlement;
-        for (String entitlementName : roleTO.getEntitlements()) {
+        for (String entitlementName : roleTO.getEntitlementList()) {
             entitlement = entitlementDAO.find(entitlementName);
             if (entitlement == null) {
                 LOG.warn("Ignoring invalid entitlement {}", entitlementName);
@@ -185,14 +186,23 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // entitlements
-        if (roleMod.getEntitlements() != null) {
-            role.getEntitlements().clear();
-            for (String entitlementName : roleMod.getEntitlements()) {
+        if (roleMod.getEntitlementsToBeAdded().size() > 0) {
+            for (String entitlementName : roleMod.getEntitlementsToBeAdded()) {
                 Entitlement entitlement = entitlementDAO.find(entitlementName);
                 if (entitlement == null) {
                     LOG.warn("Ignoring invalid entitlement {}", entitlementName);
                 } else {
                     role.addEntitlement(entitlement);
+                }
+            }
+        }
+        if (roleMod.getEntitlementsToBeRemoved().size() > 0) {
+            for (String entitlementName : roleMod.getEntitlementsToBeRemoved()) {
+                Entitlement entitlement = entitlementDAO.find(entitlementName);
+                if (entitlement == null) {
+                    LOG.warn("Ignoring invalid entitlement {}", entitlementName);
+                } else {
+                    role.removeEntitlement(entitlement);
                 }
             }
         }

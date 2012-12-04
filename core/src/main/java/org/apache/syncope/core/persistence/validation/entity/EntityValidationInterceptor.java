@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.validation.entity;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+
+import org.apache.syncope.validation.InvalidEntityException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

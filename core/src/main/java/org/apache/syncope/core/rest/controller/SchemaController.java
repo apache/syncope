@@ -21,12 +21,13 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.rest.data.SchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.SchemaTO;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;

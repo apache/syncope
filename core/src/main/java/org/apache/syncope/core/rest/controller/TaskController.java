@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
@@ -37,7 +39,6 @@ import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.TaskDataBinder;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.notification.NotificationJob;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.to.SchedTaskTO;
 import org.apache.syncope.to.SyncTaskTO;

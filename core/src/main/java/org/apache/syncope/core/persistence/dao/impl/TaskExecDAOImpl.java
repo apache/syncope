@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.validation.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

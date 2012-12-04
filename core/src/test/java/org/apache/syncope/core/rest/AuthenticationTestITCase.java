@@ -46,6 +46,10 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class AuthenticationTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
@@ -84,7 +88,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
-        UserTO userTO = UserTestITCase.getSampleTO("auth@test.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("auth@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(authRoleTO.getId());
@@ -129,7 +133,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void testUserRead() {
-        UserTO userTO = UserTestITCase.getSampleTO("testuserread@test.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("testuserread@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -164,7 +168,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void testUserSearch() {
-        UserTO userTO = UserTestITCase.getSampleTO("testusersearch@test.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("testusersearch@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -213,7 +217,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkFailedLogins() {
-        UserTO userTO = UserTestITCase.getSampleTO("checkFailedLogin@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("checkFailedLogin@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -276,7 +280,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkUserSuspension() {
-        UserTO userTO = UserTestITCase.getSampleTO("checkSuspension@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("checkSuspension@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -412,7 +416,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(childRole);
 
         // User with child role, created by admin
-        UserTO role1Admin = UserTestITCase.getSampleTO("syncope48admin@apache.org");
+        UserTO role1Admin = AbstractUserTestITCase.getSampleTO("syncope48admin@apache.org");
         role1Admin.setPassword("password");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(childRole.getId());
@@ -424,7 +428,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         super.setupRestTemplate(role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
-        UserTO role1User = UserTestITCase.getSampleTO("syncope48user@apache.org");
+        UserTO role1User = AbstractUserTestITCase.getSampleTO("syncope48user@apache.org");
         membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
         role1User.addMembership(membershipTO);
@@ -435,4 +439,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
     }
+
+
 }

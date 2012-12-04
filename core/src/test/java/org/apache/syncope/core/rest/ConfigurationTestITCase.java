@@ -30,6 +30,10 @@ import org.apache.syncope.to.ConfigurationTO;
 
 public class ConfigurationTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void create() {
         ConfigurationTO configurationTO = new ConfigurationTO();

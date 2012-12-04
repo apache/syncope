@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
@@ -35,7 +37,6 @@ import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.ConnObjectUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.ConnObjectTO;
 import org.apache.syncope.to.ResourceTO;
 import org.apache.syncope.to.SchemaMappingTO;

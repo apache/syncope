@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.data;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
@@ -30,7 +31,6 @@ import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.util.JexlUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.to.AbstractAttributableTO;
 import org.apache.syncope.to.AttributeTO;

@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.workflow.WorkflowException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
+import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
-import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.mod.UserMod;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.to.WorkflowDefinitionTO;

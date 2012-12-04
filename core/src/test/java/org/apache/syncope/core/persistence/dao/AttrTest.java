@@ -23,7 +23,6 @@ import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import static org.junit.Assert.*;
 
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import java.util.List;
 import javax.validation.ValidationException;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.EntityViolationType;
+import org.apache.syncope.validation.InvalidEntityException;
 
 @Transactional
 public class AttrTest extends AbstractTest {

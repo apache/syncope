@@ -29,10 +29,10 @@ import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.types.PolicyType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.SyncPolicySpec;
+import org.apache.syncope.validation.InvalidEntityException;
 
 @Transactional
 public class PolicyTest extends AbstractTest {

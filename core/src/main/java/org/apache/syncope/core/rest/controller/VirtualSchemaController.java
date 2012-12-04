@@ -21,11 +21,12 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.rest.data.VirtualSchemaDataBinder;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.VirtualSchemaTO;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;

@@ -29,6 +29,10 @@ import static org.junit.Assert.*;
 
 public class VirtualSchemaTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void list() {
         List<VirtualSchemaTO> VirtualSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
@@ -66,8 +70,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
                 VirtualSchemaTO.class);
         assertNotNull(schema);
 
-        VirtualSchemaTO deletedSchema = 
-            restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class, 
+        VirtualSchemaTO deletedSchema =
+            restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class,
                     schema.getName());
         assertNotNull(deletedSchema);
 

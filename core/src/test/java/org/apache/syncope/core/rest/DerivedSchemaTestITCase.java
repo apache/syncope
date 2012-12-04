@@ -29,6 +29,10 @@ import static org.junit.Assert.*;
 
 public class DerivedSchemaTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void list() {
         List<DerivedSchemaTO> derivedSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL

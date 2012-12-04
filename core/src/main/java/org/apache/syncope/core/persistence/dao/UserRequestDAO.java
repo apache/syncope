@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.UserRequest;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.validation.InvalidEntityException;
 
 public interface UserRequestDAO extends DAO {
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.propagation;
 
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.propagation.PropagationException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnObjectUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TraceLevel;

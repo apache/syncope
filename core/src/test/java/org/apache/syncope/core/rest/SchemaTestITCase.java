@@ -39,6 +39,10 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class SchemaTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void create() {
         SchemaTO schemaTO = new SchemaTO();
@@ -111,7 +115,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        SchemaTO deletedSchema = 
+        SchemaTO deletedSchema =
             restTemplate.getForObject(BASE_URL + "schema/user/delete/cool.json", SchemaTO.class);
         assertNotNull(deletedSchema);
         SchemaTO firstname = null;
@@ -174,7 +178,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO("issue258@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("issue258@syncope.apache.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1.2");
@@ -203,7 +207,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO("issue259@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("issue259@syncope.apache.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1");
@@ -233,7 +237,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO("issue260@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("issue260@syncope.apache.org");
         AttributeTO attrTO = new AttributeTO();
         attrTO.setSchema(schemaTO.getName());
         attrTO.addValue("1.2");

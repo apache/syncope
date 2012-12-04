@@ -30,6 +30,10 @@ import org.apache.syncope.types.SyncopeLoggerLevel;
 
 public class LoggerTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void listLogs() {
         List<LoggerTO> loggers =

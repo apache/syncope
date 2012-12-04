@@ -39,6 +39,10 @@ import org.apache.syncope.to.UserTO;
 
 public class ReportTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void getReportletClasses() {
         Set<String> reportletClasses = restTemplate.getForObject(BASE_URL + "report/reportletConfClasses.json",

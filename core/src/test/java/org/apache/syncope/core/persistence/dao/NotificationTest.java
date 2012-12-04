@@ -30,12 +30,12 @@ import java.util.Set;
 
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.Notification;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.search.AttributeCond;
 import org.apache.syncope.search.MembershipCond;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.types.EntityViolationType;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.validation.InvalidEntityException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

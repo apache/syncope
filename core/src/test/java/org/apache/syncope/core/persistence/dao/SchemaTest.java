@@ -30,9 +30,9 @@ import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SchemaType;
+import org.apache.syncope.validation.InvalidEntityException;
 
 @Transactional
 public class SchemaTest extends AbstractTest {

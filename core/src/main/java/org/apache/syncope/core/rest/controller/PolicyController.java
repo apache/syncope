@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -29,7 +31,6 @@ import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.rest.data.PolicyDataBinder;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.AccountPolicyTO;
 import org.apache.syncope.to.PasswordPolicyTO;
 import org.apache.syncope.to.PolicyTO;

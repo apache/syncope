@@ -53,6 +53,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 public class TaskTestITCase extends AbstractTest {
 
+    @Override
+    public void setupService() {
+    }
+
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = restTemplate.getForObject(BASE_URL + "task/jobClasses.json", Set.class);
@@ -545,7 +549,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(notification);
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO("syncope86@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO("syncope86@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);

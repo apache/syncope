@@ -21,11 +21,12 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.rest.data.NotificationDataBinder;
-import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.to.NotificationTO;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.NotificationSubCategory;
