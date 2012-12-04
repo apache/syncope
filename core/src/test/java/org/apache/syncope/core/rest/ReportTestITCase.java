@@ -41,8 +41,8 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        Set<String> reportletClasses = restTemplate.getForObject(BASE_URL + "report/reportletConfClasses.json",
-                Set.class);
+        List<String> reportletClasses = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "report/reportletConfClasses.json", String[].class));
         assertNotNull(reportletClasses);
         assertFalse(reportletClasses.isEmpty());
     }

@@ -63,7 +63,6 @@ public class DerivedAttributesPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO) {
-
         super(id);
         setOutputMarkupId(true);
 
@@ -107,7 +106,7 @@ public class DerivedAttributesPanel extends Panel {
         };
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
-        
+
         final ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
                 new PropertyModel<List<? extends AttributeTO>>(entityTO, "derivedAttributes")) {
 
@@ -117,7 +116,7 @@ public class DerivedAttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
-                item.add(new  AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
 
                     private static final long serialVersionUID = 7170946748485726506L;
 
@@ -128,14 +127,15 @@ public class DerivedAttributesPanel extends Panel {
                     }
 
                     @Override
-                    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                         super.updateAjaxAttributes(attributes);
 
                         IAjaxCallListener ajaxCallListener = new AjaxCallListener() {
+
                             private static final long serialVersionUID = 7160235486520935153L;
 
                             @Override
-                            public CharSequence getPrecondition(Component component) { 
+                            public CharSequence getPrecondition(final Component component) {
                                 return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
                             }
                         };
@@ -164,11 +164,12 @@ public class DerivedAttributesPanel extends Panel {
                 item.add(schemaChoice);
 
                 final List<String> values = attributeTO.getValues();
-
                 if (values == null || values.isEmpty()) {
-                    item.add(new TextField("value", new Model(null)).setVisible(Boolean.FALSE));
+                    item.add(new TextField<String>("value",
+                            new Model<String>(null)).setVisible(Boolean.FALSE));
                 } else {
-                    item.add(new TextField("value", new Model(values.get(0))).setEnabled(Boolean.FALSE));
+                    item.add(new TextField<String>("value",
+                            new Model<String>(values.get(0))).setEnabled(Boolean.FALSE));
                 }
             }
         };

@@ -26,11 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper class for serialization and deserialization of configuration objects,
- * empowering XStream.
+ * Helper class for serialization and deserialization of configuration objects, empowering XStream.
+ *
  * @see http://xstream.codehaus.org/
  */
-public class XMLSerializer {
+public final class XMLSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
 
@@ -47,8 +47,8 @@ public class XMLSerializer {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Object> T deserialize(final String serialized) {
-
         T result = null;
 
         XStream xstream = new XStream();
@@ -59,5 +59,8 @@ public class XMLSerializer {
         }
 
         return result;
+    }
+
+    private XMLSerializer() {
     }
 }
