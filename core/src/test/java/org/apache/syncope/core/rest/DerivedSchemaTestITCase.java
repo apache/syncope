@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.junit.Test;
 import org.apache.syncope.types.SyncopeClientExceptionType;
-import static org.junit.Assert.*;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
@@ -69,7 +73,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
         DerivedSchemaTO schemaToDelete =
                 restTemplate.getForObject(
-                    BASE_URL + "derivedSchema/role/delete/{schema}", DerivedSchemaTO.class, schema.getName());
+                BASE_URL + "derivedSchema/role/delete/{schema}", DerivedSchemaTO.class, schema.getName());
         assertNotNull(schemaToDelete);
 
         Throwable t = null;

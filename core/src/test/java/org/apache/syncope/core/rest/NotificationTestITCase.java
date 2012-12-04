@@ -31,8 +31,11 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.apache.syncope.types.TraceLevel;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class NotificationTestITCase extends AbstractTest {
 
     @Test

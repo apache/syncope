@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.rest;
 
-import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -37,7 +37,10 @@ import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
 
     @Test
