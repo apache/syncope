@@ -32,7 +32,10 @@ import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PolicyType;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class PolicyTestITCase extends AbstractTest {
 
     @Test

@@ -38,7 +38,10 @@ import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
 
     @Test

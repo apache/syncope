@@ -33,10 +33,13 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.EntityViolationType;
 import org.apache.syncope.types.SchemaType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class SchemaTestITCase extends AbstractTest {
 
     @Test
@@ -111,8 +114,8 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        SchemaTO deletedSchema = 
-            restTemplate.getForObject(BASE_URL + "schema/user/delete/cool.json", SchemaTO.class);
+        SchemaTO deletedSchema =
+                restTemplate.getForObject(BASE_URL + "schema/user/delete/cool.json", SchemaTO.class);
         assertNotNull(deletedSchema);
         SchemaTO firstname = null;
         try {

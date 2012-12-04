@@ -30,8 +30,11 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class SearchTestITCase extends AbstractTest {
 
     @Test

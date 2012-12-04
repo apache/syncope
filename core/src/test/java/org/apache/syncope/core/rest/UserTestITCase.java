@@ -60,9 +60,12 @@ import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.Assume;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
 
     public static UserTO getSampleTO(final String email) {
