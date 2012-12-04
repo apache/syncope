@@ -755,6 +755,7 @@ under the License.
             <target>${targetJdk}</target>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
+            <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
           </configuration>
         </plugin>
         <plugin>
@@ -982,7 +983,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.1.1</version>
+        <version>1.2</version>
         <executions>
           <execution>
             <id>enforce-java</id>
