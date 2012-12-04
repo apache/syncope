@@ -267,6 +267,8 @@ under the License.
     <activiti.version>5.10</activiti.version>
 
 	<cxf.version>2.7.0</cxf.version>
+	<cxf.javax.ws.rs.version>2.0-m10</cxf.javax.ws.rs.version>
+	
     <spring.version>3.1.3.RELEASE</spring.version>
     <spring-security.version>3.1.3.RELEASE</spring-security.version>
     <aspectj.version>1.7.1</aspectj.version>
@@ -324,12 +326,32 @@ under the License.
   <dependencyManagement>
 
     <dependencies>
-
+	  <dependency>
+		<groupId>javax.ws.rs</groupId>
+		<artifactId>javax.ws.rs-api</artifactId>
+		<version>${cxf.javax.ws.rs.version}</version>
+	  </dependency>
 	  <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         <version>${cxf.version}</version>
       </dependency>
+  	  <dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-rs-extension-providers</artifactId>
+		<version>${cxf.version}</version>
+	  </dependency>
+	  <dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-rs-extension-search</artifactId>
+		<version>${cxf.version}</version>
+	  </dependency>
+	  <dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		<version>${cxf.version}</version>
+	  </dependency>
+
 	
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -1074,7 +1096,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!--plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>ianal-maven-plugin</artifactId>
         <version>1.0-alpha-1</version>
@@ -1089,12 +1111,11 @@ under the License.
                 <requiredFile>NOTICE</requiredFile>
                 <requiredFile>DISCLAIMER</requiredFile>
               </requiredFiles>
-              <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.3.2</version>
@@ -1195,8 +1216,8 @@ under the License.
   <modules>
     <module>archetype</module>
     <module>build-tools</module>
-	<module>common</module>
-	<module>core</module>
+    <module>common</module>
+    <module>core</module>
 	<module>client</module>
     <module>console</module>
   </modules>
