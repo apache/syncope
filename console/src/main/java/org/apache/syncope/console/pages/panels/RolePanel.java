@@ -88,7 +88,7 @@ public class RolePanel extends Panel {
         this.add(new ResourcesPanel("resources", roleTO));
         //--------------------------------
 
-        ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());
+        ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlementList());
 
         ListModel<String> availableEntitlements = new ListModel<String>(entitlementRestClient.getAllEntitlements());
 

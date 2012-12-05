@@ -89,11 +89,6 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
         for (Parameter p : params) {
             switch (p.getType()) {
             case QUERY:
-                if (qParams.containsKey(p.getName()))
-                    rate += 2;
-                else if (p.getDefaultValue() == null)
-                    rate -= 1;
-                break;
             case FORM:
                 if (qParams.containsKey(p.getName()))
                     rate += 2;

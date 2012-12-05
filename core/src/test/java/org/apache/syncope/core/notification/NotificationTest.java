@@ -42,9 +42,9 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.rest.UserTestITCase;
+import org.apache.syncope.core.rest.AbstractUserTestITCase;
 import org.apache.syncope.core.rest.controller.TaskController;
-import org.apache.syncope.core.rest.controller.UserControllerImpl;
+import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.search.MembershipCond;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.to.MembershipTO;
@@ -61,7 +61,6 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -122,7 +121,7 @@ public class NotificationTest {
     private ConfDAO confDAO;
 
     @Autowired
-    private UserControllerImpl userController;
+    private UserController userController;
 
     @Autowired
     private TaskController taskController;
@@ -242,13 +241,13 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = AbstractUserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
         try {
-            userController.create(new MockHttpServletResponse(), userTO);
+            userController.create(userTO);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
             fail("Unexpected exception while creating");
@@ -314,13 +313,13 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = AbstractUserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
         try {
-            userController.create(new MockHttpServletResponse(), userTO);
+            userController.create(userTO);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
             fail("Unexpected exception while creating");
