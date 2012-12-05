@@ -80,6 +80,10 @@ under the License.
          <groupId>org.apache.cxf</groupId>
          <artifactId>cxf-rt-frontend-jaxws</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.codehaus.jettison</groupId>
+         <artifactId>jettison</artifactId>
+      </dependency>
 
       <dependency>
          <groupId>javax.servlet</groupId>
@@ -414,7 +418,8 @@ under the License.
                   </goals>
                   <configuration>
                      <source>
-                        project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
+                        project.properties['urlencoded.csvdir.path'] =
+                        java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
                      </source>
                   </configuration>
                </execution>

@@ -70,7 +70,7 @@ public class RoleTO extends AbstractAttributableTO {
         return name;
     }
 
-    @XmlElement(name = "value")
+    @XmlElement(name = "entitlement")
     @XmlElementWrapper(name = "entitlements")
     //WARNING do not rename this method to getEntitlements, it causes strange problems when unmarshalling
     public List<String> getEntitlementList() {

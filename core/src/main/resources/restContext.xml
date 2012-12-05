@@ -72,9 +72,9 @@
       <property name="supportUnwrapped" value="true" />
    </bean>
 
-   <util:map id="jsonNamespaceMap" map-class="java.util.Hashtable">
+   <!--util:map id="jsonNamespaceMap" map-class="java.util.Hashtable">
       <entry key="http://www.example.org/books" value="b" />
-   </util:map>
+   </util:map-->
 
    <jaxrs:server id="restContainer" address="/">
       <jaxrs:serviceBeans>

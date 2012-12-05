@@ -44,7 +44,6 @@ import org.apache.syncope.types.AuditElements.Result;
 import org.apache.syncope.types.AuditElements.RoleSubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
 @Service
