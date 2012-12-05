@@ -25,14 +25,14 @@ under the License.
 <%@page import="javax.persistence.PersistenceException"%>
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
 <%@page import="org.apache.syncope.controller.InvalidSearchConditionException"%>
-<%@page import="org.apache.syncope.core.rest.controller.UnauthorizedRoleException"%>
+<%@page import="org.apache.syncope.controller.UnauthorizedRoleException"%>
 <%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.apache.syncope.validation.SyncopeClientException"%>
 <%@page import="org.apache.syncope.validation.SyncopeClientCompositeErrorException"%>
 <%@page import="org.apache.syncope.propagation.PropagationException"%>
 <%@page import="org.apache.syncope.workflow.WorkflowException"%>
 <%@page import="org.apache.syncope.types.SyncopeClientExceptionType"%>
-<%@page import="org.apache.syncope.core.util.NotFoundException"%>
+<%@page import="org.apache.syncope.NotFoundException"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
 <%@page import="org.apache.syncope.validation.SyncopeClientErrorHandler"%>
 <%@page import="org.slf4j.LoggerFactory"%>
