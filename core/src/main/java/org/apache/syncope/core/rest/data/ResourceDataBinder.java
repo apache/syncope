@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
+import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -109,12 +110,12 @@ public class ResourceDataBinder {
         if (resourceTO.getUmapping() != null) {
             UMapping mapping = new UMapping();
             resource.setUmapping(mapping);
-            populateMapping(resourceTO.getUmapping(), mapping);
+            populateMapping(resourceTO.getUmapping(), mapping, new UMappingItem());
         }
         if (resourceTO.getRmapping() != null) {
             RMapping mapping = new RMapping();
             resource.setRmapping(mapping);
-            populateMapping(resourceTO.getRmapping(), mapping);
+            populateMapping(resourceTO.getRmapping(), mapping, new RMappingItem());
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -145,10 +146,12 @@ public class ResourceDataBinder {
         return resource;
     }
 
-    private void populateMapping(final MappingTO mappingTO, final AbstractMapping mapping) {
+    private void populateMapping(final MappingTO mappingTO, final AbstractMapping mapping,
+            final AbstractMappingItem prototype) {
+
         mapping.setAccountLink(mappingTO.getAccountLink());
 
-        for (AbstractMappingItem item : getMappingItems(mappingTO.getItems())) {
+        for (AbstractMappingItem item : getMappingItems(mappingTO.getItems(), prototype)) {
             if (item.isAccountid()) {
                 mapping.setAccountIdItem(item);
             } else if (item.isPassword()) {
@@ -159,16 +162,18 @@ public class ResourceDataBinder {
         }
     }
 
-    private Set<AbstractMappingItem> getMappingItems(final Collection<MappingItemTO> itemTOs) {
+    private Set<AbstractMappingItem> getMappingItems(final Collection<MappingItemTO> itemTOs,
+            final AbstractMappingItem prototype) {
+
         Set<AbstractMappingItem> items = new HashSet<AbstractMappingItem>(itemTOs.size());
         for (MappingItemTO itemTO : itemTOs) {
-            items.add(getMappingItem(itemTO));
+            items.add(getMappingItem(itemTO, prototype));
         }
 
         return items;
     }
 
-    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO)
+    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO, final AbstractMappingItem prototype)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -213,7 +218,7 @@ public class ResourceDataBinder {
             throw scce;
         }
 
-        UMappingItem item = new UMappingItem();
+        AbstractMappingItem item = (AbstractMappingItem) SerializationUtils.clone(prototype);
         BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
         return item;
     }

@@ -147,23 +147,36 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
-    public void createWithSingleMapping() {
+    public void createWithSingleMappingItem() {
         String resourceName = "ws-target-resource-create-single";
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        MappingTO mapping = new MappingTO();
+        MappingTO umapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
-        mapping.setAccountIdItem(item);
+        umapping.setAccountIdItem(item);
 
-        resourceTO.setUmapping(mapping);
+        resourceTO.setUmapping(umapping);
+
+        MappingTO rmapping = new MappingTO();
+
+        item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.RoleId);
+        item.setAccountid(true);
+        rmapping.setAccountIdItem(item);
+
+        resourceTO.setRmapping(rmapping);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
         assertNotNull(actual);
+        assertNotNull(actual.getUmapping());
+        assertNotNull(actual.getUmapping().getItems());
+        assertNotNull(actual.getRmapping());
+        assertNotNull(actual.getRmapping().getItems());
     }
 
     @Test
