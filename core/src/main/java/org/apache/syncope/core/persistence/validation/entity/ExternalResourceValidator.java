@@ -92,14 +92,14 @@ public class ExternalResourceValidator extends AbstractValidator implements
     public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (StringUtils.isNotBlank(resource.getActionsClassName())) {
+        if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
             Class<?> actionsClass = null;
             boolean isAssignable = false;
             try {
-                actionsClass = Class.forName(resource.getActionsClassName());
+                actionsClass = Class.forName(resource.getPropagationActionsClassName());
                 isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
             } catch (Exception e) {
-                LOG.error("Invalid PropagationActions specified: {}", resource.getActionsClassName(), e);
+                LOG.error("Invalid PropagationActions specified: {}", resource.getPropagationActionsClassName(), e);
             }
 
             if (actionsClass == null || !isAssignable) {

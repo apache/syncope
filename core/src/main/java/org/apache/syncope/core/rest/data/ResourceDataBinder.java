@@ -31,12 +31,14 @@ import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -107,18 +109,12 @@ public class ResourceDataBinder {
         if (resourceTO.getUmapping() != null) {
             UMapping mapping = new UMapping();
             resource.setUmapping(mapping);
-            mapping.setAccountLink(resourceTO.getUmapping().getAccountLink());
-
-            Set<UMappingItem> items = getUMappingItems(mapping, resourceTO.getUmapping().getItems());
-            for (UMappingItem item : items) {
-                if (item.isAccountid()) {
-                    mapping.setAccountIdItem(item);
-                } else if (item.isPassword()) {
-                    mapping.setPasswordItem(item);
-                } else {
-                    mapping.addItem(item);
-                }
-            }
+            populateMapping(resourceTO.getUmapping(), mapping);
+        }
+        if (resourceTO.getRmapping() != null) {
+            RMapping mapping = new RMapping();
+            resource.setRmapping(mapping);
+            populateMapping(resourceTO.getRmapping(), mapping);
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -144,124 +140,35 @@ public class ResourceDataBinder {
             resource.setRserializedSyncToken(null);
         }
 
-        resource.setActionsClassName(resourceTO.getActionsClassName());
+        resource.setPropagationActionsClassName(resourceTO.getPropagationActionsClassName());
 
         return resource;
     }
 
-    public List<ResourceTO> getResourceTOs(final Collection<ExternalResource> resources) {
-        List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
-        for (ExternalResource resource : resources) {
-            resourceTOs.add(getResourceTO(resource));
-        }
+    private void populateMapping(final MappingTO mappingTO, final AbstractMapping mapping) {
+        mapping.setAccountLink(mappingTO.getAccountLink());
 
-        return resourceTOs;
-    }
-
-    public Set<MappingItemTO> getUMappingItemTOs(final Collection<AbstractMappingItem> items) {
-        Set<MappingItemTO> uMappingTOs = new HashSet<MappingItemTO>();
-        for (AbstractMappingItem item : items) {
-            LOG.debug("Asking for TO for {}", item);
-            uMappingTOs.add(getUMappingItemTO(item));
-        }
-
-        LOG.debug("Collected TOs: {}", uMappingTOs);
-
-        return uMappingTOs;
-    }
-
-    public MappingItemTO getUMappingItemTO(final AbstractMappingItem item) {
-        if (item == null) {
-            LOG.error("Provided null mapping");
-
-            return null;
-        }
-
-        MappingItemTO itemTO = new MappingItemTO();
-
-        BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
-
-        itemTO.setId(item.getId());
-
-        LOG.debug("Obtained SchemaMappingTO {}", itemTO);
-
-        return itemTO;
-    }
-
-    public ResourceTO getResourceTO(final ExternalResource resource) {
-        if (resource == null) {
-            return null;
-        }
-
-        ResourceTO resourceTO = new ResourceTO();
-
-        // set the resource name
-        resourceTO.setName(resource.getName());
-
-        // set the connector instance
-        ConnInstance connector = resource.getConnector();
-
-        resourceTO.setConnectorId(connector == null ? null : connector.getId());
-
-        // set the mappings
-        if (resource.getUmapping() != null) {
-            MappingTO mappingTO = new MappingTO();
-            resourceTO.setUmapping(mappingTO);
-            mappingTO.setAccountLink(resource.getUmapping().getAccountLink());
-
-            for (MappingItemTO itemTO : getUMappingItemTOs(resource.getUmapping().getItems())) {
-                if (itemTO.isAccountid()) {
-                    mappingTO.setAccountIdItem(itemTO);
-                } else if (itemTO.isPassword()) {
-                    mappingTO.setPasswordItem(itemTO);
-                } else {
-                    mappingTO.addItem(itemTO);
-                }
+        for (AbstractMappingItem item : getMappingItems(mappingTO.getItems())) {
+            if (item.isAccountid()) {
+                mapping.setAccountIdItem(item);
+            } else if (item.isPassword()) {
+                ((UMapping) mapping).setPasswordItem((UMappingItem) item);
+            } else {
+                mapping.addItem(item);
             }
         }
-
-        resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
-
-        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
-
-        resourceTO.setPropagationPriority(resource.getPropagationPriority());
-
-        resourceTO.setPropagationMode(resource.getPropagationMode());
-
-        resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
-        resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
-        resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
-        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
-
-        resourceTO.setPasswordPolicy(resource.getPasswordPolicy() == null
-                ? null : resource.getPasswordPolicy().getId());
-
-        resourceTO.setAccountPolicy(resource.getAccountPolicy() == null
-                ? null : resource.getAccountPolicy().getId());
-
-        resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
-                ? null : resource.getSyncPolicy().getId());
-
-        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
-
-        resourceTO.setUsyncToken(resource.getUserializedSyncToken());
-        resourceTO.setRsyncToken(resource.getRserializedSyncToken());
-
-        resourceTO.setActionsClassName(resource.getActionsClassName());
-
-        return resourceTO;
     }
 
-    private Set<UMappingItem> getUMappingItems(final UMapping mapping, final Collection<MappingItemTO> itemTOs) {
-        Set<UMappingItem> items = new HashSet<UMappingItem>(itemTOs.size());
+    private Set<AbstractMappingItem> getMappingItems(final Collection<MappingItemTO> itemTOs) {
+        Set<AbstractMappingItem> items = new HashSet<AbstractMappingItem>(itemTOs.size());
         for (MappingItemTO itemTO : itemTOs) {
-            items.add(getUMappingItem(itemTO, mapping));
+            items.add(getMappingItem(itemTO));
         }
 
         return items;
     }
 
-    private UMappingItem getUMappingItem(final MappingItemTO itemTO, final UMapping mapping)
+    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -356,5 +263,117 @@ public class ResourceDataBinder {
         connInstance.setConfiguration(configuration);
 
         return connInstance;
+    }
+
+    public List<ResourceTO> getResourceTOs(final Collection<ExternalResource> resources) {
+        List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
+        for (ExternalResource resource : resources) {
+            resourceTOs.add(getResourceTO(resource));
+        }
+
+        return resourceTOs;
+    }
+
+    public ResourceTO getResourceTO(final ExternalResource resource) {
+        if (resource == null) {
+            return null;
+        }
+
+        ResourceTO resourceTO = new ResourceTO();
+
+        // set the resource name
+        resourceTO.setName(resource.getName());
+
+        // set the connector instance
+        ConnInstance connector = resource.getConnector();
+
+        resourceTO.setConnectorId(connector == null ? null : connector.getId());
+
+        // set the mappings
+        if (resource.getUmapping() != null) {
+            MappingTO mappingTO = new MappingTO();
+            resourceTO.setUmapping(mappingTO);
+            populateMappingTO(resource.getUmapping(), mappingTO);
+        }
+        if (resource.getRmapping() != null) {
+            MappingTO mappingTO = new MappingTO();
+            resourceTO.setRmapping(mappingTO);
+            populateMappingTO(resource.getRmapping(), mappingTO);
+        }
+
+        resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
+
+        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
+
+        resourceTO.setPropagationPriority(resource.getPropagationPriority());
+
+        resourceTO.setPropagationMode(resource.getPropagationMode());
+
+        resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
+        resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
+        resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
+        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
+
+        resourceTO.setPasswordPolicy(resource.getPasswordPolicy() == null
+                ? null : resource.getPasswordPolicy().getId());
+
+        resourceTO.setAccountPolicy(resource.getAccountPolicy() == null
+                ? null : resource.getAccountPolicy().getId());
+
+        resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
+                ? null : resource.getSyncPolicy().getId());
+
+        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
+
+        resourceTO.setUsyncToken(resource.getUserializedSyncToken());
+        resourceTO.setRsyncToken(resource.getRserializedSyncToken());
+
+        resourceTO.setPropagationActionsClassName(resource.getPropagationActionsClassName());
+
+        return resourceTO;
+    }
+
+    private void populateMappingTO(final AbstractMapping mapping, final MappingTO mappingTO) {
+        mappingTO.setAccountLink(mapping.getAccountLink());
+
+        for (MappingItemTO itemTO : getMappingItemTOs(mapping.getItems())) {
+            if (itemTO.isAccountid()) {
+                mappingTO.setAccountIdItem(itemTO);
+            } else if (itemTO.isPassword()) {
+                mappingTO.setPasswordItem(itemTO);
+            } else {
+                mappingTO.addItem(itemTO);
+            }
+        }
+    }
+
+    private Set<MappingItemTO> getMappingItemTOs(final Collection<AbstractMappingItem> items) {
+        Set<MappingItemTO> mappingTOs = new HashSet<MappingItemTO>();
+        for (AbstractMappingItem item : items) {
+            LOG.debug("Asking for TO for {}", item);
+            mappingTOs.add(getMappingItemTO(item));
+        }
+
+        LOG.debug("Collected TOs: {}", mappingTOs);
+
+        return mappingTOs;
+    }
+
+    private MappingItemTO getMappingItemTO(final AbstractMappingItem item) {
+        if (item == null) {
+            LOG.error("Provided null mapping");
+
+            return null;
+        }
+
+        MappingItemTO itemTO = new MappingItemTO();
+
+        BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+
+        itemTO.setId(item.getId());
+
+        LOG.debug("Obtained SchemaMappingTO {}", itemTO);
+
+        return itemTO;
     }
 }

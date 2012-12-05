@@ -95,14 +95,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected PropagationActions getPropagationActions(final ExternalResource resource) {
         PropagationActions result = null;
 
-        if (StringUtils.isNotBlank(resource.getActionsClassName())) {
+        if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
             try {
-                Class<?> actionsClass = Class.forName(resource.getActionsClassName());
+                Class<?> actionsClass = Class.forName(resource.getPropagationActionsClassName());
                 result = (PropagationActions) ApplicationContextProvider.getBeanFactory().
                         createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
             } catch (ClassNotFoundException e) {
                 LOG.error("Invalid PropagationAction class name '{}' for resource {}",
-                        new Object[]{resource, resource.getActionsClassName(), e});
+                        new Object[]{resource, resource.getPropagationActionsClassName(), e});
             }
         }
 

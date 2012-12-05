@@ -153,7 +153,7 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * (Optional) class for PropagationAction.
      */
-    private String actionsClassName;
+    private String propagationActionsClassName;
 
     /**
      * Default constructor.
@@ -349,11 +349,11 @@ public class ExternalResource extends AbstractBaseBean {
         rserializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 
-    public String getActionsClassName() {
-        return actionsClassName;
+    public String getPropagationActionsClassName() {
+        return propagationActionsClassName;
     }
 
-    public void setActionsClassName(final String actionsClassName) {
-        this.actionsClassName = actionsClassName;
+    public void setPropagationActionsClassName(final String propagationActionsClassName) {
+        this.propagationActionsClassName = propagationActionsClassName;
     }
 }

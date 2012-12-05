@@ -71,7 +71,7 @@ public class ResourceTO extends AbstractBaseBean {
 
     private String rsyncToken;
 
-    private String actionsClassName;
+    private String propagationActionsClassName;
 
     public ResourceTO() {
         super();
@@ -230,11 +230,11 @@ public class ResourceTO extends AbstractBaseBean {
         this.rsyncToken = syncToken;
     }
 
-    public String getActionsClassName() {
-        return actionsClassName;
+    public String getPropagationActionsClassName() {
+        return propagationActionsClassName;
     }
 
-    public void setActionsClassName(final String actionsClassName) {
-        this.actionsClassName = actionsClassName;
+    public void setPropagationActionsClassName(final String propagationActionsClassName) {
+        this.propagationActionsClassName = propagationActionsClassName;
     }
 }
