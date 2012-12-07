@@ -373,6 +373,7 @@ under the License.
   <ExternalResource name="resource-ldap" connector_id="105"
                     enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="1"
+                    propagationActionsClassName="org.apache.syncope.core.propagation.LDAPMembershipPropagationActions"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
                     enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
