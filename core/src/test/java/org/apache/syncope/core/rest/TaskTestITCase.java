@@ -34,6 +34,7 @@ import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskTO;
@@ -71,12 +72,16 @@ public class TaskTestITCase extends AbstractTest {
         task.setName("Test create Sync");
         task.setResource("ws-target-resource-2");
 
-        UserTO template = new UserTO();
-        template.addResource("ws-target-resource-2");
+        UserTO userTemplate = new UserTO();
+        userTemplate.addResource("ws-target-resource-2");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        template.addMembership(membershipTO);
-        task.setUserTemplate(template);
+        userTemplate.addMembership(membershipTO);
+        task.setUserTemplate(userTemplate);
+
+        RoleTO roleTemplate = new RoleTO();
+        roleTemplate.addResource("resource-ldap");
+        task.setRoleTemplate(roleTemplate);
 
         SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/create/sync", task, SyncTaskTO.class);
         assertNotNull(actual);
@@ -85,6 +90,8 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
+        assertEquals(userTemplate, task.getUserTemplate());
+        assertEquals(roleTemplate, task.getRoleTemplate());
     }
 
     @Test

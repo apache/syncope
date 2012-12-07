@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
@@ -80,34 +81,29 @@ public class TaskDataBinder {
     private JexlUtil jexlUtil;
 
     private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
-
         for (AttributeTO attrTO : attributableTO.getAttributes()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
-
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
         for (AttributeTO attrTO : attributableTO.getVirtualAttributes()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
-
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
     }
 
     private void fill(final SyncTask task, final SyncTaskTO taskTO) {
+        SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidSyncTask);
+
+        // 1. validate JEXL expressions in user and role templates
         if (taskTO.getUserTemplate() != null) {
             UserTO template = taskTO.getUserTemplate();
 
-            // 1. validate JEXL expressions in user template
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidSyncTask);
-
             if (StringUtils.isNotBlank(template.getUsername()) && !jexlUtil.isExpressionValid(template.getUsername())) {
-
                 sce.addElement("Invalid JEXL: " + template.getUsername());
             }
             if (StringUtils.isNotBlank(template.getPassword()) && !jexlUtil.isExpressionValid(template.getPassword())) {
-
                 sce.addElement("Invalid JEXL: " + template.getPassword());
             }
 
@@ -116,18 +112,28 @@ public class TaskDataBinder {
             for (MembershipTO memb : template.getMemberships()) {
                 checkJexl(memb, sce);
             }
+        }
+        if (taskTO.getRoleTemplate() != null) {
+            RoleTO template = taskTO.getRoleTemplate();
 
-            if (!sce.isEmpty()) {
-                SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
-                        HttpStatus.BAD_REQUEST);
-                scce.addException(sce);
-                throw scce;
+            if (StringUtils.isNotBlank(template.getName()) && !jexlUtil.isExpressionValid(template.getName())) {
+                sce.addElement("Invalid JEXL: " + template.getName());
             }
+
+            checkJexl(template, sce);
+        }
+        if (!sce.isEmpty()) {
+            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+            scce.addException(sce);
+            throw scce;
         }
 
-        // 2. all JEXL expressions are valid: accept user template
+        // 2. all JEXL expressions are valid: accept user and role templates
         task.setUserTemplate(taskTO.getUserTemplate());
+        task.setRoleTemplate(taskTO.getRoleTemplate());
 
+        // 3. fill the remaining fields
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
@@ -251,20 +257,23 @@ public class TaskDataBinder {
                 break;
 
             case SCHED:
+                if (!(task instanceof SchedTask)) {
+                    throw new ClassCastException("taskUtil is type Sched but task is not SchedTask: "
+                            + task.getClass().getName());
+                }
                 setExecTime((SchedTaskTO) taskTO, task);
                 ((SchedTaskTO) taskTO).setName(((SchedTask) task).getName());
                 ((SchedTaskTO) taskTO).setDescription(((SchedTask) task).getDescription());
                 break;
 
             case SYNC:
+                if (!(task instanceof SyncTask)) {
+                    throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: "
+                            + task.getClass().getName());
+                }
                 setExecTime((SchedTaskTO) taskTO, task);
                 ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
                 ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
-                if (!(task instanceof SyncTask)) {
-                    throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: " + task.getClass().
-                            getName());
-                }
-
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
                 break;
 

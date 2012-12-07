@@ -112,7 +112,7 @@ public class SyncTask extends SchedTask {
                 : XMLSerializer.<RoleTO>deserialize(roleTemplate);
     }
 
-    public void setUserTemplate(final RoleTO roleTemplate) {
+    public void setRoleTemplate(final RoleTO roleTemplate) {
         this.roleTemplate = XMLSerializer.serialize(roleTemplate);
     }
 
