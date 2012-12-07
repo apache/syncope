@@ -172,24 +172,11 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         // And start the service
         service.startup();
 
-        // Finally, build base DN entries
-        final DN dnIsp = new DN("o=isp");
-        final ServerEntry rootEntry = service.newEntry(dnIsp);
-        rootEntry.add("objectClass", "top", "organization");
-        rootEntry.add("o", "isp");
-        service.getAdminSession().add(rootEntry);
-
-        final DN dnPeople = new DN("ou=People,o=isp");
-        final ServerEntry peopleEntry = service.newEntry(dnPeople);
-        peopleEntry.add("objectClass", "top", "organizationalUnit");
-        peopleEntry.add("ou", "People");
-        service.getAdminSession().add(peopleEntry);
-
-        final DN dnGroups = new DN("ou=Groups,o=isp");
-        final ServerEntry groupsEntry = service.newEntry(dnGroups);
-        groupsEntry.add("objectClass", "top", "organizationalUnit");
-        groupsEntry.add("ou", "Groups");
-        service.getAdminSession().add(groupsEntry);
+        // Finally, load content LDIF
+        final LdifURLLoader contentLoader = new LdifURLLoader(service.getAdminSession(),
+                servletContext.getResource("/WEB-INF/classes/content.ldif"));
+        final int numEntries = contentLoader.execute();
+        servletContext.log("Successfully created " + numEntries + " entries");
     }
 
     /**
