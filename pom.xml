@@ -70,11 +70,14 @@ under the License.
             <exclude>**/*.css</exclude>
             <exclude>**/*.js</exclude>
             <exclude>**/*.csv</exclude>
+            <exclude>**/archetype-resources/**</exclude>
+            <exclude>**/maven-eclipse.xml</exclude>
+            <exclude>**/*.iml</exclude>
+            <exclude>**/*.log</exclude>
             <exclude>.externalToolBuilders/**</exclude>
-            <exclude>maven-eclipse.xml</exclude>
             <exclude>.git/**</exclude>
             <exclude>.idea/**</exclude>
-            <exclude>**/*.iml</exclude>
+            <exclude>**/.*</exclude>
             <!-- Need to explicitely exclude these modules since they are not part of the default build
             profile: they will be checked anyway in the apache-release profile, as submodules. -->
             <exclude>archetype/**</exclude>

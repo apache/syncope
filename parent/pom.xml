@@ -966,11 +966,13 @@ under the License.
             <exclude>**/*.js</exclude>
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
+            <exclude>**/maven-eclipse.xml</exclude>
+            <exclude>**/*.iml</exclude>
+            <exclude>**/*.log</exclude>
             <exclude>.externalToolBuilders/**</exclude>
-            <exclude>maven-eclipse.xml</exclude>
             <exclude>.git/**</exclude>
             <exclude>.idea/**</exclude>
-            <exclude>**/*.iml</exclude>
+            <exclude>**/.*</exclude>
           </excludes>
         </configuration>
         <executions>
