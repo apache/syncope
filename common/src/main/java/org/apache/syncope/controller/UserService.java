@@ -32,14 +32,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.to.WorkflowFormTO;
-import org.apache.syncope.propagation.PropagationException;
-import org.apache.syncope.controller.InvalidSearchConditionException;
-import org.apache.syncope.controller.UnauthorizedRoleException;
-import org.apache.syncope.NotFoundException;
 import org.apache.syncope.workflow.WorkflowException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,10 +107,10 @@ public interface UserService {
     public abstract Response create(final UserTO userTO) throws PropagationException,
             UnauthorizedRoleException, WorkflowException, NotFoundException;
 
-    @PUT
+    @POST
     @Path("/{userId}")
     @PreAuthorize("hasRole('USER_UPDATE')")
-    public abstract UserTO update(final UserMod userMod) throws NotFoundException, PropagationException,
+    public abstract UserTO update(@PathParam("userId") final Long userId, final UserMod userMod) throws NotFoundException, PropagationException,
             UnauthorizedRoleException, WorkflowException;
 
     @PUT

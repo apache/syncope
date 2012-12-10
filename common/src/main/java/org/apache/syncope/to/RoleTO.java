@@ -73,7 +73,7 @@ public class RoleTO extends AbstractAttributableTO {
     @XmlElement(name = "entitlement")
     @XmlElementWrapper(name = "entitlements")
     //WARNING do not rename this method to getEntitlements, it causes strange problems when unmarshalling
-    public List<String> getEntitlementList() {
+    public List<String> getEntitlements() {
         List<String> list = new ArrayList<String>();
         list.add("Test");
         return entitlements;
@@ -142,13 +142,6 @@ public class RoleTO extends AbstractAttributableTO {
 
     public boolean removeEntitlement(String entitlement) {
         return entitlements.remove(entitlement);
-    }
-
-    public void setEntitlements(List<String> entitlements) {
-        this.entitlements.clear();
-        if (entitlements != null && !entitlements.isEmpty()) {
-            this.entitlements.addAll(entitlements);
-        }
     }
 
     public Long getPasswordPolicy() {

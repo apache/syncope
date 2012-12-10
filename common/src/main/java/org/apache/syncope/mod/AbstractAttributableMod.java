@@ -37,30 +37,14 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
     protected long id;
-    protected Set<AttributeMod> attributesToBeUpdated;
-    protected Set<String> attributesToBeRemoved;
-    protected Set<String> derivedAttributesToBeAdded;
-    protected Set<String> derivedAttributesToBeRemoved;
-    protected Set<AttributeMod> virtualAttributesToBeUpdated;
-    protected Set<String> virtualAttributesToBeRemoved;
-    protected Set<String> resourcesToBeAdded;
-    protected Set<String> resourcesToBeRemoved;
-
-    /**
-     * All attributes are initialized to empty sets.
-     */
-    public AbstractAttributableMod() {
-        super();
-
-        attributesToBeUpdated = new HashSet<AttributeMod>();
-        attributesToBeRemoved = new HashSet<String>();
-        derivedAttributesToBeAdded = new HashSet<String>();
-        derivedAttributesToBeRemoved = new HashSet<String>();
-        virtualAttributesToBeUpdated = new HashSet<AttributeMod>();
-        virtualAttributesToBeRemoved = new HashSet<String>();
-        resourcesToBeAdded = new HashSet<String>();
-        resourcesToBeRemoved = new HashSet<String>();
-    }
+    protected Set<AttributeMod> attributesToBeUpdated = new HashSet<AttributeMod>();
+    protected Set<String> attributesToBeRemoved = new HashSet<String>();
+    protected Set<String> derivedAttributesToBeAdded = new HashSet<String>();
+    protected Set<String> derivedAttributesToBeRemoved = new HashSet<String>();
+    protected Set<AttributeMod> virtualAttributesToBeUpdated = new HashSet<AttributeMod>();
+    protected Set<String> virtualAttributesToBeRemoved = new HashSet<String>();
+    protected Set<String> resourcesToBeAdded = new HashSet<String>();
+    protected Set<String> resourcesToBeRemoved = new HashSet<String>();
 
     public long getId() {
         return id;
@@ -96,10 +80,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeRemoved;
     }
 
-    public void setAttributesToBeRemoved(Set<String> attributesToBeRemoved) {
-        this.attributesToBeRemoved = attributesToBeRemoved;
-    }
-
     /**
      * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
      *
@@ -126,10 +106,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "attributesToBeUpdated")
     public Set<AttributeMod> getAttributesToBeUpdated() {
         return attributesToBeUpdated;
-    }
-
-    public void setAttributesToBeUpdated(Set<AttributeMod> attributesToBeUpdated) {
-        this.attributesToBeUpdated = attributesToBeUpdated;
     }
 
     /**
@@ -159,11 +135,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded;
     }
 
-    public void setDerivedAttributesToBeAdded(Set<String> derivedAttributesToBeAdded) {
-
-        this.derivedAttributesToBeAdded = derivedAttributesToBeAdded;
-    }
-
     public boolean addDerivedAttributeToBeRemoved(String derivedAttribute) {
         return derivedAttributesToBeRemoved.add(derivedAttribute);
     }
@@ -176,11 +147,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
     public Set<String> getDerivedAttributesToBeRemoved() {
         return derivedAttributesToBeRemoved;
-    }
-
-    public void setDerivedAttributesToBeRemoved(Set<String> derivedAttributesToBeRemoved) {
-
-        this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
 
     @XmlElement(name = "attribute")
@@ -199,11 +165,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeRemoved.remove(virtualAttributeToBeRemoved);
     }
 
-    public void setVirtualAttributesToBeRemoved(Set<String> virtualAttributesToBeRemoved) {
-
-        this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
-    }
-
     public boolean addVirtualAttributeToBeUpdated(AttributeMod virtualAttributeToBeUpdated) {
 
         return virtualAttributesToBeUpdated.add(virtualAttributeToBeUpdated);
@@ -220,11 +181,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeUpdated;
     }
 
-    public void setVirtualAttributesToBeUpdated(Set<AttributeMod> virtualAttributesToBeUpdated) {
-
-        this.virtualAttributesToBeUpdated = virtualAttributesToBeUpdated;
-    }
-
     public boolean addResourceToBeAdded(String resource) {
         return resourcesToBeAdded.add(resource);
     }
@@ -233,14 +189,10 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeAdded.remove(resource);
     }
 
-    @XmlElement(name = "attribute")
+    @XmlElement(name = "resource")
     @XmlElementWrapper(name = "resourcesToBeAdded")
     public Set<String> getResourcesToBeAdded() {
         return resourcesToBeAdded;
-    }
-
-    public void setResourcesToBeAdded(Set<String> resourcesToBeAdded) {
-        this.resourcesToBeAdded = resourcesToBeAdded;
     }
 
     public boolean addResourceToBeRemoved(String resource) {
@@ -255,10 +207,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "resourcesToBeRemoved")
     public Set<String> getResourcesToBeRemoved() {
         return resourcesToBeRemoved;
-    }
-
-    public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
-        this.resourcesToBeRemoved = resourcesToBeRemoved;
     }
 
     /**

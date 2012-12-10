@@ -72,13 +72,13 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     @SpringBean
     protected TaskRestClient taskRestClient;
-    
+
     protected WebMarkupContainer profile;
 
     protected WebMarkupContainer executions;
 
     protected Form form;
-    
+
     public TaskModalPage(final TaskTO taskTO) {
 
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
@@ -107,7 +107,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         id.setEnabled(false);
         profile.add(id);
-        
+
         final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -190,16 +190,16 @@ public abstract class TaskModalPage extends BaseModalPage {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (target != null) {
-                    final AjaxFallbackDefaultDataTable currentTable = 
+                    final AjaxFallbackDefaultDataTable currentTable =
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                     currentTable.setOutputMarkupId(true);
                     target.add(currentTable);
-                    executions.addOrReplace(currentTable);   
+                    executions.addOrReplace(currentTable);
                 }
             }
         };
-        
+
         reload.add(new Behavior() {
 
             @Override
@@ -222,9 +222,9 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         private static final long serialVersionUID = 8943636537120648961L;
 
-        private SortableDataProviderComparator<TaskExecTO> comparator;
+        private final SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private TaskTO taskTO;
+        private final TaskTO taskTO;
 
         public TaskExecutionsProvider(final TaskTO taskTO) {
             //Default sorting
@@ -274,7 +274,8 @@ public abstract class TaskModalPage extends BaseModalPage {
                 ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
                 : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
 
-        taskTO.setExecutions(currentTask.getExecutions());
+        taskTO.getExecutions().clear();
+        taskTO.getExecutions().addAll(currentTask.getExecutions());
         return taskTO;
     }
 }

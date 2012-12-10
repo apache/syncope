@@ -177,7 +177,8 @@ public class MembershipsPanel extends Panel {
             public void onClose(final AjaxRequestTarget target) {
                 final UserTO updatedUserTO = ((UserModalPage) getPage()).getUserTO();
 
-                MembershipsPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
+                MembershipsPanel.this.userTO.getMemberships().clear();
+                MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());
                 target.add(container);
             }
         });

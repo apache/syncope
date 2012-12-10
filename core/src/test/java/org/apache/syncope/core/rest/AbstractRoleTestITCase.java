@@ -48,8 +48,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void crud() throws NotFoundException, UnauthorizedRoleException {
-        String parentRoleName = "testParentRole-" + UUID.randomUUID().toString().substring(0, 8);
-        String childRoleName = "testChildRole-" + UUID.randomUUID().toString().substring(0, 8);
+        String parentRoleName = "testParentRole-" + UUID.randomUUID().toString().substring(0, 12);
+        String childRoleName = "testChildRole-" + UUID.randomUUID().toString().substring(0, 12);
         long parentRoleId;
         long childRoleId;
 
@@ -61,7 +61,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
             parent(childRoleId, parentRoleId);
             children(childRoleId, parentRoleId);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            fail(e.getMessage());
         } finally {
             delete(childRoleId);
             delete(parentRoleId);
@@ -397,7 +397,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     @Test
     public void issue228() throws UnauthorizedRoleException, NotFoundException {
         RoleTO roleTO = new RoleTO();
-        String roleName = "issue228-" + UUID.randomUUID().toString().substring(0, 8);
+        String roleName = "issue228-" + UUID.randomUUID().toString().substring(0, 12);
         roleTO.setName(roleName);
         roleTO.setParent(8L);
         roleTO.setInheritAccountPolicy(false);
@@ -421,8 +421,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         roleTO = webClient.get(RoleTO.class);
 
         assertNotNull(roleTO);
-        assertNotNull(roleTO.getEntitlementList());
-        assertFalse(roleTO.getEntitlementList().isEmpty());
+        assertNotNull(roleTO.getEntitlements());
+        assertFalse(roleTO.getEntitlements().isEmpty());
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
@@ -431,8 +431,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         roleTO = roleService.update(roleTO.getId(), roleMod);
         assertNotNull(roleTO);
-        assertNotNull(roleTO.getEntitlementList());
-        assertEquals(2, roleTO.getEntitlementList().size());
+        assertNotNull(roleTO.getEntitlements());
+        assertEquals(2, roleTO.getEntitlements().size());
 
         roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
@@ -441,7 +441,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         roleTO = roleService.update(roleTO.getId(), roleMod);
         assertNotNull(roleTO);
-        assertTrue(roleTO.getEntitlementList().isEmpty());
+        assertTrue(roleTO.getEntitlements().isEmpty());
 
         response = roleService.delete(roleTO.getId());
         assertNotNull(response);

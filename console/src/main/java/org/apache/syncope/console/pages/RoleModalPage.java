@@ -81,7 +81,8 @@ public class RoleModalPage extends BaseModalPage {
                 try {
                     final List<String> entitlementList = new ArrayList<String>(rolePanel.getEntitlementsPalette()
                             .getModelCollection());
-                    roleTO.setEntitlements(entitlementList);
+                    roleTO.getEntitlements().clear();
+                    roleTO.getEntitlements().addAll(entitlementList);
 
                     if (createFlag) {
                         roleRestClient.create(roleTO);

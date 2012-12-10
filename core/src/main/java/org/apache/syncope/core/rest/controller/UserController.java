@@ -316,8 +316,10 @@ public class UserController implements UserService, ContextAware {
     }
 
     @Override
-    public UserTO update(final UserMod userMod) throws NotFoundException, PropagationException,
+    public UserTO update(final Long userId, final UserMod userMod) throws NotFoundException, PropagationException,
             UnauthorizedRoleException, WorkflowException {
+
+        userMod.setId(userId);
 
         LOG.debug("User update called with {}", userMod);
 
@@ -353,7 +355,7 @@ public class UserController implements UserService, ContextAware {
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
         final UserTO updatedTO = userDataBinder.getUserTO(updated.getResult().getKey());
-        updatedTO.setPropagationTOs(propagations);
+        updatedTO.getPropagationTOs().addAll(propagations);
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
                 "Successfully updated user: " + updatedTO.getUsername());

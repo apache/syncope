@@ -120,7 +120,8 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.setAttributesToBeRemoved(originalAttrNames);
+            result.getAttributesToBeRemoved().clear();
+            result.getAttributesToBeRemoved().addAll(originalAttrNames);
         }
 
         Set<String> emptyUpdatedAttrs = new HashSet<String>();
@@ -145,12 +146,14 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.setDerivedAttributesToBeRemoved(originalAttrNames);
+            result.getDerivedAttributesToBeRemoved().clear();
+            result.getDerivedAttributesToBeRemoved().addAll(originalAttrNames);
         }
 
         Set<String> updatedAttrNames = new HashSet<String>(updatedAttrs.keySet());
         updatedAttrNames.removeAll(originalAttrs.keySet());
-        result.setDerivedAttributesToBeAdded(updatedAttrNames);
+        result.getDerivedAttributesToBeAdded().clear();
+        result.getDerivedAttributesToBeAdded().addAll(updatedAttrNames);
 
         // 4. virtual attributes
         updatedAttrs = updated.getVirtualAttributeMap();
@@ -160,7 +163,8 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.setVirtualAttributesToBeRemoved(originalAttrNames);
+            result.getVirtualAttributesToBeRemoved().clear();
+            result.getVirtualAttributesToBeRemoved().addAll(originalAttrNames);
         }
 
         populate(updatedAttrs, originalAttrs, result, true);
@@ -170,12 +174,14 @@ public final class AttributableOperations {
         Set<String> originalRes = new HashSet<String>(original.getResources());
 
         updatedRes.removeAll(originalRes);
-        result.setResourcesToBeAdded(updatedRes);
+        result.getResourcesToBeAdded().clear();
+        result.getResourcesToBeAdded().addAll(updatedRes);
 
         originalRes.removeAll(updated.getResources());
 
         if (!incremental) {
-            result.setResourcesToBeRemoved(originalRes);
+            result.getResourcesToBeRemoved().clear();
+            result.getResourcesToBeRemoved().addAll(originalRes);
         }
     }
 
@@ -257,7 +263,8 @@ public final class AttributableOperations {
                         membMod.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
-                membMod.setResourcesToBeAdded(entry.getValue().getResources());
+                membMod.getResourcesToBeAdded().clear();
+                membMod.getResourcesToBeAdded().addAll(entry.getValue().getResources());
             }
 
             if (!membMod.isEmpty()) {
@@ -308,11 +315,11 @@ public final class AttributableOperations {
         }
 
         // 4. entitlements
-        Set<String> updatedEnts = new HashSet<String>(updated.getEntitlementList());
-        Set<String> originalEnts = new HashSet<String>(original.getEntitlementList());
+        Set<String> updatedEnts = new HashSet<String>(updated.getEntitlements());
+        Set<String> originalEnts = new HashSet<String>(original.getEntitlements());
         originalEnts.removeAll(updatedEnts);
         result.setEntitlementsToBeRemoved(originalEnts);
-        originalEnts = new HashSet<String>(original.getEntitlementList());
+        originalEnts = new HashSet<String>(original.getEntitlements());
         updatedEnts.removeAll(originalEnts);
         result.setEntitlementsToBeAdded(updatedEnts);
 

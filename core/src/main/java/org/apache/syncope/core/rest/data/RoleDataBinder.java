@@ -106,7 +106,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // entitlements
         Entitlement entitlement;
-        for (String entitlementName : roleTO.getEntitlementList()) {
+        for (String entitlementName : roleTO.getEntitlements()) {
             entitlement = entitlementDAO.find(entitlementName);
             if (entitlement == null) {
                 LOG.warn("Ignoring invalid entitlement {}", entitlementName);

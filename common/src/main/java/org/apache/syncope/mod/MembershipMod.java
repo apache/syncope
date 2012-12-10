@@ -72,14 +72,6 @@ public class MembershipMod extends AbstractAttributableMod {
         return false;
     }
 
-    @Override
-    public void setResourcesToBeAdded(Set<String> resourcesToBeAdded) {
-    }
-
-    @Override
-    public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
-    }
-
     @JsonIgnore
     @Override
     public boolean isEmpty() {

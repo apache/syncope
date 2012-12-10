@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -37,7 +39,7 @@ public class TaskTO extends AbstractBaseBean {
 
     private String latestExecStatus;
 
-    private List<TaskExecTO> executions;
+    private final List<TaskExecTO> executions;
 
     private Date startDate;
 
@@ -73,12 +75,10 @@ public class TaskTO extends AbstractBaseBean {
         return executions.remove(execution);
     }
 
+    @XmlElement(name = "TaskExecTO")
+    @XmlElementWrapper(name = "TaskExecTOs")
     public List<TaskExecTO> getExecutions() {
         return executions;
-    }
-
-    public void setExecutions(List<TaskExecTO> executions) {
-        this.executions = executions;
     }
 
     public Date getStartDate() {

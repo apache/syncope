@@ -38,16 +38,9 @@ public class UserMod extends AbstractAttributableMod {
 
     private String username;
 
-    private Set<MembershipMod> membershipsToBeAdded;
+    private final Set<MembershipMod> membershipsToBeAdded = new HashSet<MembershipMod>();
 
-    private Set<Long> membershipsToBeRemoved;
-
-    public UserMod() {
-        super();
-
-        membershipsToBeAdded = new HashSet<MembershipMod>();
-        membershipsToBeRemoved = new HashSet<Long>();
-    }
+    private final Set<Long> membershipsToBeRemoved = new HashSet<Long>();
 
     public boolean addMembershipToBeAdded(MembershipMod membershipMod) {
         return membershipsToBeAdded.add(membershipMod);
@@ -61,10 +54,6 @@ public class UserMod extends AbstractAttributableMod {
     @XmlElementWrapper(name = "membershipsToBeAdded")
     public Set<MembershipMod> getMembershipsToBeAdded() {
         return membershipsToBeAdded;
-    }
-
-    public void setMembershipsToBeAdded(Set<MembershipMod> membershipMods) {
-        this.membershipsToBeAdded = membershipMods;
     }
 
     public String getUsername() {
@@ -91,14 +80,10 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeRemoved.remove(membershipToBeRemoved);
     }
 
-    @XmlElement(name = "id")
+    @XmlElement(name = "membershipMod")
     @XmlElementWrapper(name = "membershipsToBeRemoved")
     public Set<Long> getMembershipsToBeRemoved() {
         return membershipsToBeRemoved;
-    }
-
-    public void setMembershipsToBeRemoved(Set<Long> membershipsToBeRemoved) {
-        this.membershipsToBeRemoved = membershipsToBeRemoved;
     }
 
     @JsonIgnore

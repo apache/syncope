@@ -43,7 +43,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private String password;
 
-    private List<MembershipTO> memberships;
+    private final List<MembershipTO> memberships;
 
     private final List<PropagationTO> propagationTOs;
 
@@ -90,10 +90,6 @@ public class UserTO extends AbstractAttributableTO {
     @XmlElementWrapper(name="memberships")
     public List<MembershipTO> getMemberships() {
         return memberships;
-    }
-
-    public void setMemberships(List<MembershipTO> memberships) {
-        this.memberships = memberships;
     }
 
     @JsonIgnore
@@ -204,12 +200,6 @@ public class UserTO extends AbstractAttributableTO {
     @XmlElementWrapper(name="propagations")
     public List<PropagationTO> getPropagationTOs() {
         return propagationTOs;
-    }
-
-    public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
-
-        this.propagationTOs.clear();
-        this.propagationTOs.addAll(propagationTOs);
     }
 
     @Override
