@@ -22,37 +22,30 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void createWithException() {
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("attr1");
-        attributeTO.addValue("value1");
-
         RoleTO newRoleTO = new RoleTO();
-        newRoleTO.addAttribute(attributeTO);
+        newRoleTO.addAttribute(attributeTO("attr1", "value1"));
 
         Throwable t = null;
         try {
@@ -79,19 +72,11 @@ public class RoleTestITCase extends AbstractTest {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        AttributeTO icon = new AttributeTO();
-        icon.setSchema("icon");
-        icon.addValue("anIcon");
-        roleTO.addAttribute(icon);
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
 
-        AttributeTO ownerDN = new AttributeTO();
-        ownerDN.setSchema("ownerDN");
-        roleTO.addDerivedAttribute(ownerDN);
+        roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
 
-        AttributeTO rvirtualdata = new AttributeTO();
-        rvirtualdata.setSchema("rvirtualdata");
-        rvirtualdata.addValue("rvirtualvalue");
-        roleTO.addVirtualAttribute(rvirtualdata);
+        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
 
         roleTO.setRoleOwner(8L);
 
@@ -235,10 +220,7 @@ public class RoleTestITCase extends AbstractTest {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        AttributeTO icon = new AttributeTO();
-        icon.setSchema("icon");
-        icon.addValue("anIcon");
-        roleTO.addAttribute(icon);
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
 
         roleTO.addResource("resource-ldap");
 
@@ -252,14 +234,10 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO.getPasswordPolicy());
         assertEquals(Long.valueOf(4), roleTO.getPasswordPolicy());
 
-        AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema("show");
-        attributeMod.addValueToBeAdded("FALSE");
-
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
         roleMod.setName("finalRole");
-        roleMod.addAttributeToBeUpdated(attributeMod);
+        roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
 
         // change password policy inheritance
         roleMod.setInheritPasswordPolicy(Boolean.FALSE);
@@ -282,10 +260,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = new RoleTO();
         roleTO.setName("withvirtual");
         roleTO.setParent(8L);
-
-        final AttributeTO rvirtualdata = new AttributeTO();
-        rvirtualdata.setSchema("rvirtualdata");
-        roleTO.addVirtualAttribute(rvirtualdata);
+        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
@@ -307,10 +282,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = new RoleTO();
         roleTO.setName("withderived");
         roleTO.setParent(8L);
-
-        final AttributeTO deriveddata = new AttributeTO();
-        deriveddata.setSchema("rderivedschema");
-        roleTO.addDerivedAttribute(deriveddata);
+        roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 
@@ -397,12 +369,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setAccountPolicy(6L);
         roleTO.setInheritPasswordPolicy(true);
         roleTO.setPasswordPolicy(2L);
-
-        AttributeTO icon = new AttributeTO();
-        icon.setSchema("icon");
-        icon.addValue("anIcon");
-        roleTO.addAttribute(icon);
-
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
         roleTO.addEntitlement("USER_READ");
         roleTO.addEntitlement("SCHEMA_READ");
 

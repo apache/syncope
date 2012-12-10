@@ -29,20 +29,14 @@ import java.util.List;
 import java.util.Map;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.junit.Test;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.MembershipMod;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
+import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.PropagationTO;
@@ -59,11 +53,17 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
@@ -73,53 +73,16 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.setUsername(email);
 
-        AttributeTO fullnameTO = new AttributeTO();
-        fullnameTO.setSchema("fullname");
-        fullnameTO.addValue(email);
-        userTO.addAttribute(fullnameTO);
-
-        AttributeTO firstnameTO = new AttributeTO();
-        firstnameTO.setSchema("firstname");
-        firstnameTO.addValue(email);
-        userTO.addAttribute(firstnameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("Surname");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO typeTO = new AttributeTO();
-        typeTO.setSchema("type");
-        typeTO.addValue("a type");
-        userTO.addAttribute(typeTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue(email);
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue(email);
-        userTO.addAttribute(emailTO);
-
-        AttributeTO loginDateTO = new AttributeTO();
-        loginDateTO.setSchema("loginDate");
+        userTO.addAttribute(attributeTO("fullname", email));
+        userTO.addAttribute(attributeTO("firstname", email));
+        userTO.addAttribute(attributeTO("surname", "surname"));
+        userTO.addAttribute(attributeTO("type", "a type"));
+        userTO.addAttribute(attributeTO("userId", email));
+        userTO.addAttribute(attributeTO("email", email));
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        loginDateTO.addValue(sdf.format(new Date()));
-        userTO.addAttribute(loginDateTO);
-
-        // add a derived attribute
-        AttributeTO cnTO = new AttributeTO();
-        cnTO.setSchema("cn");
-        userTO.addDerivedAttribute(cnTO);
-
-        // add a virtual attribute
-        AttributeTO virtualdata = new AttributeTO();
-        virtualdata.setSchema("virtualdata");
-        virtualdata.addValue("virtualvalue");
-        userTO.addVirtualAttribute(virtualdata);
-
+        userTO.addAttribute(attributeTO("loginDate", sdf.format(new Date())));
+        userTO.addDerivedAttribute(attributeTO("cn", null));
+        userTO.addVirtualAttribute(attributeTO("virtualdata", "virtualvalue"));
         return userTO;
     }
 
@@ -162,25 +125,10 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = new UserTO();
         userTO.setUsername("xxx@xxx.xxx");
 
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("firstname");
-        attributeTO.addValue("xxx");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("surname");
-        attributeTO.addValue("xxx");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("xxx@xxx.xxx");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("fullname");
-        attributeTO.addValue("xxx");
-        userTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO("firstname", "xxx"));
+        userTO.addAttribute(attributeTO("surname", "xxx"));
+        userTO.addAttribute(attributeTO("userId", "xxx@xxx.xxx"));
+        userTO.addAttribute(attributeTO("fullname", "xxx"));
 
         userTO.setPassword("password123");
         userTO.addResource("ws-target-resource-nopropagation");
@@ -189,7 +137,6 @@ public class UserTestITCase extends AbstractTest {
 
         // get the new task list
         tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
-
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -229,25 +176,10 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername("issue172@syncope.apache.org");
         userTO.setPassword("password");
 
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("firstname");
-        attributeTO.addValue("issue172");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("surname");
-        attributeTO.addValue("issue172");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("issue172@syncope.apache.org");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("fullname");
-        attributeTO.addValue("issue172");
-        userTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO("firstname", "issue172"));
+        userTO.addAttribute(attributeTO("surname", "issue172"));
+        userTO.addAttribute(attributeTO("userId", "issue172@syncope.apache.org"));
+        userTO.addAttribute(attributeTO("fullname", "issue172"));
 
         restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
@@ -263,20 +195,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername("issue186@syncope.apache.org");
         userTO.setPassword("password");
 
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("issue186@syncope.apache.org");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("fullname");
-        attributeTO.addValue("issue186");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("surname");
-        attributeTO.addValue("issue186");
-        userTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO("userId", "issue186@syncope.apache.org"));
+        userTO.addAttribute(attributeTO("fullname", "issue186"));
+        userTO.addAttribute(attributeTO("surname", "issue186"));
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
@@ -379,9 +300,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        AttributeTO derAttTO = new AttributeTO();
-        derAttTO.setSchema("csvuserid");
-        userTO.addDerivedAttribute(derAttTO);
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
@@ -422,29 +341,11 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = new UserTO();
         userTO.setPassword("password");
         userTO.setUsername("yyy@yyy.yyy");
-
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("firstname");
-        attributeTO.addValue("yyy");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("surname");
-        attributeTO.addValue("yyy");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("yyy@yyy.yyy");
-        userTO.addAttribute(attributeTO);
-
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("fullname");
-        attributeTO.addValue("yyy");
-        userTO.addAttribute(attributeTO);
-
+        userTO.addAttribute(attributeTO("firstname", "yyy"));
+        userTO.addAttribute(attributeTO("surname", "yyy"));
+        userTO.addAttribute(attributeTO("userId", "yyy@yyy.yyy"));
+        userTO.addAttribute(attributeTO("fullname", "yyy"));
         userTO.addResource("resource-testdb");
-
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationTOs().size());
@@ -501,13 +402,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createWithException() {
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("userId@nowhere.org");
-
         UserTO newUserTO = new UserTO();
-        newUserTO.addAttribute(attributeTO);
-
+        newUserTO.addAttribute(attributeTO("userId", "userId@nowhere.org"));
         restTemplate.postForObject(BASE_URL + "user/create", newUserTO, UserTO.class);
     }
 
@@ -541,22 +437,14 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // add an attribute with no values: must be ignored
-        AttributeTO nullValueAttrTO = new AttributeTO();
-        nullValueAttrTO.setSchema("subscriptionDate");
-        nullValueAttrTO.setValues(null);
-        membershipTO.addAttribute(nullValueAttrTO);
+        membershipTO.addAttribute(attributeTO("subscriptionDate", null));
 
         // add an attribute with a non-existing schema: must be ignored
-        AttributeTO attrWithInvalidSchemaTO = new AttributeTO();
-        attrWithInvalidSchemaTO.setSchema("invalid schema");
-        attrWithInvalidSchemaTO.addValue("a value");
+        AttributeTO attrWithInvalidSchemaTO = attributeTO("invalid schema", "a value");
         userTO.addAttribute(attrWithInvalidSchemaTO);
 
         // add an attribute with null value: must be ignored
-        nullValueAttrTO = new AttributeTO();
-        nullValueAttrTO.setSchema("activationDate");
-        nullValueAttrTO.addValue(null);
-        userTO.addAttribute(nullValueAttrTO);
+        userTO.addAttribute(attributeTO("activationDate", null));
 
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -657,10 +545,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(ex);
         assertNotNull(ex.getException(SyncopeClientExceptionType.RequiredValuesMissing));
 
-        AttributeTO fType = new AttributeTO();
-        fType.setSchema("type");
-        fType.addValue("F");
-        userTO.addAttribute(fType);
+        userTO.addAttribute(attributeTO("type", "F"));
 
         AttributeTO surname = null;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
@@ -992,10 +877,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        AttributeTO membershipAttr = new AttributeTO();
-        membershipAttr.setSchema("subscriptionDate");
-        membershipAttr.addValue("2009-08-18T16:33:12.203+0200");
-        membershipTO.addAttribute(membershipAttr);
+        membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -1003,29 +885,19 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getDerivedAttributes().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
 
-        AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema("subscriptionDate");
-        attributeMod.addValueToBeAdded("2010-08-18T16:33:12.203+0200");
-
         MembershipMod membershipMod = new MembershipMod();
         membershipMod.setRole(8L);
-        membershipMod.addAttributeToBeUpdated(attributeMod);
+        membershipMod.addAttributeToBeUpdated(attributeMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("new2Password");
 
         userMod.addAttributeToBeRemoved("userId");
-        attributeMod = new AttributeMod();
-        attributeMod.setSchema("userId");
-        attributeMod.addValueToBeAdded("t.w@spre.net");
-        userMod.addAttributeToBeUpdated(attributeMod);
+        userMod.addAttributeToBeUpdated(attributeMod("userId", "t.w@spre.net"));
 
         userMod.addAttributeToBeRemoved("fullname");
-        attributeMod = new AttributeMod();
-        attributeMod.setSchema("fullname");
-        attributeMod.addValueToBeAdded("g.h@t.com");
-        userMod.addAttributeToBeUpdated(attributeMod);
+        userMod.addAttributeToBeUpdated(attributeMod("fullname", "g.h@t.com"));
 
         userMod.addDerivedAttributeToBeAdded("cn");
         userMod.addMembershipToBeAdded(membershipMod);
@@ -1069,10 +941,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        AttributeTO membershipAttr = new AttributeTO();
-        membershipAttr.setSchema("subscriptionDate");
-        membershipAttr.addValue("2009-08-18T16:33:12.203+0200");
-        membershipTO.addAttribute(membershipAttr);
+        membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -1155,10 +1024,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
 
-        AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema("surname");
-        attributeMod.addValueToBeAdded("surname");
-        userMod.addAttributeToBeUpdated(attributeMod);
+        userMod.addAttributeToBeUpdated(attributeMod("surname", "surname"));
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
 
@@ -1471,7 +1337,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create a new user without virtual attributes
         UserTO original = getSampleTO("issue270@syncope.apache.org");
         // be sure to remove all virtual attributes
-        original.setVirtualAttributes(Collections.EMPTY_LIST);
+        original.setVirtualAttributes(Collections.<AttributeTO>emptyList());
 
         original = restTemplate.postForObject(BASE_URL + "user/create", original, UserTO.class);
 
@@ -1482,11 +1348,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO toBeUpdated = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, original.
                 getId());
 
-        AttributeTO virtual = new AttributeTO();
-
-        virtual.setSchema("virtualdata");
-        virtual.addValue("virtualvalue");
-
+        AttributeTO virtual = attributeTO("virtualdata", "virtualvalue");
         toBeUpdated.addVirtualAttribute(virtual);
 
         // 2. try to update by adding a resource, but no password: must fail
@@ -1562,11 +1424,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue288() {
         UserTO userTO = getSampleTO("issue288@syncope.apache.org");
-
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("aLong");
-        attributeTO.addValue("STRING");
-        userTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO("aLong", "STRING"));
 
         try {
             restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -1584,9 +1442,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
 
-        AttributeTO csvuserid = new AttributeTO();
-        csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
@@ -1614,28 +1470,13 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-
-        AttributeTO csvuserid = new AttributeTO();
-        csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
-
-        AttributeTO mderived_sx = new AttributeTO();
-        mderived_sx.setSchema("mderived_sx");
-        mderived_sx.setValues(Collections.singletonList("sx"));
-        membershipTO.addAttribute(mderived_sx);
-
-        AttributeTO mderived_dx = new AttributeTO();
-        mderived_dx.setSchema("mderived_dx");
-        mderived_dx.setValues(Collections.singletonList("dx"));
-        membershipTO.addAttribute(mderived_dx);
-
-        AttributeTO mderiveddata = new AttributeTO();
-        mderiveddata.setSchema("mderToBePropagated");
-        membershipTO.addDerivedAttribute(mderiveddata);
-
+        membershipTO.addAttribute(attributeTO("mderived_sx", "sx"));
+        membershipTO.addAttribute(attributeTO("mderived_dx", "dx"));
+        membershipTO.addDerivedAttribute(attributeTO("mderToBePropagated", null));
         userTO.addMembership(membershipTO);
 
         userTO.addResource("resource-csv");
@@ -1671,13 +1512,8 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
-
-        AttributeMod virtualdata = new AttributeMod();
-        virtualdata.setSchema("virtualdata");
-        virtualdata.addValueToBeAdded("virtualupdated");
-
         userMod.addVirtualAttributeToBeRemoved("virtualdata");
-        userMod.addVirtualAttributeToBeUpdated(virtualdata);
+        userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "virtualupdated"));
 
         // 3. update virtual attribute
         actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
@@ -1696,10 +1532,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-
-        AttributeTO csvuserid = new AttributeTO();
-        csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
@@ -1796,25 +1629,15 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-
-        AttributeTO csvuserid = new AttributeTO();
-        csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
-
-        AttributeTO postalAddress = new AttributeTO();
-        postalAddress.setSchema("postalAddress");
-        postalAddress.addValue("postalAddress");
-
-        memb12.addAttribute(postalAddress);
-
+        memb12.addAttribute(attributeTO("postalAddress", "postalAddress"));
         userTO.addMembership(memb12);
 
         MembershipTO memb13 = new MembershipTO();
         memb13.setRoleId(13L);
-
         userTO.addMembership(memb13);
 
         userTO.addResource("resource-ldap");
@@ -1830,7 +1653,7 @@ public class UserTestITCase extends AbstractTest {
                 userTO.getUsername());
         assertNotNull(connObjectTO);
 
-        postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
+        AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
         assertNotNull(postalAddress);
         assertEquals(1, postalAddress.getValues().size());
         assertEquals("postalAddress", postalAddress.getValues().get(0));

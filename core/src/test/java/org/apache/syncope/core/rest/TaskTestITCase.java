@@ -18,41 +18,44 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
+import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.sync.SyncJob;
 import org.apache.syncope.core.init.SpringContextInitializer;
-import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.quartz.TestSyncActions;
+import org.apache.syncope.core.sync.SyncJob;
 import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TraceLevel;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TaskTestITCase extends AbstractTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void getJobClasses() {
         Set<String> jobClasses = restTemplate.getForObject(BASE_URL + "task/jobClasses.json", Set.class);
         assertNotNull(jobClasses);
@@ -60,6 +63,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void getSyncActionsClasses() {
         Set<String> actions = restTemplate.getForObject(BASE_URL + "task/syncActionsClasses.json", Set.class);
         assertNotNull(actions);
@@ -216,41 +220,13 @@ public class TaskTestITCase extends AbstractTest {
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
         userTO.setUsername("test9");
-
-        AttributeTO firstnameTO = new AttributeTO();
-        firstnameTO.setSchema("firstname");
-        firstnameTO.addValue("nome9");
-        userTO.addAttribute(firstnameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("cognome");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO typeTO = new AttributeTO();
-        typeTO.setSchema("type");
-        typeTO.addValue("a type");
-        userTO.addAttribute(typeTO);
-
-        AttributeTO fullnameTO = new AttributeTO();
-        fullnameTO.setSchema("fullname");
-        fullnameTO.addValue("nome cognome");
-        userTO.addAttribute(fullnameTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue("user5@syncope.apache.org");
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue("user5@syncope.apache.org");
-        userTO.addAttribute(emailTO);
-
-        // add a derived attribute (accountId for csvdir)
-        AttributeTO csvuseridTO = new AttributeTO();
-        csvuseridTO.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuseridTO);
+        userTO.addAttribute(attributeTO("firstname", "nome9"));
+        userTO.addAttribute(attributeTO("surname", "cognome"));
+        userTO.addAttribute(attributeTO("type", "a type"));
+        userTO.addAttribute(attributeTO("fullname", "nome cognome"));
+        userTO.addAttribute(attributeTO("userId", "user5@syncope.apache.org"));
+        userTO.addAttribute(attributeTO("email", "user5@syncope.apache.org"));
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
@@ -268,24 +244,13 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         UserTO template = new UserTO();
-
-        AttributeTO attrTO = new AttributeTO();
-        attrTO.setSchema("type");
-        attrTO.addValue("email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'");
-        template.addAttribute(attrTO);
-
-        attrTO = new AttributeTO();
-        attrTO.setSchema("cn");
-        template.addDerivedAttribute(attrTO);
-
+        template.addAttribute(attributeTO("type", "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
+        template.addDerivedAttribute(attributeTO("cn", null));
         template.addResource("resource-testdb");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        AttributeTO membershipAttr = new AttributeTO();
-        membershipAttr.setSchema("subscriptionDate");
-        membershipAttr.addValue("'2009-08-18T16:33:12.203+0200'");
-        membershipTO.addAttribute(membershipAttr);
+        membershipTO.addAttribute(attributeTO("subscriptionDate", "'2009-08-18T16:33:12.203+0200'"));
         template.addMembership(membershipTO);
 
         task.setUserTemplate(template);
@@ -296,7 +261,6 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
 
         SyncTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
-
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -375,26 +339,10 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         UserTO template = new UserTO();
-
-        AttributeTO attrTO = new AttributeTO();
-        attrTO.setSchema("type");
-        attrTO.addValue("'type a'");
-        template.addAttribute(attrTO);
-
-        attrTO = new AttributeTO();
-        attrTO.setSchema("userId");
-        attrTO.addValue("'reconciled@syncope.apache.org'");
-        template.addAttribute(attrTO);
-
-        attrTO = new AttributeTO();
-        attrTO.setSchema("fullname");
-        attrTO.addValue("'reconciled fullname'");
-        template.addAttribute(attrTO);
-
-        attrTO = new AttributeTO();
-        attrTO.setSchema("surname");
-        attrTO.addValue("'surname'");
-        template.addAttribute(attrTO);
+        template.addAttribute(attributeTO("type", "'type a'"));
+        template.addAttribute(attributeTO("userId", "'reconciled@syncope.apache.org'"));
+        template.addAttribute(attributeTO("fullname", "'reconciled fullname'"));
+        template.addAttribute(attributeTO("surname", "'surname'"));
 
         task.setUserTemplate(template);
 
@@ -595,35 +543,12 @@ public class TaskTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.setUsername("testuser2");
 
-        AttributeTO firstnameTO = new AttributeTO();
-        firstnameTO.setSchema("firstname");
-        firstnameTO.addValue("testuser2");
-        userTO.addAttribute(firstnameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("testuser2");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO typeTO = new AttributeTO();
-        typeTO.setSchema("type");
-        typeTO.addValue("a type");
-        userTO.addAttribute(typeTO);
-
-        AttributeTO fullnameTO = new AttributeTO();
-        fullnameTO.setSchema("fullname");
-        fullnameTO.addValue("testuser2");
-        userTO.addAttribute(fullnameTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue("testuser2@syncope.apache.org");
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue("testuser2@syncope.apache.org");
-        userTO.addAttribute(emailTO);
+        userTO.addAttribute(attributeTO("firstname", "testuser2"));
+        userTO.addAttribute(attributeTO("surname", "testuser2"));
+        userTO.addAttribute(attributeTO("type", "a type"));
+        userTO.addAttribute(attributeTO("fullname", "a type"));
+        userTO.addAttribute(attributeTO("userId", "testuser2@syncope.apache.org"));
+        userTO.addAttribute(attributeTO("email", "testuser2@syncope.apache.org"));
 
         userTO.addResource("ws-target-resource-nopropagation2");
         userTO.addResource("ws-target-resource-nopropagation4");
