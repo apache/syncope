@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
-
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.to.UserTO;
@@ -33,6 +30,12 @@ import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.EntityViolationType;
 import org.apache.syncope.types.SchemaType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -178,10 +181,7 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue258@syncope.apache.org");
-        AttributeTO attrTO = new AttributeTO();
-        attrTO.setSchema(schemaTO.getName());
-        attrTO.addValue("1.2");
-        userTO.addAttribute(attrTO);
+        userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
@@ -207,11 +207,7 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue259@syncope.apache.org");
-        AttributeTO attrTO = new AttributeTO();
-        attrTO.setSchema(schemaTO.getName());
-        attrTO.addValue("1");
-        userTO.addAttribute(attrTO);
-
+        userTO.addAttribute(attributeTO(schemaTO.getName(), "1"));
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 
@@ -237,11 +233,7 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue260@syncope.apache.org");
-        AttributeTO attrTO = new AttributeTO();
-        attrTO.setSchema(schemaTO.getName());
-        attrTO.addValue("1.2");
-        userTO.addAttribute(attrTO);
-
+        userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
         assertNotNull(userTO);
 

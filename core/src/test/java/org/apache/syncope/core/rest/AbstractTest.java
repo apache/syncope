@@ -22,6 +22,8 @@ import javax.sql.DataSource;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.client.mod.AttributeMod;
+import org.apache.syncope.client.to.AttributeTO;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -34,6 +36,20 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
+
+    protected static AttributeTO attributeTO(final String schema, final String value) {
+        AttributeTO attr = new AttributeTO();
+        attr.setSchema(schema);
+        attr.addValue(value);
+        return attr;
+    }
+
+    protected static AttributeMod attributeMod(final String schema, final String valueToBeAdded) {
+        AttributeMod attr = new AttributeMod();
+        attr.setSchema(schema);
+        attr.addValueToBeAdded(valueToBeAdded);
+        return attr;
+    }
 
     /**
      * Logger.
