@@ -214,11 +214,11 @@ under the License.
   <RDerSchema name="ownerDN" 
               expression="!empty(roleOwner) ? 'cn=' + roleOwner.name + ',ou=groups,o=isp': (!empty(userOwner) ? 'uid=' +  userOwner.username + ',ou=people,o=isp' : '')"/>
   
-  <RAttr id="1004" owner_id="12" schema_name="title"/>
-  <RAttrValue attribute_id="1004" id="94" stringValue="r12"/>
+  <RAttr id="994" owner_id="12" schema_name="title"/>
+  <RAttrValue attribute_id="994" id="94" stringValue="r12"/>
   
-  <RAttr id="1005" owner_id="13" schema_name="title"/>
-  <RAttrValue attribute_id="1005" id="95" stringValue="r13"/>
+  <RAttr id="995" owner_id="13" schema_name="title"/>
+  <RAttrValue attribute_id="995" id="95" stringValue="r13"/>
 
   <MAttr id="100" owner_id="4" schema_name="subscriptionDate"/>
 
@@ -565,7 +565,7 @@ under the License.
   <RMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
   <RMappingItem id="1" accountid="1" password="0" mapping_id="1"
-                extAttrName="__NAME__" intAttrName="roleName" intMappingType="RoleName"
+                extAttrName="__UID__" intAttrName="roleName" intMappingType="RoleName"
                 mandatoryCondition="true"/>
   <RMappingItem id="2" accountid="0" password="0" mapping_id="1"
                 extAttrName="owner" intAttrName="ownerDN" intMappingType="RoleDerivedSchema"
@@ -625,6 +625,9 @@ under the License.
   <Task DTYPE="SyncTask" id="10" name="TestDB Sync Task" resource_name="resource-db-sync"
         fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+  <Task DTYPE="SyncTask" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
+          fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+          jobClassName="org.apache.syncope.core.sync.SyncJob"/>
         
   <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>
 

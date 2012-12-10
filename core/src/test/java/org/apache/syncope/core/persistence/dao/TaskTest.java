@@ -69,7 +69,7 @@ public class TaskTest extends AbstractTest {
         assertEquals(1, sclist.size());
 
         List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
-        assertEquals(4, sylist.size());
+        assertEquals(5, sylist.size());
     }
 
     @Test

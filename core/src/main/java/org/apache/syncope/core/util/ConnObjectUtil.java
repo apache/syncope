@@ -317,6 +317,29 @@ public class ConnObjectUtil {
                     fillFromTemplate(membTBU, membTO);
                 }
             }
+            if (template instanceof RoleTO) {
+                if (StringUtils.isNotBlank(((RoleTO) template).getName())) {
+                    String evaluated = jexlUtil.evaluate(((RoleTO) template).getName(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((RoleTO) attributableTO).setName(evaluated);
+                    }
+                }
+
+                ((RoleTO) attributableTO).setParent(((RoleTO) template).getParent());
+
+                ((RoleTO) attributableTO).setUserOwner(((RoleTO) template).getUserOwner());
+                ((RoleTO) attributableTO).setRoleOwner(((RoleTO) template).getRoleOwner());
+
+                ((RoleTO) attributableTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
+                ((RoleTO) attributableTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
+
+                ((RoleTO) attributableTO).setInheritOwner(((RoleTO) template).isInheritOwner());
+                ((RoleTO) attributableTO).setInheritAttributes(((RoleTO) template).isInheritAttributes());
+                ((RoleTO) attributableTO).setInheritDerivedAttributes(((RoleTO) template).isInheritDerivedAttributes());
+                ((RoleTO) attributableTO).setInheritVirtualAttributes(((RoleTO) template).isInheritVirtualAttributes());
+                ((RoleTO) attributableTO).setInheritPasswordPolicy(((RoleTO) template).isInheritPasswordPolicy());
+                ((RoleTO) attributableTO).setInheritAccountPolicy(((RoleTO) template).isInheritAccountPolicy());
+            }
 
             fillFromTemplate(attributableTO, template);
 
