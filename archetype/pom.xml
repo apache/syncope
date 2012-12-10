@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -48,9 +48,9 @@ under the License.
   </properties>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/tags/syncope-1.0.4/archetype</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/tags/syncope-1.0.4/archetype</developerConnection>
-    <url>http://svn.apache.org/repos/asf/syncope/tags/syncope-1.0.4/archetype</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/branches/1_0_X/archetype</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/branches/1_0_X/archetype</developerConnection>
+    <url>http://svn.apache.org/repos/asf/syncope/branches/1_0_X/archetype</url>
   </scm>
 
   <build>
