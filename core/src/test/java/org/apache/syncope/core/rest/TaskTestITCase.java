@@ -55,6 +55,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class TaskTestITCase extends AbstractTest {
 
+    private static final int SCHED_TASK_ID = 5;
+
+    private static final int SYNC_TASK_ID = 4;
+
     @Test
     @SuppressWarnings("unchecked")
     public void getJobClasses() {
@@ -101,7 +105,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchedTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SchedTaskTO.class, 5);
+        SchedTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SchedTaskTO.class, SCHED_TASK_ID);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -196,18 +200,17 @@ public class TaskTestITCase extends AbstractTest {
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 1);
-        assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), execution.getStatus());
+        TaskExecTO exec = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 1);
+        assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
 
-        execution = restTemplate.getForObject(BASE_URL + "task/execution/report/{executionId}"
-                + "?executionStatus=SUCCESS&message=OK", TaskExecTO.class, execution.getId());
-        assertEquals(PropagationTaskExecStatus.SUCCESS.name(), execution.getStatus());
-        assertEquals("OK", execution.getMessage());
+        exec = restTemplate.getForObject(BASE_URL + "task/execution/report/{executionId}"
+                + "?executionStatus=SUCCESS&message=OK", TaskExecTO.class, exec.getId());
+        assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
+        assertEquals("OK", exec.getMessage());
 
         restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", PropagationTaskTO.class, 1);
         try {
-            restTemplate.getForObject(BASE_URL + "task/execution/read/{executionId}", TaskExecTO.class,
-                    execution.getId());
+            restTemplate.getForObject(BASE_URL + "task/execution/read/{executionId}", TaskExecTO.class, exec.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -237,7 +240,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(usersPre);
 
         // Update sync task
-        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4);
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, SYNC_TASK_ID);
         assertNotNull(task);
 
         //  add custom SyncJob actions
@@ -261,38 +264,11 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(task.getId(), actual.getId());
         assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
 
-        SyncTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
-        assertNotNull(taskTO);
-        assertNotNull(taskTO.getExecutions());
+        execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, false);
 
-        // read executions before sync (dryrun test could be executed before)
-        int preSyncSize = taskTO.getExecutions().size();
-
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
-                taskTO.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        int i = 0;
-        int maxit = 50;
-
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, taskTO.getId());
-
-            assertNotNull(taskTO);
-            assertNotNull(taskTO.getExecutions());
-
-            i++;
-        } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
-
-        // check for sync policy
+        // after execution of the sync task the user data should be synced from 
+        // csv datasource and processed by user template
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
-
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
         assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
@@ -317,9 +293,9 @@ public class TaskTestITCase extends AbstractTest {
         // check for sync results
         Integer usersPost = restTemplate.getForObject(BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPost);
-        assertTrue("Expected " + (usersPre + 9) + ", found " + usersPost, usersPost == usersPre + 9);
+        assertEquals(usersPre.intValue() + 9, usersPost.intValue());
 
-        // Check for issue 215: 
+        // Check for issue 215:
         // * expected disabled user test1
         // * expected enabled user test2
 
@@ -353,34 +329,9 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(template, actual.getUserTemplate());
         assertEquals(new RoleTO(), actual.getRoleTemplate());
 
-        // read executions before sync (dryrun test could be executed before)
-        int preSyncSize = actual.getExecutions().size();
+        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
 
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
-                actual.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        int i = 0;
-        int maxit = 20;
-
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
-
-            assertNotNull(actual);
-            assertNotNull(actual.getExecutions());
-
-            i++;
-        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
-
-        assertEquals(1, actual.getExecutions().size());
-
-        final String status = actual.getExecutions().get(0).getStatus();
+        final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
@@ -409,34 +360,9 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(template, actual.getRoleTemplate());
         assertEquals(new UserTO(), actual.getUserTemplate());
 
-        // read executions before sync (dryrun test could be executed before)
-        int preSyncSize = actual.getExecutions().size();
+        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
 
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
-                actual.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        int i = 0;
-        int maxit = 20;
-
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
-
-            assertNotNull(actual);
-            assertNotNull(actual.getExecutions());
-
-            i++;
-        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
-
-        assertEquals(1, actual.getExecutions().size());
-
-        final String status = actual.getExecutions().get(0).getStatus();
+        final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
@@ -457,41 +383,17 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issue196() {
-        TaskExecTO execution = restTemplate.postForObject(
-                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
-        assertNotNull(execution);
-        assertEquals(0, execution.getId());
-        assertNotNull(execution.getTask());
+        TaskExecTO exec = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
+        assertNotNull(exec);
+        assertEquals(0, exec.getId());
+        assertNotNull(exec.getTask());
     }
 
     @Test
     public void dryRun() {
-        SyncTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4L);
-
-        assertNotNull(taskTO);
-        assertNotNull(taskTO.getExecutions());
-
-        int preDryRunSize = taskTO.getExecutions().size();
-
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}?dryRun=true", null,
-                TaskExecTO.class, 4);
-        assertNotNull(execution);
-
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, taskTO.getId());
-
-            assertNotNull(taskTO);
-            assertNotNull(taskTO.getExecutions());
-
-        } while (preDryRunSize == taskTO.getExecutions().size());
-
-        assertEquals("SUCCESS", taskTO.getExecutions().get(0).getStatus());
+        TaskExecTO execution = execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, true);
+        assertEquals("Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
+                "SUCCESS", execution.getStatus());
     }
 
     @Test
@@ -656,32 +558,8 @@ public class TaskTestITCase extends AbstractTest {
         assertFalse(actual.getUserTemplate().getResources().isEmpty());
         assertFalse(actual.getUserTemplate().getMemberships().isEmpty());
 
-        // read executions before sync (dryrun test could be executed before)
-        int preSyncSize = actual.getExecutions().size();
-
-        TaskExecTO execution =
-                restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, actual.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        int i = 0;
-        int maxit = 50;
-
-        // wait for sync completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
-            assertNotNull(actual);
-            assertNotNull(actual.getExecutions());
-
-            i++;
-        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
-        assertEquals(preSyncSize + 1, actual.getExecutions().size());
-
-        final String status = actual.getExecutions().get(0).getStatus();
+        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 50, false);
+        final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
@@ -721,32 +599,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE230() {
         // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
-        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 10);
-        assertNotNull(task);
-
-        int preSyncSize = task.getExecutions().size();
-
-        // 2. execute the SyncTask for the first time
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
-                task.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        int i = 0;
-        final int maxit = 20;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, task.getId());
-
-            assertNotNull(task);
-            assertNotNull(task.getExecutions());
-
-            i++;
-        } while (preSyncSize == task.getExecutions().size() && i < maxit);
-        assertEquals(1, task.getExecutions().size());
+        execTask(SyncTaskTO.class, 10, 20, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
         UserTO userTO = restTemplate.getForObject(
@@ -760,26 +613,7 @@ public class TaskTestITCase extends AbstractTest {
         jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the SyncTask
-        execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
-                task.getId());
-        assertEquals("JOB_FIRED", execution.getStatus());
-
-        preSyncSize = task.getExecutions().size();
-        i = 0;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, task.getId());
-
-            assertNotNull(task);
-            assertNotNull(task.getExecutions());
-
-            i++;
-        } while (preSyncSize == task.getExecutions().size() && i < maxit);
-        assertEquals(2, task.getExecutions().size());
+        execTask(SyncTaskTO.class, 10, 20, false);
 
         // 6. verify that the e-mail was updated
         userTO = restTemplate.getForObject(
@@ -788,5 +622,41 @@ public class TaskTestITCase extends AbstractTest {
         email = userTO.getAttributeMap().get("email").getValues().iterator().next();
         assertNotNull(email);
         assertEquals("updatedSYNCOPE230@syncope.apache.org", email);
+    }
+
+    private TaskExecTO execTask(final Class<? extends TaskTO> taskClass, final long taskId,
+            final int maxWaitSeconds, final boolean dryRun) {
+
+        TaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", taskClass, taskId);
+        assertNotNull(taskTO);
+        assertNotNull(taskTO.getExecutions());
+
+        int preSyncSize = taskTO.getExecutions().size();
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}" + (dryRun ? "?dryRun=true" : ""), null,
+                TaskExecTO.class, taskTO.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = maxWaitSeconds;
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", taskClass, taskTO.getId());
+
+            assertNotNull(taskTO);
+            assertNotNull(taskTO.getExecutions());
+
+            i++;
+        } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
+        if (i == maxit) {
+            throw new RuntimeException("Timeout when executing task " + taskId);
+        }
+        return taskTO.getExecutions().get(0);
     }
 }
