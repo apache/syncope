@@ -2,6 +2,22 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.4
+================================================================================
+** Bug
+    * [SYNCOPE-232] - "Connection is read-only" during initialization
+    * [SYNCOPE-233] - Authentication failure using password with special characters
+    * [SYNCOPE-234] - Failures upgrading OpenJPA
+    * [SYNCOPE-235] - CSVDir connector fails during check connection
+    * [SYNCOPE-236] - Username and password not evaluated from user template during synchronization
+    * [SYNCOPE-237] - Users with no entitlements cannot edit their own profile via console
+    * [SYNCOPE-238] - With an high number of users, the admin console's 'TODO' tab is extremely slow
+    * [SYNCOPE-240] - Missed CREATE status into org.apache.syncope.console.commons.StatusUtils.Status
+
+** Improvement
+    * [SYNCOPE-239] - Add OSGi support for the client
+    * [SYNCOPE-243] - Extended org.apache.rat exclude list for eclipse IDE
+
 Release Notes - Syncope - Version 1.0.3-incubating
 ================================================================================
 ** Bug

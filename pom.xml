@@ -83,6 +83,7 @@ under the License.
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-user.1051894.n5.nabble.com/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/user@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
     <mailingList>
@@ -94,6 +95,7 @@ under the License.
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-dev.1063484.n5.nabble.com/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/dev@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
     <mailingList>
@@ -104,6 +106,7 @@ under the License.
       <archive>http://mail-archives.apache.org/mod_mbox/syncope-commits/</archive>
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/commits@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
   </mailingLists>
