@@ -979,6 +979,11 @@ under the License.
             </dependency>
           </dependencies>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
       </plugins>
     </pluginManagement>
         
@@ -1194,5 +1199,6 @@ under the License.
     <module>client</module>
     <module>core</module>
     <module>console</module>
+    <module>standalone</module>
   </modules>
 </project>
