@@ -450,7 +450,7 @@ public class PropagationManager {
         switch (mapItem.getIntMappingType().getAttributableType()) {
             case USER:
                 if (subject instanceof SyncopeUser) {
-                    attributables.addAll(Collections.singleton(subject));
+                    attributables.add(subject);
                 }
                 break;
 
@@ -459,7 +459,7 @@ public class PropagationManager {
                     attributables.addAll(((SyncopeUser) subject).getRoles());
                 }
                 if (subject instanceof SyncopeRole) {
-                    attributables.addAll(Collections.singleton(subject));
+                    attributables.add(subject);
                 }
                 break;
 

@@ -185,9 +185,11 @@ public final class MappingUtil {
 
             case Username:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractAttrValue attrValue = new UAttrValue();
-                    attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
-                    values.add(attrValue);
+                    if (attributable instanceof SyncopeUser) {
+                        AbstractAttrValue attrValue = new UAttrValue();
+                        attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
+                        values.add(attrValue);
+                    }
                 }
                 break;
 
@@ -201,16 +203,18 @@ public final class MappingUtil {
 
             case RoleName:
                 for (AbstractAttributable attributable : attributables) {
-                    attrValue = new UAttrValue();
-                    attrValue.setStringValue(((SyncopeRole) attributable).getName());
-                    values.add(attrValue);
+                    if (attributable instanceof SyncopeRole) {
+                        attrValue = new RAttrValue();
+                        attrValue.setStringValue(((SyncopeRole) attributable).getName());
+                        values.add(attrValue);
+                    }
                 }
                 break;
 
             default:
         }
 
-        LOG.debug("Retrived values '{}'", values);
+        LOG.debug("Retrieved values '{}'", values);
 
         return new DefaultMapEntry(schema, values);
     }
