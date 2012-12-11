@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,10 @@ import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -99,6 +103,20 @@ public final class EntitlementUtil {
             names.add(entitlement.getName());
         }
         return getRoleIds(names);
+    }
+
+    /**
+     * Extend the current authentication context to include the given role.
+     * 
+     * @param roleId role id
+     */
+    public static void extendAuthContext(final Long roleId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+        authorities.add(new SimpleGrantedAuthority(EntitlementUtil.getEntitlementNameFromRoleId(roleId)));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(), auth.getCredentials(), authorities);
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
     /**

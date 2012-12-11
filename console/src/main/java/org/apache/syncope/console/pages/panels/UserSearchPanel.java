@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
@@ -321,11 +321,11 @@ public class UserSearchPanel extends Panel {
     private SearchCondWrapper getSearchCondWrapper(final NodeCond searchCond) {
         SearchCondWrapper wrapper = new SearchCondWrapper();
 
-        if (searchCond.getSyncopeUserCond() != null) {
+        if (searchCond.getAttributableCond() != null) {
             wrapper.setFilterType(FilterType.ATTRIBUTE);
-            wrapper.setFilterName(searchCond.getSyncopeUserCond().getSchema());
-            wrapper.setType(searchCond.getSyncopeUserCond().getType());
-            wrapper.setFilterValue(searchCond.getSyncopeUserCond().getExpression());
+            wrapper.setFilterName(searchCond.getAttributableCond().getSchema());
+            wrapper.setType(searchCond.getAttributableCond().getType());
+            wrapper.setFilterValue(searchCond.getAttributableCond().getExpression());
         }
         if (searchCond.getAttributeCond() != null) {
             wrapper.setFilterType(FilterType.ATTRIBUTE);
@@ -374,10 +374,10 @@ public class UserSearchPanel extends Panel {
 
                 final AttributeCond attributeCond;
                 if (dnames.getObject().contains(schema)) {
-                    attributeCond = new SyncopeUserCond();
+                    attributeCond = new AttributableCond();
                     nodeCond = searchConditionWrapper.isNotOperator()
-                            ? NodeCond.getNotLeafCond((SyncopeUserCond) attributeCond)
-                            : NodeCond.getLeafCond((SyncopeUserCond) attributeCond);
+                            ? NodeCond.getNotLeafCond((AttributableCond) attributeCond)
+                            : NodeCond.getLeafCond((AttributableCond) attributeCond);
                 } else {
                     attributeCond = new AttributeCond();
                     nodeCond = searchConditionWrapper.isNotOperator()

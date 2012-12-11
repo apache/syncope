@@ -24,22 +24,29 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.mod.AbstractAttributableMod;
+import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.notification.NotificationManager;
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
-import org.apache.syncope.core.persistence.beans.user.USchema;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
@@ -47,14 +54,18 @@ import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
-import org.apache.syncope.core.workflow.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ConflictResolutionAction;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -72,7 +83,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
 
     /**
      * Entitlement DAO.
@@ -93,10 +104,16 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     private UserDAO userDAO;
 
     /**
+     * Role DAO.
+     */
+    @Autowired
+    private RoleDAO roleDAO;
+
+    /**
      * User search DAO.
      */
     @Autowired
-    private UserSearchDAO userSearchDAO;
+    private AttributableSearchDAO searchDAO;
 
     /**
      * ConnectorObject util.
@@ -108,7 +125,13 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * User workflow adapter.
      */
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
+
+    /**
+     * Role workflow adapter.
+     */
+    @Autowired
+    private RoleWorkflowAdapter rwfAdapter;
 
     /**
      * Propagation Manager.
@@ -127,6 +150,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      */
     @Autowired
     private UserDataBinder userDataBinder;
+
+    /**
+     * Role data binder.
+     */
+    @Autowired
+    private RoleDataBinder roleDataBinder;
 
     /**
      * Notification Manager.
@@ -178,318 +207,412 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
     }
 
-    /**
-     * Find users based on mapped uid value (or previous uid value, if updated).
-     *
-     * @param delta sync delta
-     * @return list of matching users
-     */
-    private List<Long> findExistingUsers(final SyncDelta delta) {
-        final String uid = delta.getPreviousUid() == null
-                ? delta.getUid().getUidValue()
-                : delta.getPreviousUid().getUidValue();
-
-        // ---------------------------------
-        // Get sync policy specification
-        // ---------------------------------
-        SyncPolicySpec policySpec = null;
-        if (syncTask.getResource().getSyncPolicy() != null) {
-            policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
-        }
-        // ---------------------------------
-
+    private List<Long> findByAccountIdItem(final String uid, final AttributableUtil attrUtil) {
         final List<Long> result = new ArrayList<Long>();
 
-        if (policySpec == null || policySpec.getAlternativeSearchAttrs().isEmpty()) {
-            SyncopeUser found;
-            List<SyncopeUser> users;
+        final AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(syncTask.getResource());
+        switch (accountIdItem.getIntMappingType()) {
+            case UserSchema:
+            case RoleSchema:
+                final AbstractAttrValue value = attrUtil.newAttrValue();
 
-            final SchemaMapping accountIdMap =
-                    SchemaMappingUtil.getAccountIdMapping(syncTask.getResource().getMappings());
-            switch (accountIdMap.getIntMappingType()) {
-                case Username:
-                    found = userDAO.find(uid);
-                    if (found != null) {
-                        result.add(found.getId());
-                    }
-                    break;
-
-                case SyncopeUserId:
-                    found = userDAO.find(Long.parseLong(uid));
-                    if (found != null) {
-                        result.add(found.getId());
-                    }
-                    break;
-
-                case UserSchema:
-                    final UAttrValue value = new UAttrValue();
-
-                    USchema schema = schemaDAO.find(accountIdMap.getIntAttrName(), USchema.class);
-                    if (schema == null) {
-                        value.setStringValue(uid);
-                    } else {
-                        try {
-                            value.parseValue(schema, uid);
-                        } catch (ParsingValidationException e) {
-                            LOG.error("While parsing provided __UID__ {}", uid, e);
-                            value.setStringValue(uid);
-                        }
-                    }
-
-                    users = userDAO.findByAttrValue(accountIdMap.getIntAttrName(), value);
-                    for (SyncopeUser user : users) {
-                        result.add(user.getId());
-                    }
-                    break;
-
-                case UserDerivedSchema:
+                AbstractSchema schema = schemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.schemaClass());
+                if (schema == null) {
+                    value.setStringValue(uid);
+                } else {
                     try {
-                        users = userDAO.findByDerAttrValue(accountIdMap.getIntAttrName(), uid);
-                        for (SyncopeUser user : users) {
-                            result.add(user.getId());
-                        }
-                    } catch (InvalidSearchConditionException e) {
-                        LOG.error("Could not search for matching users", e);
+                        value.parseValue(schema, uid);
+                    } catch (ParsingValidationException e) {
+                        LOG.error("While parsing provided __UID__ {}", uid, e);
+                        value.setStringValue(uid);
                     }
-                    break;
-
-                default:
-                    LOG.error("Invalid accountId type '{}'", accountIdMap.getIntMappingType());
-            }
-        } else {
-            // search for external attribute's name/value of each specified name
-
-            final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
-
-            for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-                extValues.put(SchemaMappingUtil.getIntAttrName(mapping),
-                        delta.getObject().getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping)));
-            }
-
-            // search for user by attribute(s) specified in the policy
-            NodeCond searchCond = null;
-
-            for (String schema : policySpec.getAlternativeSearchAttrs()) {
-                Attribute value = extValues.get(schema);
-
-                AttributeCond.Type type;
-                String expression = null;
-
-                if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
-                    type = AttributeCond.Type.ISNULL;
-                } else {
-                    type = AttributeCond.Type.EQ;
-                    expression = value.getValue().size() > 1
-                            ? value.getValue().toString()
-                            : value.getValue().get(0).toString();
                 }
 
-                NodeCond nodeCond;
-                // just Username or SyncopeUserId can be selected to be used
-                if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)) {
-                    SyncopeUserCond cond = new SyncopeUserCond();
-                    cond.setSchema(schema);
-                    cond.setType(type);
-                    cond.setExpression(expression);
-
-                    nodeCond = NodeCond.getLeafCond(cond);
-                } else {
-                    AttributeCond cond = new AttributeCond();
-                    cond.setSchema(schema);
-                    cond.setType(type);
-                    cond.setExpression(expression);
-
-                    nodeCond = NodeCond.getLeafCond(cond);
+                List<AbstractAttributable> subjects =
+                        userDAO.findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
+                for (AbstractAttributable subject : subjects) {
+                    result.add(subject.getId());
                 }
+                break;
 
-                searchCond = searchCond == null
-                        ? nodeCond
-                        : NodeCond.getAndCond(searchCond, nodeCond);
-            }
+            case UserDerivedSchema:
+            case RoleDerivedSchema:
+                try {
+                    subjects = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
+                    for (AbstractAttributable subject : subjects) {
+                        result.add(subject.getId());
+                    }
+                } catch (InvalidSearchConditionException e) {
+                    LOG.error("Could not search for matching subjects", e);
+                }
+                break;
 
-            final List<SyncopeUser> users =
-                    userSearchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond);
-            for (SyncopeUser user : users) {
-                result.add(user.getId());
-            }
+            case Username:
+                SyncopeUser user = userDAO.find(uid);
+                if (user != null) {
+                    result.add(user.getId());
+                }
+                break;
+
+            case UserId:
+                user = userDAO.find(Long.parseLong(uid));
+                if (user != null) {
+                    result.add(user.getId());
+                }
+                break;
+
+            case RoleName:
+                List<SyncopeRole> roles = roleDAO.find(uid);
+                for (SyncopeRole role : roles) {
+                    result.add(role.getId());
+                }
+                break;
+
+            case RoleId:
+                SyncopeRole role = roleDAO.find(Long.parseLong(uid));
+                if (role != null) {
+                    result.add(role.getId());
+                }
+                break;
+
+            default:
+                LOG.error("Invalid accountId type '{}'", accountIdItem.getIntMappingType());
         }
 
         return result;
     }
 
-    private List<SyncResult> createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
+    private List<Long> findByAttributableSearch(final SyncDelta delta, final SyncPolicySpec policySpec,
+            final AttributableUtil attrUtil) {
+
+        final List<Long> result = new ArrayList<Long>();
+
+        // search for external attribute's name/value of each specified name
+
+        final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
+
+        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
+            extValues.put(item.getIntAttrName(), delta.getObject().getAttributeByName(item.getExtAttrName()));
+        }
+
+        // search for user/role by attribute(s) specified in the policy
+        NodeCond searchCond = null;
+
+        for (String schema : attrUtil.getAltSearchSchemas(policySpec)) {
+            Attribute value = extValues.get(schema);
+
+            AttributeCond.Type type;
+            String expression = null;
+
+            if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
+                type = AttributeCond.Type.ISNULL;
+            } else {
+                type = AttributeCond.Type.EQ;
+                expression = value.getValue().size() > 1
+                        ? value.getValue().toString()
+                        : value.getValue().get(0).toString();
+            }
+
+            NodeCond nodeCond;
+            // users: just id or username can be selected to be used
+            // roles: just id or name can be selected to be used
+            if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)
+                    || "name".equalsIgnoreCase(schema)) {
+
+                AttributableCond cond = new AttributableCond();
+                cond.setSchema(schema);
+                cond.setType(type);
+                cond.setExpression(expression);
+
+                nodeCond = NodeCond.getLeafCond(cond);
+            } else {
+                AttributeCond cond = new AttributeCond();
+                cond.setSchema(schema);
+                cond.setType(type);
+                cond.setExpression(expression);
+
+                nodeCond = NodeCond.getLeafCond(cond);
+            }
+
+            searchCond = searchCond == null
+                    ? nodeCond
+                    : NodeCond.getAndCond(searchCond, nodeCond);
+        }
+
+        final List<AbstractAttributable> subjects = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond, attrUtil);
+        for (AbstractAttributable subject : subjects) {
+            result.add(subject.getId());
+        }
+
+        return result;
+    }
+
+    /**
+     * Find users / roles based on mapped uid value (or previous uid value, if updated).
+     *
+     * @param delta sync delta
+     * @param attrUtil attributable util
+     * @return list of matching users / roles
+     */
+    protected List<Long> findExisting(final SyncDelta delta, final AttributableUtil attrUtil) {
+        final String uid = delta.getPreviousUid() == null
+                ? delta.getUid().getUidValue()
+                : delta.getPreviousUid().getUidValue();
+
+        SyncPolicySpec policySpec = null;
+        if (syncTask.getResource().getSyncPolicy() != null) {
+            policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
+        }
+
+        return policySpec == null || attrUtil.getAltSearchSchemas(policySpec).isEmpty()
+                ? findByAccountIdItem(uid, attrUtil)
+                : findByAttributableSearch(delta, policySpec, attrUtil);
+    }
+
+    protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil,
+            final boolean dryRun) throws JobExecutionException {
+
         if (!syncTask.isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
-            return Collections.emptyList();
+            return Collections.EMPTY_LIST;
         }
 
         final SyncResult result = new SyncResult();
-        result.setOperation(SyncResult.Operation.CREATE);
+        result.setOperation(ResourceOperation.CREATE);
+        result.setSubjectType(attrUtil.getType());
 
-        UserTO userTO = connObjectUtil.getUserTO(delta.getObject(), syncTask);
+        AbstractAttributableTO subjectTO = connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
-        delta = actions.beforeCreate(delta, userTO);
+        delta = actions.beforeCreate(delta, subjectTO);
 
         if (dryRun) {
-            result.setUserId(0L);
-            result.setUsername(userTO.getUsername());
+            result.setId(0L);
+            if (subjectTO instanceof UserTO) {
+                result.setName(((UserTO) subjectTO).getUsername());
+            }
+            if (subjectTO instanceof RoleTO) {
+                result.setName(((RoleTO) subjectTO).getName());
+            }
             result.setStatus(AbstractTaskJob.Status.SUCCESS);
         } else {
             try {
-                // --------------------------
-                // Check for status synchronization ...
-                // --------------------------
-                Boolean enabled = null;
-                if (syncTask.isSyncStatus()) {
-                    Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME,
-                            delta.getObject().getAttributes());
-                    if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
-                        enabled = (Boolean) status.getValue().get(0);
+                if (AttributableType.USER == attrUtil.getType()) {
+                    // --------------------------
+                    // Check for status synchronization ...
+                    // --------------------------
+                    Boolean enabled = null;
+                    if (syncTask.isSyncStatus()) {
+                        Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME,
+                                delta.getObject().getAttributes());
+                        if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
+                            enabled = (Boolean) status.getValue().get(0);
+                        }
                     }
+                    // --------------------------
+
+                    WorkflowResult<Map.Entry<Long, Boolean>> created =
+                            uwfAdapter.create((UserTO) subjectTO, true, enabled);
+
+                    List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
+                            ((UserTO) subjectTO).getPassword(), subjectTO.getVirtualAttributes(),
+                            Collections.singleton(syncTask.getResource().getName()));
+
+                    taskExecutor.execute(tasks);
+
+                    notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
+
+                    subjectTO = userDataBinder.getUserTO(created.getResult().getKey());
+
+                    result.setId(created.getResult().getKey());
                 }
-                // --------------------------
+                if (AttributableType.ROLE == attrUtil.getType()) {
+                    WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
 
-                WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
+                    EntitlementUtil.extendAuthContext(created.getResult());
 
-                List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(),
-                        userTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
+                    List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
+                            subjectTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
 
-                taskExecutor.execute(tasks);
+                    taskExecutor.execute(tasks);
 
-                notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
+                    subjectTO = roleDataBinder.getRoleTO(created.getResult());
 
-                userTO = userDataBinder.getUserTO(created.getResult().getKey());
+                    result.setId(created.getResult());
+                }
 
-                result.setUserId(created.getResult().getKey());
-                result.setUsername(userTO.getUsername());
+                if (subjectTO instanceof UserTO) {
+                    result.setName(((UserTO) subjectTO).getUsername());
+                }
+                if (subjectTO instanceof RoleTO) {
+                    result.setName(((RoleTO) subjectTO).getName());
+                }
                 result.setStatus(AbstractTaskJob.Status.SUCCESS);
             } catch (PropagationException e) {
-                LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
+                LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             } catch (Exception e) {
                 result.setStatus(AbstractTaskJob.Status.FAILURE);
                 result.setMessage(e.getMessage());
-                LOG.error("Could not create user " + delta.getUid().getUidValue(), e);
+                LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
             }
         }
 
-        actions.after(delta, userTO, result);
+        actions.after(delta, subjectTO, result);
         return Collections.singletonList(result);
     }
 
-    private List<SyncResult> updateUsers(SyncDelta delta, final List<Long> users, final boolean dryRun)
-            throws JobExecutionException {
+    protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
+            final boolean dryRun) throws JobExecutionException {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.emptyList();
+            return Collections.EMPTY_LIST;
         }
 
-        LOG.debug("About to update {}", users);
+        LOG.debug("About to update {}", subjects);
 
-        List<SyncResult> results = new ArrayList<SyncResult>();
+        List<SyncResult> updResults = new ArrayList<SyncResult>();
 
-        for (Long userId : users) {
+        for (Long id : subjects) {
             final SyncResult result = new SyncResult();
-            result.setOperation(SyncResult.Operation.UPDATE);
+            result.setOperation(ResourceOperation.UPDATE);
+            result.setSubjectType(attrUtil.getType());
 
             try {
-                UserTO userTO = userDataBinder.getUserTO(userId);
+                AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
+                        ? userDataBinder.getUserTO(id)
+                        : roleDataBinder.getRoleTO(id);
                 try {
-
-                    final UserMod userMod = connObjectUtil.getUserMod(userId, delta.getObject(), syncTask);
-                    delta = actions.beforeUpdate(delta, userTO, userMod);
+                    final AbstractAttributableMod mod = connObjectUtil.getAttributableMod(
+                            id, delta.getObject(), subjectTO, syncTask, attrUtil);
+                    delta = actions.beforeUpdate(delta, subjectTO, mod);
 
                     result.setStatus(AbstractTaskJob.Status.SUCCESS);
-                    result.setUserId(userMod.getId());
-                    result.setUsername(userMod.getUsername());
+                    result.setId(mod.getId());
+                    if (mod instanceof UserMod) {
+                        result.setName(((UserMod) mod).getUsername());
+                    }
+                    if (mod instanceof RoleMod) {
+                        result.setName(((RoleMod) mod).getName());
+                    }
 
                     if (!dryRun) {
-                        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
+                        if (AttributableType.USER == attrUtil.getType()) {
+                            WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update((UserMod) mod);
 
-                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated,
-                                userMod.getPassword(), userMod.getVirtualAttributesToBeRemoved(),
-                                userMod.getVirtualAttributesToBeUpdated(),
-                                Collections.singleton(syncTask.getResource().getName()));
+                            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
+                                    ((UserMod) mod).getPassword(), mod.getVirtualAttributesToBeRemoved(),
+                                    mod.getVirtualAttributesToBeUpdated(),
+                                    Collections.singleton(syncTask.getResource().getName()));
 
-                        taskExecutor.execute(tasks);
+                            taskExecutor.execute(tasks);
 
-                        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
+                            notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
-                        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
+                            subjectTO = userDataBinder.getUserTO(updated.getResult().getKey());
+                        }
+                        if (AttributableType.ROLE == attrUtil.getType()) {
+                            WorkflowResult<Long> updated = rwfAdapter.update((RoleMod) mod);
+
+                            List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
+                                    mod.getVirtualAttributesToBeRemoved(), mod.getVirtualAttributesToBeUpdated(),
+                                    Collections.singleton(syncTask.getResource().getName()));
+
+                            taskExecutor.execute(tasks);
+
+                            subjectTO = roleDataBinder.getRoleTO(updated.getResult());
+                        }
                     }
                 } catch (PropagationException e) {
-                    LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
+                    LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 } catch (Exception e) {
                     result.setStatus(AbstractTaskJob.Status.FAILURE);
                     result.setMessage(e.getMessage());
-                    LOG.error("Could not update user " + delta.getUid().getUidValue(), e);
+                    LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 }
 
-                actions.after(delta, userTO, result);
-                results.add(result);
+                actions.after(delta, subjectTO, result);
+                updResults.add(result);
             } catch (NotFoundException e) {
-                LOG.error("Could not find user {}", userId, e);
+                LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
-                LOG.error("Not allowed to read user {}", userId, e);
+                LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
             }
         }
 
-        return results;
+        return updResults;
     }
 
-    private List<SyncResult> deleteUsers(SyncDelta delta, final List<Long> users, final boolean dryRun)
-            throws JobExecutionException {
+    protected List<SyncResult> delete(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
+            final boolean dryRun) throws JobExecutionException {
 
         if (!syncTask.isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
-            return Collections.emptyList();
+            return Collections.EMPTY_LIST;
         }
 
-        LOG.debug("About to delete {}", users);
+        LOG.debug("About to delete {}", subjects);
 
-        List<SyncResult> results = new ArrayList<SyncResult>();
+        List<SyncResult> delResults = new ArrayList<SyncResult>();
 
-        for (Long userId : users) {
+        for (Long id : subjects) {
             try {
-                UserTO userTO = userDataBinder.getUserTO(userId);
-                delta = actions.beforeDelete(delta, userTO);
+                AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
+                        ? userDataBinder.getUserTO(id)
+                        : roleDataBinder.getRoleTO(id);
+                delta = actions.beforeDelete(delta, subjectTO);
 
                 final SyncResult result = new SyncResult();
-                result.setUserId(userId);
-                result.setUsername(userTO.getUsername());
-                result.setOperation(SyncResult.Operation.DELETE);
+                result.setId(id);
+                if (subjectTO instanceof UserTO) {
+                    result.setName(((UserTO) subjectTO).getUsername());
+                }
+                if (subjectTO instanceof RoleTO) {
+                    result.setName(((RoleTO) subjectTO).getName());
+                }
+                result.setOperation(ResourceOperation.DELETE);
+                result.setSubjectType(attrUtil.getType());
                 result.setStatus(AbstractTaskJob.Status.SUCCESS);
 
                 if (!dryRun) {
                     try {
-                        List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId,
-                                syncTask.getResource().getName());
+                        List<PropagationTask> tasks = Collections.EMPTY_LIST;
+                        if (AttributableType.USER == attrUtil.getType()) {
+                            tasks = propagationManager.getUserDeleteTaskIds(id, syncTask.getResource().getName());
+                            notificationManager.createTasks(id, Collections.singleton("delete"));
+                        }
+                        if (AttributableType.ROLE == attrUtil.getType()) {
+                            tasks = propagationManager.getRoleDeleteTaskIds(id, syncTask.getResource().getName());
+                        }
                         taskExecutor.execute(tasks);
-
-                        notificationManager.createTasks(userId, Collections.singleton("delete"));
                     } catch (Exception e) {
-                        LOG.error("Could not propagate user " + userId, e);
+                        LOG.error("Could not propagate user " + id, e);
                     }
 
                     try {
-                        wfAdapter.delete(userId);
+                        if (AttributableType.USER == attrUtil.getType()) {
+                            uwfAdapter.delete(id);
+                        }
+                        if (AttributableType.ROLE == attrUtil.getType()) {
+                            rwfAdapter.delete(id);
+                        }
                     } catch (Exception e) {
                         result.setStatus(AbstractTaskJob.Status.FAILURE);
                         result.setMessage(e.getMessage());
-                        LOG.error("Could not delete user " + userId, e);
+                        LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                     }
                 }
 
-                actions.after(delta, userTO, result);
-                results.add(result);
+                actions.after(delta, subjectTO, result);
+                delResults.add(result);
             } catch (NotFoundException e) {
-                LOG.error("Could not find user {}", userId, e);
+                LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
-                LOG.error("Not allowed to read user {}", userId, e);
+                LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
             }
         }
 
-        return results;
+        return delResults;
     }
 
     /**
@@ -502,31 +625,35 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     protected final List<SyncResult> doHandle(final SyncDelta delta) throws JobExecutionException {
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
-        LOG.debug("Process '{}' for '{}'", delta.getDeltaType(), delta.getUid().getUidValue());
+        LOG.debug("Process {} for {} as {}",
+                delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        final List<Long> users = findExistingUsers(delta);
+        AttributableUtil attrUtil = AttributableUtil.getInstance(delta.getObject().getObjectClass());
+
+        final List<Long> subjects = findExisting(delta, attrUtil);
 
         if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-            if (users.isEmpty()) {
-                results.addAll(createUser(delta, dryRun));
-            } else if (users.size() == 1) {
-                results.addAll(updateUsers(delta, users.subList(0, 1), dryRun));
+            if (subjects.isEmpty()) {
+                results.addAll(create(delta, attrUtil, dryRun));
+            } else if (subjects.size() == 1) {
+                results.addAll(update(delta, subjects.subList(0, 1), attrUtil, dryRun));
             } else {
                 switch (resAct) {
                     case IGNORE:
-                        LOG.error("More than one match {}", users);
+                        LOG.error("More than one match {}", subjects);
                         break;
 
                     case FIRSTMATCH:
-                        results.addAll(updateUsers(delta, users.subList(0, 1), dryRun));
+                        results.addAll(update(delta, subjects.subList(0, 1), attrUtil, dryRun));
                         break;
 
                     case LASTMATCH:
-                        results.addAll(updateUsers(delta, users.subList(users.size() - 1, users.size()), dryRun));
+                        results.addAll(update(delta, subjects.subList(subjects.size() - 1, subjects.size()), attrUtil,
+                                dryRun));
                         break;
 
                     case ALL:
-                        results.addAll(updateUsers(delta, users, dryRun));
+                        results.addAll(update(delta, subjects, attrUtil, dryRun));
                         break;
 
                     default:
@@ -535,26 +662,27 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-            if (users.isEmpty()) {
+            if (subjects.isEmpty()) {
                 LOG.debug("No match found for deletion");
-            } else if (users.size() == 1) {
-                results.addAll(deleteUsers(delta, users, dryRun));
+            } else if (subjects.size() == 1) {
+                results.addAll(delete(delta, subjects, attrUtil, dryRun));
             } else {
                 switch (resAct) {
                     case IGNORE:
-                        LOG.error("More than one match {}", users);
+                        LOG.error("More than one match {}", subjects);
                         break;
 
                     case FIRSTMATCH:
-                        results.addAll(deleteUsers(delta, users.subList(0, 1), dryRun));
+                        results.addAll(delete(delta, subjects.subList(0, 1), attrUtil, dryRun));
                         break;
 
                     case LASTMATCH:
-                        results.addAll(deleteUsers(delta, users.subList(users.size() - 1, users.size()), dryRun));
+                        results.addAll(delete(delta, subjects.subList(subjects.size() - 1, subjects.size()), attrUtil,
+                                dryRun));
                         break;
 
                     case ALL:
-                        results.addAll(deleteUsers(delta, users, dryRun));
+                        results.addAll(delete(delta, subjects, attrUtil, dryRun));
                         break;
 
                     default:

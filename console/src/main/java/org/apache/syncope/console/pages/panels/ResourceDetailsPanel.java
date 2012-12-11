@@ -130,7 +130,7 @@ public class ResourceDetailsPanel extends Panel {
         add(deleteTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
-                "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(), 
+                "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
@@ -145,14 +145,15 @@ public class ResourceDetailsPanel extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget art) {
                 if (resetToken.getModelObject()) {
-                    resourceTO.setSyncToken(null);
+                    resourceTO.setUsyncToken(null);
+                    resourceTO.setRsyncToken(null);
                 }
             }
         });
         add(resetToken);
 
         final AjaxDropDownChoicePanel<ConnInstanceTO> conn = new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
-                new ResourceModel("connector", "connector").getObject(), 
+                new ResourceModel("connector", "connector").getObject(),
                 new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
         conn.setChoiceRenderer(new ChoiceRenderer("displayName", "id"));

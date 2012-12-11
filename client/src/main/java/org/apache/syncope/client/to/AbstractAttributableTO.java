@@ -39,12 +39,15 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private Set<String> resources;
 
+    private List<PropagationTO> propagationTOs;
+
     protected AbstractAttributableTO() {
         super();
 
         derivedAttributes = new ArrayList<AttributeTO>();
         virtualAttributes = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
+        propagationTOs = new ArrayList<PropagationTO>();
     }
 
     public long getId() {
@@ -136,5 +139,33 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     public void setResources(final Set<String> resources) {
         this.resources = resources;
+    }
+
+    public boolean addPropagationTO(final PropagationTO status) {
+        return propagationTOs.add(status);
+    }
+
+    public boolean removePropagationTO(final String resource) {
+        if (resource != null && getPropagationTOs().isEmpty()) {
+            final List<PropagationTO> toBeRemoved = new ArrayList<PropagationTO>();
+
+            for (PropagationTO propagationTO : getPropagationTOs()) {
+                if (resource.equals(propagationTO.getResourceName())) {
+                    toBeRemoved.add(propagationTO);
+                }
+            }
+
+            return propagationTOs.removeAll(toBeRemoved);
+        }
+        return false;
+    }
+
+    public List<PropagationTO> getPropagationTOs() {
+        return propagationTOs;
+    }
+
+    public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
+        this.propagationTOs.clear();
+        this.propagationTOs.addAll(propagationTOs);
     }
 }

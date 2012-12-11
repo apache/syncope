@@ -18,28 +18,26 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.ResourceSubCategory;
@@ -73,9 +71,6 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
-
-    @Autowired
-    private RoleDAO roleDAO;
 
     @Autowired
     private ResourceDataBinder binder;
@@ -205,33 +200,11 @@ public class ResourceController extends AbstractController {
         return result;
     }
 
-    @PreAuthorize("hasRole('RESOURCE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{roleId}/mappings")
-    public List<SchemaMappingTO> getRoleResourcesMapping(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException {
-
-        SyncopeRole role = roleDAO.find(roleId);
-        if (role == null) {
-            throw new NotFoundException("Role '" + roleId + "'");
-        }
-
-        List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
-
-        for (ExternalResource resource : role.getResources()) {
-            roleMappings.addAll(binder.getSchemaMappingTOs(resource.getMappings()));
-        }
-
-        auditManager.audit(Category.resource, ResourceSubCategory.getRoleResourcesMapping, Result.success,
-                "Found " + roleMappings.size() + " mappings for role " + roleId);
-
-        return roleMappings;
-    }
-
     @PreAuthorize("hasRole('RESOURCE_GETOBJECT')")
     @Transactional(readOnly = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{objectId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{type}/{objectId}")
     public ConnObjectTO getObject(@PathVariable("resourceName") final String resourceName,
-            @PathVariable("objectId") final String objectId)
+            @PathVariable("type") final AttributableType type, @PathVariable("objectId") final String objectId)
             throws NotFoundException {
 
         ExternalResource resource = resourceDAO.find(resourceName);
@@ -239,10 +212,16 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
+        if (AttributableType.MEMBERSHIP == type) {
+        }
+
+        AttributableUtil attrUtil = AttributableUtil.getInstance(type);
+        ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
+
         final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
 
-        final ConnectorObject connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(objectId), connector.
-                getOperationOptions(resource));
+        final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
+                connector.getOperationOptions(attrUtil.getMappingItems(resource)));
 
         if (connectorObject == null) {
             throw new NotFoundException("Object " + objectId + " not found on resource " + resourceName);

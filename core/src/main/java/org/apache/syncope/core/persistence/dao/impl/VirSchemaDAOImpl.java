@@ -22,14 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
@@ -42,13 +43,11 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Override
     public <T extends AbstractVirSchema> T find(final String name, final Class<T> reference) {
-
         return entityManager.find(reference, name);
     }
 
     @Override
     public <T extends AbstractVirSchema> List<T> findAll(final Class<T> reference) {
-
         Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
@@ -60,7 +59,6 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Override
     public void delete(final String name, final AttributableUtil attributableUtil) {
-
         final AbstractVirSchema virtualSchema = find(name, attributableUtil.virSchemaClass());
 
         if (virtualSchema == null) {
@@ -82,7 +80,7 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
             virtualAttributeDAO.delete(virtualAttributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(name, attributableUtil.virIntMappingType());
+        resourceDAO.deleteMapping(name, attributableUtil.virIntMappingType(), UMappingItem.class);
 
         entityManager.remove(virtualSchema);
     }

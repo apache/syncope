@@ -26,16 +26,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.syncope.client.to.MappingItemTO;
+import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.core.persistence.beans.role.RMapping;
+import org.apache.syncope.core.persistence.beans.role.RMappingItem;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.util.JexlUtil;
@@ -58,7 +64,7 @@ public class ResourceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] MAPPING_IGNORE_PROPERTIES = {"id", "resource", "syncToken"};
+    private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = {"id", "mapping"};
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -68,9 +74,6 @@ public class ResourceDataBinder {
 
     @Autowired
     private PolicyDAO policyDAO;
-
-    @Autowired
-    private ConnInstanceDataBinder connInstancebinder;
 
     public ExternalResource create(final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -104,124 +107,73 @@ public class ResourceDataBinder {
 
         resource.setPropagationMode(resourceTO.getPropagationMode());
 
-        resource.setMappings(getSchemaMappings(resource, resourceTO.getMappings()));
-
-        resource.setAccountLink(resourceTO.getAccountLink());
+        if (resourceTO.getUmapping() != null) {
+            UMapping mapping = new UMapping();
+            resource.setUmapping(mapping);
+            populateMapping(resourceTO.getUmapping(), mapping, new UMappingItem());
+        }
+        if (resourceTO.getRmapping() != null) {
+            RMapping mapping = new RMapping();
+            resource.setRmapping(mapping);
+            populateMapping(resourceTO.getRmapping(), mapping, new RMappingItem());
+        }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
         resource.setSyncTraceLevel(resourceTO.getSyncTraceLevel());
 
-        resource.setPasswordPolicy(resourceTO.getPasswordPolicy() != null
-                ? (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy())
-                : null);
+        resource.setPasswordPolicy(resourceTO.getPasswordPolicy() == null
+                ? null : (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy()));
 
-        resource.setAccountPolicy(resourceTO.getAccountPolicy() != null
-                ? (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy())
-                : null);
+        resource.setAccountPolicy(resourceTO.getAccountPolicy() == null
+                ? null : (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy()));
 
-        resource.setSyncPolicy(resourceTO.getSyncPolicy() != null
-                ? (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy())
-                : null);
+        resource.setSyncPolicy(resourceTO.getSyncPolicy() == null
+                ? null : (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy()));
 
         resource.setConnectorConfigurationProperties(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
 
-        if (resourceTO.getSyncToken() == null) {
-            resource.setSerializedSyncToken(null);
+        if (resourceTO.getUsyncToken() == null) {
+            resource.setUserializedSyncToken(null);
+        }
+        if (resourceTO.getRsyncToken() == null) {
+            resource.setRserializedSyncToken(null);
         }
 
-        resource.setActionsClassName(resourceTO.getActionsClassName());
+        resource.setPropagationActionsClassName(resourceTO.getPropagationActionsClassName());
 
         return resource;
     }
 
-    public List<ResourceTO> getResourceTOs(final Collection<ExternalResource> resources) {
-        List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
-        for (ExternalResource resource : resources) {
-            resourceTOs.add(getResourceTO(resource));
-        }
+    private void populateMapping(final MappingTO mappingTO, final AbstractMapping mapping,
+            final AbstractMappingItem prototype) {
 
-        return resourceTOs;
-    }
+        mapping.setAccountLink(mappingTO.getAccountLink());
 
-    public ResourceTO getResourceTO(final ExternalResource resource) {
-
-        if (resource == null) {
-            return null;
-        }
-
-        ResourceTO resourceTO = new ResourceTO();
-
-        // set the resource name
-        resourceTO.setName(resource.getName());
-
-        // set the connector instance
-        ConnInstance connector = resource.getConnector();
-
-        resourceTO.setConnectorId(connector != null
-                ? connector.getId()
-                : null);
-
-        // set the mappings
-        resourceTO.setMappings(getSchemaMappingTOs(resource.getMappings()));
-
-        resourceTO.setAccountLink(resource.getAccountLink());
-
-        resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
-
-        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
-
-        resourceTO.setPropagationPriority(resource.getPropagationPriority());
-
-        resourceTO.setPropagationMode(resource.getPropagationMode());
-
-        resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
-        resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
-        resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
-        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
-
-        resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
-                ? resource.getPasswordPolicy().getId()
-                : null);
-
-        resourceTO.setAccountPolicy(resource.getAccountPolicy() != null
-                ? resource.getAccountPolicy().getId()
-                : null);
-
-        resourceTO.setSyncPolicy(resource.getSyncPolicy() != null
-                ? resource.getSyncPolicy().getId()
-                : null);
-
-        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
-        resourceTO.setSyncToken(resource.getSerializedSyncToken());
-
-        resourceTO.setActionsClassName(resource.getActionsClassName());
-
-        return resourceTO;
-    }
-
-    private Set<SchemaMapping> getSchemaMappings(final ExternalResource resource,
-            final List<SchemaMappingTO> mappings) {
-
-        if (mappings == null) {
-            return null;
-        }
-
-        final Set<SchemaMapping> schemaMappings = new HashSet<SchemaMapping>();
-
-        SchemaMapping schemaMapping;
-        for (SchemaMappingTO mapping : mappings) {
-            schemaMapping = getSchemaMapping(resource, mapping);
-            if (schemaMapping != null) {
-                schemaMappings.add(schemaMapping);
+        for (AbstractMappingItem item : getMappingItems(mappingTO.getItems(), prototype)) {
+            if (item.isAccountid()) {
+                mapping.setAccountIdItem(item);
+            } else if (item.isPassword()) {
+                ((UMapping) mapping).setPasswordItem((UMappingItem) item);
+            } else {
+                mapping.addItem(item);
             }
         }
-
-        return schemaMappings;
     }
 
-    private SchemaMapping getSchemaMapping(final ExternalResource resource, final SchemaMappingTO mappingTO)
+    private Set<AbstractMappingItem> getMappingItems(final Collection<MappingItemTO> itemTOs,
+            final AbstractMappingItem prototype) {
+
+        Set<AbstractMappingItem> items = new HashSet<AbstractMappingItem>(itemTOs.size());
+        for (MappingItemTO itemTO : itemTOs) {
+            items.add(getMappingItem(itemTO, prototype));
+        }
+
+        return items;
+    }
+
+    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO, final AbstractMappingItem prototype)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -231,27 +183,16 @@ public class ResourceDataBinder {
 
         // this control needs to be free to get schema names
         // without a complete/good resourceTO object
-        if (mappingTO == null || mappingTO.getIntMappingType() == null) {
+        if (itemTO == null || itemTO.getIntMappingType() == null) {
             LOG.error("Null mappingTO provided");
             return null;
         }
 
-        if (mappingTO.getIntAttrName() == null) {
-            switch (mappingTO.getIntMappingType()) {
-                case SyncopeUserId:
-                    mappingTO.setIntAttrName(IntMappingType.SyncopeUserId.toString());
-                    break;
-
-                case Password:
-                    mappingTO.setIntAttrName(IntMappingType.Password.toString());
-                    break;
-
-                case Username:
-                    mappingTO.setIntAttrName(IntMappingType.Username.toString());
-                    break;
-
-                default:
-                    requiredValuesMissing.addElement("intAttrName");
+        if (itemTO.getIntAttrName() == null) {
+            if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {
+                itemTO.setIntAttrName(itemTO.getIntMappingType().toString());
+            } else {
+                requiredValuesMissing.addElement("intAttrName");
             }
         }
 
@@ -262,14 +203,13 @@ public class ResourceDataBinder {
         }
 
         // no mandatory condition implies mandatory condition false
-        if (!jexlUtil.isExpressionValid(mappingTO.getMandatoryCondition() != null
-                ? mappingTO.getMandatoryCondition()
-                : "false")) {
+        if (!jexlUtil.isExpressionValid(itemTO.getMandatoryCondition() == null
+                ? "false" : itemTO.getMandatoryCondition())) {
 
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
 
-            invalidMandatoryCondition.addElement(mappingTO.getMandatoryCondition());
+            invalidMandatoryCondition.addElement(itemTO.getMandatoryCondition());
 
             scce.addException(invalidMandatoryCondition);
         }
@@ -278,50 +218,9 @@ public class ResourceDataBinder {
             throw scce;
         }
 
-        SchemaMapping mapping = new SchemaMapping();
-
-        BeanUtils.copyProperties(mappingTO, mapping, MAPPING_IGNORE_PROPERTIES);
-
-        mapping.setResource(resource);
-
-        return mapping;
-    }
-
-    public List<SchemaMappingTO> getSchemaMappingTOs(final Collection<SchemaMapping> mappings) {
-        if (mappings == null) {
-            LOG.error("No mapping provided.");
-
-            return null;
-        }
-
-        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
-        for (SchemaMapping mapping : mappings) {
-            LOG.debug("Asking for TO for {}", mapping);
-
-            schemaMappingTOs.add(getSchemaMappingTO(mapping));
-        }
-
-        LOG.debug("Collected TOs: {}", schemaMappingTOs);
-
-        return schemaMappingTOs;
-    }
-
-    public SchemaMappingTO getSchemaMappingTO(final SchemaMapping schemaMapping) {
-        if (schemaMapping == null) {
-            LOG.error("Provided null mapping");
-
-            return null;
-        }
-
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-
-        BeanUtils.copyProperties(schemaMapping, schemaMappingTO, MAPPING_IGNORE_PROPERTIES);
-
-        schemaMappingTO.setId(schemaMapping.getId());
-
-        LOG.debug("Obtained SchemaMappingTO {}", schemaMappingTO);
-
-        return schemaMappingTO;
+        AbstractMappingItem item = (AbstractMappingItem) SerializationUtils.clone(prototype);
+        BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
+        return item;
     }
 
     public ConnInstance getConnInstance(final ExternalResource resource) {
@@ -369,5 +268,117 @@ public class ResourceDataBinder {
         connInstance.setConfiguration(configuration);
 
         return connInstance;
+    }
+
+    public List<ResourceTO> getResourceTOs(final Collection<ExternalResource> resources) {
+        List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
+        for (ExternalResource resource : resources) {
+            resourceTOs.add(getResourceTO(resource));
+        }
+
+        return resourceTOs;
+    }
+
+    public ResourceTO getResourceTO(final ExternalResource resource) {
+        if (resource == null) {
+            return null;
+        }
+
+        ResourceTO resourceTO = new ResourceTO();
+
+        // set the resource name
+        resourceTO.setName(resource.getName());
+
+        // set the connector instance
+        ConnInstance connector = resource.getConnector();
+
+        resourceTO.setConnectorId(connector == null ? null : connector.getId());
+
+        // set the mappings
+        if (resource.getUmapping() != null) {
+            MappingTO mappingTO = new MappingTO();
+            resourceTO.setUmapping(mappingTO);
+            populateMappingTO(resource.getUmapping(), mappingTO);
+        }
+        if (resource.getRmapping() != null) {
+            MappingTO mappingTO = new MappingTO();
+            resourceTO.setRmapping(mappingTO);
+            populateMappingTO(resource.getRmapping(), mappingTO);
+        }
+
+        resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
+
+        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
+
+        resourceTO.setPropagationPriority(resource.getPropagationPriority());
+
+        resourceTO.setPropagationMode(resource.getPropagationMode());
+
+        resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
+        resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
+        resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
+        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
+
+        resourceTO.setPasswordPolicy(resource.getPasswordPolicy() == null
+                ? null : resource.getPasswordPolicy().getId());
+
+        resourceTO.setAccountPolicy(resource.getAccountPolicy() == null
+                ? null : resource.getAccountPolicy().getId());
+
+        resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
+                ? null : resource.getSyncPolicy().getId());
+
+        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
+
+        resourceTO.setUsyncToken(resource.getUserializedSyncToken());
+        resourceTO.setRsyncToken(resource.getRserializedSyncToken());
+
+        resourceTO.setPropagationActionsClassName(resource.getPropagationActionsClassName());
+
+        return resourceTO;
+    }
+
+    private void populateMappingTO(final AbstractMapping mapping, final MappingTO mappingTO) {
+        mappingTO.setAccountLink(mapping.getAccountLink());
+
+        for (MappingItemTO itemTO : getMappingItemTOs(mapping.getItems())) {
+            if (itemTO.isAccountid()) {
+                mappingTO.setAccountIdItem(itemTO);
+            } else if (itemTO.isPassword()) {
+                mappingTO.setPasswordItem(itemTO);
+            } else {
+                mappingTO.addItem(itemTO);
+            }
+        }
+    }
+
+    private Set<MappingItemTO> getMappingItemTOs(final Collection<AbstractMappingItem> items) {
+        Set<MappingItemTO> mappingTOs = new HashSet<MappingItemTO>();
+        for (AbstractMappingItem item : items) {
+            LOG.debug("Asking for TO for {}", item);
+            mappingTOs.add(getMappingItemTO(item));
+        }
+
+        LOG.debug("Collected TOs: {}", mappingTOs);
+
+        return mappingTOs;
+    }
+
+    private MappingItemTO getMappingItemTO(final AbstractMappingItem item) {
+        if (item == null) {
+            LOG.error("Provided null mapping");
+
+            return null;
+        }
+
+        MappingItemTO itemTO = new MappingItemTO();
+
+        BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+
+        itemTO.setId(item.getId());
+
+        LOG.debug("Obtained SchemaMappingTO {}", itemTO);
+
+        return itemTO;
     }
 }

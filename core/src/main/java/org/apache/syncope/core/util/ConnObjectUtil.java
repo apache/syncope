@@ -28,18 +28,19 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -49,6 +50,8 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -70,7 +73,7 @@ public class ConnObjectUtil {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
 
     /**
      * JEXL engine for evaluating connector's account link.
@@ -96,23 +99,45 @@ public class ConnObjectUtil {
     @Autowired
     private PasswordGenerator pwdGen;
 
+    public ObjectClass fromAttributable(final AbstractAttributable attributable) {
+        if (attributable == null
+                || (!(attributable instanceof SyncopeUser) && !(attributable instanceof SyncopeRole))) {
+
+            throw new IllegalArgumentException("No ObjectClass could be provided for " + attributable);
+        }
+
+        ObjectClass result = null;
+        if (attributable instanceof SyncopeUser) {
+            result = ObjectClass.ACCOUNT;
+        }
+        if (attributable instanceof SyncopeRole) {
+            result = ObjectClass.GROUP;
+        }
+
+        return result;
+    }
+
     /**
      * Build an UserTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
      * @param syncTask synchronization task
+     * @param attrUtil AttributableUtil
+     * @param <T> user/role
      * @return UserTO for the user to be created
      */
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final ConnectorObject obj, final SyncTask syncTask) {
-        UserTO userTO = getUserTOFromConnObject(obj, syncTask);
+    public <T extends AbstractAttributableTO> T getAttributableTO(final ConnectorObject obj, final SyncTask syncTask,
+            final AttributableUtil attrUtil) {
+
+        T subjectTO = getAttributableTOFromConnObject(obj, syncTask, attrUtil);
 
         // if password was not set above, generate
-        if (StringUtils.isBlank(userTO.getPassword())) {
+        if (AttributableType.USER == attrUtil.getType() && StringUtils.isBlank(((UserTO) subjectTO).getPassword())) {
             List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
             ppSpecs.add((PasswordPolicySpec) policyDAO.getGlobalPasswordPolicy().getSpecification());
 
-            for (MembershipTO memb : userTO.getMemberships()) {
+            for (MembershipTO memb : ((UserTO) subjectTO).getMemberships()) {
                 SyncopeRole role = roleDAO.find(memb.getRoleId());
                 if (role != null && role.getPasswordPolicy() != null
                         && role.getPasswordPolicy().getSpecification() != null) {
@@ -120,7 +145,7 @@ public class ConnObjectUtil {
                     ppSpecs.add((PasswordPolicySpec) role.getPasswordPolicy().getSpecification());
                 }
             }
-            for (String resName : userTO.getResources()) {
+            for (String resName : subjectTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
                 if (resource != null && resource.getPasswordPolicy() != null
                         && resource.getPasswordPolicy().getSpecification() != null) {
@@ -133,98 +158,127 @@ public class ConnObjectUtil {
             try {
                 password = pwdGen.generatePasswordFromPwdSpec(ppSpecs);
             } catch (IncompatiblePolicyException e) {
-                LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
+                LOG.error("Could not generate policy-compliant random password for {}", subjectTO, e);
 
                 password = RandomStringUtils.randomAlphanumeric(16);
             }
-            userTO.setPassword(password);
+            ((UserTO) subjectTO).setPassword(password);
         }
 
-        return userTO;
+        return subjectTO;
     }
 
     /**
      * Build an UserMod out of connector object attributes and schema mapping.
      *
-     * @param userId user to be updated
+     * @param id user to be updated
      * @param obj connector object
+     * @param original subject to get diff from
      * @param syncTask synchronization task
-     * @return UserMod for the user to be updated
+     * @param attrUtil AttributableUtil
+     * @param <T> user/role
+     * @return modifications for the user/role to be updated
      */
     @Transactional(readOnly = true)
-    public UserMod getUserMod(final Long userId, final ConnectorObject obj, final SyncTask syncTask)
+    public <T extends AbstractAttributableMod> T getAttributableMod(final Long id, final ConnectorObject obj,
+            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil)
             throws NotFoundException, UnauthorizedRoleException {
 
-        final SyncopeUser user = userDataBinder.getUserFromId(userId);
-        final UserTO original = userDataBinder.getUserTO(user);
+        final AbstractAttributableTO updated = getAttributableTOFromConnObject(obj, syncTask, attrUtil);
+        updated.setId(id);
 
-        final UserTO updated = getUserTOFromConnObject(obj, syncTask);
-        updated.setId(userId);
+        if (AttributableType.USER == attrUtil.getType()) {
+            // update password if and only if password is really changed
+            final SyncopeUser user = userDataBinder.getUserFromId(id);
+            if (StringUtils.isBlank(((UserTO) updated).getPassword())
+                    || userDataBinder.verifyPassword(user, ((UserTO) updated).getPassword())) {
 
-        // update password if and only if password is really changed
-        if (StringUtils.isBlank(updated.getPassword()) || userDataBinder.verifyPassword(user, updated.getPassword())) {
-            updated.setPassword(null);
+                ((UserTO) updated).setPassword(null);
+            }
+
+            return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
+        }
+        if (AttributableType.ROLE == attrUtil.getType()) {
+            return (T) AttributableOperations.diff(((RoleTO) updated), ((RoleTO) original), true);
         }
 
-        final UserMod userMod = AttributableOperations.diff(updated, original, true);
-
-        return userMod;
+        return null;
     }
 
-    private UserTO getUserTOFromConnObject(final ConnectorObject obj, final SyncTask syncTask) {
-        final UserTO userTO = new UserTO();
+    private <T extends AbstractAttributableTO> T getAttributableTOFromConnObject(final ConnectorObject obj,
+            final SyncTask syncTask, final AttributableUtil attrUtil) {
+
+        final T attributableTO = attrUtil.newAttributableTO();
 
         // 1. fill with data from connector object
-        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
+        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
+            Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
-            switch (mapping.getIntMappingType()) {
-                case SyncopeUserId:
+            switch (item.getIntMappingType()) {
+                case UserId:
+                case RoleId:
                     break;
 
                 case Password:
-                    if (attribute != null && attribute.getValue() != null && !attribute.getValue().isEmpty()) {
-                        userTO.setPassword(getPassword(attribute.getValue().get(0)));
+                    if (attributableTO instanceof UserTO && attribute != null && attribute.getValue() != null
+                            && !attribute.getValue().isEmpty()) {
+
+                        ((UserTO) attributableTO).setPassword(getPassword(attribute.getValue().get(0)));
                     }
                     break;
 
                 case Username:
-                    userTO.setUsername(attribute == null || attribute.getValue().isEmpty()
-                            ? null
-                            : attribute.getValue().get(0).toString());
+                    if (attributableTO instanceof UserTO) {
+                        ((UserTO) attributableTO).setUsername(attribute == null || attribute.getValue().isEmpty()
+                                ? null
+                                : attribute.getValue().get(0).toString());
+                    }
+                    break;
+
+                case RoleName:
+                    if (attributableTO instanceof RoleTO) {
+                        ((RoleTO) attributableTO).setName(attribute == null || attribute.getValue().isEmpty()
+                                ? null
+                                : attribute.getValue().get(0).toString());
+                    }
                     break;
 
                 case UserSchema:
+                case RoleSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
+                    attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
+
                         attributeTO.addValue(value.toString());
                     }
 
-                    userTO.addAttribute(attributeTO);
+                    attributableTO.addAttribute(attributeTO);
                     break;
 
                 case UserDerivedSchema:
+                case RoleDerivedSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
-                    userTO.addDerivedAttribute(attributeTO);
+                    attributeTO.setSchema(item.getIntAttrName());
+                    attributableTO.addDerivedAttribute(attributeTO);
                     break;
 
                 case UserVirtualSchema:
+                case RoleVirtualSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getIntAttrName());
+                    attributeTO.setSchema(item.getIntAttrName());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
+
                         attributeTO.addValue(value.toString());
                     }
 
-                    userTO.addVirtualAttribute(attributeTO);
+                    attributableTO.addVirtualAttribute(attributeTO);
                     break;
 
                 default:
@@ -232,43 +286,69 @@ public class ConnObjectUtil {
         }
 
         // 2. add data from defined template (if any)
-        UserTO template = syncTask.getUserTemplate();
+        AbstractAttributableTO template = AttributableType.USER == attrUtil.getType()
+                ? syncTask.getUserTemplate() : syncTask.getRoleTemplate();
         if (template != null) {
-            if (StringUtils.isNotBlank(template.getUsername())) {
-                String evaluated = jexlUtil.evaluate(template.getUsername(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setUsername(evaluated);
+            if (template instanceof UserTO) {
+                if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
+                    String evaluated = jexlUtil.evaluate(((UserTO) template).getUsername(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((UserTO) attributableTO).setUsername(evaluated);
+                    }
+                }
+
+                if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
+                    String evaluated = jexlUtil.evaluate(((UserTO) template).getPassword(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((UserTO) attributableTO).setPassword(evaluated);
+                    }
+                }
+
+                Map<Long, MembershipTO> currentMembs = ((UserTO) attributableTO).getMembershipMap();
+                for (MembershipTO membTO : ((UserTO) template).getMemberships()) {
+                    MembershipTO membTBU;
+                    if (currentMembs.containsKey(membTO.getRoleId())) {
+                        membTBU = currentMembs.get(membTO.getRoleId());
+                    } else {
+                        membTBU = new MembershipTO();
+                        membTBU.setRoleId(membTO.getRoleId());
+                        ((UserTO) attributableTO).addMembership(membTBU);
+                    }
+                    fillFromTemplate(membTBU, membTO);
                 }
             }
-
-            if (StringUtils.isNotBlank(template.getPassword())) {
-                String evaluated = jexlUtil.evaluate(template.getPassword(), userTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    userTO.setPassword(evaluated);
+            if (template instanceof RoleTO) {
+                if (StringUtils.isNotBlank(((RoleTO) template).getName())) {
+                    String evaluated = jexlUtil.evaluate(((RoleTO) template).getName(), attributableTO);
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        ((RoleTO) attributableTO).setName(evaluated);
+                    }
                 }
+
+                ((RoleTO) attributableTO).setParent(((RoleTO) template).getParent());
+
+                ((RoleTO) attributableTO).setUserOwner(((RoleTO) template).getUserOwner());
+                ((RoleTO) attributableTO).setRoleOwner(((RoleTO) template).getRoleOwner());
+
+                ((RoleTO) attributableTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
+                ((RoleTO) attributableTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
+
+                ((RoleTO) attributableTO).setInheritOwner(((RoleTO) template).isInheritOwner());
+                ((RoleTO) attributableTO).setInheritAttributes(((RoleTO) template).isInheritAttributes());
+                ((RoleTO) attributableTO).setInheritDerivedAttributes(((RoleTO) template).isInheritDerivedAttributes());
+                ((RoleTO) attributableTO).setInheritVirtualAttributes(((RoleTO) template).isInheritVirtualAttributes());
+                ((RoleTO) attributableTO).setInheritPasswordPolicy(((RoleTO) template).isInheritPasswordPolicy());
+                ((RoleTO) attributableTO).setInheritAccountPolicy(((RoleTO) template).isInheritAccountPolicy());
             }
 
-            fillFromTemplate(userTO, template);
+            fillFromTemplate(attributableTO, template);
 
             for (String resource : template.getResources()) {
-                userTO.addResource(resource);
-            }
-
-            Map<Long, MembershipTO> currentMembs = userTO.getMembershipMap();
-            for (MembershipTO membTO : template.getMemberships()) {
-                MembershipTO membTBU;
-                if (currentMembs.containsKey(membTO.getRoleId())) {
-                    membTBU = currentMembs.get(membTO.getRoleId());
-                } else {
-                    membTBU = new MembershipTO();
-                    membTBU.setRoleId(membTO.getRoleId());
-                    userTO.addMembership(membTBU);
-                }
-                fillFromTemplate(membTBU, membTO);
+                attributableTO.addResource(resource);
             }
         }
 
-        return userTO;
+        return attributableTO;
     }
 
     /**
@@ -336,48 +416,51 @@ public class ConnObjectUtil {
      * Query connected external resources for values to populated virtual attributes associated with the given owner.
      *
      * @param owner user or role
+     * @param attrUtil attributable util
      */
-    public void retrieveVirAttrValues(final AbstractAttributable owner) {
+    public void retrieveVirAttrValues(final AbstractAttributable owner, final AttributableUtil attrUtil) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
 
-        final Map<SchemaMappingWrapper, ConnectorObject> remoteObjects =
-                new HashMap<SchemaMappingWrapper, ConnectorObject>();
+        final Map<ConnectorObject, Set<AbstractMappingItem>> connObj2MapItems =
+                new HashMap<ConnectorObject, Set<AbstractMappingItem>>();
 
         for (ExternalResource resource : owner.getResources()) {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
-                final SchemaMappingWrapper mappings = new SchemaMappingWrapper(resource.getMappings());
-
-                final String accountId = SchemaMappingUtil.getAccountIdValue(owner, mappings.getAccountIdMapping());
+                final String accountId = attrUtil.getAccountIdItem(resource) == null
+                        ? null : MappingUtil.getAccountIdValue(owner, attrUtil.getAccountIdItem(resource));
 
                 LOG.debug("Search for object with accountId '{}'", accountId);
 
                 if (StringUtils.isNotBlank(accountId)) {
                     // Retrieve attributes to get
+                    final Set<AbstractMappingItem> virMapItems = new HashSet<AbstractMappingItem>();
                     final Set<String> extAttrNames = new HashSet<String>();
 
-                    for (Set<SchemaMapping> virAttrMappings : mappings.getuVirMappings().values()) {
-                        for (SchemaMapping virAttrMapping : virAttrMappings) {
-                            extAttrNames.add(SchemaMappingUtil.getExtAttrName(virAttrMapping));
+                    for (AbstractMappingItem item : attrUtil.getMappingItems(resource)) {
+                        if ((AttributableType.USER == attrUtil.getType()
+                                && item.getIntMappingType() == IntMappingType.UserVirtualSchema)
+                                || (AttributableType.ROLE == attrUtil.getType()
+                                && item.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+
+                            virMapItems.add(item);
+                            extAttrNames.add(item.getExtAttrName());
                         }
                     }
 
                     // Search for remote object
-                    if (extAttrNames != null) {
-                        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-                        oob.setAttributesToGet(extAttrNames);
+                    final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+                    oob.setAttributesToGet(extAttrNames);
 
-                        final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
-                        final ConnectorObject connectorObject =
-                                connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
-
-                        if (connectorObject != null) {
-                            remoteObjects.put(mappings, connectorObject);
-                        }
-
-                        LOG.debug("Retrieved remotye object {}", connectorObject);
+                    final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+                    final ConnectorObject connObj =
+                            connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
+                    if (connObj != null) {
+                        connObj2MapItems.put(connObj, virMapItems);
                     }
+
+                    LOG.debug("Retrieved remote object {}", connObj);
                 }
             } catch (Exception e) {
                 LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);
@@ -387,19 +470,14 @@ public class ConnObjectUtil {
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
             LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
 
-            for (Map.Entry<SchemaMappingWrapper, ConnectorObject> entry : remoteObjects.entrySet()) {
-                final Set<SchemaMapping> virAttrMappings = entry.getKey().getuVirMappings().
-                        get(virAttr.getVirtualSchema().getName());
-
-                if (virAttrMappings != null) {
-                    for (SchemaMapping virAttrMapping : virAttrMappings) {
-                        final String extAttrName = SchemaMappingUtil.getExtAttrName(virAttrMapping);
-                        final Attribute extAttr = entry.getValue().getAttributeByName(extAttrName);
-                        if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
-                            for (Object obj : extAttr.getValue()) {
-                                if (obj != null) {
-                                    virAttr.addValue(obj.toString());
-                                }
+            for (Map.Entry<ConnectorObject, Set<AbstractMappingItem>> entry : connObj2MapItems.entrySet()) {
+                for (AbstractMappingItem vAttrMapItem : entry.getValue()) {
+                    final String extAttrName = vAttrMapItem.getExtAttrName();
+                    final Attribute extAttr = entry.getKey().getAttributeByName(extAttrName);
+                    if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
+                        for (Object obj : extAttr.getValue()) {
+                            if (obj != null) {
+                                virAttr.addValue(obj.toString());
                             }
                         }
                     }

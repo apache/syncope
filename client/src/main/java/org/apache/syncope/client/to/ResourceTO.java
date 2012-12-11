@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.to;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfProperty;
@@ -41,12 +39,9 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private Long connectorId;
 
-    /**
-     * Attribute mappings.
-     */
-    private List<SchemaMappingTO> mappings;
+    private MappingTO umapping;
 
-    private String accountLink;
+    private MappingTO rmapping;
 
     private boolean propagationPrimary;
 
@@ -72,12 +67,15 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Set<ConnConfProperty> connConfProperties;
 
-    private String syncToken;
+    private String usyncToken;
 
-    private String actionsClassName;
+    private String rsyncToken;
+
+    private String propagationActionsClassName;
 
     public ResourceTO() {
-        mappings = new ArrayList<SchemaMappingTO>();
+        super();
+
         connConfProperties = new HashSet<ConnConfProperty>();
         propagationMode = PropagationMode.TWO_PHASES;
         propagationPriority = 0;
@@ -86,6 +84,14 @@ public class ResourceTO extends AbstractBaseBean {
         updateTraceLevel = TraceLevel.ALL;
         deleteTraceLevel = TraceLevel.ALL;
         syncTraceLevel = TraceLevel.ALL;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isEnforceMandatoryCondition() {
@@ -104,36 +110,20 @@ public class ResourceTO extends AbstractBaseBean {
         this.connectorId = connectorId;
     }
 
-    public boolean addMapping(SchemaMappingTO mapping) {
-        return mappings.add(mapping);
+    public MappingTO getUmapping() {
+        return umapping;
     }
 
-    public boolean removeMapping(SchemaMappingTO mapping) {
-        return mappings.remove(mapping);
+    public void setUmapping(MappingTO umapping) {
+        this.umapping = umapping;
     }
 
-    public List<SchemaMappingTO> getMappings() {
-        return mappings;
+    public MappingTO getRmapping() {
+        return rmapping;
     }
 
-    public void setMappings(List<SchemaMappingTO> mappings) {
-        this.mappings = mappings;
-    }
-
-    public String getAccountLink() {
-        return accountLink;
-    }
-
-    public void setAccountLink(String accountLink) {
-        this.accountLink = accountLink;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setRmapping(MappingTO rmapping) {
+        this.rmapping = rmapping;
     }
 
     public boolean isPropagationPrimary() {
@@ -224,19 +214,27 @@ public class ResourceTO extends AbstractBaseBean {
         this.syncTraceLevel = syncTraceLevel;
     }
 
-    public String getSyncToken() {
-        return syncToken;
+    public String getUsyncToken() {
+        return usyncToken;
     }
 
-    public void setSyncToken(final String syncToken) {
-        this.syncToken = syncToken;
+    public void setUsyncToken(final String syncToken) {
+        this.usyncToken = syncToken;
     }
 
-    public String getActionsClassName() {
-        return actionsClassName;
+    public String getRsyncToken() {
+        return rsyncToken;
     }
 
-    public void setActionsClassName(final String actionsClassName) {
-        this.actionsClassName = actionsClassName;
+    public void setRsyncToken(final String syncToken) {
+        this.rsyncToken = syncToken;
+    }
+
+    public String getPropagationActionsClassName() {
+        return propagationActionsClassName;
+    }
+
+    public void setPropagationActionsClassName(final String propagationActionsClassName) {
+        this.propagationActionsClassName = propagationActionsClassName;
     }
 }

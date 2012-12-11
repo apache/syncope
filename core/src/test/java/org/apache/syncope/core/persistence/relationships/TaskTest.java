@@ -38,9 +38,10 @@ import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 
 @Transactional
 public class TaskTest extends AbstractTest {
@@ -77,9 +78,9 @@ public class TaskTest extends AbstractTest {
 
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
-        task.setSyncopeUser(user);
+        task.setSubjectType(AttributableType.USER);
         task.setPropagationMode(PropagationMode.TWO_PHASES);
-        task.setPropagationOperation(PropagationOperation.CREATE);
+        task.setPropagationOperation(ResourceOperation.CREATE);
         task.setAccountId("one@two.com");
 
         Set<Attribute> attributes = new HashSet<Attribute>();

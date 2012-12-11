@@ -38,8 +38,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.MappingItemTO;
+import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
@@ -611,12 +612,15 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         resourceTO.setConnectorConfigurationProperties(conf);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("uid");
-        schemaMappingTO.setIntAttrName("userId");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
+        resourceTO.setUmapping(mapping);
+
+        MappingItemTO mapItem = new MappingItemTO();
+        mapItem.setExtAttrName("uid");
+        mapItem.setIntAttrName("userId");
+        mapItem.setIntMappingType(IntMappingType.UserSchema);
+        mapItem.setAccountid(true);
+        mapping.setAccountIdItem(mapItem);
         // ----------------------------------------
 
         // ----------------------------------------

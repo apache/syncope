@@ -34,7 +34,8 @@ public class InvalidEntityException extends ValidationException {
 
     private final Map<Class, Set<EntityViolationType>> violations;
 
-    public InvalidEntityException(final String entityClassSimpleName, final Set<ConstraintViolation<Object>> violations) {
+    public InvalidEntityException(final String entityClassSimpleName,
+            final Set<ConstraintViolation<Object>> violations) {
 
         super();
 
@@ -51,7 +52,6 @@ public class InvalidEntityException extends ValidationException {
             }
 
             if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
-
                 this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));
             }
 

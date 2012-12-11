@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,17 +27,12 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.RoleMod;
+import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -75,19 +72,36 @@ public class RoleTestITCase extends AbstractTest {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
 
-        roleTO.setId(actual.getId());
+        roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
 
-        roleTO.setPasswordPolicy(4L);
+        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
 
-        assertEquals(roleTO, actual);
+        roleTO.setRoleOwner(8L);
 
-        assertNotNull(actual.getAccountPolicy());
-        assertEquals(6L, (long) actual.getAccountPolicy());
+        roleTO.addResource("resource-ldap");
 
-        assertNotNull(actual.getPasswordPolicy());
-        assertEquals(4L, (long) actual.getPasswordPolicy());
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
+
+        assertNotNull(roleTO.getVirtualAttributeMap());
+        assertNotNull(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues());
+        assertFalse(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().isEmpty());
+        assertEquals("rvirtualvalue", roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().get(0));
+
+        assertNotNull(roleTO.getAccountPolicy());
+        assertEquals(6L, (long) roleTO.getAccountPolicy());
+
+        assertNotNull(roleTO.getPasswordPolicy());
+        assertEquals(4L, (long) roleTO.getPasswordPolicy());
+
+        assertTrue(roleTO.getResources().contains("resource-ldap"));
+
+        ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
+                + "/resource/resource-ldap/read/ROLE/lastRole.json", ConnObjectTO.class);
+        assertNotNull(connObjectTO);
+        assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }
 
     @Test
@@ -98,11 +112,9 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setPasswordPolicy(4L);
 
         RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
         assertNotNull(actual);
 
         actual = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, actual.getId());
-
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
         assertEquals(4L, (long) actual.getPasswordPolicy());
@@ -116,10 +128,20 @@ public class RoleTestITCase extends AbstractTest {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
-        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, 5);
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("toBeDeleted");
+        roleTO.setParent(8L);
+
+        roleTO.addResource("resource-ldap");
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
+        assertNotNull(roleTO);
+
+        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, roleTO.getId());
         assertNotNull(deletedRole);
+
         try {
-            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 2);
+            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, deletedRole.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -199,6 +221,8 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setPasswordPolicy(2L);
 
         roleTO.addAttribute(attributeTO("icon", "anIcon"));
+
+        roleTO.addResource("resource-ldap");
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
 

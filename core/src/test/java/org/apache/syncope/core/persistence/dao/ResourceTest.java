@@ -22,13 +22,13 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
+import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.connid.bundles.soap.WebServiceConnector;
@@ -45,28 +45,28 @@ public class ResourceTest extends AbstractTest {
     @Test
     public void findById() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-
         assertNotNull("findById did not work", resource);
 
         ConnInstance connector = resource.getConnector();
-
         assertNotNull("connector not found", connector);
-
         assertEquals("invalid connector name", WebServiceConnector.class.getName(), connector.getConnectorName());
-
         assertEquals("invalid bundle name", "org.connid.bundles.soap", connector.getBundleName());
-
         assertEquals("invalid bundle version", connidSoapVersion, connector.getVersion());
 
-        Set<SchemaMapping> mappings = resource.getMappings();
-        assertNotNull("mappings not found", mappings);
-        assertFalse("no mapping specified", mappings.isEmpty());
+        assertFalse("no mapping specified", resource.getUmapping().getItems().isEmpty());
 
         List<Long> mappingIds = new ArrayList<Long>();
-        for (SchemaMapping mapping : mappings) {
-            mappingIds.add(mapping.getId());
+        for (AbstractMappingItem item : resource.getUmapping().getItems()) {
+            mappingIds.add(item.getId());
         }
         assertTrue(mappingIds.contains(100L));
+    }
+
+    @Test
+    public void findAll() {
+        List<ExternalResource> resources = resourceDAO.findAll();
+        assertNotNull(resources);
+        assertEquals(16, resources.size());
     }
 
     @Test
@@ -78,8 +78,9 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void getAccountId() {
-        SchemaMapping mapping = resourceDAO.getMappingForAccountId("ws-target-resource-2");
-        assertEquals("fullname", SchemaMappingUtil.getIntAttrName(mapping));
+        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
+        assertNotNull(resource);
+        assertEquals("fullname", resource.getUmapping().getAccountIdItem().getIntAttrName());
     }
 
     @Test
@@ -89,17 +90,16 @@ public class ResourceTest extends AbstractTest {
         resource.setPropagationPriority(2);
         resource.setPropagationPrimary(true);
 
-        SchemaMapping accountId = new SchemaMapping();
-        accountId.setResource(resource);
-        accountId.setAccountid(true);
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
+
+        UMappingItem accountId = new UMappingItem();
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("fullname");
-        accountId.setIntMappingType(IntMappingType.SyncopeUserId);
-
-        resource.addMapping(accountId);
+        accountId.setIntMappingType(IntMappingType.UserId);
+        mapping.setAccountIdItem(accountId);
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-
         resource.setConnector(connector);
 
         // save the resource
@@ -107,136 +107,126 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
+        assertNotNull(actual.getUmapping());
+        assertFalse(actual.getUmapping().getItems().isEmpty());
         assertEquals(Integer.valueOf(2), actual.getPropagationPriority());
         assertTrue(actual.isPropagationPrimary());
     }
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidMappingIntAttr() {
-
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-
         resource.setConnector(connector);
 
-        SchemaMapping accountId = new SchemaMapping();
-        accountId.setResource(resource);
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
+
+        UMappingItem accountId = new UMappingItem();
         accountId.setAccountid(true);
         accountId.setIntMappingType(IntMappingType.UserSchema);
-
-        resource.addMapping(accountId);
+        mapping.addItem(accountId);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-
         assertNotNull(actual);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void saveInvalidAccountIdMapping() {
-
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-
         resource.setConnector(connector);
 
-        SchemaMapping accountId = new SchemaMapping();
-        accountId.setResource(resource);
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
+
+        UMappingItem accountId = new UMappingItem();
         accountId.setAccountid(true);
         accountId.setIntMappingType(IntMappingType.UserVirtualSchema);
-
-        resource.addMapping(accountId);
+        mapping.setAccountIdItem(accountId);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-
         assertNotNull(actual);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidMappingExtAttr() {
-
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-
         resource.setConnector(connector);
 
-        SchemaMapping mapping = new SchemaMapping();
-        mapping.setResource(resource);
-        mapping.setAccountid(true);
-        mapping.setIntAttrName("fullname");
-        mapping.setIntMappingType(IntMappingType.UserSchema);
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
 
-        resource.addMapping(mapping);
+        UMappingItem item = new UMappingItem();
+        item.setAccountid(true);
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
 
-        mapping = new SchemaMapping();
-        mapping.setResource(resource);
-        mapping.setIntAttrName("userId");
-        mapping.setIntMappingType(IntMappingType.UserSchema);
+        item = new UMappingItem();
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
 
-        resource.addMapping(mapping);
-
-        resourceDAO.save(resource);
+        ExternalResource actual = resourceDAO.save(resource);
+        assertNotNull(actual);
     }
 
     @Test
     public void saveWithRoleMappingType() {
-
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-
         resource.setConnector(connector);
 
-        SchemaMapping mapping = new SchemaMapping();
-        mapping.setResource(resource);
-        mapping.setAccountid(true);
-        mapping.setIntAttrName("fullname");
-        mapping.setIntMappingType(IntMappingType.UserSchema);
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
 
-        resource.addMapping(mapping);
+        UMappingItem item = new UMappingItem();
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.setAccountIdItem(item);
 
-        mapping = new SchemaMapping();
-        mapping.setResource(resource);
-        mapping.setIntAttrName("icon");
-        mapping.setExtAttrName("icon");
-        mapping.setIntMappingType(IntMappingType.RoleSchema);
+        item = new UMappingItem();
+        item.setIntAttrName("icon");
+        item.setExtAttrName("icon");
+        item.setIntMappingType(IntMappingType.RoleSchema);
+        mapping.addItem(item);
 
-        resource.addMapping(mapping);
-
-        mapping = new SchemaMapping();
-        mapping.setResource(resource);
-        mapping.setIntAttrName("mderiveddata");
-        mapping.setExtAttrName("mderiveddata");
-        mapping.setIntMappingType(IntMappingType.MembershipDerivedSchema);
-
-        resource.addMapping(mapping);
+        item = new UMappingItem();
+        item.setIntAttrName("mderiveddata");
+        item.setExtAttrName("mderiveddata");
+        item.setIntMappingType(IntMappingType.MembershipDerivedSchema);
+        mapping.addItem(item);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-
         assertNotNull(actual);
 
-        assertEquals(3, actual.getMappings().size());
+        int items = 0;
+        for (AbstractMappingItem mapItem : actual.getUmapping().getItems()) {
+            items++;
 
-        for (SchemaMapping schemaMapping : actual.getMappings()) {
-
-            if ("icon".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
-                assertTrue(IntMappingType.contains(AttributableType.ROLE, schemaMapping.getIntMappingType().toString()));
+            if ("icon".equals(mapItem.getIntAttrName())) {
+                assertTrue(IntMappingType.contains(AttributableType.ROLE,
+                        mapItem.getIntMappingType().toString()));
             }
-
-            if ("mderiveddata".equals(SchemaMappingUtil.getIntAttrName(schemaMapping))) {
-                assertTrue(IntMappingType.contains(AttributableType.MEMBERSHIP, schemaMapping.getIntMappingType()
-                        .toString()));
+            if ("mderiveddata".equals(mapItem.getIntAttrName())) {
+                assertTrue(IntMappingType.contains(AttributableType.MEMBERSHIP,
+                        mapItem.getIntMappingType().toString()));
             }
         }
+        assertEquals(3, items);
     }
 
     @Test

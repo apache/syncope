@@ -23,11 +23,9 @@ import java.util.List;
 import javax.persistence.Query;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,34 +110,6 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
         }
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<PropagationTask> findAll(final SyncopeUser user) {
-        StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
-
-        queryString.append("WHERE e.syncopeUser=:user ");
-        queryString.append("ORDER BY e.id DESC");
-
-        final Query query = entityManager.createQuery(queryString.toString());
-        query.setParameter("user", user);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<PropagationTask> findAll(final ExternalResource resource, final SyncopeUser user) {
-
-        StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
-        queryString.append("WHERE e.syncopeUser=:user ");
-        queryString.append("AND e.resource=:resource ");
-        queryString.append("ORDER BY e.id DESC");
-
-        final Query query = entityManager.createQuery(queryString.toString());
-        query.setParameter("user", user);
-        query.setParameter("resource", resource);
 
         return query.getResultList();
     }

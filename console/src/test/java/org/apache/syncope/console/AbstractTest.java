@@ -28,7 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
 public abstract class AbstractTest extends SeleneseTestCase {
 
     /**
@@ -45,7 +45,6 @@ public abstract class AbstractTest extends SeleneseTestCase {
     @Override
     @Before
     public void setUp() throws Exception {
-
         super.setUp(BASE_URL, "*firefox");
 
         selenium.open("/syncope-console/");
@@ -59,7 +58,6 @@ public abstract class AbstractTest extends SeleneseTestCase {
     @Override
     @After
     public void tearDown() throws Exception {
-
         selenium.click("css=img[alt=\"Logout\"]");
         selenium.stop();
         super.tearDown();

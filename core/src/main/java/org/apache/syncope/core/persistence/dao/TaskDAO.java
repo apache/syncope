@@ -20,9 +20,7 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.Task;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface TaskDAO extends DAO {
@@ -36,10 +34,6 @@ public interface TaskDAO extends DAO {
     <T extends Task> List<T> findAll(Class<T> reference);
 
     <T extends Task> List<T> findAll(int page, int itemsPerPage, Class<T> reference);
-
-    List<PropagationTask> findAll(ExternalResource resource, SyncopeUser user);
-
-    List<PropagationTask> findAll(SyncopeUser user);
 
     <T extends Task> int count(Class<T> reference);
 

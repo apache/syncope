@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -33,31 +34,51 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.ConnObjectUtil;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional(rollbackFor = {Throwable.class})
 public class RoleDataBinder extends AbstractAttributableDataBinder {
+
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    public SyncopeRole getSyncopeRole(final Long roleId) throws NotFoundException {
+    @Transactional(readOnly = true)
+    public SyncopeRole getRoleFromId(final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        if (roleId == null) {
+            throw new NotFoundException("Null role id");
+        }
+
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             throw new NotFoundException("Role " + roleId);
         }
 
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+        if (!allowedRoleIds.contains(role.getId())) {
+            throw new UnauthorizedRoleException(role.getId());
+        }
         return role;
     }
 
-    public SyncopeRole create(final RoleTO roleTO) throws SyncopeClientCompositeErrorException {
-        SyncopeRole role = new SyncopeRole();
+    public SyncopeRole create(final SyncopeRole role, final RoleTO roleTO)
+            throws SyncopeClientCompositeErrorException {
 
         role.setInheritOwner(roleTO.isInheritOwner());
 
@@ -146,7 +167,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod)
             throws SyncopeClientCompositeErrorException {
 
+        PropagationByResource propByRes = new PropagationByResource();
+
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+
+        Set<String> currentResources = role.getResourceNames();
 
         // name
         SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
@@ -154,7 +179,14 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             SyncopeRole otherRole = roleDAO.find(roleMod.getName(),
                     role.getParent() == null ? null : role.getParent().getId());
             if (otherRole == null || role.equals(otherRole)) {
-                role.setName(roleMod.getName());
+                if (!roleMod.getName().equals(role.getName())) {
+                    propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+                    for (String resource : currentResources) {
+                        propByRes.addOldAccountId(resource, role.getName());
+                    }
+
+                    role.setName(roleMod.getName());
+                }
             } else {
                 LOG.error("Another role exists with the same name and the same parent role: " + otherRole);
 
@@ -222,10 +254,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        return fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce);
+        propByRes.merge(fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce));
+
+        return propByRes;
     }
 
+    @Transactional(readOnly = true)
     public RoleTO getRoleTO(final SyncopeRole role) {
+        connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));
+
         RoleTO roleTO = new RoleTO();
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());
@@ -277,5 +314,12 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 : role.getAccountPolicy().getId());
 
         return roleTO;
+    }
+
+    @Transactional(readOnly = true)
+    public RoleTO getRoleTO(final Long roleId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        return getRoleTO(getRoleFromId(roleId));
     }
 }

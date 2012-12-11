@@ -20,8 +20,8 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +30,8 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
+import org.apache.syncope.client.to.MappingItemTO;
+import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.ConnConfPropSchema;
@@ -51,17 +52,6 @@ public class ResourceTestITCase extends AbstractTest {
         assertFalse(actions.isEmpty());
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
-    public void createExistingResource() {
-        final String resourceName = "ws-target-resource-1";
-        ResourceTO resourceTO = new ResourceTO();
-
-        resourceTO.setName(resourceName);
-        resourceTO.setConnectorId(100L);
-
-        restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-    }
-
     @Test
     public void create() {
         String resourceName = "ws-target-resource-create";
@@ -70,35 +60,36 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("uid");
-        schemaMappingTO.setIntAttrName("userId");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("fullname");
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingItemTO item = new MappingItemTO();
+        item.setExtAttrName("uid");
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("fullname");
-        schemaMappingTO.setIntAttrName("cn");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setAccountid(false);
-        resourceTO.addMapping(schemaMappingTO);
+        item = new MappingItemTO();
+        item.setExtAttrName("username");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("fullname");
+        item.setIntAttrName("cn");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setAccountid(false);
+        mapping.addItem(item);
+
+        resourceTO.setUmapping(mapping);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-
         assertNotNull(actual);
 
-        // check the existence
-
+        // check for existence
         actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
-
         assertNotNull(actual);
     }
 
@@ -107,28 +98,32 @@ public class ResourceTestITCase extends AbstractTest {
         String resourceName = "overriding-conn-conf-target-resource-create";
         ResourceTO resourceTO = new ResourceTO();
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("uid");
-        schemaMappingTO.setIntAttrName("userId");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("fullname");
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingItemTO item = new MappingItemTO();
+        item.setExtAttrName("uid");
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("fullname");
-        schemaMappingTO.setIntAttrName("cn");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setAccountid(false);
-        resourceTO.addMapping(schemaMappingTO);
+        item = new MappingItemTO();
+        item.setExtAttrName("username");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("fullname");
+        item.setIntAttrName("cn");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setAccountid(false);
+        mapping.addItem(item);
 
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
+
+        resourceTO.setUmapping(mapping);
 
         ConnConfProperty p = new ConnConfProperty();
         ConnConfPropSchema schema = new ConnConfPropSchema();
@@ -139,64 +134,76 @@ public class ResourceTestITCase extends AbstractTest {
         p.setValues(Collections.singletonList("http://invalidurl/"));
 
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
-
         resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-
         assertNotNull(actual);
 
         // check the existence
 
         actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
-
         assertNotNull(actual);
     }
 
     @Test
-    public void createWithSingleMapping() {
+    public void createWithSingleMappingItem() {
         String resourceName = "ws-target-resource-create-single";
         ResourceTO resourceTO = new ResourceTO();
-
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO umapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        umapping.setAccountIdItem(item);
+
+        resourceTO.setUmapping(umapping);
+
+        MappingTO rmapping = new MappingTO();
+
+        item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.RoleId);
+        item.setAccountid(true);
+        rmapping.setAccountIdItem(item);
+
+        resourceTO.setRmapping(rmapping);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-
         assertNotNull(actual);
+        assertNotNull(actual.getUmapping());
+        assertNotNull(actual.getUmapping().getItems());
+        assertNotNull(actual.getRmapping());
+        assertNotNull(actual.getRmapping().getItems());
     }
 
     @Test
-    public void createWithWrongMapping() {
+    public void createWithInvalidMapping() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
-
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setExtAttrName("email");
+        MappingItemTO item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setExtAttrName("email");
         // missing intAttrName ...
-        resourceTO.addMapping(schemaMappingTO);
+        mapping.addItem(item);
+
+        resourceTO.setUmapping(mapping);
 
         Throwable t = null;
-
         try {
-
             restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
 
@@ -214,20 +221,23 @@ public class ResourceTestITCase extends AbstractTest {
     public void createWithoutExtAttr() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
-
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
 
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setIntAttrName("usernane");
+        MappingItemTO item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setIntAttrName("usernane");
         // missing extAttrName ...
-        resourceTO.addMapping(schemaMappingTO);
+        mapping.addItem(item);
+
+        resourceTO.setUmapping(mapping);
 
         restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
     }
@@ -236,27 +246,28 @@ public class ResourceTestITCase extends AbstractTest {
     public void createWithPasswordPolicy() {
         String resourceName = "res-with-password-policy";
         ResourceTO resourceTO = new ResourceTO();
-
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
         resourceTO.setPasswordPolicy(4L);
 
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("uid");
-        schemaMappingTO.setIntAttrName("userId");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTO.setAccountid(true);
-        resourceTO.addMapping(schemaMappingTO);
+        MappingTO mapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setExtAttrName("uid");
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        resourceTO.setUmapping(mapping);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
-
         assertNotNull(actual);
 
         // check the existence
 
         actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
-
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
         assertEquals(4L, (long) actual.getPasswordPolicy());
@@ -266,7 +277,6 @@ public class ResourceTestITCase extends AbstractTest {
     public void updateWithException() {
         try {
             ResourceTO resourceTO = new ResourceTO();
-
             resourceTO.setName("resourcenotfound");
 
             restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
@@ -279,48 +289,43 @@ public class ResourceTestITCase extends AbstractTest {
     public void update() {
         final String resourceName = "ws-target-resource-update";
         ResourceTO resourceTO = new ResourceTO();
-
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(101L);
 
-        List<SchemaMappingTO> schemaMappingTOs = new ArrayList<SchemaMappingTO>();
+        MappingTO mapping = new MappingTO();
 
         // Update with an existing and already assigned mapping
-        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setId(112L);
-        schemaMappingTO.setExtAttrName("test3");
-        schemaMappingTO.setIntAttrName("fullname");
-        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-        schemaMappingTOs.add(schemaMappingTO);
+        MappingItemTO item = new MappingItemTO();
+        item.setId(112L);
+        item.setExtAttrName("test3");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
 
         // Update defining new mappings
         for (int i = 4; i < 6; i++) {
-            schemaMappingTO = new SchemaMappingTO();
-            schemaMappingTO.setExtAttrName("test" + i);
-            schemaMappingTO.setIntAttrName("fullname");
-            schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
-            schemaMappingTOs.add(schemaMappingTO);
+            item = new MappingItemTO();
+            item.setExtAttrName("test" + i);
+            item.setIntAttrName("fullname");
+            item.setIntMappingType(IntMappingType.UserSchema);
+            mapping.addItem(item);
         }
-        schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("fullname");
-        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
-        schemaMappingTO.setAccountid(true);
-        schemaMappingTOs.add(schemaMappingTO);
+        item = new MappingItemTO();
+        item.setExtAttrName("username");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
 
-        resourceTO.setMappings(schemaMappingTOs);
+        resourceTO.setUmapping(mapping);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
-
         assertNotNull(actual);
 
-        // check the existence
-
-        List<SchemaMappingTO> mappings = actual.getMappings();
-
-        assertNotNull(mappings);
-
-        assertEquals(4, mappings.size());
+        // check for existence
+        Collection<MappingItemTO> mapItems = actual.getUmapping().getItems();
+        assertNotNull(mapItems);
+        assertEquals(4, mapItems.size());
     }
 
     @Test
@@ -339,14 +344,14 @@ public class ResourceTestITCase extends AbstractTest {
         String resourceName = "ws-target-resource-update-resetsynctoken";
         ResourceTO pre = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
-        assertNotNull(pre.getSyncToken());
+        assertNotNull(pre.getUsyncToken());
 
-        pre.setSyncToken(null);
+        pre.setUsyncToken(null);
 
         ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", pre, ResourceTO.class);
 
         // check that the synctoken has been reset
-        assertNull(actual.getSyncToken());
+        assertNull(actual.getUsyncToken());
     }
 
     @Test

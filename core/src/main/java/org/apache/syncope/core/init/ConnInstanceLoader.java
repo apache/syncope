@@ -128,8 +128,7 @@ public class ConnInstanceLoader {
 
     @Transactional(readOnly = true)
     public void load() {
-        // This is needed to avoid encoding problems when sending error
-        // messages via REST
+        // This is needed to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
         // Next load all resource-specific connectors.

@@ -27,10 +27,11 @@ under the License.
     <constructor-arg value="${adminUser}"/>
   </bean>
     
-  <bean id="wfAdapter" class="${wfAdapter}"/>
+  <bean id="uwfAdapter" class="${uwfAdapter}"/>
+  <bean id="rwfAdapter" class="${rwfAdapter}"/>
 
-  <bean id="syncopeActivitiUserManager" class="org.apache.syncope.core.workflow.activiti.SyncopeUserManager"/>
-  <bean id="syncopeActivitiGroupManager" class="org.apache.syncope.core.workflow.activiti.SyncopeGroupManager"/>
+  <bean id="syncopeActivitiUserManager" class="org.apache.syncope.core.workflow.user.activiti.SyncopeUserManager"/>
+  <bean id="syncopeActivitiGroupManager" class="org.apache.syncope.core.workflow.user.activiti.SyncopeGroupManager"/>
                 
   <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
     <property name="dataSource" ref="dataSource" />
@@ -46,17 +47,17 @@ under the License.
         
     <property name="customSessionFactories">
       <list>          
-        <bean class="org.apache.syncope.core.workflow.activiti.SyncopeSessionFactory">
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeSessionFactory">
           <property name="syncopeSession" ref="syncopeActivitiUserManager"/>
         </bean>
-        <bean class="org.apache.syncope.core.workflow.activiti.SyncopeSessionFactory">
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeSessionFactory">
           <property name="syncopeSession" ref="syncopeActivitiGroupManager"/>
         </bean>
       </list>
     </property>
     <property name="customPreVariableTypes">
       <list>
-        <bean class="org.apache.syncope.core.workflow.activiti.SyncopeEntitiesVariableType"/>
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeEntitiesVariableType"/>
       </list>    
     </property>
   </bean>

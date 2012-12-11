@@ -29,25 +29,30 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
 public class RAttr extends AbstractAttr {
 
     private static final long serialVersionUID = 2848159565890995780L;
+
     @Id
     private Long id;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeRole owner;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "schema_name")
     private RSchema schema;
+
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<RAttrValue> values;
+
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private RAttrUniqueValue uniqueValue;
@@ -68,7 +73,7 @@ public class RAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractAttributable> void setOwner(T owner) {
+    public <T extends AbstractAttributable> void setOwner(final T owner) {
         if (!(owner instanceof SyncopeRole)) {
             throw new ClassCastException("owner is expected to be typed SyncopeRole: " + owner.getClass().getName());
         }
@@ -81,7 +86,7 @@ public class RAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractSchema> void setSchema(T schema) {
+    public <T extends AbstractSchema> void setSchema(final T schema) {
         if (!(schema instanceof RSchema)) {
             throw new ClassCastException("schema is expected to be typed RSchema: " + schema.getClass().getName());
         }
@@ -91,7 +96,8 @@ public class RAttr extends AbstractAttr {
     @Override
     public <T extends AbstractAttrValue> boolean addValue(final T attributeValue) {
         if (!(attributeValue instanceof RAttrValue)) {
-            throw new ClassCastException("attributeValue is expected to be typed RAttrValue: " + attributeValue.getClass().getName());
+            throw new ClassCastException("attributeValue is expected to be typed RAttrValue: " + attributeValue.
+                    getClass().getName());
         }
         return values.add((RAttrValue) attributeValue);
     }
@@ -99,7 +105,8 @@ public class RAttr extends AbstractAttr {
     @Override
     public <T extends AbstractAttrValue> boolean removeValue(final T attributeValue) {
         if (!(attributeValue instanceof RAttrValue)) {
-            throw new ClassCastException("attributeValue is expected to be typed RAttrValue: " + attributeValue.getClass().getName());
+            throw new ClassCastException("attributeValue is expected to be typed RAttrValue: " + attributeValue.
+                    getClass().getName());
         }
         return values.remove((RAttrValue) attributeValue);
     }
@@ -129,7 +136,8 @@ public class RAttr extends AbstractAttr {
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
         if (!(uniqueAttributeValue instanceof RAttrUniqueValue)) {
-            throw new ClassCastException("uniqueAttributeValue is expected to be typed RAttrUniqueValue: " + uniqueAttributeValue.getClass().getName());
+            throw new ClassCastException("uniqueAttributeValue is expected to be typed RAttrUniqueValue: "
+                    + uniqueAttributeValue.getClass().getName());
         }
         this.uniqueValue = (RAttrUniqueValue) uniqueAttributeValue;
     }

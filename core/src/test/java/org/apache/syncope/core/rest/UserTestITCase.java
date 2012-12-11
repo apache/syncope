@@ -18,25 +18,21 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.MembershipMod;
 import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.ResourceCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
@@ -58,7 +54,6 @@ import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import static org.junit.Assert.*;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -442,10 +437,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // add an attribute with no values: must be ignored
-        AttributeTO nullValueAttrTO = new AttributeTO();
-        nullValueAttrTO.setSchema("subscriptionDate");
-        nullValueAttrTO.setValues(null);
-        membershipTO.addAttribute(nullValueAttrTO);
+        membershipTO.addAttribute(attributeTO("subscriptionDate", null));
 
         // add an attribute with a non-existing schema: must be ignored
         AttributeTO attrWithInvalidSchemaTO = attributeTO("invalid schema", "a value");
@@ -576,7 +568,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithReject() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createWithReject@syncope.apache.org");
 
@@ -639,7 +631,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createWithApproval() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
@@ -787,17 +779,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchCount() {
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        NodeCond searchCond = NodeCond.getLeafCond(isNullCond);
-
-        Integer count = restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCond, Integer.class);
-        assertNotNull(count);
-        assertTrue(count > 0);
-    }
-
-    @Test
     public void list() {
         List<UserTO> users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list.json", UserTO[].class));
         assertNotNull(users);
@@ -841,140 +822,6 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());
         assertFalse(userTO.getAttributes().isEmpty());
-    }
-
-    @Test
-    public void search() {
-        // LIKE
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-        for (UserTO user : matchedUsers) {
-            assertNotNull(user);
-        }
-
-        // ISNULL
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        searchCondition = NodeCond.getLeafCond(isNullCond);
-
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-        assertTrue(userIds.contains(2L));
-        assertTrue(userIds.contains(3L));
-    }
-
-    @Test
-    public void searchByUsernameAndId() {
-        final SyncopeUserCond usernameLeafCond = new SyncopeUserCond(SyncopeUserCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("user1");
-
-        final SyncopeUserCond idRightCond = new SyncopeUserCond(SyncopeUserCond.Type.LT);
-        idRightCond.setSchema("id");
-        idRightCond.setExpression("2");
-
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameLeafCond), NodeCond.
-                getLeafCond(idRightCond));
-
-        assertTrue(searchCondition.checkValidity());
-
-        final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search",
-                searchCondition, UserTO[].class));
-
-        assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
-        assertEquals("user1", matchingUsers.iterator().next().getUsername());
-        assertEquals(1L, matchingUsers.iterator().next().getId());
-    }
-
-    @Test
-    public void searchUserByResourceName() {
-        ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceName("ws-target-resource2");
-
-        ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceName("ws-target-resource-list-mappings-2");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-
-        assertEquals(1, userIds.size());
-        assertTrue(userIds.contains(2L));
-    }
-
-    @Test
-    public void paginatedSearch() {
-        // LIKE
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
-
-        assertTrue(searchCondition.checkValidity());
-
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
-        assertNotNull(matchedUsers);
-
-        assertFalse(matchedUsers.isEmpty());
-        for (UserTO user : matchedUsers) {
-            assertNotNull(user);
-        }
-
-        // ISNULL
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
-        isNullCond.setSchema("loginDate");
-        searchCondition = NodeCond.getLeafCond(isNullCond);
-
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
-
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
-            userIds.add(user.getId());
-        }
-        assertEquals(2, userIds.size());
     }
 
     @Test
@@ -1222,15 +1069,14 @@ public class UserTestITCase extends AbstractTest {
             }
         }
 
-        // default configuration for ws-target-resource2:
-        //             no delete executions have to be registered
+        // default configuration for ws-target-resource2: no delete executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxId, maxId);
     }
 
     @Test
     public void createActivate() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createActivate@syncope.apache.org");
 
@@ -1258,7 +1104,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createActivateByUsername() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
 
         UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
 
@@ -1296,7 +1142,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
 
@@ -1320,7 +1166,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(
                 BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class, userTO.getUsername());
@@ -1357,7 +1203,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
 
         String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
                 + "&performLocally=true"; // check also performLocally
@@ -1371,8 +1217,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class,
+                dbTable.getName(), dbTableUID);
         assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1380,21 +1226,18 @@ public class UserTestITCase extends AbstractTest {
         String ldapUID = userTO.getUsername();
         assertNotNull(ldapUID);
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, ldap.getName(), ldapUID);
-
         assertNotNull(connObjectTO);
 
         query = "?resourceNames=" + ldap.getName() + "&performLocally=false"; // check also performLocally
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
-
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
         assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1402,13 +1245,11 @@ public class UserTestITCase extends AbstractTest {
         query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check also performLocally
 
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
-
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
-
         assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
                 getValues().
                 get(0)));
@@ -1616,11 +1457,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
-
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
 
@@ -1635,18 +1474,11 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
-
-        AttributeTO mderived_sx = new AttributeTO();
-        mderived_sx.setSchema("mderived_sx");
-        mderived_sx.setValues(Collections.singletonList("sx"));
-        membershipTO.addAttribute(mderived_sx);
-
-        AttributeTO mderived_dx = new AttributeTO();
-        mderived_dx.setSchema("mderived_dx");
-        mderived_dx.setValues(Collections.singletonList("dx"));
-        membershipTO.addAttribute(mderived_dx);
+        membershipTO.addAttribute(attributeTO("mderived_sx", "sx"));
+        membershipTO.addAttribute(attributeTO("mderived_dx", "dx"));
         membershipTO.addDerivedAttribute(attributeTO("mderToBePropagated", null));
         userTO.addMembership(membershipTO);
+
         userTO.addResource("resource-csv");
 
         UserTO actual = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -1655,11 +1487,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
-
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
 
@@ -1723,9 +1553,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getResources().size());
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1741,9 +1570,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
 
         connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
                 actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1761,9 +1589,8 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1784,8 +1611,8 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             restTemplate.getForObject(BASE_URL
-                    + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, "resource-csv", actual.
-                    getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+                    + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class, "resource-csv",
+                    actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
             t = e;
@@ -1820,11 +1647,10 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, actual.getMemberships().size());
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(
-                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class,
                 "resource-ldap",
                 userTO.getUsername());
-
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1853,11 +1679,10 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
 
         connObjectTO = restTemplate.getForObject(
-                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                 ConnObjectTO.class,
                 "resource-ldap",
                 userTO.getUsername());
-
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1890,13 +1715,11 @@ public class UserTestITCase extends AbstractTest {
         // 3. try (and fail) to find this user on the external LDAP resource
         SyncopeClientException sce = null;
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/USER/{objectId}.json",
                     ConnObjectTO.class, "resource-ldap", userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
             sce = sccee.getException(SyncopeClientExceptionType.NotFound);
-
         }
         assertNotNull(sce);
     }

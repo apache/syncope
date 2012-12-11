@@ -19,8 +19,8 @@
 package org.apache.syncope.core.sync;
 
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.client.mod.AbstractAttributableMod;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -35,24 +35,29 @@ public class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public SyncDelta beforeUpdate(final SyncDelta delta, final UserTO user, final UserMod userMod)
+    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncDelta delta, final T subject)
             throws JobExecutionException {
+
         return delta;
     }
 
     @Override
-    public SyncDelta beforeDelete(final SyncDelta delta, final UserTO user) throws JobExecutionException {
+    public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
+            final SyncDelta delta, final T subject, final K subjectMod) throws JobExecutionException {
+
         return delta;
     }
 
     @Override
-    public void after(final SyncDelta delta, final UserTO user, final SyncResult result)
+    public <T extends AbstractAttributableTO> SyncDelta beforeDelete(final SyncDelta delta, final T subject)
             throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> void after(final SyncDelta delta, final T subject,
+            final SyncResult result) throws JobExecutionException {
     }
 
     @Override

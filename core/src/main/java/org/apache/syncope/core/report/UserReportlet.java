@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.client.report.UserReportletConf;
 import org.apache.syncope.client.report.UserReportletConf.Feature;
 import org.apache.syncope.client.to.AbstractAttributableTO;
@@ -31,13 +30,16 @@ import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.UserSearchDAO;
+import static org.apache.syncope.core.report.ReportXMLConst.*;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import static org.apache.syncope.core.report.ReportXMLConst.*;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.types.AttributableType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -45,7 +47,7 @@ import org.xml.sax.helpers.AttributesImpl;
 @ReportletConfClass(UserReportletConf.class)
 public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
-    private final static int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -54,7 +56,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     private UserDAO userDAO;
 
     @Autowired
-    private UserSearchDAO searchDAO;
+    private AttributableSearchDAO searchDAO;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -63,11 +65,17 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     private RoleDataBinder roleDataBinder;
 
     private List<SyncopeUser> getPagedUsers(final int page) {
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
+        final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
-        return conf.getMatchingCond() == null
-                ? userDAO.findAll(adminRoleIds, page, PAGE_SIZE)
-                : searchDAO.search(adminRoleIds, conf.getMatchingCond(), page, PAGE_SIZE);
+        final List<SyncopeUser> result;
+        if (conf.getMatchingCond() == null) {
+            result = userDAO.findAll(adminRoleIds, page, PAGE_SIZE);
+        } else {
+            result = searchDAO.search(adminRoleIds, conf.getMatchingCond(), page, PAGE_SIZE,
+                    AttributableUtil.getInstance(AttributableType.USER));
+        }
+
+        return result;
     }
 
     private int count() {
@@ -75,7 +83,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
         return conf.getMatchingCond() == null
                 ? userDAO.count(adminRoleIds)
-                : searchDAO.count(adminRoleIds, conf.getMatchingCond());
+                : searchDAO.count(adminRoleIds, conf.getMatchingCond(),
+                AttributableUtil.getInstance(AttributableType.USER));
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)
@@ -122,8 +131,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
+                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
+                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
                 }
 
                 handler.endElement("", "", "attribute");
@@ -148,8 +157,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
+                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
+                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -174,8 +183,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[] { attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getId() });
+                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
+                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
                 }
 
                 handler.endElement("", "", "virtualAttribute");
@@ -302,7 +311,6 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
     @Override
     protected void doExtract(final ContentHandler handler) throws SAXException, ReportException {
-
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedUsers(i));
         }

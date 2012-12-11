@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.workflow.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
 
     @Autowired
-    private UserWorkflowAdapter wfAdapter;
+    private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
     private PropagationManager propagationManager;
@@ -116,11 +116,11 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
                 user.setFailedLogins(user.getFailedLogins() - 1);
 
                 // disable user
-                final WorkflowResult<Long> updated = wfAdapter.suspend(user);
+                final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                    final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                             new WorkflowResult<Map.Entry<Long, Boolean>>(
                             new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
                             updated.getPropByRes(), updated.getPerformedTasks()));

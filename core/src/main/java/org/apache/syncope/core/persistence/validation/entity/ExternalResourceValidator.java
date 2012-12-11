@@ -21,8 +21,9 @@ package org.apache.syncope.core.persistence.validation.entity;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.types.EntityViolationType;
 
@@ -33,51 +34,81 @@ public class ExternalResourceValidator extends AbstractValidator implements
     public void initialize(final ExternalResourceCheck constraintAnnotation) {
     }
 
-    @Override
-    public boolean isValid(final ExternalResource object, final ConstraintValidatorContext context) {
+    private boolean isValid(final AbstractMappingItem item, final ConstraintValidatorContext context) {
+        if (StringUtils.isBlank(item.getExtAttrName())) {
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
+                    .addNode(item + ".extAttrName is null").addConstraintViolation();
 
-        boolean isValid;
+            return false;
+        }
 
-        if (object == null) {
-            isValid = true;
-        } else {
-            int accountIds = 0;
-            for (SchemaMapping mapping : object.getMappings()) {
-                if (mapping.isAccountid()) {
-                    accountIds++;
-                }
+        if (StringUtils.isBlank(item.getIntAttrName())) {
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
+                    .addNode(item + ".intAttrName is null").addConstraintViolation();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isValid(final AbstractMapping mapping, final ConstraintValidatorContext context) {
+        if (mapping == null) {
+            return true;
+        }
+
+        int accountIds = 0;
+        for (AbstractMappingItem item : mapping.getItems()) {
+            if (item.isAccountid()) {
+                accountIds++;
             }
-            isValid = accountIds == 1;
+        }
+        if (accountIds != 1) {
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
+                    .addNode(mapping + ".accountId.size==" + accountIds).addConstraintViolation();
+            return false;
+        }
 
-            if (!isValid) {
-                LOG.error("Mappings for " + object + " have 0 or >1 account ids");
+        boolean isValid = true;
 
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
-                        .addNode(object + ".accountIds.size==" + accountIds).addConstraintViolation();
+        int passwords = 0;
+        for (AbstractMappingItem item : mapping.getItems()) {
+            isValid &= isValid(item, context);
+
+            if (item.isPassword()) {
+                passwords++;
             }
-
-            if (StringUtils.isNotBlank(object.getActionsClassName())) {
-                Class<?> actionsClass = null;
-                boolean isAssignable = false;
-                try {
-                    actionsClass = Class.forName(object.getActionsClassName());
-                    isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
-                } catch (Exception e) {
-                    LOG.error("Invalid PropagationActions specified", e);
-                    isValid = false;
-                }
-
-                if (actionsClass == null || !isAssignable) {
-                    isValid = false;
-
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
-                            .addNode(object + ".actionsClassName is not valid").addConstraintViolation();
-                }
-            }
+        }
+        if (passwords > 1) {
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
+                    .addNode(mapping + ".password.size==" + passwords).addConstraintViolation();
+            isValid = false;
         }
 
         return isValid;
+    }
+
+    @Override
+    public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
+        if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
+            Class<?> actionsClass = null;
+            boolean isAssignable = false;
+            try {
+                actionsClass = Class.forName(resource.getPropagationActionsClassName());
+                isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
+            } catch (Exception e) {
+                LOG.error("Invalid PropagationActions specified: {}", resource.getPropagationActionsClassName(), e);
+            }
+
+            if (actionsClass == null || !isAssignable) {
+                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
+                        .addNode(resource + ".actionsClassName is not valid").addConstraintViolation();
+                return false;
+            }
+        }
+
+        return isValid(resource.getUmapping(), context) && isValid(resource.getRmapping(), context);
     }
 }

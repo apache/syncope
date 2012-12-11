@@ -197,20 +197,18 @@ public final class AttributableOperations {
      * @param incremental perform incremental diff (without removing existing info)
      * @return UserMod containing differences
      */
-    public static UserMod diff(final UserTO updated, final UserTO original, boolean incremental) {
+    public static UserMod diff(final UserTO updated, final UserTO original, final boolean incremental) {
         UserMod result = new UserMod();
 
         diff(updated, original, result, incremental);
 
         // 1. password
         if (original.getPassword() != null && !original.getPassword().equals(updated.getPassword())) {
-
             result.setPassword(updated.getPassword());
         }
 
         // 2. username
         if (original.getUsername() != null && !original.getUsername().equals(updated.getUsername())) {
-
             result.setUsername(updated.getUsername());
         }
 
@@ -278,9 +276,21 @@ public final class AttributableOperations {
      * @return RoleMod containing differences
      */
     public static RoleMod diff(final RoleTO updated, final RoleTO original) {
+        return diff(updated, original, false);
+    }
+
+    /**
+     * Calculate modifications needed by first in order to be equal to second.
+     *
+     * @param updated updated RoleTO
+     * @param original original RoleTO
+     * @param incremental perform incremental diff (without removing existing info)
+     * @return RoleMod containing differences
+     */
+    public static RoleMod diff(final RoleTO updated, final RoleTO original, final boolean incremental) {
         RoleMod result = new RoleMod();
 
-        diff(updated, original, result, false);
+        diff(updated, original, result, incremental);
 
         // 1. inheritance
         result.setInheritOwner(updated.isInheritOwner());

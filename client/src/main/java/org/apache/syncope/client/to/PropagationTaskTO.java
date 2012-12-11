@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.to;
 
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 
 public class PropagationTaskTO extends TaskTO {
 
@@ -27,7 +28,7 @@ public class PropagationTaskTO extends TaskTO {
 
     private PropagationMode propagationMode;
 
-    private PropagationOperation propagationOperation;
+    private ResourceOperation propagationOperation;
 
     private String accountId;
 
@@ -37,7 +38,11 @@ public class PropagationTaskTO extends TaskTO {
 
     private String resource;
 
-    private long user;
+    private String objectClassName;
+
+    private AttributableType subjectType;
+
+    private Long subjectId;
 
     public String getAccountId() {
         return accountId;
@@ -71,11 +76,11 @@ public class PropagationTaskTO extends TaskTO {
         this.resource = resource;
     }
 
-    public PropagationOperation getPropagationOperation() {
+    public ResourceOperation getPropagationOperation() {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(PropagationOperation propagationOperation) {
+    public void setPropagationOperation(ResourceOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }
@@ -88,11 +93,27 @@ public class PropagationTaskTO extends TaskTO {
         this.xmlAttributes = xmlAttributes;
     }
 
-    public long getUser() {
-        return user;
+    public String getObjectClassName() {
+        return objectClassName;
     }
 
-    public void setUser(long user) {
-        this.user = user;
+    public void setObjectClassName(String objectClassName) {
+        this.objectClassName = objectClassName;
+    }
+
+    public AttributableType getSubjectType() {
+        return subjectType;
+    }
+
+    public void setSubjectType(AttributableType subjectType) {
+        this.subjectType = subjectType;
+    }
+
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
     }
 }

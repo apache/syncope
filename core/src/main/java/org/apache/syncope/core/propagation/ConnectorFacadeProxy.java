@@ -20,21 +20,19 @@ package org.apache.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -62,7 +60,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
@@ -148,9 +145,9 @@ public class ConnectorFacadeProxy {
 
         // Set all of the ConfigurationProperties needed by the connector.
         for (ConnConfProperty property : connInstance.getConfiguration()) {
-            final Object propertyValue = getPropertyValue(property);
-            if (propertyValue != null) {
-                properties.setPropertyValue(property.getSchema().getName(), propertyValue);
+            if (property.getValues() != null && !property.getValues().isEmpty()) {
+                properties.setPropertyValue(property.getSchema().getName(),
+                        getPropertyValue(property.getSchema().getType(), property.getValues()));
             }
         }
 
@@ -313,7 +310,7 @@ public class ConnectorFacadeProxy {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    public ConnectorObject getObject(final PropagationMode propagationMode, final PropagationOperation operationType,
+    public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
         ConnectorObject result = null;
@@ -325,16 +322,20 @@ public class ConnectorFacadeProxy {
                 switch (operationType) {
                     case CREATE:
                         if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE))) {
+                                ? activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.ONE_PHASE_CREATE)
+                                : activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.TWO_PHASES_CREATE))) {
 
                             result = connector.getObject(objectClass, uid, options);
                         }
                         break;
                     case UPDATE:
                         if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
+                                ? activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.ONE_PHASE_UPDATE)
+                                : activeConnInstance.getCapabilities().
+                                contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
 
                             result = connector.getObject(objectClass, uid, options);
                         }
@@ -397,13 +398,11 @@ public class ConnectorFacadeProxy {
 
         Attribute attribute = null;
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
-
-            attribute = object.getAttributeByName(attributeName);
-        } catch (NullPointerException e) {
-            // ignore exception
+        final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        if (object == null) {
             LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
+            attribute = object.getAttributeByName(attributeName);
         }
 
         return attribute;
@@ -414,7 +413,6 @@ public class ConnectorFacadeProxy {
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
      * @param options ConnId's OperationOptions
-     * @param attributeNames attributes to read
      * @return attributes (if present)
      */
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
@@ -422,15 +420,13 @@ public class ConnectorFacadeProxy {
 
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
-
+        ConnectorObject object = connector.getObject(objectClass, uid, options);
+        if (object == null) {
+            LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
             for (String attribute : options.getAttributesToGet()) {
                 attributes.add(object.getAttributeByName(attribute));
             }
-        } catch (NullPointerException e) {
-            // ignore exception
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
 
         return attributes;
@@ -486,70 +482,61 @@ public class ConnectorFacadeProxy {
         return activeConnInstance;
     }
 
-    public OperationOptions getOperationOptions(final ExternalResource resource) {
-
+    public OperationOptions getOperationOptions(final Collection<AbstractMappingItem> mapItems) {
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
-        final Set<String> attributesToGet = new HashSet<String>(Arrays.asList(new String[]{Name.NAME, Uid.NAME,
-                    OperationalAttributes.ENABLE_NAME}));
+        final Set<String> attrsToGet = new HashSet<String>();
+        attrsToGet.add(Name.NAME);
+        attrsToGet.add(Uid.NAME);
+        attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        for (SchemaMapping mapping : resource.getMappings()) {
-            final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
-
-            if (StringUtils.hasText(extAttrName)) {
-                attributesToGet.add(extAttrName);
-            }
+        for (AbstractMappingItem item : mapItems) {
+            attrsToGet.add(item.getExtAttrName());
         }
 
-        oob.setAttributesToGet(attributesToGet);
+        oob.setAttributesToGet(attrsToGet);
         // -------------------------------------
 
         return oob.build();
     }
 
-    private Object getPropertyValue(final ConnConfProperty property) {
+    private Object getPropertyValue(final String propType, final List<Object> values) {
         Object value = null;
 
-        final List<Object> values = property.getValues();
+        try {
+            final Class propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
-        if (values != null && !values.isEmpty()) {
-            try {
-                final Class propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
-                        getDefaultClassLoader());
-
-                if (GuardedString.class.equals(propertySchemaClass)) {
-                    value = new GuardedString((values.get(0).toString()).toCharArray());
-                } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
-                    value = new GuardedByteArray((byte[]) values.get(0));
-                } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
-                    value = values.get(0) != null && !values.get(0).toString().isEmpty()
-                            ? values.get(0).toString().charAt(0)
-                            : null;
-                } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
-                    value = Integer.parseInt(values.get(0).toString());
-                } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
-                    value = Long.parseLong(values.get(0).toString());
-                } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
-                    value = Float.parseFloat(values.get(0).toString());
-                } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
-                    value = Double.parseDouble(values.get(0).toString());
-                } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
-                    value = Boolean.parseBoolean(values.get(0).toString());
-                } else if (URI.class.equals(propertySchemaClass)) {
-                    value = URI.create(values.get(0).toString());
-                } else if (File.class.equals(propertySchemaClass)) {
-                    value = new File(values.get(0).toString());
-                } else if (String[].class.equals(propertySchemaClass)) {
-                    value = values.toArray(new String[]{});
-                } else {
-                    value = values.get(0).toString();
-                }
-            } catch (Exception e) {
-                LOG.error("Invalid ConnConfProperty specified: {}", property, e);
+            if (GuardedString.class.equals(propertySchemaClass)) {
+                value = new GuardedString(values.get(0).toString().toCharArray());
+            } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
+                value = new GuardedByteArray((byte[]) values.get(0));
+            } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
+                value = values.get(0) == null || values.get(0).toString().isEmpty()
+                        ? null : values.get(0).toString().charAt(0);
+            } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
+                value = Integer.parseInt(values.get(0).toString());
+            } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
+                value = Long.parseLong(values.get(0).toString());
+            } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
+                value = Float.parseFloat(values.get(0).toString());
+            } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
+                value = Double.parseDouble(values.get(0).toString());
+            } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
+                value = Boolean.parseBoolean(values.get(0).toString());
+            } else if (URI.class.equals(propertySchemaClass)) {
+                value = URI.create(values.get(0).toString());
+            } else if (File.class.equals(propertySchemaClass)) {
+                value = new File(values.get(0).toString());
+            } else if (String[].class.equals(propertySchemaClass)) {
+                value = values.toArray(new String[]{});
+            } else {
+                value = values.get(0) == null ? null : values.get(0).toString();
             }
+        } catch (Exception e) {
+            LOG.error("Invalid ConnConfProperty specified: {} {}", propType, values, e);
         }
 
         return value;

@@ -34,21 +34,24 @@ public enum IntMappingType {
     UserSchema(AttributableType.USER),
     UserDerivedSchema(AttributableType.USER),
     UserVirtualSchema(AttributableType.USER),
-    SyncopeUserId(AttributableType.USER),
-    Password(AttributableType.USER),
+    UserId(AttributableType.USER),
     Username(AttributableType.USER),
+    Password(AttributableType.USER),
     // -------------------------
     // Role attribute types (the same in RoleMappingType)
     // -------------------------
     RoleSchema(AttributableType.ROLE),
     RoleDerivedSchema(AttributableType.ROLE),
     RoleVirtualSchema(AttributableType.ROLE),
+    RoleId(AttributableType.ROLE),
+    RoleName(AttributableType.ROLE),
     // -------------------------
     // Membership attribute types (the same in MembershipMappingType)
     // -------------------------
     MembershipSchema(AttributableType.MEMBERSHIP),
     MembershipDerivedSchema(AttributableType.MEMBERSHIP),
-    MembershipVirtualSchema(AttributableType.MEMBERSHIP);
+    MembershipVirtualSchema(AttributableType.MEMBERSHIP),
+    MembershipId(AttributableType.MEMBERSHIP);
 
     private AttributableType attributableType;
 
@@ -105,6 +108,13 @@ public enum IntMappingType {
         return res;
     }
 
+    public static Set<IntMappingType> getEmbedded() {
+        return EnumSet.of(
+                IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
+                IntMappingType.RoleId, IntMappingType.RoleName,
+                IntMappingType.MembershipId);
+    }
+
     /**
      * Check if attribute type belongs to the specified attributable type set.
      *
@@ -120,12 +130,16 @@ public enum IntMappingType {
                         return true;
                     }
                 }
+                break;
+
             case MEMBERSHIP:
                 for (MembershipMappingType c : MembershipMappingType.values()) {
                     if (c.name().equals(type)) {
                         return true;
                     }
                 }
+                break;
+
             case USER:
             default:
                 for (UserMappingType c : UserMappingType.values()) {
@@ -133,6 +147,7 @@ public enum IntMappingType {
                         return true;
                     }
                 }
+                break;
         }
         return false;
     }
@@ -145,9 +160,10 @@ public enum IntMappingType {
         UserSchema,
         UserDerivedSchema,
         UserVirtualSchema,
-        SyncopeUserId,
-        Password,
-        Username;
+        UserId,
+        Username,
+        Password;
+
     }
 
     /**
@@ -157,7 +173,10 @@ public enum IntMappingType {
 
         RoleSchema,
         RoleDerivedSchema,
-        RoleVirtualSchema;
+        RoleVirtualSchema,
+        RoleId,
+        RoleName;
+
     }
 
     /**
@@ -167,6 +186,8 @@ public enum IntMappingType {
 
         MembershipSchema,
         MembershipDerivedSchema,
-        MembershipVirtualSchema;
+        MembershipVirtualSchema,
+        MembershipId;
+
     }
 }

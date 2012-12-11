@@ -25,10 +25,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.apache.syncope.client.util.XMLSerializer;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 /**
@@ -50,7 +50,7 @@ public class PropagationTask extends Task {
      * @see PropagationOperation
      */
     @Enumerated(EnumType.STRING)
-    private PropagationOperation propagationOperation;
+    private ResourceOperation propagationOperation;
 
     /**
      * The accountId on the external resource.
@@ -68,11 +68,12 @@ public class PropagationTask extends Task {
     @Lob
     private String xmlAttributes;
 
-    /**
-     * User whose data are propagated.
-     */
-    @ManyToOne
-    private SyncopeUser syncopeUser;
+    private String objectClassName;
+
+    @Enumerated(EnumType.STRING)
+    private AttributableType subjectType;
+
+    private Long subjectId;
 
     /**
      * ExternalResource to which the propagation happens.
@@ -97,7 +98,7 @@ public class PropagationTask extends Task {
     }
 
     public Set<Attribute> getAttributes() {
-        return XMLSerializer.<Set<Attribute>> deserialize(xmlAttributes);
+        return XMLSerializer.<Set<Attribute>>deserialize(xmlAttributes);
     }
 
     public void setAttributes(final Set<Attribute> attributes) {
@@ -112,11 +113,11 @@ public class PropagationTask extends Task {
         this.propagationMode = propagationMode;
     }
 
-    public PropagationOperation getPropagationOperation() {
+    public ResourceOperation getPropagationOperation() {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(PropagationOperation propagationOperation) {
+    public void setPropagationOperation(ResourceOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }
@@ -129,11 +130,27 @@ public class PropagationTask extends Task {
         this.resource = resource;
     }
 
-    public SyncopeUser getSyncopeUser() {
-        return syncopeUser;
+    public String getObjectClassName() {
+        return objectClassName;
     }
 
-    public void setSyncopeUser(SyncopeUser syncopeUser) {
-        this.syncopeUser = syncopeUser;
+    public void setObjectClassName(String objectClassName) {
+        this.objectClassName = objectClassName;
+    }
+
+    public AttributableType getSubjectType() {
+        return subjectType;
+    }
+
+    public void setSubjectType(AttributableType subjectType) {
+        this.subjectType = subjectType;
+    }
+
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
     }
 }

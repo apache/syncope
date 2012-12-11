@@ -21,12 +21,14 @@ package org.apache.syncope.core.rest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
@@ -79,12 +81,16 @@ public class TaskTestITCase extends AbstractTest {
         task.setName("Test create Sync");
         task.setResource("ws-target-resource-2");
 
-        UserTO template = new UserTO();
-        template.addResource("ws-target-resource-2");
+        UserTO userTemplate = new UserTO();
+        userTemplate.addResource("ws-target-resource-2");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        template.addMembership(membershipTO);
-        task.setUserTemplate(template);
+        userTemplate.addMembership(membershipTO);
+        task.setUserTemplate(userTemplate);
+
+        RoleTO roleTemplate = new RoleTO();
+        roleTemplate.addResource("resource-ldap");
+        task.setRoleTemplate(roleTemplate);
 
         SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/create/sync", task, SyncTaskTO.class);
         assertNotNull(actual);
@@ -93,6 +99,8 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
+        assertEquals(userTemplate, task.getUserTemplate());
+        assertEquals(roleTemplate, task.getRoleTemplate());
     }
 
     @Test
@@ -263,7 +271,7 @@ public class TaskTestITCase extends AbstractTest {
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);
@@ -301,7 +309,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void reconcile() {
+    public void reconcileUsers() {
         // Update sync task
         SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 7);
         assertNotNull(task);
@@ -318,17 +326,59 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
+        assertEquals(template, actual.getUserTemplate());
+        assertEquals(new RoleTO(), actual.getRoleTemplate());
 
         TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
+
         final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         final UserTO userTO =
                 restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
-
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
+    }
+
+    @Test
+    public void reconcileRoles() {
+        // Update sync task
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 11);
+        assertNotNull(task);
+
+        //  add user template
+        RoleTO template = new RoleTO();
+        template.setParent(8L);
+        template.addAttribute(attributeTO("show", "'true'"));
+
+        task.setRoleTemplate(template);
+
+        SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+        assertEquals(template, actual.getRoleTemplate());
+        assertEquals(new UserTO(), actual.getUserTemplate());
+
+        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
+
+        final String status = execution.getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        final AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
+        rolenameLeafCond.setSchema("name");
+        rolenameLeafCond.setExpression("testLDAPGroup");
+        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
+                NodeCond.getLeafCond(rolenameLeafCond), RoleTO[].class));
+        assertNotNull(matchingRoles);
+        assertEquals(1, matchingRoles.size());
+
+        final RoleTO roleTO = matchingRoles.iterator().next();
+        assertNotNull(roleTO);
+        assertEquals("testLDAPGroup", roleTO.getName());
+        assertEquals(8L, roleTO.getParent());
+        assertEquals("true", roleTO.getAttributeMap().get("show").getValues().get(0));
     }
 
     @Test

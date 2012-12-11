@@ -19,10 +19,10 @@
 package org.apache.syncope.core.quartz;
 
 import java.util.Collections;
+import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.mod.AttributeMod;
-import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -32,18 +32,19 @@ public class TestSyncActions extends DefaultSyncActions {
     private int counter = 0;
 
     @Override
-    public SyncDelta beforeCreate(final SyncDelta delta, final UserTO user) throws JobExecutionException {
+    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncDelta delta, final T subject)
+            throws JobExecutionException {
 
         AttributeTO attrTO = null;
-        for (int i = 0; i < user.getAttributes().size(); i++) {
-            if ("fullname".equals(user.getAttributes().get(i).getSchema())) {
-                attrTO = user.getAttributes().get(i);
+        for (int i = 0; i < subject.getAttributes().size(); i++) {
+            if ("fullname".equals(subject.getAttributes().get(i).getSchema())) {
+                attrTO = subject.getAttributes().get(i);
             }
         }
         if (attrTO == null) {
             attrTO = new AttributeTO();
             attrTO.setSchema("fullname");
-            user.addAttribute(attrTO);
+            subject.addAttribute(attrTO);
         }
         attrTO.setValues(Collections.singletonList(String.valueOf(counter++)));
 
@@ -51,13 +52,13 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public SyncDelta beforeUpdate(final SyncDelta delta, final UserTO user, final UserMod userMod)
-            throws JobExecutionException {
+    public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
+            final SyncDelta delta, final T subject, final K subjectMod) throws JobExecutionException {
 
-        userMod.addAttributeToBeRemoved("fullname");
+        subjectMod.addAttributeToBeRemoved("fullname");
 
         AttributeMod fullnameMod = null;
-        for (AttributeMod attrMod : userMod.getAttributesToBeUpdated()) {
+        for (AttributeMod attrMod : subjectMod.getAttributesToBeUpdated()) {
             if ("fullname".equals(attrMod.getSchema())) {
                 fullnameMod = attrMod;
             }
@@ -65,7 +66,7 @@ public class TestSyncActions extends DefaultSyncActions {
         if (fullnameMod == null) {
             fullnameMod = new AttributeMod();
             fullnameMod.setSchema("fullname");
-            userMod.addAttributeToBeUpdated(fullnameMod);
+            subjectMod.addAttributeToBeUpdated(fullnameMod);
         }
 
         fullnameMod.setValuesToBeAdded(Collections.singletonList(String.valueOf(counter++)));

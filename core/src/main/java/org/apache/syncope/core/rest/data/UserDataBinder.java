@@ -30,10 +30,10 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.Policy;
-import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
@@ -51,7 +51,7 @@ import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.PropagationOperation;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -271,20 +271,19 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setChangePwdDate(new Date());
 
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-
             String oldUsername = user.getUsername();
 
             user.setUsername(userMod.getUsername());
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
             for (ExternalResource resource : user.getResources()) {
-                for (SchemaMapping mapping : resource.getMappings()) {
-                    if (mapping.isAccountid() && mapping.getIntMappingType() == IntMappingType.Username) {
+                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
+                    if (mapItem.isAccountid() && mapItem.getIntMappingType() == IntMappingType.Username) {
                         propByRes.addOldAccountId(resource.getName(), oldUsername);
                     }
                 }
@@ -304,11 +303,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         final Set<String> toBeProvisioned = new HashSet<String>();
 
         // memberships to be removed
-        Membership membership;
         for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
             LOG.debug("Membership to be removed: {}", membershipId);
 
-            membership = membershipDAO.find(membershipId);
+            Membership membership = membershipDAO.find(membershipId);
             if (membership == null) {
                 LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
@@ -345,7 +343,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     // remove virtual attributes
                     for (AbstractVirAttr virAttr : membership.getVirtualAttributes()) {
-
                         attributeIds.add(virAttr.getId());
                     }
                     for (Long virAttrId : attributeIds) {
@@ -368,7 +365,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             if (role == null) {
                 LOG.debug("Ignoring invalid role {}", membershipMod.getRole());
             } else {
-                membership = user.getMembership(role.getId());
+                Membership membership = user.getMembership(role.getId());
                 if (membership == null) {
                     membership = new Membership();
                     membership.setSyncopeRole(role);
@@ -396,8 +393,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             throw scce;
         }
 
-        propByRes.addAll(PropagationOperation.DELETE, toBeDeprovisioned);
-        propByRes.addAll(PropagationOperation.UPDATE, toBeProvisioned);
+        propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
+        propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
         /**
          * In case of new memberships all the current resources have to be updated in order to propagate new role and
@@ -405,7 +402,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
          */
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
-            propByRes.addAll(PropagationOperation.UPDATE, currentResources);
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         return propByRes;
@@ -413,13 +410,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public UserTO getUserTO(final SyncopeUser user) {
-
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
 
-        // retrieve virtual values
-        connObjectUtil.retrieveVirAttrValues(user);
+        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
 
         fillTO(userTO, user.getAttributes(), user.getDerivedAttributes(), user.getVirtualAttributes(),
                 user.getResources());

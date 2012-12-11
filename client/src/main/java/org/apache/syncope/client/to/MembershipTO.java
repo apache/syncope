@@ -19,6 +19,7 @@
 package org.apache.syncope.client.to;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class MembershipTO extends AbstractAttributableTO {
@@ -57,10 +58,29 @@ public class MembershipTO extends AbstractAttributableTO {
 
     @Override
     public Set<String> getResources() {
-        return Collections.emptySet();
+        return Collections.EMPTY_SET;
     }
 
     @Override
     public void setResources(Set<String> resources) {
+    }
+
+    @Override
+    public boolean addPropagationTO(PropagationTO status) {
+        return false;
+    }
+
+    @Override
+    public boolean removePropagationTO(String resource) {
+        return false;
+    }
+
+    @Override
+    public List<PropagationTO> getPropagationTOs() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public void setPropagationTOs(List<PropagationTO> propagationTOs) {
     }
 }

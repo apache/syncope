@@ -24,6 +24,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
@@ -43,6 +44,9 @@ public class SyncTask extends SchedTask {
 
     @Lob
     private String userTemplate;
+
+    @Lob
+    private String roleTemplate;
 
     @Basic
     @Min(0)
@@ -100,6 +104,16 @@ public class SyncTask extends SchedTask {
 
     public void setUserTemplate(final UserTO userTemplate) {
         this.userTemplate = XMLSerializer.serialize(userTemplate);
+    }
+
+    public RoleTO getRoleTemplate() {
+        return userTemplate == null
+                ? new RoleTO()
+                : XMLSerializer.<RoleTO>deserialize(roleTemplate);
+    }
+
+    public void setRoleTemplate(final RoleTO roleTemplate) {
+        this.roleTemplate = XMLSerializer.serialize(roleTemplate);
     }
 
     public boolean isPerformCreate() {

@@ -19,32 +19,27 @@
 package org.apache.syncope.core.sync;
 
 import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.syncope.core.quartz.AbstractTaskJob.Status;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.TraceLevel;
 
 public class SyncResult {
-
-    static enum Operation {
-
-        CREATE,
-        UPDATE,
-        DELETE
-
-    }
 
     private String message;
 
     private Status status;
 
-    private Operation operation;
+    private AttributableType subjectType;
 
-    private Long userId;
+    private ResourceOperation operation;
 
-    private String username;
+    private Long id;
+
+    private String name;
 
     public String getMessage() {
         return message;
@@ -54,20 +49,20 @@ public class SyncResult {
         this.message = message;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(final String username) {
-        this.username = username;
+    public void setName(final String name) {
+        this.name = name;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Status getStatus() {
@@ -78,12 +73,20 @@ public class SyncResult {
         this.status = status;
     }
 
-    public Operation getOperation() {
-        return this.operation;
+    public AttributableType getSubjectType() {
+        return subjectType;
     }
 
-    public void setOperation(Operation t) {
-        this.operation = t;
+    public void setSubjectType(final AttributableType subjectType) {
+        this.subjectType = subjectType;
+    }
+
+    public ResourceOperation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(final ResourceOperation operation) {
+        this.operation = operation;
     }
 
     @Override
@@ -93,6 +96,7 @@ public class SyncResult {
 
     /**
      * Human readable report string, using the given trace level.
+     *
      * @param level trace level
      * @return String for certain levels, null for level NONE
      */
@@ -101,30 +105,28 @@ public class SyncResult {
             // No per entry log in this case.
             return null;
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
-
             // only report failures
-            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, userId, username, message);
+            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, id, name, message);
         } else {
             // All
-            return String.format("%s %s (id/ name): %d/ %s %s", operation, status, userId, username, StringUtils
-                    .isEmpty(message)
+            return String.format("%s %s (id/name): %d/%s %s", operation, status, id, name,
+                    StringUtils.isBlank(message)
                     ? ""
                     : "with message: " + message);
         }
     }
 
     /**
-     * Helper method to invoke logging per synchronization result for the
-     * given trace level.
+     * Helper method to invoke logging per synchronization result for the given trace level.
+     *
      * @param results synchronization result
      * @param level trace level
      * @return report as string
      */
-    public static String reportSetOfSynchronizationResult(final Collection<SyncResult> results, final TraceLevel level) {
-
+    public static String produceReport(final Collection<SyncResult> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
-        for (SyncResult sr : results) {
-            sb.append(sr.getReportString(level)).append("\n");
+        for (SyncResult result : results) {
+            sb.append(result.getReportString(level)).append("\n");
         }
         return sb.toString();
     }

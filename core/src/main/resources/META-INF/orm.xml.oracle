@@ -55,11 +55,35 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.beans.SchemaMapping">
+  <entity class="org.apache.syncope.core.persistence.beans.user.UMapping">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_SchemaMapping" strategy="TABLE"/>
-        <table-generator name="SEQ_SchemaMapping" pk-column-value="SEQ_SchemaMapping" initial-value="1000"/>
+        <generated-value generator="SEQ_UMapping" strategy="TABLE"/>
+        <table-generator name="SEQ_UMapping" pk-column-value="SEQ_UMapping" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.role.RMapping">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_RMapping" strategy="TABLE"/>
+        <table-generator name="SEQ_RMapping" pk-column-value="SEQ_RMapping" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.user.UMappingItem">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_UMappingItem" strategy="TABLE"/>
+        <table-generator name="SEQ_UMappingItem" pk-column-value="SEQ_UMappingItem" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.role.RMappingItem">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_RMappingItem" strategy="TABLE"/>
+        <table-generator name="SEQ_RMappingItem" pk-column-value="SEQ_RMappingItem" initial-value="1000"/>
       </id>
     </attributes>
   </entity>

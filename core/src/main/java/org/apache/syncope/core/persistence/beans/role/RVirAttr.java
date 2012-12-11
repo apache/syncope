@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.beans.role;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -66,6 +66,9 @@ public class RVirAttr extends AbstractVirAttr {
 
     @Override
     public List<String> getValues() {
-        return Collections.emptyList();
+        if (values == null) {
+            values = new ArrayList<String>();
+        }
+        return values;
     }
 }

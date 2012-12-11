@@ -26,6 +26,8 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private UserTO userTemplate;
 
+    private RoleTO roleTemplate;
+
     private boolean performCreate;
 
     private boolean performUpdate;
@@ -44,6 +46,14 @@ public class SyncTaskTO extends SchedTaskTO {
 
     public void setUserTemplate(UserTO userTemplate) {
         this.userTemplate = userTemplate;
+    }
+
+    public RoleTO getRoleTemplate() {
+        return roleTemplate;
+    }
+
+    public void setRoleTemplate(RoleTO roleTemplate) {
+        this.roleTemplate = roleTemplate;
     }
 
     public String getResource() {
