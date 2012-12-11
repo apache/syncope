@@ -276,6 +276,9 @@ under the License.
                 <artifactId>h2</artifactId>
               </dependency>
             </dependencies>
+            <systemProperties>
+              <syncope.console.configuration>${project.build.directory}/test-classes/configuration.properties</syncope.console.configuration>
+            </systemProperties>
           </container>
           <configuration>
             <type>standalone</type>

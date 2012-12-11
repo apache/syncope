@@ -38,7 +38,14 @@ under the License.
 
   <context:component-scan base-package="org.apache.syncope.console.rest"/>
 
-  <bean id="propertyConfigurer"
+  <bean id="systemPropertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="order" value="1"/> 
+    <property name="location" value="file:#{(systemProperties['syncope.console.configuration'])}"/> 
+    <property name="ignoreResourceNotFound" value="true"/> 
+    <property name="ignoreUnresolvablePlaceholders" value="true"/> 
+  </bean>
+  <bean id="defaultPropertyConfigurer"
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
       <list>
@@ -46,7 +53,7 @@ under the License.
       </list>
     </property>
   </bean>
-
+  
   <bean id="baseURL" class="java.lang.String">
     <constructor-arg value="${scheme}://${host}:${port}${path}"/>
   </bean>

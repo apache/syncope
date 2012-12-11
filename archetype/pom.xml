@@ -144,6 +144,8 @@ under the License.
                     <copy file="${basedir}/../core/src/main/resources/META-INF/spring-persistence.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF" overwrite="true" />
                     <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
 
+                    <copy file="${basedir}/../console/src/test/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/test/resources" overwrite="true" />
+
                     <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../console/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/webapp/WEB-INF" overwrite="true" />
@@ -161,6 +163,8 @@ under the License.
                     <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
                     <get src="${SVNRepoURL}/core/src/main/resources/META-INF/spring-persistence.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF/spring-persistence.xml" />
                     <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
+
+                    <get src="${SVNRepoURL}/console/src/test/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/test/resources/configuration.properties" />
 
                     <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
                     <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
