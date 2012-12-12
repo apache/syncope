@@ -23,12 +23,12 @@ import org.apache.syncope.workflow.WorkflowException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.UserTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

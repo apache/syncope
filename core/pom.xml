@@ -531,9 +531,10 @@ under the License.
                      <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
                      <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-              <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
+              <!--cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs-->
                      <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false
-                        -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                        -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m
+                        -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                   </properties>
                   <configfiles>
                      <configfile>

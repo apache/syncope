@@ -85,7 +85,7 @@ under the License.
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RAttr" strategy="TABLE"/>
-        <table-generator name="SEQ_RAttr" pk-column-value="SEQ_RAttr" initial-value="1000"/>
+        <table-generator name="SEQ_RAttr" pk-column-value="SEQ_RAttr" initial-value="1100"/>
       </id>
     </attributes>
   </entity>

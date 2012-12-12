@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.controller;
+package org.apache.syncope.services;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import org.apache.syncope.to.RoleTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
-@Path("/role")
+@Path("/roles")
 public interface RoleService {
 
     @GET

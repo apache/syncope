@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.controller;
+package org.apache.syncope.services;
 
 import java.util.Collections;
 import java.util.Set;

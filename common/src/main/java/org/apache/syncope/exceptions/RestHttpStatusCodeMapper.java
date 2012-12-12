@@ -9,8 +9,9 @@ import javax.ws.rs.ext.Provider;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.NotFoundException;
-import org.apache.syncope.controller.UnauthorizedRoleException;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.validation.InvalidEntityException;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -38,7 +39,7 @@ public class RestHttpStatusCodeMapper implements ExceptionMapper<Exception>,
         if (e instanceof UnauthorizedRoleException)
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(errorMsg).type(MediaType.TEXT_PLAIN_TYPE).build();
-        if (e instanceof InvalidEntityException || e instanceof DataIntegrityViolationException)
+        if (e instanceof InvalidEntityException || e instanceof DataIntegrityViolationException || e instanceof SyncopeClientCompositeErrorException)
             return Response.status(Response.Status.BAD_REQUEST).entity(errorMsg)
                     .type(MediaType.TEXT_PLAIN_TYPE).build();
 

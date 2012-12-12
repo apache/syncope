@@ -23,11 +23,11 @@ import org.apache.syncope.workflow.WorkflowException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.to.WorkflowDefinitionTO;
 import org.apache.syncope.to.WorkflowFormTO;

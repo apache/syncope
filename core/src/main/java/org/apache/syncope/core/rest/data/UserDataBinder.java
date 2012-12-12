@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.NotFoundException;
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.mod.MembershipMod;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.MembershipTO;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.AttributableType;

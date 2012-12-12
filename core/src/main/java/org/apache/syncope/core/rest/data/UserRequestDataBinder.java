@@ -21,11 +21,11 @@ package org.apache.syncope.core.rest.data;
 import javax.persistence.RollbackException;
 
 import org.apache.syncope.NotFoundException;
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.UserRequestTO;
 import org.apache.syncope.to.UserTO;
 import org.springframework.beans.BeanUtils;

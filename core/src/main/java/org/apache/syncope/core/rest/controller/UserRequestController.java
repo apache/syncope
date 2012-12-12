@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.RollbackException;
 
 import org.apache.syncope.NotFoundException;
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.UserRequest;
@@ -31,6 +30,7 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.rest.data.UserRequestDataBinder;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.UserRequestTO;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.types.AuditElements.Category;

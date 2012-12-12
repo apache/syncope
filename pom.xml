@@ -889,7 +889,8 @@ under the License.
           <artifactId>maven-dependency-plugin</artifactId>
           <version>2.5.1</version>
           <configuration>
-            <artifactItems>
+<excludeTransitive>true</excludeTransitive>
+		  <artifactItems>
               <artifactItem>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>org.connid.bundles.soap</artifactId>

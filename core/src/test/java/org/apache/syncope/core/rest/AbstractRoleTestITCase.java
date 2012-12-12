@@ -33,10 +33,10 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.NotFoundException;
-import org.apache.syncope.controller.RoleService;
-import org.apache.syncope.controller.UnauthorizedRoleException;
 import org.apache.syncope.mod.AttributeMod;
 import org.apache.syncope.mod.RoleMod;
+import org.apache.syncope.services.RoleService;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.AttributeTO;
 import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.to.UserTO;
@@ -48,8 +48,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void crud() throws NotFoundException, UnauthorizedRoleException {
-        String parentRoleName = "testParentRole-" + UUID.randomUUID().toString().substring(0, 12);
-        String childRoleName = "testChildRole-" + UUID.randomUUID().toString().substring(0, 12);
+        String parentRoleName = "testParentRole-" + UUID.randomUUID().toString();
+        String childRoleName = "testChildRole-" + UUID.randomUUID().toString();
         long parentRoleId;
         long childRoleId;
 
@@ -234,7 +234,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
-        String newRoleName = "finalRole-" + UUID.randomUUID().toString().substring(0, 8);
+        String newRoleName = "finalRole-" + UUID.randomUUID().toString();
         roleMod.setName(newRoleName);
         roleMod.addAttributeToBeUpdated(attributeMod);
 
@@ -256,7 +256,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingVirAttribute() throws UnauthorizedRoleException, NotFoundException {
-        String roleName = "withvirtual-" + UUID.randomUUID().toString().substring(0, 8);
+        String roleName = "withvirtual-" + UUID.randomUUID().toString();
         RoleTO roleTO = new RoleTO();
         roleTO.setName(roleName);
         roleTO.setParent(8L);
@@ -290,7 +290,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingDerAttribute() throws UnauthorizedRoleException, NotFoundException {
-        String roleName = "withderived-" + UUID.randomUUID().toString().substring(0, 8);
+        String roleName = "withderived-" + UUID.randomUUID().toString();
         RoleTO roleTO = new RoleTO();
         roleTO.setName(roleName);
         roleTO.setParent(8L);
@@ -364,7 +364,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     @Test
     public void issue178() throws UnauthorizedRoleException, NotFoundException {
         RoleTO roleTO = new RoleTO();
-        String roleName = "torename-" + UUID.randomUUID().toString().substring(0, 8);
+        String roleName = "torename-" + UUID.randomUUID().toString();
         roleTO.setName(roleName);
 
         Response response = roleService.create(roleTO);
@@ -397,7 +397,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     @Test
     public void issue228() throws UnauthorizedRoleException, NotFoundException {
         RoleTO roleTO = new RoleTO();
-        String roleName = "issue228-" + UUID.randomUUID().toString().substring(0, 12);
+        String roleName = "issue228-" + UUID.randomUUID().toString();
         roleTO.setName(roleName);
         roleTO.setParent(8L);
         roleTO.setInheritAccountPolicy(false);
