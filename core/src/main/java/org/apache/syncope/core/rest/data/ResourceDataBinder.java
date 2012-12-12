@@ -109,11 +109,13 @@ public class ResourceDataBinder {
 
         if (resourceTO.getUmapping() != null) {
             UMapping mapping = new UMapping();
+            mapping.setResource(resource);
             resource.setUmapping(mapping);
             populateMapping(resourceTO.getUmapping(), mapping, new UMappingItem());
         }
         if (resourceTO.getRmapping() != null) {
             RMapping mapping = new RMapping();
+            mapping.setResource(resource);
             resource.setRmapping(mapping);
             populateMapping(resourceTO.getRmapping(), mapping, new RMappingItem());
         }
@@ -152,6 +154,7 @@ public class ResourceDataBinder {
         mapping.setAccountLink(mappingTO.getAccountLink());
 
         for (AbstractMappingItem item : getMappingItems(mappingTO.getItems(), prototype)) {
+            item.setMapping(mapping);
             if (item.isAccountid()) {
                 mapping.setAccountIdItem(item);
             } else if (item.isPassword()) {
@@ -176,17 +179,15 @@ public class ResourceDataBinder {
     private AbstractMappingItem getMappingItem(final MappingItemTO itemTO, final AbstractMappingItem prototype)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
-
-        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
-
-        // this control needs to be free to get schema names
-        // without a complete/good resourceTO object
         if (itemTO == null || itemTO.getIntMappingType() == null) {
             LOG.error("Null mappingTO provided");
             return null;
         }
+
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+
+        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
+                SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (itemTO.getIntAttrName() == null) {
             if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {

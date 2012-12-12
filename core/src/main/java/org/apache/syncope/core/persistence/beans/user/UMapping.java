@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -80,7 +79,7 @@ public class UMapping extends AbstractMapping {
                     + accountIdItem.getClass().getName());
         }
 
-        addAccountIdItem(accountIdItem);
+        this.addAccountIdItem(accountIdItem);
     }
 
     public UMappingItem getPasswordItem() {
@@ -96,7 +95,7 @@ public class UMapping extends AbstractMapping {
     public boolean setPasswordItem(final UMappingItem passwordItem) {
         passwordItem.setExtAttrName(OperationalAttributes.PASSWORD_NAME);
         passwordItem.setPassword(true);
-        return addItem(passwordItem);
+        return this.addItem(passwordItem);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class UMapping extends AbstractMapping {
                 throw new ClassCastException("items are expected to be typed UMappingItem: "
                         + item.getClass().getName());
             }
-            this.items.addAll((Set<UMappingItem>) items);
+            this.items.addAll((List<UMappingItem>) items);
         }
     }
 }

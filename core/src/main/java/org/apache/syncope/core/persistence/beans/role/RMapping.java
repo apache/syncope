@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -79,7 +78,7 @@ public class RMapping extends AbstractMapping {
                     + accountIdItem.getClass().getName());
         }
 
-        addAccountIdItem(accountIdItem);
+        this.addAccountIdItem(accountIdItem);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class RMapping extends AbstractMapping {
                 throw new ClassCastException("items are expected to be typed RMappingItem: "
                         + item.getClass().getName());
             }
-            this.items.addAll((Set<RMappingItem>) items);
+            this.items.addAll((List<RMappingItem>) items);
         }
     }
 }
