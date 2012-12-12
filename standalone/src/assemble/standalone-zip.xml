@@ -15,7 +15,7 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-  
+
 -->
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -28,10 +28,19 @@ under the License.
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>target/standalone/apache-tomcat-${tomcat.version}</directory>
-      <outputDirectory>apache-tomcat-${tomcat.version}</outputDirectory>
+      <directory>${work.dir}</directory>
+      <outputDirectory>apache-syncope-standalone-${project.version}</outputDirectory>
+      <excludes>
+        <exclude>**/*.sh</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${work.dir}/apache-tomcat-${tomcat.version}/bin</directory>
+      <outputDirectory>apache-syncope-standalone-${project.version}/apache-tomcat-${tomcat.version}/bin</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
       <fileMode>0755</fileMode>
-      <directoryMode>0755</directoryMode>
     </fileSet>
   </fileSets>
 </assembly>

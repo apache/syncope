@@ -92,6 +92,10 @@ under the License.
               <target>
                 <mkdir dir="${work.dir}"/>
                 
+                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}"/>
+                <copy file="../legal_ext/LICENSE" todir="${work.dir}"/>
+                <copy file="../legal_ext/NOTICE" todir="${work.dir}"/>
+
                 <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip"
                        dest="${work.dir}"/>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
@@ -112,15 +116,6 @@ under the License.
                 <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar"
                       todir="${work.dir}/apache-tomcat-${tomcat.version}/lib"/>
                 
-                <move file="${work.dir}/apache-tomcat-${tomcat.version}/LICENSE"
-                      tofile="${work.dir}/apache-tomcat-${tomcat.version}/LICENSE.Tomcat"/>
-                <move file="${work.dir}/apache-tomcat-${tomcat.version}/NOTICE"
-                      tofile="${work.dir}/apache-tomcat-${tomcat.version}/NOTICE.Tomcat"/>
-                <copy file="../legal_ext/LICENSE"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/" overwrite="true"/>
-                <copy file="../legal_ext/NOTICE"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/" overwrite="true"/>
-
                 <copy file="src/main/resources/setenv.sh"
                       todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" 
