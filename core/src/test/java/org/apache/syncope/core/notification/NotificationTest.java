@@ -55,7 +55,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,24 +154,18 @@ public class NotificationTest {
     }
 
     @Before
-    public void setupSMTP() {
-        try {
-            SyncopeConf smtpHostConf = confDAO.find("smtp.host");
-            smtpHostConf.setValue(smtpHost);
-            confDAO.save(smtpHostConf);
+    public void setupSMTP() throws Exception {
+        SyncopeConf smtpHostConf = confDAO.find("smtp.host");
+        smtpHostConf.setValue(smtpHost);
+        confDAO.save(smtpHostConf);
 
-            SyncopeConf smtpPortConf = confDAO.find("smtp.port");
-            smtpPortConf.setValue(Integer.toString(smtpPort));
-            confDAO.save(smtpPortConf);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while setting SMTP host and port");
-        }
-
+        SyncopeConf smtpPortConf = confDAO.find("smtp.port");
+        smtpPortConf.setValue(Integer.toString(smtpPort));
+        confDAO.save(smtpPortConf);
         confDAO.flush();
     }
 
-    private boolean verifyMail(final String sender, final String subject) {
+    private boolean verifyMail(final String sender, final String subject) throws Exception {
         LOG.info("Waiting for notification to be sent...");
         try {
             Thread.sleep(1000);
@@ -180,34 +173,28 @@ public class NotificationTest {
         }
 
         boolean found = false;
-        try {
-            Session session = Session.getDefaultInstance(System.getProperties());
-            Store store = session.getStore("pop3");
-            store.connect(pop3Host, pop3Port, mailAddress, mailPassword);
+        Session session = Session.getDefaultInstance(System.getProperties());
+        Store store = session.getStore("pop3");
+        store.connect(pop3Host, pop3Port, mailAddress, mailPassword);
 
-            Folder inbox = store.getFolder("INBOX");
-            assertNotNull(inbox);
-            inbox.open(Folder.READ_WRITE);
+        Folder inbox = store.getFolder("INBOX");
+        assertNotNull(inbox);
+        inbox.open(Folder.READ_WRITE);
 
-            Message[] messages = inbox.getMessages();
-            for (int i = 0; i < messages.length; i++) {
-                if (sender.equals(messages[i].getFrom()[0].toString()) && subject.equals(messages[i].getSubject())) {
-                    found = true;
-                    messages[i].setFlag(Flag.DELETED, true);
-                }
+        Message[] messages = inbox.getMessages();
+        for (int i = 0; i < messages.length; i++) {
+            if (sender.equals(messages[i].getFrom()[0].toString()) && subject.equals(messages[i].getSubject())) {
+                found = true;
+                messages[i].setFlag(Flag.DELETED, true);
             }
-            inbox.close(true);
-            store.close();
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while fetching e-mail");
         }
-
+        inbox.close(true);
+        store.close();
         return found;
     }
 
     @Test
-    public void notifyByMail() {
+    public void notifyByMail() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("create");
@@ -242,20 +229,10 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
-        try {
-            userController.create(new MockHttpServletResponse(), userTO);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while creating");
-        }
+        userController.create(new MockHttpServletResponse(), userTO);
 
         // 3. force Quartz job execution and verify e-mail
-        try {
-            notificationJob.execute(null);
-        } catch (SchedulerException e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while triggering notification job");
-        }
+        notificationJob.execute(null);
         assertTrue(verifyMail(sender, subject));
 
         // 4. get NotificationTask id
@@ -268,17 +245,12 @@ public class NotificationTest {
         assertNotNull(taskId);
 
         // 5. execute Notification task and verify e-mail
-        try {
-            taskController.execute(taskId, false);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while executing notification task");
-        }
+        taskController.execute(taskId, false);
         assertTrue(verifyMail(sender, subject));
     }
 
     @Test
-    public void issueSYNCOPE192() {
+    public void issueSYNCOPE192() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("create");
@@ -314,20 +286,10 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
-        try {
-            userController.create(new MockHttpServletResponse(), userTO);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while creating");
-        }
+        userController.create(new MockHttpServletResponse(), userTO);
 
         // 3. force Quartz job execution and verify e-mail
-        try {
-            notificationJob.execute(null);
-        } catch (SchedulerException e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while triggering notification job");
-        }
+        notificationJob.execute(null);
         assertTrue(verifyMail(sender, subject));
 
         // 4. get NotificationTask id
@@ -340,13 +302,7 @@ public class NotificationTest {
         assertNotNull(taskId);
 
         // 5. verify that last exec status was updated
-        NotificationTaskTO task = null;
-        try {
-            task = (NotificationTaskTO) taskController.read(taskId);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-            fail("Unexpected exception while reading notification task");
-        }
+        NotificationTaskTO task = (NotificationTaskTO) taskController.read(taskId);
         assertNotNull(task);
         assertTrue(task.getExecutions().isEmpty());
         assertTrue(task.isExecuted());
