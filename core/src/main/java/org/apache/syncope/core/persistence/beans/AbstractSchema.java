@@ -28,6 +28,7 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
@@ -77,9 +78,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private String validatorClass;
 
     @Column(nullable = true)
+    @Lob
     private String enumerationValues;
 
     @Column(nullable = true)
+    @Lob
     private String enumerationKeys;
 
     @Transient
