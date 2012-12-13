@@ -58,6 +58,24 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
     private String adminPassword;
 
+    private String adminPasswordAlgorithm;
+
+    public SyncopeUserDetailsService getSyncopeUserDetailsService() {
+        return userDetailsService;
+    }
+
+    public void setSyncopeUserDetailsService(final SyncopeUserDetailsService syncopeUserDetailsService) {
+        this.userDetailsService = syncopeUserDetailsService;
+    }
+
+    public String getAdminUser() {
+        return adminUser;
+    }
+
+    public void setAdminUser(final String adminUser) {
+        this.adminUser = adminUser;
+    }
+
     /**
      * @return the adminPassword
      */
@@ -86,36 +104,15 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         this.adminPasswordAlgorithm = adminPasswordAlgorithm;
     }
 
-    private String adminPasswordAlgorithm;
-
-    public String getAdminUser() {
-        return adminUser;
-    }
-
-    public void setAdminUser(final String adminUser) {
-        this.adminUser = adminUser;
-    }
-
-    public SyncopeUserDetailsService getSyncopeUserDetailsService() {
-        return userDetailsService;
-    }
-
-    public void setSyncopeUserDetailsService(SyncopeUserDetailsService syncopeUserDetailsService) {
-
-        this.userDetailsService = syncopeUserDetailsService;
-    }
-
     @Override
     @Transactional(noRollbackFor = {BadCredentialsException.class, DisabledException.class})
     public Authentication authenticate(final Authentication authentication)
             throws AuthenticationException {
 
         boolean authenticated = false;
-        SyncopeUser passwordUser = new SyncopeUser();
         SyncopeUser user = null;
 
         String username = authentication.getName();
-
         if (adminUser.equals(username)) {
             authenticated = PasswordEncoder.verifyPassword(
                     authentication.getCredentials().toString(),
