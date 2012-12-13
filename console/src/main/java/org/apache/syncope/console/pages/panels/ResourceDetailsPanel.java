@@ -105,8 +105,8 @@ public class ResourceDetailsPanel extends Panel {
         add(propagationMode);
 
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
-                "actionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
-                new PropertyModel<String>(resourceTO, "actionsClassName"));
+                "propagationActionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
+                new PropertyModel<String>(resourceTO, "propagationActionsClassName"));
         actionsClassName.setChoices(actionClassNames);
         actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         add(actionsClassName);

@@ -507,7 +507,7 @@ under the License.
     <profile>
       <id>jrebel</id>
       <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <skipTests>true</skipTests>
         <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
       </properties>
       <build>
