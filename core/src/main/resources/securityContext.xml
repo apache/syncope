@@ -28,7 +28,7 @@ under the License.
 
   <security:global-method-security pre-post-annotations="enabled"/>
 
-  <bean id="securityContextRepository" class='org.apache.syncope.core.security.NullSecurityContextRepository'/>
+  <bean id="securityContextRepository" class='org.springframework.security.web.context.NullSecurityContextRepository'/>
 
   <security:http security-context-repository-ref="securityContextRepository">
     <security:http-basic/>
