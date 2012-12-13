@@ -1191,6 +1191,16 @@ under the License.
       </build>
     </profile>
     
+    <profile>
+      <id>skipTests</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+      <build>
+        <defaultGoal>clean install</defaultGoal>
+      </build>
+    </profile>
+    
   </profiles>
 
   <modules>
