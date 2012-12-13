@@ -50,6 +50,8 @@ import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.mod.AttributeMod;
 import org.apache.syncope.mod.MembershipMod;
+import org.apache.syncope.mod.StatusMod;
+import org.apache.syncope.mod.StatusMod.Status;
 import org.apache.syncope.mod.UserMod;
 import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.AttributeCond;
@@ -148,8 +150,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     public void createUserWithNoPropagation() throws PropagationException, UnauthorizedRoleException,
             WorkflowException, NotFoundException {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/propagation/list.json", PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "task/propagation/list.json", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -199,15 +201,19 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     // This test should be moved to PolicyTestITCase
     /*
      * This test has been introduced to verify and solve the following issue:
-     * http://code.google.com/p/syncope/issues/detail?id=172. Creations of a new user without having a global password
-     * policy stored into the local repository used to fail with a null pointer exception. This bug has been fixed
-     * introducing a simple control.
+     * http://code.google.com/p/syncope/issues/detail?id=172. Creations of a new
+     * user without having a global password policy stored into the local
+     * repository used to fail with a null pointer exception. This bug has been
+     * fixed introducing a simple control.
      */
     @Ignore
-    public void issue172() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
-        // This test causes sideeffects to other tests, which depend on policy with the id 2L. ReCreating this policy
+    public void issue172() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
+        // This test causes sideeffects to other tests, which depend on policy
+        // with the id 2L. ReCreating this policy
         // after deletion is not sufficient, because another ID will be assigned
-        PolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
+        PolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/read/{id}", PasswordPolicyTO.class,
+                2L);
 
         assertNotNull(policyTO);
 
@@ -219,14 +225,15 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             userCreateAndGet(userTO);
 
         } finally {
-            policyTO = restTemplate
-                    .postForObject(BASE_URL + "policy/password/create", policyTO, PasswordPolicyTO.class);
+            policyTO = restTemplate.postForObject(BASE_URL + "policy/password/create", policyTO,
+                    PasswordPolicyTO.class);
             assertNotNull(policyTO);
         }
     }
 
     @Test
-    public void issue186() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue186() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         // 1. create an user with strict mandatory attributes only
         String uid = getSampleEmail();
         UserTO userTO = new UserTO();
@@ -264,7 +271,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             fail("Exception required");
         } catch (Exception scce) {
             // TODO Fix error handling
-            // sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+            // sce =
+            // scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(scce);
         }
 
@@ -342,7 +350,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             userService.create(userTO);
             fail("Exception expected");
         } catch (Exception scce) {
-            // sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+            // sce =
+            // scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(scce);
         }
 
@@ -354,21 +363,22 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
     @Test
     @Ignore
-    public void testEnforceMandatoryConditionOnDerived() throws PropagationException, UnauthorizedRoleException,
-            WorkflowException, NotFoundException {
+    public void testEnforceMandatoryConditionOnDerived() throws PropagationException,
+            UnauthorizedRoleException, WorkflowException, NotFoundException {
         ResourceTO resourceTO;
 
         try {
-            resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
-                    "resource-csv-enforcing");
+            resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
+                    ResourceTO.class, "resource-csv-enforcing");
         } catch (Exception e) {
-            resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
-                    "resource-csv");
+            resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
+                    ResourceTO.class, "resource-csv");
 
             resourceTO.setName("resource-csv-enforcing");
             resourceTO.setEnforceMandatoryCondition(true);
             // FIXME create operation fails
-            resourceTO = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+            resourceTO = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO,
+                    ResourceTO.class);
         }
 
         assertNotNull(resourceTO);
@@ -381,7 +391,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             userTO = userCreateAndGet(userTO);
             fail("SyncopeClientExceptionType expected");
         } catch (Exception scce) {
-            // sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+            // sce =
+            // scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(scce);
         }
 
@@ -395,7 +406,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issue147() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue147() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         // 1. create an user without role nor resources
         UserTO userTO = getSampleTO();
 
@@ -414,7 +426,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             fail("Exception expected");
         } catch (Exception scce) {
             // TODO Exception Handling
-            // sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
+            // sce =
+            // scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         // assertNotNull(sce);
 
@@ -463,8 +476,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void createWithInvalidPassword() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void createWithInvalidPassword() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO("invalidpasswd@syncope.apache.org");
         userTO.setPassword("pass");
 
@@ -472,8 +485,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void createWithInvalidUsername() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void createWithInvalidUsername() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO("invalidusername@syncope.apache.org");
         userTO.setUsername("us");
 
@@ -515,8 +528,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void createWithException() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void createWithException() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
         attributeTO.addValue("userId@nowhere.org");
@@ -528,10 +541,11 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void create() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void create() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/propagation/list.json", PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "task/propagation/list.json", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -608,7 +622,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}.json", PropagationTaskTO.class, newMaxId);
+        taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}.json", PropagationTaskTO.class,
+                newMaxId);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -752,8 +767,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void createWithApproval() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void createWithApproval() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -807,8 +822,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertEquals(Collections.singleton("resource-testdb"), userTO.getResources());
 
         try {
-            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
-                    userTO.getUsername());
+            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    String.class, userTO.getUsername());
             assertEquals(userTO.getUsername(), username);
         } catch (EmptyResultDataAccessException e) {
             fail(e.getMessage());
@@ -824,7 +839,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void delete() throws WorkflowException, PropagationException, UnauthorizedRoleException, NotFoundException {
+    public void delete() throws WorkflowException, PropagationException, UnauthorizedRoleException,
+            NotFoundException {
         try {
             userService.delete(0L);
             fail("User should not be found");
@@ -863,9 +879,9 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO(uid);
         // specify a propagation
         userTO.addResource("resource-testdb");
-        userCreateAndGet(userTO);
 
-        userTO = userService.read(uid);
+        userTO = userCreateAndGet(userTO);
+
         Response response = userService.delete(userTO.getId());
 
         assertNotNull(response);
@@ -1019,7 +1035,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-2");
 
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
+        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2),
+                NodeCond.getLeafCond(ws1));
 
         assertTrue(searchCondition.checkValidity());
 
@@ -1077,8 +1094,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void updateWithouPassword() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void updateWithouPassword() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
 
         userTO = userCreateAndGet(userTO);
@@ -1098,8 +1115,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
     // @Test(expected = SyncopeClientCompositeErrorException.class)
     @Test(expected = BadRequestException.class)
-    public void updateInvalidPassword() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void updateInvalidPassword() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
 
         userTO = userCreateAndGet(userTO);
@@ -1114,8 +1131,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
     // @Test(expected = SyncopeClientCompositeErrorException.class)
     @Test(expected = BadRequestException.class)
-    public void updateSamePassword() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void updateSamePassword() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
 
         userTO = userCreateAndGet(userTO);
@@ -1129,7 +1146,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void update() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void update() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         String email = getSampleEmail();
         UserTO userTO = getSampleTO(email);
 
@@ -1218,8 +1236,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void updatePasswordOnly() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void updatePasswordOnly() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         List<PropagationTaskTO> beforeTasks = Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "task/propagation/list", PropagationTaskTO[].class));
         assertNotNull(beforeTasks);
@@ -1250,8 +1268,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
-        List<PropagationTaskTO> afterTasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        List<PropagationTaskTO> afterTasks = Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "task/propagation/list", PropagationTaskTO[].class));
         assertNotNull(afterTasks);
         assertFalse(afterTasks.isEmpty());
 
@@ -1259,11 +1277,11 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void verifyTaskRegistration() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void verifyTaskRegistration() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
-                PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL
+                + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -1292,7 +1310,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
+                PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -1326,7 +1345,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
+                PropagationTaskTO[].class));
 
         // get max task id
         maxId = newMaxId;
@@ -1353,7 +1373,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         userService.delete(userTO.getId());
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
+                PropagationTaskTO[].class));
 
         // get max task id
         maxId = newMaxId;
@@ -1389,8 +1410,10 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
         assertEquals("created", userTO.getStatus());
 
-        userTO = userService.activate(userTO.getId(), userTO.getToken(), new HashSet<String>(), Boolean.TRUE,
-                Boolean.TRUE);
+        StatusMod statusMod = new StatusMod(userTO.getId(), Status.ACTIVATE);
+        statusMod.setToken(userTO.getToken());
+
+        userTO = userService.setStatus(statusMod.getId(), statusMod);
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -1401,8 +1424,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
     @Test
     @Ignore
-    public void createActivateByUsername() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void createActivateByUsername() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
 
         UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
@@ -1419,9 +1442,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
         assertEquals("created", userTO.getStatus());
 
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/activateByUsername/{username}.json?token=" + userTO.getToken(), UserTO.class,
-                userTO.getUsername());
+        userTO = restTemplate.getForObject(BASE_URL + "user/activateByUsername/{username}.json?token="
+                + userTO.getToken(), UserTO.class, userTO.getUsername());
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -1431,8 +1453,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void suspendReactivate() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void suspendReactivate() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1442,14 +1464,19 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         userTO = userCreateAndGet(userTO);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured()
+                ? "active"
+                : "created", userTO.getStatus());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
+        StatusMod statusMod = new StatusMod(userTO.getId(), Status.SUSPEND);
+
+        userTO = userService.setStatus(userTO.getId(), statusMod);
 
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+        statusMod.setStatus(Status.REACTIVATE);
+        userTO = userService.setStatus(userTO.getId(), statusMod);
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -1468,7 +1495,9 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         userTO = userCreateAndGet(userTO);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured()
+                ? "active"
+                : "created", userTO.getStatus());
 
         userTO = restTemplate.getForObject(BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class,
                 userTO.getUsername());
@@ -1476,8 +1505,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/reactivateByUsername/{username}.json", UserTO.class,
-                userTO.getUsername());
+        userTO = restTemplate.getForObject(BASE_URL + "user/reactivateByUsername/{username}.json",
+                UserTO.class, userTO.getUsername());
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -1486,7 +1515,7 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     @Test
     public void suspendReactivateOnResource() throws PropagationException, UnauthorizedRoleException,
             WorkflowException, NotFoundException {
-        UserTO userTO = getSampleTO("suspreactonresource@syncope.apache.org");
+        UserTO userTO = getSampleTO();
 
         userTO.getMemberships().clear();
         userTO.getResources().clear();
@@ -1497,8 +1526,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(dbTable);
         userTO.addResource(dbTable.getName());
 
-        ResourceTO ldap = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
-                "resource-ldap");
+        ResourceTO ldap = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "resource-ldap");
 
         assertNotNull(ldap);
         userTO.addResource(ldap.getName());
@@ -1506,12 +1535,15 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         userTO = userCreateAndGet(userTO);
 
         assertNotNull(userTO);
-        assertEquals(SpringContextInitializer.isActivitiConfigured() ? "active" : "created", userTO.getStatus());
+        assertEquals(SpringContextInitializer.isActivitiConfigured()
+                ? "active"
+                : "created", userTO.getStatus());
 
-        String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
-                + "&performLocally=true"; // check also performLocally
+        StatusMod statusMod = new StatusMod(userTO.getId(), Status.SUSPEND);
+        statusMod.getExcludeResources().add(dbTable.getName());
+        statusMod.getExcludeResources().add(ldap.getName());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId() + query, UserTO.class);
+        userTO = userService.setStatus(userTO.getId(), statusMod);
 
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -1520,10 +1552,11 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, dbTable.getName(), dbTableUID);
+                + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class, dbTable.getName(),
+                dbTableUID);
 
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
-                .getValues().get(0)));
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap()
+                .get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
 
         String ldapUID = userTO.getUsername();
         assertNotNull(ldapUID);
@@ -1533,11 +1566,13 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
 
         assertNotNull(connObjectTO);
 
-        query = "?resourceNames=" + ldap.getName() + "&performLocally=false"; // check
-                                                                              // also
-                                                                              // performLocally
+        statusMod.setStatus(Status.REACTIVATE);
+        statusMod.getExcludeResources().clear();
+        statusMod.getExcludeResources().add(ldap.getName());
+        // check also performLocally
+        statusMod.setUpdateInternal(false);
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
+        userTO = userService.setStatus(userTO.getId(), statusMod);
 
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -1545,14 +1580,15 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, dbTable.getName(), dbTableUID);
 
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
-                .getValues().get(0)));
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap()
+                .get(OperationalAttributes.ENABLE_NAME).getValues().get(0)));
 
-        query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check
-                                                                                // also
-                                                                                // performLocally
+        statusMod.getExcludeResources().clear();
+        statusMod.getExcludeResources().add(dbTable.getName());
+        // check also performLocally
+        statusMod.setUpdateInternal(true);
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId() + query, UserTO.class);
+        userTO = userService.setStatus(userTO.getId(), statusMod);
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -1564,8 +1600,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
                 .getValues().get(0)));
     }
 
-    public void updateMultivalueAttribute() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void updateMultivalueAttribute() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
         userTO.getResources().clear();
         userTO.getDerivedAttributes().clear();
@@ -1595,7 +1631,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
-    public void issue213() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue213() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         UserTO userTO = getSampleTO();
         userTO.addResource("resource-testdb");
 
@@ -1623,7 +1660,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issue234() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue234() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         String uid = getSampleEmail();
         UserTO userTO = getSampleTO(uid);
         userTO.addResource("resource-ldap");
@@ -1644,7 +1682,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issue270() throws NotFoundException, UnauthorizedRoleException, PropagationException, WorkflowException {
+    public void issue270() throws NotFoundException, UnauthorizedRoleException, PropagationException,
+            WorkflowException {
         // 1. create a new user without virtual attributes
         UserTO original = getSampleTO();
         // be sure to remove all virtual attributes
@@ -1714,7 +1753,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     @Test
     @Ignore
     // Are propagations required after create?
-    public void issue281() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue281() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         UserTO userTO = getSampleTO();
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1738,7 +1778,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issue288() throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public void issue288() throws PropagationException, UnauthorizedRoleException, WorkflowException,
+            NotFoundException {
         UserTO userTO = getSampleTO();
 
         AttributeTO attributeTO = new AttributeTO();
@@ -1756,8 +1797,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void roleAttrPropagation() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void roleAttrPropagation() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1790,8 +1831,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void membershipAttrPropagation() throws PropagationException, UnauthorizedRoleException, WorkflowException,
-            NotFoundException {
+    public void membershipAttrPropagation() throws PropagationException, UnauthorizedRoleException,
+            WorkflowException, NotFoundException {
         UserTO userTO = getSampleTO();
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1922,9 +1963,9 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = restTemplate
-                .getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class,
-                        "resource-csv", actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "resource-csv", actual.getDerivedAttributeMap().get("csvuserid")
+                        .getValues().get(0));
 
         assertNotNull(connObjectTO);
         // -----------------------------------
@@ -1943,9 +1984,9 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = restTemplate
-                .getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class,
-                        "resource-csv", actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+        connObjectTO = restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "resource-csv", actual.getDerivedAttributeMap().get("csvuserid")
+                        .getValues().get(0));
 
         assertNotNull(connObjectTO);
         // -----------------------------------
@@ -1964,8 +2005,9 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class,
-                    "resource-csv", actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+            restTemplate.getForObject(BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                    ConnObjectTO.class, "resource-csv", actual.getDerivedAttributeMap().get("csvuserid")
+                            .getValues().get(0));
             fail("SyncopeClientCompositeErrorException expected");
         } catch (Exception e) {
             // assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -2033,7 +2075,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        MembershipTO membershipTO = actual.getMemberships().get(0).getRoleId() == 12L ? actual.getMemberships().get(0)
+        MembershipTO membershipTO = actual.getMemberships().get(0).getRoleId() == 12L
+                ? actual.getMemberships().get(0)
                 : actual.getMemberships().get(1);
 
         userMod.addMembershipToBeRemoved(membershipTO.getId());
@@ -2069,16 +2112,18 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         userTO = userCreateAndGet(userTO);
         assertNotNull(userTO);
         // assertFalse(userTO.getPropagationTOs().isEmpty());
-        // assertEquals("resource-ldap", userTO.getPropagationTOs().get(0).getResourceName());
-        // assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationTOs().get(0).getStatus());
+        // assertEquals("resource-ldap",
+        // userTO.getPropagationTOs().get(0).getResourceName());
+        // assertEquals(PropagationTaskExecStatus.SUCCESS,
+        // userTO.getPropagationTOs().get(0).getStatus());
 
         // 2. delete this user
         userService.delete(userTO.getId());
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            restTemplate.getForObject(BASE_URL + "resource/{resourceName}/read/{objectId}.json", ConnObjectTO.class,
-                    "resource-ldap", userTO.getUsername());
+            restTemplate.getForObject(BASE_URL + "resource/{resourceName}/read/{objectId}.json",
+                    ConnObjectTO.class, "resource-ldap", userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (Exception sccee) {
             // TODO Should be NotFound exception
@@ -2089,8 +2134,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
     @Ignore
     public void issueSYNCOPE51() throws PropagationException, UnauthorizedRoleException, WorkflowException,
             NotFoundException {
-        ConfigurationTO defaultConfigurationTO = restTemplate.getForObject(BASE_URL + "configuration/read/{key}.json",
-                ConfigurationTO.class, "password.cipher.algorithm");
+        ConfigurationTO defaultConfigurationTO = restTemplate.getForObject(BASE_URL
+                + "configuration/read/{key}.json", ConfigurationTO.class, "password.cipher.algorithm");
 
         ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey("password.cipher.algorithm");
@@ -2110,8 +2155,8 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
                 userCreateAndGet(userTO);
                 fail();
             } catch (SyncopeClientCompositeErrorException e) {
-                assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next()
-                        .contains("MD5"));
+                assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator()
+                        .next().contains("MD5"));
             }
         } finally {
             ConfigurationTO oldConfTO = wc.post(defaultConfigurationTO, ConfigurationTO.class);

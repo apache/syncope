@@ -21,7 +21,7 @@ package org.apache.syncope.services;
 import java.util.Collections;
 import java.util.Set;
 
-public class UnauthorizedRoleException extends Exception {
+public class UnauthorizedRoleException extends RuntimeException {
 
     private static final long serialVersionUID = -7794737282296676827L;
 

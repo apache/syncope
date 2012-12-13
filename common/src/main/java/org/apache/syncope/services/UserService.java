@@ -19,20 +19,19 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.NotFoundException;
+import org.apache.syncope.mod.StatusMod;
 import org.apache.syncope.mod.UserMod;
 import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.NodeCond;
@@ -48,8 +47,8 @@ public interface UserService {
     @GET
     @PreAuthorize("hasRole('USER_READ')")
     @Transactional(readOnly = true)
-    public abstract Boolean verifyPassword(@QueryParam("uname") String username,
-            @QueryParam("pw") final String password);
+    public abstract Boolean verifyPassword(@MatrixParam("uname") String username,
+            @MatrixParam("pwd") final String password);
 
     @GET
     @Path("/count")
@@ -84,7 +83,7 @@ public interface UserService {
     @GET
     @PreAuthorize("hasRole('USER_READ')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public abstract UserTO read(@QueryParam("uname") final String username) throws NotFoundException,
+    public abstract UserTO read(@MatrixParam("uname") final String username) throws NotFoundException,
             UnauthorizedRoleException;
 
     @POST
@@ -110,29 +109,15 @@ public interface UserService {
     @POST
     @Path("/{userId}")
     @PreAuthorize("hasRole('USER_UPDATE')")
-    public abstract UserTO update(@PathParam("userId") final Long userId, final UserMod userMod) throws NotFoundException, PropagationException,
-            UnauthorizedRoleException, WorkflowException;
+    public abstract UserTO update(@PathParam("userId") final Long userId, final UserMod userMod)
+            throws NotFoundException, PropagationException, UnauthorizedRoleException, WorkflowException;
 
-    @PUT
-    @Path("/user/{userId}/status/active")
+    @POST
+    @Path("/user/{userId}/status")
     @PreAuthorize("hasRole('USER_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
-    public abstract UserTO activate(@PathParam("userId") final Long userId,
-            @FormParam("token") final String token,
-            @FormParam("resourceNames") final Set<String> resourceNames,
-            @FormParam("performLocally") @DefaultValue("true") final Boolean performLocally,
-            @FormParam("performRemotely") @DefaultValue("true") final Boolean performRemotely)
+    public abstract UserTO setStatus(@PathParam("userId") final Long userId, final StatusMod statusUpdate)
             throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException;
-
-    @DELETE
-    @Path("/user/{userId}/status/active")
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
-    public abstract UserTO suspend(@PathParam("userId") final Long userId,
-            @FormParam("resourceNames") final Set<String> resourceNames,
-            @FormParam("performLocally") @DefaultValue("true") final Boolean performLocally,
-            @FormParam("performRemotely") @DefaultValue("true") final Boolean performRemotely)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException;
 
     @DELETE
     @Path("/{userId}")

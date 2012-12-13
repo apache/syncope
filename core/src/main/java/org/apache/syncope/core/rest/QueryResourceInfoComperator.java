@@ -81,7 +81,9 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
 
         // Get Request QueryParams
         String query = (String) message.get(Message.QUERY_STRING);
+        String path = (String) message.get(Message.REQUEST_URI);
         Map<String, List<String>> qParams = JAXRSUtils.getStructuredParams(query, "&", true, false);
+        Map<String, List<String>> mParams = JAXRSUtils.getMatrixParams(path, true);
         // Get Request Headers
         Map<?, ?> qHeader = (java.util.Map<?, ?>) message.get(Message.PROTOCOL_HEADERS);
 
@@ -89,8 +91,13 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
         for (Parameter p : params) {
             switch (p.getType()) {
             case QUERY:
-            case FORM:
                 if (qParams.containsKey(p.getName()))
+                    rate += 2;
+                else if (p.getDefaultValue() == null)
+                    rate -= 1;
+                break;
+            case MATRIX:
+                if (mParams.containsKey(p.getName()))
                     rate += 2;
                 else if (p.getDefaultValue() == null)
                     rate -= 1;
@@ -100,8 +107,6 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
                     rate += 2;
                 else if (p.getDefaultValue() == null)
                     rate -= 1;
-                break;
-            default:
                 break;
             }
         }

@@ -45,7 +45,9 @@ import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
+import org.apache.syncope.mod.StatusMod;
 import org.apache.syncope.mod.UserMod;
+import org.apache.syncope.mod.StatusMod.Status;
 import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.services.ContextAware;
@@ -277,7 +279,8 @@ public class UserController implements UserService, ContextAware {
         List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(),
                 userTO.getVirtualAttributes());
 
-        //final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        // final List<PropagationTO> propagations = new
+        // ArrayList<PropagationTO>();
 
         taskExecutor.execute(tasks, new PropagationHandler() {
 
@@ -297,14 +300,14 @@ public class UserController implements UserService, ContextAware {
                     propagation.setAfterObj(connObjectUtil.getConnObjectTO(afterObj));
                 }
 
-               // propagations.add(propagation);
+                // propagations.add(propagation);
             }
         });
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
         final UserTO savedTO = userDataBinder.getUserTO(created.getResult().getKey());
-        //savedTO.setPropagationTOs(propagations);
+        // savedTO.setPropagationTOs(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -316,8 +319,8 @@ public class UserController implements UserService, ContextAware {
     }
 
     @Override
-    public UserTO update(final Long userId, final UserMod userMod) throws NotFoundException, PropagationException,
-            UnauthorizedRoleException, WorkflowException {
+    public UserTO update(final Long userId, final UserMod userMod) throws NotFoundException,
+            PropagationException, UnauthorizedRoleException, WorkflowException {
 
         userMod.setId(userId);
 
@@ -366,98 +369,63 @@ public class UserController implements UserService, ContextAware {
     }
 
     @Override
-    public UserTO activate(final Long userId, final String token, final Set<String> resourceNames,
-            final Boolean performLocally, final Boolean performRemotely) throws WorkflowException,
+    public UserTO setStatus(final Long userId, StatusMod userStatus) throws WorkflowException,
             NotFoundException, UnauthorizedRoleException, PropagationException {
 
-        LOG.debug("About to activate " + userId);
+        LOG.debug("About to " + userStatus.getStatus() + " for userId " + userId);
 
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
 
-        return setStatus(user, token, resourceNames, performLocally, performRemotely, true, "activate");
-    }
-
-    @Deprecated
-    public UserTO activate(final String username, final String token,
-            final Set<String> resourceNames, final Boolean performLocally, final Boolean performRemotely)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
-
-        LOG.debug("About to activate " + username);
-
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
+        WorkflowResult<Long> updated;
+        if (userStatus.isUpdateInternal()) {
+            switch (userStatus.getStatus()) {
+            case SUSPEND:
+                updated = wfAdapter.suspend(user.getId());
+                break;
+            case REACTIVATE:
+                updated = wfAdapter.reactivate(user.getId());
+                break;
+            default:
+                updated = wfAdapter.activate(user.getId(), userStatus.getToken());
+            }
+        } else {
+            updated = new WorkflowResult<Long>(user.getId(), null, userStatus.getStatus().toString());
         }
 
-        return setStatus(user, token, resourceNames, performLocally, performRemotely, true, "activate");
-    }
-
-    @Deprecated
-    public UserTO suspend(final String username, final Set<String> resourceNames,
-            final Boolean performLocally, final Boolean performRemotely) throws NotFoundException,
-            WorkflowException, UnauthorizedRoleException, PropagationException {
-
-        LOG.debug("About to suspend " + username);
-
-        SyncopeUser user = userDAO.find(username);
-
-        if (user == null) {
-            throw new NotFoundException("User " + username);
+        // Resources to exclude from propagation.
+        Set<String> resources = new HashSet<String>();
+        if (userStatus.isUpdateRemote()) {
+            if (userStatus.getExcludeResources() != null) {
+                resources.addAll(user.getResourceNames());
+                resources.removeAll(userStatus.getExcludeResources());
+            }
+        } else {
+            resources.addAll(user.getResourceNames());
         }
 
-        return setStatus(user, null, resourceNames, performLocally, performRemotely, false, "suspend");
+        Boolean userEnabled = userStatus.getStatus() != Status.SUSPEND;
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, userEnabled, resources);
+
+        taskExecutor.execute(tasks);
+        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
+
+        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
+
+        auditManager.audit(
+                Category.user,
+                UserSubCategory.setStatus,
+                Result.success,
+                "Successfully changed status to " + savedTO.getStatus() + " for user: "
+                        + savedTO.getUsername());
+
+        LOG.debug("About to return updated user\n{}", savedTO);
+
+        return savedTO;
     }
 
-    @Override
-    public UserTO suspend(final Long userId, final Set<String> resourceNames, final Boolean performLocally,
-            final Boolean performRemotely) throws NotFoundException, WorkflowException,
-            UnauthorizedRoleException, PropagationException {
-
-        LOG.debug("About to suspend " + userId);
-
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
-
-        return setStatus(user, null, resourceNames, performLocally, performRemotely, false, "suspend");
-    }
-
-    @Deprecated
-    public UserTO reactivate(Long userId, final Set<String> resourceNames,
-            final Boolean performLocally,
-            final Boolean performRemotely)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
-
-        LOG.debug("About to reactivate " + userId);
-
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
-
-        return setStatus(user, null, resourceNames, performLocally, performRemotely, true, "reactivate");
-    }
-
-    @Deprecated
-    public UserTO reactivate(String username,
-            final Set<String> resourceNames,
-            final Boolean performLocally,
-            final Boolean performRemotely)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
-
-        LOG.debug("About to reactivate " + username);
-
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
-
-        return setStatus(user, null, resourceNames, performLocally, performRemotely, true, "reactivate");
-    }
 
     @Override
     public Response delete(final Long userId) throws NotFoundException, WorkflowException,
@@ -570,56 +538,6 @@ public class UserController implements UserService, ContextAware {
         return savedTO;
     }
 
-    private UserTO setStatus(final SyncopeUser user, final String token, final Set<String> resourceNames,
-            final boolean performLocally, final boolean performRemotely, final boolean status,
-            final String task) throws NotFoundException, WorkflowException, UnauthorizedRoleException,
-            PropagationException {
-
-        LOG.debug("About to set status of {}" + user);
-
-        WorkflowResult<Long> updated;
-        if (performLocally) {
-            if ("suspend".equals(task)) {
-                updated = wfAdapter.suspend(user.getId());
-            } else if ("reactivate".equals(task)) {
-                updated = wfAdapter.reactivate(user.getId());
-            } else {
-                updated = wfAdapter.activate(user.getId(), token);
-            }
-        } else {
-            updated = new WorkflowResult<Long>(user.getId(), null, task);
-        }
-
-        // Resources to exclude from propagation.
-        Set<String> resources = new HashSet<String>();
-        if (performRemotely) {
-            if (resourceNames != null) {
-                resources.addAll(user.getResourceNames());
-                resources.removeAll(resourceNames);
-            }
-        } else {
-            resources.addAll(user.getResourceNames());
-        }
-
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(user, status, resources);
-
-        taskExecutor.execute(tasks);
-        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
-
-        final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
-
-        auditManager.audit(
-                Category.user,
-                UserSubCategory.setStatus,
-                Result.success,
-                "Successfully changed status to " + savedTO.getStatus() + " for user: "
-                        + savedTO.getUsername());
-
-        LOG.debug("About to return updated user\n{}", savedTO);
-
-        return savedTO;
-    }
-
     protected void doDelete(final Long userId) throws NotFoundException, WorkflowException,
             PropagationException, UnauthorizedRoleException {
         // Note here that we can only notify about "delete", not any other
@@ -631,8 +549,8 @@ public class UserController implements UserService, ContextAware {
 
         List<PropagationTask> tasks = propagationManager.getDeleteTaskIds(userId);
 
-        //final UserTO userTO = new UserTO();
-        //userTO.setId(userId);
+        // final UserTO userTO = new UserTO();
+        // userTO.setId(userId);
 
         taskExecutor.execute(tasks, new PropagationHandler() {
 
@@ -652,7 +570,7 @@ public class UserController implements UserService, ContextAware {
                     propagation.setAfterObj(connObjectUtil.getConnObjectTO(after));
                 }
 
-                //userTO.addPropagationTO(propagation);
+                // userTO.addPropagationTO(propagation);
             }
         });
 
