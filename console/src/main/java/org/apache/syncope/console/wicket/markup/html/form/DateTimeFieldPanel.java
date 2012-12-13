@@ -62,7 +62,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget art) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 if (((DateTimeField) field).getHours() > 12) {
                     cal.set(Calendar.HOUR_OF_DAY, ((DateTimeField) field).getHours());
                 } else {
@@ -151,18 +151,18 @@ public class DateTimeFieldPanel extends DateFieldPanel {
         public void validate(final Form form) {
             final DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
-            if (!(dateTimeField.getDate() != null && dateTimeField.getHours() != null && dateTimeField.getMinutes() != null)) {
+            if (!(dateTimeField.getDate() != null && dateTimeField.getHours() != null
+                    && dateTimeField.getMinutes() != null)) {
 
                 ValidationError ve = new ValidationError();
                 ve.setVariables(DateTimeFormValidator.this.variablesMap());
-                ve.addMessageKey(resourceKey());
+                ve.addKey(resourceKey());
                 dateTimeComponents[0].error((IValidationError) ve);
             }
         }
     }
 
     public FieldPanel setFormValidator(final Form form) {
-
         if (field == null) {
             LOG.error("Error setting form validator");
         } else {
@@ -174,22 +174,14 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     }
 
     @Override
-    public FieldPanel setStyleSheet(String classes) {
-        field.get("date").add(AttributeModifier.replace("class", (classes != null
-                ? classes
-                : "") + " date_size"));
+    public FieldPanel setStyleSheet(final String classes) {
+        field.get("date").add(AttributeModifier.replace("class", (classes == null ? "" : classes) + " date_size"));
 
-        field.get("hours").add(AttributeModifier.replace("class", classes != null
-                ? classes
-                : ""));
+        field.get("hours").add(AttributeModifier.replace("class", classes == null ? "" : classes));
 
-        field.get("minutes").add(AttributeModifier.replace("class", classes != null
-                ? classes
-                : ""));
+        field.get("minutes").add(AttributeModifier.replace("class", classes == null ? "" : classes));
 
-        field.get("amOrPmChoice").add(AttributeModifier.replace("class", classes != null
-                ? classes
-                : ""));
+        field.get("amOrPmChoice").add(AttributeModifier.replace("class", classes == null ? "" : classes));
 
         return this;
     }

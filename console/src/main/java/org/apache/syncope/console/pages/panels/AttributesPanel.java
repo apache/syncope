@@ -124,7 +124,8 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private List<AttributeTO> initEntityData(final AbstractAttributableTO entityTO, final Collection<SchemaTO> schemas) {
+    private List<AttributeTO> initEntityData(final AbstractAttributableTO entityTO,
+            final Collection<SchemaTO> schemas) {
 
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
 

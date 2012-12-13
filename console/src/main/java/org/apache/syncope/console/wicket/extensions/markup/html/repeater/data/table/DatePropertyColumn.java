@@ -19,12 +19,12 @@
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.util.Date;
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.syncope.console.SyncopeSession;
 
 /**
  * Format column's value as date string.
@@ -42,15 +42,12 @@ public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
 
-        IModel date = (IModel<Date>) createLabelModel(rowModel);
+        IModel<Object> date = getDataModel(rowModel);
 
         String convertedDate = "";
-
-        if (date.getObject() != null) {
+        if (date.getObject() instanceof Date) {
             convertedDate = SyncopeSession.get().getDateFormat().format(date.getObject());
-            item.add(new Label(componentId, convertedDate));
-        } else {
-            item.add(new Label(componentId, convertedDate));
         }
+        item.add(new Label(componentId, convertedDate));
     }
 }
