@@ -315,13 +315,7 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
             WorkflowException, NotFoundException {
         Response response = userService.create(userTO);
 
-        assertNotNull(response);
-        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-
-        WebClient webClient = WebClient.fromClient(WebClient.client(userService));
-        webClient.to(response.getLocation().toString(), false);
-
-        return webClient.get(UserTO.class);
+        return resolve(UserTO.class, response, userService);
     }
 
     @Test
@@ -882,7 +876,7 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         }
     }
 
-    private UserTO getSampleTO() {
+    public static UserTO getSampleTO() {
         return getSampleTO(getSampleEmail());
     }
 
@@ -1209,10 +1203,7 @@ public abstract class AbstractUserTestITCase extends AbstractTest {
         assertTrue(fullnameFound);
     }
 
-    /**
-     * @return
-     */
-    private String getSampleEmail() {
+    public static String getSampleEmail() {
         String email = "m." + UUID.randomUUID().toString().substring(0, 8) + ".n@apache.com";
         return email;
     }

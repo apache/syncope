@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,9 +44,9 @@ public class AuthenticationController extends AbstractController implements Auth
     private EntitlementDAO entitlementDAO;
 
     @Override
-    public List<EntitlementTO> getAllEntitlements() {
+    public Set<EntitlementTO> getAllEntitlements() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
-        List<EntitlementTO> result = new ArrayList<EntitlementTO>(entitlements.size());
+        Set<EntitlementTO> result = new HashSet<EntitlementTO>(entitlements.size());
         for (Entitlement entitlement : entitlements) {
             result.add(new EntitlementTO(entitlement.getName()));
         }

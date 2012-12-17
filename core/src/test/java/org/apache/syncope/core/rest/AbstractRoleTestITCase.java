@@ -45,7 +45,7 @@ import org.junit.Test;
 
 public abstract class AbstractRoleTestITCase extends AbstractTest {
 
-    protected RoleService roleService;
+    protected RoleService rs;
 
     @Test
     public void crud() throws NotFoundException, UnauthorizedRoleException {
@@ -79,7 +79,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         newRoleTO.addAttribute(attributeTO);
 
         try {
-            roleService.create(newRoleTO);
+            rs.create(newRoleTO);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             Throwable t = sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
@@ -109,12 +109,12 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         roleTO.addAttribute(icon);
 
-        Response response = roleService.create(roleTO);
+        Response response = rs.create(roleTO);
 
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
-        WebClient webClient = WebClient.fromClient(WebClient.client(roleService));
+        WebClient webClient = WebClient.fromClient(WebClient.client(rs));
         webClient.to(response.getLocation().toString(), false);
         RoleTO actual = webClient.get(RoleTO.class);
 
@@ -130,8 +130,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     public void delete(long roleId) throws UnauthorizedRoleException, NotFoundException {
 
         try {
-            roleService.delete(0L);
-            fail("You should not be able to delete an unexsisting role.");            
+            rs.delete(0L);
+            fail("You should not be able to delete an unexsisting role.");
         } catch (SyncopeClientCompositeErrorException sccee) {
             Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
             assertNotNull(t);
@@ -139,7 +139,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         Response response;
         try {
-            response = roleService.delete(roleId);
+            response = rs.delete(roleId);
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
         } catch (SyncopeClientCompositeErrorException sccee) {
@@ -148,7 +148,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         }
 
         try {
-            roleService.read(roleId);
+            rs.read(roleId);
             fail("Role should be removed and can not be read afterwards.");
         } catch (SyncopeClientCompositeErrorException sccee) {
             Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
@@ -158,7 +158,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<RoleTO> roleTOs = roleService.list();
+        List<RoleTO> roleTOs = rs.list();
 
         assertNotNull(roleTOs);
         assertTrue(roleTOs.size() >= 8);
@@ -170,7 +170,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     public void parent(long childRoleId, long parentRoleId) throws NotFoundException,
             UnauthorizedRoleException {
 
-        RoleTO parentRoleTO = roleService.parent(childRoleId);
+        RoleTO parentRoleTO = rs.parent(childRoleId);
 
         assertNotNull(parentRoleTO);
         assertEquals(parentRoleId, parentRoleTO.getId());
@@ -179,7 +179,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     public void children(long childRoleId, long parentRoleId) throws NotFoundException,
             UnauthorizedRoleException {
 
-        List<RoleTO> children = roleService.children(parentRoleId);
+        List<RoleTO> children = rs.children(parentRoleId);
 
         assertNotNull(children);
         assertEquals(1, children.size());
@@ -188,7 +188,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     @Test
     public void testChildren() throws Exception {
-        List<RoleTO> children = roleService.children(1L);
+        List<RoleTO> children = rs.children(1L);
 
         assertNotNull(children);
         assertTrue(children.size() > 0);
@@ -196,14 +196,14 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
     public void read(long roleId) throws NotFoundException, UnauthorizedRoleException {
         try {
-            roleService.read(0L);
-            fail("You should not be able to delete an unexsisting role.");            
+            rs.read(0L);
+            fail("You should not be able to delete an unexsisting role.");
         } catch (SyncopeClientCompositeErrorException sccee) {
             Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
             assertNotNull(t);
         }
 
-        RoleTO roleTO = roleService.read(roleId);
+        RoleTO roleTO = rs.read(roleId);
 
         assertNotNull(roleTO);
         assertNotNull(roleTO.getAttributes());
@@ -253,7 +253,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         // change password policy inheritance
         roleMod.setInheritPasswordPolicy(Boolean.FALSE);
 
-        RoleTO roleTO = roleService.update(roleId, roleMod);
+        RoleTO roleTO = rs.update(roleId, roleMod);
 
         assertEquals(newRoleName, roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());
@@ -277,12 +277,12 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         rvirtualdata.setSchema("rvirtualdata");
         roleTO.addVirtualAttribute(rvirtualdata);
 
-        Response response = roleService.create(roleTO);
+        Response response = rs.create(roleTO);
         try {
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
-            WebClient webClient = WebClient.fromClient(WebClient.client(roleService));
+            WebClient webClient = WebClient.fromClient(WebClient.client(rs));
             webClient.to(response.getLocation().toString(), false);
             roleTO = webClient.get(RoleTO.class);
 
@@ -290,11 +290,11 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
             roleMod.setId(roleTO.getId());
             roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
 
-            roleTO = roleService.update(roleTO.getId(), roleMod);
+            roleTO = rs.update(roleTO.getId(), roleMod);
             assertNotNull(roleTO);
             assertTrue(roleTO.getVirtualAttributes().isEmpty());
         } finally {
-            response = roleService.delete(roleTO.getId());
+            response = rs.delete(roleTO.getId());
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
         }
@@ -311,12 +311,12 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         deriveddata.setSchema("rderivedschema");
         roleTO.addDerivedAttribute(deriveddata);
 
-        Response response = roleService.create(roleTO);
+        Response response = rs.create(roleTO);
         try {
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
-            WebClient webClient = WebClient.fromClient(WebClient.client(roleService));
+            WebClient webClient = WebClient.fromClient(WebClient.client(rs));
             webClient.to(response.getLocation().toString(), false);
             roleTO = webClient.get(RoleTO.class);
 
@@ -327,11 +327,11 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
             roleMod.setId(roleTO.getId());
             roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
 
-            roleTO = roleService.update(roleTO.getId(), roleMod);
+            roleTO = rs.update(roleTO.getId(), roleMod);
             assertNotNull(roleTO);
             assertTrue(roleTO.getDerivedAttributes().isEmpty());
         } finally {
-            response = roleService.delete(roleTO.getId());
+            response = rs.delete(roleTO.getId());
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
         }
@@ -340,7 +340,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     @Test
     public void updateAsRoleOwner() throws NotFoundException, UnauthorizedRoleException {
         // 1. read role as admin
-        RoleTO roleTO = roleService.read(7L);
+        RoleTO roleTO = rs.read(7L);
 
         // 2. prepare update
         RoleMod roleMod = new RoleMod();
@@ -348,7 +348,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         roleMod.setName("Managing Director");
 
         // 3. try to update as user3, not owner of role 7 - fail
-        RoleService user2RoleService = createServiceInstance(RoleService.class, "user2", roleService);
+        RoleService user2RoleService = createServiceInstance(RoleService.class, "user2", rs);
 
         try {
             roleTO = user2RoleService.update(roleTO.getId(), roleMod);
@@ -359,7 +359,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         // 4. update as user5, owner of role 7 because owner of role 6 with
         // inheritance - success
-        RoleService user5RoleService = createServiceInstance(RoleService.class, "user5", roleService);
+        RoleService user5RoleService = createServiceInstance(RoleService.class, "user5", rs);
 
         roleTO = user5RoleService.update(roleTO.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());
@@ -379,11 +379,11 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         String roleName = "torename-" + UUID.randomUUID().toString();
         roleTO.setName(roleName);
 
-        Response response = roleService.create(roleTO);
+        Response response = rs.create(roleTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
-        WebClient webClient = WebClient.fromClient(WebClient.client(roleService));
+        WebClient webClient = WebClient.fromClient(WebClient.client(rs));
         webClient.to(response.getLocation().toString(), false);
         RoleTO actual = webClient.get(RoleTO.class);
 
@@ -395,13 +395,13 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         roleMod.setId(actual.getId());
         roleMod.setName("renamed");
 
-        actual = roleService.update(actual.getId(), roleMod);
+        actual = rs.update(actual.getId(), roleMod);
 
         assertNotNull(actual);
         assertEquals("renamed", actual.getName());
         assertEquals(0L, actual.getParent());
 
-        response = roleService.delete(actual.getId());
+        response = rs.delete(actual.getId());
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
     }
@@ -424,11 +424,11 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
 
         roleTO.addEntitlement("USER_READ");
 
-        Response response = roleService.create(roleTO);
+        Response response = rs.create(roleTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
-        WebClient webClient = WebClient.fromClient(WebClient.client(roleService));
+        WebClient webClient = WebClient.fromClient(WebClient.client(rs));
         webClient.to(response.getLocation().toString(), false);
         roleTO = webClient.get(RoleTO.class);
 
@@ -441,7 +441,7 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         roleMod.setInheritDerivedAttributes(Boolean.TRUE);
         roleMod.addEntitlementsToBeAdded("SCHEMA_READ");
 
-        roleTO = roleService.update(roleTO.getId(), roleMod);
+        roleTO = rs.update(roleTO.getId(), roleMod);
         assertNotNull(roleTO);
         assertNotNull(roleTO.getEntitlements());
         assertEquals(2, roleTO.getEntitlements().size());
@@ -451,12 +451,13 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         roleMod.addEntitlementsToBeRemoved("USER_READ");
         roleMod.addEntitlementsToBeRemoved("SCHEMA_READ");
 
-        roleTO = roleService.update(roleTO.getId(), roleMod);
+        roleTO = rs.update(roleTO.getId(), roleMod);
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().isEmpty());
 
-        response = roleService.delete(roleTO.getId());
+        response = rs.delete(roleTO.getId());
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
     }
+
 }

@@ -7,7 +7,7 @@ public class RoleJsonTestITCase extends AbstractRoleTestITCase {
 
     @Override
     public void setupService() {
-        super.roleService = createServiceInstance(RoleService.class);
-        setupJSON(WebClient.client(this.roleService));
+        super.rs = createServiceInstance(RoleService.class);
+        setupJSON(WebClient.client(this.rs));
     }
 }

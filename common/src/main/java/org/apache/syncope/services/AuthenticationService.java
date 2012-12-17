@@ -1,6 +1,5 @@
 package org.apache.syncope.services;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -17,7 +16,7 @@ public interface AuthenticationService {
     @RequestMapping(method = RequestMethod.GET, value = "/allentitlements")
     @GET
     @Path("allentitlements")
-    public abstract List<EntitlementTO> getAllEntitlements();
+    public abstract Set<EntitlementTO> getAllEntitlements();
 
     @RequestMapping(method = RequestMethod.GET, value = "/entitlements")
     @GET

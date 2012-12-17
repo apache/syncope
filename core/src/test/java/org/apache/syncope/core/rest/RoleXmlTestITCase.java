@@ -7,7 +7,7 @@ public class RoleXmlTestITCase extends AbstractRoleTestITCase {
 
     @Override
     public void setupService() {
-        super.roleService = createServiceInstance(RoleService.class);
-        setupXML(WebClient.client(this.roleService));
+        super.rs = createServiceInstance(RoleService.class);
+        setupXML(WebClient.client(this.rs));
     }
 }

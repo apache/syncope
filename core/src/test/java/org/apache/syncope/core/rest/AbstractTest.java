@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -98,7 +102,13 @@ public abstract class AbstractTest {
     }
 
     protected <T> T createServiceInstance(Class<T> serviceClass, String username, Object proxy) {
+        return createServiceInstance(serviceClass, username, ADMIN_PWD, proxy);
+    }
+
+    protected <T> T createServiceInstance(Class<T> serviceClass, String username, String password,
+            Object proxy) {
         restClientFactory.setUsername(username);
+        restClientFactory.setPassword(password);
         restClientFactory.setServiceClass(serviceClass);
         T user2RoleService = restClientFactory.create(serviceClass);
         if (proxy != null) {
@@ -115,4 +125,15 @@ public abstract class AbstractTest {
         wc.path(path);
         return wc;
     }
+
+    public static <T> T resolve(Class<T> clazz, Response response, Object serviceProxy) {
+        assertNotNull(response);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+
+        WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
+        webClient.to(response.getLocation().toString(), false);
+
+        return webClient.get(clazz);
+    }
+
 }
