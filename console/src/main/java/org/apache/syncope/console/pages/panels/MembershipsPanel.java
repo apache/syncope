@@ -27,13 +27,20 @@ import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
 import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;
+import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansionModel;
+import org.apache.syncope.console.wicket.markup.html.tree.TreeRoleProvider;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.tree.BaseTree;
-import org.apache.wicket.extensions.markup.html.tree.LinkTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultNestedTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
+import org.apache.wicket.extensions.markup.html.repeater.tree.NestedTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.content.Folder;
+import org.apache.wicket.extensions.markup.html.repeater.tree.theme.WindowsTheme;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -53,7 +60,9 @@ public class MembershipsPanel extends Panel {
 
     private ListView<MembershipTO> membershipsView;
 
-    private UserTO userTO = null;
+    private final UserTO userTO;
+
+    private final NestedTree<DefaultMutableTreeNode> tree;
 
     public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode) {
         super(id);
@@ -68,54 +77,73 @@ public class MembershipsPanel extends Panel {
         membershipWin.setCookieName("create-membership-modal");
         add(membershipWin);
 
-        BaseTree tree = new LinkTree("treeTable", roleTreeBuilder.build()) {
+        final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
+        final DefaultMutableTreeNodeExpansionModel treeModel = new DefaultMutableTreeNodeExpansionModel();
 
-            private static final long serialVersionUID = -5514696922119256101L;
+        tree = new DefaultNestedTree<DefaultMutableTreeNode>("treeTable", treeProvider, treeModel) {
 
-            @Override
-            protected IModel getNodeTextModel(final IModel model) {
-                return new PropertyModel(model, "userObject.displayName");
-            }
+            private static final long serialVersionUID = 7137658050662575546L;
 
             @Override
-            protected void onNodeLinkClicked(final Object node, final BaseTree tree, final AjaxRequestTarget target) {
+            protected Component newContentComponent(final String id, final IModel<DefaultMutableTreeNode> node) {
+                final DefaultMutableTreeNode treeNode = node.getObject();
+                final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
 
-                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
+                return new Folder<DefaultMutableTreeNode>(id, MembershipsPanel.this.tree, node) {
 
-                membershipWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = 7661763358801821185L;
-
-                    private MembershipTO membershipTO;
+                    private static final long serialVersionUID = 9046323319920426493L;
 
                     @Override
-                    public Page createPage() {
-
-                        for (MembershipTO memberTO : membershipsView.getList()) {
-                            if (memberTO.getRoleId() == roleTO.getId()) {
-                                return new MembershipModalPage(getPage().getPageReference(),
-                                        membershipWin, memberTO, templateMode);
-                            }
-                        }
-                        membershipTO = new MembershipTO();
-                        membershipTO.setRoleId(roleTO.getId());
-                        membershipTO.setRoleName(roleTO.getName());
-
-                        return new MembershipModalPage(getPage().getPageReference(), membershipWin, membershipTO,
-                                templateMode);
+                    protected boolean isClickable() {
+                        return true;
                     }
-                });
-                membershipWin.show(target);
+
+                    @Override
+                    protected IModel<?> newLabelModel(final IModel<DefaultMutableTreeNode> model) {
+                        return new Model<String>(roleTO.getDisplayName());
+                    }
+
+                    @Override
+                    protected void onClick(final AjaxRequestTarget target) {
+                        super.onClick(target);
+
+                        membershipWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = 7661763358801821185L;
+
+                            private MembershipTO membershipTO;
+
+                            @Override
+                            public Page createPage() {
+
+                                for (MembershipTO memberTO : membershipsView.getList()) {
+                                    if (memberTO.getRoleId() == roleTO.getId()) {
+                                        return new MembershipModalPage(getPage().getPageReference(),
+                                                membershipWin, memberTO, templateMode);
+                                    }
+                                }
+                                membershipTO = new MembershipTO();
+                                membershipTO.setRoleId(roleTO.getId());
+                                membershipTO.setRoleName(roleTO.getName());
+
+                                return new MembershipModalPage(getPage().getPageReference(), membershipWin,
+                                        membershipTO, templateMode);
+                            }
+                        });
+                        membershipWin.show(target);
+                    }
+                };
             }
         };
-
+        tree.add(new WindowsTheme());
         tree.setOutputMarkupId(true);
-        tree.getTreeState().expandAll();
 
-        add(tree);
+        DefaultMutableTreeNodeExpansion.get().expandAll();
 
-        membershipsView = new ListView<MembershipTO>("memberships", new PropertyModel<List<? extends MembershipTO>>(
-                userTO, "memberships")) {
+        this.add(tree);
+
+        membershipsView = new ListView<MembershipTO>("memberships",
+                new PropertyModel<List<? extends MembershipTO>>(userTO, "memberships")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 

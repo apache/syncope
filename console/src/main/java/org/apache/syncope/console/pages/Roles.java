@@ -34,11 +34,11 @@ public class Roles extends BasePage {
 
     private static final long serialVersionUID = -2147758241610831969L;
 
-    private ModalWindow createRoleWin = null;
-
     private static final int WIN_HEIGHT = 500;
 
     private static final int WIN_WIDTH = 750;
+
+    private final ModalWindow createRoleWin;
 
     private final WebMarkupContainer container;
 
@@ -62,11 +62,12 @@ public class Roles extends BasePage {
 
         final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
                 Roles.this.getPageReference());
-        
+
         nodePanel.setOutputMarkupId(true);
         container.add(nodePanel);
 
         createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
@@ -99,27 +100,23 @@ public class Roles extends BasePage {
 
             final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
                     Roles.this.getPageReference(), update.getSelectedNodeId());
-            
+
             container.addOrReplace(nodePanel);
-            update.getTarget().add(this);           
+            update.getTarget().add(this);
         }
     }
 
     public static class TreeNodeClickUpdate {
 
-        private AjaxRequestTarget target;
+        private final AjaxRequestTarget target;
 
         private Long selectedNodeId;
 
         public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
-
             this.target = target;
             this.selectedNodeId = selectedNodeId;
         }
 
-        /**
-         * @return ajax request target
-         */
         public AjaxRequestTarget getTarget() {
             return target;
         }

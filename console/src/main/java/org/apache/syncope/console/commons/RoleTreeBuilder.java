@@ -26,19 +26,18 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class RoleTreeBuilder {
 
     @Autowired
     private RoleRestClient restClient;
 
-    private RoleTOComparator comparator = new RoleTOComparator();
+    private final RoleTOComparator comparator = new RoleTOComparator();
 
     private List<RoleTO> getChildRoles(final long parentRoleId, final List<RoleTO> roles) {
-
         List<RoleTO> result = new ArrayList<RoleTO>();
         for (RoleTO role : roles) {
             if (role.getParent() == parentRoleId) {
@@ -51,7 +50,6 @@ public class RoleTreeBuilder {
     }
 
     private void populateSubtree(final DefaultMutableTreeNode subRoot, final List<RoleTO> roles) {
-
         RoleTO role = (RoleTO) subRoot.getUserObject();
 
         DefaultMutableTreeNode child;

@@ -18,22 +18,25 @@
  */
 package org.apache.syncope.console.wicket.markup.html.tree;
 
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Roles.TreeNodeClickUpdate;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.markup.html.tree.BaseTree;
-import org.apache.wicket.extensions.markup.html.tree.LinkTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultNestedTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
+import org.apache.wicket.extensions.markup.html.repeater.tree.NestedTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.content.Folder;
+import org.apache.wicket.extensions.markup.html.repeater.tree.theme.WindowsTheme;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class TreeRolePanel extends Panel {
@@ -48,7 +51,7 @@ public class TreeRolePanel extends Panel {
 
     final WebMarkupContainer treeContainer;
 
-    private BaseTree tree;
+    private NestedTree<DefaultMutableTreeNode> tree;
 
     public TreeRolePanel(final String id) {
         super(id);
@@ -60,32 +63,47 @@ public class TreeRolePanel extends Panel {
     }
 
     private void updateTree() {
+        final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
+        final DefaultMutableTreeNodeExpansionModel treeModel = new DefaultMutableTreeNodeExpansionModel();
 
-        tree = new LinkTree("treeTable", roleTreeBuilder.build()) {
+        tree = new DefaultNestedTree<DefaultMutableTreeNode>("treeTable", treeProvider, treeModel) {
 
-            private static final long serialVersionUID = -5514696922119256101L;
-
-            @Override
-            protected IModel getNodeTextModel(final IModel model) {
-                return new PropertyModel(model, "userObject.displayName");
-            }
+            private static final long serialVersionUID = 7137658050662575546L;
 
             @Override
-            protected void onNodeLinkClicked(
-                    final Object node, final BaseTree baseTree, final AjaxRequestTarget target) {
+            protected Component newContentComponent(final String id, final IModel<DefaultMutableTreeNode> node) {
+                final DefaultMutableTreeNode treeNode = node.getObject();
+                final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
 
-                DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
-                RoleTO unitObject = (RoleTO) treeNode.getUserObject();
+                return new Folder<DefaultMutableTreeNode>(id, TreeRolePanel.this.tree, node) {
 
-                send(getPage(), Broadcast.BREADTH, new TreeNodeClickUpdate(target, unitObject.getId()));
+                    private static final long serialVersionUID = 9046323319920426493L;
 
+                    @Override
+                    protected boolean isClickable() {
+                        return true;
+                    }
+
+                    @Override
+                    protected IModel<?> newLabelModel(final IModel<DefaultMutableTreeNode> model) {
+                        return new Model<String>(roleTO.getDisplayName());
+                    }
+
+                    @Override
+                    protected void onClick(final AjaxRequestTarget target) {
+                        super.onClick(target);
+
+                        send(getPage(), Broadcast.BREADTH, new TreeNodeClickUpdate(target, roleTO.getId()));
+                    }
+                };
             }
         };
+        tree.add(new WindowsTheme());
+        tree.setOutputMarkupId(true);
+
+        DefaultMutableTreeNodeExpansion.get().expandAll();
 
         MetaDataRoleAuthorizationStrategy.authorize(tree, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "read"));
-
-        tree.setOutputMarkupId(true);
-        tree.getTreeState().expandAll();
 
         treeContainer.addOrReplace(tree);
     }
@@ -95,11 +113,8 @@ public class TreeRolePanel extends Panel {
         super.onEvent(event);
 
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
-
             final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
-
             updateTree();
-
             update.getTarget().add(treeContainer);
         }
     }
