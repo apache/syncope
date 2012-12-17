@@ -38,7 +38,7 @@
 
    <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
       <constructor-arg value="localhost" />
-      <constructor-arg value="9081" />
+      <constructor-arg value="9080" />
       <constructor-arg value="http" />
       <constructor-arg ref="httpClientConnManager" />
       <constructor-arg ref="httpClientParams" />
@@ -65,7 +65,7 @@
    </jaxrs:client-->
 
    <bean id="restClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
-      <property name="address" value="http://localhost:9081/syncope/cxf" />
+      <property name="address" value="http://localhost:9080/syncope/cxf" />
       <property name="threadSafe" value="true" />
       <property name="username" value="admin" />
       <property name="password" value="password" />
@@ -93,6 +93,8 @@
       <property name="supportUnwrapped" value="true" />
    </bean>
 
-   <bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestHttpStatusCodeMapper" />
+   <bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestClientExceptionMapper" />
+   <!-- bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestHttpStatusCodeMapper" /-->
+   
 
 </beans>

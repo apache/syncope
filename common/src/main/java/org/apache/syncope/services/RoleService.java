@@ -28,6 +28,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.NotFoundException;
+import org.apache.syncope.exceptions.UnauthorizedRoleException;
 import org.apache.syncope.mod.RoleMod;
 import org.apache.syncope.to.RoleTO;
 import org.springframework.security.access.prepost.PreAuthorize;

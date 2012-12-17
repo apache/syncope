@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.exceptions;
 
 public class InvalidSearchConditionException extends Exception {
 

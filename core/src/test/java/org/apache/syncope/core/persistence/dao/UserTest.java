@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.core.util.PasswordGenerator;
-import org.apache.syncope.services.InvalidSearchConditionException;
+import org.apache.syncope.exceptions.InvalidSearchConditionException;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.validation.InvalidEntityException;
 import org.junit.Test;

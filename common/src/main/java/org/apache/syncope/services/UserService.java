@@ -31,6 +31,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.NotFoundException;
+import org.apache.syncope.exceptions.InvalidSearchConditionException;
+import org.apache.syncope.exceptions.UnauthorizedRoleException;
 import org.apache.syncope.mod.StatusMod;
 import org.apache.syncope.mod.UserMod;
 import org.apache.syncope.propagation.PropagationException;

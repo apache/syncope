@@ -19,23 +19,24 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.services.AuthenticationService;
+import org.apache.syncope.to.EntitlementTO;
 import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.stereotype.Service;
 
-@Controller
-@RequestMapping("/auth")
-public class AuthenticationController extends AbstractController {
+@Service
+public class AuthenticationController extends AbstractController implements AuthenticationService {
 
     @Autowired
     private AuditManager auditManager;
@@ -43,23 +44,28 @@ public class AuthenticationController extends AbstractController {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/allentitlements")
-    public List<String> listEntitlements() {
+    @Override
+    public List<EntitlementTO> getAllEntitlements() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
-        List<String> result = new ArrayList<String>(entitlements.size());
+        List<EntitlementTO> result = new ArrayList<EntitlementTO>(entitlements.size());
         for (Entitlement entitlement : entitlements) {
-            result.add(entitlement.getName());
+            result.add(new EntitlementTO(entitlement.getName()));
         }
 
         return result;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/entitlements")
-    public Set<String> getEntitlements() {
-        Set<String> result = EntitlementUtil.getOwnedEntitlementNames();
+    @Override
+    public Set<EntitlementTO> getMyEntitlements() {
+        Set<String> ownedEntitlements = EntitlementUtil.getOwnedEntitlementNames();
+        Set<EntitlementTO> result = new HashSet<EntitlementTO>();
 
-        auditManager.audit(Category.authentication, AuthenticationSubCategory.getEntitlements, Result.success,
-                "Owned entitlements: " + result.toString());
+        for (String e : ownedEntitlements) {
+            result.add(new EntitlementTO(e));
+        }
+
+        auditManager.audit(Category.authentication, AuthenticationSubCategory.getEntitlements,
+                Result.success, "Owned entitlements: " + result.toString());
 
         return result;
     }

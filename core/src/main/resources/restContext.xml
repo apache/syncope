@@ -72,6 +72,9 @@
       <property name="supportUnwrapped" value="true" />
    </bean>
 
+   <!-- bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestHttpStatusCodeMapper" /-->
+   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.RestServiceExceptionMapper" />
+
    <!--util:map id="jsonNamespaceMap" map-class="java.util.Hashtable">
       <entry key="http://www.example.org/books" value="b" />
    </util:map-->
@@ -80,6 +83,7 @@
       <jaxrs:serviceBeans>
          <ref bean="roleController" />
          <ref bean="userController" />
+         <ref bean="authenticationController" />
       </jaxrs:serviceBeans>
       <jaxrs:resourceComparator>
          <bean id="myServiceComparator" class="org.apache.syncope.core.rest.QueryResourceInfoComperator" />
@@ -87,7 +91,7 @@
       <jaxrs:providers>
          <ref bean="jaxbProvider" />
          <ref bean="jsonProvider" />
-         <bean class="org.apache.syncope.exceptions.RestHttpStatusCodeMapper" />
+         <ref bean="exceptionMapper"/>
       </jaxrs:providers>
       <jaxrs:extensionMappings>
          <entry key="json" value="application/json;charset=UTF-8" />

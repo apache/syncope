@@ -24,22 +24,23 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.List;
 import java.util.UUID;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.NotFoundException;
+import org.apache.syncope.exceptions.UnauthorizedRoleException;
 import org.apache.syncope.mod.AttributeMod;
 import org.apache.syncope.mod.RoleMod;
 import org.apache.syncope.services.RoleService;
-import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.AttributeTO;
 import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.to.UserTO;
+import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.junit.Test;
 
 public abstract class AbstractRoleTestITCase extends AbstractTest {
@@ -78,9 +79,11 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         newRoleTO.addAttribute(attributeTO);
 
         try {
-            Response response = roleService.create(newRoleTO);
-            assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
-        } catch (BadRequestException e) {
+            roleService.create(newRoleTO);
+            fail();
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            Throwable t = sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
+            assertNotNull(t);
         }
     }
 
@@ -124,12 +127,14 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         return actual.getId();
     }
 
-    public void delete(long roleId) throws UnauthorizedRoleException {
+    public void delete(long roleId) throws UnauthorizedRoleException, NotFoundException {
 
         try {
             roleService.delete(0L);
-            fail("You should not be able to delete an unexsisting role.");
-        } catch (NotFoundException e) {
+            fail("You should not be able to delete an unexsisting role.");            
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(t);
         }
 
         Response response;
@@ -137,14 +142,17 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
             response = roleService.delete(roleId);
             assertNotNull(response);
             assertEquals(org.apache.http.HttpStatus.SC_OK, response.getStatus());
-        } catch (NotFoundException e1) {
-            fail(e1.getMessage());
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(t);
         }
 
         try {
             roleService.read(roleId);
             fail("Role should be removed and can not be read afterwards.");
-        } catch (NotFoundException e) {
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(t);
         }
     }
 
@@ -189,7 +197,10 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
     public void read(long roleId) throws NotFoundException, UnauthorizedRoleException {
         try {
             roleService.read(0L);
-        } catch (NotFoundException e) {
+            fail("You should not be able to delete an unexsisting role.");            
+        } catch (SyncopeClientCompositeErrorException sccee) {
+            Throwable t = sccee.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(t);
         }
 
         RoleTO roleTO = roleService.read(roleId);
@@ -215,8 +226,9 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         try {
             user1RoleService.read(3L);
             fail();
-        } catch (UnauthorizedRoleException e) {
-            assertNotNull(e);
+        } catch (SyncopeClientCompositeErrorException e) {
+        	Exception exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+            assertNotNull(exception);
         }
 
         RoleTO roleTO = user1RoleService.read(1L);
@@ -341,8 +353,8 @@ public abstract class AbstractRoleTestITCase extends AbstractTest {
         try {
             roleTO = user2RoleService.update(roleTO.getId(), roleMod);
             fail();
-        } catch (UnauthorizedRoleException e) {
-            assertNotNull(e);
+        } catch (AccessControlException e) {
+            assertNotNull(e.getMessage());
         }
 
         // 4. update as user5, owner of role 7 because owner of role 6 with
