@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.NotFoundException;
 import org.apache.syncope.mod.RoleMod;
+import org.apache.syncope.services.RoleService;
+import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
@@ -33,50 +34,68 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoleRestClient extends AbstractBaseRestClient {
 
-    /**
-     * Get all Roles.
-     *
-     * @return SchemaTOs
-     */
-    public List<RoleTO> getAllRoles()
-            throws SyncopeClientCompositeErrorException {
+	private RoleService rs = super.getRestService(RoleService.class);
 
-        List<RoleTO> roles = null;
+	/**
+	 * Get all Roles.
+	 * 
+	 * @return SchemaTOs
+	 */
+	public List<RoleTO> getAllRoles()
+			throws SyncopeClientCompositeErrorException {
+		List<RoleTO> roles = null;
 
-        try {
-            roles = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "role/list.json", RoleTO[].class));
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While listing all roles", e);
-        }
+		try {
+			// roles =
+			// Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+			// baseURL + "role/list.json", RoleTO[].class));
+			roles = rs.list();
+		} catch (SyncopeClientCompositeErrorException e) {
+			LOG.error("While listing all roles", e);
+		}
 
-        return roles;
-    }
+		return roles;
+	}
 
-    public void create(final RoleTO roleTO) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "role/create", roleTO, RoleTO.class);
-    }
+	public void create(final RoleTO roleTO) {
+		// SyncopeSession.get().getRestTemplate().postForObject(
+		// baseURL + "role/create", roleTO, RoleTO.class);
+		rs.create(roleTO);
+	}
 
-    public RoleTO read(final Long id) {
-        RoleTO roleTO = null;
+	public RoleTO read(final Long id) {
+		RoleTO roleTO = null;
 
-        try {
-            roleTO = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "role/read/{roleId}.json", RoleTO.class, id);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While reading a role", e);
-        }
-        return roleTO;
-    }
+		try {
+			// roleTO = SyncopeSession.get().getRestTemplate().getForObject(
+			// baseURL + "role/read/{roleId}.json", RoleTO.class, id);
+			roleTO = rs.read(id);
+			// } catch (SyncopeClientCompositeErrorException e) {
+		} catch (Exception e) {
+			LOG.error("While reading a role", e);
+		}
+		return roleTO;
+	}
 
-    public void update(final RoleMod roleMod) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "role/update", roleMod, RoleTO.class);
-    }
+	public void update(final RoleMod roleMod) throws UnauthorizedRoleException,
+			NotFoundException {
+		// SyncopeSession.get().getRestTemplate().postForObject(
+		// baseURL + "role/update", roleMod, RoleTO.class);
+		rs.update(roleMod.getId(), roleMod);
+	}
 
-    public RoleTO delete(final Long id) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
-    }
+	public RoleTO delete(final Long id) throws UnauthorizedRoleException {
+//		return SyncopeSession
+//				.get()
+//				.getRestTemplate()
+//				.getForObject(baseURL + "role/delete/{roleId}.json",
+//						RoleTO.class, id);
+		RoleTO role = read(id);
+		try {
+			rs.delete(id);
+		} catch (NotFoundException e) {
+			LOG.warn("Deletion of unexisting role", e);
+		}
+		return role;
+	}
 }

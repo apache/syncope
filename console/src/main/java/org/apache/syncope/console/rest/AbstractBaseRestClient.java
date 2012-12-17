@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.console.rest;
 
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,4 +33,14 @@ public abstract class AbstractBaseRestClient {
 
     @Autowired
     protected String baseURL;
+    
+    @Autowired
+    protected JAXRSClientFactoryBean restClientFactory;
+
+	public <T> T getRestService(Class<T> serviceClass) {
+		restClientFactory.setServiceClass(serviceClass);
+        T service = restClientFactory.create(serviceClass);
+		WebClient.client(service).type("application/json").accept("application/json");		
+		return service;
+	}
 }
