@@ -18,20 +18,19 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
@@ -55,7 +54,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     private RoleDAO roleDAO;
 
     @Autowired
-    private ConnInstanceLoader connInstanceLoader;
+    private ConnectorRegistry connInstanceLoader;
 
     @Override
     public ExternalResource find(final String name) {

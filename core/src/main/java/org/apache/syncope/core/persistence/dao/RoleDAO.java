@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 
 public interface RoleDAO extends AttributableDAO {
 

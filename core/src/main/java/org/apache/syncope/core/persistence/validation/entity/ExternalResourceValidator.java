@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.propagation.PropagationActions;
+import org.apache.syncope.core.persistence.beans.PropagationActions;
 import org.apache.syncope.types.EntityViolationType;
 
 public class ExternalResourceValidator extends AbstractValidator implements

@@ -62,7 +62,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
-import org.apache.syncope.core.security.PasswordEncoder;
+import org.apache.syncope.core.util.PasswordEncoder;
 import org.apache.syncope.types.CipherAlgorithm;
 
 @Entity

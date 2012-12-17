@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.util.NotFoundException;
 
 public interface WorkflowAdapter {

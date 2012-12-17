@@ -21,6 +21,7 @@ package org.apache.syncope.core.util;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;

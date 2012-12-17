@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.servlet.ServletContext;
+
+import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.workflow.WorkflowLoader;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
@@ -89,7 +92,7 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
     }
 
     @Autowired
-    private ConnInstanceLoader connInstanceLoader;
+    private ConnectorFactory connInstanceLoader;
 
     @Autowired
     private ContentLoader contentLoader;

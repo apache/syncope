@@ -22,9 +22,9 @@ import java.text.ParseException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.types.EntityViolationType;
 import org.quartz.CronExpression;
+import org.quartz.Job;
 
 public class SchedTaskValidator extends AbstractValidator implements ConstraintValidator<SchedTaskCheck, SchedTask> {
 
@@ -40,7 +40,7 @@ public class SchedTaskValidator extends AbstractValidator implements ConstraintV
         Class<?> jobClass = null;
         try {
             jobClass = Class.forName(object.getJobClassName());
-            isValid = AbstractTaskJob.class.isAssignableFrom(jobClass);
+            isValid = Job.class.isAssignableFrom(jobClass);
         } catch (Exception e) {
             LOG.error("Invalid Job class specified", e);
             isValid = false;

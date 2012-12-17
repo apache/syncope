@@ -27,9 +27,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.PropagationActions;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.types.PropagationMode;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TraceLevel;
@@ -67,7 +67,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * Connector instance loader.
      */
     @Autowired
-    protected ConnInstanceLoader connLoader;
+    protected ConnectorFactory connLoader;
 
     /**
      * ConnObjectUtil.

@@ -16,18 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.sync;
+package org.apache.syncope.core.persistence.beans;
 
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.syncope.core.quartz.AbstractTaskJob.Status;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.TraceLevel;
 
 public class SyncResult {
+    public enum Status {
+        SUCCESS,
+        FAILURE
+    }
 
     private String message;
 

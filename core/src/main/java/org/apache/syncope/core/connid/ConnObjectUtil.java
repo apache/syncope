@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.connid;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,6 @@ import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
-import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -48,8 +47,15 @@ import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.IncompatiblePolicyException;
+import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.MappingUtil;
+import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PasswordPolicySpec;
@@ -420,7 +426,7 @@ public class ConnObjectUtil {
      */
     public void retrieveVirAttrValues(final AbstractAttributable owner, final AttributableUtil attrUtil) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        final ConnInstanceLoader connInstanceLoader = context.getBean(ConnInstanceLoader.class);
+        final ConnectorFactory connInstanceLoader = context.getBean(ConnectorFactory.class);
 
         final Map<ConnectorObject, Set<AbstractMappingItem>> connObj2MapItems =
                 new HashMap<ConnectorObject, Set<AbstractMappingItem>>();

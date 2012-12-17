@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.sync;
+package org.apache.syncope.core.persistence.beans;
 
 import java.util.List;
 import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 

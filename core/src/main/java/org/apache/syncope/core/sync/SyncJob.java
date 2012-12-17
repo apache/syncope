@@ -20,10 +20,11 @@ package org.apache.syncope.core.sync;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
@@ -31,6 +32,7 @@ import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -61,7 +63,7 @@ public class SyncJob extends AbstractTaskJob {
      * ConnInstance loader.
      */
     @Autowired
-    private ConnInstanceLoader connInstanceLoader;
+    private ConnectorFactory connInstanceLoader;
 
     /**
      * Resource DAO.

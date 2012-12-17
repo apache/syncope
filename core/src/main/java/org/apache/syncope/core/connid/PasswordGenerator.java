@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.connid;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
+import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

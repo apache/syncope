@@ -25,17 +25,17 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.init.ConnInstanceLoader;
+import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnBundleManager;
-import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.AuditElements;
@@ -85,7 +85,7 @@ public class ResourceController extends AbstractController {
     private ConnObjectUtil connObjectUtil;
 
     @Autowired
-    private ConnInstanceLoader connLoader;
+    private ConnectorFactory connLoader;
 
     @Autowired
     private ConnBundleManager bundleManager;

@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.util.AttributableUtil;
 
 public interface AttributableDAO extends DAO {

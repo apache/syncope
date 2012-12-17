@@ -16,15 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.controller;
+package org.apache.syncope.core.workflow;
 
-public class InvalidSearchConditionException extends Exception {
+public interface WorkflowLoader {
 
-    public InvalidSearchConditionException() {
-        super();
-    }
-
-    public InvalidSearchConditionException(String string) {
-        super(string);
-    }
+    void load();
 }

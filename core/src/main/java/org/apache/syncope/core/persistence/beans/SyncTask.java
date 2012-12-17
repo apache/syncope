@@ -28,7 +28,6 @@ import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
-import org.apache.syncope.core.sync.SyncJob;
 
 @Entity
 @SyncTaskCheck
@@ -81,7 +80,7 @@ public class SyncTask extends SchedTask {
     public SyncTask() {
         super();
 
-        super.setJobClassName(SyncJob.class.getName());
+        super.setJobClassName("org.apache.syncope.core.sync.SyncJob");
     }
 
     @Override

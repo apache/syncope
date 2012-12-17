@@ -23,8 +23,10 @@ import java.util.Set;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
@@ -42,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Load ConnId connector instances.
  */
 @Component
-public class ConnInstanceLoader {
+class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnInstanceLoader.class);
 
@@ -59,14 +61,10 @@ public class ConnInstanceLoader {
         return String.format("connInstance-%d-%s", resource.getConnector().getId(), resource.getName());
     }
 
-    /**
-     * Get a live connector bean that is registered with the given resource.
-     *
-     * @param resource the resource.
-     * @return live connector bran for given resource
-     * @throws BeansException if there is any problem with Spring
-     * @throws NotFoundException if the connector is not registered in the context
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.init.ConnectorFactory#getConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
      */
+    @Override
     public ConnectorFacadeProxy getConnector(final ExternalResource resource)
             throws BeansException, NotFoundException {
 
@@ -106,6 +104,10 @@ public class ConnInstanceLoader {
         return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.init.ConnectorRegistry#registerConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
+     */
+    @Override
     public void registerConnector(final ExternalResource resource)
             throws NotFoundException {
 
@@ -122,6 +124,10 @@ public class ConnInstanceLoader {
         LOG.debug("Successfully registered bean {}", beanName);
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.init.ConnectorRegistry#unregisterConnector(java.lang.String)
+     */
+    @Override
     public void unregisterConnector(final String id) {
         ApplicationContextProvider.getBeanFactory().destroySingleton(id);
     }

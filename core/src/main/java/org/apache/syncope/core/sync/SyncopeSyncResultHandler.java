@@ -33,17 +33,21 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.SyncActions;
+import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -51,13 +55,10 @@ import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidatio
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.quartz.AbstractTaskJob;
-import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -394,7 +395,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             if (subjectTO instanceof RoleTO) {
                 result.setName(((RoleTO) subjectTO).getName());
             }
-            result.setStatus(AbstractTaskJob.Status.SUCCESS);
+            result.setStatus(SyncResult.Status.SUCCESS);
         } else {
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
@@ -447,11 +448,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 if (subjectTO instanceof RoleTO) {
                     result.setName(((RoleTO) subjectTO).getName());
                 }
-                result.setStatus(AbstractTaskJob.Status.SUCCESS);
+                result.setStatus(SyncResult.Status.SUCCESS);
             } catch (PropagationException e) {
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             } catch (Exception e) {
-                result.setStatus(AbstractTaskJob.Status.FAILURE);
+                result.setStatus(SyncResult.Status.FAILURE);
                 result.setMessage(e.getMessage());
                 LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
             }
@@ -487,7 +488,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                             id, delta.getObject(), subjectTO, syncTask, attrUtil);
                     delta = actions.beforeUpdate(delta, subjectTO, mod);
 
-                    result.setStatus(AbstractTaskJob.Status.SUCCESS);
+                    result.setStatus(SyncResult.Status.SUCCESS);
                     result.setId(mod.getId());
                     if (mod instanceof UserMod) {
                         result.setName(((UserMod) mod).getUsername());
@@ -526,7 +527,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 } catch (PropagationException e) {
                     LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 } catch (Exception e) {
-                    result.setStatus(AbstractTaskJob.Status.FAILURE);
+                    result.setStatus(SyncResult.Status.SUCCESS);
                     result.setMessage(e.getMessage());
                     LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 }
@@ -572,7 +573,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 }
                 result.setOperation(ResourceOperation.DELETE);
                 result.setSubjectType(attrUtil.getType());
-                result.setStatus(AbstractTaskJob.Status.SUCCESS);
+                result.setStatus(SyncResult.Status.SUCCESS);
 
                 if (!dryRun) {
                     try {
@@ -597,7 +598,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                             rwfAdapter.delete(id);
                         }
                     } catch (Exception e) {
-                        result.setStatus(AbstractTaskJob.Status.FAILURE);
+                        result.setStatus(SyncResult.Status.SUCCESS);
                         result.setMessage(e.getMessage());
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                     }

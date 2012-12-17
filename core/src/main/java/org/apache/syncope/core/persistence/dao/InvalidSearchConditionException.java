@@ -16,9 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.init;
+package org.apache.syncope.core.persistence.dao;
 
-public interface WorkflowLoader {
+public class InvalidSearchConditionException extends Exception {
 
-    void load();
+    public InvalidSearchConditionException() {
+        super();
+    }
+
+    public InvalidSearchConditionException(String string) {
+        super(string);
+    }
 }

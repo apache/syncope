@@ -20,7 +20,7 @@ package org.apache.syncope.core.propagation;
 
 import java.util.List;
 import org.apache.syncope.client.to.PropagationTO;
-import org.apache.syncope.core.util.ConnObjectUtil;
+import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 

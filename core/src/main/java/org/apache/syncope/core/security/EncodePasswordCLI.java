@@ -19,6 +19,8 @@
 package org.apache.syncope.core.security;
 
 import java.util.Arrays;
+
+import org.apache.syncope.core.util.PasswordEncoder;
 import org.apache.syncope.types.CipherAlgorithm;
 
 /**

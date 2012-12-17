@@ -31,13 +31,13 @@ import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
@@ -85,7 +85,7 @@ public class ConnInstanceController extends AbstractController {
     private ConnBundleManager bundleManager;
 
     @Autowired
-    private ConnInstanceLoader connLoader;
+    private ConnectorFactory connLoader;
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")

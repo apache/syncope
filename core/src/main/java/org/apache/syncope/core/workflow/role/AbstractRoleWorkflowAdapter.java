@@ -19,13 +19,13 @@
 package org.apache.syncope.core.workflow.role;
 
 import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.core.init.WorkflowLoader;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
+import org.apache.syncope.core.workflow.WorkflowLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

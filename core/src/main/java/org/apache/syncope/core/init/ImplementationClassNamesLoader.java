@@ -24,13 +24,14 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.syncope.core.persistence.beans.PropagationActions;
+import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.notification.NotificationJob;
-import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.sync.SyncJob;
-import org.apache.syncope.core.sync.SyncActions;
 import org.quartz.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

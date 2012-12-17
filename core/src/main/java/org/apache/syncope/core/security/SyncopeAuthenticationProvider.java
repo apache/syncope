@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.util.PasswordEncoder;
 import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;

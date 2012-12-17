@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.TaskExec;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.util.NotFoundException;
 
-public interface PropagationActions {
+public interface ConnectorRegistry {
 
-    void before(PropagationTask task, ConnectorObject beforeObj);
+    public abstract void registerConnector(ExternalResource resource)
+            throws NotFoundException;
 
-    void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj);
+    public abstract void unregisterConnector(String id);
+
 }
