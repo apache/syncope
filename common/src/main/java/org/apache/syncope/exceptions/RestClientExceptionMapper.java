@@ -42,13 +42,13 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>,
 			
 			// 2. Map  SC_FORBIDDEN
 		} else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-			ex = new AccessControlException("Remote exception with status code: FORBIDDEN");
-			
-			// 3. Map  SC_UNAUTHORIZED
-		} else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
 //			// TODO find a way to enhance this error message with correct
 //			// RoleNumbers.
 			ex = new UnauthorizedRoleException(-1L);
+			
+			// 3. Map  SC_UNAUTHORIZED
+		} else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+			ex = new AccessControlException("Remote unauthorized exception");
 			
 		} else {
 			// 3. All other codes are mapped to runtime exception with HTTP code information 

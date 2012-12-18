@@ -11,10 +11,13 @@
    language governing permissions and limitations under the License. -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:util="http://www.springframework.org/schema/util"
+   xmlns:cxf="http://cxf.apache.org/core"
    xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://cxf.apache.org/jaxrs
         http://cxf.apache.org/schemas/jaxrs.xsd
+        http://cxf.apache.org/core 
+        http://cxf.apache.org/schemas/core.xsd
         http://www.springframework.org/schema/util 
         http://www.springframework.org/schema/util/spring-util.xsd"
 >
@@ -70,6 +73,12 @@
       <property name="username" value="admin" />
       <property name="password" value="password" />
       <property name="inheritHeaders" value="true" />
+      <property name="features">
+         <list>
+            <!--bean class="org.apache.cxf.feature.LoggingFeature" /-->
+            <cxf:logging/>
+         </list>
+      </property>
       <property name="providers">
          <list>
             <ref bean="xmlProvider" />
@@ -95,6 +104,6 @@
 
    <bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestClientExceptionMapper" />
    <!-- bean id="exceptionMapper" class="org.apache.syncope.exceptions.RestHttpStatusCodeMapper" /-->
-   
+
 
 </beans>

@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -32,6 +33,7 @@ import org.springframework.orm.jpa.JpaSystemException;
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>,
 		ResponseExceptionMapper<Exception> {
 
+	private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Spring Security Application\"";
 	private static final Logger LOG = LoggerFactory
 			.getLogger(RestServiceExceptionMapper.class);
 	public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
@@ -127,9 +129,13 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>,
 		Response response = null;
 		ResponseBuilder responseBuilder = Response.status(Response.Status.FORBIDDEN);
 
-		if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+		if (ex instanceof UnauthorizedRoleException) {
+			responseBuilder.header(
+					SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+					SyncopeClientExceptionType.UnauthorizedRole.getHeaderValue());
+			responseBuilder.header(SyncopeClientExceptionType.UnauthorizedRole
+					.getElementHeaderName(), ex.getMessage());
 			response = responseBuilder.build();
-
 		}
 		return response;
 	}
@@ -138,14 +144,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>,
 		Response response = null;
 		ResponseBuilder responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
 
-		if (ex instanceof UnauthorizedRoleException) {
-			responseBuilder.header(
-					SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-					SyncopeClientExceptionType.UnauthorizedRole
-							.getHeaderValue());
-			responseBuilder.header(SyncopeClientExceptionType.UnauthorizedRole
-					.getElementHeaderName(), ex.getMessage());
-			response = responseBuilder.build();
+		if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+			response = responseBuilder.header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED).build();			
 		}
 		return response;
 	}

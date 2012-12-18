@@ -27,9 +27,11 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.NotFoundException;
 import org.apache.syncope.exceptions.InvalidSearchConditionException;
 import org.apache.syncope.exceptions.UnauthorizedRoleException;
@@ -81,7 +83,7 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
             WorkflowException, NotFoundException {
         // 0. create a role that can only read schemas
         RoleTO authRoleTO = new RoleTO();
-        authRoleTO.setName("authRole");
+        authRoleTO.setName("authRole" + UUID.randomUUID().toString().substring(0,8));
         authRoleTO.setParent(8L);
         authRoleTO.addEntitlement("SCHEMA_READ");
 
@@ -94,8 +96,15 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO,
-                SchemaTO.class);
+        SchemaTO newSchemaTO = null;
+        try {
+            WebClient wc = super.createWebClient("schema/user");
+            newSchemaTO = wc.path(schemaTO.getName()).get(SchemaTO.class);
+        } catch (Exception e) {
+            newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO,
+                    SchemaTO.class);
+        }
+
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -294,7 +303,7 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
     @Test
     public void checkUserSuspension() throws UnauthorizedRoleException, WorkflowException,
             PropagationException, NotFoundException {
-        UserTO userTO = AbstractUserTestITCase.getSampleTO("checkSuspension@syncope.apache.org");
+        UserTO userTO = AbstractUserTestITCase.getSampleTO();
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -404,7 +413,7 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
             NotFoundException {
         // Parent role, able to create users with role 1
         RoleTO parentRole = new RoleTO();
-        parentRole.setName("parentAdminRole");
+        parentRole.setName("parentAdminRole" + UUID.randomUUID().toString().substring(0,8));
         parentRole.addEntitlement("USER_CREATE");
         parentRole.addEntitlement("ROLE_1");
         parentRole.setParent(1L);
@@ -415,10 +424,10 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
 
         // Child role, with no entitlements
         RoleTO childRole = new RoleTO();
-        childRole.setName("childAdminRole");
+        childRole.setName("childAdminRole" + UUID.randomUUID().toString().substring(0,8));
         childRole.setParent(parentRole.getId());
 
-        r = rs.create(parentRole);
+        r = rs.create(childRole);
         childRole = resolve(RoleTO.class, r, rs);
         assertNotNull(childRole);
 
