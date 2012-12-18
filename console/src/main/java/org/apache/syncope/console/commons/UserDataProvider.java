@@ -18,22 +18,32 @@
  */
 package org.apache.syncope.console.commons;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.exceptions.InvalidSearchConditionException;
+import org.apache.syncope.search.NodeCond;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.syncope.console.rest.UserRestClient;
-import org.apache.syncope.search.NodeCond;
-import org.apache.syncope.to.UserTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
-    private SortableUserProviderComparator comparator;
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(UserDataProvider.class);
+
+    private final SortableUserProviderComparator comparator;
 
     private NodeCond filter = null;
 
@@ -41,7 +51,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     private boolean filtered = false;
 
-    private UserRestClient restClient;
+    private final UserRestClient restClient;
 
     public UserDataProvider(final UserRestClient restClient, final int paginatorRows, final boolean filtered) {
 
@@ -51,7 +61,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
         this.filtered = filtered;
         this.paginatorRows = paginatorRows;
 
-        //Default sorting
+        // Default sorting
         setSort("id", SortOrder.ASCENDING);
 
         comparator = new SortableUserProviderComparator(this);
@@ -63,12 +73,17 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     @Override
     public Iterator<UserTO> iterator(final int first, final int count) {
-        final List<UserTO> users;
+        List<UserTO> users;
 
         if (filtered) {
-            users = filter == null
-                    ? Collections.EMPTY_LIST
-                    : restClient.search(filter, (first / paginatorRows) + 1, paginatorRows);
+            users = new ArrayList<UserTO>();
+            if (filter != null) {
+                try {
+                    users = restClient.search(filter, (first / paginatorRows) + 1, paginatorRows);
+                } catch (Exception e) {
+                    LOG.error("Could not search for user. \n {}", e.getMessage());
+                }
+            }
         } else {
             users = restClient.list((first / paginatorRows) + 1, paginatorRows);
         }
@@ -80,9 +95,14 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
     @Override
     public int size() {
         if (filtered) {
-            return filter == null
-                    ? 0
-                    : restClient.searchCount(filter);
+            try {
+                return filter == null
+                        ? 0
+                        : restClient.searchCount(filter);
+            } catch (InvalidSearchConditionException e) {
+                LOG.error("Could not search for user. \n {}", e.getMessage());
+                return 0;
+            }
         } else {
             return restClient.count();
         }

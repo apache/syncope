@@ -47,8 +47,8 @@ public class UserRequestModalPage extends UserModalPage {
 
     private UserRequestTO userRequestTO;
 
-    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO,
-            final Mode mode) {
+    public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window,
+            final UserTO userTO, final Mode mode) {
 
         super(callerPageRef, window, userTO, mode, false);
 
@@ -61,19 +61,19 @@ public class UserRequestModalPage extends UserModalPage {
         super(callerPageRef, window, null, mode, false);
 
         switch (userRequestTO.getType()) {
-            case CREATE:
-                userTO = userRequestTO.getUserTO();
-                this.initialUserTO = AttributableOperations.clone(userTO);
-                break;
+        case CREATE:
+            userTO = userRequestTO.getUserTO();
+            this.initialUserTO = AttributableOperations.clone(userTO);
+            break;
 
-            case UPDATE:
-                this.initialUserTO = userRestClient.read(userRequestTO.getUserMod().getId());
+        case UPDATE:
+            this.initialUserTO = userRestClient.read(userRequestTO.getUserMod().getId());
 
-                userTO = AttributableOperations.apply(initialUserTO, userRequestTO.getUserMod());
-                break;
+            userTO = AttributableOperations.apply(initialUserTO, userRequestTO.getUserMod());
+            break;
 
-            case DELETE:
-            default:
+        case DELETE:
+        default:
         }
 
         this.userRequestTO = userRequestTO;
@@ -92,19 +92,23 @@ public class UserRequestModalPage extends UserModalPage {
 
         if (updatedUserTO.getId() == 0) {
             switch (mode) {
-                case SELF:
-                    requestRestClient.requestCreate(updatedUserTO);
-                    break;
+            case SELF:
+                requestRestClient.requestCreate(updatedUserTO);
+                break;
 
-                case ADMIN:
+            case ADMIN:
+                try {
                     userRestClient.create(updatedUserTO);
-                    if (userRequestTO != null) {
-                        requestRestClient.delete(userRequestTO.getId());
-                    }
-                    break;
+                } catch (Exception e) {
+                    LOG.error("Could not create User. \n {}", e.getMessage());
+                }
+                if (userRequestTO != null) {
+                    requestRestClient.delete(userRequestTO.getId());
+                }
+                break;
 
-                default:
-                    LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
+            default:
+                LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
             }
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO,
@@ -113,19 +117,23 @@ public class UserRequestModalPage extends UserModalPage {
             // update user only if it has changed
             if (!userMod.isEmpty()) {
                 switch (mode) {
-                    case SELF:
-                        requestRestClient.requestUpdate(userMod);
-                        break;
+                case SELF:
+                    requestRestClient.requestUpdate(userMod);
+                    break;
 
-                    case ADMIN:
-                        userRestClient.update(userMod);
-                        if (userRequestTO != null) {
-                            requestRestClient.delete(userRequestTO.getId());
-                        }
-                        break;
+                case ADMIN:
+                    try {
+                    userRestClient.update(userMod);
+                    } catch (Exception e) {
+                        LOG.error("Could not update user. \n {}", e.getMessage());
+                    }
+                    if (userRequestTO != null) {
+                        requestRestClient.delete(userRequestTO.getId());
+                    }
+                    break;
 
-                    default:
-                        LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
+                default:
+                    LOG.warn("Invalid mode specified for {}: {}", getClass().getName(), mode);
                 }
             }
         }

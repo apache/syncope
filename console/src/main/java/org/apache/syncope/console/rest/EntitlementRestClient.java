@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Component;
-import org.apache.syncope.console.SyncopeSession;
+import java.util.Set;
+
+import org.apache.syncope.services.AuthenticationService;
+import org.apache.syncope.to.EntitlementTO;
 import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Resources services.
@@ -30,21 +33,30 @@ import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 @Component
 public class EntitlementRestClient extends AbstractBaseRestClient {
 
+    private final AuthenticationService as = super.getRestService(AuthenticationService.class);
+
     /**
      * Get all Entitlements.
      *
      * @return List<String>
      */
     public List<String> getAllEntitlements() {
-        List<String> entitlements = null;
+        Set<EntitlementTO> entitlements = null;
+        List<String> result = new ArrayList<String>();
 
         try {
-            entitlements = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "auth/allentitlements.json", String[].class));
+            // entitlements =
+            // Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+            // baseURL + "auth/allentitlements.json", String[].class));
+            entitlements = as.getAllEntitlements();
+            for (EntitlementTO e : entitlements) {
+                result.add(e.getName());
+            }
+
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all the entitlements", e);
         }
 
-        return entitlements;
+        return result;
     }
 }

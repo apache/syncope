@@ -21,12 +21,21 @@ package org.apache.syncope.console.pages;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.syncope.services.AuthenticationService;
+import org.apache.syncope.to.EntitlementTO;
+import org.apache.syncope.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -50,11 +59,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.apache.syncope.console.SyncopeSession;
-import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
-import org.apache.syncope.to.UserTO;
 
 /**
  * Syncope Login page.
@@ -65,6 +72,9 @@ public class Login extends WebPage {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(Login.class);
+
+    @Autowired
+    protected JAXRSClientFactoryBean restClientFactory;
 
     private static final long serialVersionUID = -3744389270366566218L;
 
@@ -96,7 +106,8 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
+        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[] { Locale.ENGLISH,
+                Locale.ITALIAN }));
 
         form.add(languageSelect);
 
@@ -107,7 +118,8 @@ public class Login extends WebPage {
             @Override
             public void onSubmit() {
                 try {
-                    String[] entitlements = authenticate(userIdField.getRawInput(), passwordField.getRawInput());
+                    String[] entitlements = authenticate(userIdField.getRawInput(),
+                            passwordField.getRawInput());
 
                     SyncopeSession.get().setUserId(userIdField.getRawInput());
                     SyncopeSession.get().setEntitlements(entitlements);
@@ -117,8 +129,8 @@ public class Login extends WebPage {
                 } catch (HttpClientErrorException e) {
                     error(getString("login-error"));
 
-                    PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
-                            get().getRestTemplate().getRequestFactory());
+                    PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) SyncopeSession
+                            .get().getRestTemplate().getRequestFactory());
 
                     ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
                 }
@@ -155,8 +167,8 @@ public class Login extends WebPage {
 
                         @Override
                         public Page createPage() {
-                            return new UserRequestModalPage(Login.this.getPageReference(), editProfileModalWin,
-                                    new UserTO(), UserModalPage.Mode.SELF);
+                            return new UserRequestModalPage(Login.this.getPageReference(),
+                                    editProfileModalWin, new UserTO(), UserModalPage.Mode.SELF);
                         }
                     });
 
@@ -175,17 +187,27 @@ public class Login extends WebPage {
     }
 
     private String[] authenticate(final String userId, final String password) {
-        final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
+        //final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
 
         // 1. Set provided credentials to check
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+        restClientFactory.setServiceClass(AuthenticationService.class);
+        AuthenticationService authService = restClientFactory.create(AuthenticationService.class);
+        WebClient.client(authService).type("application/json").accept("application/json");
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
+        String userCredentials = userId + ":" + password;
+        String authorizationHeader = "Basic " + Base64Utility.encode(userCredentials.getBytes());
+        WebClient.client(authService).header("Authorization", authorizationHeader);
 
         // 2. Search authorizations for user specified by credentials
-        return restTemplate.getForObject(baseURL + "auth/entitlements.json", String[].class);
+        Set<EntitlementTO> ents = authService.getMyEntitlements();
+        String[] result = new String[ents.size()];
+        int i = 0;
+        for (EntitlementTO e : ents) {
+            result[i] = e.getName();
+            i++;
+        }
+
+        return result;
     }
 
     private boolean isSelfRegistrationAllowed() {
@@ -205,8 +227,8 @@ public class Login extends WebPage {
     private String getCoreVersion() {
         final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
 
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
+        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+                .getRequestFactory());
 
         String version = "";
         try {

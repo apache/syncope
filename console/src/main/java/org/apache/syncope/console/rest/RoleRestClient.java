@@ -21,9 +21,9 @@ package org.apache.syncope.console.rest;
 import java.util.List;
 
 import org.apache.syncope.NotFoundException;
+import org.apache.syncope.exceptions.UnauthorizedRoleException;
 import org.apache.syncope.mod.RoleMod;
 import org.apache.syncope.services.RoleService;
-import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.to.RoleTO;
 import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
@@ -34,11 +34,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoleRestClient extends AbstractBaseRestClient {
 
-	private RoleService rs = super.getRestService(RoleService.class);
+	private final RoleService rs = super.getRestService(RoleService.class);
 
 	/**
 	 * Get all Roles.
-	 * 
+	 *
 	 * @return SchemaTOs
 	 */
 	public List<RoleTO> getAllRoles()

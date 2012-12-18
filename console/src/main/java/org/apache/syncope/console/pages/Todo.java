@@ -281,7 +281,7 @@ public class Todo extends BasePage {
                         try {
                             userRestClient.delete(model.getObject().getUserId());
                             userRequestRestClient.delete(model.getObject().getId());
-                        } catch (SyncopeClientCompositeErrorException e) {
+                        } catch (Exception e) {
                             LOG.error("While deleting an user", e);
                             error(e.getMessage());
                             return;
@@ -365,7 +365,7 @@ public class Todo extends BasePage {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private SortableDataProviderComparator<WorkflowFormTO> comparator;
+        private final SortableDataProviderComparator<WorkflowFormTO> comparator;
 
         public ApprovalProvider() {
             //Default sorting
@@ -407,7 +407,7 @@ public class Todo extends BasePage {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private SortableDataProviderComparator<UserRequestTO> comparator;
+        private final SortableDataProviderComparator<UserRequestTO> comparator;
 
         public UserRequestProvider() {
             //Default sorting

@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.UserDataProvider;
@@ -39,7 +40,6 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.search.NodeCond;
 import org.apache.syncope.to.AbstractAttributableTO;
 import org.apache.syncope.to.UserTO;
-import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -498,7 +498,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                             editmodal.show(target);
 
-                        } catch (SyncopeClientCompositeErrorException scce) {
+                        } catch (Exception scce) {
                             error(getString("operation_error") + ": " + scce.getMessage());
                             target.add(feedbackPanel);
                         }

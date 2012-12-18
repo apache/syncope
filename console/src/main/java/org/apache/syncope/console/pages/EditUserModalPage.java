@@ -33,6 +33,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Modal window with User form.
@@ -41,6 +43,11 @@ public class EditUserModalPage extends UserModalPage {
 
     @SpringBean
     private UserRestClient userRestClient;
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(EditUserModalPage.class);
 
     private UserTO initialUserTO = null;
 
@@ -72,13 +79,21 @@ public class EditUserModalPage extends UserModalPage {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
-            userTO = userRestClient.create(updatedUserTO);
+            try {
+                userTO = userRestClient.create(updatedUserTO);
+            } catch (Exception e) {
+                LOG.error("Could not update user. \n {}", e.getMessage());
+            }
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
 
             // update user just if it is changed
             if (!userMod.isEmpty()) {
-                userTO = userRestClient.update(userMod);
+                try {
+                    userTO = userRestClient.update(userMod);
+                } catch (Exception e) {
+                    LOG.error("Could not create User. \n {}", e.getMessage());
+                }
             }
         }
 

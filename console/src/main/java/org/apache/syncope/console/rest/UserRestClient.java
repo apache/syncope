@@ -28,18 +28,19 @@ import javax.ws.rs.MessageProcessingException;
 import org.apache.syncope.NotFoundException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.exceptions.InvalidSearchConditionException;
+import org.apache.syncope.exceptions.UnauthorizedRoleException;
 import org.apache.syncope.mod.StatusMod;
 import org.apache.syncope.mod.StatusMod.Status;
 import org.apache.syncope.mod.UserMod;
 import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.NodeCond;
-import org.apache.syncope.services.InvalidSearchConditionException;
-import org.apache.syncope.services.UnauthorizedRoleException;
 import org.apache.syncope.services.UserService;
 import org.apache.syncope.to.ConnObjectTO;
 import org.apache.syncope.to.UserTO;
 import org.apache.syncope.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.workflow.WorkflowException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,7 +50,7 @@ import org.springframework.stereotype.Component;
 public class UserRestClient extends AbstractBaseRestClient {
 
 	UserService us = super.getRestService(UserService.class);
-	
+
     public Integer count() {
         //return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/count.json", Integer.class);
     	return us.count();
@@ -76,14 +77,14 @@ public class UserRestClient extends AbstractBaseRestClient {
     }
 
     public UserTO update(UserMod userModTO)
-            throws SyncopeClientCompositeErrorException, NotFoundException, PropagationException {
+            throws SyncopeClientCompositeErrorException, NotFoundException, PropagationException, UnauthorizedRoleException, WorkflowException {
 
         //return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/update", userModTO, UserTO.class);
     	return us.update(userModTO.getId(), userModTO);
     }
 
     public UserTO delete(Long id)
-            throws SyncopeClientCompositeErrorException, NotFoundException, PropagationException {
+            throws SyncopeClientCompositeErrorException, WorkflowException, UnauthorizedRoleException, NotFoundException, PropagationException {
 
         //return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/delete/{userId}", UserTO.class, id);
     	UserTO returnValue = read(id);
@@ -162,7 +163,7 @@ public class UserRestClient extends AbstractBaseRestClient {
 
         boolean performLocal = false;
         Set<String> resources = new HashSet<String>();
-        
+
         for (StatusBean status : statuses) {
             if ((enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
 

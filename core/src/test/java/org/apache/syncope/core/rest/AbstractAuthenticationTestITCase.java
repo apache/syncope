@@ -33,6 +33,8 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.NotFoundException;
 import org.apache.syncope.exceptions.InvalidSearchConditionException;
 import org.apache.syncope.exceptions.UnauthorizedRoleException;
+import org.apache.syncope.mod.StatusMod;
+import org.apache.syncope.mod.StatusMod.Status;
 import org.apache.syncope.propagation.PropagationException;
 import org.apache.syncope.search.AttributeCond;
 import org.apache.syncope.search.NodeCond;
@@ -75,7 +77,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testUserSchemaAuthorization() throws UnauthorizedRoleException, PropagationException, WorkflowException, NotFoundException {
+    public void testUserSchemaAuthorization() throws UnauthorizedRoleException, PropagationException,
+            WorkflowException, NotFoundException {
         // 0. create a role that can only read schemas
         RoleTO authRoleTO = new RoleTO();
         authRoleTO.setName("authRole");
@@ -91,7 +94,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO, SchemaTO.class);
+        SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL + "schema/user/create", schemaTO,
+                SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -109,13 +113,15 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         userTO = resolve(UserTO.class, r, us);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json", SchemaTO.class);
+        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json",
+                SchemaTO.class);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
         super.setupRestTemplate(userTO.getUsername(), "password123");
 
-        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json", SchemaTO.class);
+        schemaTO = restTemplate.getForObject(BASE_URL + "schema/user/read/authTestSchema.json",
+                SchemaTO.class);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
@@ -139,7 +145,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testUserRead() throws UnauthorizedRoleException, PropagationException, WorkflowException, NotFoundException {
+    public void testUserRead() throws UnauthorizedRoleException, PropagationException, WorkflowException,
+            NotFoundException {
         UserTO userTO = AbstractUserTestITCase.getSampleTO();
 
         MembershipTO membershipTO = new MembershipTO();
@@ -174,7 +181,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testUserSearch() throws UnauthorizedRoleException, PropagationException, WorkflowException, NotFoundException, InvalidSearchConditionException {
+    public void testUserSearch() throws UnauthorizedRoleException, PropagationException, WorkflowException,
+            NotFoundException, InvalidSearchConditionException {
         UserTO userTO = AbstractUserTestITCase.getSampleTO();
 
         MembershipTO membershipTO = new MembershipTO();
@@ -224,7 +232,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void checkFailedLogins() throws UnauthorizedRoleException, PropagationException, WorkflowException, NotFoundException {
+    public void checkFailedLogins() throws UnauthorizedRoleException, PropagationException,
+            WorkflowException, NotFoundException {
         UserTO userTO = AbstractUserTestITCase.getSampleTO();
 
         MembershipTO membershipTO = new MembershipTO();
@@ -249,41 +258,42 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
 
         // authentications failed ...
-
         super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
         UserService us2 = createServiceInstance(UserService.class, userTO.getUsername(), "wrongpwd1", us);
-
 
         try {
             readUserTO = us2.read(userTO.getId());
             fail();
-        } catch (Exception e) {            assertNotNull(e);
+        } catch (Exception e) {
+            assertNotNull(e);
         }
-
+        // Try twice
         try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
-           assertNotNull(readUserTO);;
-        } catch (Exception e) {            assertNotNull(e);;
+            readUserTO = us2.read(userTO.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
         }
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
 
-        readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        readUserTO = us.read(userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
 
-        readUserTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        readUserTO = us1.read(userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
     }
 
     @Test
-    public void checkUserSuspension() {
+    public void checkUserSuspension() throws UnauthorizedRoleException, WorkflowException,
+            PropagationException, NotFoundException {
         UserTO userTO = AbstractUserTestITCase.getSampleTO("checkSuspension@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -294,12 +304,14 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        Response r = us.create(userTO);
+        userTO = resolve(UserTO.class, r, us);
         assertNotNull(userTO);
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService us1 = createServiceInstance(UserService.class, userTO.getUsername(), "password123", us);
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        userTO = us1.read(userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -308,40 +320,32 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         // authentications failed ...
 
         super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
-
-        Throwable t = null;
-
-        try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
+        UserService us2 = createServiceInstance(UserService.class, userTO.getUsername(), "wrongpwd1", us);
 
         try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+            userTO = us2.read(userTO.getId());
+            fail();
         } catch (Exception e) {
-            t = e;
+            assertNotNull(e);
         }
-
-        assertNotNull(t);
-        t = null;
 
         try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+            userTO = us2.read(userTO.getId());
+            fail();
         } catch (Exception e) {
-            t = e;
+            assertNotNull(e);
         }
-
-        assertNotNull(t);
-        t = null;
+        try {
+            userTO = us2.read(userTO.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        userTO = us.read(userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -351,18 +355,16 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
 
         try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+            userTO = us2.read(userTO.getId());
+            fail();
         } catch (Exception e) {
-            t = e;
+            assertNotNull(e);
         }
-
-        assertNotNull(t);
-        t = null;
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        userTO = us.read(userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -370,37 +372,36 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         // check for authentication
-
         super.setupRestTemplate(userTO.getUsername(), "password123");
 
         try {
-            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
-            assertNotNull(userTO);
+            userTO = us1.read(userTO.getId());
+            fail("User should be suspended");
         } catch (Exception e) {
-            t = e;
+            assertNotNull(e);
         }
-
-        assertNotNull(t);
-        t = null;
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+        StatusMod status = new StatusMod(userTO.getId(), Status.REACTIVATE);
+        userTO = us.setStatus(userTO.getId(), status);
+        //userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        userTO = us1.read(userTO.getId());
 
         assertNotNull(userTO);
         assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
     }
 
     @Test
-    public void issueSYNCOPE48() {
+    public void issueSYNCOPE48() throws UnauthorizedRoleException, WorkflowException, PropagationException,
+            NotFoundException {
         // Parent role, able to create users with role 1
         RoleTO parentRole = new RoleTO();
         parentRole.setName("parentAdminRole");
@@ -408,7 +409,8 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         parentRole.addEntitlement("ROLE_1");
         parentRole.setParent(1L);
 
-        parentRole = restTemplate.postForObject(BASE_URL + "role/create", parentRole, RoleTO.class);
+        Response r = rs.create(parentRole);
+        parentRole = resolve(RoleTO.class, r, rs);
         assertNotNull(parentRole);
 
         // Child role, with no entitlements
@@ -416,33 +418,36 @@ public abstract class AbstractAuthenticationTestITCase extends AbstractTest {
         childRole.setName("childAdminRole");
         childRole.setParent(parentRole.getId());
 
-        childRole = restTemplate.postForObject(BASE_URL + "role/create", childRole, RoleTO.class);
+        r = rs.create(parentRole);
+        childRole = resolve(RoleTO.class, r, rs);
         assertNotNull(childRole);
 
         // User with child role, created by admin
-        UserTO role1Admin = AbstractUserTestITCase.getSampleTO("syncope48admin@apache.org");
+        UserTO role1Admin = AbstractUserTestITCase.getSampleTO();
         role1Admin.setPassword("password");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(childRole.getId());
         role1Admin.addMembership(membershipTO);
 
-        role1Admin = restTemplate.postForObject(BASE_URL + "user/create", role1Admin, UserTO.class);
+        r = us.create(role1Admin);
+        role1Admin = resolve(UserTO.class, r, us);
         assertNotNull(role1Admin);
 
         super.setupRestTemplate(role1Admin.getUsername(), "password");
+        UserService us1 = createServiceInstance(UserService.class, role1Admin.getUsername(), "password", us);
 
         // User with role 1, created by user with child role created above
-        UserTO role1User = AbstractUserTestITCase.getSampleTO("syncope48user@apache.org");
+        UserTO role1User = AbstractUserTestITCase.getSampleTO();
         membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
         role1User.addMembership(membershipTO);
 
-        role1User = restTemplate.postForObject(BASE_URL + "user/create", role1User, UserTO.class);
+        r = us1.create(role1User);
+        role1User = resolve(UserTO.class, r, us1);
         assertNotNull(role1User);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
     }
-
 
 }
