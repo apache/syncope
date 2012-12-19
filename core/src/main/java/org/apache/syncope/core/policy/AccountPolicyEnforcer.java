@@ -18,123 +18,14 @@
  */
 package org.apache.syncope.core.policy;
 
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.propagation.PropagationManager;
-import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
-public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
+public interface AccountPolicyEnforcer {
 
-    @Autowired
-    private UserWorkflowAdapter uwfAdapter;
+	public abstract void enforce(AccountPolicySpec policy, PolicyType type,
+			SyncopeUser user) throws AccountPolicyException,
+			PolicyEnforceException;
 
-    @Autowired
-    private PropagationManager propagationManager;
-
-    @Autowired
-    private PropagationTaskExecutor taskExecutor;
-
-    @Autowired
-    private UserDataBinder userDataBinder;
-
-    private static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
-
-    private static final Pattern LCPATTERN = Pattern.compile("[a-z0-9-_@. ]+");
-
-    private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
-
-    @Override
-    public void enforce(final AccountPolicySpec policy, final PolicyType type, final SyncopeUser user)
-            throws AccountPolicyException, PolicyEnforceException {
-
-        if (user.getUsername() == null) {
-            throw new PolicyEnforceException("Invalid account");
-        }
-
-        if (policy == null) {
-            throw new PolicyEnforceException("Invalid policy");
-        }
-
-        // check min length
-        if (policy.getMinLength() > 0 && policy.getMinLength() > user.getUsername().length()) {
-            throw new AccountPolicyException("Username too short");
-        }
-
-        // check max length
-        if (policy.getMaxLength() > 0 && policy.getMaxLength() < user.getUsername().length()) {
-            throw new AccountPolicyException("Username too long");
-        }
-
-        // check words not permitted
-        for (String word : policy.getWordsNotPermitted()) {
-            if (user.getUsername().contains(word)) {
-                throw new AccountPolicyException("Used word(s) not permitted");
-            }
-        }
-
-        // check syntax
-        if ((policy.isAllLowerCase() && !LCPATTERN.matcher(user.getUsername()).matches())
-                || (policy.isAllUpperCase() && !UCPATTERN.matcher(user.getUsername()).matches())
-                || !PATTERN.matcher(user.getUsername()).matches()) {
-            throw new AccountPolicyException("Invalid username syntax");
-        }
-
-        // check prefix
-        for (String prefix : policy.getPrefixesNotPermitted()) {
-            if (user.getUsername().startsWith(prefix)) {
-                throw new AccountPolicyException("Prefix not permitted");
-            }
-        }
-
-        // check suffix
-        for (String suffix : policy.getSuffixesNotPermitted()) {
-            if (user.getUsername().endsWith(suffix)) {
-                throw new AccountPolicyException("Suffix not permitted");
-            }
-        }
-
-        // check for subsequent failed logins
-        if (user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.getSuspended()) {
-            try {
-                LOG.debug("User {}:{} is over to max failed logins", user.getId(), user.getUsername());
-
-                // reduce failed logins number to avoid multiple request
-                user.setFailedLogins(user.getFailedLogins() - 1);
-
-                // disable user
-                final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
-
-                // propagate suspension if and only if it is required by policy
-                if (policy.isPropagateSuspension()) {
-                    final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                            new WorkflowResult<Map.Entry<Long, Boolean>>(
-                            new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
-                            updated.getPropByRes(), updated.getPerformedTasks()));
-
-                    taskExecutor.execute(tasks);
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
-                    LOG.debug("About to return suspended user\n{}", savedTO);
-                }
-            } catch (Exception e) {
-                LOG.error("Error during user suspension", e);
-            }
-        }
-    }
 }

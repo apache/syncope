@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import org.apache.syncope.core.validation.user.SyncopeUserValidator;
 
 @Target( { ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

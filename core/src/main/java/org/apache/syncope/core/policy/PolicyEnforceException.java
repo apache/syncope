@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.policy;
 
-class PolicyEnforceException extends Exception {
+public class PolicyEnforceException extends Exception {
 
     private static final long serialVersionUID = 3247084727383061069L;
 
