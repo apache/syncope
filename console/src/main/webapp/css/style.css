@@ -370,3 +370,38 @@ th.action{
 td.action{
     text-align: center;
 }
+
+.navigatorLabel {
+    float: left;
+}
+
+.navigator {
+    text-align: right;
+}
+
+.ui-widget-header { 
+    border: 1px solid #aaaaaa
+    /*{borderColorHeader}*/; 
+    background: #cccccc
+    /*{bgColorHeader}*/ 
+    url(images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+    /*{bgImgUrlHeader}*/ 
+    50%/*{bgHeaderXPos}*/ 
+    50%/*{bgHeaderYPos}*/ 
+    repeat-x/*{bgHeaderRepeat}*/; 
+    color: #222222/*{fcHeader}*/; 
+    font-weight: bold;
+    padding: 7px 15px;
+}
+
+.ui-button { 
+    display: inline-block; 
+    position: relative; 
+    padding: 0; 
+    margin-right: .1em; 
+    cursor: pointer; 
+    text-align: center; 
+    zoom: 1; 
+    overflow: visible; 
+    padding: 7px 15px;
+}

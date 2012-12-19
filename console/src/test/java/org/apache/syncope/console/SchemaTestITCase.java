@@ -29,7 +29,7 @@ public class SchemaTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[3]/div/div/a");
+        selenium.click("//div[@id='role']/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@id='_wicket_window_0']\");", "30000");
 
