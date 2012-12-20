@@ -31,8 +31,8 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//a[contains(text(),'Create new user')]");
 
-        selenium
-                .waitForCondition("selenium.isElementPresent(" + "\"//span[contains(text(),'Attributes')]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
@@ -73,8 +73,8 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("link=Search");
         selenium.select("//td[3]/select", "label=MEMBERSHIP");
 
-        selenium
-                .waitForCondition("selenium.isElementPresent(" + "\"//td[4]/select[option='3 citizen']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//td[4]/select[option='3 citizen']\");", "30000");
 
         selenium.select("//td[4]/select", "label=3 citizen");
         selenium.click("name=search");
@@ -95,11 +95,8 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 
-        selenium.click("//span/span/div/a");
+        selenium.click("//div[6]/form/div/div[2]/div/div/div/div/a");
 
-        // it depends on the execution order of tests: resources
-        // 'ws-target-resource-delete' could have been deleted from
-        // ResourceTestITCase#delete
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
 }

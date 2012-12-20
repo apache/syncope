@@ -50,8 +50,11 @@ public class RoleModalPage extends BaseModalPage {
 
     private RoleTO originalRoleTO;
 
-    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
+    public RoleModalPage(final ModalWindow window, final RoleTO roleTO) {
+        this(null, window, roleTO);
+    }
 
+    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
         super();
 
         final boolean createFlag = roleTO.getId() == 0;
@@ -83,19 +86,24 @@ public class RoleModalPage extends BaseModalPage {
                             rolePanel.getEntitlementsPalette().getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
+                    final RoleTO result;
                     if (createFlag) {
-                        roleRestClient.create(roleTO);
+                        result = roleRestClient.create(roleTO);
                     } else {
                         RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
 
                         // update role just if it is changed
-                        if (!roleMod.isEmpty()) {
-                            roleRestClient.update(roleMod);
+                        if (roleMod.isEmpty()) {
+                            result = roleTO;
+                        } else {
+                            result = roleRestClient.update(roleMod);
                         }
                     }
-                    ((Roles) callerPageRef.getPage()).setModalResult(true);
+                    if (callerPageRef != null) {
+                        ((Roles) callerPageRef.getPage()).setModalResult(true);
+                    }
 
-                    window.close(target);
+                    setResponsePage(new ResultStatusModalPage(window, result));
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
@@ -104,7 +112,6 @@ public class RoleModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
@@ -135,5 +142,8 @@ public class RoleModalPage extends BaseModalPage {
 
         add(form);
         add(new CloseOnESCBehavior(window));
+    }
+
+    protected void closeAction(final AjaxRequestTarget target, final Form form) {
     }
 }

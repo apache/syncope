@@ -32,9 +32,12 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.pages.panels.ResultSetPanel;
-import org.apache.syncope.console.pages.panels.ResultSetPanel.EventDataWrapper;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.pages.panels.UserSearchResultPanel;
+import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Users extends BasePage {
 
@@ -43,6 +46,9 @@ public class Users extends BasePage {
     private final static int EDIT_MODAL_WIN_HEIGHT = 550;
 
     private final static int EDIT_MODAL_WIN_WIDTH = 800;
+
+    @SpringBean
+    private UserRestClient restClient;
 
     public Users(final PageParameters parameters) {
         super(parameters);
@@ -55,10 +61,12 @@ public class Users extends BasePage {
         editModalWin.setCookieName("edit-modal");
         add(editModalWin);
 
-        final ResultSetPanel searchResult = new ResultSetPanel("searchResult", true, null, getPageReference());
+        final AbstractSearchResultPanel searchResult =
+                new UserSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
         add(searchResult);
 
-        final ResultSetPanel listResult = new ResultSetPanel("listResult", false, null, getPageReference());
+        final AbstractSearchResultPanel listResult =
+                new UserSearchResultPanel("listResult", false, null, getPageReference(), restClient);
         add(listResult);
 
         // create new user
@@ -71,7 +79,7 @@ public class Users extends BasePage {
                 editModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
-                  
+
                     @Override
                     public Page createPage() {
                         return new EditUserModalPage(Users.this.getPageReference(), editModalWin, new UserTO());
@@ -79,7 +87,7 @@ public class Users extends BasePage {
                 });
 
                 editModalWin.show(target);
-            }    
+            }
         };
         MetaDataRoleAuthorizationStrategy.authorize(
                 createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "create"));
@@ -118,7 +126,7 @@ public class Users extends BasePage {
     }
 
     private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
-            final ResultSetPanel resultsetPanel) {
+            final AbstractSearchResultPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.checkValidity()) {
             error(getString("search_error"));

@@ -18,14 +18,24 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
+import org.apache.syncope.console.pages.panels.RoleSearchPanel;
+import org.apache.syncope.console.pages.panels.RoleSearchResultPanel;
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Roles WebPage.
@@ -38,19 +48,22 @@ public class Roles extends BasePage {
 
     private static final int WIN_WIDTH = 750;
 
-    private final ModalWindow createRoleWin;
+    @SpringBean
+    private RoleRestClient restClient;
+
+    private final ModalWindow editRoleWin;
 
     private final WebMarkupContainer container;
 
     public Roles(final PageParameters parameters) {
         super(parameters);
 
-        createRoleWin = new ModalWindow("createRoleWin");
-        createRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createRoleWin.setInitialHeight(WIN_HEIGHT);
-        createRoleWin.setInitialWidth(WIN_WIDTH);
-        createRoleWin.setCookieName("create-role-modal");
-        add(createRoleWin);
+        editRoleWin = new ModalWindow("editRoleWin");
+        editRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editRoleWin.setInitialHeight(WIN_HEIGHT);
+        editRoleWin.setInitialWidth(WIN_WIDTH);
+        editRoleWin.setCookieName("edit-role-modal");
+        add(editRoleWin);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -60,22 +73,22 @@ public class Roles extends BasePage {
         treePanel.setOutputMarkupId(true);
         container.add(treePanel);
 
-        final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
+        final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
                 Roles.this.getPageReference());
+        container.add(summaryPanel);
 
-        nodePanel.setOutputMarkupId(true);
-        container.add(nodePanel);
-
-        createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        editRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
+                final RoleSummaryPanel summaryPanel = (RoleSummaryPanel) container.get("summaryPanel");
 
-                final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target, nodePanel.getSelectedNode() == null
+                final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target,
+                        summaryPanel == null || summaryPanel.getSelectedNode() == null
                         ? 0
-                        : nodePanel.getSelectedNode().getId());
+                        : summaryPanel.getSelectedNode().getId());
 
                 send(getPage(), Broadcast.BREADTH, data);
                 target.add(container);
@@ -87,7 +100,49 @@ public class Roles extends BasePage {
             }
         });
 
-        container.add(createRoleWin);
+        container.add(editRoleWin);
+
+        final AbstractSearchResultPanel searchResult =
+                new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
+        add(searchResult);
+
+        final Form searchForm = new Form("searchForm");
+        add(searchForm);
+
+        final RoleSearchPanel searchPanel = new RoleSearchPanel("searchPanel");
+        searchForm.add(searchPanel);
+
+        searchForm.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
+
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                final NodeCond searchCond = searchPanel.buildSearchCond();
+                LOG.debug("Node condition {}", searchCond);
+
+                doSearch(target, searchCond, searchResult);
+
+                Session.get().getFeedbackMessages().clear();
+                target.add(searchPanel.getSearchFeedback());
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                target.add(searchPanel.getSearchFeedback());
+            }
+        });
+    }
+
+    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
+            final AbstractSearchResultPanel resultsetPanel) {
+
+        if (searchCond == null || !searchCond.checkValidity()) {
+            error(getString("search_error"));
+            return;
+        }
+
+        resultsetPanel.search(searchCond, target);
     }
 
     @Override
@@ -95,13 +150,12 @@ public class Roles extends BasePage {
         super.onEvent(event);
 
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
-
             final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
-            final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin,
+            final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
                     Roles.this.getPageReference(), update.getSelectedNodeId());
 
-            container.addOrReplace(nodePanel);
+            container.addOrReplace(summaryPanel);
             update.getTarget().add(this);
         }
     }

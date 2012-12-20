@@ -18,17 +18,24 @@
  */
 package org.apache.syncope.console.rest;
 
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractBaseRestClient {
+public class BaseRestClient implements Serializable {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseRestClient.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
+
+    private static final long serialVersionUID = 1523999867826481989L;
 
     @Autowired
     protected String baseURL;
+
+    protected BaseRestClient() {
+        // Empty, only to prevent direct instantiation
+    }
 }

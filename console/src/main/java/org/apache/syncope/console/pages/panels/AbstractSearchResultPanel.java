@@ -18,28 +18,17 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.AttributableDataProvider;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.UserDataProvider;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.AbstractBasePage;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
-import org.apache.syncope.console.pages.EditUserModalPage;
-import org.apache.syncope.console.pages.StatusModalPage;
+import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.UserAttrColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -54,32 +43,26 @@ import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResultSetPanel extends Panel implements IEventSource {
+public abstract class AbstractSearchResultPanel extends Panel implements IEventSource {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ResultSetPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchResultPanel.class);
 
     /**
      * Edit modal window height.
@@ -112,22 +95,18 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private final static int STATUS_MODAL_WIN_WIDTH = 500;
 
     /**
-     * User rest client.
-     */
-    @SpringBean
-    private UserRestClient userRestClient;
-
-    /**
      * Application preferences.
      */
     @SpringBean
-    private PreferenceManager prefMan;
+    protected PreferenceManager prefMan;
 
     /**
      * Role reader for authorizations management.
      */
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
+
+    protected final AbstractAttributableRestClient restClient;
 
     /**
      * Number of rows per page.
@@ -142,7 +121,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Feedback panel specified by the caller.
      */
-    private final FeedbackPanel feedbackPanel;
+    protected final FeedbackPanel feedbackPanel;
 
     /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
@@ -158,45 +137,47 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Result table.
      */
-    private AjaxFallbackDefaultDataTable<UserTO, String> resultTable;
+    private AjaxFallbackDefaultDataTable<AbstractAttributableTO, String> resultTable;
 
     /**
      * Data provider used to search for users.
      */
-    private UserDataProvider dataProvider;
+    private AttributableDataProvider dataProvider;
 
     /**
      * Modal window to be used for user profile editing. Global visibility is required ...
      */
-    private final ModalWindow editmodal = new ModalWindow("editModal");
+    protected final ModalWindow editmodal = new ModalWindow("editModal");
 
     /**
      * Modal window to be used for attributes choosing to display in tables.
      */
-    private final ModalWindow displaymodal = new ModalWindow("displayModal");
+    protected final ModalWindow displaymodal = new ModalWindow("displayModal");
 
     /**
      * Modal window to be used for user status management.
      */
-    private final ModalWindow statusmodal = new ModalWindow("statusModal");
+    protected final ModalWindow statusmodal = new ModalWindow("statusModal");
 
     /**
      * Owner page.
      */
-    private final AbstractBasePage page;
+    protected final AbstractBasePage page;
 
-    public <T extends AbstractAttributableTO> ResultSetPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef) {
+    protected <T extends AbstractAttributableTO> AbstractSearchResultPanel(final String id, final boolean filtered,
+            final NodeCond searchCond, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
 
         super(id);
 
         setOutputMarkupId(true);
 
-        page = (AbstractBasePage) callerRef.getPage();
+        this.page = (AbstractBasePage) callerRef.getPage();
 
         this.filtered = filtered;
         this.filter = searchCond;
         this.feedbackPanel = page.getFeedbackPanel();
+
+        this.restClient = restClient;
 
         editmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editmodal.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
@@ -229,52 +210,61 @@ public class ResultSetPanel extends Panel implements IEventSource {
         updateResultTable(false);
         // ---------------------------
 
-        // ---------------------------
-        // Link to select schemas/columns to be shown
-        // ---------------------------
-        final AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+        final AjaxLink displayAttrsLink;
+        if (restClient instanceof UserRestClient) {
+            // ---------------------------
+            // Link to select schemas/columns to be shown (User)
+            // ---------------------------
+            displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
 
-                displaymodal.setPageCreator(new ModalWindow.PageCreator() {
+                    displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
-                    private static final long serialVersionUID = -7834632442532690940L;
+                        private static final long serialVersionUID = -7834632442532690940L;
 
-                    @Override
-                    public Page createPage() {
-                        return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
-                    }
-                });
+                        @Override
+                        public Page createPage() {
+                            return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
+                        }
+                    });
 
-                displaymodal.show(target);
-            }
-        };
-
-        // Add class to specify relative position of the link.
-        // Position depends on result pages number.
-        displayAttrsLink.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-
-                if (resultTable.getRowCount() > rows) {
-                    tag.remove("class");
-                    tag.put("class", "settingsPosMultiPage");
-                } else {
-                    tag.remove("class");
-                    tag.put("class", "settingsPos");
+                    displaymodal.show(target);
                 }
-            }
-        });
+            };
 
-        MetaDataRoleAuthorizationStrategy.authorize(
-                displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+            // Add class to specify relative position of the link.
+            // Position depends on result pages number.
+            displayAttrsLink.add(new Behavior() {
 
+                private static final long serialVersionUID = 1469628524240283489L;
+
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    if (resultTable.getRowCount() > rows) {
+                        tag.remove("class");
+                        tag.put("class", "settingsPosMultiPage");
+                    } else {
+                        tag.remove("class");
+                        tag.put("class", "settingsPos");
+                    }
+                }
+            });
+
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+        } else {
+            displayAttrsLink = new AjaxLink("displayAttrsLink") {
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                }
+            };
+            displayAttrsLink.setVisible(false);
+        }
         container.add(displayAttrsLink);
 
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
@@ -353,16 +343,17 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new UserDataProvider(userRestClient, rows, filtered);
+        dataProvider = new AttributableDataProvider(restClient, rows, filtered);
         dataProvider.setSearchCond(filter);
 
         final int currentPage = resultTable != null
                 ? (create
-                ? (int)resultTable.getPageCount() - 1
-                : (int)resultTable.getCurrentPage())
+                ? (int) resultTable.getPageCount() - 1
+                : (int) resultTable.getCurrentPage())
                 : 0;
 
-        resultTable = new AjaxFallbackDefaultDataTable<UserTO, String>("resultTable", getColumns(), dataProvider, rows);
+        resultTable = new AjaxFallbackDefaultDataTable<AbstractAttributableTO, String>(
+                "resultTable", getColumns(), dataProvider, rows);
 
         resultTable.setCurrentPage(currentPage);
 
@@ -371,151 +362,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.addOrReplace(resultTable);
     }
 
-    private List<IColumn<UserTO, String>> getColumns() {
-        final List<IColumn<UserTO, String>> columns = new ArrayList<IColumn<UserTO, String>>();
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
-
-            Field field = null;
-
-            try {
-                field = UserTO.class.getDeclaredField(name);
-            } catch (Exception ue) {
-                LOG.debug("Error retrieving UserTO field {}", name, ue);
-                try {
-                    field = AbstractAttributableTO.class.getDeclaredField(name);
-                } catch (Exception aae) {
-                    LOG.error("Error retrieving AbstractAttributableTO field {}", name, aae);
-                }
-            }
-
-            if ("token".equalsIgnoreCase(name)) {
-                columns.add(new TokenColumn("token"));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
-            } else {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.schema));
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.derivedSchema));
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.virtualSchema));
-        }
-
-        // Add defaults in case of no selection
-        if (columns.isEmpty()) {
-            for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
-            }
-
-            prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
-                    DisplayAttributesModalPage.DEFAULT_SELECTION);
-        }
-
-        columns.add(new AbstractColumn<UserTO, String>(new ResourceModel("actions", "")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
-                    final IModel<UserTO> model) {
-
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
-
-                panel.add(new ActionLink() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new StatusModalPage(page.getPageReference(), statusmodal, model.getObject());
-                            }
-                        });
-
-                        statusmodal.show(target);
-                    }
-                }, ActionLink.ActionType.SEARCH, "Users", "read");
-
-                panel.add(new ActionLink() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        editmodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new EditUserModalPage(page.getPageReference(), editmodal, model.getObject());
-                            }
-                        });
-
-                        editmodal.show(target);
-                    }
-                }, ActionLink.ActionType.EDIT, "Users", "read");
-
-                panel.add(new ActionLink() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        try {
-                            final UserTO userTO = userRestClient.delete(model.getObject().getId());
-
-                            page.setModalResult(true);
-
-                            editmodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                                private static final long serialVersionUID = -7834632442532690940L;
-
-                                @Override
-                                public Page createPage() {
-                                    return new EditUserModalPage(editmodal, userTO);
-                                }
-                            });
-
-                            editmodal.show(target);
-
-                        } catch (SyncopeClientCompositeErrorException scce) {
-                            error(getString("operation_error") + ": " + scce.getMessage());
-                            target.add(feedbackPanel);
-                        }
-                    }
-                }, ActionLink.ActionType.DELETE, "Users", "delete");
-
-                cellItem.add(panel);
-            }
-        });
-
-        return columns;
-    }
+    protected abstract List<IColumn<AbstractAttributableTO, String>> getColumns();
 
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof EventDataWrapper) {
-
             final EventDataWrapper data = (EventDataWrapper) event.getPayload();
 
             if (data.getRows() < 1) {

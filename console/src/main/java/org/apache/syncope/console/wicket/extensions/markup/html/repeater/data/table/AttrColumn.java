@@ -19,15 +19,15 @@
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.util.List;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.client.to.UserTO;
 
-public class UserAttrColumn extends AbstractColumn<UserTO, String> {
+public class AttrColumn extends AbstractColumn<AbstractAttributableTO, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
@@ -43,7 +43,7 @@ public class UserAttrColumn extends AbstractColumn<UserTO, String> {
 
     private final SchemaType schemaType;
 
-    public UserAttrColumn(final String name, final SchemaType schemaType) {
+    public AttrColumn(final String name, final SchemaType schemaType) {
 
         super(new ResourceModel(name, name), name);
         this.name = name;
@@ -51,8 +51,8 @@ public class UserAttrColumn extends AbstractColumn<UserTO, String> {
     }
 
     @Override
-    public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
-            final IModel<UserTO> rowModel) {
+    public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem, final String componentId,
+            final IModel<AbstractAttributableTO> rowModel) {
 
         List<String> values = null;
 

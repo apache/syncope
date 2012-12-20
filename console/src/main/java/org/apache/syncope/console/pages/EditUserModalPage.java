@@ -46,7 +46,6 @@ public class EditUserModalPage extends UserModalPage {
     private UserTO initialUserTO = null;
 
     public EditUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
-
         super(callerPageRef, window, userTO, Mode.ADMIN, true);
 
         this.initialUserTO = AttributableOperations.clone(userTO);
@@ -63,13 +62,8 @@ public class EditUserModalPage extends UserModalPage {
         }
     }
 
-    public EditUserModalPage(final ModalWindow window, final UserTO userTO) {
-        super(window, userTO, Mode.ADMIN);
-    }
-
     @Override
     protected void submitAction(final AjaxRequestTarget target, final Form form) {
-
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
@@ -87,6 +81,6 @@ public class EditUserModalPage extends UserModalPage {
 
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
-        setResponsePage(new EditUserModalPage(window, userTO));
-    }   
+        setResponsePage(new ResultStatusModalPage(window, mode, userTO));
+    }
 }

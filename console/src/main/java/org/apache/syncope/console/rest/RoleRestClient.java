@@ -21,6 +21,8 @@ package org.apache.syncope.console.rest;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
@@ -30,30 +32,49 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Role's services.
  */
 @Component
-public class RoleRestClient extends AbstractBaseRestClient {
+public class RoleRestClient extends AbstractAttributableRestClient {
 
-    /**
-     * Get all Roles.
-     *
-     * @return SchemaTOs
-     */
-    public List<RoleTO> getAllRoles()
-            throws SyncopeClientCompositeErrorException {
-
-        List<RoleTO> roles = null;
-
-        try {
-            roles = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "role/list.json", RoleTO[].class));
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While listing all roles", e);
-        }
-
-        return roles;
+    @Override
+    public Integer count() {
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "role/count.json", Integer.class);
     }
 
-    public void create(final RoleTO roleTO) {
-        SyncopeSession.get().getRestTemplate().postForObject(
+    public List<RoleTO> list() {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "role/list.json", RoleTO[].class));
+    }
+
+    @Override
+    public List<RoleTO> list(final int page, final int size) {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "role/list.json", RoleTO[].class, page, size));
+    }
+
+    @Override
+    public Integer searchCount(final NodeCond searchCond) {
+        return SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "role/search/count.json", searchCond, Integer.class);
+    }
+
+    @Override
+    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size)
+            throws SyncopeClientCompositeErrorException {
+
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
+                baseURL + "role/search/{page}/{size}", searchCond, RoleTO[].class, page, size));
+    }
+
+    @Override
+    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId)
+            throws SyncopeClientCompositeErrorException {
+
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "/resource/{resourceName}/read/ROLE/{objectId}.json",
+                ConnObjectTO.class, resourceName, objectId);
+    }
+
+    public RoleTO create(final RoleTO roleTO) {
+        return SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "role/create", roleTO, RoleTO.class);
     }
 
@@ -69,13 +90,13 @@ public class RoleRestClient extends AbstractBaseRestClient {
         return roleTO;
     }
 
-    public void update(final RoleMod roleMod) {
-        SyncopeSession.get().getRestTemplate().postForObject(
+    public RoleTO update(final RoleMod roleMod) {
+        return SyncopeSession.get().getRestTemplate().postForObject(
                 baseURL + "role/update", roleMod, RoleTO.class);
     }
 
+    @Override
     public RoleTO delete(final Long id) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "role/delete/{roleId}.json", RoleTO.class, id);
+        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "role/delete/{roleId}", RoleTO.class, id);
     }
 }

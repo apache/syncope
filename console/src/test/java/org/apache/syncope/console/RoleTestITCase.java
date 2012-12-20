@@ -28,11 +28,12 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[3]/span[2]/span/div/p/span/span/a\");", "30000");
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[3]/div/div/span[2]/span/div/p/span/span/a\");", "30000");
 
-        selenium.click("//div[3]/span[2]/span/div/p/span/span/a");
+        selenium.click("//div[3]/div/div/span[2]/span/div/p/span/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
 
@@ -46,12 +47,12 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[3]/span[2]/span/span/div/p/span[2]/span/a\");", "30000");
+                + "\"//div[3]/div/div/span[2]/span/span/div/p/span[2]/span/a\");", "30000");
 
-        selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a");
+        selenium.click("//div[3]/div/div/span[2]/span/span/div/p/span[2]/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
@@ -75,12 +76,12 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[3]/span[2]/span/span/div/p/span[2]/span/a[2]\");", "30000");
+                + "\"//div[3]/div/div/span[2]/span/span/div/p/span[2]/span/a[2]\");", "30000");
 
-        selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a[2]");
+        selenium.click("//div[3]/div/div/span[2]/span/span/div/p/span[2]/span/a[2]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
@@ -104,7 +105,7 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div/form/div[2]/ul/li[7]/a\");", "30000");
 
@@ -120,12 +121,12 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[3]/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
+                + "\"//div[3]/div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
 
-        selenium.click("//div[3]/span[2]/span/span/div/form/div[2]/ul/li[8]/a");
+        selenium.click("//div[3]/div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a");
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
@@ -146,10 +147,10 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div/div/span/a");
+        selenium.click("//div[3]/div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[3]/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
+                + "\"//div[3]/div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
 
         selenium.click("//div/form/div[2]/ul/li[7]/a");
 
@@ -168,11 +169,12 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
 
-        selenium.click("//div[3]/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span");
+        selenium.click(
+                "//div[3]/div/div/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div/p/span[2]/span/a[3]\");", "30000");
 
-        selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a[3]");
+        selenium.click("//div[3]/div/div/span[2]/span/span/div/p/span[2]/span/a[3]");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }

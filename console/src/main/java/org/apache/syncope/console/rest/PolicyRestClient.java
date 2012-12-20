@@ -33,7 +33,7 @@ import org.apache.syncope.types.PolicyType;
  * Console client for invoking Rest Policy services.
  */
 @Component
-public class PolicyRestClient extends AbstractBaseRestClient {
+public class PolicyRestClient extends BaseRestClient {
 
     public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
 

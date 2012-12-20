@@ -235,24 +235,7 @@ public class UserController {
     public List<UserTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        LOG.debug("User search called with condition {}", searchCondition);
-
-        if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
-        List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition, AttributableUtil.getInstance(AttributableType.USER));
-        List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
-        for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user));
-        }
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully searched for users: " + result.size());
-
-        return result;
+        return search(searchCondition, -1, -1);
     }
 
     @PreAuthorize("hasRole('USER_READ')")

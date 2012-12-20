@@ -37,7 +37,7 @@ import org.apache.syncope.types.ConnConfProperty;
  * Console client for invoking Rest Connectors services.
  */
 @Component
-public class ConnectorRestClient extends AbstractBaseRestClient {
+public class ConnectorRestClient extends BaseRestClient {
 
     /**
      * Get all connectors.

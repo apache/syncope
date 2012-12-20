@@ -27,7 +27,7 @@ import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReportRestClient extends AbstractBaseRestClient implements ExecutionRestClient {
+public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
 
     public List<String> getReportletConfClasses() {
         List<String> reportletClasses = null;

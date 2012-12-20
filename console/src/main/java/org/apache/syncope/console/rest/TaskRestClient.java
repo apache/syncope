@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Tasks services.
  */
 @Component
-public class TaskRestClient extends AbstractBaseRestClient implements ExecutionRestClient {
+public class TaskRestClient extends BaseRestClient implements ExecutionRestClient {
 
     /**
      * Return a list of job classes.

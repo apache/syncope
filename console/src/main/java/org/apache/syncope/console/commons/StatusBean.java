@@ -28,7 +28,7 @@ public class StatusBean implements Serializable {
 
     private String accountLink = null;
 
-    private StatusUtils.Status status = StatusUtils.Status.USER_NOT_FOUND;
+    private StatusUtils.Status status = StatusUtils.Status.OBJECT_NOT_FOUND;
 
     public StatusBean() {
     }

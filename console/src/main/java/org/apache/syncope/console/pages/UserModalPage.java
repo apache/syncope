@@ -22,10 +22,9 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
-import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
+import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
-import org.apache.syncope.console.pages.panels.UserManagementResultPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -50,6 +49,7 @@ public abstract class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
+
     }
 
     private static final long serialVersionUID = 5002005009737457667L;
@@ -82,28 +82,6 @@ public abstract class UserModalPage extends BaseModalPage {
         add(fragment);
         add(new CloseOnESCBehavior(window));
     }
-  
-    public UserModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
-
-        super();
-        
-        this.callerPageRef = null;
-        this.window = window;
-        this.mode = mode;
-        this.userTO = userTO;
-        this.resetPassword = false;
-
-        fragment = new Fragment("userModalFrag", "userModalResultFrag", this);
-        fragment.setOutputMarkupId(true);
-        add(fragment);
-
-        final UserManagementResultPanel result = new UserManagementResultPanel("userModalPageResult", window, mode,
-                userTO);
-        result.setOutputMarkupId(true);
-
-        fragment.add(result);
-        add(new CloseOnESCBehavior(window));
-    }
 
     public UserTO getUserTO() {
         return userTO;
@@ -114,7 +92,6 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     protected Form setupEditPanel() {
-
         fragment.add(new Label("id", userTO.getId() == 0
                 ? ""
                 : userTO.getUsername()));
@@ -179,6 +156,7 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(submit);
 
         final AjaxButton cancel = new AjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = 530608535790823587L;
 
             @Override
@@ -190,7 +168,7 @@ public abstract class UserModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
 
@@ -199,6 +177,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
     protected AjaxButton getOnSubmit() {
         return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override

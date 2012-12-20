@@ -61,7 +61,7 @@ public class RoleTreeBuilder {
     }
 
     public TreeModel build() {
-        return build(restClient.getAllRoles());
+        return build(restClient.list());
     }
 
     public TreeModel build(final List<RoleTO> roles) {

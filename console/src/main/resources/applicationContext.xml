@@ -113,8 +113,6 @@ under the License.
     </property>
   </bean>
 
-  <bean id="StatusUtils" class="org.apache.syncope.console.commons.StatusUtils"/>
-
   <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
 
   <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader"/>

@@ -51,8 +51,8 @@ public class RoleSummaryPanel extends Panel {
         this(id, window, callerPageRef, null);
     }
 
-    public RoleSummaryPanel(final String id,
-            final ModalWindow window, final PageReference callerPageRef, final Long selectedNodeId) {
+    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef,
+            final Long selectedNodeId) {
 
         super(id);
 

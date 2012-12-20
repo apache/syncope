@@ -26,7 +26,7 @@ import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotificationRestClient extends AbstractBaseRestClient {
+public class NotificationRestClient extends BaseRestClient {
 
     public List<NotificationTO> getAllNotifications()
             throws SyncopeClientCompositeErrorException {

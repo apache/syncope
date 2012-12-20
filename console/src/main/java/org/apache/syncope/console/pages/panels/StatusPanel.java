@@ -23,10 +23,14 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.commons.StatusUtils.Status;
+import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -45,29 +49,48 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class StatusPanel extends Panel {
 
     @SpringBean
-    private StatusUtils statusUtils;
+    private ResourceRestClient resourceRestClient;
 
-    public <T extends AbstractAttributableTO> StatusPanel(final String id, final UserTO userTO,
+    @SpringBean
+    private UserRestClient userRestClient;
+
+    @SpringBean
+    private RoleRestClient roleRestClient;
+
+    private final StatusUtils statusUtils;
+
+    public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
             final List<StatusBean> selectedResources) {
-        this(id, userTO, selectedResources, true);
+
+        this(id, attributable, selectedResources, true);
     }
 
-    public <T extends AbstractAttributableTO> StatusPanel(final String id, final UserTO userTO,
+    public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
             final List<StatusBean> selectedResources, final boolean enabled) {
 
         super(id);
+        statusUtils = new StatusUtils(resourceRestClient,
+                (attributable instanceof UserTO ? userRestClient : roleRestClient));
 
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
         final StatusBean syncope = new StatusBean();
-        syncope.setAccountLink(userTO.getUsername());
         syncope.setResourceName("Syncope");
-        syncope.setStatus(userTO.getStatus() != null
-                ? Status.valueOf(userTO.getStatus().toUpperCase())
-                : Status.UNDEFINED);
-
+        if (attributable instanceof UserTO) {
+            UserTO userTO = (UserTO) attributable;
+            syncope.setAccountLink(userTO.getUsername());
+            syncope.setStatus(userTO.getStatus() == null
+                    ? Status.UNDEFINED
+                    : Status.valueOf(userTO.getStatus().toUpperCase()));
+        }
+        if (attributable instanceof RoleTO) {
+            RoleTO roleTO = (RoleTO) attributable;
+            syncope.setAccountLink(roleTO.getDisplayName());
+            syncope.setStatus(Status.ACTIVE);
+        }
         statuses.add(syncope);
-        statuses.addAll(statusUtils.getRemoteStatuses(userTO));
+
+        statuses.addAll(statusUtils.getRemoteStatuses(attributable));
 
         final CheckGroup group = new CheckGroup("group", selectedResources);
         add(group);
@@ -94,25 +117,29 @@ public class StatusPanel extends Panel {
                 boolean checkVisibility = true;
 
                 switch (item.getModelObject().getStatus()) {
+
                     case ACTIVE:
-                        image = new Image("icon", "statuses/active.png");
+                        image = new Image("icon", "../statuses/active.png");
                         alt = "active icon";
                         title = "Enabled";
                         break;
+
                     case UNDEFINED:
-                        image = new Image("icon", "statuses/undefined.png");
+                        image = new Image("icon", "../statuses/undefined.png");
                         checkVisibility = false;
                         alt = "undefined icon";
                         title = "Undefined status";
                         break;
-                    case USER_NOT_FOUND:
-                        image = new Image("icon", "statuses/usernotfound.png");
+
+                    case OBJECT_NOT_FOUND:
+                        image = new Image("icon", "../statuses/objectnotfound.png");
                         checkVisibility = false;
                         alt = "notfound icon";
                         title = "User not found";
                         break;
+
                     default:
-                        image = new Image("icon", "statuses/inactive.png");
+                        image = new Image("icon", "../statuses/inactive.png");
                         alt = "inactive icon";
                         title = "Disabled";
                 }
@@ -129,30 +156,25 @@ public class StatusPanel extends Panel {
                 });
 
                 final Fragment checkFrag;
-
-                if (!enabled) {
-                    checkFrag = new Fragment("rowCheck", "emptyCheckFrag", group.getParent());
-                } else {
+                if (enabled) {
                     final Check check = new Check("check", item.getModel(), group);
 
                     check.setEnabled(checkVisibility);
                     check.setVisible(checkVisibility);
 
                     checkFrag = new Fragment("rowCheck", "rowCheckFrag", getParent());
-
                     checkFrag.add(check);
+                } else {
+                    checkFrag = new Fragment("rowCheck", "emptyCheckFrag", group.getParent());
                 }
-
                 item.add(checkFrag);
 
                 item.add(new Label("resource", new ResourceModel(item.getModelObject().getResourceName(), item
                         .getModelObject().getResourceName())));
 
                 if (StringUtils.isNotBlank(item.getModelObject().getAccountLink())) {
-
-                    item.add(new Label("accountLink", new ResourceModel(item.getModelObject().getAccountLink(), item
-                            .getModelObject().getAccountLink())));
-
+                    item.add(new Label("accountLink", new ResourceModel(item.getModelObject().getAccountLink(),
+                            item.getModelObject().getAccountLink())));
                 } else {
                     item.add(new Label("accountLink", ""));
                 }

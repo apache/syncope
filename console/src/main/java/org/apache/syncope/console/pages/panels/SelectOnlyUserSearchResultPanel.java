@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.PageReference;
@@ -38,7 +38,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class SelectOnlyResultSetPanel extends ResultSetPanel {
+public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
 
     private static final long serialVersionUID = 2146781496050131930L;
 
@@ -46,10 +46,11 @@ public class SelectOnlyResultSetPanel extends ResultSetPanel {
 
     private final ModalWindow window;
 
-    public <T extends AbstractAttributableTO> SelectOnlyResultSetPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef, final ModalWindow window) {
+    public <T extends AbstractAttributableTO> SelectOnlyUserSearchResultPanel(final String id, final boolean filtered,
+            final NodeCond searchCond, final PageReference callerRef, final ModalWindow window,
+            final UserRestClient restClient) {
 
-        super(id, filtered, searchCond, callerRef);
+        super(id, filtered, searchCond, callerRef, restClient);
 
         this.callerRef = callerRef;
         this.window = window;
@@ -61,19 +62,21 @@ public class SelectOnlyResultSetPanel extends ResultSetPanel {
         container.get("displayAttrsLink").setVisible(false);
     }
 
-    protected List<IColumn<UserTO, String>> getColumns() {
-        final List<IColumn<UserTO, String>> columns = new ArrayList<IColumn<UserTO, String>>();
+    @Override
+    protected List<IColumn<AbstractAttributableTO, String>> getColumns() {
+        final List<IColumn<AbstractAttributableTO, String>> columns =
+                new ArrayList<IColumn<AbstractAttributableTO, String>>();
         for (String name : DisplayAttributesModalPage.DEFAULT_SELECTION) {
-            columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
+            columns.add(new PropertyColumn<AbstractAttributableTO, String>(new ResourceModel(name, name), name, name));
         }
 
-        columns.add(new AbstractColumn<UserTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
             @Override
-            public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
-                    final IModel<UserTO> rowModel) {
+            public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem,
+                    final String componentId, final IModel<AbstractAttributableTO> rowModel) {
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, rowModel);
 

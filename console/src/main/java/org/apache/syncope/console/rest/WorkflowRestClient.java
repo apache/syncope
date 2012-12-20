@@ -24,7 +24,7 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.SyncopeSession;
 
 @Component
-public class WorkflowRestClient extends AbstractBaseRestClient {
+public class WorkflowRestClient extends BaseRestClient {
 
     public WorkflowDefinitionTO getDefinition()
             throws SyncopeClientCompositeErrorException {

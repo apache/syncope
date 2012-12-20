@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Todo services.
  */
 @Component
-public class ApprovalRestClient extends AbstractBaseRestClient {
+public class ApprovalRestClient extends BaseRestClient {
 
     public List<WorkflowFormTO> getForms() {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(

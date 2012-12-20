@@ -18,103 +18,125 @@
  */
 package org.apache.syncope.console.commons;
 
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.MappingItemTO;
+import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.types.IntMappingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class StatusUtils {
+public class StatusUtils implements Serializable {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
-
-    @Autowired
-    private UserRestClient userRestClient;
-
-    @Autowired
-    private ResourceRestClient resourceRestClient;
+    private static final long serialVersionUID = 7238009174387184309L;
 
     public enum Status {
-	CREATED,
+
+        CREATED,
         ACTIVE,
         SUSPENDED,
         UNDEFINED,
-        USER_NOT_FOUND;
+        OBJECT_NOT_FOUND;
 
         public boolean isActive() {
             return this == ACTIVE;
         }
     }
 
-    public List<StatusBean> getRemoteStatuses(final UserTO userTO) {
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
+
+    private final ResourceRestClient resourceRestClient;
+
+    private final AbstractAttributableRestClient restClient;
+
+    public StatusUtils(final ResourceRestClient resourceRestClient, final AbstractAttributableRestClient restClient) {
+        this.resourceRestClient = resourceRestClient;
+        this.restClient = restClient;
+    }
+
+    public List<StatusBean> getRemoteStatuses(final AbstractAttributableTO attributable) {
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
-        for (String res : userTO.getResources()) {
-
-            final ResourceTO resourceTO = resourceRestClient.read(res);
-
-            final Map.Entry<IntMappingType, String> accountId = getAccountId(resourceTO);
+        for (String resouceName : attributable.getResources()) {
+            final ResourceTO resource = resourceRestClient.read(resouceName);
 
             String objectId = null;
 
-            switch (accountId != null
-                    ? accountId.getKey()
-                    : IntMappingType.UserId) {
+            final Map.Entry<IntMappingType, String> accountId = getAccountId(resource, attributable);
+            switch (accountId.getKey()) {
 
                 case UserId:
-                    objectId = String.valueOf(userTO.getId());
+                case RoleId:
+                    objectId = String.valueOf(attributable.getId());
                     break;
+
                 case Username:
-                    objectId = userTO.getUsername();
+                    if (attributable instanceof UserTO) {
+                        objectId = ((UserTO) attributable).getUsername();
+                    }
                     break;
+
+                case RoleName:
+                    if (attributable instanceof RoleTO) {
+                        objectId = ((RoleTO) attributable).getName();
+                    }
+                    break;
+
                 case UserSchema:
-                    AttributeTO attributeTO = userTO.getAttributeMap().get(accountId.getValue());
+                case RoleSchema:
+                    AttributeTO attributeTO = attributable.getAttributeMap().get(accountId.getValue());
                     objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
                             ? attributeTO.getValues().get(0)
                             : null;
                     break;
+
                 case UserDerivedSchema:
-                    attributeTO = userTO.getDerivedAttributeMap().get(accountId.getValue());
+                case RoleDerivedSchema:
+                    attributeTO = attributable.getDerivedAttributeMap().get(accountId.getValue());
                     objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
                             ? attributeTO.getValues().get(0)
                             : null;
                     break;
+
                 case UserVirtualSchema:
-                    attributeTO = userTO.getVirtualAttributeMap().get(accountId.getValue());
+                case RoleVirtualSchema:
+                    attributeTO = attributable.getVirtualAttributeMap().get(accountId.getValue());
                     objectId = attributeTO != null && attributeTO.getValues() != null
                             && !attributeTO.getValues().isEmpty()
                             ? attributeTO.getValues().get(0)
                             : null;
                     break;
+
                 default:
             }
 
             ConnObjectTO objectTO = null;
 
             try {
-                objectTO = userRestClient.getRemoteObject(res, objectId);
+                objectTO = restClient.getRemoteObject(resouceName, objectId);
             } catch (Exception e) {
-                LOG.warn("User '{}' not found on resource '{}'", objectId, res);
+                LOG.warn("ConnObject '{}' not found on resource '{}'", objectId, resouceName);
             }
 
             final StatusBean statusBean = getRemoteStatus(objectTO);
-            statusBean.setResourceName(res);
+            statusBean.setResourceName(resouceName);
             statuses.add(statusBean);
         }
 
@@ -143,7 +165,7 @@ public class StatusUtils {
         return statusBean;
     }
 
-    public Boolean isEnabled(final ConnObjectTO objectTO) {
+    private Boolean isEnabled(final ConnObjectTO objectTO) {
         final String STATUSATTR = "__ENABLE__";
 
         final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
@@ -155,7 +177,7 @@ public class StatusUtils {
                 : null;
     }
 
-    public String getAccountLink(final ConnObjectTO objectTO) {
+    private String getAccountLink(final ConnObjectTO objectTO) {
         final String NAME = "__NAME__";
 
         final Map<String, AttributeTO> attributeTOs = objectTO != null
@@ -169,16 +191,24 @@ public class StatusUtils {
                 : null;
     }
 
-    public Map.Entry<IntMappingType, String> getAccountId(final ResourceTO resourceTO) {
+    private Map.Entry<IntMappingType, String> getAccountId(final ResourceTO resource,
+            final AbstractAttributableTO attributable) {
+
         Map.Entry<IntMappingType, String> accountId = null;
 
-        if (resourceTO.getUmapping() != null) {
-            for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
+        MappingTO mapping = attributable instanceof UserTO ? resource.getUmapping() : resource.getRmapping();
+        IntMappingType idType = attributable instanceof UserTO ? IntMappingType.UserId : IntMappingType.RoleId;
+
+        if (mapping != null) {
+            for (MappingItemTO item : mapping.getItems()) {
                 if (item.isAccountid()) {
                     accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
                             item.getIntMappingType(), item.getIntAttrName());
                 }
             }
+        }
+        if (accountId == null) {
+            accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(idType, null);
         }
 
         return accountId;

@@ -203,24 +203,7 @@ public class RoleController extends AbstractController {
     public List<RoleTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        LOG.debug("Role search called with condition {}", searchCondition);
-
-        if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
-        List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
-        List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
-        for (SyncopeRole role : matchingRoles) {
-            result.add(dataBinder.getRoleTO(role));
-        }
-
-        auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
-                "Successfully searched for roles: " + result.size());
-
-        return result;
+        return search(searchCondition, -1, -1);
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
@@ -237,8 +220,8 @@ public class RoleController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        final List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition, page, size,
+        final List<SyncopeRole> matchingRoles = searchDAO.search(
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition, page, size,
                 AttributableUtil.getInstance(AttributableType.ROLE));
 
         final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());

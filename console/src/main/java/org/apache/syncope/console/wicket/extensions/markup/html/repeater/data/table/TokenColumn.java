@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -25,9 +27,8 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.to.UserTO;
 
-public class TokenColumn extends AbstractColumn<UserTO, String> {
+public class TokenColumn extends AbstractColumn<AbstractAttributableTO, String> {
 
     private static final long serialVersionUID = 8077865338230121496L;
 
@@ -36,13 +37,15 @@ public class TokenColumn extends AbstractColumn<UserTO, String> {
     }
 
     @Override
-    public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
-            final IModel<UserTO> rowModel) {
+    public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem, final String componentId,
+            final IModel<AbstractAttributableTO> rowModel) {
 
-        if (StringUtils.hasText(rowModel.getObject().getToken())) {
-            cellItem.add(new Label(componentId, new ResourceModel("tokenValued", "tokenValued")));
-        } else {
-            cellItem.add(new Label(componentId, new ResourceModel("tokenNotValued", "tokenNotValued")));
+        if (rowModel.getObject() instanceof UserTO) {
+            if (StringUtils.hasText(((UserTO) rowModel.getObject()).getToken())) {
+                cellItem.add(new Label(componentId, new ResourceModel("tokenValued", "tokenValued")));
+            } else {
+                cellItem.add(new Label(componentId, new ResourceModel("tokenNotValued", "tokenNotValued")));
+            }
         }
     }
 }

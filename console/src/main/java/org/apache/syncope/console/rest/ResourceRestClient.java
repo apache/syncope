@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Resources services.
  */
 @Component
-public class ResourceRestClient extends AbstractBaseRestClient {
+public class ResourceRestClient extends BaseRestClient {
 
     public List<String> getPropagationActionsClasses() {
         List<String> actions = null;

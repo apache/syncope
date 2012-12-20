@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.StatusBean;
@@ -41,7 +42,8 @@ public class StatusModalPage extends BaseModalPage {
     @SpringBean
     private UserRestClient userRestClient;
 
-    public StatusModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
+    public StatusModalPage(final PageReference callerPageRef, final ModalWindow window,
+            final AbstractAttributableTO attributable) {
 
         super();
 
@@ -51,64 +53,88 @@ public class StatusModalPage extends BaseModalPage {
 
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
-        final StatusPanel statusPanel = new StatusPanel("statuspanel", userTO, statuses);
+        final StatusPanel statusPanel = new StatusPanel("statuspanel", attributable, statuses);
         form.add(statusPanel);
 
-        final AjaxButton disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
-            private static final long serialVersionUID = -958724007591692537L;
+        final AjaxButton disable;
+        if (attributable instanceof UserTO) {
+            disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                private static final long serialVersionUID = -958724007591692537L;
 
-                try {
-                    userRestClient.suspend(userTO.getId(), statuses);
+                @Override
+                protected void onSubmit(final AjaxRequestTarget target, final Form form) {
 
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    try {
+                        userRestClient.suspend(attributable.getId(), statuses);
+
+                        if (callerPageRef.getPage() instanceof BasePage) {
+                            ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                        }
+
+                        window.close(target);
+                    } catch (Exception e) {
+                        LOG.error("Error disabling resources", e);
+                        error(getString("error") + ":" + e.getMessage());
+                        target.add(feedbackPanel);
                     }
+                }
 
-                    window.close(target);
-                } catch (Exception e) {
-                    LOG.error("Error disabling resources", e);
-                    error(getString("error") + ":" + e.getMessage());
+                @Override
+                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                     target.add(feedbackPanel);
                 }
-            }
+            };
+        } else {
+            disable = new AjaxButton("disable") {
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                private static final long serialVersionUID = 5538299138211283825L;
 
-                target.add(feedbackPanel);
-            }
-        };
+            };
+            disable.setVisible(false);
+        }
+        form.add(disable);
 
-        final AjaxButton enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
-            private static final long serialVersionUID = -958724007591692537L;
+        final AjaxButton enable;
+        if (attributable instanceof UserTO) {
+            enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                private static final long serialVersionUID = -958724007591692537L;
 
-                try {
-                    userRestClient.reactivate(userTO.getId(), statuses);
+                @Override
+                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    try {
+                        userRestClient.reactivate(attributable.getId(), statuses);
 
-                    window.close(target);
-                } catch (Exception e) {
-                    LOG.error("Error enabling resources", e);
-                    error(getString("error") + ":" + e.getMessage());
+                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+
+                        window.close(target);
+                    } catch (Exception e) {
+                        LOG.error("Error enabling resources", e);
+                        error(getString("error") + ":" + e.getMessage());
+                        target.add(feedbackPanel);
+                    }
+                }
+
+                @Override
+                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+
                     target.add(feedbackPanel);
                 }
-            }
+            };
+        } else {
+            enable = new AjaxButton("enable") {
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                private static final long serialVersionUID = 5538299138211283825L;
 
-                target.add(feedbackPanel);
-            }
-        };
+            };
+            enable.setVisible(false);
+        }
+        form.add(enable);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -120,11 +146,7 @@ public class StatusModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form form) {
             }
         };
-
         cancel.setDefaultFormProcessing(false);
-        
-        form.add(disable);
-        form.add(enable);
         form.add(cancel);
     }
 }

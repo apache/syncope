@@ -22,28 +22,29 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class UserDataProvider extends SortableDataProvider<UserTO, String> {
+public class AttributableDataProvider extends SortableDataProvider<AbstractAttributableTO, String> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
-    private SortableUserProviderComparator comparator;
+    private final SortableAttributableProviderComparator comparator;
 
     private NodeCond filter = null;
 
     private final int paginatorRows;
 
-    private boolean filtered = false;
+    private final boolean filtered ;
 
-    private UserRestClient restClient;
+    private final AbstractAttributableRestClient restClient;
 
-    public UserDataProvider(final UserRestClient restClient, final int paginatorRows, final boolean filtered) {
+    public AttributableDataProvider(final AbstractAttributableRestClient restClient,
+            final int paginatorRows, final boolean filtered) {
 
         super();
 
@@ -54,7 +55,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO, String> {
         //Default sorting
         setSort("id", SortOrder.ASCENDING);
 
-        comparator = new SortableUserProviderComparator(this);
+        comparator = new SortableAttributableProviderComparator(this);
     }
 
     public void setSearchCond(final NodeCond searchCond) {
@@ -62,19 +63,19 @@ public class UserDataProvider extends SortableDataProvider<UserTO, String> {
     }
 
     @Override
-    public Iterator<UserTO> iterator(final long first, final long count) {
-        final List<UserTO> users;
+    public Iterator<? extends AbstractAttributableTO> iterator(final long first, final long count) {
+        final List<? extends AbstractAttributableTO> result;
 
         if (filtered) {
-            users = filter == null
-                    ? Collections.EMPTY_LIST
-                    : restClient.search(filter, ((int)first / paginatorRows) + 1, paginatorRows);
+            result = filter == null
+                    ? Collections.<AbstractAttributableTO>emptyList()
+                    : restClient.search(filter, ((int) first / paginatorRows) + 1, paginatorRows);
         } else {
-            users = restClient.list(((int)first / paginatorRows) + 1, paginatorRows);
+            result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows);
         }
 
-        Collections.sort(users, comparator);
-        return users.iterator();
+        Collections.sort(result, comparator);
+        return result.iterator();
     }
 
     @Override
@@ -89,7 +90,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO, String> {
     }
 
     @Override
-    public IModel<UserTO> model(final UserTO object) {
-        return new CompoundPropertyModel<UserTO>(object);
+    public IModel<AbstractAttributableTO> model(final AbstractAttributableTO object) {
+        return new CompoundPropertyModel<AbstractAttributableTO>(object);
     }
 }

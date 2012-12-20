@@ -33,7 +33,7 @@ import org.apache.syncope.types.AuditLoggerName;
 import org.apache.syncope.types.SyncopeLoggerLevel;
 
 @Component
-public class LoggerRestClient extends AbstractBaseRestClient {
+public class LoggerRestClient extends BaseRestClient {
 
     public List<LoggerTO> listLogs() {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(

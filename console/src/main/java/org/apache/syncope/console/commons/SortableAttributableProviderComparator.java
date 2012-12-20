@@ -22,12 +22,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
-public class SortableUserProviderComparator extends SortableDataProviderComparator<UserTO> {
+public class SortableAttributableProviderComparator extends SortableDataProviderComparator<AbstractAttributableTO> {
 
     private static final long serialVersionUID = 1775967163571699258L;
 
@@ -40,13 +40,12 @@ public class SortableUserProviderComparator extends SortableDataProviderComparat
         inlineProps.add("token");
     }
 
-    public SortableUserProviderComparator(final SortableDataProvider<UserTO, String> provider) {
-
+    public SortableAttributableProviderComparator(final SortableDataProvider<AbstractAttributableTO, String> provider) {
         super(provider);
     }
 
     @Override
-    public int compare(final UserTO o1, final UserTO o2) {
+    public int compare(final AbstractAttributableTO o1, final AbstractAttributableTO o2) {
         if (inlineProps.contains(provider.getSort().getProperty())) {
             return super.compare(o1, o2);
         }

@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.pages.panels;
+package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.PropagationTO;
+import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -46,55 +48,61 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
- * User management result panel.
+ * Show user or role status after performing a successful operation.
  */
-public class UserManagementResultPanel extends Panel {
+public class ResultStatusModalPage extends BaseModalPage {
 
     /**
      * Serial version id.
      */
     private static final long serialVersionUID = 2646115294319713723L;
 
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    private UserRestClient userRestClient;
+
+    private final AbstractAttributableTO attributable;
+
     /**
      * Status management utilities.
      */
-    @SpringBean
-    private StatusUtils statusUtils;
+    private final StatusUtils statusUtils;
+
+    public ResultStatusModalPage(final ModalWindow window, final AbstractAttributableTO attributable) {
+        this(window, UserModalPage.Mode.ADMIN, attributable);
+    }
 
     /**
-     * Panel constructor.
-     *
-     * @param id panel id.
      * @param window guest modal window.
      * @param mode operation mode.
-     * @param userTO User TO.
+     * @param attributable User TO.
      */
-    public UserManagementResultPanel(final String id, final ModalWindow window, final UserModalPage.Mode mode,
-            final UserTO userTO) {
+    public ResultStatusModalPage(final ModalWindow window, final UserModalPage.Mode mode,
+            final AbstractAttributableTO attributable) {
 
-        super(id);
+        super();
+        this.attributable = attributable;
+        statusUtils = new StatusUtils(resourceRestClient, userRestClient);
 
-        // shortcut to retrieve fragments inside inner classes
-        final Panel panel = this;
+        final BaseModalPage page = this;
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
-        final Fragment fragment = new Fragment("userModalResultFrag", mode == UserModalPage.Mode.SELF
-                ? "userModalSelfResultFrag"
-                : "userModalPropagationResultFrag", this);
-
+        final Fragment fragment = new Fragment("resultFrag", mode == UserModalPage.Mode.SELF
+                ? "userRequestResultFrag"
+                : "propagationResultFrag", this);
         fragment.setOutputMarkupId(true);
         container.add(fragment);
 
         if (mode == UserModalPage.Mode.ADMIN) {
-
             // add Syncope propagation status
             PropagationTO syncope = new PropagationTO();
             syncope.setResourceName("Syncope");
@@ -102,11 +110,14 @@ public class UserManagementResultPanel extends Panel {
 
             List<PropagationTO> propagations = new ArrayList<PropagationTO>();
             propagations.add(syncope);
-            propagations.addAll(userTO.getPropagationTOs());
+            propagations.addAll(attributable.getPropagationTOs());
 
-            fragment.add(new Label("userInfo", userTO.getUsername() != null
-                    ? userTO.getUsername()
-                    : String.valueOf(userTO.getId())));
+            fragment.add(new Label("info",
+                    ((attributable instanceof UserTO) && ((UserTO) attributable).getUsername() != null)
+                    ? ((UserTO) attributable).getUsername()
+                    : ((attributable instanceof RoleTO) && ((RoleTO) attributable).getName() != null)
+                    ? ((RoleTO) attributable).getName()
+                    : String.valueOf(attributable.getId())));
 
             final ListView<PropagationTO> propRes = new ListView<PropagationTO>("resources", propagations) {
 
@@ -119,11 +130,10 @@ public class UserManagementResultPanel extends Panel {
                     final ListView attributes = getConnObjectView(propTO);
 
                     final Fragment attrhead;
-
-                    if (attributes.getModelObject() != null && !attributes.getModelObject().isEmpty()) {
-                        attrhead = new Fragment("attrhead", "attrHeadFrag", panel);
+                    if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
+                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", page);
                     } else {
-                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", panel);
+                        attrhead = new Fragment("attrhead", "attrHeadFrag", page);
                     }
 
                     item.add(attrhead);
@@ -131,14 +141,13 @@ public class UserManagementResultPanel extends Panel {
 
                     attrhead.add(new Label("resource", propTO.getResourceName()));
 
-                    attrhead.add(new Label("propagation", propTO.getStatus() != null
-                            ? propTO.getStatus().toString()
-                            : "UNDEFINED"));
+                    attrhead.add(new Label("propagation", propTO.getStatus() == null
+                            ? "UNDEFINED" : propTO.getStatus().toString()));
 
                     final Image image;
                     final String alt, title;
-
                     switch (propTO.getStatus()) {
+
                         case SUCCESS:
                         case SUBMITTED:
                         case CREATED:
@@ -146,6 +155,7 @@ public class UserManagementResultPanel extends Panel {
                             alt = "success icon";
                             title = "success";
                             break;
+
                         default:
                             image = new Image("icon", "statuses/inactive.png");
                             alt = "failure icon";
@@ -179,6 +189,9 @@ public class UserManagementResultPanel extends Panel {
             }
         };
         container.add(close);
+
+        setOutputMarkupId(true);
+        add(new CloseOnESCBehavior(window));
     }
 
     /**
@@ -192,27 +205,31 @@ public class UserManagementResultPanel extends Panel {
         final ConnObjectTO after = propTO.getAfterObj();
 
         // sorted in reversed presentation order
-        final List<String> head = Arrays.asList(new String[] { "__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__" });
+        final List<String> head = new ArrayList<String>();
+        if (attributable instanceof UserTO) {
+            head.add("__PASSWORD__");
+            head.add("__ENABLE__");
+        }
+        head.add("__UID__");
+        head.add("__NAME__");
 
         final Map<String, AttributeTO> beforeAttrMap;
+        if (before == null) {
+            beforeAttrMap = Collections.<String, AttributeTO>emptyMap();
+        } else {
+            beforeAttrMap = before.getAttributeMap();
+        }
 
         final Map<String, AttributeTO> afterAttrMap;
+        if (after == null) {
+            afterAttrMap = Collections.<String, AttributeTO>emptyMap();
+        } else {
+            afterAttrMap = after.getAttributeMap();
+        }
 
         final Set<String> attributes = new HashSet<String>();
-
-        if (before != null) {
-            beforeAttrMap = before.getAttributeMap();
-            attributes.addAll(beforeAttrMap.keySet());
-        } else {
-            beforeAttrMap = Collections.emptyMap();
-        }
-
-        if (after != null) {
-            afterAttrMap = after.getAttributeMap();
-            attributes.addAll(afterAttrMap.keySet());
-        } else {
-            afterAttrMap = Collections.emptyMap();
-        }
+        attributes.addAll(beforeAttrMap.keySet());
+        attributes.addAll(afterAttrMap.keySet());
 
         final List<String> profile = new ArrayList<String>();
         profile.addAll(attributes);
@@ -235,13 +252,11 @@ public class UserManagementResultPanel extends Panel {
 
                 final Fragment beforeValue;
                 final Fragment afterValue;
-
                 if ("__ENABLE__".equals(name)) {
                     beforeValue = getStatusIcon("beforeValue", before);
                     afterValue = getStatusIcon("afterValue", after);
                 } else {
                     beforeValue = getLabelValue("beforeValue", name, beforeAttrMap);
-
                     afterValue = getLabelValue("afterValue", name, afterAttrMap);
                 }
 
@@ -266,8 +281,9 @@ public class UserManagementResultPanel extends Panel {
 
         final AttributeTO attr = attrMap.get(attrName);
 
-        if (attr != null && attr.getValues() != null && !attr.getValues().isEmpty()) {
-
+        if (attr == null || attr.getValues() == null || attr.getValues().isEmpty()) {
+            value = "";
+        } else {
             if ("__PASSWORD__".equals(attrName)) {
                 value = "********";
             } else {
@@ -275,9 +291,6 @@ public class UserManagementResultPanel extends Panel {
                         ? attr.getValues().toString()
                         : attr.getValues().get(0);
             }
-
-        } else {
-            value = "";
         }
 
         Component label = new Label("value", value).add(new Behavior() {
@@ -306,18 +319,20 @@ public class UserManagementResultPanel extends Panel {
     private Fragment getStatusIcon(final String id, final ConnObjectTO objectTO) {
         final Image image;
         final String alt, title;
-
         switch (statusUtils.getRemoteStatus(objectTO).getStatus()) {
+
             case ACTIVE:
                 image = new Image("status", "statuses/active.png");
                 alt = "active icon";
                 title = "Enabled";
                 break;
+
             case SUSPENDED:
                 image = new Image("status", "statuses/inactive.png");
                 alt = "inactive icon";
                 title = "Disabled";
                 break;
+
             default:
                 image = null;
                 alt = null;
@@ -325,8 +340,9 @@ public class UserManagementResultPanel extends Panel {
         }
 
         final Fragment frag;
-
-        if (image != null) {
+        if (image == null) {
+            frag = new Fragment(id, "emptyFrag", this);
+        } else {
             image.add(new Behavior() {
 
                 private static final long serialVersionUID = 1469628524240283489L;
@@ -342,8 +358,6 @@ public class UserManagementResultPanel extends Panel {
 
             frag = new Fragment(id, "remoteStatusFrag", this);
             frag.add(image);
-        } else {
-            frag = new Fragment(id, "emptyFrag", this);
         }
 
         return frag;

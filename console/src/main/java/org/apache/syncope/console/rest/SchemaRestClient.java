@@ -33,7 +33,7 @@ import org.apache.syncope.types.AttributableType;
  * Console client for invoking rest schema services.
  */
 @Component
-public class SchemaRestClient extends AbstractBaseRestClient {
+public class SchemaRestClient extends BaseRestClient {
 
     /**
      * Get schemas.
@@ -62,10 +62,10 @@ public class SchemaRestClient extends AbstractBaseRestClient {
         final List<String> schemaNames = new ArrayList<String>();
 
         try {
-            final List<SchemaTO> userSchemas = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+            final List<SchemaTO> schemas = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
                     baseURL + "schema/" + type.name().toLowerCase() + "/list.json", SchemaTO[].class));
 
-            for (SchemaTO schemaTO : userSchemas) {
+            for (SchemaTO schemaTO : schemas) {
                 schemaNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {

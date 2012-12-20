@@ -25,7 +25,7 @@ import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.console.SyncopeSession;
 
 @Component
-public class ConfigurationRestClient extends AbstractBaseRestClient {
+public class ConfigurationRestClient extends BaseRestClient {
 
     /**
      * Get all stored configurations.

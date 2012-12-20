@@ -63,6 +63,8 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
 
     @Override
     protected void init() {
+        super.init();
+
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
         getResourceSettings().setThrowExceptionOnMissingResource(true);

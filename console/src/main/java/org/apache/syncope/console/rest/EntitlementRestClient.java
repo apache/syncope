@@ -28,7 +28,7 @@ import org.apache.syncope.console.SyncopeSession;
  * Console client for invoking Rest Resources services.
  */
 @Component
-public class EntitlementRestClient extends AbstractBaseRestClient {
+public class EntitlementRestClient extends BaseRestClient {
 
     /**
      * Get all Entitlements.

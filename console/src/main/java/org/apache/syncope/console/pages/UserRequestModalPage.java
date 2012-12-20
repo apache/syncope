@@ -81,10 +81,6 @@ public class UserRequestModalPage extends UserModalPage {
         setupEditPanel();
     }
 
-    public UserRequestModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
-        super(window, userTO, mode);
-    }
-
     @Override
     protected void submitAction(final AjaxRequestTarget target, final Form form) {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
@@ -134,6 +130,6 @@ public class UserRequestModalPage extends UserModalPage {
 
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
-        setResponsePage(new UserRequestModalPage(window, userTO, mode));
+        setResponsePage(new ResultStatusModalPage(window, mode, userTO));
     }
 }

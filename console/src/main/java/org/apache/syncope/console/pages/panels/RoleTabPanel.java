@@ -22,6 +22,7 @@ import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,9 +39,12 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class RoleTabPanel extends Panel {
 
     private static final long serialVersionUID = 859236186975983959L;
-    
+
     @SpringBean
-    protected XMLRolesReader xmlRolesReader;
+    private XMLRolesReader xmlRolesReader;
+
+    @SpringBean
+    private UserRestClient restClient;
 
     public RoleTabPanel(final String id, final RoleTO roleTO, final ModalWindow window,
             final PageReference callerPageRef) {
@@ -57,7 +61,7 @@ public class RoleTabPanel extends Panel {
 
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
-        
+
         final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
         rolePanel.setEnabled(false);
         form.add(rolePanel);
@@ -66,19 +70,18 @@ public class RoleTabPanel extends Panel {
 
         userListContainer.setOutputMarkupId(true);
         userListContainer.setEnabled(true);
-        userListContainer.add(new ResultSetPanel("userList", true, null, callerPageRef));
+        userListContainer.add(new UserSearchResultPanel("userList", true, null, callerPageRef, restClient));
         userListContainer.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
                 final MembershipCond membershipCond = new MembershipCond();
                 membershipCond.setRoleName(roleTO.getName());
                 NodeCond cond = NodeCond.getLeafCond(membershipCond);
 
-                userListContainer.replace(new ResultSetPanel("userList", true, cond, callerPageRef));
+                userListContainer.replace(new UserSearchResultPanel("userList", true, cond, callerPageRef, restClient));
 
                 target.add(userListContainer);
             }
@@ -87,7 +90,7 @@ public class RoleTabPanel extends Panel {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         });
-        
+
         form.add(userListContainer);
         add(form);
     }

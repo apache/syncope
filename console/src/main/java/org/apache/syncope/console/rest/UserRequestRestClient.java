@@ -27,7 +27,7 @@ import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserRequestRestClient extends AbstractBaseRestClient {
+public class UserRequestRestClient extends BaseRestClient {
 
     public List<UserRequestTO> list() {
         return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
