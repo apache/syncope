@@ -20,15 +20,16 @@ package org.apache.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Resources services.
  */
 @Component
-public class EntitlementRestClient extends BaseRestClient {
+public class AuthRestClient extends BaseRestClient {
+
+    private static final long serialVersionUID = 2999780105004742914L;
 
     /**
      * Get all Entitlements.
@@ -36,15 +37,17 @@ public class EntitlementRestClient extends BaseRestClient {
      * @return List<String>
      */
     public List<String> getAllEntitlements() {
-        List<String> entitlements = null;
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "auth/allentitlements.json", String[].class));
+    }
 
-        try {
-            entitlements = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "auth/allentitlements.json", String[].class));
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While reading all the entitlements", e);
-        }
-
-        return entitlements;
+    /**
+     * Get owned Entitlements.
+     *
+     * @return List<String>
+     */
+    public List<String> getOwnedEntitlements() {
+        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "auth/entitlements.json", String[].class));
     }
 }

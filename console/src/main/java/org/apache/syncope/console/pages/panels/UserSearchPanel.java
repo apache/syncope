@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
@@ -59,7 +58,11 @@ public class UserSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchCondWrapper.FilterType> load() {
-                return Arrays.asList(SearchCondWrapper.FilterType.values());
+                List<SearchCondWrapper.FilterType> result = new ArrayList<SearchCondWrapper.FilterType>();
+                result.add(SearchCondWrapper.FilterType.ATTRIBUTE);
+                result.add(SearchCondWrapper.FilterType.MEMBERSHIP);
+                result.add(SearchCondWrapper.FilterType.RESOURCE);
+                return result;
             }
         };
 

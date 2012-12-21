@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
+import org.apache.syncope.client.search.EntitlementCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
@@ -34,6 +35,7 @@ import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
+import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.types.AttributableType;
@@ -58,13 +60,16 @@ public abstract class AbstractSearchPanel extends Panel {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
 
     protected static final String[] ATTRIBUTES_NOTINCLUDED = {"attributes", "derivedAttributes", "virtualAttributes",
-        "serialVersionUID", "memberships", "resources", "password", "propagationTOs", "propagationStatusMap"};
+        "serialVersionUID", "memberships", "entitlements", "resources", "password",
+        "propagationTOs", "propagationStatusMap"};
 
     protected IModel<List<String>> dnames;
 
     protected IModel<List<String>> anames;
 
     protected IModel<List<String>> resourceNames;
+
+    protected IModel<List<String>> entitlements;
 
     protected IModel<List<AttributeCond.Type>> attributeTypes;
 
@@ -77,6 +82,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
     @SpringBean
     protected ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    protected AuthRestClient authRestClient;
 
     protected FeedbackPanel searchFeedback;
 
@@ -135,7 +143,7 @@ public abstract class AbstractSearchPanel extends Panel {
             searchConditionList = getSearchCondWrappers(initCond, null);
         }
         searchFormContainer.add(new SearchView("searchView", searchConditionList, searchFormContainer, required,
-                attributeTypes, filterTypes, anames, dnames, roleNames, resourceNames));
+                attributeTypes, filterTypes, anames, dnames, roleNames, resourceNames, entitlements));
 
         add(searchFormContainer);
     }
@@ -192,6 +200,18 @@ public abstract class AbstractSearchPanel extends Panel {
                     result.add(resource.getName());
                 }
 
+                return result;
+            }
+        };
+
+        entitlements = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                List<String> result = authRestClient.getOwnedEntitlements();
+                Collections.sort(result);
                 return result;
             }
         };
@@ -277,6 +297,10 @@ public abstract class AbstractSearchPanel extends Panel {
             wrapper.setFilterType(SearchCondWrapper.FilterType.RESOURCE);
             wrapper.setFilterName(searchCond.getResourceCond().getResourceName());
         }
+        if (searchCond.getEntitlementCond() != null) {
+            wrapper.setFilterType(SearchCondWrapper.FilterType.ENTITLEMENT);
+            wrapper.setFilterName(searchCond.getEntitlementCond().getExpression());
+        }
 
         wrapper.setNotOperator(searchCond.getType() == NodeCond.Type.NOT_LEAF);
 
@@ -345,6 +369,18 @@ public abstract class AbstractSearchPanel extends Panel {
                     nodeCond = NodeCond.getNotLeafCond(resourceCond);
                 } else {
                     nodeCond = NodeCond.getLeafCond(resourceCond);
+                }
+
+                break;
+
+            case ENTITLEMENT:
+                final EntitlementCond entitlementCond = new EntitlementCond();
+                entitlementCond.setExpression(searchConditionWrapper.getFilterName());
+
+                if (searchConditionWrapper.isNotOperator()) {
+                    nodeCond = NodeCond.getNotLeafCond(entitlementCond);
+                } else {
+                    nodeCond = NodeCond.getLeafCond(entitlementCond);
                 }
 
                 break;

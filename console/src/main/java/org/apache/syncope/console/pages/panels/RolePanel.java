@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.rest.EntitlementRestClient;
+import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
@@ -34,7 +34,7 @@ public class RolePanel extends Panel {
     private static final long serialVersionUID = 4216376097320768369L;
 
     @SpringBean
-    private EntitlementRestClient entitlementRestClient;
+    private AuthRestClient entitlementRestClient;
 
     private final Palette<String> entitlementsPalette;
 

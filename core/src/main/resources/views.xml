@@ -132,4 +132,11 @@ under the License.
     SELECT st.role_id AS subject_id, st.resource_name AS resource_name
     FROM SyncopeRole_ExternalResource st
   </entry>
+  <entry key="role_search_entitlements">
+    CREATE VIEW role_search_entitlements AS
+
+    SELECT st.role_id AS subject_id, st.entitlement_name AS entitlement_name
+    FROM SyncopeRole_Entitlement st
+  </entry>
+
 </properties>

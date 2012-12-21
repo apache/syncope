@@ -223,10 +223,14 @@ public class SearchTestITCase extends AbstractTest {
 
     @Test
     public void searchByEntitlement() {
-        final EntitlementCond cond = new EntitlementCond();
-        cond.setExpression("USER");
+        final EntitlementCond userListCond = new EntitlementCond();
+        userListCond.setExpression("USER_LIST");
 
-        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        final EntitlementCond userReadcond = new EntitlementCond();
+        userReadcond.setExpression("USER_READ");
+
+        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(userListCond),
+                NodeCond.getLeafCond(userReadcond));
         assertTrue(searchCondition.isValid());
 
         final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",

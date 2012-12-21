@@ -42,7 +42,8 @@ public class SearchCondWrapper implements Serializable {
 
         ATTRIBUTE,
         MEMBERSHIP,
-        RESOURCE
+        RESOURCE,
+        ENTITLEMENT
 
     };
 

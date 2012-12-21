@@ -60,6 +60,8 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
     private final IModel<List<String>> resourceNames;
 
+    private final IModel<List<String>> entitlements;
+
     public SearchView(final String id, final List<? extends SearchCondWrapper> list,
             final WebMarkupContainer searchFormContainer,
             final boolean required,
@@ -68,7 +70,8 @@ public class SearchView extends ListView<SearchCondWrapper> {
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
             final IModel<List<String>> roleNames,
-            final IModel<List<String>> resourceNames) {
+            final IModel<List<String>> resourceNames,
+            final IModel<List<String>> entitlements) {
 
         super(id, list);
 
@@ -80,6 +83,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
         this.dnames = dnames;
         this.roleNames = roleNames;
         this.resourceNames = resourceNames;
+        this.entitlements = entitlements;
     }
 
     @Override
@@ -274,6 +278,17 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
                 case RESOURCE:
                     filterNameChooser.setChoices(resourceNames);
+                    type.setEnabled(false);
+                    type.setRequired(false);
+                    type.setModelObject(null);
+
+                    filterValue.setEnabled(false);
+                    filterValue.setModelObject("");
+
+                    break;
+
+                case ENTITLEMENT:
+                    filterNameChooser.setChoices(entitlements);
                     type.setEnabled(false);
                     type.setRequired(false);
                     type.setModelObject(null);

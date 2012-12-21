@@ -54,6 +54,7 @@ public class RoleSearchPanel extends AbstractSearchPanel {
             protected List<SearchCondWrapper.FilterType> load() {
                 List<SearchCondWrapper.FilterType> result = new ArrayList<SearchCondWrapper.FilterType>();
                 result.add(SearchCondWrapper.FilterType.ATTRIBUTE);
+                result.add(SearchCondWrapper.FilterType.ENTITLEMENT);
                 result.add(SearchCondWrapper.FilterType.RESOURCE);
                 return result;
             }

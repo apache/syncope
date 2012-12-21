@@ -41,8 +41,6 @@ import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.core.persistence.beans.Entitlement;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
@@ -289,7 +287,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 }
                 if (nodeCond.getEntitlementCond() != null) {
                     query.append(getQuery(nodeCond.getEntitlementCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters, attrUtil));
+                            parameters));
                 }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
@@ -370,16 +368,13 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         return query.toString();
     }
 
-    private String getQuery(final EntitlementCond cond, final boolean not, final List<Object> parameters,
-            final AttributableUtil attrUtil) {
-
-        final StringBuilder query = new StringBuilder("SELECT DISTINCT role_id AS subject_id FROM ").
-                append(SyncopeRole.class.getSimpleName()).append('_').append(Entitlement.class.getSimpleName()).
-                append(" WHERE entitlement_name ");
+    private String getQuery(final EntitlementCond cond, final boolean not, final List<Object> parameters) {
+        final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append("role_search_entitlements WHERE entitlement_name ");
         if (not) {
             query.append(" NOT ");
         }
-        query.append(" LIKE '%").append(cond.getExpression()).append("%'");
+        query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
 
         return query.toString();
     }
