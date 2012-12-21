@@ -215,7 +215,7 @@ public class RoleController extends AbstractController {
 
         LOG.debug("Role search called with condition {}", searchCondition);
 
-        if (!searchCondition.checkValidity()) {
+        if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
@@ -241,7 +241,7 @@ public class RoleController extends AbstractController {
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        if (!searchCondition.checkValidity()) {
+        if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }

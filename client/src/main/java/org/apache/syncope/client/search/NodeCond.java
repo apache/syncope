@@ -19,6 +19,7 @@
 package org.apache.syncope.client.search;
 
 import org.apache.syncope.client.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class NodeCond extends AbstractBaseBean {
 
@@ -28,6 +29,7 @@ public class NodeCond extends AbstractBaseBean {
         NOT_LEAF,
         AND,
         OR
+
     }
 
     private Type type;
@@ -39,6 +41,8 @@ public class NodeCond extends AbstractBaseBean {
     private MembershipCond membershipCond;
 
     private ResourceCond resourceCond;
+
+    private EntitlementCond entitlementCond;
 
     private NodeCond leftNodeCond;
 
@@ -80,6 +84,15 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
+    public static NodeCond getLeafCond(final EntitlementCond entitlementCond) {
+        NodeCond nodeCond = new NodeCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.entitlementCond = entitlementCond;
+
+        return nodeCond;
+    }
+
     public static NodeCond getNotLeafCond(final AttributableCond syncopeUserCond) {
         NodeCond nodeCond = getLeafCond(syncopeUserCond);
         nodeCond.type = Type.NOT_LEAF;
@@ -104,8 +117,13 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
-    public static NodeCond getAndCond(final NodeCond leftCond, final NodeCond rightCond) {
+    public static NodeCond getNotLeafCond(final EntitlementCond entitlementCond) {
+        NodeCond nodeCond = getLeafCond(entitlementCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
 
+    public static NodeCond getAndCond(final NodeCond leftCond, final NodeCond rightCond) {
         NodeCond nodeCond = new NodeCond();
 
         nodeCond.type = Type.AND;
@@ -116,7 +134,6 @@ public class NodeCond extends AbstractBaseBean {
     }
 
     public static NodeCond getOrCond(final NodeCond leftCond, final NodeCond rightCond) {
-
         NodeCond nodeCond = new NodeCond();
 
         nodeCond.type = Type.OR;
@@ -124,30 +141,6 @@ public class NodeCond extends AbstractBaseBean {
         nodeCond.rightNodeCond = rightCond;
 
         return nodeCond;
-    }
-
-    public AttributeCond getAttributeCond() {
-        return attributeCond;
-    }
-
-    public final void setAttributeCond(final AttributeCond attributeCond) {
-        this.attributeCond = attributeCond;
-    }
-
-    public final MembershipCond getMembershipCond() {
-        return membershipCond;
-    }
-
-    public final ResourceCond getResourceCond() {
-        return resourceCond;
-    }
-
-    public final void setMembershipCond(final MembershipCond membershipCond) {
-        this.membershipCond = membershipCond;
-    }
-
-    public void setResourceCond(final ResourceCond resourceCond) {
-        this.resourceCond = resourceCond;
     }
 
     public AttributableCond getAttributableCond() {
@@ -158,53 +151,92 @@ public class NodeCond extends AbstractBaseBean {
         this.attributableCond = attributableCond;
     }
 
-    public final NodeCond getLeftNodeCond() {
+    public AttributeCond getAttributeCond() {
+        return attributeCond;
+    }
+
+    public void setAttributeCond(final AttributeCond attributeCond) {
+        this.attributeCond = attributeCond;
+    }
+
+    public MembershipCond getMembershipCond() {
+        return membershipCond;
+    }
+
+    public void setMembershipCond(final MembershipCond membershipCond) {
+        this.membershipCond = membershipCond;
+    }
+
+    public ResourceCond getResourceCond() {
+        return resourceCond;
+    }
+
+    public void setResourceCond(final ResourceCond resourceCond) {
+        this.resourceCond = resourceCond;
+    }
+
+    public EntitlementCond getEntitlementCond() {
+        return entitlementCond;
+    }
+
+    public void setEntitlementCond(final EntitlementCond entitlementCond) {
+        this.entitlementCond = entitlementCond;
+    }
+
+    public NodeCond getLeftNodeCond() {
         return leftNodeCond;
     }
 
-    public final void setLeftNodeCond(final NodeCond leftNodeCond) {
+    public void setLeftNodeCond(final NodeCond leftNodeCond) {
         this.leftNodeCond = leftNodeCond;
     }
 
-    public final NodeCond getRightNodeCond() {
+    public NodeCond getRightNodeCond() {
         return rightNodeCond;
     }
 
-    public final void setRightNodeCond(final NodeCond rightNodeCond) {
+    public void setRightNodeCond(final NodeCond rightNodeCond) {
         this.rightNodeCond = rightNodeCond;
     }
 
-    public final Type getType() {
+    public Type getType() {
         return type;
     }
 
-    public final void setType(final Type type) {
+    public void setType(final Type type) {
         this.type = type;
     }
 
-    public final boolean checkValidity() {
+    @JsonIgnore
+    public boolean isValid() {
+        boolean isValid = false;
+
         if (type == null) {
-            return false;
+            return isValid;
         }
 
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                return (attributableCond != null && attributeCond == null && membershipCond == null
-                        && resourceCond == null && attributableCond.checkValidity())
-                        || (attributableCond == null && attributeCond != null && membershipCond == null
-                                && resourceCond == null && attributeCond.checkValidity())
-                        || (attributableCond == null && attributeCond == null && membershipCond != null
-                                && resourceCond == null && membershipCond.checkValidity())
-                        || (attributableCond == null && attributeCond == null && membershipCond == null
-                                && resourceCond != null && resourceCond.checkValidity());
+                isValid = (attributableCond != null || attributeCond != null || membershipCond != null
+                        || resourceCond != null || entitlementCond != null)
+                        && (attributableCond == null || attributableCond.isValid())
+                        && (attributeCond == null || attributeCond.isValid())
+                        && (membershipCond == null || membershipCond.isValid())
+                        && (resourceCond == null || resourceCond.isValid())
+                        && (entitlementCond == null || entitlementCond.isValid());
+                break;
+
             case AND:
             case OR:
-                return (leftNodeCond == null || rightNodeCond == null)
+                isValid = (leftNodeCond == null || rightNodeCond == null)
                         ? false
-                        : leftNodeCond.checkValidity() && rightNodeCond.checkValidity();
+                        : leftNodeCond.isValid() && rightNodeCond.isValid();
+                break;
+
             default:
-                return false;
         }
+
+        return isValid;
     }
 }

@@ -142,7 +142,7 @@ public class UserController {
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        if (!searchCondition.checkValidity()) {
+        if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
@@ -247,7 +247,7 @@ public class UserController {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
-        if (!searchCondition.checkValidity()) {
+        if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }

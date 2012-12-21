@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,17 +26,23 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Entity;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
+import org.apache.syncope.client.search.EntitlementCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
@@ -43,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SchemaType;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -131,12 +139,12 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final NodeCond searchCondition,
             final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
-        List<T> result = Collections.EMPTY_LIST;
+        List<T> result = Collections.<T>emptyList();
 
         if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
-            if (searchCondition.checkValidity()) {
+            if (searchCondition.isValid()) {
                 try {
                     result = doSearch(adminRoles, searchCondition, page, itemsPerPage, attrUtil);
                 } catch (Exception e) {
@@ -170,9 +178,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         fillWithParameters(query, parameters);
 
         // 5. executes query
-        List<T> result = query.getResultList();
-
-        return !result.isEmpty();
+        return !query.getResultList().isEmpty();
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
@@ -281,6 +287,10 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                     query.append(getQuery(nodeCond.getResourceCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
                             parameters, attrUtil));
                 }
+                if (nodeCond.getEntitlementCond() != null) {
+                    query.append(getQuery(nodeCond.getEntitlementCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
+                            parameters, attrUtil));
+                }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
                             parameters, attrUtil));
@@ -333,7 +343,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             query.append("role_name=?").append(setParameter(parameters, cond.getRoleName()));
         }
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -355,7 +365,21 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
 
         query.append("resource_name=?").append(setParameter(parameters, cond.getResourceName()));
 
-        query.append(")");
+        query.append(')');
+
+        return query.toString();
+    }
+
+    private String getQuery(final EntitlementCond cond, final boolean not, final List<Object> parameters,
+            final AttributableUtil attrUtil) {
+
+        final StringBuilder query = new StringBuilder("SELECT DISTINCT role_id AS subject_id FROM ").
+                append(SyncopeRole.class.getSimpleName()).append('_').append(Entitlement.class.getSimpleName()).
+                append(" WHERE entitlement_name ");
+        if (not) {
+            query.append(" NOT ");
+        }
+        query.append(" LIKE '%").append(cond.getExpression()).append("%'");
 
         return query.toString();
     }
@@ -383,14 +407,11 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
 
             case LIKE:
                 if (schema.getType() == SchemaType.String || schema.getType() == SchemaType.Enum) {
-
                     query.append(column);
                     if (not) {
                         query.append(" NOT ");
                     }
-
                     query.append(" LIKE '").append(cond.getExpression()).append("'");
-
                 } else {
                     if (!(cond instanceof AttributableCond)) {
                         query.append("' AND");
@@ -487,7 +508,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
-            AttributableUtil attrUtil) {
+            final AttributableUtil attrUtil) {
 
         AbstractSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
         if (schema == null) {
@@ -540,6 +561,42 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         for (SchemaType type : SchemaType.values()) {
             if (attributableClassField.getType().getName().equals(type.getClassName())) {
                 schema.setType(type);
+            }
+        }
+
+        // Deal with Attirbutable Integer fields logically mapping to boolean values
+        // (SyncopeRole.inheritAttributes, for example)
+        boolean foundBooleanMin = false;
+        boolean foundBooleanMax = false;
+        if (Integer.class.equals(attributableClassField.getType())) {
+            for (Annotation annotation : attributableClassField.getAnnotations()) {
+                if (Min.class.equals(annotation.annotationType())) {
+                    foundBooleanMin = ((Min) annotation).value() == 0;
+                } else if (Max.class.equals(annotation.annotationType())) {
+                    foundBooleanMax = ((Max) annotation).value() == 1;
+                }
+            }
+        }
+        if (foundBooleanMin && foundBooleanMax) {
+            if ("true".equalsIgnoreCase(cond.getExpression())) {
+                cond.setExpression("1");
+            } else if ("false".equalsIgnoreCase(cond.getExpression())) {
+                cond.setExpression("0");
+            }
+        }
+
+        // Deal with Attributable fields representing relationships to other entities
+        // Only _id and _name are suppored
+        if (attributableClassField.getType().getAnnotation(Entity.class) != null) {
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(
+                    attributableClassField.getType(), "getId") != null) {
+
+                cond.setSchema(cond.getSchema() + "_id");
+            }
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(
+                    attributableClassField.getType(), "getName") != null) {
+
+                cond.setSchema(cond.getSchema() + "_name");
             }
         }
 

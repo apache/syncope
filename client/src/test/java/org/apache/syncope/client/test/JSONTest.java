@@ -52,7 +52,7 @@ public class JSONTest {
         final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond), NodeCond.getLeafCond(
                 membershipCond));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         ObjectMapper mapper = new ObjectMapper();
 

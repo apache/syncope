@@ -18,17 +18,24 @@
  */
 package org.apache.syncope.client.search;
 
-/**
- * Search condition to be applied when comparing bean field values.
- */
-public class AttributableCond extends AttributeCond implements SearchCond {
+import org.apache.syncope.client.AbstractBaseBean;
 
-    private static final long serialVersionUID = -1880319220462653955L;
+public class EntitlementCond extends AbstractBaseBean implements SearchCond {
 
-    public AttributableCond() {
+    private static final long serialVersionUID = -4077781080368377428L;
+
+    private String expression;
+
+    public String getExpression() {
+        return expression;
     }
 
-    public AttributableCond(final Type conditionType) {
-        super(conditionType);
+    public void setExpression(final String expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public boolean isValid() {
+        return expression != null;
     }
 }

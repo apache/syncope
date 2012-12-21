@@ -48,9 +48,9 @@ public class NotificationTest extends AbstractTest {
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
         assertNotNull(notification.getAbout());
-        assertTrue(notification.getAbout().checkValidity());
+        assertTrue(notification.getAbout().isValid());
         assertNotNull(notification.getRecipients());
-        assertTrue(notification.getRecipients().checkValidity());
+        assertTrue(notification.getRecipients().isValid());
     }
 
     @Test

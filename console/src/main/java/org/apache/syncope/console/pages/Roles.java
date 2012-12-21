@@ -137,7 +137,7 @@ public class Roles extends BasePage {
     private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
             final AbstractSearchResultPanel resultsetPanel) {
 
-        if (searchCond == null || !searchCond.checkValidity()) {
+        if (searchCond == null || !searchCond.isValid()) {
             error(getString("search_error"));
             return;
         }

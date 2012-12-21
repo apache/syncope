@@ -23,7 +23,7 @@ import org.apache.syncope.client.AbstractBaseBean;
 /**
  * Search condition to be applied when searching for associated resources.
  */
-public class ResourceCond extends AbstractBaseBean {
+public class ResourceCond extends AbstractBaseBean implements SearchCond {
 
     private String resourceName;
 
@@ -35,7 +35,8 @@ public class ResourceCond extends AbstractBaseBean {
         this.resourceName = resourceName;
     }
 
-    public final boolean checkValidity() {
+    @Override
+    public final boolean isValid() {
         return resourceName != null;
     }
 }

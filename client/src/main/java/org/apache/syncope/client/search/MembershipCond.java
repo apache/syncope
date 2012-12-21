@@ -23,7 +23,7 @@ import org.apache.syncope.client.AbstractBaseBean;
 /**
  * Search condition to be applied when searching for memberships.
  */
-public class MembershipCond extends AbstractBaseBean {
+public class MembershipCond extends AbstractBaseBean implements SearchCond {
 
     private static final long serialVersionUID = -728155256293925989L;
 
@@ -51,7 +51,8 @@ public class MembershipCond extends AbstractBaseBean {
         this.roleName = roleName;
     }
 
-    public final boolean checkValidity() {
+    @Override
+    public final boolean isValid() {
         return !(roleId == null && roleName == null);
     }
 }

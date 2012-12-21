@@ -18,17 +18,10 @@
  */
 package org.apache.syncope.client.search;
 
-/**
- * Search condition to be applied when comparing bean field values.
- */
-public class AttributableCond extends AttributeCond implements SearchCond {
+import org.codehaus.jackson.annotate.JsonIgnore;
 
-    private static final long serialVersionUID = -1880319220462653955L;
+public interface SearchCond {
 
-    public AttributableCond() {
-    }
-
-    public AttributableCond(final Type conditionType) {
-        super(conditionType);
-    }
+    @JsonIgnore
+    boolean isValid();
 }

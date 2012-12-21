@@ -23,7 +23,7 @@ import org.apache.syncope.client.AbstractBaseBean;
 /**
  * Search condition to be applied when comparing attribute values.
  */
-public class AttributeCond extends AbstractBaseBean {
+public class AttributeCond extends AbstractBaseBean implements SearchCond {
 
     private static final long serialVersionUID = 3275277728404021417L;
 
@@ -79,7 +79,8 @@ public class AttributeCond extends AbstractBaseBean {
         this.type = conditionType;
     }
 
-    public final boolean checkValidity() {
+    @Override
+    public final boolean isValid() {
         return type != null && schema != null && (type == Type.ISNULL || type == Type.ISNOTNULL || expression != null);
     }
 }

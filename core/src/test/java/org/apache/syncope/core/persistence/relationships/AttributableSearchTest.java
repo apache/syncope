@@ -68,7 +68,7 @@ public class AttributableSearchTest {
         coolLeafCond.setExpression("true");
 
         final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
-        assertTrue(cond.checkValidity());
+        assertTrue(cond.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
                 AttributableUtil.getInstance(AttributableType.USER));

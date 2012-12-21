@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
+import org.apache.syncope.client.search.EntitlementCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.search.ResourceCond;
 import org.apache.syncope.client.to.RoleTO;
@@ -51,7 +52,7 @@ public class SearchTestITCase extends AbstractTest {
         NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
                 fullnameLeafCond2));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
                 UserTO[].class));
@@ -92,7 +93,7 @@ public class SearchTestITCase extends AbstractTest {
         final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameLeafCond), NodeCond.
                 getLeafCond(idRightCond));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search",
                 searchCondition, UserTO[].class));
@@ -116,7 +117,7 @@ public class SearchTestITCase extends AbstractTest {
         final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(rolenameLeafCond),
                 NodeCond.getLeafCond(idRightCond));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
                 searchCondition, RoleTO[].class));
@@ -137,7 +138,7 @@ public class SearchTestITCase extends AbstractTest {
 
         NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
                 UserTO[].class));
@@ -167,7 +168,7 @@ public class SearchTestITCase extends AbstractTest {
         NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
                 fullnameLeafCond2));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(searchCondition.isValid());
 
         List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
                 searchCondition, UserTO[].class, 1, 2));
@@ -204,5 +205,56 @@ public class SearchTestITCase extends AbstractTest {
         Integer count = restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCond, Integer.class);
         assertNotNull(count);
         assertTrue(count > 0);
+    }
+
+    @Test
+    public void searchByBooleanAttributableCond() {
+        final AttributableCond cond = new AttributableCond(AttributableCond.Type.EQ);
+        cond.setSchema("inheritAttributes");
+        cond.setExpression("true");
+
+        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+
+        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
+                searchCondition, RoleTO[].class));
+        assertNotNull(matchingRoles);
+        assertFalse(matchingRoles.isEmpty());
+    }
+
+    @Test
+    public void searchByEntitlement() {
+        final EntitlementCond cond = new EntitlementCond();
+        cond.setExpression("USER");
+
+        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        assertTrue(searchCondition.isValid());
+
+        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
+                searchCondition, RoleTO[].class));
+        assertNotNull(matchingRoles);
+        assertFalse(matchingRoles.isEmpty());
+    }
+
+    @Test
+    public void searchByRelationshipAttributableCond() {
+        final AttributableCond userOwnerCond = new AttributableCond(AttributableCond.Type.EQ);
+        userOwnerCond.setSchema("userOwner");
+        userOwnerCond.setExpression("5");
+
+        final AttributableCond ppolicyCond = new AttributableCond(AttributableCond.Type.ISNOTNULL);
+        ppolicyCond.setSchema("passwordPolicy");
+
+        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(userOwnerCond),
+                NodeCond.getLeafCond(ppolicyCond));
+
+        assertTrue(searchCondition.isValid());
+
+        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
+                searchCondition, RoleTO[].class));
+
+        assertNotNull(matchingRoles);
+        assertEquals(1, matchingRoles.size());
+        assertEquals("director", matchingRoles.iterator().next().getName());
+        assertEquals(6L, matchingRoles.iterator().next().getId());
     }
 }
