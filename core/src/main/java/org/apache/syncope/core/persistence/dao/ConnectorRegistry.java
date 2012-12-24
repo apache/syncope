@@ -23,9 +23,8 @@ import org.apache.syncope.core.util.NotFoundException;
 
 public interface ConnectorRegistry {
 
-    public abstract void registerConnector(ExternalResource resource)
+    void registerConnector(ExternalResource resource)
             throws NotFoundException;
 
-    public abstract void unregisterConnector(String id);
-
+    void unregisterConnector(String id);
 }

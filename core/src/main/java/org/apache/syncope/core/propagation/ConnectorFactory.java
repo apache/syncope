@@ -19,7 +19,6 @@
 package org.apache.syncope.core.propagation;
 
 import java.util.Set;
-
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.util.NotFoundException;
@@ -27,8 +26,8 @@ import org.apache.syncope.types.ConnConfProperty;
 import org.springframework.beans.BeansException;
 
 public interface ConnectorFactory {
-    public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
-            final Set<ConnConfProperty> configuration)
+
+    ConnectorFacadeProxy createConnectorBean(ConnInstance connInstance, Set<ConnConfProperty> configuration)
             throws NotFoundException;
 
     /**
@@ -39,9 +38,8 @@ public interface ConnectorFactory {
      * @throws BeansException if there is any problem with Spring
      * @throws NotFoundException if the connector is not registered in the context
      */
-    public abstract ConnectorFacadeProxy getConnector(ExternalResource resource)
+    ConnectorFacadeProxy getConnector(ExternalResource resource)
             throws BeansException, NotFoundException;
 
-    public void load();
-
+    void load();
 }

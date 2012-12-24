@@ -125,14 +125,12 @@ public class ConnectorFacadeProxy {
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-
         if (apiConfig == null) {
             throw new NotFoundException("Default API configuration");
         }
 
         // retrieve the ConfigurationProperties.
         final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
-
         if (properties == null) {
             throw new NotFoundException("Configuration properties");
         }
@@ -153,10 +151,8 @@ public class ConnectorFacadeProxy {
             }
         }
 
-        // Use the ConnectorFacadeFactory's newInstance() method to get
-        // a new connector.
+        // Use the ConnectorFacadeFactory's newInstance() method to get a new connector.
         connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
-
         if (connector == null) {
             throw new NotFoundException("Connector");
         }

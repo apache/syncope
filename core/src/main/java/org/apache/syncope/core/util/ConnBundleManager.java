@@ -46,7 +46,6 @@ public class ConnBundleManager {
     private ConfDAO confDAO;
 
     public ConnectorInfoManager getConnectorManager() throws NotFoundException, MissingConfKeyException {
-
         // 1. Bundles directory
         SyncopeConf connectorBundleDir = confDAO.find("connid.bundles.directory");
 
@@ -76,7 +75,7 @@ public class ConnBundleManager {
 
         // 3. Get connector info manager
         ConnectorInfoManager manager = ConnectorInfoManagerFactory.getInstance().getLocalManager(
-                bundleFileURLs.toArray(new URL[0]));
+                bundleFileURLs.toArray(new URL[bundleFileURLs.size()]));
         if (manager == null) {
             throw new NotFoundException("Connector Info Manager");
         }
@@ -114,21 +113,18 @@ public class ConnBundleManager {
     }
 
     public ConfigurationProperties getConfigurationProperties(final ConnectorInfo info) throws NotFoundException {
-
         if (info == null) {
             throw new NotFoundException("Invalid: connector info is null");
         }
 
         // create default configuration
         final APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-
         if (apiConfig == null) {
             throw new NotFoundException("Default API configuration");
         }
 
         // retrieve the ConfigurationProperties.
         final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
-
         if (properties == null) {
             throw new NotFoundException("Configuration properties");
         }

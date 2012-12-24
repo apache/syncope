@@ -251,8 +251,7 @@ public class ResourceController extends AbstractController {
 
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);
 
-        final ConnectorFacadeProxy connector =
-                new ConnectorFacadeProxy(connInstance, bundleManager);
+        final ConnectorFacadeProxy connector = new ConnectorFacadeProxy(connInstance, bundleManager);
 
         boolean result;
         try {
@@ -261,11 +260,11 @@ public class ResourceController extends AbstractController {
 
             auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.success,
                     "Successfully checked connector: " + resourceTO);
-        } catch (Exception ex) {
+        } catch (Exception e) {
             auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.failure,
-                    "Unsuccessful check for connector: " + resourceTO, ex);
+                    "Unsuccessful check for connector: " + resourceTO, e);
 
-            LOG.error("Test connection failure {}", ex);
+            LOG.error("Test connection failure {}", e);
             result = false;
         }
 

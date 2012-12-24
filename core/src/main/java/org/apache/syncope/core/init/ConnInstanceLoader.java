@@ -62,14 +62,13 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.init.ConnectorFactory#getConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
+     * @see ConnectorFactory#getConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
      */
     @Override
     public ConnectorFacadeProxy getConnector(final ExternalResource resource)
             throws BeansException, NotFoundException {
 
-        // Try to re-create connector bean from underlying resource
-        // (useful for managing failover scenarios)
+        // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
         if (!ApplicationContextProvider.getBeanFactory().containsBean(getBeanName(resource))) {
             registerConnector(resource);
         }
@@ -93,6 +92,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
      * @return connector facade proxy.
      * @throws NotFoundException when not able to fetch all the required data.
      */
+    @Override
     public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
             final Set<ConnConfProperty> configuration)
             throws NotFoundException {
@@ -105,7 +105,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.init.ConnectorRegistry#registerConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
+     * @see ConnectorRegistry#registerConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
      */
     @Override
     public void registerConnector(final ExternalResource resource)
@@ -133,6 +133,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public void load() {
         // This is needed to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
@@ -148,7 +149,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
             }
         }
 
-        LOG.info("Done loading {} connectors.", ApplicationContextProvider.getBeanFactory().
-                getBeansOfType(ConnectorFacadeProxy.class).size());
+        LOG.info("Done loading {} connectors.",
+                ApplicationContextProvider.getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class).size());
     }
 }
