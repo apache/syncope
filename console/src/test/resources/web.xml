@@ -25,7 +25,12 @@ under the License.
          version="2.5">
             
   <display-name>Syncope console</display-name>
-  
+
+  <context-param>
+    <param-name>configuration</param-name>
+    <param-value>development</param-value>
+  </context-param>
+
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>classpath:applicationContext.xml</param-value>
@@ -54,7 +59,7 @@ under the License.
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 
-  <!-- SESSION TIMEOUT (MINUTES)-->
+    <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>

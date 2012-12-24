@@ -500,6 +500,16 @@ under the License.
       </properties>
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <webXml>${project.build.directory}/test-classes/web.xml</webXml>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
 
@@ -513,6 +523,14 @@ under the License.
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <webXml>${project.build.directory}/test-classes/web.xml</webXml>
+            </configuration>
+          </plugin>
+          
           <plugin>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>jrebel-maven-plugin</artifactId>
