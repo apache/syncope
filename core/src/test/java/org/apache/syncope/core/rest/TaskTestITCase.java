@@ -362,10 +362,12 @@ public class TaskTestITCase extends AbstractTest {
 
         TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
 
+        // 1. verify execution status
         final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
+        // 2. verify that synchronized role is found, with expected attributes
         final AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         rolenameLeafCond.setSchema("name");
         rolenameLeafCond.setExpression("testLDAPGroup");
@@ -379,6 +381,14 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("testLDAPGroup", roleTO.getName());
         assertEquals(8L, roleTO.getParent());
         assertEquals("true", roleTO.getAttributeMap().get("show").getValues().get(0));
+
+        // 3. verify that LDAP group membership is propagated as Syncope role membership
+        final MembershipCond membershipCond = new MembershipCond();
+        membershipCond.setRoleId(roleTO.getId());
+        final List<UserTO> members = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search",
+                NodeCond.getLeafCond(membershipCond), UserTO[].class));
+        assertNotNull(members);
+        assertEquals(1, members.size());
     }
 
     @Test

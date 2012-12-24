@@ -23,7 +23,6 @@ import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.beans.SyncResult;
-import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -33,36 +32,38 @@ import org.quartz.JobExecutionException;
 public class DefaultSyncActions implements SyncActions {
 
     @Override
-    public void beforeAll(final SyncTask task) throws JobExecutionException {
+    public void beforeAll(final SyncopeSyncResultHandler handler) throws JobExecutionException {
     }
 
     @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncDelta delta, final T subject)
-            throws JobExecutionException {
+    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncopeSyncResultHandler handler,
+            final SyncDelta delta, final T subject) throws JobExecutionException {
 
         return delta;
     }
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncDelta delta, final T subject, final K subjectMod) throws JobExecutionException {
-
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeDelete(final SyncDelta delta, final T subject)
+            final SyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractAttributableTO> void after(final SyncDelta delta, final T subject,
-            final SyncResult result) throws JobExecutionException {
+    public <T extends AbstractAttributableTO> SyncDelta beforeDelete(
+            final SyncopeSyncResultHandler handler, final SyncDelta delta, final T subject) throws JobExecutionException {
+
+        return delta;
     }
 
     @Override
-    public void afterAll(final SyncTask task, final List<SyncResult> results) throws JobExecutionException {
+    public <T extends AbstractAttributableTO> void after(final SyncopeSyncResultHandler handler,
+            final SyncDelta delta, final T subject, final SyncResult result) throws JobExecutionException {
+    }
+
+    @Override
+    public void afterAll(final SyncopeSyncResultHandler handler, final List<SyncResult> results)
+            throws JobExecutionException {
     }
 }

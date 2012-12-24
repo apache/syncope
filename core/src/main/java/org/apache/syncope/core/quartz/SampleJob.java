@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.quartz;
 
-import org.quartz.JobExecutionException;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.quartz.JobExecutionException;
 
 /**
  * Sample implementation for execution a scheduled task.

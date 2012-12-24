@@ -542,7 +542,7 @@ under the License.
   <UMapping id="11" resource_name="resource-ldap"
             accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
   <UMappingItem id="311" accountid="1" password="0" mapping_id="11"
-                extAttrName="__NAME__" intAttrName="Username" intMappingType="Username"
+                extAttrName="__UID__" intAttrName="Username" intMappingType="Username"
                 mandatoryCondition="true"/>
   <UMappingItem id="312" accountid="0" password="1" mapping_id="11"
                 extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
@@ -551,7 +551,7 @@ under the License.
                 extAttrName="sn" intAttrName="surname" intMappingType="UserSchema"
                 mandatoryCondition="true"/>
   <UMappingItem id="314" accountid="0" password="0" mapping_id="11"
-                extAttrName="cn" intAttrName="firstname" intMappingType="UserSchema"
+                extAttrName="cn" intAttrName="fullname" intMappingType="UserSchema"
                 mandatoryCondition="true"/>
   <UMappingItem id="315" accountid="0" password="0" mapping_id="11"
                 extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
@@ -561,6 +561,9 @@ under the License.
                 mandatoryCondition="false"/>
   <UMappingItem id="317" accountid="0" password="0" mapping_id="11"
                 extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipSchema"
+                mandatoryCondition="false"/>
+  <UMappingItem id="318" accountid="0" password="0" mapping_id="11"
+                extAttrName="mail" intAttrName="userId" intMappingType="UserSchema"
                 mandatoryCondition="false"/>
   <RMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
@@ -626,8 +629,9 @@ under the License.
         fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.sync.SyncJob"/>
   <Task DTYPE="SyncTask" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
-          fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-          jobClassName="org.apache.syncope.core.sync.SyncJob"/>
+        fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        actionsClassName="org.apache.syncope.core.sync.LDAPMembershipSyncActions"  
+        jobClassName="org.apache.syncope.core.sync.SyncJob"/>
         
   <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>
 

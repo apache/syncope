@@ -43,21 +43,27 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Simple action for propagating role memberships to LDAP groups, when the same resource is configured for both users
  * and roles.
+ * 
+ * @see org.apache.syncope.core.sync.LDAPMembershipSyncActions
  */
 public class LDAPMembershipPropagationActions extends DefaultPropagationActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
+
+    @Autowired
+    protected UserDAO userDAO;
+
+    @Autowired
+    protected JexlUtil jexlUtil;
 
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
+     *
+     * @return the name of the attribute used to keep track of group memberships
      */
-    protected static final String GROUP_MEMBERSHIP_ATTR = "ldapGroups";
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private JexlUtil jexlUtil;
+    protected String getGroupMembershipAttrName() {
+        return "ldapGroups";
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -95,7 +101,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
 
             if (!roleAccountLinks.isEmpty()) {
                 Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
-                attributes.add(AttributeBuilder.build(GROUP_MEMBERSHIP_ATTR, roleAccountLinks));
+                attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), roleAccountLinks));
                 task.setAttributes(attributes);
             }
         } else {

@@ -355,7 +355,7 @@ public class SyncJob extends AbstractTaskJob {
         handler.setResults(results);
         handler.setSyncTask(syncTask);
 
-        actions.beforeAll(syncTask);
+        actions.beforeAll(handler);
         try {
             if (syncTask.isFullReconciliation()) {
                 if (uMapping != null) {
@@ -390,7 +390,7 @@ public class SyncJob extends AbstractTaskJob {
         } catch (Exception e) {
             throw new JobExecutionException("While syncing on connector", e);
         }
-        actions.afterAll(syncTask, results);
+        actions.afterAll(handler, results);
 
         final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);
 

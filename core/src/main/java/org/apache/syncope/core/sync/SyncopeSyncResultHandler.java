@@ -70,6 +70,7 @@ import org.apache.syncope.types.ResourceOperation;
 import org.apache.syncope.types.SyncPolicySpec;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -177,20 +178,40 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
     private boolean dryRun;
 
+    public SyncActions getActions() {
+        return actions;
+    }
+
     public void setActions(final SyncActions actions) {
         this.actions = actions;
+    }
+
+    public Collection<SyncResult> getResults() {
+        return results;
     }
 
     public void setResults(final Collection<SyncResult> results) {
         this.results = results;
     }
 
+    public SyncTask getSyncTask() {
+        return syncTask;
+    }
+
     public void setSyncTask(final SyncTask syncTask) {
         this.syncTask = syncTask;
     }
 
+    public ConflictResolutionAction getResAct() {
+        return resAct;
+    }
+
     public void setResAct(final ConflictResolutionAction resAct) {
         this.resAct = resAct;
+    }
+
+    public boolean isDryRun() {
+        return dryRun;
     }
 
     public void setDryRun(final boolean dryRun) {
@@ -283,7 +304,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return result;
     }
 
-    private List<Long> findByAttributableSearch(final SyncDelta delta, final SyncPolicySpec policySpec,
+    private List<Long> findByAttributableSearch(final ConnectorObject connObj, final SyncPolicySpec policySpec,
             final AttributableUtil attrUtil) {
 
         final List<Long> result = new ArrayList<Long>();
@@ -293,7 +314,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
         for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
-            extValues.put(item.getIntAttrName(), delta.getObject().getAttributeByName(item.getExtAttrName()));
+            extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
 
         // search for user/role by attribute(s) specified in the policy
@@ -352,15 +373,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     /**
      * Find users / roles based on mapped uid value (or previous uid value, if updated).
      *
-     * @param delta sync delta
+     * @param uid for finding by account id
+     * @param connObj for finding by attribute value
      * @param attrUtil attributable util
      * @return list of matching users / roles
      */
-    protected List<Long> findExisting(final SyncDelta delta, final AttributableUtil attrUtil) {
-        final String uid = delta.getPreviousUid() == null
-                ? delta.getUid().getUidValue()
-                : delta.getPreviousUid().getUidValue();
-
+    public List<Long> findExisting(final String uid, final ConnectorObject connObj, final AttributableUtil attrUtil) {
         SyncPolicySpec policySpec = null;
         if (syncTask.getResource().getSyncPolicy() != null) {
             policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
@@ -368,7 +386,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         return policySpec == null || attrUtil.getAltSearchSchemas(policySpec).isEmpty()
                 ? findByAccountIdItem(uid, attrUtil)
-                : findByAttributableSearch(delta, policySpec, attrUtil);
+                : findByAttributableSearch(connObj, policySpec, attrUtil);
     }
 
     protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil,
@@ -385,7 +403,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         AbstractAttributableTO subjectTO = connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
-        delta = actions.beforeCreate(delta, subjectTO);
+        delta = actions.beforeCreate(this, delta, subjectTO);
 
         if (dryRun) {
             result.setId(0L);
@@ -458,7 +476,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             }
         }
 
-        actions.after(delta, subjectTO, result);
+        actions.after(this, delta, subjectTO, result);
         return Collections.singletonList(result);
     }
 
@@ -486,7 +504,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 try {
                     final AbstractAttributableMod mod = connObjectUtil.getAttributableMod(
                             id, delta.getObject(), subjectTO, syncTask, attrUtil);
-                    delta = actions.beforeUpdate(delta, subjectTO, mod);
+                    delta = actions.beforeUpdate(this, delta, subjectTO, mod);
 
                     result.setStatus(SyncResult.Status.SUCCESS);
                     result.setId(mod.getId());
@@ -532,7 +550,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 }
 
-                actions.after(delta, subjectTO, result);
+                actions.after(this, delta, subjectTO, result);
                 updResults.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
@@ -561,7 +579,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
                         ? userDataBinder.getUserTO(id)
                         : roleDataBinder.getRoleTO(id);
-                delta = actions.beforeDelete(delta, subjectTO);
+                delta = actions.beforeDelete(this, delta, subjectTO);
 
                 final SyncResult result = new SyncResult();
                 result.setId(id);
@@ -604,7 +622,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     }
                 }
 
-                actions.after(delta, subjectTO, result);
+                actions.after(this, delta, subjectTO, result);
                 delResults.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
@@ -631,7 +649,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         AttributableUtil attrUtil = AttributableUtil.getInstance(delta.getObject().getObjectClass());
 
-        final List<Long> subjects = findExisting(delta, attrUtil);
+        final String uid = delta.getPreviousUid() == null
+                ? delta.getUid().getUidValue()
+                : delta.getPreviousUid().getUidValue();
+        final List<Long> subjects = findExisting(uid, delta.getObject(), attrUtil);
 
         if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
             if (subjects.isEmpty()) {

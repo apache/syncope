@@ -29,3 +29,16 @@ objectClass: groupOfUniqueNames
 objectClass: top
 cn: testLDAPGroup
 uniqueMember: uid=admin,ou=system
+uniqueMember: uid=syncFromLDAP,ou=People,o=isp
+
+DN: uid=syncFromLDAP,ou=People,o=isp
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Sync from LDAP
+description: Active
+mail: syncFromLDAP@syncope.apache.org
+sn: Surname
+uid: syncFromLDAP
+userpassword:: cGFzc3dvcmQxMjM=

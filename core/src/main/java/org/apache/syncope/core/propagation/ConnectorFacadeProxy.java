@@ -20,6 +20,7 @@ package org.apache.syncope.core.propagation;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,7 @@ import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
@@ -344,6 +346,27 @@ public class ConnectorFacadeProxy {
                         result = connector.getObject(objectClass, uid, options);
                 }
             }
+        } else {
+            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
+                    activeConnInstance.getCapabilities());
+        }
+
+        return result;
+    }
+
+    public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
+            final OperationOptions options) {
+
+        final List<ConnectorObject> result = new ArrayList<ConnectorObject>();
+
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
+            connector.search(objectClass, filter, new ResultsHandler() {
+
+                @Override
+                public boolean handle(final ConnectorObject obj) {
+                    return result.add(obj);
+                }
+            }, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());

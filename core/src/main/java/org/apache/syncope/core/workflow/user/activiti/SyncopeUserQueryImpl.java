@@ -48,7 +48,6 @@ public class SyncopeUserQueryImpl implements UserQuery {
     private List<User> result;
 
     public SyncopeUserQueryImpl(final UserDAO userDAO, final RoleDAO roleDAO, final EntitlementDAO entitlementDAO) {
-
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
         this.entitlementDAO = entitlementDAO;
@@ -133,20 +132,22 @@ public class SyncopeUserQueryImpl implements UserQuery {
         return new UserEntity(syncopeUser.getUsername());
     }
 
-    private void execute(int page, int itemsPerPage) {
+    private void execute(final int page, final int itemsPerPage) {
         if (username != null) {
             SyncopeUser user = userDAO.find(username);
-            if (user != null) {
+            if (user == null) {
+                result = Collections.<User>emptyList();
+            } else {
                 if (memberOf == null || user.getRoleIds().contains(memberOf)) {
                     result = Collections.singletonList(fromSyncopeUser(user));
                 }
-            } else {
-                result = Collections.emptyList();
             }
         }
         if (memberOf != null) {
             SyncopeRole role = roleDAO.find(memberOf);
-            if (role != null) {
+            if (role == null) {
+                result = Collections.<User>emptyList();
+            } else {
                 result = new ArrayList<User>();
                 List<Membership> memberships = roleDAO.findMemberships(role);
                 User user;
@@ -156,8 +157,6 @@ public class SyncopeUserQueryImpl implements UserQuery {
                         result.add(user);
                     }
                 }
-            } else {
-                result = Collections.emptyList();
             }
         }
         // THIS CAN BE *VERY* DANGEROUS
@@ -210,7 +209,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     }
 
     @Override
-    public UserQuery potentialStarter(String string) {
+    public UserQuery potentialStarter(final String string) {
         throw new UnsupportedOperationException();
     }
 }
