@@ -200,7 +200,6 @@ under the License.
                   <patternset>
                     <exclude name="**/content.xml"/>
                     <exclude name="**/persistence.properties"/>
-                    <exclude name="**/security.properties"/>
                     <exclude name="**/workflow.properties" />
                   </patternset>
                 </unzip>
