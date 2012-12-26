@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.servlet.ServletContext;
-
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.workflow.WorkflowLoader;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
@@ -66,7 +65,7 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      *
      * @throws IOException if anything goes wrong
      */
-    public static void initUWFAdapterClassName() throws IOException {
+    private static void initUWFAdapterClassName() throws IOException {
         Properties props = new java.util.Properties();
         InputStream propStream = null;
         try {

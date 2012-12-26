@@ -19,13 +19,13 @@
 package org.apache.syncope.types;
 
 import java.text.ParseException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditElements.Result;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.springframework.util.StringUtils;
 
 public class AuditLoggerName extends AbstractBaseBean {
 
@@ -76,7 +76,7 @@ public class AuditLoggerName extends AbstractBaseBean {
     public static AuditLoggerName fromLoggerName(final String loggerName)
             throws IllegalArgumentException, ParseException {
 
-        if (!StringUtils.hasText(loggerName)) {
+        if (StringUtils.isBlank(loggerName)) {
             throw new IllegalArgumentException("Null value not permitted");
         }
 

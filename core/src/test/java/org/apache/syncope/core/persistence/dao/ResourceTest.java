@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
-import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +48,8 @@ public class ResourceTest extends AbstractTest {
 
         ConnInstance connector = resource.getConnector();
         assertNotNull("connector not found", connector);
-        assertEquals("invalid connector name", WebServiceConnector.class.getName(), connector.getConnectorName());
+        assertEquals("invalid connector name",
+                "org.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
         assertEquals("invalid bundle name", "org.connid.bundles.soap", connector.getBundleName());
         assertEquals("invalid bundle version", connidSoapVersion, connector.getVersion());
 

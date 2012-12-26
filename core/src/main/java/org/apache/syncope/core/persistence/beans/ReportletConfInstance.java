@@ -23,7 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.apache.syncope.client.report.ReportletConf;
-import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
 public class ReportletConfInstance extends AbstractBaseBean {

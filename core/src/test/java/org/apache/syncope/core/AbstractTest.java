@@ -22,10 +22,6 @@ import static org.junit.Assert.*;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -48,38 +44,9 @@ public abstract class AbstractTest {
 
     protected static String bundlesDirectory;
 
-    private void logTableContent(final Connection conn, final String tableName) throws SQLException {
-
-        LOG.debug("Table: " + tableName);
-
-        Statement stmt = null;
-        ResultSet rs = null;
-        try {
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + tableName);
-
-            final StringBuilder row = new StringBuilder();
-            while (rs.next()) {
-                for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                    row.append(rs.getMetaData().getColumnLabel(i + 1)).append("=").append(rs.getString(i + 1)).append(
-                            " ");
-                }
-
-                LOG.debug(row.toString());
-
-                row.delete(0, row.length());
-            }
-        } catch (SQLException sqle) {
-            LOG.error("While dumping " + tableName + "content", sqle);
-        } finally {
-            rs.close();
-            stmt.close();
-        }
-    }
-
     @BeforeClass
     public static void setUpIdentityConnectorsBundles() throws IOException {
-        Properties props = new java.util.Properties();
+        Properties props = new Properties();
         InputStream propStream = null;
         try {
             propStream = AbstractTest.class.getResourceAsStream("/bundles.properties");

@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.connid.bundles.db.table.DatabaseTableConnector;
-import org.connid.bundles.soap.WebServiceConnector;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,7 +57,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     private static String bundlesDirectory;
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws IOException {
         Properties props = new Properties();
         InputStream propStream = null;
         try {
@@ -72,11 +70,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             LOG.error("Could not load bundles.properties", e);
         } finally {
             if (propStream != null) {
-                try {
-                    propStream.close();
-                } catch (IOException e) {
-                    LOG.error("While reading bundles.properties", e);
-                }
+                propStream.close();
             }
         }
         assertNotNull(connidSoapVersion);
@@ -98,7 +92,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName(WebServiceConnector.class.getName());
+        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
@@ -198,7 +192,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName(WebServiceConnector.class.getName());
+        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
@@ -427,7 +421,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setVersion(connidDbTableVersion);
 
         // set connector name
-        connectorTO.setConnectorName(DatabaseTableConnector.class.getName());
+        connectorTO.setConnectorName("org.connid.bundles.db.table.DatabaseTableConnector");
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.db.table");
@@ -555,7 +549,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName(WebServiceConnector.class.getName());
+        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");

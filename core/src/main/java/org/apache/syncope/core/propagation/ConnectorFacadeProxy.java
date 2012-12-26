@@ -184,7 +184,7 @@ public class ConnectorFacadeProxy {
 
             result = connector.create(objectClass, attrs, options);
         } else {
-            LOG.info("Create was attempted, although the " + "connector only has these capabilities: {}. No action.",
+            LOG.info("Create was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
 

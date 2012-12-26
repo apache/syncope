@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.util;
+package org.apache.syncope.core.util;
 
 import com.thoughtworks.xstream.XStream;
 import java.io.UnsupportedEncodingException;
@@ -38,6 +38,7 @@ public final class XMLSerializer {
         String result = null;
 
         XStream xstream = new XStream();
+        xstream.registerConverter(new GuardedStringConverter());
         try {
             result = URLEncoder.encode(xstream.toXML(object), "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -52,6 +53,7 @@ public final class XMLSerializer {
         T result = null;
 
         XStream xstream = new XStream();
+        xstream.registerConverter(new GuardedStringConverter());
         try {
             result = (T) xstream.fromXML(URLDecoder.decode(serialized, "UTF-8"));
         } catch (UnsupportedEncodingException e) {

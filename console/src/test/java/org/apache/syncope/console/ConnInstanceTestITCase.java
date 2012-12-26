@@ -29,7 +29,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     private static String connidSoapVersion;
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws IOException {
         Properties props = new Properties();
         InputStream propStream = null;
         try {
@@ -40,11 +40,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             LOG.error("Could not load bundles.properties", e);
         } finally {
             if (propStream != null) {
-                try {
-                    propStream.close();
-                } catch (IOException e) {
-                    LOG.error("While reading bundles.properties", e);
-                }
+                propStream.close();
             }
         }
         assertNotNull(connidSoapVersion);

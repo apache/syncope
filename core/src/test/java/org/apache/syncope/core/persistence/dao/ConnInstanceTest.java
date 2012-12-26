@@ -28,7 +28,6 @@ import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
-import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +51,8 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertNotNull("findById did not work", connectorInstance);
 
-        assertEquals("invalid connector name", WebServiceConnector.class.getName(), connectorInstance
-                .getConnectorName());
+        assertEquals("invalid connector name",
+                "org.connid.bundles.soap.WebServiceConnector", connectorInstance.getConnectorName());
 
         assertEquals("invalid bundle name", "org.connid.bundles.soap", connectorInstance.getBundleName());
 

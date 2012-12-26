@@ -23,12 +23,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.apache.syncope.types.SyncopeClientExceptionType;
 
 public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
 

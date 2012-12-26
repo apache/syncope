@@ -88,13 +88,13 @@ public class ConnBundleManager {
 
         //Create key for search all properties
         final ConnectorKey key = new ConnectorKey(bundleName, version, connectorName);
-
         if (key == null) {
             throw new NotFoundException("Connector Key");
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: " + key.getBundleName() + "\nBundle version: " + key.getBundleVersion()
+            LOG.debug("\nBundle name: " + key.getBundleName()
+                    + "\nBundle version: " + key.getBundleVersion()
                     + "\nBundle class: " + key.getConnectorName());
         }
 
@@ -132,8 +132,8 @@ public class ConnBundleManager {
         // Print out what the properties are (not necessary)
         if (LOG.isDebugEnabled()) {
             for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: " + properties.getProperty(propName).getName() + "\nProperty Type: "
-                        + properties.getProperty(propName).getType());
+                LOG.debug("\nProperty Name: " + properties.getProperty(propName).getName()
+                        + "\nProperty Type: " + properties.getProperty(propName).getType());
             }
         }
 

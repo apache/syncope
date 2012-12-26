@@ -36,7 +36,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.util.XMLSerializer;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;

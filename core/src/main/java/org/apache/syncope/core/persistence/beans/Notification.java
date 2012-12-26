@@ -35,7 +35,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.util.XMLSerializer;
+import org.apache.syncope.core.util.XMLSerializer;
 import org.apache.syncope.core.persistence.validation.entity.NotificationCheck;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
