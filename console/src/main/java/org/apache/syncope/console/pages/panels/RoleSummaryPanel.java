@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
@@ -27,39 +28,56 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleSummaryPanel extends Panel {
 
     private static final long serialVersionUID = 643769814985593156L;
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(RoleSummaryPanel.class);
 
     @SpringBean
     private RoleRestClient restClient;
 
     private RoleTO selectedNode;
 
-    private Fragment fragment;
+    private final Fragment fragment;
 
     private RoleTabPanel roleTabPanel;
 
     private TreeActionLinkPanel actionLink;
 
-    private PageReference callerPageRef;
+    private final PageReference callerPageRef;
 
-    private ModalWindow window;
+    private final ModalWindow window;
 
     public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef) {
         this(id, window, callerPageRef, null);
     }
 
     public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef,
-            final Long selectedNodeId) {
+            Long selectedNodeId) {
 
         super(id);
 
         this.callerPageRef = callerPageRef;
         this.window = window;
 
-        this.selectedNode = selectedNodeId != null && selectedNodeId != 0 ? restClient.read(selectedNodeId) : null;
+        if (selectedNodeId == null || selectedNodeId == 0) {
+            this.selectedNode = null;
+        } else {
+            try {
+                this.selectedNode = restClient.read(selectedNodeId);
+            } catch (SyncopeClientCompositeErrorException e) {
+                LOG.error("Could not read {}", selectedNodeId, e);
+                this.selectedNode = null;
+                selectedNodeId = null;
+            }
+        }
 
         fragment = new Fragment("roleSummaryPanel", selectedNodeId == null ? "fakerootFrag"
                 : (selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"), this);

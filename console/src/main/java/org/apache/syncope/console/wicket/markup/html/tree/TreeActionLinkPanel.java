@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.pages.Roles;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -67,7 +68,7 @@ public class TreeActionLinkPanel extends Panel {
         fragment = new Fragment("menuPanel", idRole == 0
                 ? "fakerootFrag"
                 : "roleFrag", this);
-        
+
         fragment.setOutputMarkupId(true);
 
         final AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
@@ -102,6 +103,8 @@ public class TreeActionLinkPanel extends Panel {
         if (idRole != 0) {
             final AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
 
+                private static final long serialVersionUID = -7978723352517770644L;
+
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     window.setPageCreator(new ModalWindow.PageCreator() {
@@ -128,17 +131,30 @@ public class TreeActionLinkPanel extends Panel {
 
             final AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink") {
 
+                private static final long serialVersionUID = -7978723352517770644L;
+
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        restClient.delete(idRole);
-                        getSession().info(getString("operation_succeded"));
-                    } catch (SyncopeClientCompositeErrorException e) {
-                        LOG.error("While deleting role " + idRole, e);
-                        getSession().error(getString("operation_error"));
-                    }
+                        final RoleTO roleTO = (RoleTO) restClient.delete(idRole);
 
-                    setResponsePage(new Roles(null));
+                        ((Roles) callerPageRef.getPage()).setModalResult(true);
+
+                        window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ResultStatusModalPage(window, roleTO);
+                            }
+                        });
+
+                        window.show(target);
+                    } catch (SyncopeClientCompositeErrorException scce) {
+                        error(getString("operation_error") + ": " + scce.getMessage());
+                        target.add(((Roles) callerPageRef.getPage()).getFeedbackPanel());
+                    }
                 }
             };
 

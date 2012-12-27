@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
+import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.pages.panels.UserSearchResultPanel;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,13 +37,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
-import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
-import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.pages.panels.UserSearchResultPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Users extends BasePage {

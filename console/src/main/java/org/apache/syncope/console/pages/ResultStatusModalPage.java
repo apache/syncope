@@ -231,6 +231,11 @@ public class ResultStatusModalPage extends BaseModalPage {
         attributes.addAll(beforeAttrMap.keySet());
         attributes.addAll(afterAttrMap.keySet());
 
+        if (!(attributable instanceof UserTO)) {
+            attributes.remove("__PASSWORD__");
+            attributes.remove("__ENABLE__");
+        }
+
         final List<String> profile = new ArrayList<String>();
         profile.addAll(attributes);
         profile.removeAll(head);

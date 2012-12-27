@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
@@ -39,9 +38,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class RoleTabPanel extends Panel {
 
     private static final long serialVersionUID = 859236186975983959L;
-
-    @SpringBean
-    private XMLRolesReader xmlRolesReader;
 
     @SpringBean
     private UserRestClient restClient;

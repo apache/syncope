@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.client.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class ConnObjectTO extends AbstractBaseBean {
 
@@ -59,13 +59,13 @@ public class ConnObjectTO extends AbstractBaseBean {
         Map<String, AttributeTO> result;
 
         if (attributes == null) {
-            result = Collections.emptyMap();
+            result = Collections.<String, AttributeTO>emptyMap();
         } else {
             result = new HashMap<String, AttributeTO>(attributes.size());
             for (AttributeTO attributeTO : attributes) {
                 result.put(attributeTO.getSchema(), attributeTO);
             }
-            result = Collections.unmodifiableMap(result);
+            result = Collections.<String, AttributeTO>unmodifiableMap(result);
         }
 
         return result;

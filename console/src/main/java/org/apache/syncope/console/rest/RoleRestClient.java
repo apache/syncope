@@ -79,15 +79,8 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public RoleTO read(final Long id) {
-        RoleTO roleTO = null;
-
-        try {
-            roleTO = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "role/read/{roleId}.json", RoleTO.class, id);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While reading a role", e);
-        }
-        return roleTO;
+        return SyncopeSession.get().getRestTemplate().getForObject(
+                baseURL + "role/read/{roleId}.json", RoleTO.class, id);
     }
 
     public RoleTO update(final RoleMod roleMod) {
