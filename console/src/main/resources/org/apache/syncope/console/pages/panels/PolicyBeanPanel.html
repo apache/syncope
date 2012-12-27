@@ -16,32 +16,27 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html>
-    <wicket:head>
-        <style type="text/css">
-            table.palette td.header {
-                background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-                    repeat-x scroll 50% 50% #E6E6E6 !important;
-            }
-        </style>
-    </wicket:head>
-    <wicket:panel>
+<wicket:panel>
 
-        <div id="formtable">
-            <div class="tablerow" wicket:id="policies">
-                <div class="tablecolumn_check">
-                    <span wicket:id="check">[check]</span>
-                </div>
-                <div class="tablecolumn_label short_dynamicsize">
-                    <label for="label">
-                        <span wicket:id="label">[label]</span>
-                    </label>
-                </div>
-                <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="field">[field]</span>
-                </div>
-            </div>
-        </div>
+  <div id="policyBeanTable">
+    <div class="tablerow" wicket:id="policies">
+      <div class="tablecolumn_check">
+        <span wicket:id="check">[check]</span>
+      </div>
+      <div class="tablecolumn_label short_dynamicsize">
+        <label for="label">
+          <span wicket:id="label">[label]</span>
+        </label>
+      </div>
+      <div class="tablecolumn_field medium_dynamicsize">
+        <span wicket:id="field">[field]</span>
+      </div>
+    </div>
 
-    </wicket:panel>
-</html>
+    <script type="text/javascript">
+      $(function() {
+        $('#policyBeanTable div.tablerow:even').addClass("alt");
+      });
+    </script>
+  </div>
+</wicket:panel>
