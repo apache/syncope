@@ -1,88 +1,115 @@
 .drop_button{
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .add_button{
-    vertical-align: middle;
-    margin-left: 6px;
+  vertical-align: middle;
+  margin-left: 6px;
 }
 
 .date_size{
-    width: 90px;
+  width: 90px;
 }
 
 .long_dynamicsize{
-    width: 80%;
+  width: 80%;
 }
 
 .medium_dynamicsize{
-    width: 45%;
+  width: 45%;
 }
 
 .short_dynamicsize{
-    width: 35%;
+  width: 35%;
 }
 
 .long_fixedsize{
-    width: 500px;
+  width: 500px;
 }
 
 .medium_fixedsize{
-    width: 300px;
+  width: 300px;
 }
 
 .short_fixedsize{
-    width: 150px;
+  width: 150px;
 }
 
 .veryshort_fixedsize{
-    width: 70px;
+  width: 70px;
 }
 
 .all_dynamicsize{
-    width: 100%;
+  width: 100%;
 }
 
 div.tablerow {
-    display: inline-table;
-    padding: 5px;
-    width: 100%;
+  display: inline-table;
+  padding: 5px;
+  width: 100%;
 }
 
 div.alt {
-    background: #eff3ea;
+  background: #eff3ea;
 }
 
 div.tablecolumn_label{
-    float: left;
-    font-size: 12px;
-    vertical-align: middle;
-    font-family: Verdana,Tahoma,sans-serif;
+  float: left;
+  font-size: 12px;
+  vertical-align: middle;
+  font-family: Verdana,Tahoma,sans-serif;
 }
 
 div.tablecolumn_field{
-    float: left;
-    vertical-align: middle;
-    font-family: Verdana,Tahoma,sans-serif;
+  float: left;
+  vertical-align: middle;
+  font-family: Verdana,Tahoma,sans-serif;
 }
 
 div.tablecolumn_check{
-    float: left;
-    margin-right: 5px;
-    margin-left: 2px;
-    vertical-align: middle;
+  float: left;
+  margin-right: 5px;
+  margin-left: 2px;
+  vertical-align: middle;
 }
 
 .ui-tabs .ui-tabs-panel {
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-width: 0;
-    display: block;
-    overflow: auto;
-    padding: 1em 1.4em;
+  background: none repeat scroll 0 0 #FFFFFF;
+  border-width: 0;
+  display: block;
+  overflow: auto;
+  padding: 1em 1.4em;
 }
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-    font-family: Verdana,Arial,sans-serif;
-    font-size: 12px;
-    padding: 2px 4px;
+  font-family: Verdana,Arial,sans-serif;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.ui-widget-header { 
+  border: 1px solid #aaaaaa
+    /*{borderColorHeader}*/; 
+  background: #cccccc
+    /*{bgColorHeader}*/ 
+    url(images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+    /*{bgImgUrlHeader}*/ 
+    50%/*{bgHeaderXPos}*/ 
+    50%/*{bgHeaderYPos}*/ 
+    repeat-x/*{bgHeaderRepeat}*/; 
+  color: #222222/*{fcHeader}*/; 
+  font-weight: bold;
+  padding: 7px 15px;
+}
+
+.ui-button { 
+  display: inline-block; 
+  position: relative; 
+  padding: 0; 
+  margin-right: .1em; 
+  cursor: pointer; 
+  text-align: center; 
+  zoom: 1; 
+  overflow: visible; 
+  padding: 7px 15px;
 }
