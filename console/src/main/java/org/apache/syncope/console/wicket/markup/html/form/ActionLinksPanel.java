@@ -47,7 +47,8 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelClaim", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
-        super.add(new Fragment("panelTemplate", "emptyFragment", this));
+        super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
+        super.add(new Fragment("panelRoleTemplate", "emptyFragment", this));
         super.add(new Fragment("panelSearch", "emptyFragment", this));
         super.add(new Fragment("panelDelete", "emptyFragment", this));
         super.add(new Fragment("panelExecute", "emptyFragment", this));
@@ -121,10 +122,24 @@ public class ActionLinksPanel extends Panel {
                 });
                 break;
 
-            case TEMPLATE:
-                fragment = new Fragment("panelTemplate", "fragmentTemplate", this);
+            case USER_TEMPLATE:
+                fragment = new Fragment("panelUserTemplate", "fragmentUserTemplate", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink("templateLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink("userTemplateLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case ROLE_TEMPLATE:
+                fragment = new Fragment("panelRoleTemplate", "fragmentRoleTemplate", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink("roleTemplateLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -246,8 +261,8 @@ public class ActionLinksPanel extends Panel {
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
                 break;
 
-            case TEMPLATE:
-                super.addOrReplace(new Fragment("panelTemplate", "emptyFragment", this));
+            case USER_TEMPLATE:
+                super.addOrReplace(new Fragment("panelUserTemplate", "emptyFragment", this));
                 break;
 
             case SEARCH:

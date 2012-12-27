@@ -26,6 +26,7 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.RoleTemplateModalPage;
 import org.apache.syncope.console.pages.SyncTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
@@ -180,7 +181,28 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.TEMPLATE, "Tasks", "read");
+                }, ActionLink.ActionType.USER_TEMPLATE, "Tasks", "read");
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new RoleTemplateModalPage(callerPageRef, window, taskTO);
+                            }
+                        });
+
+                        window.show(target);
+                    }
+                }, ActionLink.ActionType.ROLE_TEMPLATE, "Tasks", "read");
 
                 panel.add(new ActionLink() {
 
@@ -296,7 +318,7 @@ public class SyncTasks extends Panel {
                         columns,
                         new TasksProvider<SyncTaskTO>(restClient, paginatorRows, getId(), SyncTaskTO.class),
                         container,
-                        table == null ? 0 : (int)table.getCurrentPage());
+                        table == null ? 0 : (int) table.getCurrentPage());
 
                 target.add(container);
             }

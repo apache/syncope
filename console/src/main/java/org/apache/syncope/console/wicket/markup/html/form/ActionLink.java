@@ -29,7 +29,8 @@ public abstract class ActionLink implements Serializable {
 
         CREATE,
         EDIT,
-        TEMPLATE,
+        USER_TEMPLATE,
+        ROLE_TEMPLATE,
         SEARCH,
         DELETE,
         EXECUTE,

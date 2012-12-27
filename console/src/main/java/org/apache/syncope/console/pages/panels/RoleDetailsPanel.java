@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.pages.RoleOwnerSelectModalPage;
+import org.apache.syncope.console.pages.RoleSelectModalPage;
 import org.apache.syncope.console.pages.UserOwnerSelectModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -34,6 +34,7 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
@@ -49,13 +50,17 @@ public class RoleDetailsPanel extends Panel {
     @SpringBean
     private RoleRestClient roleRestClient;
 
+    private final Fragment parentFragment;
+
     private final WebMarkupContainer ownerContainer;
 
     private final OwnerModel userOwnerModel;
 
     private final OwnerModel roleOwnerModel;
 
-    public RoleDetailsPanel(final String id, final RoleTO roleTO, final Form form) {
+    private ParentModel parentModel;
+
+    public RoleDetailsPanel(final String id, final RoleTO roleTO, final Form form, final boolean templateMode) {
         super(id);
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
@@ -70,10 +75,61 @@ public class RoleDetailsPanel extends Panel {
         roleOwnerSelectWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         roleOwnerSelectWin.setCookieName("create-roleOwnerSelect-modal");
         this.add(roleOwnerSelectWin);
+        final ModalWindow parentSelectWin = new ModalWindow("parentSelectWin");
+        parentSelectWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        parentSelectWin.setCookieName("create-parentSelect-modal");
+        this.add(parentSelectWin);
+
+        if (templateMode) {
+            parentFragment = new Fragment("parent", "parentFragment", this);
+
+            parentModel = new ParentModel(roleTO);
+            final AjaxTextFieldPanel parent = new AjaxTextFieldPanel("parent", "parent", parentModel);
+            parent.setReadOnly(true);
+            parent.setOutputMarkupId(true);
+            parentFragment.add(parent);
+            final IndicatingAjaxLink parentSelect = new IndicatingAjaxLink("parentSelect") {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    parentSelectWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
+
+                        @Override
+                        public Page createPage() {
+                            return new RoleSelectModalPage(getPage().getPageReference(), parentSelectWin,
+                                    ParentSelectPayload.class);
+                        }
+                    });
+                    parentSelectWin.show(target);
+                }
+            };
+            parentFragment.add(parentSelect);
+            final IndicatingAjaxLink parentReset = new IndicatingAjaxLink("parentReset") {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    parentModel.setObject(null);
+                    target.add(parent);
+                }
+            };
+            parentFragment.add(parentReset);
+        } else {
+            parentFragment = new Fragment("parent", "emptyFragment", this);
+        }
+        parentFragment.setOutputMarkupId(true);
+        this.add(parentFragment);
 
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(roleTO, "name"));
-        name.addRequiredLabel();
+        if (!templateMode) {
+            name.addRequiredLabel();
+        }
         this.add(name);
 
         userOwnerModel = new OwnerModel(roleTO, AttributableType.USER);
@@ -123,16 +179,17 @@ public class RoleDetailsPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                roleOwnerSelectWin.setPageCreator(new ModalWindow.PageCreator() {
+                parentSelectWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new RoleOwnerSelectModalPage(getPage().getPageReference(), roleOwnerSelectWin);
+                        return new RoleSelectModalPage(getPage().getPageReference(), parentSelectWin,
+                                RoleOwnerSelectPayload.class);
                     }
                 });
-                roleOwnerSelectWin.show(target);
+                parentSelectWin.show(target);
             }
         };
         ownerContainer.add(roleOwnerSelect);
@@ -163,13 +220,18 @@ public class RoleDetailsPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
+        if (event.getPayload() instanceof ParentSelectPayload) {
+            parentModel.setObject(((ParentSelectPayload) event.getPayload()).getRoleId());
+        }
         if (event.getPayload() instanceof UserOwnerSelectPayload) {
             userOwnerModel.setObject(((UserOwnerSelectPayload) event.getPayload()).getUserId());
         }
         if (event.getPayload() instanceof RoleOwnerSelectPayload) {
             roleOwnerModel.setObject(((RoleOwnerSelectPayload) event.getPayload()).getRoleId());
         }
+
         if (event.getPayload() instanceof AjaxRequestTarget) {
+            ((AjaxRequestTarget) event.getPayload()).add(parentFragment);
             ((AjaxRequestTarget) event.getPayload()).add(ownerContainer);
         }
     }
@@ -243,6 +305,41 @@ public class RoleDetailsPanel extends Panel {
         }
     }
 
+    private class ParentModel implements IModel {
+
+        private static final long serialVersionUID = 1006546156848990721L;
+
+        private final RoleTO roleTO;
+
+        public ParentModel(final RoleTO roleTO) {
+            this.roleTO = roleTO;
+        }
+
+        @Override
+        public Object getObject() {
+            Object object = null;
+            if (roleTO.getParent() != 0) {
+                RoleTO parent = roleRestClient.read(roleTO.getParent());
+                if (parent == null) {
+                    object = String.valueOf(roleTO.getParent());
+                } else {
+                    object = parent.getDisplayName();
+                }
+            }
+            return object;
+        }
+
+        @Override
+        public void setObject(final Object object) {
+            roleTO.setParent((Long) object);
+        }
+
+        @Override
+        public void detach() {
+            // ignore
+        }
+    }
+
     public static class UserOwnerSelectPayload {
 
         private final Long userId;
@@ -261,6 +358,19 @@ public class RoleDetailsPanel extends Panel {
         private final Long roleId;
 
         public RoleOwnerSelectPayload(final Long roleId) {
+            this.roleId = roleId;
+        }
+
+        public Long getRoleId() {
+            return roleId;
+        }
+    }
+
+    public static class ParentSelectPayload {
+
+        private final Long roleId;
+
+        public ParentSelectPayload(final Long roleId) {
             this.roleId = roleId;
         }
 

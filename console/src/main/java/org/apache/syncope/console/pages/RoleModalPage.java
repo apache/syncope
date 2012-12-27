@@ -43,34 +43,59 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  */
 public class RoleModalPage extends BaseModalPage {
 
+    public enum Mode {
+
+        ADMIN,
+        TEMPLATE;
+
+    }
+
     private static final long serialVersionUID = -1732493223434085205L;
 
     @SpringBean
     private RoleRestClient roleRestClient;
 
-    private RoleTO originalRoleTO;
+    protected final PageReference callerPageRef;
+
+    protected final ModalWindow window;
+
+    protected final Mode mode;
+
+    protected final boolean createFlag;
+
+    protected final RolePanel rolePanel;
+
+    protected RoleTO originalRoleTO;
 
     public RoleModalPage(final ModalWindow window, final RoleTO roleTO) {
-        this(null, window, roleTO);
+        this(null, window, roleTO, Mode.ADMIN);
     }
 
     public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
+        this(callerPageRef, window, roleTO, Mode.ADMIN);
+    }
+
+    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO,
+            final Mode mode) {
+
         super();
 
-        final boolean createFlag = roleTO.getId() == 0;
+        this.callerPageRef = callerPageRef;
+        this.window = window;
+        this.mode = mode;
+
+        this.createFlag = roleTO.getId() == 0;
         if (!createFlag) {
             originalRoleTO = AttributableOperations.clone(roleTO);
         }
 
         final Form form = new Form("RoleForm");
 
-        add(new Label("displayName", roleTO.getId() != 0
-                ? roleTO.getDisplayName()
-                : ""));
+        add(new Label("displayName", roleTO.getId() == 0 ? "" : roleTO.getDisplayName()));
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
+        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode);
         form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
@@ -79,31 +104,14 @@ public class RoleModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
-                final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
                 try {
-                    final List<String> entitlementList = new ArrayList<String>(
-                            rolePanel.getEntitlementsPalette().getModelCollection());
-                    roleTO.setEntitlements(entitlementList);
+                    submitAction(target, form);
 
-                    final RoleTO result;
-                    if (createFlag) {
-                        result = roleRestClient.create(roleTO);
-                    } else {
-                        RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
-
-                        // update role just if it is changed
-                        if (roleMod.isEmpty()) {
-                            result = roleTO;
-                        } else {
-                            result = roleRestClient.update(roleMod);
-                        }
-                    }
-                    if (callerPageRef != null) {
-                        ((Roles) callerPageRef.getPage()).setModalResult(true);
+                    if (callerPageRef.getPage() instanceof BasePage) {
+                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
                     }
 
-                    setResponsePage(new ResultStatusModalPage(window, result));
+                    closeAction(target, form);
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
@@ -122,7 +130,7 @@ public class RoleModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
+                closeAction(target, form);
             }
 
             @Override
@@ -144,6 +152,30 @@ public class RoleModalPage extends BaseModalPage {
         add(new CloseOnESCBehavior(window));
     }
 
+    protected void submitAction(final AjaxRequestTarget target, final Form form) {
+        final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
+        final List<String> entitlementList = new ArrayList<String>(
+                rolePanel.getEntitlementsPalette().getModelCollection());
+        roleTO.setEntitlements(entitlementList);
+
+        final RoleTO result;
+        if (createFlag) {
+            result = roleRestClient.create(roleTO);
+        } else {
+            RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
+
+            // update role just if it is changed
+            if (roleMod.isEmpty()) {
+                result = roleTO;
+            } else {
+                result = roleRestClient.update(roleMod);
+            }
+        }
+
+        setResponsePage(new ResultStatusModalPage(window, result));
+    }
+
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
+        window.close(target);
     }
 }

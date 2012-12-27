@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.lang.reflect.Constructor;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
-import org.apache.syncope.console.pages.panels.RoleDetailsPanel;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansionModel;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRoleProvider;
@@ -40,7 +40,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class RoleOwnerSelectModalPage extends BaseModalPage {
+public class RoleSelectModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 2106489458494696439L;
 
@@ -49,7 +49,7 @@ public class RoleOwnerSelectModalPage extends BaseModalPage {
 
     private final NestedTree<DefaultMutableTreeNode> tree;
 
-    public RoleOwnerSelectModalPage(final PageReference pageRef, final ModalWindow window) {
+    public RoleSelectModalPage(final PageReference pageRef, final ModalWindow window, final Class payloadClass) {
         super();
 
         final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
@@ -64,7 +64,7 @@ public class RoleOwnerSelectModalPage extends BaseModalPage {
                 final DefaultMutableTreeNode treeNode = node.getObject();
                 final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
 
-                return new Folder<DefaultMutableTreeNode>(id, RoleOwnerSelectModalPage.this.tree, node) {
+                return new Folder<DefaultMutableTreeNode>(id, RoleSelectModalPage.this.tree, node) {
 
                     private static final long serialVersionUID = 9046323319920426493L;
 
@@ -82,8 +82,15 @@ public class RoleOwnerSelectModalPage extends BaseModalPage {
                     protected void onClick(final AjaxRequestTarget target) {
                         super.onClick(target);
 
-                        send(pageRef.getPage(), Broadcast.BREADTH,
-                                new RoleDetailsPanel.RoleOwnerSelectPayload(roleTO.getId()));
+                        try {
+                            Constructor constructor = payloadClass.getConstructor(Long.class);
+                            Object payload = constructor.newInstance(roleTO.getId());
+
+                            send(pageRef.getPage(), Broadcast.BREADTH, payload);
+                        } catch (Exception e) {
+                            LOG.error("Could not send role select event", e);
+                        }
+
                         window.close(target);
                     }
                 };

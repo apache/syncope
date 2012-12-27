@@ -105,9 +105,11 @@ public class AttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
-                item.add(new Label("name", templateMode
-                        ? attributeTO.getSchema() + " (JEXL)"
-                        : attributeTO.getSchema()));
+                final StringBuilder text = new StringBuilder(attributeTO.getSchema());
+                if (templateMode) {
+                    text.append(" (JEXL)");
+                }
+                item.add(new Label("name", text.toString()));
 
                 final FieldPanel panel =
                         getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form, attributeTO);

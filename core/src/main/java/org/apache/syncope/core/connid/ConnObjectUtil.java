@@ -336,6 +336,8 @@ public class ConnObjectUtil {
                 ((RoleTO) attributableTO).setUserOwner(((RoleTO) template).getUserOwner());
                 ((RoleTO) attributableTO).setRoleOwner(((RoleTO) template).getRoleOwner());
 
+                ((RoleTO) attributableTO).setEntitlements(((RoleTO) template).getEntitlements());
+
                 ((RoleTO) attributableTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
                 ((RoleTO) attributableTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
 

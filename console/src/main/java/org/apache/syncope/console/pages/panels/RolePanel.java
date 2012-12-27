@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -38,14 +39,14 @@ public class RolePanel extends Panel {
 
     private final Palette<String> entitlementsPalette;
 
-    public RolePanel(final String id, final Form form, final RoleTO roleTO) {
+    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode) {
         super(id);
 
-        this.add(new RoleDetailsPanel("details", roleTO, form).setOutputMarkupId(true));
+        this.add(new RoleDetailsPanel("details", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
 
         //--------------------------------
         // Attributes panel
-        this.add(new AttributesPanel("attributes", roleTO, form, false).setOutputMarkupId(true));
+        this.add(new AttributesPanel("attributes", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",
                 new PropertyModel<Boolean>(roleTO, "inheritAttributes"));
@@ -56,7 +57,7 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO).setOutputMarkupId(true));
+        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
                 "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
@@ -68,7 +69,7 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, mode == RoleModalPage.Mode.TEMPLATE));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));

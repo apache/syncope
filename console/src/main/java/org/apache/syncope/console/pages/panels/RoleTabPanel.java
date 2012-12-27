@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
@@ -58,7 +59,7 @@ public class RoleTabPanel extends Panel {
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
 
-        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO);
+        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO, RoleModalPage.Mode.ADMIN);
         rolePanel.setEnabled(false);
         form.add(rolePanel);
 

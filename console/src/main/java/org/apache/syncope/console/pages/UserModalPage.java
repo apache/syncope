@@ -182,7 +182,6 @@ public abstract class UserModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
                 try {
                     submitAction(target, form);
 

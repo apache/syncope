@@ -128,7 +128,7 @@ public class VirtualAttributesPanel extends Panel {
                         super.updateAjaxAttributes(attributes);
 
                         final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
-                            
+
                             private static final long serialVersionUID = 7160235486520935153L;
 
                             @Override
@@ -148,9 +148,11 @@ public class VirtualAttributesPanel extends Panel {
 
                             @Override
                             public Object getDisplayValue(final String object) {
-                                return templateMode
-                                        ? object + " (JEXL)"
-                                        : object;
+                                final StringBuilder text = new StringBuilder(object);
+                                if (templateMode) {
+                                    text.append(" (JEXL)");
+                                }
+                                return text.toString();
                             }
                         });
 
