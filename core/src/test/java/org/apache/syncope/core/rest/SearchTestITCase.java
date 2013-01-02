@@ -54,8 +54,8 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
+        List<UserTO> matchedUsers = userService.search(searchCondition);
+        
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
         for (UserTO user : matchedUsers) {
@@ -67,8 +67,7 @@ public class SearchTestITCase extends AbstractTest {
         isNullCond.setSchema("loginDate");
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
+        matchedUsers = userService.search(searchCondition);
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
 
@@ -95,8 +94,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        final List<UserTO> matchingUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search",
-                searchCondition, UserTO[].class));
+        final List<UserTO> matchingUsers = userService.search(searchCondition);
 
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
@@ -140,8 +138,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
-                UserTO[].class));
+        List<UserTO> matchedUsers = userService.search(searchCondition);
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
 
@@ -170,8 +167,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        List<UserTO> matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
+        List<UserTO> matchedUsers = userService.search(searchCondition, 1, 2);
         assertNotNull(matchedUsers);
 
         assertFalse(matchedUsers.isEmpty());
@@ -184,8 +180,7 @@ public class SearchTestITCase extends AbstractTest {
         isNullCond.setSchema("loginDate");
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        matchedUsers = Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
+        matchedUsers = userService.search(searchCondition, 1, 2);
 
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
@@ -202,7 +197,7 @@ public class SearchTestITCase extends AbstractTest {
         isNullCond.setSchema("loginDate");
         NodeCond searchCond = NodeCond.getLeafCond(isNullCond);
 
-        Integer count = restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCond, Integer.class);
+        Integer count = userService.searchCount(searchCond);
         assertNotNull(count);
         assertTrue(count > 0);
     }

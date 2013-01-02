@@ -43,7 +43,10 @@ under the License.
   </distributionManagement>
   
   <dependencies>
-
+  	<dependency>
+		<groupId>javax.ws.rs</groupId>
+    	<artifactId>javax.ws.rs-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -101,7 +104,8 @@ under the License.
               org.codehaus.jackson.annotate;version="[1.9,2)",
               org.springframework*;version="[3,4)",
               ch.qos.logback.classic;resolution:=optional,
-              org.slf4j;resolution:=optional
+              org.slf4j;resolution:=optional,
+              *
             </Import-Package>
           </instructions>
         </configuration>

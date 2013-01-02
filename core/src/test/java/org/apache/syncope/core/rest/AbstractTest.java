@@ -24,6 +24,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.services.UserService;
+import org.apache.syncope.services.UserServiceProxy;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -65,6 +67,8 @@ public abstract class AbstractTest {
     @Autowired
     protected RestTemplate restTemplate;
 
+	protected UserService userService;
+    
     @Autowired
     protected DataSource testDataSource;
 
@@ -83,5 +87,6 @@ public abstract class AbstractTest {
     @Before
     public void resetRestTemplate() {
         setupRestTemplate(ADMIN_UID, ADMIN_PWD);
+        userService = new UserServiceProxy(BASE_URL, restTemplate);
     }
 }
