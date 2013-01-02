@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
@@ -42,358 +47,372 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
 
-    @Test
-    public void createWithException() {
-        RoleTO newRoleTO = new RoleTO();
-        newRoleTO.addAttribute(attributeTO("attr1", "value1"));
-
-        Throwable t = null;
-        try {
-            restTemplate.postForObject(BASE_URL + "role/create", newRoleTO, RoleTO.class);
-            fail();
-        } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
-        }
-        assertNotNull(t);
-    }
-
-    @Test
-    public void create() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("lastRole");
-        roleTO.setParent(8L);
-
-        // verify inheritance password and account policies
-        roleTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        roleTO.setAccountPolicy(6L);
-
-        roleTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        roleTO.setPasswordPolicy(2L);
-
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-
-        roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
-
-        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
-
-        roleTO.setRoleOwner(8L);
-
-        roleTO.addResource("resource-ldap");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-        assertNotNull(roleTO);
-
-        assertNotNull(roleTO.getVirtualAttributeMap());
-        assertNotNull(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues());
-        assertFalse(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().isEmpty());
-        assertEquals("rvirtualvalue", roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().get(0));
-
-        assertNotNull(roleTO.getAccountPolicy());
-        assertEquals(6L, (long) roleTO.getAccountPolicy());
-
-        assertNotNull(roleTO.getPasswordPolicy());
-        assertEquals(4L, (long) roleTO.getPasswordPolicy());
-
-        assertTrue(roleTO.getResources().contains("resource-ldap"));
-
-        ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-                + "/resource/resource-ldap/read/ROLE/lastRole.json", ConnObjectTO.class);
-        assertNotNull(connObjectTO);
-        assertNotNull(connObjectTO.getAttributeMap().get("owner"));
-    }
-
-    @Test
-    public void createWithPasswordPolicy() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("roleWithPassword");
-        roleTO.setParent(8L);
-        roleTO.setPasswordPolicy(4L);
-
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-        assertNotNull(actual);
-
-        actual = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, actual.getId());
-        assertNotNull(actual);
-        assertNotNull(actual.getPasswordPolicy());
-        assertEquals(4L, (long) actual.getPasswordPolicy());
-    }
-
-    @Test
-    public void delete() {
-        try {
-            restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, 0);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-        }
-
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("toBeDeleted");
-        roleTO.setParent(8L);
-
-        roleTO.addResource("resource-ldap");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-        assertNotNull(roleTO);
-
-        RoleTO deletedRole = restTemplate.getForObject(BASE_URL + "role/delete/{roleId}", RoleTO.class, roleTO.getId());
-        assertNotNull(deletedRole);
-
-        try {
-            restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, deletedRole.getId());
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-        }
-    }
-
-    @Test
-    public void list() {
-        List<RoleTO> roleTOs = Arrays.asList(restTemplate.getForObject(BASE_URL + "role/list.json", RoleTO[].class));
-        assertNotNull(roleTOs);
-        assertTrue(roleTOs.size() >= 8);
-        for (RoleTO roleTO : roleTOs) {
-            assertNotNull(roleTO);
-        }
-    }
-
-    @Test
-    public void parent() {
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/parent/{roleId}.json", RoleTO.class, 7);
-
-        assertNotNull(roleTO);
-        assertEquals(roleTO.getId(), 6L);
-    }
-
-    @Test
-    public void read() {
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 1);
-
-        assertNotNull(roleTO);
-        assertNotNull(roleTO.getAttributes());
-        assertFalse(roleTO.getAttributes().isEmpty());
-    }
-
-    @Test
-    public void selfRead() {
-        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}", UserTO.class, 1);
-        assertNotNull(userTO);
-
-        assertTrue(userTO.getMembershipMap().containsKey(1L));
-        assertFalse(userTO.getMembershipMap().containsKey(3L));
-
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                (PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory();
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
-
-        SyncopeClientException exception = null;
-        try {
-            restTemplate.getForObject(BASE_URL + "role/selfRead/{roleId}", RoleTO.class, 3);
-            fail();
-        } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
-        }
-        assertNotNull(exception);
-
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/selfRead/{roleId}", RoleTO.class, 1);
-        assertNotNull(roleTO);
-        assertNotNull(roleTO.getAttributes());
-        assertFalse(roleTO.getAttributes().isEmpty());
-
-        // restore admin authentication
-        super.resetRestTemplate();
-    }
-
-    @Test
-    public void update() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("latestRole");
-        roleTO.setParent(8L);
-
-        // verify inheritance password and account policies
-        roleTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        roleTO.setAccountPolicy(6L);
-
-        roleTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        roleTO.setPasswordPolicy(2L);
-
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-
-        roleTO.addResource("resource-ldap");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
-        assertEquals(1, roleTO.getAttributes().size());
-
-        assertNotNull(roleTO.getAccountPolicy());
-        assertEquals(Long.valueOf(6), roleTO.getAccountPolicy());
-
-        assertNotNull(roleTO.getPasswordPolicy());
-        assertEquals(Long.valueOf(4), roleTO.getPasswordPolicy());
-
-        RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.setName("finalRole");
-        roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
-
-        // change password policy inheritance
-        roleMod.setInheritPasswordPolicy(Boolean.FALSE);
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-
-        assertEquals("finalRole", roleTO.getName());
-        assertEquals(2, roleTO.getAttributes().size());
-
-        // changes ignored because not requested (null ReferenceMod)
-        assertNotNull(roleTO.getAccountPolicy());
-        assertEquals(6L, (long) roleTO.getAccountPolicy());
-
-        // password policy null because not inherited
-        assertNull(roleTO.getPasswordPolicy());
-    }
-
-    @Test
-    public void updateRemovingVirAttribute() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("withvirtual");
-        roleTO.setParent(8L);
-        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
-        assertNotNull(roleTO);
-        assertEquals(1, roleTO.getVirtualAttributes().size());
-
-        final RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-
-        assertNotNull(roleTO);
-        assertTrue(roleTO.getVirtualAttributes().isEmpty());
-    }
-
-    @Test
-    public void updateRemovingDerAttribute() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("withderived");
-        roleTO.setParent(8L);
-        roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
-        assertNotNull(roleTO);
-        assertEquals(1, roleTO.getDerivedAttributes().size());
-
-        final RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-
-        assertNotNull(roleTO);
-        assertTrue(roleTO.getDerivedAttributes().isEmpty());
-    }
-
-    @Test
-    public void updateAsRoleOwner() {
-        // 1. read role as admin
-        RoleTO roleTO = restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json", RoleTO.class, 7);
-
-        // 2. prepare update
-        RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.setName("Managing Director");
-
-        // 3. try to update as user3, not owner of role 7 - fail
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                (PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory();
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
-
-        try {
-            restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-            fail();
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
-        }
-
-        // 4. update as user5, owner of role 7 because owner of role 6 with inheritance - success
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user5", "password"));
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-        assertEquals("Managing Director", roleTO.getName());
-
-        // restore admin authentication
-        super.resetRestTemplate();
-    }
-
-    /**
-     * Role rename used to fail in case of parent null.
-     *
-     * http://code.google.com/p/syncope/issues/detail?id=178
-     */
-    @Test
-    public void issue178() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("torename");
-
-        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-
-        assertNotNull(actual);
-        assertEquals("torename", actual.getName());
-        assertEquals(0L, actual.getParent());
-
-        RoleMod roleMod = new RoleMod();
-        roleMod.setId(actual.getId());
-        roleMod.setName("renamed");
-
-        actual = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-
-        assertNotNull(actual);
-        assertEquals("renamed", actual.getName());
-        assertEquals(0L, actual.getParent());
-    }
-
-    @Test
-    public void issueSYNCOPE228() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("issueSYNCOPE228");
-        roleTO.setParent(8L);
-        roleTO.setInheritAccountPolicy(false);
-        roleTO.setAccountPolicy(6L);
-        roleTO.setInheritPasswordPolicy(true);
-        roleTO.setPasswordPolicy(2L);
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-        roleTO.addEntitlement("USER_READ");
-        roleTO.addEntitlement("SCHEMA_READ");
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/create", roleTO, RoleTO.class);
-        assertNotNull(roleTO);
-        assertNotNull(roleTO.getEntitlements());
-        assertFalse(roleTO.getEntitlements().isEmpty());
-
-        List<String> entitlements = roleTO.getEntitlements();
-
-        RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.setInheritDerivedAttributes(Boolean.TRUE);
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-        assertNotNull(roleTO);
-        assertEquals(entitlements, roleTO.getEntitlements());
-
-        roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
-        roleMod.setEntitlements(new ArrayList<String>());
-
-        roleTO = restTemplate.postForObject(BASE_URL + "role/update", roleMod, RoleTO.class);
-        assertNotNull(roleTO);
-        assertTrue(roleTO.getEntitlements().isEmpty());
-    }
+	@Test
+	public void createWithException() {
+		RoleTO newRoleTO = new RoleTO();
+		newRoleTO.addAttribute(attributeTO("attr1", "value1"));
+
+		Throwable t = null;
+		try {
+			roleService.create(newRoleTO);
+			fail();
+		} catch (SyncopeClientCompositeErrorException sccee) {
+			t = sccee
+					.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
+		}
+		assertNotNull(t);
+	}
+
+	@Test
+	public void create() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("lastRole");
+		roleTO.setParent(8L);
+
+		// verify inheritance password and account policies
+		roleTO.setInheritAccountPolicy(false);
+		// not inherited so setter execution shouldn't be ignored
+		roleTO.setAccountPolicy(6L);
+
+		roleTO.setInheritPasswordPolicy(true);
+		// inherited so setter execution should be ignored
+		roleTO.setPasswordPolicy(2L);
+
+		roleTO.addAttribute(attributeTO("icon", "anIcon"));
+
+		roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
+
+		roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
+
+		roleTO.setRoleOwner(8L);
+
+		roleTO.addResource("resource-ldap");
+
+		roleTO = roleService.create(roleTO);
+		assertNotNull(roleTO);
+
+		assertNotNull(roleTO.getVirtualAttributeMap());
+		assertNotNull(roleTO.getVirtualAttributeMap().get("rvirtualdata")
+				.getValues());
+		assertFalse(roleTO.getVirtualAttributeMap().get("rvirtualdata")
+				.getValues().isEmpty());
+		assertEquals("rvirtualvalue",
+				roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues()
+						.get(0));
+
+		assertNotNull(roleTO.getAccountPolicy());
+		assertEquals(6L, (long) roleTO.getAccountPolicy());
+
+		assertNotNull(roleTO.getPasswordPolicy());
+		assertEquals(4L, (long) roleTO.getPasswordPolicy());
+
+		assertTrue(roleTO.getResources().contains("resource-ldap"));
+
+		ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
+				+ "/resource/resource-ldap/read/ROLE/lastRole.json",
+				ConnObjectTO.class);
+		assertNotNull(connObjectTO);
+		assertNotNull(connObjectTO.getAttributeMap().get("owner"));
+	}
+
+	@Test
+	public void createWithPasswordPolicy() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("roleWithPassword");
+		roleTO.setParent(8L);
+		roleTO.setPasswordPolicy(4L);
+
+		RoleTO actual = roleService.create(roleTO);
+		assertNotNull(actual);
+
+		actual = roleService.read(actual.getId());
+		assertNotNull(actual);
+		assertNotNull(actual.getPasswordPolicy());
+		assertEquals(4L, (long) actual.getPasswordPolicy());
+	}
+
+	@Test
+	public void delete() {
+		try {
+			roleService.delete(0L);
+		} catch (HttpStatusCodeException e) {
+			assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+		}
+
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("toBeDeleted");
+		roleTO.setParent(8L);
+
+		roleTO.addResource("resource-ldap");
+
+		roleTO = roleService.create(roleTO);
+		assertNotNull(roleTO);
+
+		RoleTO deletedRole = roleService.delete(roleTO.getId());
+		assertNotNull(deletedRole);
+
+		try {
+			roleService.read(deletedRole.getId());
+		} catch (HttpStatusCodeException e) {
+			assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+		}
+	}
+
+	@Test
+	public void list() {
+		List<RoleTO> roleTOs = roleService.list();
+		assertNotNull(roleTOs);
+		assertTrue(roleTOs.size() >= 8);
+		for (RoleTO roleTO : roleTOs) {
+			assertNotNull(roleTO);
+		}
+	}
+
+	@Test
+	public void parent() {
+		RoleTO roleTO = roleService.parent(7L);
+
+		assertNotNull(roleTO);
+		assertEquals(roleTO.getId(), 6L);
+	}
+
+	@Test
+	public void read() {
+		RoleTO roleTO = roleService.read(1L);
+
+		assertNotNull(roleTO);
+		assertNotNull(roleTO.getAttributes());
+		assertFalse(roleTO.getAttributes().isEmpty());
+	}
+
+	@Test
+	public void selfRead() {
+		UserTO userTO = userService.read(1L);
+		assertNotNull(userTO);
+
+		assertTrue(userTO.getMembershipMap().containsKey(1L));
+		assertFalse(userTO.getMembershipMap().containsKey(3L));
+
+		PreemptiveAuthHttpRequestFactory requestFactory = (PreemptiveAuthHttpRequestFactory) restTemplate
+				.getRequestFactory();
+		((DefaultHttpClient) requestFactory.getHttpClient())
+				.getCredentialsProvider().setCredentials(
+						requestFactory.getAuthScope(),
+						new UsernamePasswordCredentials("user1", "password"));
+
+		SyncopeClientException exception = null;
+		try {
+			roleService.selfRead(3L);
+			fail();
+		} catch (SyncopeClientCompositeErrorException e) {
+			exception = e
+					.getException(SyncopeClientExceptionType.UnauthorizedRole);
+		}
+		assertNotNull(exception);
+
+		RoleTO roleTO = roleService.selfRead(1L);
+		assertNotNull(roleTO);
+		assertNotNull(roleTO.getAttributes());
+		assertFalse(roleTO.getAttributes().isEmpty());
+
+		// restore admin authentication
+		super.resetRestTemplate();
+	}
+
+	@Test
+	public void update() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("latestRole");
+		roleTO.setParent(8L);
+
+		// verify inheritance password and account policies
+		roleTO.setInheritAccountPolicy(false);
+		// not inherited so setter execution shouldn't be ignored
+		roleTO.setAccountPolicy(6L);
+
+		roleTO.setInheritPasswordPolicy(true);
+		// inherited so setter execution should be ignored
+		roleTO.setPasswordPolicy(2L);
+
+		roleTO.addAttribute(attributeTO("icon", "anIcon"));
+
+		roleTO.addResource("resource-ldap");
+
+		roleTO = roleService.create(roleTO);
+
+		assertEquals(1, roleTO.getAttributes().size());
+
+		assertNotNull(roleTO.getAccountPolicy());
+		assertEquals(Long.valueOf(6), roleTO.getAccountPolicy());
+
+		assertNotNull(roleTO.getPasswordPolicy());
+		assertEquals(Long.valueOf(4), roleTO.getPasswordPolicy());
+
+		RoleMod roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.setName("finalRole");
+		roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
+
+		// change password policy inheritance
+		roleMod.setInheritPasswordPolicy(Boolean.FALSE);
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+
+		assertEquals("finalRole", roleTO.getName());
+		assertEquals(2, roleTO.getAttributes().size());
+
+		// changes ignored because not requested (null ReferenceMod)
+		assertNotNull(roleTO.getAccountPolicy());
+		assertEquals(6L, (long) roleTO.getAccountPolicy());
+
+		// password policy null because not inherited
+		assertNull(roleTO.getPasswordPolicy());
+	}
+
+	@Test
+	public void updateRemovingVirAttribute() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("withvirtual");
+		roleTO.setParent(8L);
+		roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
+
+		roleTO = roleService.create(roleTO);
+
+		assertNotNull(roleTO);
+		assertEquals(1, roleTO.getVirtualAttributes().size());
+
+		final RoleMod roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+
+		assertNotNull(roleTO);
+		assertTrue(roleTO.getVirtualAttributes().isEmpty());
+	}
+
+	@Test
+	public void updateRemovingDerAttribute() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("withderived");
+		roleTO.setParent(8L);
+		roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
+
+		roleTO = roleService.create(roleTO);
+
+		assertNotNull(roleTO);
+		assertEquals(1, roleTO.getDerivedAttributes().size());
+
+		final RoleMod roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+
+		assertNotNull(roleTO);
+		assertTrue(roleTO.getDerivedAttributes().isEmpty());
+	}
+
+	@Test
+	public void updateAsRoleOwner() {
+		// 1. read role as admin
+		RoleTO roleTO = roleService.read(7L);
+
+		// 2. prepare update
+		RoleMod roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.setName("Managing Director");
+
+		// 3. try to update as user3, not owner of role 7 - fail
+		PreemptiveAuthHttpRequestFactory requestFactory = (PreemptiveAuthHttpRequestFactory) restTemplate
+				.getRequestFactory();
+		((DefaultHttpClient) requestFactory.getHttpClient())
+				.getCredentialsProvider().setCredentials(
+						requestFactory.getAuthScope(),
+						new UsernamePasswordCredentials("user2", "password"));
+
+		try {
+			roleService.update(roleMod.getId(), roleMod);
+			fail();
+		} catch (HttpStatusCodeException e) {
+			assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+		}
+
+		// 4. update as user5, owner of role 7 because owner of role 6 with
+		// inheritance - success
+		((DefaultHttpClient) requestFactory.getHttpClient())
+				.getCredentialsProvider().setCredentials(
+						requestFactory.getAuthScope(),
+						new UsernamePasswordCredentials("user5", "password"));
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+		assertEquals("Managing Director", roleTO.getName());
+
+		// restore admin authentication
+		super.resetRestTemplate();
+	}
+
+	/**
+	 * Role rename used to fail in case of parent null.
+	 * 
+	 * http://code.google.com/p/syncope/issues/detail?id=178
+	 */
+	@Test
+	public void issue178() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("torename");
+
+		RoleTO actual = roleService.create(roleTO);
+
+		assertNotNull(actual);
+		assertEquals("torename", actual.getName());
+		assertEquals(0L, actual.getParent());
+
+		RoleMod roleMod = new RoleMod();
+		roleMod.setId(actual.getId());
+		roleMod.setName("renamed");
+
+		actual = roleService.update(roleMod.getId(), roleMod);;
+
+		assertNotNull(actual);
+		assertEquals("renamed", actual.getName());
+		assertEquals(0L, actual.getParent());
+	}
+
+	@Test
+	public void issueSYNCOPE228() {
+		RoleTO roleTO = new RoleTO();
+		roleTO.setName("issueSYNCOPE228");
+		roleTO.setParent(8L);
+		roleTO.setInheritAccountPolicy(false);
+		roleTO.setAccountPolicy(6L);
+		roleTO.setInheritPasswordPolicy(true);
+		roleTO.setPasswordPolicy(2L);
+		roleTO.addAttribute(attributeTO("icon", "anIcon"));
+		roleTO.addEntitlement("USER_READ");
+		roleTO.addEntitlement("SCHEMA_READ");
+
+		roleTO = roleService.create(roleTO);
+		assertNotNull(roleTO);
+		assertNotNull(roleTO.getEntitlements());
+		assertFalse(roleTO.getEntitlements().isEmpty());
+
+		List<String> entitlements = roleTO.getEntitlements();
+
+		RoleMod roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.setInheritDerivedAttributes(Boolean.TRUE);
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+		assertNotNull(roleTO);
+		assertEquals(entitlements, roleTO.getEntitlements());
+
+		roleMod = new RoleMod();
+		roleMod.setId(roleTO.getId());
+		roleMod.setEntitlements(new ArrayList<String>());
+
+		roleTO = roleService.update(roleMod.getId(), roleMod);
+		assertNotNull(roleTO);
+		assertTrue(roleTO.getEntitlements().isEmpty());
+	}
 }

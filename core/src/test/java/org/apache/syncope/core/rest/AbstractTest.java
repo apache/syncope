@@ -19,11 +19,13 @@
 package org.apache.syncope.core.rest;
 
 import javax.sql.DataSource;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.services.RoleServiceProxy;
 import org.apache.syncope.services.UserService;
 import org.apache.syncope.services.UserServiceProxy;
 import org.junit.Before;
@@ -36,57 +38,66 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
+@ContextConfiguration(locations = { "classpath:restClientContext.xml",
+		"classpath:testJDBCContext.xml" })
 public abstract class AbstractTest {
 
-    protected static AttributeTO attributeTO(final String schema, final String value) {
-        AttributeTO attr = new AttributeTO();
-        attr.setSchema(schema);
-        attr.addValue(value);
-        return attr;
-    }
+	protected static AttributeTO attributeTO(final String schema,
+			final String value) {
+		AttributeTO attr = new AttributeTO();
+		attr.setSchema(schema);
+		attr.addValue(value);
+		return attr;
+	}
 
-    protected static AttributeMod attributeMod(final String schema, final String valueToBeAdded) {
-        AttributeMod attr = new AttributeMod();
-        attr.setSchema(schema);
-        attr.addValueToBeAdded(valueToBeAdded);
-        return attr;
-    }
+	protected static AttributeMod attributeMod(final String schema,
+			final String valueToBeAdded) {
+		AttributeMod attr = new AttributeMod();
+		attr.setSchema(schema);
+		attr.addValueToBeAdded(valueToBeAdded);
+		return attr;
+	}
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
+	/**
+	 * Logger.
+	 */
+	protected static final Logger LOG = LoggerFactory
+			.getLogger(AbstractTest.class);
 
-    protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
+	protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
-    public static final String ADMIN_UID = "admin";
+	public static final String ADMIN_UID = "admin";
 
-    public static final String ADMIN_PWD = "password";
+	public static final String ADMIN_PWD = "password";
 
-    @Autowired
-    protected RestTemplate restTemplate;
+	@Autowired
+	protected RestTemplate restTemplate;
 
 	protected UserService userService;
-    
-    @Autowired
-    protected DataSource testDataSource;
+	
+	protected RoleServiceProxy roleService;
 
-    protected RestTemplate anonymousRestTemplate() {
-        return new RestTemplate();
-    }
+	@Autowired
+	protected DataSource testDataSource;
 
-    public void setupRestTemplate(final String uid, final String pwd) {
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
+	protected RestTemplate anonymousRestTemplate() {
+		return new RestTemplate();
+	}
 
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(uid, pwd));
-    }
+	public void setupRestTemplate(final String uid, final String pwd) {
+		PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
+				.getRequestFactory());
 
-    @Before
-    public void resetRestTemplate() {
-        setupRestTemplate(ADMIN_UID, ADMIN_PWD);
-        userService = new UserServiceProxy(BASE_URL, restTemplate);
-    }
+		((DefaultHttpClient) requestFactory.getHttpClient())
+				.getCredentialsProvider().setCredentials(
+						requestFactory.getAuthScope(),
+						new UsernamePasswordCredentials(uid, pwd));
+	}
+
+	@Before
+	public void resetRestTemplate() {
+		setupRestTemplate(ADMIN_UID, ADMIN_PWD);
+		userService = new UserServiceProxy(BASE_URL, restTemplate);
+		roleService = new RoleServiceProxy(BASE_URL, restTemplate);
+	}
 }

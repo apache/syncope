@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.EntitlementCond;
@@ -117,8 +120,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
-                searchCondition, RoleTO[].class));
+        final List<RoleTO> matchingRoles = roleService.search(searchCondition);
 
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.size());
@@ -210,8 +212,7 @@ public class SearchTestITCase extends AbstractTest {
 
         final NodeCond searchCondition = NodeCond.getLeafCond(cond);
 
-        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
-                searchCondition, RoleTO[].class));
+        final List<RoleTO> matchingRoles = roleService.search(searchCondition);
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.isEmpty());
     }
@@ -228,8 +229,7 @@ public class SearchTestITCase extends AbstractTest {
                 NodeCond.getLeafCond(userReadcond));
         assertTrue(searchCondition.isValid());
 
-        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
-                searchCondition, RoleTO[].class));
+        final List<RoleTO> matchingRoles = roleService.search(searchCondition);
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.isEmpty());
     }
@@ -248,8 +248,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        final List<RoleTO> matchingRoles = Arrays.asList(restTemplate.postForObject(BASE_URL + "role/search",
-                searchCondition, RoleTO[].class));
+        final List<RoleTO> matchingRoles = roleService.search(searchCondition);
 
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.size());
