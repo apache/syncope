@@ -25,6 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.services.EntitlementServiceProxy;
 import org.apache.syncope.services.RoleServiceProxy;
 import org.apache.syncope.services.UserService;
 import org.apache.syncope.services.UserServiceProxy;
@@ -74,8 +75,10 @@ public abstract class AbstractTest {
 	protected RestTemplate restTemplate;
 
 	protected UserService userService;
-	
+
 	protected RoleServiceProxy roleService;
+
+	protected EntitlementServiceProxy entitlementService;
 
 	@Autowired
 	protected DataSource testDataSource;
@@ -99,5 +102,6 @@ public abstract class AbstractTest {
 		setupRestTemplate(ADMIN_UID, ADMIN_PWD);
 		userService = new UserServiceProxy(BASE_URL, restTemplate);
 		roleService = new RoleServiceProxy(BASE_URL, restTemplate);
+		entitlementService = new EntitlementServiceProxy(BASE_URL, restTemplate);
 	}
 }

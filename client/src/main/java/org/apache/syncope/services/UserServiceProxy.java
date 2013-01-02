@@ -35,13 +35,10 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 import org.springframework.web.client.RestTemplate;
 
-public class UserServiceProxy implements UserService {
-	RestTemplate restTemplate;
-	private String baseUrl;
+public class UserServiceProxy extends SpringServiceProxy implements UserService {
 
 	public UserServiceProxy(String baseUrl, RestTemplate restTemplate) {
-		this.baseUrl = baseUrl;
-		this.restTemplate = restTemplate;
+		super(baseUrl, restTemplate);
 	}
 
 	@Override

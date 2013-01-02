@@ -26,14 +26,10 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
 import org.springframework.web.client.RestTemplate;
 
-public class RoleServiceProxy implements RoleService {
-
-	RestTemplate restTemplate;
-	private String baseUrl;
+public class RoleServiceProxy extends SpringServiceProxy implements RoleService {
 
 	public RoleServiceProxy(String baseUrl, RestTemplate restTemplate) {
-		this.baseUrl = baseUrl;
-		this.restTemplate = restTemplate;
+		super(baseUrl, restTemplate);
 	}
 
 	@Override
