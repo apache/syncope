@@ -206,7 +206,7 @@ class NotificationModalPage extends BaseModalPage {
                     } else {
                         restClient.updateNotification(notificationTO);
                     }
-                    info(getString("operation_succeded"));
+                    info(getString("operation_succeeded"));
 
                     Configuration callerPage = (Configuration) callPageRef.getPage();
                     callerPage.setModalResult(true);

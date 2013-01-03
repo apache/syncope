@@ -163,7 +163,7 @@ public class Configuration extends BasePage {
 
                 try {
                     wfRestClient.updateDefinition(workflowDef);
-                    info(getString("operation_succeded"));
+                    info(getString("operation_succeeded"));
                 } catch (SyncopeClientCompositeErrorException scee) {
                     error(getString("error") + ":" + scee.getMessage());
                 }
@@ -271,7 +271,7 @@ public class Configuration extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeded"));
+                        info(getString("operation_succeeded"));
                         target.add(feedbackPanel);
 
                         target.add(confContainer);
@@ -440,7 +440,7 @@ public class Configuration extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeded"));
+                        info(getString("operation_succeeded"));
                         target.add(feedbackPanel);
 
                         target.add(notificationContainer);
@@ -657,7 +657,7 @@ public class Configuration extends BasePage {
                                     item.getModelObject().getLevel());
                         }
 
-                        info(getString("operation_succeded"));
+                        info(getString("operation_succeeded"));
                     } catch (SyncopeClientCompositeErrorException e) {
                         info(getString("operation_error"));
                     }

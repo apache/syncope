@@ -169,7 +169,7 @@ public class SchedTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
-                            getSession().info(getString("operation_succeded"));
+                            getSession().info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
@@ -187,7 +187,7 @@ public class SchedTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), true);
-                            getSession().info(getString("operation_succeded"));
+                            getSession().info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
@@ -205,7 +205,7 @@ public class SchedTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.delete(taskTO.getId(), SchedTaskTO.class);
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }

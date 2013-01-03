@@ -498,7 +498,7 @@ public class ReportModalPage extends BaseModalPage {
 
                             reportTO.removeExecution(taskExecutionTO);
 
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }

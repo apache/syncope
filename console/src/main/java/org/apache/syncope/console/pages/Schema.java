@@ -779,7 +779,7 @@ public class Schema extends BasePage {
                                 break;
                         }
 
-                        info(getString("operation_succeded"));
+                        info(getString("operation_succeeded"));
                         target.add(feedbackPanel);
 
                         target.add(webContainer);

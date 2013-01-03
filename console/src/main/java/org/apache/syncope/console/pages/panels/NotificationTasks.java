@@ -153,7 +153,7 @@ public class NotificationTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
-                            getSession().info(getString("operation_succeded"));
+                            getSession().info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
@@ -171,7 +171,7 @@ public class NotificationTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.delete(taskTO.getId(), NotificationTaskTO.class);
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
@@ -228,7 +228,7 @@ public class NotificationTasks extends Panel {
             public void onClose(final AjaxRequestTarget target) {
                 target.add(container);
                 if (operationResult) {
-                    info(getString("operation_succeded"));
+                    info(getString("operation_succeeded"));
                     target.add(getPage().get("feedback"));
                     operationResult = false;
                 }

@@ -93,7 +93,7 @@ public class Roles extends BasePage {
                 send(getPage(), Broadcast.BREADTH, data);
                 target.add(container);
                 if (modalResult) {
-                    getSession().info(getString("operation_succeded"));
+                    getSession().info(getString("operation_succeeded"));
                     target.add(feedbackPanel);
                     modalResult = false;
                 }

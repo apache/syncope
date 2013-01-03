@@ -180,7 +180,7 @@ public class PoliciesPanel extends Panel {
                         try {
 
                             policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
 
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));

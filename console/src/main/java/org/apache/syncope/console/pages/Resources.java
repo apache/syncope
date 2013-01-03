@@ -167,7 +167,7 @@ public class Resources extends BasePage {
                         try {
 
                             resourceRestClient.delete(resourceTO.getName());
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
 
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
@@ -320,7 +320,7 @@ public class Resources extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             connectorRestClient.delete(connectorTO.getId());
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 

@@ -183,7 +183,7 @@ public class Reports extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             reportRestClient.startExecution(reportTO.getId());
-                            getSession().info(getString("operation_succeded"));
+                            getSession().info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
@@ -201,7 +201,7 @@ public class Reports extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             reportRestClient.delete(reportTO.getId());
-                            info(getString("operation_succeded"));
+                            info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }

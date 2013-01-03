@@ -170,7 +170,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             public void onClose(final AjaxRequestTarget target) {
                 target.add(container);
                 if (isModalResult()) {
-                    info(getString("operation_succeded"));
+                    info(getString("operation_succeeded"));
                     target.add(feedbackPanel);
                     setModalResult(false);
                 }

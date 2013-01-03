@@ -152,8 +152,8 @@ public class Users extends BasePage {
                 if (isModalResult()) {
                     // reset modal result
                     setModalResult(false);
-                    // set operation succeded
-                    getSession().info(getString("operation_succeded"));
+                    // set operation succeeded
+                    getSession().info(getString("operation_succeeded"));
                     // refresh feedback panel
                     target.add(feedbackPanel);
                 }
