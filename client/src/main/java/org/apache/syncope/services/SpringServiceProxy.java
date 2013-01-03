@@ -24,10 +24,10 @@ public abstract class SpringServiceProxy {
 
 	protected RestTemplate restTemplate;
 
-	protected String baseUrl;
+	protected String BASE_URL;
 
 	public SpringServiceProxy(String baseUrl, RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
-		this.baseUrl = baseUrl;
+		this.BASE_URL = baseUrl;
 	}
 }

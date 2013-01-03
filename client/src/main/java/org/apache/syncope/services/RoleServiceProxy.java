@@ -34,67 +34,67 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
 
 	@Override
 	public List<RoleTO> children(Long roleId) {
-		return Arrays.asList(restTemplate.getForObject(baseUrl
+		return Arrays.asList(restTemplate.getForObject(BASE_URL
 				+ "role/children/{roleId}.json", RoleTO[].class, roleId));
 	}
 
 	@Override
 	public RoleTO create(RoleTO roleTO) {
-		return restTemplate.postForObject(baseUrl + "role/create", roleTO,
+		return restTemplate.postForObject(BASE_URL + "role/create", roleTO,
 				RoleTO.class);
 	}
 
 	@Override
 	public RoleTO delete(Long roleId) {
-		return restTemplate.getForObject(baseUrl + "role/delete/{roleId}",
+		return restTemplate.getForObject(BASE_URL + "role/delete/{roleId}",
 				RoleTO.class, roleId);
 	}
 
 	@Override
 	public List<RoleTO> list() {
-		return Arrays.asList(restTemplate.getForObject(baseUrl
+		return Arrays.asList(restTemplate.getForObject(BASE_URL
 				+ "role/list.json", RoleTO[].class));
 	}
 
 	@Override
 	public RoleTO parent(Long roleId) {
-		return restTemplate.getForObject(baseUrl + "role/parent/{roleId}.json",
+		return restTemplate.getForObject(BASE_URL + "role/parent/{roleId}.json",
 				RoleTO.class, roleId);
 	}
 
 	@Override
 	public RoleTO read(Long roleId) {
-		return restTemplate.getForObject(baseUrl + "role/read/{roleId}.json",
+		return restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json",
 				RoleTO.class, roleId);
 	}
 
 	@Override
 	public List<RoleTO> search(NodeCond searchCondition) {
 		return Arrays.asList(restTemplate.postForObject(
-				baseUrl + "role/search", searchCondition, RoleTO[].class));
+				BASE_URL + "role/search", searchCondition, RoleTO[].class));
 	}
 
 	@Override
 	public List<RoleTO> search(NodeCond searchCondition, int page, int size) {
 		return Arrays.asList(restTemplate.postForObject(
-				baseUrl + "role/search/{page}/{size}", searchCondition, RoleTO[].class, page, size));
+				BASE_URL + "role/search/{page}/{size}", searchCondition, RoleTO[].class, page, size));
 	}
 
 	@Override
 	public int searchCount(NodeCond searchCondition) {
-		return restTemplate.postForObject(baseUrl + "role/search/count.json",
+		return restTemplate.postForObject(BASE_URL + "role/search/count.json",
 				searchCondition, Integer.class);
 	}
 
 	@Override
 	public RoleTO selfRead(Long roleId) {
-		return restTemplate.getForObject(baseUrl + "role/selfRead/{roleId}",
+		return restTemplate.getForObject(BASE_URL + "role/selfRead/{roleId}",
 				RoleTO.class, roleId);
 	}
 
 	@Override
 	public RoleTO update(Long roleId, RoleMod roleMod) {
-		return restTemplate.postForObject(baseUrl + "role/update", roleMod,
+		return restTemplate.postForObject(BASE_URL + "role/update", roleMod,
 				RoleTO.class);
 	}
 

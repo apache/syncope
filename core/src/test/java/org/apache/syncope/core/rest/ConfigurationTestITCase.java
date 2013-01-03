@@ -18,88 +18,87 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
+
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCase extends AbstractTest {
 
-    @Test
-    public void create() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setKey("testKey");
-        configurationTO.setValue("testValue");
+	@Test
+	public void create() {
+		ConfigurationTO configurationTO = new ConfigurationTO();
+		configurationTO.setKey("testKey");
+		configurationTO.setValue("testValue");
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(BASE_URL + "configuration/create",
-                configurationTO, ConfigurationTO.class);
-        assertEquals(configurationTO, newConfigurationTO);
-    }
+		ConfigurationTO newConfigurationTO = configurationService
+				.create(configurationTO);
+		assertEquals(configurationTO, newConfigurationTO);
+	}
 
-    @Test
-    public void delete() throws UnsupportedEncodingException {
+	@Test
+	public void delete() throws UnsupportedEncodingException {
 
-        try {
-            restTemplate.getForObject(
-                    BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "nonExistent");
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-        }
+		try {
+			configurationService.delete("nonExistent");
+		} catch (HttpStatusCodeException e) {
+			assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+		}
 
-        ConfigurationTO tokenLengthTO = restTemplate.getForObject(BASE_URL + "configuration/read/{key}.json",
-                ConfigurationTO.class, "token.length");
+		ConfigurationTO tokenLengthTO = configurationService
+				.read("token.length");
 
-        ConfigurationTO deletedConfig =
-                restTemplate.getForObject(
-                BASE_URL + "configuration/delete/{key}.json", ConfigurationTO.class, "token.length");
-        assertNotNull(deletedConfig);
-        try {
-            restTemplate
-                    .getForObject(BASE_URL + "configuration/read/{key}.json", ConfigurationTO.class, "token.length");
-        } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
-        }
+		ConfigurationTO deletedConfig = configurationService
+				.delete("token.length");
+		assertNotNull(deletedConfig);
+		try {
+			configurationService.read("token.length");
+		} catch (HttpStatusCodeException e) {
+			assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+		}
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(BASE_URL + "configuration/create",
-                tokenLengthTO, ConfigurationTO.class);
-        assertEquals(tokenLengthTO, newConfigurationTO);
-    }
+		ConfigurationTO newConfigurationTO = configurationService
+				.create(tokenLengthTO);
+		assertEquals(tokenLengthTO, newConfigurationTO);
+	}
 
-    @Test
-    public void list() {
-        List<ConfigurationTO> configurations = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "configuration/list.json", ConfigurationTO[].class));
-        assertNotNull(configurations);
-        for (ConfigurationTO configuration : configurations) {
-            assertNotNull(configuration);
-        }
-    }
+	@Test
+	public void list() {
+		List<ConfigurationTO> configurations = configurationService.list();
+		assertNotNull(configurations);
+		for (ConfigurationTO configuration : configurations) {
+			assertNotNull(configuration);
+		}
+	}
 
-    @Test
-    public void read() {
-        ConfigurationTO configurationTO = restTemplate.getForObject(BASE_URL + "configuration/read/{key}.json",
-                ConfigurationTO.class, "token.expireTime");
+	@Test
+	public void read() {
+		ConfigurationTO configurationTO = configurationService
+				.read("token.expireTime");
 
-        assertNotNull(configurationTO);
-    }
+		assertNotNull(configurationTO);
+	}
 
-    @Test
-    public void update() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setKey("token.expireTime");
-        configurationTO.setValue("61");
+	@Test
+	public void update() {
+		ConfigurationTO configurationTO = configurationService.read("token.expireTime");
+		int value = Integer.parseInt(configurationTO.getValue());
+		value++;
+		configurationTO.setValue(value + "");
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(BASE_URL + "configuration/update",
-                configurationTO, ConfigurationTO.class);
-
-        assertEquals(configurationTO, newConfigurationTO);
-    }
+		ConfigurationTO newConfigurationTO = configurationService.update(configurationTO);
+		assertEquals(configurationTO, newConfigurationTO);
+		
+		newConfigurationTO = configurationService.read("token.expireTime");
+		assertEquals(configurationTO, newConfigurationTO);
+	}
 }

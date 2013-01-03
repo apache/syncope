@@ -33,12 +33,12 @@ public class EntitlementServiceProxy extends SpringServiceProxy implements Entit
 	@Override
 	public Set<String> getAllEntitlements() {
 		return new HashSet<String>(Arrays.asList(new RestTemplate().getForObject(
-                baseUrl + "auth/allentitlements.json", String[].class)));
+                BASE_URL + "auth/allentitlements.json", String[].class)));
 	}
 
 	@Override
 	public Set<String> getMyEntitlements() {
-		return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
+		return new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL
                 + "auth/entitlements.json", String[].class)));
 	}
 

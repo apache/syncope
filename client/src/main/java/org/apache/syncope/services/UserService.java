@@ -35,7 +35,7 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 
-@Path("/user")
+@Path("user")
 public interface UserService {
 
 	/**
@@ -55,19 +55,19 @@ public interface UserService {
 	 */
 	@Deprecated
 	@POST
-	@Path("/workflow/task/{taskId}/claim")
+	@Path("workflow/task/{taskId}/claim")
 	WorkflowFormTO claimForm(@PathParam("taskId") final String taskId);
 
 	@GET
-	@Path("/count")
+	@Path("count")
 	int count();
 
 	@POST
-	@Path("/")
+	@Path("")
 	UserTO create(final UserTO userTO);
 
 	@DELETE
-	@Path("/{userId}")
+	@Path("{userId}")
 	UserTO delete(@PathParam("userId") final Long userId);
 
 	/**
@@ -83,7 +83,7 @@ public interface UserService {
 	 */
 	@Deprecated
 	@GET
-	@Path("/{userId}/workflow/form")
+	@Path("{userId}/workflow/form")
 	WorkflowFormTO getFormForUser(@PathParam("userId") final Long userId);
 
 	/**
@@ -91,7 +91,7 @@ public interface UserService {
 	 */
 	@Deprecated
 	@GET
-	@Path("/workflow/form")
+	@Path("workflow/form")
 	List<WorkflowFormTO> getForms();
 
 	@GET
@@ -120,7 +120,7 @@ public interface UserService {
 	UserTO reactivateByUsername(String username);
 
 	@GET
-	@Path("/{userId}")
+	@Path("{userId}")
 	UserTO read(@PathParam("userId") final Long userId);
 
 	@GET
@@ -144,11 +144,11 @@ public interface UserService {
 			@QueryParam("size") @DefaultValue("25") final int size);
 
 	@POST
-	@Path("/count")
+	@Path("search/count")
 	int searchCount(final NodeCond searchCondition);
 
 //	@POST
-//	@Path("/user/{userId}/status")
+//	@Path("user/{userId}/status")
 //	public abstract UserTO setStatus(@PathParam("userId") final Long userId,
 //			final StatusMod statusUpdate);
 
@@ -157,7 +157,7 @@ public interface UserService {
 	 */
 	@Deprecated
 	@POST
-	@Path("/workflow/form")
+	@Path("workflow/form")
 	UserTO submitForm(final WorkflowFormTO form);
 
 	/**
@@ -179,7 +179,7 @@ public interface UserService {
 	UserTO suspendByUsername(String username);
 
 	@POST
-	@Path("/{userId}")
+	@Path("{userId}")
 	UserTO update(@PathParam("userId") final Long userId, final UserMod userMod);
 
 	@GET

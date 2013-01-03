@@ -45,30 +45,30 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 	public Boolean verifyPassword(@MatrixParam("uname") String username,
 			@MatrixParam("pwd") String password) {
 		return restTemplate.
-                getForObject(baseUrl + "user/verifyPassword/{username}.json?password={password}",
+                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password={password}",
                 Boolean.class, username, password);
 	}
 
 	@Override
 	public int count() {
-		return restTemplate.getForObject(baseUrl + "user/count.json", Integer.class);
+		return restTemplate.getForObject(BASE_URL + "user/count.json", Integer.class);
 	}
 
 	@Override
 	public List<UserTO> list() {
-		return  Arrays.asList(restTemplate.getForObject(baseUrl + "user/list.json", UserTO[].class));
+		return  Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list.json", UserTO[].class));
 	}
 
 	@Override
 	public List<UserTO> list(@QueryParam("page") int page,
 			@QueryParam("size") @DefaultValue("25") int size) {
-		return Arrays.asList(restTemplate.getForObject(baseUrl + "user/list/{page}/{size}.json",
+		return Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json",
                 UserTO[].class, page, size));
 	}
 
 	@Override
 	public UserTO read(@PathParam("userId") Long userId) {
-		return restTemplate.getForObject(baseUrl + "user/read/{userId}.json", UserTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userId);
 	}
 
 	@Override
@@ -80,17 +80,17 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 	@POST
 	@Path("/")
 	public UserTO create(UserTO userTO) {
-		return restTemplate.postForObject(baseUrl + "user/create", userTO, UserTO.class);
+		return restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
 	}
 
 	@Override
 	public UserTO update(@PathParam("userId") Long userId, UserMod userMod) {
-		return restTemplate.postForObject(baseUrl + "user/update", userMod, UserTO.class);
+		return restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
 	}
 
 	@Override
 	public UserTO delete(@PathParam("userId") Long userId) {
-		return restTemplate.getForObject(baseUrl + "user/delete/{userId}", UserTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/delete/{userId}", UserTO.class, userId);
 	}
 
 	@Override
@@ -102,85 +102,85 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 	@GET
 	@Path("/workflow/form")
 	public List<WorkflowFormTO> getForms() {
-		return  Arrays.asList(restTemplate.getForObject(baseUrl + "user/workflow/form/list", WorkflowFormTO[].class));
+		return  Arrays.asList(restTemplate.getForObject(BASE_URL + "user/workflow/form/list", WorkflowFormTO[].class));
 	}
 
 	@Override
 	public WorkflowFormTO getFormForUser(@PathParam("userId") Long userId) {
-		return restTemplate.getForObject(baseUrl + "user/workflow/form/{userId}", WorkflowFormTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/workflow/form/{userId}", WorkflowFormTO.class, userId);
 	}
 
 	@Override
 	public WorkflowFormTO claimForm(@PathParam("taskId") String taskId) {
-		return restTemplate.getForObject(baseUrl + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
+		return restTemplate.getForObject(BASE_URL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
 	}
 
 	@Override
 	public UserTO submitForm(WorkflowFormTO form) {
-		return restTemplate.postForObject(baseUrl + "user/workflow/form/submit", form, UserTO.class);
+		return restTemplate.postForObject(BASE_URL + "user/workflow/form/submit", form, UserTO.class);
 	}
 
 	@Override
 	public UserTO activate(long userId, String token) {
-		return restTemplate.getForObject(baseUrl + "user/activate/{userId}?token=" + token, UserTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/activate/{userId}?token=" + token, UserTO.class, userId);
 	}
 
 	@Override
 	public UserTO activateByUsername(String username, String token) {
-		return restTemplate.getForObject(baseUrl + "user/activateByUsername/{username}.json?token=" + token,
+		return restTemplate.getForObject(BASE_URL + "user/activateByUsername/{username}.json?token=" + token,
                 UserTO.class, username);
 	}
 
 	@Override
 	public UserTO suspend(long userId) {
-		return restTemplate.getForObject(baseUrl + "user/suspend/{userId}", UserTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/suspend/{userId}", UserTO.class, userId);
 	}
 
 	@Override
 	public UserTO reactivate(long userId) {
-		return restTemplate.getForObject(baseUrl + "user/reactivate/{userId}", UserTO.class, userId);
+		return restTemplate.getForObject(BASE_URL + "user/reactivate/{userId}", UserTO.class, userId);
 	}
 	
 	@Override
 	public UserTO reactivate(long userId, String query) {
-		return restTemplate.getForObject(baseUrl + "user/reactivate/" + userId + query, UserTO.class);
+		return restTemplate.getForObject(BASE_URL + "user/reactivate/" + userId + query, UserTO.class);
 	}
 
 	@Override
 	public UserTO suspendByUsername(String username) {
-		return restTemplate.getForObject(baseUrl + "user/suspendByUsername/{username}.json", UserTO.class, username);
+		return restTemplate.getForObject(BASE_URL + "user/suspendByUsername/{username}.json", UserTO.class, username);
 	}
 
 	@Override
 	public UserTO reactivateByUsername(String username) {
-		return restTemplate.getForObject(baseUrl + "user/reactivateByUsername/{username}.json", UserTO.class, username);
+		return restTemplate.getForObject(BASE_URL + "user/reactivateByUsername/{username}.json", UserTO.class, username);
 	}
 
 	@Override
 	public UserTO suspend(long userId, String query) {
-		return  restTemplate.getForObject(baseUrl + "user/suspend/" + userId + query, UserTO.class);
+		return  restTemplate.getForObject(BASE_URL + "user/suspend/" + userId + query, UserTO.class);
 	}
 
 	@Override
 	public UserTO readSelf() {
-		return restTemplate.getForObject(baseUrl + "user/read/self", UserTO.class);
+		return restTemplate.getForObject(BASE_URL + "user/read/self", UserTO.class);
 	}
 
 	@Override
 	public List<UserTO> search(NodeCond searchCondition) {
-		return Arrays.asList(restTemplate.postForObject(baseUrl + "user/search", searchCondition,
+		return Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search", searchCondition,
                 UserTO[].class));
 	}
 
 	@Override
 	public List<UserTO> search(NodeCond searchCondition, int page, int size) {
-		return Arrays.asList(restTemplate.postForObject(baseUrl + "user/search/{page}/{size}",
+		return Arrays.asList(restTemplate.postForObject(BASE_URL + "user/search/{page}/{size}",
                 searchCondition, UserTO[].class, page, size));
 	}
 
 	@Override
 	public int searchCount(NodeCond searchCondition) {
-		return restTemplate.postForObject(baseUrl + "user/search/count.json", searchCondition, Integer.class);
+		return restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCondition, Integer.class);
 	}
 
 }

@@ -18,19 +18,52 @@
  */
 package org.apache.syncope.services;
 
+import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-@Path("entitlements")
-public interface EntitlementService {
+import org.apache.syncope.client.to.ConfigurationTO;
 
-    @GET
-    public abstract Set<String> getAllEntitlements();
+@Path("configuration")
+public interface ConfigurationService {
 
-    @GET
-    @Path("own")
-    public abstract Set<String> getMyEntitlements();
+	@POST
+	ConfigurationTO create(final ConfigurationTO configurationTO);
+
+	@DELETE
+	@Path("{key}")
+	ConfigurationTO delete(@PathParam("key") final String key);
+
+	@GET
+	List<ConfigurationTO> list();
+
+	@GET
+	@Path("{key}")
+	ConfigurationTO read(@PathParam("key") final String key);
+
+	@PUT
+	@Path("{key}")
+	ConfigurationTO update(final ConfigurationTO configurationTO);
+
+	@GET
+	@Path("validators")
+	Set<String> getValidators();
+
+	@GET
+	@Path("mailTemplates")
+	Set<String> getMailTemplates();
+
+	@GET
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	Response dbExport();
 
 }
