@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.MembershipTO;
@@ -540,7 +540,8 @@ public class UserController {
         WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getResult(), null), updated.getPropByRes(), updated.getPerformedTasks()));
+                new SimpleEntry<Long, Boolean>(updated.getResult(), null),
+                updated.getPropByRes(), updated.getPerformedTasks()));
 
         propagationManager.execute(tasks);
 
@@ -610,8 +611,8 @@ public class UserController {
                 getAuthentication().getName());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE), updated.getPropByRes(), updated.
-                getPerformedTasks()), updated.getResult().getValue(), null, null);
+                new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
+                updated.getPropByRes(), updated.getPerformedTasks()), updated.getResult().getValue(), null, null);
         propagationManager.execute(tasks);
 
         final UserTO savedTO = dataBinder.getUserTO(updated.getResult().getKey());

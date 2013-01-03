@@ -19,11 +19,8 @@
 package org.apache.syncope.core.propagation;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,17 +28,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javassist.NotFoundException;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
-import org.apache.syncope.core.persistence.beans.Attributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
@@ -181,14 +175,14 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = wfResult.getPropByRes();
         if (propByRes == null || propByRes.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.<PropagationTask>emptyList();
         }
 
         if (syncResourceNames != null) {
             propByRes.get(PropagationOperation.CREATE).removeAll(syncResourceNames);
         }
 
-        return provision(user, password, wfResult.getResult().getValue(), false, propByRes);
+        return provision(user, password, null, null, wfResult.getResult().getValue(), false, propByRes);
     }
 
     /**
@@ -263,8 +257,8 @@ public class PropagationManager {
 
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
 
-        return getUpdateTaskIds(user, wfResult.getPropByRes(), password, vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.
-                getResult().getValue(), syncResourceNames);
+        return getUpdateTaskIds(user, wfResult.getPropByRes(), password, vAttrsToBeRemoved, vAttrsToBeUpdated,
+                wfResult.getResult().getValue(), syncResourceNames);
     }
 
     private List<PropagationTask> getUpdateTaskIds(final SyncopeUser user, final PropagationByResource propByRes,
@@ -273,15 +267,15 @@ public class PropagationManager {
             throws NotFoundException {
 
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(user, vAttrsToBeRemoved == null
-                ? Collections.EMPTY_SET
+                ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
-                ? Collections.EMPTY_SET
+                ? Collections.<AttributeMod>emptySet()
                 : vAttrsToBeUpdated, AttributableUtil.getInstance(AttributableType.USER));
 
-        if (propByRes != null && !propByRes.isEmpty()) {
-            localPropByRes.merge(propByRes);
-        } else {
+        if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(PropagationOperation.UPDATE, user.getResourceNames());
+        } else {
+            localPropByRes.merge(propByRes);
         }
 
         if (syncResourceNames != null) {
@@ -290,15 +284,15 @@ public class PropagationManager {
             localPropByRes.get(PropagationOperation.DELETE).removeAll(syncResourceNames);
         }
 
-        // Provide a proxy handler in order to take into consideration all the info about virtual attributes to
-        // be removed/updated as well.
+        Map<String, AttributeMod> vAttrsToBeUpdatedMap = null;
+        if (vAttrsToBeUpdated != null) {
+            vAttrsToBeUpdatedMap = new HashMap<String, AttributeMod>();
+            for (AttributeMod attrMod : vAttrsToBeUpdated) {
+                vAttrsToBeUpdatedMap.put(attrMod.getSchema(), attrMod);
+            }
+        }
 
-        final Attributable handleObject = (Attributable) Proxy.newProxyInstance(
-                Attributable.class.getClassLoader(),
-                new Class<?>[]{Attributable.class, Serializable.class},
-                new AttributableHandler(user, vAttrsToBeRemoved, vAttrsToBeUpdated));
-
-        return provision(handleObject, password, enable, false, localPropByRes);
+        return provision(user, password, vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
     }
 
     /**
@@ -337,7 +331,7 @@ public class PropagationManager {
             propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }
 
-        return provision(user, null, false, true, propByRes);
+        return provision(user, null, null, null, false, true, propByRes);
     }
 
     /**
@@ -349,47 +343,52 @@ public class PropagationManager {
      * @return account link + prepare attributes
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
-    private Map.Entry<String, Attribute> prepareAttribute(
-            final SchemaMapping mapping, final Attributable user, final String password)
-            throws ClassNotFoundException {
+    private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
+            final String password, final Set<String> vAttrsToBeRemoved,
+            final Map<String, AttributeMod> vAttrsToBeUpdated) throws ClassNotFoundException {
 
-        // Retrieve attributable ...
-        final Attributable attributable = user instanceof Proxy
-                ? ((AttributableHandler) Proxy.getInvocationHandler(user)).getObject()
-                : user;
-
-        final List<Attributable> attributables = new ArrayList<Attributable>();
+        final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
         switch (mapping.getIntMappingType().getAttributableType()) {
             case USER:
                 attributables.addAll(Collections.singleton(user));
                 break;
             case ROLE:
-                final List<Membership> memberships = ((SyncopeUser) attributable).getMemberships();
+                final List<Membership> memberships = user.getMemberships();
                 for (Membership membership : memberships) {
                     attributables.add(membership.getSyncopeRole());
                 }
                 break;
             case MEMBERSHIP:
-                attributables.addAll(((SyncopeUser) attributable).getMemberships());
+                attributables.addAll(user.getMemberships());
                 break;
             default:
         }
 
-        final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
-                SchemaMappingUtil.getIntValues(mapping, attributables, password, schemaDAO);
+        final List<AbstractAttrValue> values =
+                SchemaMappingUtil.getIntValues(mapping, attributables, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
-        final List<AbstractAttrValue> values = entry.getValue();
-        final AbstractSchema schema = entry.getKey();
-        final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
+        AbstractSchema schema = null;
+        final SchemaType schemaType;
+        switch (mapping.getIntMappingType()) {
+            case UserSchema:
+            case RoleSchema:
+            case MembershipSchema:
+                schema = schemaDAO.find(mapping.getIntAttrName(),
+                        SchemaMappingUtil.getIntMappingTypeClass(mapping.getIntMappingType()));
+                schemaType = schema == null ? SchemaType.String : schema.getType();
+                break;
+
+            default:
+                schemaType = SchemaType.String;
+        }
 
         final String extAttrName = SchemaMappingUtil.getExtAttrName(mapping);
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
                 + "\n* is accountId " + mapping.isAccountid()
-                + "\n* is password " + (mapping.isPassword() || mapping.getIntMappingType().equals(
-                IntMappingType.Password))
+                + "\n* is password " + (mapping.isPassword() || mapping.getIntMappingType() == IntMappingType.Password)
                 + "\n* mandatory condition " + mapping.getMandatoryCondition()
                 + "\n* Schema " + mapping.getIntAttrName()
                 + "\n* IntMappingType " + mapping.getIntMappingType().toString()
@@ -406,24 +405,25 @@ public class PropagationManager {
             }
         }
 
-        Map.Entry<String, Attribute> res;
+        Map.Entry<String, Attribute> result;
 
         if (mapping.isAccountid()) {
-            res = new DefaultMapEntry(objValues.iterator().next().toString(), null);
+            result = new SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
         } else if (mapping.isPassword()) {
-            res = new DefaultMapEntry(null,
+            result = new SimpleEntry<String, Attribute>(null,
                     AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
             if (schema != null && schema.isMultivalue()) {
-                res = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
+                result = new SimpleEntry<String, Attribute>(null,
+                        AttributeBuilder.build(extAttrName, objValues));
             } else {
-                res = new DefaultMapEntry(null, objValues.isEmpty()
+                result = new SimpleEntry<String, Attribute>(null, objValues.isEmpty()
                         ? AttributeBuilder.build(extAttrName)
                         : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
         }
 
-        return res;
+        return result;
     }
 
     /**
@@ -435,16 +435,12 @@ public class PropagationManager {
      * @param resource target resource
      * @return account link + prepared attributes
      */
-    private Map.Entry<String, Set<Attribute>> prepareAttributes(final Attributable user, final String password,
+    private Map.Entry<String, Set<Attribute>> prepareAttributes(final SyncopeUser user, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
             final Boolean enable, final ExternalResource resource) {
 
-        // Retrieve attributable ...
-        final Attributable attributable = user instanceof Proxy
-                ? ((AttributableHandler) Proxy.getInvocationHandler(user)).getObject()
-                : user;
-
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
-                new Object[]{attributable, resource, attributable.getAttributes()});
+                new Object[]{user, resource, user.getAttributes()});
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -454,15 +450,15 @@ public class PropagationManager {
             LOG.debug("Processing schema {}", SchemaMappingUtil.getIntAttrName(mapping));
 
             try {
-                preparedAttribute = prepareAttribute(mapping, user, password);
+                preparedAttribute = prepareAttribute(mapping, user, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
                 }
 
                 if (preparedAttribute.getValue() != null) {
-                    final Attribute alreadyAdded =
-                            AttributeUtil.find(preparedAttribute.getValue().getName(), attributes);
+                    final Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(),
+                            attributes);
 
                     if (alreadyAdded == null) {
                         attributes.add(preparedAttribute.getValue());
@@ -488,7 +484,7 @@ public class PropagationManager {
         }
 
         // Evaluate AccountLink expression
-        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), (SyncopeUser) attributable);
+        String evalAccountLink = jexlUtil.evaluate(resource.getAccountLink(), user);
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
@@ -509,7 +505,7 @@ public class PropagationManager {
             attributes.add(AttributeBuilder.buildEnabled(enable));
         }
 
-        return new DefaultMapEntry(accountId, attributes);
+        return new SimpleEntry<String, Set<Attribute>>(accountId, attributes);
     }
 
     /**
@@ -517,23 +513,18 @@ public class PropagationManager {
      *
      * @param user user to be provisioned
      * @param password cleartext password to be provisioned
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether user must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> provision(
-            final Attributable user,
-            final String password,
-            final Boolean enable,
-            final boolean deleteOnResource, final PropagationByResource propByRes) {
+    protected List<PropagationTask> provision(final SyncopeUser user, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes) {
 
-        // Retrieve attributable ...
-        final Attributable attributable = user instanceof Proxy
-                ? ((AttributableHandler) Proxy.getInvocationHandler(user)).getObject()
-                : user;
-
-        LOG.debug("Provisioning with user {}:\n{}", attributable, propByRes);
+        LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
 
         // Avoid duplicates - see javadoc
         propByRes.purge();
@@ -553,14 +544,14 @@ public class PropagationManager {
                 PropagationTask task = new PropagationTask();
                 task.setResource(resource);
                 if (!deleteOnResource) {
-                    task.setSyncopeUser((SyncopeUser) attributable);
+                    task.setSyncopeUser(user);
                 }
                 task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password, enable, resource);
-
+                Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password,
+                        vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                 task.setAccountId(preparedAttrs.getKey());
                 task.setAttributes(preparedAttrs.getValue());
 
@@ -748,18 +739,19 @@ public class PropagationManager {
                             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
                         } else {
                             /*
-                             * We must choose here whether to a. actually delete the provided user from the external
-                             * resource b. just update the provided user data onto the external resource
+                             * We must choose here whether to
+                             *  a. actually delete the provided user from the external resource
+                             *  b. just update the provided user data onto the external resource
                              *
                              * (a) happens when either there is no user associated with the PropagationTask (this takes
                              * place when the task is generated via UserController.delete()) or the provided updated
                              * user hasn't the current resource assigned (when the task is generated via
                              * UserController.update()).
                              *
-                             * (b) happens when the provided updated user does have the current resource assigned (when
-                             * the task is generated via UserController.update()): this basically means that before such
-                             * update, this user used to have the current resource assigned by more than one mean (for
-                             * example, two different memberships with the same resource).
+                             * (b) happens when the provided updated user does have the current resource assigned
+                             * (when the task is generated via UserController.update()): this basically means that
+                             * before such update, this user used to have the current resource assigned by more than
+                             * one mean (for example, two different memberships with the same resource).
                              */
 
                             SyncopeUser user = null;
@@ -890,59 +882,6 @@ public class PropagationManager {
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);
             return null;
-        }
-    }
-
-    public static class AttributableHandler implements InvocationHandler {
-
-        private Attributable object;
-
-        private Set<String> vAttrsToBeRemoved;
-
-        private Map<String, AttributeMod> vAttrsToBeUpdated;
-
-        public AttributableHandler(
-                final Attributable object,
-                final Set<String> vAttrsToBeRemoved,
-                final Set<AttributeMod> vAttrsToBeUpdated) {
-            this.object = object;
-            this.vAttrsToBeRemoved = vAttrsToBeRemoved;
-
-            if (vAttrsToBeUpdated != null) {
-                this.vAttrsToBeUpdated = new HashMap<String, AttributeMod>(vAttrsToBeUpdated.size());
-
-                for (AttributeMod attrMod : vAttrsToBeUpdated) {
-                    this.vAttrsToBeUpdated.put(attrMod.getSchema(), attrMod);
-                }
-            } else {
-                this.vAttrsToBeUpdated = Collections.EMPTY_MAP;
-            }
-        }
-
-        @Override
-        public Object invoke(final Object proxy, final Method method, final Object[] args)
-                throws Throwable {
-            if ("getVirtualAttribute".equals(method.getName()) && args.length == 1 && (args[0] instanceof String)) {
-                final AbstractVirAttr attr = object.getVirtualAttribute((String) args[0]);
-
-                if (vAttrsToBeUpdated.containsKey((String) args[0])) {
-                    attr.setValues(vAttrsToBeUpdated.get((String) args[0]).getValuesToBeAdded());
-                } else if (vAttrsToBeRemoved.contains((String) args[0])) {
-                    if (attr != null) {
-                        attr.getValues().clear();
-                    }
-                } else {
-                    throw new RuntimeException("Virtual attribute has not to be updated");
-                }
-
-                return attr;
-            } else {
-                return method.invoke(object, args);
-            }
-        }
-
-        public Attributable getObject() {
-            return object;
         }
     }
 }

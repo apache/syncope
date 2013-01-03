@@ -74,13 +74,13 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public List<String> getValuesAsStrings() {
         List<String> result;
-        if (getUniqueValue() != null) {
-            result = Collections.singletonList(getUniqueValue().getValueAsString());
-        } else {
+        if (getUniqueValue() == null) {
             result = new ArrayList<String>(getValues().size());
             for (AbstractAttrValue attributeValue : getValues()) {
                 result.add(attributeValue.getValueAsString());
             }
+        } else {
+            result = Collections.singletonList(getUniqueValue().getValueAsString());
         }
 
         return result;
