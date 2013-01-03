@@ -38,151 +38,155 @@ import org.apache.syncope.client.to.WorkflowFormTO;
 @Path("user")
 public interface UserService {
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO activate(long userId, String token);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO activate(long userId, String token);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus()}
-	 */
-	@Deprecated
-	UserTO activateByUsername(String username, String token);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO activateByUsername(String username, String token);
 
-	/**
-	 * @deprecated This method needs to be moved to a new workflow service.
-	 */
-	@Deprecated
-	@POST
-	@Path("workflow/task/{taskId}/claim")
-	WorkflowFormTO claimForm(@PathParam("taskId") final String taskId);
+    /**
+     * @deprecated This method needs to be moved to a new workflow service.
+     */
+    @Deprecated
+    @POST
+    @Path("workflow/task/{taskId}/claim")
+    WorkflowFormTO claimForm(@PathParam("taskId") final String taskId);
 
-	@GET
-	@Path("count")
-	int count();
+    @GET
+    @Path("count")
+    int count();
 
-	@POST
-	@Path("")
-	UserTO create(final UserTO userTO);
+    @POST
+    @Path("")
+    UserTO create(final UserTO userTO);
 
-	@DELETE
-	@Path("{userId}")
-	UserTO delete(@PathParam("userId") final Long userId);
+    @DELETE
+    @Path("{userId}")
+    UserTO delete(@PathParam("userId") final Long userId);
 
-	/**
-	 * @deprecated This method needs to be moved to a new workflow service.
-	 */
-	@Deprecated
-	@POST
-	UserTO executeWorkflow(@PathParam("taskId") final String taskId,
-			final UserTO userTO);
+    /**
+     * @deprecated This method needs to be moved to a new workflow service.
+     */
+    @Deprecated
+    @POST
+    UserTO executeWorkflow(@PathParam("taskId") final String taskId, final UserTO userTO);
 
-	/**
-	 * @deprecated This method needs to be moved to a new workflow service.
-	 */
-	@Deprecated
-	@GET
-	@Path("{userId}/workflow/form")
-	WorkflowFormTO getFormForUser(@PathParam("userId") final Long userId);
+    /**
+     * @deprecated This method needs to be moved to a new workflow service.
+     */
+    @Deprecated
+    @GET
+    @Path("{userId}/workflow/form")
+    WorkflowFormTO getFormForUser(@PathParam("userId") final Long userId);
 
-	/**
-	 * @deprecated This method needs to be moved to a new workflow service.
-	 */
-	@Deprecated
-	@GET
-	@Path("workflow/form")
-	List<WorkflowFormTO> getForms();
+    /**
+     * @deprecated This method needs to be moved to a new workflow service.
+     */
+    @Deprecated
+    @GET
+    @Path("workflow/form")
+    List<WorkflowFormTO> getForms();
 
-	@GET
-	List<UserTO> list();
+    @GET
+    List<UserTO> list();
 
-	@GET
-	List<UserTO> list(@QueryParam("page") final int page,
-			@QueryParam("size") @DefaultValue("25") final int size);
+    @GET
+    List<UserTO> list(@QueryParam("page") final int page,
+            @QueryParam("size") @DefaultValue("25") final int size);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO reactivate(long userId);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO reactivate(long userId);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO reactivate(long userId, String query);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO reactivate(long userId, String query);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO reactivateByUsername(String username);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO reactivateByUsername(String username);
 
-	@GET
-	@Path("{userId}")
-	UserTO read(@PathParam("userId") final Long userId);
+    @GET
+    @Path("{userId}")
+    UserTO read(@PathParam("userId") final Long userId);
 
-	@GET
-	UserTO read(@MatrixParam("uname") final String username);
+    @GET
+    UserTO read(@MatrixParam("uname") final String username);
 
-	/**
-	 * @deprecated As of release 1.2.0, use {@link #read(Long)} or
-	 *             {@link #read(String)} instead.
-	 */
-	@Deprecated
-	UserTO readSelf();
+    /**
+     * @deprecated As of release 1.2.0, use {@link #read(Long)} or
+     *             {@link #read(String)} instead.
+     */
+    @Deprecated
+    UserTO readSelf();
 
-	@POST
-	@Path("search")
-	List<UserTO> search(final NodeCond searchCondition);
+    @POST
+    @Path("search")
+    List<UserTO> search(final NodeCond searchCondition);
 
-	@POST
-	@Path("search")
-	List<UserTO> search(final NodeCond searchCondition,
-			@QueryParam("page") final int page,
-			@QueryParam("size") @DefaultValue("25") final int size);
+    @POST
+    @Path("search")
+    List<UserTO> search(final NodeCond searchCondition, @QueryParam("page") final int page,
+            @QueryParam("size") @DefaultValue("25") final int size);
 
-	@POST
-	@Path("search/count")
-	int searchCount(final NodeCond searchCondition);
+    @POST
+    @Path("search/count")
+    int searchCount(final NodeCond searchCondition);
 
-//	@POST
-//	@Path("user/{userId}/status")
-//	public abstract UserTO setStatus(@PathParam("userId") final Long userId,
-//			final StatusMod statusUpdate);
+    @POST
+    @Path("user/{userId}/status")
+    public abstract UserTO setStatus(@PathParam("userId") final Long userId, final StatusMod statusUpdate);
 
-	/**
-	 * @deprecated This method needs to be moved to a new workflow service.
-	 */
-	@Deprecated
-	@POST
-	@Path("workflow/form")
-	UserTO submitForm(final WorkflowFormTO form);
+    /**
+     * @deprecated This method needs to be moved to a new workflow service.
+     */
+    @Deprecated
+    @POST
+    @Path("workflow/form")
+    UserTO submitForm(final WorkflowFormTO form);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO suspend(long userId);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO suspend(long userId);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO suspend(long userId, String query);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO suspend(long userId, String query);
 
-	/**
-	 * @deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
-	 */
-	@Deprecated
-	UserTO suspendByUsername(String username);
+    /**
+     * @deprecated As of release 1.2.0, replaced by
+     *             {@link #setStatus(Long, StatusMod)}
+     */
+    @Deprecated
+    UserTO suspendByUsername(String username);
 
-	@POST
-	@Path("{userId}")
-	UserTO update(@PathParam("userId") final Long userId, final UserMod userMod);
+    @POST
+    @Path("{userId}")
+    UserTO update(@PathParam("userId") final Long userId, final UserMod userMod);
 
-	@GET
-	Boolean verifyPassword(@MatrixParam("uname") String username,
-			@MatrixParam("pwd") final String password);
+    @GET
+    Boolean verifyPassword(@MatrixParam("uname") String username, @MatrixParam("pwd") final String password);
 }

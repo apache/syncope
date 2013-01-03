@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
+import org.apache.syncope.client.mod.StatusMod;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
@@ -140,7 +141,7 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 	public UserTO reactivate(long userId) {
 		return restTemplate.getForObject(BASE_URL + "user/reactivate/{userId}", UserTO.class, userId);
 	}
-	
+
 	@Override
 	public UserTO reactivate(long userId, String query) {
 		return restTemplate.getForObject(BASE_URL + "user/reactivate/" + userId + query, UserTO.class);
@@ -182,5 +183,10 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 	public int searchCount(NodeCond searchCondition) {
 		return restTemplate.postForObject(BASE_URL + "user/search/count.json", searchCondition, Integer.class);
 	}
+
+    @Override
+    public UserTO setStatus(Long userId, StatusMod statusUpdate) {
+        return null;
+    }
 
 }

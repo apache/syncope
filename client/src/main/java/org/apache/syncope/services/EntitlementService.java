@@ -27,10 +27,10 @@ import javax.ws.rs.Path;
 public interface EntitlementService {
 
     @GET
-    public abstract Set<String> getAllEntitlements();
+    Set<String> getAllEntitlements();
 
     @GET
     @Path("own")
-    public abstract Set<String> getMyEntitlements();
+    Set<String> getMyEntitlements();
 
 }

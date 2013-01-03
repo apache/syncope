@@ -24,7 +24,7 @@ public abstract class SpringServiceProxy {
 
 	protected RestTemplate restTemplate;
 
-	protected String BASE_URL;
+	protected String BASE_URL; //TODO rename property to baseUrl to match naming conventions
 
 	public SpringServiceProxy(String baseUrl, RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
