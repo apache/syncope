@@ -2036,7 +2036,9 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE260() {
-        // 1. create user with SOAP resource, succesfully propagated
+        // ----------------------------------
+        // create user and check virtual attribute value propagation
+        // ----------------------------------
         UserTO userTO = getSampleTO("syncope260@apache.org");
         userTO.addResource("ws-target-resource-2");
 
@@ -2046,37 +2048,91 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
 
-        // 3. try to find this user on the external SOAP resource
         ConnObjectTO connObjectTO = restTemplate.getForObject(
                 BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
-        
+        // ----------------------------------
+
+        // ----------------------------------
+        // update user virtual attribute and check virtual attribute value update propagation
+        // ----------------------------------
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        
+
         AttributeMod attrMod = new AttributeMod();
-        attrMod.setSchema("surname");
-        attrMod.addValueToBeRemoved("Surname");
-        attrMod.addValueToBeAdded("Surname2");
-        
-        userMod.addAttributeToBeUpdated(attrMod);
-        
+        attrMod.setSchema("virtualdata");
+        attrMod.addValueToBeRemoved("virtualvalue");
+        attrMod.addValueToBeAdded("virtualvalue2");
+
+        userMod.addVirtualAttributeToBeUpdated(attrMod);
+
         userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
-        
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
+        // update user attribute and check virtual attribute value (unchanged)
+        // ----------------------------------
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        attrMod = new AttributeMod();
+        attrMod.setSchema("surname");
+        attrMod.addValueToBeRemoved("Surname");
+        attrMod.addValueToBeAdded("Surname2");
+
+        userMod.addAttributeToBeUpdated(attrMod);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
         connObjectTO = restTemplate.getForObject(
                 BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
-        
+
         // attribute "name" mapped on virtual attribute "virtualdata" shouldn't be changed
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
+        // remove user virtual attribute and check virtual attribute value (reset)
+        // ----------------------------------
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertTrue(userTO.getVirtualAttributes().isEmpty());
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+
+        // attribute "name" mapped on virtual attribute "virtualdata" should be reset
+        assertTrue(connObjectTO.getAttributeMap().get("NAME").getValues() == null
+                || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        // ----------------------------------
     }
 }

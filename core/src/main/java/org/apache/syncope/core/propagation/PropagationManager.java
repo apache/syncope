@@ -357,7 +357,7 @@ public class PropagationManager {
         final Attributable attributable = user instanceof Proxy
                 ? ((AttributableHandler) Proxy.getInvocationHandler(user)).getObject()
                 : user;
-        
+
         final List<Attributable> attributables = new ArrayList<Attributable>();
 
         switch (mapping.getIntMappingType().getAttributableType()) {
@@ -928,7 +928,9 @@ public class PropagationManager {
                 if (vAttrsToBeUpdated.containsKey((String) args[0])) {
                     attr.setValues(vAttrsToBeUpdated.get((String) args[0]).getValuesToBeAdded());
                 } else if (vAttrsToBeRemoved.contains((String) args[0])) {
-                    attr.getValues().clear();
+                    if (attr != null) {
+                        attr.getValues().clear();
+                    }
                 } else {
                     throw new RuntimeException("Virtual attribute has not to be updated");
                 }
