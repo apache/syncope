@@ -28,6 +28,7 @@ import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.services.ConfigurationServiceProxy;
 import org.apache.syncope.services.ConnectorServiceProxy;
 import org.apache.syncope.services.EntitlementServiceProxy;
+import org.apache.syncope.services.LoggerServiceProxy;
 import org.apache.syncope.services.RoleServiceProxy;
 import org.apache.syncope.services.UserServiceProxy;
 import org.junit.Before;
@@ -80,10 +81,12 @@ public abstract class AbstractTest {
 	protected RoleServiceProxy roleService;
 
 	protected EntitlementServiceProxy entitlementService;
-	
+
 	protected ConfigurationServiceProxy configurationService;
-	
+
 	protected ConnectorServiceProxy connectorService;
+
+	protected LoggerServiceProxy loggerService;
 
 	@Autowired
 	protected DataSource testDataSource;
@@ -110,5 +113,6 @@ public abstract class AbstractTest {
 		entitlementService = new EntitlementServiceProxy(BASE_URL, restTemplate);
 		configurationService = new ConfigurationServiceProxy(BASE_URL, restTemplate);
 		connectorService = new ConnectorServiceProxy(BASE_URL, restTemplate);
+		loggerService = new LoggerServiceProxy(BASE_URL, restTemplate);
 	}
 }

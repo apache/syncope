@@ -18,25 +18,29 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+
 import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditLoggerName;
 import org.apache.syncope.types.SyncopeLoggerLevel;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import ch.qos.logback.classic.Level;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void listLogs() {
-        List<LoggerTO> loggers =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        List<LoggerTO> loggers = loggerService.listLogs();
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -46,8 +50,8 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void listAudits() {
-        List<AuditLoggerName> audits =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        List<AuditLoggerName> audits = loggerService.listAudits();
+
         assertNotNull(audits);
         assertFalse(audits.isEmpty());
         for (AuditLoggerName audit : audits) {
@@ -57,19 +61,23 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void setLevel() {
-        List<LoggerTO> loggers =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        List<LoggerTO> loggers = loggerService.listLogs();
         assertNotNull(loggers);
         int startSize = loggers.size();
 
-        LoggerTO logger = restTemplate.postForObject(BASE_URL + "logger/log/{name}/{level}", null, LoggerTO.class,
-                "TEST", "INFO");
+        LoggerTO logger = loggerService.setLogLevel("TEST", Level.INFO);
         assertNotNull(logger);
         assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
 
-        loggers = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        loggers = loggerService.listLogs();
         assertNotNull(loggers);
         assertEquals(startSize + 1, loggers.size());
+
+        // TEST Delete
+        loggerService.deleteLog("TEST");
+        loggers = loggerService.listLogs();
+        assertNotNull(loggers);
+        assertEquals(startSize, loggers.size());
     }
 
     @Test
@@ -77,20 +85,19 @@ public class LoggerTestITCase extends AbstractTest {
         AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
                 AuditElements.ReportSubCategory.listExecutions, AuditElements.Result.failure);
 
-        List<AuditLoggerName> audits =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        List<AuditLoggerName> audits = loggerService.listAudits();
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
 
-        restTemplate.put(BASE_URL + "logger/audit/enable", auditLoggerName);
+        loggerService.enableAudit(auditLoggerName);
 
-        audits = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        audits = loggerService.listAudits();
         assertNotNull(audits);
         assertTrue(audits.contains(auditLoggerName));
 
-        restTemplate.put(BASE_URL + "logger/audit/disable", auditLoggerName);
+        loggerService.disableAudit(auditLoggerName);
 
-        audits = Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list", AuditLoggerName[].class));
+        audits = loggerService.listAudits();
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
     }
