@@ -148,7 +148,7 @@ public class PreferenceManager {
         try {
             cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", new Object[]{getClass().getSimpleName(), current, e});
         }
     }
 
@@ -166,7 +166,7 @@ public class PreferenceManager {
         try {
             cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", new Object[]{getClass().getSimpleName(), current, e});
         }
     }
 
