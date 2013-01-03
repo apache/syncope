@@ -144,8 +144,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
                 LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
                 registerConnector(resource);
             } catch (Exception e) {
-                LOG.error("While registering resource-connector pair {}-{}", new Object[]{resource,
-                            resource.getConnector(), e});
+                LOG.error("While registering resource-connector pair {}-{}", resource, resource.getConnector(), e);
             }
         }
 

@@ -257,8 +257,8 @@ public class ConnInstanceController extends AbstractController {
 
                 ConnectorKey key = bundle.getConnectorKey();
 
-                LOG.debug("\nBundle name: {}" + "\nBundle version: {}" + "\nBundle class: {}", new Object[]{
-                            key.getBundleName(), key.getBundleVersion(), key.getConnectorName()});
+                LOG.debug("\nBundle name: {}" + "\nBundle version: {}" + "\nBundle class: {}",
+                        key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
 
                 connectorBundleTO.setBundleName(key.getBundleName());
                 connectorBundleTO.setConnectorName(key.getConnectorName());

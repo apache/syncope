@@ -113,6 +113,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> reportletClass = new AjaxDropDownChoicePanel<String>("reportletClass",
                 "reportletClass", new IModel<String>() {
+
             private static final long serialVersionUID = -2316468110411802130L;
 
             @Override
@@ -142,6 +143,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();
         reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
@@ -156,6 +158,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         propertiesContainer.add(buildPropView());
 
         final AjaxButton submit = new AjaxButton("apply", new ResourceModel("apply")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -189,6 +192,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         form.add(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -231,6 +235,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private ListView<String> buildPropView() {
         LoadableDetachableModel<List<String>> propViewModel = new LoadableDetachableModel<List<String>>() {
+
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -249,6 +254,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         };
 
         propView = new ListView<String>("propView", propViewModel) {
+
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -262,8 +268,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 try {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
-                    LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
-                                ReportletConfModalPage.this.reportletConf.getClass(), e});
+                    LOG.error("Could not find field {} in class {}", fieldName,
+                            ReportletConfModalPage.this.reportletConf.getClass(), e);
                 }
                 if (field == null) {
                     return;
@@ -285,7 +291,8 @@ public class ReportletConfModalPage extends BaseModalPage {
 
                     Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        listItemType =
+                                (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     }
 
                     FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);

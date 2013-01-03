@@ -42,10 +42,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public <T extends AbstractDerAttr> T getDerivedAttribute(final String derivedSchemaName) {
         T result = null;
-        for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator(); result == null
-                && itor.hasNext();) {
+        for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator();
+                result == null && itor.hasNext();) {
 
-            final T derivedAttribute = (T) itor.next();
+            T derivedAttribute = (T) itor.next();
             if (derivedAttribute.getDerivedSchema() != null
                     && derivedSchemaName.equals(derivedAttribute.getDerivedSchema().getName())) {
 
@@ -58,10 +58,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public <T extends AbstractVirAttr> T getVirtualAttribute(final String virtualSchemaName) {
         T result = null;
-        for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator(); result == null
-                && itor.hasNext();) {
+        for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator();
+                result == null && itor.hasNext();) {
 
-            final T virtualAttribute = (T) itor.next();
+            T virtualAttribute = (T) itor.next();
             if (virtualAttribute.getVirtualSchema() != null
                     && virtualSchemaName.equals(virtualAttribute.getVirtualSchema().getName())) {
 
@@ -76,7 +76,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         final Map<AbstractSchema, AbstractAttr> map = new HashMap<AbstractSchema, AbstractAttr>();
 
         for (AbstractAttr attr : getAttributes()) {
-            map.put((AbstractSchema) attr.getSchema(), attr);
+            map.put(attr.getSchema(), attr);
         }
 
         return map;
@@ -86,7 +86,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         final Map<AbstractDerSchema, AbstractDerAttr> map = new HashMap<AbstractDerSchema, AbstractDerAttr>();
 
         for (AbstractDerAttr attr : getDerivedAttributes()) {
-            map.put((AbstractDerSchema) attr.getDerivedSchema(), attr);
+            map.put(attr.getDerivedSchema(), attr);
         }
 
         return map;
@@ -96,7 +96,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         final Map<AbstractVirSchema, AbstractVirAttr> map = new HashMap<AbstractVirSchema, AbstractVirAttr>();
 
         for (AbstractVirAttr attr : getVirtualAttributes()) {
-            map.put((AbstractVirSchema) attr.getVirtualSchema(), attr);
+            map.put(attr.getVirtualSchema(), attr);
         }
 
         return map;

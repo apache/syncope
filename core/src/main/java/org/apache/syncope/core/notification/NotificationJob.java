@@ -102,8 +102,7 @@ public class NotificationJob implements Job {
         smtpUsername = confDAO.find("smtp.username", "").getValue();
         smtpPassword = confDAO.find("smtp.password", "").getValue();
 
-        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]",
-                new Object[]{smtpHost, smtpPort, smtpUsername});
+        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]", smtpHost, smtpPort, smtpUsername);
     }
 
     public TaskExec executeSingle(final NotificationTask task) {

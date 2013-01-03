@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.workflow.user;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
@@ -85,8 +85,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagateEnable),
-                propByRes, "create");
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(user.getId(),
+                propagateEnable), propByRes, "create");
     }
 
     @Override
@@ -112,7 +112,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated.getId(), true), propByRes,
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(updated.getId(), true),
+                propByRes,
                 "update");
     }
 

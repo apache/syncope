@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.MembershipTO;
@@ -485,9 +485,8 @@ public class UserController {
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated.getResult(), null),
-                updated.getPropByRes(),
-                updated.getPerformedTasks()));
+                new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(updated.getResult(), null),
+                updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
@@ -559,7 +558,7 @@ public class UserController {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(updated.getResult().getKey(), Boolean.TRUE),
+                new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
                 updated.getPropByRes(),
                 updated.getPerformedTasks()),
                 updated.getResult().getValue(),

@@ -102,7 +102,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
             } catch (ClassNotFoundException e) {
                 LOG.error("Invalid PropagationAction class name '{}' for resource {}",
-                        new Object[]{resource, resource.getPropagationActionsClassName(), e});
+                        resource, resource.getPropagationActionsClassName(), e);
             }
         }
 

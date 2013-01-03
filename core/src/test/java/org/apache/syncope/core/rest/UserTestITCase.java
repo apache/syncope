@@ -18,12 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +27,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
@@ -73,7 +67,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
-	
+
+    private ConnObjectTO readUserConnObj(String resourceName, String userId) {
+        return restTemplate.getForObject(BASE_URL
+                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class,
+                resourceName, userId);
+    }
+
     public static UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
@@ -100,7 +100,7 @@ public class UserTestITCase extends AbstractTest {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
 
         try {
-        	userService.read(1l);
+            userService.read(1l);
             fail();
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
@@ -218,7 +218,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-        	userTO = userService.update(userMod.getId(), userMod);
+            userTO = userService.update(userMod.getId(), userMod);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
@@ -248,7 +248,7 @@ public class UserTestITCase extends AbstractTest {
 
         sce = null;
         try {
-        	userTO = userService.update(userMod.getId(), userMod);
+            userTO = userService.update(userMod.getId(), userMod);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.Propagation);
         }
@@ -299,7 +299,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-        	userTO = userService.create(userTO);
+            userTO = userService.create(userTO);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
@@ -373,7 +373,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
 
         userTO.addMembership(membershipTO);
-        
+
         userService.create(userTO);
     }
 
@@ -460,7 +460,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(newUserTO.getCreationDate());
 
         // 2. check for virtual attribute value
-        newUserTO = userService.read(newUserTO.getId()); 
+        newUserTO = userService.read(newUserTO.getId());
         assertNotNull(newUserTO);
 
         assertNotNull(newUserTO.getVirtualAttributeMap());
@@ -494,7 +494,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify =userService.verifyPassword(newUserTO.getUsername(), "password123");
+        Boolean verify = userService.verifyPassword(newUserTO.getUsername(), "password123");
         assertTrue(verify);
 
         verify = userService.verifyPassword(newUserTO.getUsername(), "passwordXX");
@@ -587,7 +587,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. request if there is any pending task for user just created
         WorkflowFormTO form = userService.getFormForUser(userTO.getId());
-        
+
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
@@ -600,7 +600,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-        	userService.claimForm(form.getTaskId());
+            userService.claimForm(form.getTaskId());
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.Workflow);
         }
@@ -707,7 +707,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void delete() {
         try {
-        	userService.delete(0l);
+            userService.delete(0l);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -760,7 +760,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
 
         try {
-        	userService.read(userTO.getId());
+            userService.read(userTO.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -1084,7 +1084,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertEquals("created", userTO.getStatus());
 
-		userTO = userService.activate(userTO.getId(), userTO.getToken());
+        userTO = userService.activate(userTO.getId(), userTO.getToken());
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -1112,7 +1112,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("created", userTO.getStatus());
 
         userTO = userService.activateByUsername(userTO.getUsername(), userTO.getToken());
-        
+
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -1439,7 +1439,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-		ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
@@ -1468,7 +1468,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
         String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-		ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1533,7 +1533,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getResources().size());
 
         String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-		ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1585,7 +1585,7 @@ public class UserTestITCase extends AbstractTest {
         Throwable t = null;
 
         try {
-        	readUserConnObj("resource-csv", userId);
+            readUserConnObj("resource-csv", userId);
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
             t = e;
@@ -1719,9 +1719,97 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(defaultConfigurationTO, oldConfTO);
     }
 
-	private ConnObjectTO readUserConnObj(String resourceName, String userId) {
-		return restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class,
-                resourceName, userId);
-	}
+    @Test
+    public void issueSYNCOPE260() {
+        // ----------------------------------
+        // create user and check virtual attribute value propagation
+        // ----------------------------------
+        UserTO userTO = getSampleTO("syncope260@apache.org");
+        userTO.addResource("ws-target-resource-2");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        ConnObjectTO connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
+        // update user virtual attribute and check virtual attribute value update propagation
+        // ----------------------------------
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        AttributeMod attrMod = new AttributeMod();
+        attrMod.setSchema("virtualdata");
+        attrMod.addValueToBeRemoved("virtualvalue");
+        attrMod.addValueToBeAdded("virtualvalue2");
+
+        userMod.addVirtualAttributeToBeUpdated(attrMod);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
+        // update user attribute and check virtual attribute value (unchanged)
+        // ----------------------------------
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        attrMod = new AttributeMod();
+        attrMod.setSchema("surname");
+        attrMod.addValueToBeRemoved("Surname");
+        attrMod.addValueToBeAdded("Surname2");
+
+        userMod.addAttributeToBeUpdated(attrMod);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
+
+        // attribute "name" mapped on virtual attribute "virtualdata" shouldn't be changed
+        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
+        // remove user virtual attribute and check virtual attribute value (reset)
+        // ----------------------------------
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertTrue(userTO.getVirtualAttributes().isEmpty());
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+
+        // attribute "name" mapped on virtual attribute "virtualdata" should be reset
+        assertTrue(connObjectTO.getAttributeMap().get("NAME").getValues() == null
+                || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        // ----------------------------------
+    }
 }

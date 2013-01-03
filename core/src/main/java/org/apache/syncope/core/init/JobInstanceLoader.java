@@ -171,8 +171,8 @@ public class JobInstanceLoader {
                 try {
                     syncActionsClass = Class.forName(jobActionsClassName);
                 } catch (Exception e) {
-                    LOG.error("Class {} not found, reverting to {}", new Object[]{jobActionsClassName,
-                                syncActionsClass.getName(), e});
+                    LOG.error("Class {} not found, reverting to {}", jobActionsClassName,
+                            syncActionsClass.getName(), e);
                 }
             }
             SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().

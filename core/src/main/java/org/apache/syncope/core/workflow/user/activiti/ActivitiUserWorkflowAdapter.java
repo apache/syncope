@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +53,6 @@ import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
@@ -252,8 +252,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(user.getId(), propagateEnable),
-                propByRes, getPerformedTasks(user));
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new SimpleEntry<Long, Boolean>(user.getId(), propagateEnable), propByRes, getPerformedTasks(user));
     }
 
     private Set<String> doExecuteTask(final SyncopeUser user, final String task,
@@ -325,8 +325,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new DefaultMapEntry(updated.getId(), propagateEnable),
-                propByRes, task);
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(
+                updated.getId(), propagateEnable), propByRes, task);
     }
 
     @Override
@@ -600,7 +600,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        return new DefaultMapEntry(task, formData);
+        return new SimpleEntry<Task, TaskFormData>(task, formData);
     }
 
     @Override
@@ -668,7 +668,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             clearPassword = decrypt(encryptedPwd);
         }
 
-        return new WorkflowResult<Map.Entry<Long, String>>(new DefaultMapEntry(updated.getId(), clearPassword),
-                propByRes, postTasks);
+        return new WorkflowResult<Map.Entry<Long, String>>(new SimpleEntry<Long, String>(updated.getId(),
+                clearPassword), propByRes, postTasks);
     }
 }

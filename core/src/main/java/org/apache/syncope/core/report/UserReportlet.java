@@ -131,8 +131,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
-                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", attrName,
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId());
                 }
 
                 handler.endElement("", "", "attribute");
@@ -157,8 +157,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
-                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", attrName,
+                                attributableTO.getClass().getSimpleName(), attributableTO.getId());
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -183,8 +183,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         handler.endElement("", "", "value");
                     }
                 } else {
-                    LOG.debug("{} not found for {}[{}]", new Object[]{attrName,
-                                attributableTO.getClass().getSimpleName(), attributableTO.getId()});
+                    LOG.debug("{} not found for {}[{}]", attrName,
+                                attributableTO.getClass().getSimpleName(), attributableTO.getId());
                 }
 
                 handler.endElement("", "", "virtualAttribute");

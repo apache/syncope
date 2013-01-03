@@ -25,13 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
+import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
-import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.types.IntMappingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,41 +90,39 @@ public final class MappingUtil {
     /**
      * Get attribute values.
      *
-     * @param mapping mapping
+     * @param mappingItem mapping item
      * @param attributables list of attributables
      * @param password password
      * @param schemaDAO schema DAO
-     * @return schema and attribute values.
+     * @return attribute values.
      */
-    public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final AbstractMappingItem mapping,
-            final List<AbstractAttributable> attributables, final String password, final SchemaDAO schemaDAO) {
+    public static List<AbstractAttrValue> getIntValues(final AbstractMappingItem mappingItem,
+            final List<AbstractAttributable> attributables, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
 
-        LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mapping.getIntMappingType());
-
-        AbstractSchema schema = null;
+        LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mappingItem.getIntMappingType());
 
         List<AbstractAttrValue> values = new ArrayList<AbstractAttrValue>();
 
-        switch (mapping.getIntMappingType()) {
+        switch (mappingItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                schema = schemaDAO.find(mapping.getIntAttrName(),
-                        MappingUtil.getIntMappingTypeClass(mapping.getIntMappingType()));
-
                 for (AbstractAttributable attributable : attributables) {
-                    final AbstractAttr attr = attributable.getAttribute(mapping.getIntAttrName());
-
-                    if (attr != null && attr.getValues() != null) {
-                        values.addAll(schema.isUniqueConstraint()
-                                ? Collections.singletonList(attr.getUniqueValue()) : attr.getValues());
+                    final AbstractAttr attr = attributable.getAttribute(mappingItem.getIntAttrName());
+                    if (attr != null) {
+                        if (attr.getUniqueValue() != null) {
+                            values.add(attr.getUniqueValue());
+                        } else if (attr.getValues() != null) {
+                            values.addAll(attr.getValues());
+                        }
                     }
 
                     LOG.debug("Retrieved attribute {}"
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            new Object[]{attr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
+                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
 
                 break;
@@ -135,13 +131,24 @@ public final class MappingUtil {
             case RoleVirtualSchema:
             case MembershipVirtualSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
-
+                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(mappingItem.getIntAttrName());
                     if (virAttr != null) {
-                        for (String value : virAttr.getValues()) {
-                            AbstractAttrValue attrValue = new UAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
+                        if (virAttr.getValues() != null) {
+                            for (String value : virAttr.getValues()) {
+                                AbstractAttrValue attrValue = new UAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
+                        }
+                        if (vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+                            if (vAttrsToBeUpdated.containsKey(mappingItem.getIntAttrName())) {
+                                virAttr.setValues(vAttrsToBeUpdated.get(mappingItem.getIntAttrName()).
+                                        getValuesToBeAdded());
+                            } else if (vAttrsToBeRemoved.contains(mappingItem.getIntAttrName())) {
+                                virAttr.getValues().clear();
+                            } else {
+                                throw new RuntimeException("Virtual attribute has not to be updated");
+                            }
                         }
                     }
 
@@ -149,7 +156,7 @@ public final class MappingUtil {
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            new Object[]{virAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
+                            virAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
                 break;
 
@@ -157,7 +164,7 @@ public final class MappingUtil {
             case RoleDerivedSchema:
             case MembershipDerivedSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(mapping.getIntAttrName());
+                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(mappingItem.getIntAttrName());
                     if (derAttr != null) {
                         AbstractAttrValue attrValue = (attributable instanceof SyncopeRole)
                                 ? new RAttrValue() : new UAttrValue();
@@ -165,11 +172,12 @@ public final class MappingUtil {
                         values.add(attrValue);
                     }
 
-                    LOG.debug("Retrieved attribute {}"
+                    LOG.
+                            debug("Retrieved attribute {}"
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            new Object[]{derAttr, mapping.getIntAttrName(), mapping.getIntMappingType(), values});
+                            derAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
                 break;
 
@@ -216,71 +224,7 @@ public final class MappingUtil {
 
         LOG.debug("Retrieved values '{}'", values);
 
-        return new DefaultMapEntry(schema, values);
-    }
-
-    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable,
-            final AbstractMappingItem mapItem, final String clearPassword) {
-
-        List<String> value = new ArrayList<String>();
-
-        if (mapItem != null) {
-            switch (mapItem.getIntMappingType()) {
-                case Username:
-                    if (!(attributable instanceof SyncopeUser)) {
-                        throw new ClassCastException("mappingtype is Username, but attributable is not SyncopeUser: "
-                                + attributable.getClass().getName());
-                    }
-                    value.add(((SyncopeUser) attributable).getUsername());
-                    break;
-
-                case Password:
-                    if (clearPassword != null) {
-                        value.add(clearPassword);
-                    }
-                    break;
-
-                case UserSchema:
-                case RoleSchema:
-                case MembershipSchema:
-                    AbstractAttr abstractAttr = attributable.getAttribute(mapItem.getIntAttrName());
-                    if (abstractAttr != null && abstractAttr.getValues() != null) {
-                        value.addAll(abstractAttr.getValuesAsStrings());
-                    }
-                    break;
-
-                case UserVirtualSchema:
-                case RoleVirtualSchema:
-                case MembershipVirtualSchema:
-                    AbstractVirAttr abstractVirAttr = attributable.getVirtualAttribute(mapItem.getIntAttrName());
-                    if (abstractVirAttr != null && abstractVirAttr.getValues() != null) {
-                        value.addAll(abstractVirAttr.getValues());
-                    }
-                    break;
-
-                case UserDerivedSchema:
-                case RoleDerivedSchema:
-                case MembershipDerivedSchema:
-                    AbstractDerAttr abstractDerAttr = attributable.getDerivedAttribute(mapItem.getIntAttrName());
-                    if (abstractDerAttr != null) {
-                        String abstractDerAttrValue = abstractDerAttr.getValue(attributable.getAttributes());
-                        if (abstractDerAttrValue != null) {
-                            value.add(abstractDerAttrValue);
-                        }
-                    }
-                    break;
-
-                default:
-            }
-        }
-
-        return value;
-    }
-
-    public static List<String> getIntValueAsStrings(final AbstractAttributable attributable,
-            final AbstractMappingItem mapItem) {
-
-        return getIntValueAsStrings(attributable, mapItem, null);
+        return values;
     }
 
     /**
@@ -293,10 +237,11 @@ public final class MappingUtil {
     public static String getAccountIdValue(final AbstractAttributable attributable,
             final AbstractMappingItem accountIdItem) {
 
-        final List<String> values = getIntValueAsStrings(attributable, accountIdItem);
+        List<AbstractAttrValue> values = getIntValues(
+                accountIdItem, Collections.<AbstractAttributable>singletonList(attributable), null, null, null);
         return values == null || values.isEmpty()
                 ? null
-                : values.get(0);
+                : values.get(0).getValueAsString();
     }
 
     /**

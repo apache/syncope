@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.policy.impl;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -32,15 +32,16 @@ import org.apache.syncope.core.policy.PolicyEnforcer;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowResult;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountPolicyEnforcerImpl extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> implements AccountPolicyEnforcer {
+public class AccountPolicyEnforcerImpl extends PolicyEnforcer<AccountPolicySpec, SyncopeUser>
+        implements AccountPolicyEnforcer {
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -61,8 +62,8 @@ public class AccountPolicyEnforcerImpl extends PolicyEnforcer<AccountPolicySpec,
     private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
 
     /* (non-Javadoc)
-	 * @see org.apache.syncope.core.policy.AccountPolicyEnforcer#enforce(org.apache.syncope.types.AccountPolicySpec, org.apache.syncope.types.PolicyType, org.apache.syncope.core.persistence.beans.user.SyncopeUser)
-	 */
+     * @see AccountPolicyEnforcer#enforce(AccountPolicySpec, PolicyType, SyncopeUser)
+     */
     @Override
     public void enforce(final AccountPolicySpec policy, final PolicyType type, final SyncopeUser user)
             throws AccountPolicyException, PolicyEnforceException {
@@ -129,7 +130,7 @@ public class AccountPolicyEnforcerImpl extends PolicyEnforcer<AccountPolicySpec,
                 if (policy.isPropagateSuspension()) {
                     final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                             new WorkflowResult<Map.Entry<Long, Boolean>>(
-                            new DefaultMapEntry(updated.getResult(), Boolean.FALSE),
+                            new SimpleEntry<Long, Boolean>(updated.getResult(), Boolean.FALSE),
                             updated.getPropByRes(), updated.getPerformedTasks()));
 
                     taskExecutor.execute(tasks);

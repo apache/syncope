@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.propagation;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
@@ -201,7 +201,7 @@ public class PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(syncResourceNames);
         }
 
-        return createTasks(attributable, password, enable, false, propByRes);
+        return createTasks(attributable, password, null, null, enable, false, propByRes);
     }
 
     /**
@@ -349,7 +349,16 @@ public class PropagationManager {
             localPropByRes.get(ResourceOperation.DELETE).removeAll(syncResourceNames);
         }
 
-        return createTasks(attributable, password, enable, false, localPropByRes);
+        Map<String, AttributeMod> vAttrsToBeUpdatedMap = null;
+        if (vAttrsToBeUpdated != null) {
+            vAttrsToBeUpdatedMap = new HashMap<String, AttributeMod>();
+            for (AttributeMod attrMod : vAttrsToBeUpdated) {
+                vAttrsToBeUpdatedMap.put(attrMod.getSchema(), attrMod);
+            }
+        }
+
+        return createTasks(attributable, password,
+                vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
     }
 
     /**
@@ -428,7 +437,7 @@ public class PropagationManager {
         if (syncResourceName != null) {
             propByRes.get(ResourceOperation.DELETE).remove(syncResourceName);
         }
-        return createTasks(attributable, null, false, true, propByRes);
+        return createTasks(attributable, null, null, null, false, true, propByRes);
     }
 
     /**
@@ -438,11 +447,14 @@ public class PropagationManager {
      * @param mapItem mapping item for the given attribute
      * @param subject given user
      * @param password clear-text password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @return account link + prepared attribute
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
     protected <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
-            final AbstractMappingItem mapItem, final T subject, final String password)
+            final AbstractMappingItem mapItem, final T subject, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated)
             throws ClassNotFoundException {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
@@ -472,20 +484,30 @@ public class PropagationManager {
             default:
         }
 
-        final Entry<AbstractSchema, List<AbstractAttrValue>> entry =
-                MappingUtil.getIntValues(mapItem, attributables, password, schemaDAO);
+        final List<AbstractAttrValue> values =
+                MappingUtil.getIntValues(mapItem, attributables, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
-        final List<AbstractAttrValue> values = entry.getValue();
-        final AbstractSchema schema = entry.getKey();
-        final SchemaType schemaType = schema == null ? SchemaType.String : schema.getType();
+        AbstractSchema schema = null;
+        final SchemaType schemaType;
+        switch (mapItem.getIntMappingType()) {
+            case UserSchema:
+            case RoleSchema:
+            case MembershipSchema:
+                schema = schemaDAO.find(mapItem.getIntAttrName(),
+                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                schemaType = schema == null ? SchemaType.String : schema.getType();
+                break;
+
+            default:
+                schemaType = SchemaType.String;
+        }
 
         final String extAttrName = mapItem.getExtAttrName();
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
                 + "\n* is accountId " + mapItem.isAccountid()
-                + "\n* is password "
-                + (mapItem.isPassword() || mapItem.getIntMappingType().equals(IntMappingType.Password))
+                + "\n* is password " + (mapItem.isPassword() || mapItem.getIntMappingType() == IntMappingType.Password)
                 + "\n* mandatory condition " + mapItem.getMandatoryCondition()
                 + "\n* Schema " + mapItem.getIntAttrName()
                 + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
@@ -505,15 +527,15 @@ public class PropagationManager {
         Map.Entry<String, Attribute> result;
 
         if (mapItem.isAccountid()) {
-            result = new DefaultMapEntry(objValues.iterator().next().toString(), null);
+            result = new SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
         } else if (mapItem.isPassword()) {
-            result = new DefaultMapEntry(null,
+            result = new SimpleEntry<String, Attribute>(null,
                     AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
             if (schema != null && schema.isMultivalue()) {
-                result = new DefaultMapEntry(null, AttributeBuilder.build(extAttrName, objValues));
+                result = new SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName, objValues));
             } else {
-                result = new DefaultMapEntry(null, objValues.isEmpty()
+                result = new SimpleEntry<String, Attribute>(null, objValues.isEmpty()
                         ? AttributeBuilder.build(extAttrName)
                         : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
@@ -528,17 +550,20 @@ public class PropagationManager {
      * @param <T> user / role
      * @param subject given user / role
      * @param password clear-text password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param resource target resource
      * @param attrUtil attributable util to get info about subject
      * @return account link + prepared attributes
      */
     protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(final T subject,
-            final String password, final Boolean enable, final ExternalResource resource,
+            final String password, final Set<String> vAttrsToBeRemoved,
+            final Map<String, AttributeMod> vAttrsToBeUpdated, final Boolean enable, final ExternalResource resource,
             final AttributableUtil attrUtil) {
 
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
-                new Object[]{subject, resource, subject.getAttributes()});
+                subject, resource, subject.getAttributes());
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -547,7 +572,8 @@ public class PropagationManager {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
-                Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(mapping, subject, password);
+                Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(
+                        mapping, subject, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
@@ -606,7 +632,7 @@ public class PropagationManager {
             attributes.add(AttributeBuilder.buildEnabled(enable));
         }
 
-        return new DefaultMapEntry(accountId, attributes);
+        return new SimpleEntry<String, Set<Attribute>>(accountId, attributes);
     }
 
     /**
@@ -615,13 +641,16 @@ public class PropagationManager {
      * @param <T> user / role
      * @param subject user / role to be provisioned
      * @param password cleartext password to be provisioned
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether user / role must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject,
-            final String password, final Boolean enable, final boolean deleteOnResource,
+    protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable, final boolean deleteOnResource,
             final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
@@ -651,8 +680,8 @@ public class PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                    Map.Entry<String, Set<Attribute>> preparedAttrs =
-                            prepareAttributes(subject, password, enable, resource, attrUtil);
+                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(subject, password,
+                            vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource, attrUtil);
                     task.setAccountId(preparedAttrs.getKey());
                     task.setAttributes(preparedAttrs.getValue());
 

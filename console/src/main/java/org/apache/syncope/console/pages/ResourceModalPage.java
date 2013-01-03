@@ -26,6 +26,7 @@ import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -63,9 +64,10 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
 
         //--------------------------------
-        // Resource mapping panel
+        // Resource mapping panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("mapping", resourceTO));
+        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
+        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE));
         //--------------------------------
 
         //--------------------------------

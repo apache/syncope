@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -185,8 +184,8 @@ public class PoliciesPanel extends Panel {
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
-                            LOG.error("While deleting resource {}({})", new Object[] { accountPolicyTO.getId(),
-                                    accountPolicyTO.getDescription() }, e);
+                            LOG.error("While deleting resource {}({})", accountPolicyTO.getId(),
+                                    accountPolicyTO.getDescription(), e);
                         }
 
                         target.add(container);
@@ -293,7 +292,7 @@ public class PoliciesPanel extends Panel {
 
             Collections.sort(policies, comparator);
 
-            return policies.subList((int)first, (int)first + (int)count).iterator();
+            return policies.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

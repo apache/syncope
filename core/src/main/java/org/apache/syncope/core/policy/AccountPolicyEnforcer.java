@@ -24,8 +24,7 @@ import org.apache.syncope.types.PolicyType;
 
 public interface AccountPolicyEnforcer {
 
-	public abstract void enforce(AccountPolicySpec policy, PolicyType type,
-			SyncopeUser user) throws AccountPolicyException,
-			PolicyEnforceException;
-
+    public abstract void enforce(AccountPolicySpec policy, PolicyType type,
+            SyncopeUser user) throws AccountPolicyException,
+            PolicyEnforceException;
 }
