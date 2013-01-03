@@ -21,11 +21,10 @@ package org.apache.syncope.core.persistence.beans;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractAttributable extends AbstractBaseBean {
+public abstract class AbstractAttributable extends AbstractBaseBean implements Attributable {
 
     private static final long serialVersionUID = -4801685541488201119L;
 
@@ -107,32 +106,6 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
         return map;
     }
-
-    public abstract Long getId();
-
-    public abstract <T extends AbstractAttr> boolean addAttribute(T attribute);
-
-    public abstract <T extends AbstractAttr> boolean removeAttribute(T attribute);
-
-    public abstract List<? extends AbstractAttr> getAttributes();
-
-    public abstract void setAttributes(List<? extends AbstractAttr> attributes);
-
-    public abstract <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute);
-
-    public abstract <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute);
-
-    public abstract List<? extends AbstractDerAttr> getDerivedAttributes();
-
-    public abstract void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes);
-
-    public abstract <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttributes);
-
-    public abstract <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute);
-
-    public abstract List<? extends AbstractVirAttr> getVirtualAttributes();
-
-    public abstract void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes);
 
     protected abstract Set<ExternalResource> resources();
 

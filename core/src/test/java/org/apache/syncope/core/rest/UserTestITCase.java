@@ -38,9 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.client.mod.AttributeMod;
-import org.apache.syncope.client.mod.MembershipMod;
-import org.apache.syncope.client.mod.UserMod;
+import org.apache.syncope.client.mod.*;
 import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.SyncopeUserCond;
@@ -576,8 +574,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.
-                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
                 Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
@@ -902,8 +899,7 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.
-                asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
+        users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
@@ -2036,5 +2032,51 @@ public class UserTestITCase extends AbstractTest {
 
         }
         assertNotNull(sce);
+    }
+
+    @Test
+    public void issueSYNCOPE260() {
+        // 1. create user with SOAP resource, succesfully propagated
+        UserTO userTO = getSampleTO("syncope260@apache.org");
+        userTO.addResource("ws-target-resource-2");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        // 3. try to find this user on the external SOAP resource
+        ConnObjectTO connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        
+        AttributeMod attrMod = new AttributeMod();
+        attrMod.setSchema("surname");
+        attrMod.addValueToBeRemoved("Surname");
+        attrMod.addValueToBeAdded("Surname2");
+        
+        userMod.addAttributeToBeUpdated(attrMod);
+        
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
+        
+        // attribute "name" mapped on virtual attribute "virtualdata" shouldn't be changed
+        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
     }
 }

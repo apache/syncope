@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
+import org.apache.syncope.core.persistence.beans.Attributable;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
@@ -46,11 +48,13 @@ import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.propagation.PropagationManager.AttributableHandler;
 import org.apache.syncope.types.IntMappingType;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.util.Password;
 
 public class SchemaMappingUtil {
 
@@ -135,7 +139,7 @@ public class SchemaMappingUtil {
      * @return schema and attribute values.
      */
     public static Map.Entry<AbstractSchema, List<AbstractAttrValue>> getIntValues(final SchemaMapping mapping,
-            final List<AbstractAttributable> attributables, final String password, final SchemaDAO schemaDAO) {
+            final List<Attributable> attributables, final String password, final SchemaDAO schemaDAO) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mapping.getIntMappingType());
 
@@ -150,7 +154,7 @@ public class SchemaMappingUtil {
                 schema = schemaDAO.find(mapping.getIntAttrName(), SchemaMappingUtil.getIntMappingTypeClass(mapping.
                         getIntMappingType()));
 
-                for (AbstractAttributable attributable : attributables) {
+                for (Attributable attributable : attributables) {
                     final AbstractAttr attr = attributable.getAttribute(mapping.getIntAttrName());
 
                     if (attr != null && attr.getValues() != null) {
@@ -169,7 +173,7 @@ public class SchemaMappingUtil {
             case RoleVirtualSchema:
             case MembershipVirtualSchema:
 
-                for (AbstractAttributable attributable : attributables) {
+                for (Attributable attributable : attributables) {
                     AbstractVirAttr virAttr = attributable.getVirtualAttribute(mapping.getIntAttrName());
 
                     if (virAttr != null && virAttr.getValues() != null) {
@@ -189,7 +193,7 @@ public class SchemaMappingUtil {
             case UserDerivedSchema:
             case RoleDerivedSchema:
             case MembershipDerivedSchema:
-                for (AbstractAttributable attributable : attributables) {
+                for (Attributable attributable : attributables) {
                     AbstractDerAttr derAttr = attributable.getDerivedAttribute(mapping.getIntAttrName());
 
                     if (derAttr != null) {
@@ -205,15 +209,19 @@ public class SchemaMappingUtil {
                 break;
 
             case Username:
-                for (AbstractAttributable attributable : attributables) {
+                for (Attributable attributable : attributables) {
                     AbstractAttrValue attrValue = new UAttrValue();
-                    attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
+                    SyncopeUser user = attributable instanceof Proxy?
+                            (SyncopeUser)((AttributableHandler)Proxy.getInvocationHandler(attributable)).getObject():
+                            (SyncopeUser)attributable;
+                     
+                    attrValue.setStringValue(user.getUsername());
                     values.add(attrValue);
                 }
                 break;
 
             case SyncopeUserId:
-                for (AbstractAttributable attributable : attributables) {
+                for (Attributable attributable : attributables) {
                     AbstractAttrValue attrValue = new UAttrValue();
                     attrValue.setStringValue(attributable.getId().toString());
                     values.add(attrValue);
