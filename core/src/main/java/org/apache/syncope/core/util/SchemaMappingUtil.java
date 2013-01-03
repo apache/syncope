@@ -130,6 +130,8 @@ public class SchemaMappingUtil {
      * @param mapping mapping.
      * @param attributables list of attributables.
      * @param password password.
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @return attribute values.
      */
     public static List<AbstractAttrValue> getIntValues(final SchemaMapping mapping,

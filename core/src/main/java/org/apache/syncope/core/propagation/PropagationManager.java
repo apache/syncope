@@ -340,6 +340,8 @@ public class PropagationManager {
      * @param mapping schema mapping for the given attribute
      * @param user given user
      * @param password clear-text password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @return account link + prepare attributes
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
@@ -431,6 +433,8 @@ public class PropagationManager {
      *
      * @param user given user
      * @param password clear-text password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param resource target resource
      * @return account link + prepared attributes
