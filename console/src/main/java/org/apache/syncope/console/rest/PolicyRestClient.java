@@ -122,19 +122,6 @@ public class PolicyRestClient extends BaseRestClient {
                 res.addAll(Arrays.asList(policies));
             }
 
-            PolicyTO globalPolicy = null;
-
-            try {
-                globalPolicy = (T) SyncopeSession.get().getRestTemplate().getForObject(
-                        baseURL + "policy/" + policy + "/global/read", globalReference);
-            } catch (Exception ignore) {
-                LOG.warn("No global policy found", ignore);
-            }
-
-            if (globalPolicy != null) {
-                res.add(0, (T) globalPolicy);
-            }
-
         } catch (Exception ignore) {
             LOG.error("No policy found", ignore);
         }
