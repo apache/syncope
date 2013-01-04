@@ -80,7 +80,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
         return policy;
     }
 
-    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
+    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<T>();
 
         T[] policies = null;
@@ -120,6 +120,21 @@ public class PolicyRestClient extends AbstractBaseRestClient {
 
             if (policies != null) {
                 res.addAll(Arrays.asList(policies));
+            }
+
+            if (includeGlobal) {
+                PolicyTO globalPolicy = null;
+
+                try {
+                    globalPolicy = (T) SyncopeSession.get().getRestTemplate().getForObject(
+                            baseURL + "policy/" + policy + "/global/read", globalReference);
+                } catch (Exception ignore) {
+                    LOG.warn("No global policy found", ignore);
+                }
+
+                if (globalPolicy != null) {
+                    res.add(0, (T) globalPolicy);
+                }
             }
 
         } catch (Exception ignore) {
