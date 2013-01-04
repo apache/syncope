@@ -32,7 +32,7 @@ import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
 
-@Path("role")
+@Path("roles")
 public interface RoleService {
 
 	@GET
@@ -40,7 +40,6 @@ public interface RoleService {
 	List<RoleTO> children(@PathParam("roleId") final Long roleId);
 
 	@POST
-    @Path("")
 	RoleTO create(final RoleTO roleTO);
 
 	@DELETE

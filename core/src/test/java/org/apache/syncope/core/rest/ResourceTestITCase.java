@@ -46,8 +46,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<String> actions = restTemplate.getForObject(
-                BASE_URL + "resource/propagationActionsClasses.json", Set.class);
+        Set<String> actions = resourceService.getPropagationActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -84,12 +83,11 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = resourceService.create(resourceTO);
         assertNotNull(actual);
 
         // check for existence
-        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        actual = resourceService.read(resourceName);
         assertNotNull(actual);
     }
 
@@ -136,13 +134,12 @@ public class ResourceTestITCase extends AbstractTest {
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
         resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = resourceService.create(resourceTO);
         assertNotNull(actual);
 
         // check the existence
 
-        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        actual = resourceService.read(resourceName);
         assertNotNull(actual);
     }
 
@@ -171,7 +168,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setRmapping(rmapping);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = resourceService.create(resourceTO);
         assertNotNull(actual);
         assertNotNull(actual.getUmapping());
         assertNotNull(actual.getUmapping().getItems());
@@ -203,7 +200,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+            resourceService.create(resourceTO);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
 
@@ -239,7 +236,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        resourceService.create(resourceTO);
     }
 
     @Test
@@ -261,13 +258,12 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = resourceService.create(resourceTO);
         assertNotNull(actual);
 
         // check the existence
 
-        actual = restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        actual = resourceService.read(resourceName);
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
         assertEquals(4L, (long) actual.getPasswordPolicy());
@@ -279,7 +275,7 @@ public class ResourceTestITCase extends AbstractTest {
             ResourceTO resourceTO = new ResourceTO();
             resourceTO.setName("resourcenotfound");
 
-            restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
+            resourceService.update(resourceTO.getName(), resourceTO);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -319,7 +315,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
+        ResourceTO actual = resourceService.update(resourceTO.getName(), resourceTO);
         assertNotNull(actual);
 
         // check for existence
@@ -331,8 +327,7 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void deleteWithException() {
         try {
-            restTemplate.getForObject(
-                    BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class, "resourcenotfound");
+            resourceService.delete("resourcenotfound");
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -342,13 +337,12 @@ public class ResourceTestITCase extends AbstractTest {
     public void updateResetSyncToken() {
         // pre condition: sync token is set
         String resourceName = "ws-target-resource-update-resetsynctoken";
-        ResourceTO pre = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        ResourceTO pre = resourceService.read(resourceName);
         assertNotNull(pre.getUsyncToken());
 
         pre.setUsyncToken(null);
 
-        ResourceTO actual = restTemplate.postForObject(BASE_URL + "resource/update.json", pre, ResourceTO.class);
+        ResourceTO actual = resourceService.update(pre.getName(), pre);
 
         // check that the synctoken has been reset
         assertNull(actual.getUsyncToken());
@@ -358,13 +352,11 @@ public class ResourceTestITCase extends AbstractTest {
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
-        ResourceTO deletedResource =
-                restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        ResourceTO deletedResource = resourceService.delete(resourceName);
         assertNotNull(deletedResource);
 
         try {
-            restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class, resourceName);
+            resourceService.read(resourceName);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -372,8 +364,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(BASE_URL + "resource/list.json",
-                ResourceTO[].class));
+        List<ResourceTO> actuals = resourceService.list(null);
         assertNotNull(actuals);
         assertFalse(actuals.isEmpty());
         for (ResourceTO resourceTO : actuals) {
@@ -383,8 +374,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void listByType() {
-        List<ResourceTO> actuals = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "resource/list.json?connInstanceId=105", ResourceTO[].class));
+        List<ResourceTO> actuals = resourceService.list(Long.valueOf(105));
 
         assertNotNull(actuals);
         assertEquals(1, actuals.size());
@@ -393,9 +383,8 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        ResourceTO actual = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "resource-testdb");
-
+        ResourceTO actual = resourceService.read("resource-testdb");
+        
         assertNotNull(actual);
     }
 }

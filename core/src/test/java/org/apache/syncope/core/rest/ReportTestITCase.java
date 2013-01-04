@@ -18,48 +18,49 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.apache.syncope.client.report.UserReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.to.UserTO;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        List<String> reportletClasses = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "report/reportletConfClasses.json", String[].class));
+        List<String> reportletClasses = reportService.getReportletConfClasses();
         assertNotNull(reportletClasses);
         assertFalse(reportletClasses.isEmpty());
     }
 
     @Test
     public void count() {
-        Integer count = restTemplate.getForObject(BASE_URL + "report/count.json", Integer.class);
+        Integer count = reportService.count();
         assertNotNull(count);
         assertTrue(count > 0);
     }
 
     @Test
     public void list() {
-        List<ReportTO> reports = Arrays.asList(restTemplate.getForObject(BASE_URL + "report/list", ReportTO[].class));
+        List<ReportTO> reports = reportService.list();
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
         for (ReportTO report : reports) {
@@ -69,8 +70,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void listExecutions() {
-        List<ReportExecTO> executions = Arrays.asList(restTemplate.getForObject(BASE_URL + "report/execution/list",
-                ReportExecTO[].class));
+        List<ReportExecTO> executions = reportService.listExecutions();
         assertNotNull(executions);
         assertFalse(executions.isEmpty());
         for (ReportExecTO execution : executions) {
@@ -80,7 +80,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        ReportTO reportTO = reportService.read(1L);
 
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
@@ -89,8 +89,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void readExecution() {
-        ReportExecTO reportExecTO = restTemplate.getForObject(BASE_URL + "report/execution/read/{reportId}",
-                ReportExecTO.class, 1);
+        ReportExecTO reportExecTO = reportService.readExecution(1L);
         assertNotNull(reportExecTO);
     }
 
@@ -101,11 +100,10 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
+        report = reportService.create(report);
         assertNotNull(report);
 
-        ReportTO actual = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class,
-                report.getId());
+        ReportTO actual = reportService.read(report.getId());
         assertNotNull(actual);
 
         assertEquals(actual, report);
@@ -118,13 +116,13 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
+        report = reportService.create(report);
         assertNotNull(report);
         assertEquals(2, report.getReportletConfs().size());
 
         report.addReportletConf(new UserReportletConf("last"));
 
-        ReportTO updated = restTemplate.postForObject(BASE_URL + "report/update", report, ReportTO.class);
+        ReportTO updated = reportService.update(report.getId(), report);
         assertNotNull(updated);
         assertEquals(3, updated.getReportletConfs().size());
     }
@@ -136,22 +134,22 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = restTemplate.postForObject(BASE_URL + "report/create", report, ReportTO.class);
+        report = reportService.create(report);
         assertNotNull(report);
 
-        ReportTO deletedReport =
-                restTemplate.getForObject(BASE_URL + "report/delete/{reportId}", ReportTO.class, report.getId());
+        ReportTO deletedReport = reportService.delete(report.getId());
         assertNotNull(deletedReport);
 
         try {
-            restTemplate.getForObject(BASE_URL + "report/read/{reportId}", UserTO.class, report.getId());
+            reportService.read(report.getId());
             fail();
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
 
-    private void checkExport(final long execId, final String fmt, final String encodedAuth) throws IOException {
+    private void checkExport(final long execId, final String fmt, final String encodedAuth)
+            throws IOException {
         URL url = new URL(BASE_URL + "report/execution/export/" + execId + "?fmt=" + fmt);
         int responseCode = 0;
         String export = null;
@@ -178,17 +176,15 @@ public class ReportTestITCase extends AbstractTest {
     }
 
     @Test
-    public void executeAndExport()
-            throws IOException {
+    public void executeAndExport() throws IOException {
 
-        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("executeAndExport");
-        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
+        reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
-                ReportExecTO.class, reportTO.getId());
+        ReportExecTO execution = reportService.execute(reportTO.getId());
         assertNotNull(execution);
 
         int maxit = 50;
@@ -198,7 +194,7 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
+            reportTO = reportService.read(reportTO.getId());
 
             maxit--;
         } while (reportTO.getExecutions().isEmpty() && maxit > 0);
@@ -257,11 +253,10 @@ public class ReportTestITCase extends AbstractTest {
     public void issueSYNCOPE43() {
         ReportTO reportTO = new ReportTO();
         reportTO.setName("issueSYNCOPE43");
-        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
+        reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
-                ReportExecTO.class, reportTO.getId());
+        ReportExecTO execution = reportService.execute(reportTO.getId());
         assertNotNull(execution);
 
         int maxit = 50;
@@ -271,7 +266,7 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
+            reportTO = reportService.read(reportTO.getId());
 
             maxit--;
         } while (reportTO.getExecutions().isEmpty() && maxit > 0);
@@ -282,16 +277,15 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE102() throws IOException {
         // Create
-        ReportTO reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, 1);
+        ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("issueSYNCOPE102");
-        reportTO = restTemplate.postForObject(BASE_URL + "report/create", reportTO, ReportTO.class);
+        reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            ReportExecTO execution = restTemplate.postForObject(BASE_URL + "report/execute/{reportId}", null,
-                    ReportExecTO.class, reportTO.getId());
+            ReportExecTO execution = reportService.execute(reportTO.getId());
             assertNotNull(execution);
         }
 
@@ -303,7 +297,7 @@ public class ReportTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            reportTO = restTemplate.getForObject(BASE_URL + "report/read/{reportId}", ReportTO.class, reportTO.getId());
+            reportTO = reportService.read(reportTO.getId());
 
             maxit--;
         } while (reportTO.getExecutions().isEmpty() && maxit > 0);

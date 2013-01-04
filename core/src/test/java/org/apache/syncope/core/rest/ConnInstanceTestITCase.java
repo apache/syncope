@@ -18,22 +18,21 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.identityconnectors.common.security.GuardedString;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
+
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.MappingItemTO;
@@ -44,8 +43,13 @@ import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 import org.apache.syncope.types.IntMappingType;
+import org.identityconnectors.common.security.GuardedString;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConnInstanceTestITCase extends AbstractTest {
@@ -240,8 +244,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(connInstanceTO);
 
         // check for resource
-        List<ResourceTO> resources = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "resource/list.json?connInstanceId=103", ResourceTO[].class));
+        List<ResourceTO> resources = resourceService.list(Long.valueOf(103));
 
         assertEquals(4, resources.size());
 
@@ -273,13 +276,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Check for connector instance update after resource creation.
         // ----------------------------------
-        resourceTO = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO,
-                ResourceTO.class);
+        resourceTO = resourceService.create(resourceTO);
 
         assertNotNull(resourceTO);
 
-        resources = Arrays.asList(restTemplate.getForObject(BASE_URL + "resource/list.json?connInstanceId="
-                + connId, ResourceTO[].class));
+        resources = resourceService.list(connId);
 
         assertEquals(1, resources.size());
         // ----------------------------------
@@ -598,7 +599,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------------
         // Check connection without saving the resource ....
         // ----------------------------------------
-        assertTrue(restTemplate.postForObject(BASE_URL + "resource/check.json", resourceTO, Boolean.class));
+        assertTrue(resourceService.check(resourceTO));
         // ----------------------------------------
     }
 }

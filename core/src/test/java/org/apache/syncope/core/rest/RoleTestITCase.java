@@ -37,6 +37,7 @@ import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -108,9 +109,7 @@ public class RoleTestITCase extends AbstractTest {
 
 		assertTrue(roleTO.getResources().contains("resource-ldap"));
 
-		ConnObjectTO connObjectTO = restTemplate.getForObject(BASE_URL
-				+ "/resource/resource-ldap/read/ROLE/lastRole.json",
-				ConnObjectTO.class);
+		ConnObjectTO connObjectTO = resourceService.getConnector("resource-ldap", AttributableType.ROLE, "lastRole");
 		assertNotNull(connObjectTO);
 		assertNotNull(connObjectTO.getAttributeMap().get("owner"));
 	}

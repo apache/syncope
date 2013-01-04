@@ -29,6 +29,8 @@ import org.apache.syncope.services.ConfigurationServiceProxy;
 import org.apache.syncope.services.ConnectorServiceProxy;
 import org.apache.syncope.services.EntitlementServiceProxy;
 import org.apache.syncope.services.LoggerServiceProxy;
+import org.apache.syncope.services.ReportServiceProxy;
+import org.apache.syncope.services.ResourceServiceProxy;
 import org.apache.syncope.services.RoleServiceProxy;
 import org.apache.syncope.services.UserServiceProxy;
 import org.junit.Before;
@@ -80,6 +82,8 @@ public abstract class AbstractTest {
 
 	protected RoleServiceProxy roleService;
 
+	protected ResourceServiceProxy resourceService;
+
 	protected EntitlementServiceProxy entitlementService;
 
 	protected ConfigurationServiceProxy configurationService;
@@ -87,6 +91,8 @@ public abstract class AbstractTest {
 	protected ConnectorServiceProxy connectorService;
 
 	protected LoggerServiceProxy loggerService;
+
+	protected ReportServiceProxy reportService;
 
 	@Autowired
 	protected DataSource testDataSource;
@@ -110,9 +116,11 @@ public abstract class AbstractTest {
 		setupRestTemplate(ADMIN_UID, ADMIN_PWD);
 		userService = new UserServiceProxy(BASE_URL, restTemplate);
 		roleService = new RoleServiceProxy(BASE_URL, restTemplate);
+		resourceService = new ResourceServiceProxy(BASE_URL, restTemplate);
 		entitlementService = new EntitlementServiceProxy(BASE_URL, restTemplate);
 		configurationService = new ConfigurationServiceProxy(BASE_URL, restTemplate);
 		connectorService = new ConnectorServiceProxy(BASE_URL, restTemplate);
 		loggerService = new LoggerServiceProxy(BASE_URL, restTemplate);
+		reportService = new ReportServiceProxy(BASE_URL, restTemplate);
 	}
 }

@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.client.to.ConfigurationTO;
 
-@Path("configuration")
+@Path("configurations")
 public interface ConfigurationService {
 
 	@POST
@@ -52,7 +52,7 @@ public interface ConfigurationService {
 
 	@PUT
 	@Path("{key}")
-	ConfigurationTO update(final ConfigurationTO configurationTO);
+	ConfigurationTO update(@PathParam("key") final String key, final ConfigurationTO configurationTO);
 
 	@GET
 	@Path("validators")

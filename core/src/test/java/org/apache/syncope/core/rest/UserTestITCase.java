@@ -50,6 +50,7 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
@@ -69,9 +70,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class UserTestITCase extends AbstractTest {
 
     private ConnObjectTO readUserConnObj(String resourceName, String userId) {
-        return restTemplate.getForObject(BASE_URL
-                + "/resource/{resourceName}/read/USER/{objectId}.json", ConnObjectTO.class,
-                resourceName, userId);
+        return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
     public static UserTO getSampleTO(final String email) {

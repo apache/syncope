@@ -35,7 +35,7 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 
-@Path("user")
+@Path("users")
 public interface UserService {
 
     /**
@@ -65,7 +65,6 @@ public interface UserService {
     int count();
 
     @POST
-    @Path("")
     UserTO create(final UserTO userTO);
 
     @DELETE
