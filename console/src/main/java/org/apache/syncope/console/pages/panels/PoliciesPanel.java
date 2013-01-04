@@ -283,13 +283,13 @@ public class PoliciesPanel extends Panel {
 
         @Override
         public long size() {
-            return policyRestClient.getPolicies(policyType).size();
+            return policyRestClient.getPolicies(policyType, true).size();
         }
 
         @Override
         public Iterator<PolicyTO> iterator(final long first, final long count) {
 
-            final List<PolicyTO> policies = policyRestClient.getPolicies(policyType);
+            final List<PolicyTO> policies = policyRestClient.getPolicies(policyType, true);
 
             Collections.sort(policies, comparator);
 

@@ -69,7 +69,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -83,7 +83,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -97,7 +97,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC)) {
+                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
