@@ -2082,6 +2082,30 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
 
         // ----------------------------------
+        // suspend/reactivate user and check virtual attribute value (unchanged)
+        // ----------------------------------
+        userTO = restTemplate.getForObject(BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
+        assertEquals("suspended", userTO.getStatus());
+
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        
+        userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+        assertEquals("active", userTO.getStatus());
+        
+        connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
+        assertNotNull(connObjectTO);
+        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        // ----------------------------------
+
+        // ----------------------------------
         // update user attribute and check virtual attribute value (unchanged)
         // ----------------------------------
         userMod = new UserMod();

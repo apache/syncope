@@ -199,11 +199,12 @@ public class PropagationManager {
             final Set<String> syncResourceNames)
             throws NotFoundException {
 
-        return getUpdateTaskIds(user, // SyncopeUser to be updated on external resources
+        return getUpdateTaskIds(
+                user, // SyncopeUser to be updated on external resources
                 null, // no propagation by resources
                 null, // no password
-                null, // no virtual attributes to be managed
-                null, // no virtual attributes to be managed
+                Collections.<String>emptySet(), // no virtual attributes to be managed
+                Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
                 enable, // status to be propagated
                 syncResourceNames);
     }
@@ -218,7 +219,12 @@ public class PropagationManager {
     public List<PropagationTask> getUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
             throws NotFoundException {
 
-        return getUpdateTaskIds(wfResult, null, null, null, null);
+        return getUpdateTaskIds(
+                wfResult,
+                null,
+                Collections.<String>emptySet(),
+                Collections.<AttributeMod>emptySet(),
+                null);
     }
 
     /**
@@ -347,7 +353,8 @@ public class PropagationManager {
      */
     private Map.Entry<String, Attribute> prepareAttribute(final SchemaMapping mapping, final SyncopeUser user,
             final String password, final Set<String> vAttrsToBeRemoved,
-            final Map<String, AttributeMod> vAttrsToBeUpdated) throws ClassNotFoundException {
+            final Map<String, AttributeMod> vAttrsToBeUpdated)
+            throws ClassNotFoundException {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
@@ -743,19 +750,18 @@ public class PropagationManager {
                             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
                         } else {
                             /*
-                             * We must choose here whether to
-                             *  a. actually delete the provided user from the external resource
-                             *  b. just update the provided user data onto the external resource
+                             * We must choose here whether to a. actually delete the provided user from the external
+                             * resource b. just update the provided user data onto the external resource
                              *
                              * (a) happens when either there is no user associated with the PropagationTask (this takes
                              * place when the task is generated via UserController.delete()) or the provided updated
                              * user hasn't the current resource assigned (when the task is generated via
                              * UserController.update()).
                              *
-                             * (b) happens when the provided updated user does have the current resource assigned
-                             * (when the task is generated via UserController.update()): this basically means that
-                             * before such update, this user used to have the current resource assigned by more than
-                             * one mean (for example, two different memberships with the same resource).
+                             * (b) happens when the provided updated user does have the current resource assigned (when
+                             * the task is generated via UserController.update()): this basically means that before such
+                             * update, this user used to have the current resource assigned by more than one mean (for
+                             * example, two different memberships with the same resource).
                              */
 
                             SyncopeUser user = null;
