@@ -42,25 +42,18 @@ public interface ConnectorService {
 	@POST
 	ConnInstanceTO create(final ConnInstanceTO connectorTO);
 
-	@PUT
-	@Path("{connectorId}")
-	ConnInstanceTO update(@PathParam("connectorId") final Long connectorId,
-			final ConnInstanceTO connectorTO);
-
 	@DELETE
 	@Path("{connectorId}")
 	ConnInstanceTO delete(@PathParam("connectorId") final Long connectorId);
 
 	@GET
-	List<ConnInstanceTO> list(@QueryParam("lang") final String lang);
-
-	@GET
-	@Path("{connectorId}")
-	ConnInstanceTO read(@PathParam("connectorId") final Long connectorId);
-
-	@GET
 	@Path("bundles")
 	List<ConnBundleTO> getBundles(@QueryParam("lang") final String lang);
+
+	@GET
+	@Path("{connectorId}/configuration")
+	List<ConnConfProperty> getConfigurationProperties(
+			@PathParam("connectorId") final Long connectorId);
 
 	@GET
 	@POST
@@ -71,17 +64,24 @@ public interface ConnectorService {
 			@QueryParam("showall") @DefaultValue("false") final boolean showall);
 
 	@GET
-	@Path("{connectorId}/configuration")
-	List<ConnConfProperty> getConfigurationProperties(
-			@PathParam("connectorId") final Long connectorId);
+	List<ConnInstanceTO> list(@QueryParam("lang") final String lang);
 
-	@POST
-	@Path("validate")
-	@RequestMapping(method = RequestMethod.POST, value = "/check")
-	boolean validate(final ConnInstanceTO connectorTO);
+	@GET
+	@Path("{connectorId}")
+	ConnInstanceTO read(@PathParam("connectorId") final Long connectorId);
 
 	@GET
 	@RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
 	ConnInstanceTO readConnectorBean(
 			@MatrixParam("resourceName") String resourceName);
+
+	@PUT
+	@Path("{connectorId}")
+	ConnInstanceTO update(@PathParam("connectorId") final Long connectorId,
+			final ConnInstanceTO connectorTO);
+
+	@POST
+	@Path("validate")
+	@RequestMapping(method = RequestMethod.POST, value = "/check")
+	boolean validate(final ConnInstanceTO connectorTO);
 }

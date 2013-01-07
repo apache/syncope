@@ -32,6 +32,7 @@ import org.apache.syncope.services.LoggerServiceProxy;
 import org.apache.syncope.services.ReportServiceProxy;
 import org.apache.syncope.services.ResourceServiceProxy;
 import org.apache.syncope.services.RoleServiceProxy;
+import org.apache.syncope.services.TaskServiceProxy;
 import org.apache.syncope.services.UserServiceProxy;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -94,6 +95,8 @@ public abstract class AbstractTest {
 
 	protected ReportServiceProxy reportService;
 
+	protected TaskServiceProxy taskService;
+
 	@Autowired
 	protected DataSource testDataSource;
 
@@ -122,5 +125,6 @@ public abstract class AbstractTest {
 		connectorService = new ConnectorServiceProxy(BASE_URL, restTemplate);
 		loggerService = new LoggerServiceProxy(BASE_URL, restTemplate);
 		reportService = new ReportServiceProxy(BASE_URL, restTemplate);
+		taskService = new TaskServiceProxy(BASE_URL, restTemplate);
 	}
 }

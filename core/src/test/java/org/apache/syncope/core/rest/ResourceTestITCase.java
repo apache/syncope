@@ -374,7 +374,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void listByType() {
-        List<ResourceTO> actuals = resourceService.list(Long.valueOf(105));
+        List<ResourceTO> actuals = resourceService.list(105L);
 
         assertNotNull(actuals);
         assertEquals(1, actuals.size());
@@ -384,7 +384,7 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void read() {
         ResourceTO actual = resourceService.read("resource-testdb");
-        
+
         assertNotNull(actual);
     }
 }

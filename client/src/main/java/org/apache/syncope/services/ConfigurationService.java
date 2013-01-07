@@ -39,9 +39,21 @@ public interface ConfigurationService {
 	@POST
 	ConfigurationTO create(final ConfigurationTO configurationTO);
 
+	@GET
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	Response dbExport();
+
 	@DELETE
 	@Path("{key}")
 	ConfigurationTO delete(@PathParam("key") final String key);
+
+	@GET
+	@Path("mailTemplates")
+	Set<String> getMailTemplates();
+
+	@GET
+	@Path("validators")
+	Set<String> getValidators();
 
 	@GET
 	List<ConfigurationTO> list();
@@ -53,17 +65,5 @@ public interface ConfigurationService {
 	@PUT
 	@Path("{key}")
 	ConfigurationTO update(@PathParam("key") final String key, final ConfigurationTO configurationTO);
-
-	@GET
-	@Path("validators")
-	Set<String> getValidators();
-
-	@GET
-	@Path("mailTemplates")
-	Set<String> getMailTemplates();
-
-	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	Response dbExport();
 
 }

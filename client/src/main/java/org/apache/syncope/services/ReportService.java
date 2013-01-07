@@ -19,7 +19,6 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
