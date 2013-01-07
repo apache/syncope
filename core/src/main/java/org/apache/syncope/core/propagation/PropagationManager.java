@@ -220,11 +220,11 @@ public class PropagationManager {
 
         return getUpdateTaskIds(
                 user, // SyncopeUser to be updated on external resources
-                null, // no propagation by resources
-                enable, // status to be propagated
                 null, // no password
-                null, // no virtual attributes to be managed
-                null, // no virtual attributes to be managed
+                enable, // status to be propagated
+                Collections.<String>emptySet(), // no virtual attributes to be managed
+                Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
+                null, // no propagation by resources
                 syncResourceNames);
     }
 
@@ -239,7 +239,8 @@ public class PropagationManager {
     public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return getUserUpdateTaskIds(wfResult, null, null, null, null);
+        return getUserUpdateTaskIds(
+                wfResult, null, Collections.<String>emptySet(), Collections.<AttributeMod>emptySet(), null);
     }
 
     /**
