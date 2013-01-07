@@ -50,7 +50,7 @@ under the License.
     <section name="Domain Integration">
       <ul>
         <li>Highly configurable communication with external resources powered by            
-          <a href="http://connid.googlecode.com" target="_blank">ConnId</a>
+          <a href="http://tirasa.github.com/ConnId/" target="_blank">ConnId</a>
         </li>
         <li>Identity propagation towards external resources</li>
         <li>Reconciliation / Bulk load from external resources</li>
