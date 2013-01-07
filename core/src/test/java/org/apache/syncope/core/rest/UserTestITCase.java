@@ -18,15 +18,20 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
@@ -112,8 +117,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void createUserWithNoPropagation() {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
-                PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -141,7 +145,7 @@ public class UserTestITCase extends AbstractTest {
         userService.create(userTO);
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = taskService.list("propagation", PropagationTaskTO[].class);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -156,8 +160,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        PropagationTaskTO taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
-                newMaxId);
+        PropagationTaskTO taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -171,11 +174,11 @@ public class UserTestITCase extends AbstractTest {
      * introducing a simple control.
      */
     public void issue172() {
-        PolicyTO policyTO = restTemplate.getForObject(BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
+        PolicyTO policyTO = policyService.read(2L, PasswordPolicyTO.class);
 
         assertNotNull(policyTO);
 
-        restTemplate.getForObject(BASE_URL + "policy/delete/{id}", PasswordPolicyTO.class, 2L);
+        policyService.delete(2L, PasswordPolicyTO.class);
 
         UserTO userTO = new UserTO();
         userTO.setUsername("issue172@syncope.apache.org");
@@ -188,7 +191,7 @@ public class UserTestITCase extends AbstractTest {
 
         userService.create(userTO);
 
-        policyTO = restTemplate.postForObject(BASE_URL + "policy/password/create", policyTO, PasswordPolicyTO.class);
+        policyService.create(policyTO);
 
         assertNotNull(policyTO);
     }
@@ -284,12 +287,11 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void testEnforceMandatoryConditionOnDerived() {
-        ResourceTO resourceTO = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "resource-csv");
+        ResourceTO resourceTO = resourceService.read("resource-csv");
         assertNotNull(resourceTO);
         resourceTO.setName("resource-csv-enforcing");
         resourceTO.setEnforceMandatoryCondition(true);
-        resourceTO = restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        resourceTO = resourceService.create(resourceTO);
         assertNotNull(resourceTO);
 
         UserTO userTO = getSampleTO("syncope222@apache.org");
@@ -414,7 +416,7 @@ public class UserTestITCase extends AbstractTest {
     public void create() {
         // get task list
         List<PropagationTaskTO> tasks =
-                Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+                taskService.list("propagation", PropagationTaskTO[].class);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -426,8 +428,7 @@ public class UserTestITCase extends AbstractTest {
                 maxId = task.getId();
             }
         }
-        PropagationTaskTO taskTO =
-                restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, maxId);
+        PropagationTaskTO taskTO = taskService.read(maxId, PropagationTaskTO.class);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -468,7 +469,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("virtualvalue", newUserTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -487,7 +488,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
+        taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -924,8 +925,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void updatePasswordOnly() {
-        List<PropagationTaskTO> beforeTasks = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "task/propagation/list", PropagationTaskTO[].class));
+        List<PropagationTaskTO> beforeTasks = taskService.list("propagation", PropagationTaskTO[].class);
         assertNotNull(beforeTasks);
         assertFalse(beforeTasks.isEmpty());
 
@@ -950,8 +950,7 @@ public class UserTestITCase extends AbstractTest {
         passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
-        List<PropagationTaskTO> afterTasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        List<PropagationTaskTO> afterTasks = taskService.list("propagation", PropagationTaskTO[].class);
         assertNotNull(afterTasks);
         assertFalse(afterTasks.isEmpty());
 
@@ -961,8 +960,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list",
-                PropagationTaskTO[].class));
+        List<PropagationTaskTO> tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -991,7 +989,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -1022,7 +1020,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         // get max task id
         maxId = newMaxId;
@@ -1037,8 +1035,7 @@ public class UserTestITCase extends AbstractTest {
         //             all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
-        final PropagationTaskTO taskTO =
-                restTemplate.getForObject(BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
+        final PropagationTaskTO taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -1049,7 +1046,7 @@ public class UserTestITCase extends AbstractTest {
         userService.delete(userTO.getId());
 
         // get the new task list
-        tasks = Arrays.asList(restTemplate.getForObject(BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        tasks = taskService.list("propagation", PropagationTaskTO[].class);
 
         // get max task id
         maxId = newMaxId;
@@ -1175,14 +1172,12 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getResources().clear();
 
-        ResourceTO dbTable = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "resource-testdb");
+        ResourceTO dbTable = resourceService.read("resource-testdb");
 
         assertNotNull(dbTable);
         userTO.addResource(dbTable.getName());
 
-        ResourceTO ldap = restTemplate.getForObject(BASE_URL + "/resource/read/{resourceName}.json", ResourceTO.class,
-                "resource-ldap");
+        ResourceTO ldap = resourceService.read("resource-ldap");
 
         assertNotNull(ldap);
         userTO.addResource(ldap.getName());
@@ -1689,15 +1684,13 @@ public class UserTestITCase extends AbstractTest {
 
     @Test()
     public void issueSYNCOPE51() {
-        ConfigurationTO defaultConfigurationTO = restTemplate.getForObject(
-                BASE_URL + "configuration/read/{key}.json", ConfigurationTO.class, "password.cipher.algorithm");
+        ConfigurationTO defaultConfigurationTO = configurationService.read("password.cipher.algorithm");
 
         ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey("password.cipher.algorithm");
         configurationTO.setValue("MD5");
 
-        ConfigurationTO newConfTO =
-                restTemplate.postForObject(BASE_URL + "configuration/update", configurationTO, ConfigurationTO.class);
+        ConfigurationTO newConfTO = configurationService.update(configurationTO.getKey(), configurationTO);
 
         assertEquals(configurationTO, newConfTO);
 
@@ -1712,8 +1705,7 @@ public class UserTestITCase extends AbstractTest {
                     e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next().contains("MD5"));
         }
 
-        ConfigurationTO oldConfTO = restTemplate.postForObject(
-                BASE_URL + "configuration/update", defaultConfigurationTO, ConfigurationTO.class);
+        ConfigurationTO oldConfTO = configurationService.update(defaultConfigurationTO.getKey(), defaultConfigurationTO);
 
         assertEquals(defaultConfigurationTO, oldConfTO);
     }
@@ -1726,7 +1718,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("syncope260@apache.org");
         userTO.addResource("ws-target-resource-2");
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        userTO = userService.create(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
@@ -1750,7 +1742,7 @@ public class UserTestITCase extends AbstractTest {
 
         userMod.addVirtualAttributeToBeUpdated(attrMod);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
@@ -1794,7 +1786,7 @@ public class UserTestITCase extends AbstractTest {
 
         userMod.addAttributeToBeUpdated(attrMod);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
@@ -1816,7 +1808,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.addVirtualAttributeToBeRemoved("virtualdata");
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
         assertTrue(userTO.getVirtualAttributes().isEmpty());
         assertFalse(userTO.getPropagationTOs().isEmpty());

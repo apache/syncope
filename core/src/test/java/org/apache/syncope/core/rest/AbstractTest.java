@@ -34,6 +34,7 @@ import org.apache.syncope.services.ResourceServiceProxy;
 import org.apache.syncope.services.RoleServiceProxy;
 import org.apache.syncope.services.TaskServiceProxy;
 import org.apache.syncope.services.UserServiceProxy;
+import org.apache.syncope.services.PolicyServiceProxy;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -75,6 +76,8 @@ public abstract class AbstractTest {
 	public static final String ADMIN_UID = "admin";
 
 	public static final String ADMIN_PWD = "password";
+
+	protected PolicyServiceProxy policyService;
 
 	@Autowired
 	protected RestTemplate restTemplate;
@@ -126,5 +129,6 @@ public abstract class AbstractTest {
 		loggerService = new LoggerServiceProxy(BASE_URL, restTemplate);
 		reportService = new ReportServiceProxy(BASE_URL, restTemplate);
 		taskService = new TaskServiceProxy(BASE_URL, restTemplate);
+		policyService = new PolicyServiceProxy(BASE_URL, restTemplate);
 	}
 }
