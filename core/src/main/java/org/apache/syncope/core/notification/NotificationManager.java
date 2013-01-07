@@ -126,18 +126,16 @@ public class NotificationManager {
      *
      * @param notification notification to take as model
      * @param user the user this task is about
-     * @param emailSchema name of user schema containing e-mail address
      * @return notification task, fully populated
      */
     private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user) {
-
         connObjectUtil.retrieveVirAttrValues(user);
 
         final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
 
         if (notification.getRecipients() != null) {
-            recipients.addAll(searchDAO.search(EntitlementUtil.getRoleIds(
-                    entitlementDAO.findAll()), notification.getRecipients()));
+            recipients.addAll(searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                    notification.getRecipients()));
         }
 
         if (notification.isSelfAsRecipient()) {
@@ -147,7 +145,6 @@ public class NotificationManager {
         Set<String> recipientEmails = new HashSet<String>();
 
         for (SyncopeUser recipient : recipients) {
-
             connObjectUtil.retrieveVirAttrValues(recipient);
 
             String email = getRecipientEmail(
@@ -169,6 +166,8 @@ public class NotificationManager {
         final Map<String, Object> model = new HashMap<String, Object>();
         model.put("user", userDataBinder.getUserTO(user));
         model.put("syncopeConf", this.findAllSyncopeConfs());
+        model.put("recipients", recipientEmails);
+        model.put("events", notification.getEvents());
 
         String htmlBody;
         String textBody;
@@ -208,11 +207,11 @@ public class NotificationManager {
                 Set<String> events = new HashSet<String>(notification.getEvents());
                 events.retainAll(wfResult.getPerformedTasks());
 
-                if (!events.isEmpty()) {
+                if (events.isEmpty()) {
+                    LOG.debug("No events found about {}", user);
+                } else {
                     LOG.debug("Creating notification task for events {} about {}", events, user);
                     taskDAO.save(getNotificationTask(notification, user));
-                } else {
-                    LOG.debug("No events found about {}", user);
                 }
             }
         }
@@ -231,18 +230,22 @@ public class NotificationManager {
             case Username:
                 email = user.getUsername();
                 break;
+
             case UserSchema:
                 UAttr attr = user.getAttribute(recipientAttrName);
                 email = attr == null || attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
                 break;
+
             case UserVirtualSchema:
                 UVirAttr virAttr = user.getVirtualAttribute(recipientAttrName);
                 email = virAttr == null || virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
                 break;
+
             case UserDerivedSchema:
                 UDerAttr derAttr = user.getDerivedAttribute(recipientAttrName);
                 email = derAttr == null ? null : derAttr.getValue(user.getAttributes());
                 break;
+
             default:
                 email = null;
         }
@@ -267,7 +270,7 @@ public class NotificationManager {
 
     /**
      * Mark NotificationTask with provided id as executed.
-     * 
+     *
      * @param taskId task to be updated
      */
     public void setTaskExecuted(final Long taskId) {
