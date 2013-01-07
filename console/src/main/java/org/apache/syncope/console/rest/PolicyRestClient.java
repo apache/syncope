@@ -40,7 +40,6 @@ public class PolicyRestClient extends BaseRestClient {
         T policy = null;
 
         try {
-
             switch (type) {
                 case GLOBAL_ACCOUNT:
                     try {
@@ -72,7 +71,6 @@ public class PolicyRestClient extends BaseRestClient {
                 default:
                     throw new Exception("Invalid policy type");
             }
-
         } catch (Exception ignore) {
             LOG.error("Invalid policy type", ignore);
         }

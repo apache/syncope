@@ -247,18 +247,17 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{id}")
     public PolicyTO delete(@PathVariable("id") final Long id) throws NotFoundException {
-
-        LOG.debug("Delete policy");
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
+
         PolicyTO policyToDelete = binder.getPolicyTO(policy);
         policyDAO.delete(id);
 
         auditManager.audit(Category.policy, PolicySubCategory.delete, Result.success,
                 "Successfully deleted policy: " + id);
-        
+
         return policyToDelete;
     }
 }

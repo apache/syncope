@@ -103,6 +103,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         form.add(new PolicyBeanPanel("panel", policy));
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -121,14 +122,13 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
                 } catch (Exception e) {
                     LOG.error("While creating policy", e);
 
-                    error(getString("operation_error"));
+                    error(getString("error") + ":" + e.getMessage());
                     target.add(getPage().get("feedback"));
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(getPage().get("feedback"));
             }
         };
@@ -136,6 +136,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         form.add(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -188,7 +189,8 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
                 if (!(specification instanceof AccountPolicySpec)) {
-                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().getName());
+                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().
+                            getName());
                 }
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) specification);
                 break;
@@ -196,7 +198,8 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             case GLOBAL_PASSWORD:
             case PASSWORD:
                 if (!(specification instanceof PasswordPolicySpec)) {
-                    throw new ClassCastException("policy is type Password, but spec is not: " + specification.getClass().getName());
+                    throw new ClassCastException("policy is type Password, but spec is not: "
+                            + specification.getClass().getName());
                 }
                 ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) specification);
                 break;
@@ -204,7 +207,8 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             case GLOBAL_SYNC:
             case SYNC:
                 if (!(specification instanceof SyncPolicySpec)) {
-                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().getName());
+                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().
+                            getName());
                 }
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) specification);
 
