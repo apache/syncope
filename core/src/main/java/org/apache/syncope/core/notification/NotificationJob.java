@@ -24,7 +24,6 @@ import java.util.Date;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
@@ -116,21 +115,28 @@ public class NotificationJob implements Job {
                 || StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
                 || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
-            String message = "Could not fetch all required information for " + "sending e-mails:\n" + smtpHost + ":"
-                    + smtpPort + "\n" + task.getRecipients() + "\n" + task.getSender() + "\n" + task.getSubject()
-                    + "\n" + task.getHtmlBody() + "\n" + task.getTextBody();
+            String message = "Could not fetch all required information for sending e-mails:\n"
+                    + smtpHost + ":" + smtpPort + "\n"
+                    + task.getRecipients() + "\n"
+                    + task.getSender() + "\n"
+                    + task.getSubject() + "\n"
+                    + task.getHtmlBody() + "\n"
+                    + task.getTextBody();
             LOG.error(message);
 
             execution.setStatus(Status.NOT_SENT.name());
 
             if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
-
                 execution.setMessage(message);
             }
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("About to send e-mails:\n" + smtpHost + ":" + smtpPort + "\n" + task.getRecipients() + "\n"
-                        + task.getSender() + "\n" + task.getSubject() + "\n" + task.getHtmlBody() + "\n"
+                LOG.debug("About to send e-mails:\n"
+                        + smtpHost + ":" + smtpPort + "\n"
+                        + task.getRecipients() + "\n"
+                        + task.getSender() + "\n"
+                        + task.getSubject() + "\n"
+                        + task.getHtmlBody() + "\n"
                         + task.getTextBody() + "\n");
             }
 

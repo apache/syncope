@@ -14,6 +14,16 @@ Hi $user.getAttributeMap().get("firstname").getValues().get(0) $user.getAttribut
 Your username is $user.getUsername().
 Your email address is $user.getAttributeMap().get("email").getValues().get(0).
 
+This message was sent to the following recipients:
+#foreach($recipient in $recipients)
+   * $recipient
+#end
+
+becase one of the following events occurred:
+#foreach($event in $events)
+  * $event
+#end
+
 #if(!$user.getMemberships().isEmpty())
 You have been provided with the following roles:
 #foreach($membership in $user.getMemberships())

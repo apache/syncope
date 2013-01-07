@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Notification;
@@ -160,6 +159,8 @@ public class NotificationManager {
         final Map<String, Object> model = new HashMap<String, Object>();
         model.put("user", userDataBinder.getUserTO(user));
         model.put("syncopeConf", this.findAllSyncopeConfs());
+        model.put("recipients", recipientEmails);
+        model.put("events", notification.getEvents());
 
         String htmlBody;
         String textBody;
@@ -219,18 +220,22 @@ public class NotificationManager {
             case Username:
                 email = user.getUsername();
                 break;
+
             case UserSchema:
                 UAttr attr = user.getAttribute(recipientAttrName);
                 email = attr == null || attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
                 break;
+
             case UserVirtualSchema:
                 UVirAttr virAttr = user.getVirtualAttribute(recipientAttrName);
                 email = virAttr == null || virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
                 break;
+
             case UserDerivedSchema:
                 UDerAttr derAttr = user.getDerivedAttribute(recipientAttrName);
                 email = derAttr == null ? null : derAttr.getValue(user.getAttributes());
                 break;
+
             default:
                 email = null;
         }

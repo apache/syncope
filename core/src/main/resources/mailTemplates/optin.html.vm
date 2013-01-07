@@ -26,6 +26,22 @@ under the License.
    Your email address is $user.getAttributeMap().get("email").getValues().get(0).
 </p>
 
+<p>
+    This message was sent to the following recipients:
+<ul>
+#foreach($recipient in $recipients)
+  <li>$recipient</i>
+#end
+</ul>
+
+becase one of the following events occurred:
+<ul>
+#foreach($event in $events)
+  <li>$event</i>
+#end
+</ul>
+</p>
+
 #if(!$user.getMemberships().isEmpty())
 You have been provided with the following roles:
 <ul>
