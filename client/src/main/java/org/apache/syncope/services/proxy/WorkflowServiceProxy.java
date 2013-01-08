@@ -34,17 +34,17 @@ public class WorkflowServiceProxy extends SpringServiceProxy implements Workflow
     @Override
     public WorkflowDefinitionTO getDefinition(String type) {
         return restTemplate
-                .getForObject(BASE_URL + "workflow/definition/" + type, WorkflowDefinitionTO.class);
+                .getForObject(baseUrl + "workflow/definition/" + type, WorkflowDefinitionTO.class);
     }
 
     @Override
     public void updateDefinition(String type, WorkflowDefinitionTO definition) {
-        restTemplate.put(BASE_URL + "workflow/definition/" + type, definition);
+        restTemplate.put(baseUrl + "workflow/definition/" + type, definition);
     }
 
     @Override
     public List<String> getDefinedTasks(final String type) {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "workflow/tasks/" + type, String.class));
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "workflow/tasks/" + type, String.class));
     }
 
 }

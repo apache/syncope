@@ -34,7 +34,7 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
 	@Override
 	public <T extends PolicyTO> T create(final T policyTO) {
 		@SuppressWarnings("unchecked")
-		T result = (T) restTemplate.postForObject(BASE_URL
+		T result = (T) restTemplate.postForObject(baseUrl
 				+ "policy/{kind}/create", policyTO, policyTO.getClass(),
 				typeToUrl(policyTO.getType()));
 		return result;
@@ -43,7 +43,7 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
 	@Override
 	public <T extends PolicyTO> T update(Long policyId, T policyTO) {
 		@SuppressWarnings("unchecked")
-		T result = (T) restTemplate.postForObject(BASE_URL
+		T result = (T) restTemplate.postForObject(baseUrl
 				+ "policy/{kind}/update", policyTO, policyTO.getClass(),
 				typeToUrl(policyTO.getType()));
 		return result;
@@ -52,27 +52,27 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
 	@Override
 	public <T extends PolicyTO> List<T> listByType(PolicyType type) {
 		@SuppressWarnings("unchecked")
-		List<T> result = restTemplate.getForObject(BASE_URL + "policy/{kind}/list",
+		List<T> result = restTemplate.getForObject(baseUrl + "policy/{kind}/list",
 				List.class, typeToUrl(type));
 		return result;
 	}
 
 	@Override
 	public <T extends PolicyTO> T readGlobal(PolicyType type, Class<T> policyClass) {
-		T result = restTemplate.getForObject(BASE_URL + "policy/{kind}/global/read",
+		T result = restTemplate.getForObject(baseUrl + "policy/{kind}/global/read",
                 policyClass, typeToUrl(type));
 		return result;
 	}
 
 	@Override
 	public <T extends PolicyTO> T read(Long policyId, Class<T> policyClass) {
-		T result = restTemplate.getForObject(BASE_URL + "policy/read/{id}", policyClass, policyId);
+		T result = restTemplate.getForObject(baseUrl + "policy/read/{id}", policyClass, policyId);
 		return result;
 	}
 
 	@Override
 	public <T extends PolicyTO> T delete(Long policyId, Class<T> policyClass) {
-		T result = restTemplate.getForObject(BASE_URL + "policy/delete/{id}", policyClass, policyId);
+		T result = restTemplate.getForObject(baseUrl + "policy/delete/{id}", policyClass, policyId);
 		return result;
 	}
 

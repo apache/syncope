@@ -25,6 +25,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.services.ConfigurationService;
+import org.apache.syncope.services.ConnectorService;
+import org.apache.syncope.services.EntitlementService;
+import org.apache.syncope.services.LoggerService;
+import org.apache.syncope.services.NotificationService;
+import org.apache.syncope.services.ReportService;
+import org.apache.syncope.services.ResourceService;
+import org.apache.syncope.services.RoleService;
+import org.apache.syncope.services.SchemaService;
+import org.apache.syncope.services.TaskService;
+import org.apache.syncope.services.UserService;
+import org.apache.syncope.services.WorkflowService;
 import org.apache.syncope.services.proxy.ConfigurationServiceProxy;
 import org.apache.syncope.services.proxy.ConnectorServiceProxy;
 import org.apache.syncope.services.proxy.EntitlementServiceProxy;
@@ -81,29 +93,29 @@ public abstract class AbstractTest {
     @Autowired
     protected RestTemplate restTemplate;
 
-    protected UserServiceProxy userService;
+    protected UserService userService;
 
-    protected RoleServiceProxy roleService;
+    protected RoleService roleService;
 
-    protected ResourceServiceProxy resourceService;
+    protected ResourceService resourceService;
 
-    protected EntitlementServiceProxy entitlementService;
+    protected EntitlementService entitlementService;
 
-    protected ConfigurationServiceProxy configurationService;
+    protected ConfigurationService configurationService;
 
-    protected ConnectorServiceProxy connectorService;
+    protected ConnectorService connectorService;
 
-    protected LoggerServiceProxy loggerService;
+    protected LoggerService loggerService;
 
-    protected ReportServiceProxy reportService;
+    protected ReportService reportService;
 
-    protected TaskServiceProxy taskService;
+    protected TaskService taskService;
 
-    protected WorkflowServiceProxy workflowService;
+    protected WorkflowService workflowService;
 
-    protected NotificationServiceProxy notificationService;
+    protected NotificationService notificationService;
 
-    protected SchemaServiceProxy schemaService;
+    protected SchemaService schemaService;
 
     @Autowired
     protected DataSource testDataSource;

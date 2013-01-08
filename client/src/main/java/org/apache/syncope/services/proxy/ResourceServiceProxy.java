@@ -38,29 +38,29 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
 
     @Override
     public ResourceTO create(ResourceTO resourceTO) {
-        return restTemplate.postForObject(BASE_URL + "resource/create.json", resourceTO, ResourceTO.class);
+        return restTemplate.postForObject(baseUrl + "resource/create.json", resourceTO, ResourceTO.class);
     }
 
     @Override
     public ResourceTO update(String resourceName, ResourceTO resourceTO) {
-        return restTemplate.postForObject(BASE_URL + "resource/update.json", resourceTO, ResourceTO.class);
+        return restTemplate.postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     @Override
     public ResourceTO delete(String resourceName) {
-        return restTemplate.getForObject(BASE_URL + "resource/delete/{resourceName}.json", ResourceTO.class,
+        return restTemplate.getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class,
                 resourceName);
     }
 
     @Override
     public ResourceTO read(String resourceName) {
-        return restTemplate.getForObject(BASE_URL + "resource/read/{resourceName}.json", ResourceTO.class,
+        return restTemplate.getForObject(baseUrl + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
     }
 
     @Override
     public Set<String> getPropagationActionsClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL
+        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
                 + "resource/propagationActionsClasses.json", String[].class)));
     }
 
@@ -70,19 +70,19 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
                 ? query = "?connInstanceId=" + connInstanceId.toString()
                 : "";
 
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "resource/list.json" + query,
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "resource/list.json" + query,
                 ResourceTO[].class, connInstanceId));
     }
 
     @Override
     public ConnObjectTO getConnector(String resourceName, AttributableType type, String objectId) {
-        return restTemplate.getForObject(BASE_URL + "resource/{resourceName}/read/{type}/{objectId}.json",
+        return restTemplate.getForObject(baseUrl + "resource/{resourceName}/read/{type}/{objectId}.json",
                 ConnObjectTO.class, resourceName, type, objectId);
     }
 
     @Override
     public boolean check(ResourceTO resourceTO) {
-        return restTemplate.postForObject(BASE_URL + "resource/check.json", resourceTO, Boolean.class)
+        return restTemplate.postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class)
                 .booleanValue();
     }
 

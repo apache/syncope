@@ -33,31 +33,31 @@ public class NotificationServiceProxy extends SpringServiceProxy implements Noti
 
     @Override
     public NotificationTO read(Long notificationId) {
-        return restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json",
+        return restTemplate.getForObject(baseUrl + "notification/read/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
 
     @Override
     public List<NotificationTO> list() {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "notification/list.json",
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "notification/list.json",
                 NotificationTO[].class));
     }
 
     @Override
     public NotificationTO create(NotificationTO notificationTO) {
-        return restTemplate.postForObject(BASE_URL + "notification/create.json", notificationTO,
+        return restTemplate.postForObject(baseUrl + "notification/create.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
     public NotificationTO update(Long notificationId, NotificationTO notificationTO) {
-        return restTemplate.postForObject(BASE_URL + "notification/update.json", notificationTO,
+        return restTemplate.postForObject(baseUrl + "notification/update.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
     public NotificationTO delete(Long notificationId) {
-        return restTemplate.getForObject(BASE_URL + "notification/delete/{notificationId}.json",
+        return restTemplate.getForObject(baseUrl + "notification/delete/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
 

@@ -37,32 +37,32 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements
 
 	@Override
 	public ConfigurationTO create(ConfigurationTO configurationTO) {
-		return restTemplate.postForObject(BASE_URL + "configuration/create",
+		return restTemplate.postForObject(baseUrl + "configuration/create",
 				configurationTO, ConfigurationTO.class);
 	}
 
 	@Override
 	public ConfigurationTO delete(String key) {
 		return restTemplate
-				.getForObject(BASE_URL + "configuration/delete/{key}.json",
+				.getForObject(baseUrl + "configuration/delete/{key}.json",
 						ConfigurationTO.class, key);
 	}
 
 	@Override
 	public List<ConfigurationTO> list() {
-		return Arrays.asList(restTemplate.getForObject(BASE_URL
+		return Arrays.asList(restTemplate.getForObject(baseUrl
 				+ "configuration/list.json", ConfigurationTO[].class));
 	}
 
 	@Override
 	public ConfigurationTO read(String key) {
-		return restTemplate.getForObject(BASE_URL
+		return restTemplate.getForObject(baseUrl
 				+ "configuration/read/{key}.json", ConfigurationTO.class, key);
 	}
 
 	@Override
 	public ConfigurationTO update(String key, ConfigurationTO configurationTO) {
-		return restTemplate.postForObject(BASE_URL + "configuration/update",
+		return restTemplate.postForObject(baseUrl + "configuration/update",
 				configurationTO, ConfigurationTO.class);
 	}
 

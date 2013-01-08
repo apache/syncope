@@ -36,34 +36,34 @@ public class LoggerServiceProxy extends SpringServiceProxy implements LoggerServ
 
     @Override
     public List<LoggerTO> listLogs() {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/log/list", LoggerTO[].class));
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "logger/log/list", LoggerTO[].class));
     }
 
     @Override
     public List<AuditLoggerName> listAudits() {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "logger/audit/list",
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "logger/audit/list",
                 AuditLoggerName[].class));
     }
 
     @Override
     public LoggerTO setLogLevel(String name, Level level) {
-        return restTemplate.postForObject(BASE_URL + "logger/log/{name}/{level}", null, LoggerTO.class, name,
+        return restTemplate.postForObject(baseUrl + "logger/log/{name}/{level}", null, LoggerTO.class, name,
                 level);
     }
 
     @Override
     public LoggerTO deleteLog(String name) {
-        return restTemplate.getForObject(BASE_URL + "logger/log/delete/{name}", LoggerTO.class, name);
+        return restTemplate.getForObject(baseUrl + "logger/log/delete/{name}", LoggerTO.class, name);
     }
 
     @Override
     public void enableAudit(AuditLoggerName auditLoggerName) {
-        restTemplate.put(BASE_URL + "logger/audit/enable", auditLoggerName);
+        restTemplate.put(baseUrl + "logger/audit/enable", auditLoggerName);
     }
 
     @Override
     public void disableAudit(AuditLoggerName auditLoggerName) {
-        restTemplate.put(BASE_URL + "logger/audit/disable", auditLoggerName);
+        restTemplate.put(baseUrl + "logger/audit/disable", auditLoggerName);
     }
 
 }

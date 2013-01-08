@@ -39,7 +39,7 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public int count(String kind) {
-        return restTemplate.getForObject(BASE_URL + "task/{kind}/count.json", Integer.class, kind);
+        return restTemplate.getForObject(baseUrl + "task/{kind}/count.json", Integer.class, kind);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,13 +51,13 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
                         ? "sched"
                         : "";
 
-        return (T) restTemplate.postForObject(BASE_URL + "task/create/{type}", taskTO, taskTO.getClass(),
+        return (T) restTemplate.postForObject(baseUrl + "task/create/{type}", taskTO, taskTO.getClass(),
                 subTypeString);
     }
 
     @Override
     public <T extends TaskTO> T delete(Long taskId, Class<T> type) {
-        return restTemplate.getForObject(BASE_URL + "task/delete/{taskId}", type, taskId);
+        return restTemplate.getForObject(baseUrl + "task/delete/{taskId}", type, taskId);
     }
 
     @Override
@@ -71,53 +71,53 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         String param = (dryRun)
                 ? "?dryRun=true"
                 : "";
-        return restTemplate.postForObject(BASE_URL + "task/execute/{taskId}" + param, null, TaskExecTO.class,
+        return restTemplate.postForObject(baseUrl + "task/execute/{taskId}" + param, null, TaskExecTO.class,
                 taskId);
     }
 
     @Override
     public Set<String> getJobClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL + "task/jobClasses.json",
+        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl + "task/jobClasses.json",
                 String[].class)));
     }
 
     @Override
     public Set<String> getSyncActionsClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(BASE_URL
+        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
                 + "task/syncActionsClasses.json", String[].class)));
     }
 
     @Override
     public <T extends TaskTO> List<T> list(String kind, Class<T[]> type) {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "task/{kind}/list", type, kind));
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/list", type, kind));
     }
 
     @Override
     public <T extends TaskTO> List<T> list(String kind, int page, int size, Class<T[]> type) {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "task/{kind}/list/{page}/{size}.json",
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/list/{page}/{size}.json",
                 type, kind, page, size));
     }
 
     @Override
     public List<TaskExecTO> listExecutions(String kind) {
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + "task/{kind}/execution/list",
+        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/execution/list",
                 TaskExecTO[].class, kind));
     }
 
     @Override
     public <T extends TaskTO> T read(Long taskId, Class<T> type) {
-        return restTemplate.getForObject(BASE_URL + "task/read/{taskId}", type, taskId);
+        return restTemplate.getForObject(baseUrl + "task/read/{taskId}", type, taskId);
     }
 
     @Override
     public TaskExecTO readExecution(Long executionId) {
-        return restTemplate.getForObject(BASE_URL + "task/execution/read/{taskId}", TaskExecTO.class,
+        return restTemplate.getForObject(baseUrl + "task/execution/read/{taskId}", TaskExecTO.class,
                 executionId);
     }
 
     @Override
     public TaskExecTO report(Long executionId, PropagationTaskExecStatus status, String message) {
-        return restTemplate.getForObject(BASE_URL + "task/execution/report/{executionId}"
+        return restTemplate.getForObject(baseUrl + "task/execution/report/{executionId}"
                 + "?executionStatus={status}&message={message}", TaskExecTO.class, executionId, status,
                 message);
     }
@@ -133,7 +133,7 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         if (path == null)
             throw new IllegalArgumentException("Task can only be instance of SchedTaskTO or SyncTaskTO");
 
-        return (T) restTemplate.postForObject(BASE_URL + "task/update/" + path, taskTO, taskTO.getClass());
+        return (T) restTemplate.postForObject(baseUrl + "task/update/" + path, taskTO, taskTO.getClass());
     }
 
 }

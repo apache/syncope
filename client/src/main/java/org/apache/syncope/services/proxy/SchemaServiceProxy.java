@@ -39,28 +39,28 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     public <T extends AbstractSchemaTO> T create(String kind, T schemaTO) {
         String schemaType = getSchemaType(schemaTO.getClass());
 
-        return (T) restTemplate.postForObject(BASE_URL + schemaType + "/{kind}/create", schemaTO,
+        return (T) restTemplate.postForObject(baseUrl + schemaType + "/{kind}/create", schemaTO,
                 schemaTO.getClass(), kind);
     }
 
     @Override
     public <T extends AbstractSchemaTO> T delete(String kind, String schemaName, Class<T> type) {
         String schemaType = getSchemaType(type);
-        return restTemplate.getForObject(BASE_URL + schemaType + "/{kind}/delete/{name}.json", type, kind,
+        return restTemplate.getForObject(baseUrl + schemaType + "/{kind}/delete/{name}.json", type, kind,
                 schemaName);
     }
 
     @Override
     public <T extends AbstractSchemaTO> List<T> list(String kind, Class<T[]> type) {
         String schemaType = getSchemaTypeArray(type);
-        return Arrays.asList(restTemplate.getForObject(BASE_URL + schemaType + "/{kind}/list.json", type,
+        return Arrays.asList(restTemplate.getForObject(baseUrl + schemaType + "/{kind}/list.json", type,
                 kind));
     }
 
     @Override
     public <T extends AbstractSchemaTO> T read(String kind, String schemaName, Class<T> type) {
         String schemaType = getSchemaType(type);
-        return restTemplate.getForObject(BASE_URL + schemaType + "/{kind}/read/{name}.json", type, kind,
+        return restTemplate.getForObject(baseUrl + schemaType + "/{kind}/read/{name}.json", type, kind,
                 schemaName);
     }
 
@@ -68,7 +68,7 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     @Override
     public <T extends AbstractSchemaTO> T update(String kind, String schemaName, T schemaTO) {
         String schemaType = getSchemaType(schemaTO.getClass());
-        return (T) restTemplate.postForObject(BASE_URL + schemaType + "/{kind}/update", schemaTO,
+        return (T) restTemplate.postForObject(baseUrl + schemaType + "/{kind}/update", schemaTO,
                 schemaTO.getClass(), kind);
     }
 
