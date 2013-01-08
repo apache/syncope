@@ -168,8 +168,8 @@ public class PasswordGenerator {
             throws IncompatiblePolicyException {
 
         if (policySpec.getMinLength() == 0) {
-            LOG.error("Minimum lenght given is zero");
-            throw new IncompatiblePolicyException("Minimum lenght given is zero");
+            LOG.error("Minimum length given is zero");
+            throw new IncompatiblePolicyException("Minimum length given is zero");
         }
         if (policySpec.isMustEndWithAlpha() && policySpec.isMustntEndWithAlpha()) {
             LOG.error("Incompatible password policy specification: mustEndWithAlpha and"
