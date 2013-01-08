@@ -70,7 +70,7 @@ public abstract class AbstractTest {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
-    protected static final String BASE_URL = "http://localhost:9081/syncope/rest/";
+    protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
     public static final String ADMIN_UID = "admin";
 
