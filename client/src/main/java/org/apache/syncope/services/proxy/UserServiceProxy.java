@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.services.UserService;
 import org.springframework.web.client.RestTemplate;
 
 public class UserServiceProxy extends SpringServiceProxy implements UserService {

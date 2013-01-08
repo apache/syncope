@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.List;
 
 import org.apache.syncope.client.to.PolicyTO;
+import org.apache.syncope.services.PolicyService;
 import org.apache.syncope.types.PolicyType;
 import org.springframework.web.client.RestTemplate;
 

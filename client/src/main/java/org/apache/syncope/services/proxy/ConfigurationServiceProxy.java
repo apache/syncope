@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.services.ConfigurationService;
 import org.springframework.web.client.RestTemplate;
 
 public class ConfigurationServiceProxy extends SpringServiceProxy implements

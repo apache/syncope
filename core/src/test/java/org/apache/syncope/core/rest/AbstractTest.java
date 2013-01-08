@@ -25,17 +25,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.services.ConfigurationServiceProxy;
-import org.apache.syncope.services.ConnectorServiceProxy;
-import org.apache.syncope.services.EntitlementServiceProxy;
-import org.apache.syncope.services.LoggerServiceProxy;
-import org.apache.syncope.services.ReportServiceProxy;
-import org.apache.syncope.services.ResourceServiceProxy;
-import org.apache.syncope.services.RoleServiceProxy;
-import org.apache.syncope.services.TaskServiceProxy;
-import org.apache.syncope.services.UserServiceProxy;
-import org.apache.syncope.services.PolicyServiceProxy;
-import org.apache.syncope.services.WorkflowServiceProxy;
+import org.apache.syncope.services.proxy.ConfigurationServiceProxy;
+import org.apache.syncope.services.proxy.ConnectorServiceProxy;
+import org.apache.syncope.services.proxy.EntitlementServiceProxy;
+import org.apache.syncope.services.proxy.LoggerServiceProxy;
+import org.apache.syncope.services.proxy.NotificationServiceProxy;
+import org.apache.syncope.services.proxy.PolicyServiceProxy;
+import org.apache.syncope.services.proxy.ReportServiceProxy;
+import org.apache.syncope.services.proxy.ResourceServiceProxy;
+import org.apache.syncope.services.proxy.RoleServiceProxy;
+import org.apache.syncope.services.proxy.TaskServiceProxy;
+import org.apache.syncope.services.proxy.UserServiceProxy;
+import org.apache.syncope.services.proxy.WorkflowServiceProxy;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -99,6 +100,8 @@ public abstract class AbstractTest {
 
     protected WorkflowServiceProxy workflowService;
 
+    protected NotificationServiceProxy notificationService;
+
     @Autowired
     protected DataSource testDataSource;
 
@@ -128,5 +131,6 @@ public abstract class AbstractTest {
         taskService = new TaskServiceProxy(BASE_URL, restTemplate);
         policyService = new PolicyServiceProxy(BASE_URL, restTemplate);
         workflowService = new WorkflowServiceProxy(BASE_URL, restTemplate);
+        notificationService = new NotificationServiceProxy(BASE_URL, restTemplate);
     }
 }

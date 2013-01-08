@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.services.RoleService;
 import org.springframework.web.client.RestTemplate;
 
 public class RoleServiceProxy extends SpringServiceProxy implements RoleService {

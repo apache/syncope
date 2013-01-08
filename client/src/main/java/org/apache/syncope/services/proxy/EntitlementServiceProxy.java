@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.syncope.services.EntitlementService;
 import org.springframework.web.client.RestTemplate;
 
 public class EntitlementServiceProxy extends SpringServiceProxy implements EntitlementService {

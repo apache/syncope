@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.services.ResourceService;
 import org.apache.syncope.types.AttributableType;
 import org.springframework.web.client.RestTemplate;
 

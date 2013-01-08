@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.client.to.LoggerTO;
+import org.apache.syncope.services.LoggerService;
 import org.apache.syncope.types.AuditLoggerName;
 import org.springframework.web.client.RestTemplate;
 

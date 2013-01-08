@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
+import org.apache.syncope.services.ReportService;
 import org.apache.syncope.types.ReportExecExportFormat;
 import org.springframework.web.client.RestTemplate;
 

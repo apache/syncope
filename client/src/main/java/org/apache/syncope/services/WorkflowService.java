@@ -31,21 +31,21 @@ import org.apache.syncope.client.to.WorkflowDefinitionTO;
 public interface WorkflowService {
 
     @GET
-    @Path("{type}")
+    @Path("{kind}")
     //    @RequestMapping(method = RequestMethod.GET, value = "/definition/user")
     //    @RequestMapping(method = RequestMethod.GET, value = "/definition/role")
-    WorkflowDefinitionTO getDefinition(@PathParam("type") final String type);
+    WorkflowDefinitionTO getDefinition(@PathParam("kind") final String kind);
 
 
 
     @PUT
-    @Path("{type}")
+    @Path("{kind}")
 //    @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
 //    @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
-    void updateDefinition(@PathParam("type") final String type, final WorkflowDefinitionTO definition);
+    void updateDefinition(@PathParam("kind") final String kind, final WorkflowDefinitionTO definition);
 
     @GET
-    @Path("{type}/tasks")
+    @Path("{kind}/tasks")
 //    @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
-    List<String> getDefinedTasks(@PathParam("type") final String type);
+    List<String> getDefinedTasks(@PathParam("kind") final String kind);
 }

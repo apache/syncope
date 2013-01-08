@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
@@ -40,16 +43,13 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json",
-                NotificationTO.class, "100");
-
+        NotificationTO notificationTO = notificationService.read(100L);
         assertNotNull(notificationTO);
     }
 
     @Test
     public void list() {
-        List<NotificationTO> notificationTOs = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "notification/list.json", NotificationTO[].class));
+        List<NotificationTO> notificationTOs = notificationService.list();
         assertNotNull(notificationTOs);
         assertFalse(notificationTOs.isEmpty());
         for (NotificationTO instance : notificationTOs) {
@@ -69,8 +69,8 @@ public class NotificationTestITCase extends AbstractTest {
         AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
+                NodeCond.getLeafCond(fullnameLeafCond2));
 
         notificationTO.setAbout(about);
 
@@ -87,8 +87,7 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
 
-        NotificationTO actual =
-                restTemplate.postForObject(BASE_URL + "notification/create.json", notificationTO, NotificationTO.class);
+        NotificationTO actual = notificationService.create(notificationTO);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -98,15 +97,14 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json",
-                NotificationTO.class, "100");
+        NotificationTO notificationTO = notificationService.read(100L);
         assertNotNull(notificationTO);
 
         notificationTO.setRecipients(NodeCond.getLeafCond(new MembershipCond()));
 
         SyncopeClientException exception = null;
         try {
-            restTemplate.postForObject(BASE_URL + "notification/update.json", notificationTO, NotificationTO.class);
+            notificationService.update(notificationTO.getId(), notificationTO);
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }
@@ -118,21 +116,19 @@ public class NotificationTestITCase extends AbstractTest {
 
         notificationTO.setRecipients(recipients);
 
-        NotificationTO actual = restTemplate.postForObject(BASE_URL + "notification/update.json", notificationTO,
-                NotificationTO.class);
+        NotificationTO actual = notificationService.update(notificationTO.getId(), notificationTO);
         assertNotNull(actual);
         assertEquals(actual, notificationTO);
     }
 
     @Test
     public void delete() {
-        NotificationTO deletedNotification = restTemplate.getForObject(
-                BASE_URL + "notification/delete/{notificationId}.json", NotificationTO.class, "101");
+        NotificationTO deletedNotification = notificationService.delete(101L);
         assertNotNull(deletedNotification);
 
         SyncopeClientException exception = null;
         try {
-            restTemplate.getForObject(BASE_URL + "notification/read/{notificationId}.json", NotificationTO.class, "101");
+            notificationService.read(101L);
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.NotFound);
         }
@@ -151,8 +147,8 @@ public class NotificationTestITCase extends AbstractTest {
         AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1), NodeCond.getLeafCond(
-                fullnameLeafCond2));
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
+                NodeCond.getLeafCond(fullnameLeafCond2));
 
         notificationTO.setAbout(about);
 
@@ -168,8 +164,7 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO actual = null;
         SyncopeClientException exception = null;
         try {
-            actual = restTemplate.postForObject(
-                    BASE_URL + "notification/create.json", notificationTO, NotificationTO.class);
+            actual = notificationService.create(notificationTO);
 
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);

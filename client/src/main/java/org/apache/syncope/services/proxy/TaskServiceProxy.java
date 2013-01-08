@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,6 +27,7 @@ import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.services.TaskService;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.springframework.web.client.RestTemplate;
 
