@@ -370,6 +370,12 @@ under the License.
                     createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     forceMandatoryConstraint="0" 
                     propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
+                    
+  <!-- External resource for issue SYNCOPE-267 -->
+  <ExternalResource name="resource-db-virattr" connector_id="107"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    forceMandatoryConstraint="0" 
+                    propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
   
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete" />
   <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1" />
@@ -584,6 +590,13 @@ under the License.
                  mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
   <SchemaMapping id="326" accountid="0" extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
                  mandatoryCondition="false" password="0" resource_name="resource-db-sync"/>
+  
+  <SchemaMapping id="331" resource_name="resource-db-virattr" accountid="1" password="0"
+                 intMappingType="SyncopeUserId" 
+                 mandatoryCondition="true"/>
+  <SchemaMapping id="332" resource_name="resource-db-virattr" accountid="0" password="0" 
+                 extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
+                 mandatoryCondition="false" />
   
   <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         resource_name="ws-target-resource-2" syncopeUser_id="1"

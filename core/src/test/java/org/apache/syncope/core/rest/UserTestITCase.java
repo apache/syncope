@@ -2040,6 +2040,7 @@ public class UserTestITCase extends AbstractTest {
         // create user and check virtual attribute value propagation
         // ----------------------------------
         UserTO userTO = getSampleTO("syncope260@apache.org");
+        userTO.getResources().clear();
         userTO.addResource("ws-target-resource-2");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
@@ -2093,10 +2094,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
-        
+
         userTO = restTemplate.getForObject(BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
         assertEquals("active", userTO.getStatus());
-        
+
         connObjectTO = restTemplate.getForObject(
                 BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
                 ConnObjectTO.class, "ws-target-resource-2", userTO.getUsername());
@@ -2158,5 +2159,34 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(connObjectTO.getAttributeMap().get("NAME").getValues() == null
                 || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         // ----------------------------------
+    }
+
+    @Test
+    public void issueSYNCOPE267() {
+        // ----------------------------------
+        // create user and check virtual attribute value propagation
+        // ----------------------------------
+        UserTO userTO = getSampleTO("syncope267@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("resource-db-virattr");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("resource-db-virattr", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        ConnObjectTO connObjectTO = restTemplate.getForObject(
+                BASE_URL + "/resource/{resourceName}/read/{objectId}.json",
+                ConnObjectTO.class, "resource-db-virattr", userTO.getId());
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("USERNAME").getValues().get(0));
+        // ----------------------------------
+
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getVirtualAttributes().size());
+        assertEquals("virtualvalue", userTO.getVirtualAttributes().get(0).getValues().get(0));
     }
 }

@@ -37,6 +37,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.client.SyncopeConstants;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
+import org.apache.syncope.types.SchemaType;
 
 @MappedSuperclass
 @AttrValueCheck
@@ -185,7 +186,12 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     public String getValueAsString() {
         String result = null;
 
-        switch (getAttribute().getSchema().getType()) {
+        final SchemaType type = getAttribute() == null || getAttribute().getSchema() == null
+                || getAttribute().getSchema().getType() == null
+                ? SchemaType.String
+                : getAttribute().getSchema().getType();
+
+        switch (type) {
 
             case Boolean:
                 result = getBooleanValue().toString();
