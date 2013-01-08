@@ -19,14 +19,11 @@
 package org.apache.syncope.client.to;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.SchemaType;
 
-public class SchemaTO extends AbstractBaseBean {
+public class SchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;
-
-    private String name;
 
     private SchemaType type;
 
@@ -106,14 +103,6 @@ public class SchemaTO extends AbstractBaseBean {
 
     public void setReadonly(boolean readonly) {
         this.readonly = readonly;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public SchemaType getType() {

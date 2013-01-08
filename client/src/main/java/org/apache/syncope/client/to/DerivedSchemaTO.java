@@ -18,21 +18,12 @@
  */
 package org.apache.syncope.client.to;
 
-import org.apache.syncope.client.AbstractBaseBean;
 
-public class DerivedSchemaTO extends AbstractBaseBean {
+public class DerivedSchemaTO extends AbstractSchemaTO {
 
-    private String name;
+    private static final long serialVersionUID = -6747399803792103108L;
 
     private String expression;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getExpression() {
         return expression;

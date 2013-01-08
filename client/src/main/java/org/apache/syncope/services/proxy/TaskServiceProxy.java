@@ -129,7 +129,6 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
                 ? "sync"
                 : (taskTO instanceof SchedTaskTO)
                         ? "sched"
-
                         : null;
         if (path == null)
             throw new IllegalArgumentException("Task can only be instance of SchedTaskTO or SyncTaskTO");

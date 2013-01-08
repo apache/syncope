@@ -42,7 +42,7 @@ under the License.
   
   <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
     <constructor-arg value="localhost"/>
-    <constructor-arg value="9080"/>
+    <constructor-arg value="9081"/>
     <constructor-arg value="http"/>
     <constructor-arg ref="httpClientConnManager"/>
     <constructor-arg ref="httpClientParams"/>

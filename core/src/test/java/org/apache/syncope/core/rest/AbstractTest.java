@@ -34,6 +34,7 @@ import org.apache.syncope.services.proxy.PolicyServiceProxy;
 import org.apache.syncope.services.proxy.ReportServiceProxy;
 import org.apache.syncope.services.proxy.ResourceServiceProxy;
 import org.apache.syncope.services.proxy.RoleServiceProxy;
+import org.apache.syncope.services.proxy.SchemaServiceProxy;
 import org.apache.syncope.services.proxy.TaskServiceProxy;
 import org.apache.syncope.services.proxy.UserServiceProxy;
 import org.apache.syncope.services.proxy.WorkflowServiceProxy;
@@ -69,7 +70,7 @@ public abstract class AbstractTest {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
-    protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
+    protected static final String BASE_URL = "http://localhost:9081/syncope/rest/";
 
     public static final String ADMIN_UID = "admin";
 
@@ -102,6 +103,8 @@ public abstract class AbstractTest {
 
     protected NotificationServiceProxy notificationService;
 
+    protected SchemaServiceProxy schemaService;
+
     @Autowired
     protected DataSource testDataSource;
 
@@ -132,5 +135,6 @@ public abstract class AbstractTest {
         policyService = new PolicyServiceProxy(BASE_URL, restTemplate);
         workflowService = new WorkflowServiceProxy(BASE_URL, restTemplate);
         notificationService = new NotificationServiceProxy(BASE_URL, restTemplate);
+        schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
     }
 }

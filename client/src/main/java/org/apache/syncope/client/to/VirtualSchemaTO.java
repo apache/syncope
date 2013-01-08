@@ -18,17 +18,8 @@
  */
 package org.apache.syncope.client.to;
 
-import org.apache.syncope.client.AbstractBaseBean;
+public class VirtualSchemaTO extends AbstractSchemaTO {
 
-public class VirtualSchemaTO extends AbstractBaseBean {
+    private static final long serialVersionUID = -8198557479659701343L;
 
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -20,7 +20,9 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
@@ -78,14 +80,14 @@ public class SchemaController extends AbstractController {
         if (schema == null) {
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
-        
+
         SchemaTO schemaToDelete = schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
 
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
 
         auditManager.audit(Category.schema, SchemaSubCategory.delete, Result.success,
                 "Successfully deleted schema: " + kind + "/" + schema.getName());
-        
+
         return schemaToDelete;
     }
 

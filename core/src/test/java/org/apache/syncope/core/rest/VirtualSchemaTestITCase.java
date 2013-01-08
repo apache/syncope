@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
@@ -32,10 +33,13 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class VirtualSchemaTestITCase extends AbstractTest {
 
+    private static final String ROLE = "role";
+    private static final String USER = "user";
+    private static final String MEMBERSHIP = "membership";
+
     @Test
     public void list() {
-        List<VirtualSchemaTO> VirtualSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "virtualSchema/user/list.json", VirtualSchemaTO[].class));
+        List<VirtualSchemaTO> VirtualSchemas = schemaService.list(USER, VirtualSchemaTO[].class);
         assertFalse(VirtualSchemas.isEmpty());
         for (VirtualSchemaTO VirtualSchemaTO : VirtualSchemas) {
             assertNotNull(VirtualSchemaTO);
@@ -44,8 +48,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        VirtualSchemaTO VirtualSchemaTO = restTemplate.getForObject(BASE_URL
-                + "virtualSchema/membership/read/mvirtualdata.json", VirtualSchemaTO.class);
+        VirtualSchemaTO VirtualSchemaTO = schemaService.read(MEMBERSHIP, "mvirtualdata",
+                VirtualSchemaTO.class);
         assertNotNull(VirtualSchemaTO);
     }
 
@@ -54,30 +58,24 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        VirtualSchemaTO actual = restTemplate.postForObject(BASE_URL + "virtualSchema/user/create.json", schema,
-                VirtualSchemaTO.class);
+        VirtualSchemaTO actual = schemaService.create(USER, schema);
         assertNotNull(actual);
 
-        actual = restTemplate.getForObject(BASE_URL + "virtualSchema/user/read/" + actual.getName() + ".json",
-                VirtualSchemaTO.class);
+        actual = schemaService.read(USER, actual.getName(), VirtualSchemaTO.class);
         assertNotNull(actual);
     }
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = restTemplate.getForObject(BASE_URL + "virtualSchema/role/read/rvirtualdata.json",
-                VirtualSchemaTO.class);
+        VirtualSchemaTO schema = schemaService.read(ROLE, "rvirtualdata", VirtualSchemaTO.class);
         assertNotNull(schema);
 
-        VirtualSchemaTO deletedSchema =
-                restTemplate.getForObject(BASE_URL + "virtualSchema/role/delete/{schema}", VirtualSchemaTO.class,
-                schema.getName());
+        VirtualSchemaTO deletedSchema = schemaService.delete(ROLE, schema.getName(), VirtualSchemaTO.class);
         assertNotNull(deletedSchema);
 
         Throwable t = null;
         try {
-            schema = restTemplate.getForObject(BASE_URL + "virtualSchema/role/read/rvirtualdata.json",
-                    VirtualSchemaTO.class);
+            schema = schemaService.read(ROLE, "rvirtualdata", VirtualSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
