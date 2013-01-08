@@ -1823,4 +1823,31 @@ public class UserTestITCase extends AbstractTest {
                 || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         // ----------------------------------
     }
+    
+    @Test
+    public void issueSYNCOPE267() {
+        // ----------------------------------
+        // create user and check virtual attribute value propagation
+        // ----------------------------------
+        UserTO userTO = getSampleTO("syncope267@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("resource-db-virattr");
+
+        userTO = userService.create(userTO);
+        assertNotNull(userTO);
+        assertFalse(userTO.getPropagationTOs().isEmpty());
+        assertEquals("resource-db-virattr", userTO.getPropagationTOs().get(0).getResourceName());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+
+        ConnObjectTO connObjectTO = readUserConnObj("resource-db-virattr", String.valueOf(userTO.getId()));
+        assertNotNull(connObjectTO);
+        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("USERNAME").getValues().get(0));
+        // ----------------------------------
+
+        userTO = userService.read(userTO.getId());
+
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getVirtualAttributes().size());
+        assertEquals("virtualvalue", userTO.getVirtualAttributes().get(0).getValues().get(0));
+    }
 }

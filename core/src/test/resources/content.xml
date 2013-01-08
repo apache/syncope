@@ -393,6 +393,12 @@ under the License.
                     createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
                     propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
+                    
+  <!-- External resource for issue SYNCOPE-267 -->
+  <ExternalResource name="resource-db-virattr" connector_id="107"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" 
+                    propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
   
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete" />
   <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1" />
@@ -600,6 +606,14 @@ under the License.
                 extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0"/>
               
+  <UMapping id="17" resource_name="resource-db-virattr"/>
+  <UMappingItem id="331" mapping_id="17" accountid="1" password="0"
+                extAttrName="__NAME__" intMappingType="UserId" 
+                mandatoryCondition="true"/>
+  <UMappingItem id="332" mapping_id="17" accountid="0" password="0" 
+                extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
+                mandatoryCondition="false" />
+  
   <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
         xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3Creadonly%3Efalse%3C%2Freadonly%3E%0A++++++++++%3Cdisposed%3Efalse%3C%2Fdisposed%3E%0A++++++++++%3CencryptedBytes%3Em9nh2US0Sa6m%2BcXccCq0Xw%3D%3D%3C%2FencryptedBytes%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>

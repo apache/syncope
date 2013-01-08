@@ -66,7 +66,7 @@ public class ResourceTest extends AbstractTest {
     public void findAll() {
         List<ExternalResource> resources = resourceDAO.findAll();
         assertNotNull(resources);
-        assertEquals(16, resources.size());
+        assertEquals(17, resources.size());
     }
 
     @Test
