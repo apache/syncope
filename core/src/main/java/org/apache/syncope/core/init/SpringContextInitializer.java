@@ -52,9 +52,11 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
 
     private static String uwfAdapterClassName;
 
+    private static String rwfAdapterClassName;
+
     static {
         try {
-            initUWFAdapterClassName();
+            initWFAdapterClassNames();
         } catch (IOException e) {
             LOG.error("Could not init uwfAdapterClassName", e);
         }
@@ -65,13 +67,14 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
      *
      * @throws IOException if anything goes wrong
      */
-    private static void initUWFAdapterClassName() throws IOException {
+    private static void initWFAdapterClassNames() throws IOException {
         Properties props = new java.util.Properties();
         InputStream propStream = null;
         try {
             propStream = ContentLoader.class.getResourceAsStream("/workflow.properties");
             props.load(propStream);
             uwfAdapterClassName = props.getProperty("uwfAdapter");
+            rwfAdapterClassName = props.getProperty("rwfAdapter");
         } catch (Exception e) {
             LOG.error("Could not load workflow.properties", e);
         } finally {
@@ -84,10 +87,21 @@ public class SpringContextInitializer implements ServletContextAware, BeanFactor
     /**
      * Check if the configured user workflow adapter is Activiti's.
      *
-     * @return whether Activiti is configured for workflow or not
+     * @return whether Activiti is configured for user workflow or not
      */
     public static boolean isActivitiEnabledForUsers() {
         return uwfAdapterClassName != null && uwfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
+    }
+
+    /**
+     * Check if the configured role workflow adapter is Activiti's.
+     *
+     * @return whether Activiti is configured for role workflow or not
+     */
+    public static boolean isActivitiEnabledForRoles() {
+        // ActivitiRoleWorkflowAdapter hasn't been developed (yet) as part of SYNCOPE-173 
+        //return rwfAdapterClassName != null && rwfAdapterClassName.equals(ActivitiRoleWorkflowAdapter.class.getName());
+        return false;
     }
 
     @Autowired

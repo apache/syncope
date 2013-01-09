@@ -18,21 +18,19 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
-
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.junit.Ignore;
+import org.apache.syncope.core.init.SpringContextInitializer;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class WorkflowTestITCase extends AbstractTest {
 
     public static final String ROLE_TYPE = "role";
 
-    public static final String USER_TYPE = "role";
+    public static final String USER_TYPE = "user";
 
     @Test //TODO TestCase needs to be extended
     public void testGetUserDefinition() {
@@ -46,46 +44,41 @@ public class WorkflowTestITCase extends AbstractTest {
         assertNotNull(definition);
     }
 
-    @Test
-    @Ignore //TODO TestCase needs to be extended
+    @Test//TODO TestCase needs to be extended
     public void testUpdateUserDefinition() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
+
         WorkflowDefinitionTO definition = workflowService.getDefinition(USER_TYPE);
         assertNotNull(definition);
-        String newID = (definition.getId() != null)
-                ? definition.getId() + "1"
-                : "1";
-        definition.setId(newID);
+
         workflowService.updateDefinition(USER_TYPE, definition);
         WorkflowDefinitionTO newDefinition = workflowService.getDefinition(USER_TYPE);
-        assertEquals(newID, newDefinition.getId());
+        assertNotNull(newDefinition);
     }
 
-    @Test
-    @Ignore //TODO TestCase needs to be extended
+    @Test//TODO TestCase needs to be extended
     public void testUpdateRoleDefinition() {
+        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForRoles());
+
         WorkflowDefinitionTO definition = workflowService.getDefinition(ROLE_TYPE);
         assertNotNull(definition);
-        String newID = (definition.getId() != null)
-                ? definition.getId() + "1"
-                : "1";
-        definition.setId(newID);
+
         workflowService.updateDefinition(ROLE_TYPE, definition);
         WorkflowDefinitionTO newDefinition = workflowService.getDefinition(ROLE_TYPE);
-        assertEquals(newID, newDefinition.getId());
+        assertNotNull(newDefinition);
     }
 
     @Test
     public void testGetUserTasks() {
         List<String> tasks = workflowService.getDefinedTasks(USER_TYPE);
         assertNotNull(tasks);
-        assertTrue(tasks.size() > 0);
+        assertFalse(tasks.isEmpty());
     }
 
     @Test
     public void testGetRoleTasks() {
         List<String> tasks = workflowService.getDefinedTasks(ROLE_TYPE);
         assertNotNull(tasks);
-        assertTrue(tasks.size() > 0);
+        assertFalse(tasks.isEmpty());
     }
-
 }
