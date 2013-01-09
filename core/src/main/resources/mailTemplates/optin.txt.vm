@@ -16,7 +16,7 @@ Your email address is $user.getAttributeMap().get("email").getValues().get(0).
 
 This message was sent to the following recipients:
 #foreach($recipient in $recipients)
-   * $recipient
+   * $recipient.getAttributeMap().get("surname").getValues().get(0)
 #end
 
 becase one of the following events occurred:

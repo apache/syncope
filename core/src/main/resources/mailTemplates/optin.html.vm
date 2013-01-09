@@ -30,7 +30,7 @@ under the License.
     This message was sent to the following recipients:
 <ul>
 #foreach($recipient in $recipients)
-  <li>$recipient</i>
+  <li>$recipient.getAttributeMap().get("email").getValues().get(0)</li>
 #end
 </ul>
 
