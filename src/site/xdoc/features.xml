@@ -69,7 +69,7 @@ under the License.
     <section name="System Administration">
       <ul>
         <li>RESTFul interface</li>
-        <li>Web-based AJAX administration console</li>
+        <li>Web-based multilingual AJAX administration console</li>
         <li>Role-based administration</li>
         <li>Attribute schema, Derived attribute schema and Virtual Attribute schema management</li>
         <li>Role tree management</li>
