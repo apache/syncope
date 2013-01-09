@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
+import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -85,6 +85,9 @@ public class NotificationManager {
     @Autowired
     private UserDAO userDAO;
 
+    /**
+     * User data binder.
+     */
     @Autowired
     private UserDataBinder userDataBinder;
 
@@ -99,12 +102,6 @@ public class NotificationManager {
      */
     @Autowired
     private TaskDAO taskDAO;
-
-    /**
-     * TaskExec DAO.
-     */
-    @Autowired
-    private TaskExecDAO taskExecDAO;
 
     /**
      * Velocity template engine.
@@ -142,8 +139,8 @@ public class NotificationManager {
             recipients.add(user);
         }
 
-        Set<String> recipientEmails = new HashSet<String>();
-
+        final Set<String> recipientEmails = new HashSet<String>();
+        final List<UserTO> recipientTOs = new ArrayList<UserTO>(recipients.size());
         for (SyncopeUser recipient : recipients) {
             connObjectUtil.retrieveVirAttrValues(recipient);
 
@@ -154,6 +151,7 @@ public class NotificationManager {
                 LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
                 recipientEmails.add(email);
+                recipientTOs.add(userDataBinder.getUserTO(recipient));
             }
         }
 
@@ -166,7 +164,7 @@ public class NotificationManager {
         final Map<String, Object> model = new HashMap<String, Object>();
         model.put("user", userDataBinder.getUserTO(user));
         model.put("syncopeConf", this.findAllSyncopeConfs());
-        model.put("recipients", recipientEmails);
+        model.put("recipients", recipientTOs);
         model.put("events", notification.getEvents());
 
         String htmlBody;
@@ -224,7 +222,7 @@ public class NotificationManager {
     private String getRecipientEmail(
             final IntMappingType recipientAttrType, final String recipientAttrName, final SyncopeUser user) {
 
-        final String email;
+        String email = null;
 
         switch (recipientAttrType) {
             case Username:
@@ -233,21 +231,26 @@ public class NotificationManager {
 
             case UserSchema:
                 UAttr attr = user.getAttribute(recipientAttrName);
-                email = attr == null || attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
+                if (attr != null && !attr.getValuesAsStrings().isEmpty()) {
+                    email = attr.getValuesAsStrings().get(0);
+                }
                 break;
 
             case UserVirtualSchema:
                 UVirAttr virAttr = user.getVirtualAttribute(recipientAttrName);
-                email = virAttr == null || virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
+                if (virAttr != null && !virAttr.getValues().isEmpty()) {
+                    email = virAttr.getValues().get(0);
+                }
                 break;
 
             case UserDerivedSchema:
                 UDerAttr derAttr = user.getDerivedAttribute(recipientAttrName);
-                email = derAttr == null ? null : derAttr.getValue(user.getAttributes());
+                if (derAttr != null) {
+                    email = derAttr.getValue(user.getAttributes());
+                }
                 break;
 
             default:
-                email = null;
         }
 
         return email;
@@ -279,7 +282,7 @@ public class NotificationManager {
         taskDAO.save(task);
     }
 
-    public Map<String, String> findAllSyncopeConfs() {
+    protected Map<String, String> findAllSyncopeConfs() {
         Map<String, String> syncopeConfMap = new HashMap<String, String>();
         for (SyncopeConf conf : confDAO.findAll()) {
             syncopeConfMap.put(conf.getKey(), conf.getValue());

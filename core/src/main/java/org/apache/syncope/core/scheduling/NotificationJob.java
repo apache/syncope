@@ -113,9 +113,13 @@ public class NotificationJob implements StatefulJob {
                 || StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
                 || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
-            String message = "Could not fetch all required information for " + "sending e-mails:\n" + smtpHost + ":"
-                    + smtpPort + "\n" + task.getRecipients() + "\n" + task.getSender() + "\n" + task.getSubject()
-                    + "\n" + task.getHtmlBody() + "\n" + task.getTextBody();
+            String message = "Could not fetch all required information for sending e-mails:\n"
+                    + smtpHost + ":" + smtpPort + "\n"
+                    + task.getRecipients() + "\n"
+                    + task.getSender() + "\n"
+                    + task.getSubject() + "\n"
+                    + task.getHtmlBody() + "\n"
+                    + task.getTextBody();
             LOG.error(message);
 
             execution.setStatus(Status.NOT_SENT.name());
