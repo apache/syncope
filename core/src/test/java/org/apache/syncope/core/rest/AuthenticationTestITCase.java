@@ -80,8 +80,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 		schemaTO.setMandatoryCondition("false");
 		schemaTO.setType(SchemaType.String);
 
-		SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
-				+ "schema/user/create", schemaTO, SchemaTO.class);
+		SchemaTO newSchemaTO = schemaService.create("user", schemaTO);
 		assertEquals(schemaTO, newSchemaTO);
 
 		// 2. create an user with the role created above (as admin)
@@ -99,22 +98,19 @@ public class AuthenticationTestITCase extends AbstractTest {
 		assertNotNull(userTO);
 
 		// 3. read the schema created above (as admin) - success
-		schemaTO = restTemplate.getForObject(BASE_URL
-				+ "schema/user/read/authTestSchema.json", SchemaTO.class);
+		schemaTO = schemaService.read("user", "authTestSchema", SchemaTO.class);
 		assertNotNull(schemaTO);
 
 		// 4. read the schema created above (as user) - success
 		super.setupRestTemplate(userTO.getUsername(), "password123");
 
-		schemaTO = restTemplate.getForObject(BASE_URL
-				+ "schema/user/read/authTestSchema.json", SchemaTO.class);
+		schemaTO = schemaService.read("user", "authTestSchema", SchemaTO.class);
 		assertNotNull(schemaTO);
 
 		// 5. update the schema create above (as user) - failure
 		HttpClientErrorException exception = null;
 		try {
-			restTemplate.postForObject(BASE_URL + "schema/role/update",
-					schemaTO, SchemaTO.class);
+		    schemaService.update("role", schemaTO.getName(), schemaTO);
 		} catch (HttpClientErrorException e) {
 			exception = e;
 		}

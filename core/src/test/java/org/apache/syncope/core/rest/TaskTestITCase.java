@@ -464,8 +464,7 @@ public class TaskTestITCase extends AbstractTest {
         notification.setSubject(subject);
         notification.setTemplate("optin");
 
-        notification = restTemplate.postForObject(BASE_URL + "notification/create.json", notification,
-                NotificationTO.class);
+        notification = notificationService.create(notification);
         assertNotNull(notification);
 
         // 2. create user

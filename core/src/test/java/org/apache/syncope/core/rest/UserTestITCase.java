@@ -98,10 +98,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+        super.setupRestTemplate("user1", ADMIN_PWD);
 
         try {
             userService.read(1l);
@@ -593,10 +590,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+        super.setupRestTemplate("user1", ADMIN_PWD);
 
         SyncopeClientException sce = null;
         try {
@@ -607,8 +601,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(sce);
 
         // 4. claim task from user4, in role 7
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user4", "password"));
+        super.setupRestTemplate("user4", ADMIN_PWD);
 
         form = userService.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -1823,7 +1816,7 @@ public class UserTestITCase extends AbstractTest {
                 || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         // ----------------------------------
     }
-    
+
     @Test
     public void issueSYNCOPE267() {
         // ----------------------------------

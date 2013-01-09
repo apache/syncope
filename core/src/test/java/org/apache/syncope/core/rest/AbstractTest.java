@@ -35,6 +35,7 @@ import org.apache.syncope.services.ResourceService;
 import org.apache.syncope.services.RoleService;
 import org.apache.syncope.services.SchemaService;
 import org.apache.syncope.services.TaskService;
+import org.apache.syncope.services.UserRequestService;
 import org.apache.syncope.services.UserService;
 import org.apache.syncope.services.WorkflowService;
 import org.apache.syncope.services.proxy.ConfigurationServiceProxy;
@@ -48,6 +49,7 @@ import org.apache.syncope.services.proxy.ResourceServiceProxy;
 import org.apache.syncope.services.proxy.RoleServiceProxy;
 import org.apache.syncope.services.proxy.SchemaServiceProxy;
 import org.apache.syncope.services.proxy.TaskServiceProxy;
+import org.apache.syncope.services.proxy.UserRequestServiceProxy;
 import org.apache.syncope.services.proxy.UserServiceProxy;
 import org.apache.syncope.services.proxy.WorkflowServiceProxy;
 import org.junit.Before;
@@ -91,7 +93,7 @@ public abstract class AbstractTest {
     protected PolicyServiceProxy policyService;
 
     @Autowired
-    protected RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     protected UserService userService;
 
@@ -116,6 +118,8 @@ public abstract class AbstractTest {
     protected NotificationService notificationService;
 
     protected SchemaService schemaService;
+
+    protected UserRequestService userRequestService;
 
     @Autowired
     protected DataSource testDataSource;
@@ -148,5 +152,6 @@ public abstract class AbstractTest {
         workflowService = new WorkflowServiceProxy(BASE_URL, restTemplate);
         notificationService = new NotificationServiceProxy(BASE_URL, restTemplate);
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
+        userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
 }

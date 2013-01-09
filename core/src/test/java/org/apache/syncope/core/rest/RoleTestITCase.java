@@ -34,6 +34,7 @@ import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
@@ -188,10 +189,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(userTO.getMembershipMap().containsKey(1L));
         assertFalse(userTO.getMembershipMap().containsKey(3L));
 
-        PreemptiveAuthHttpRequestFactory requestFactory = (PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory();
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user1", "password"));
+        super.setupRestTemplate("user1", "password");
 
         SyncopeClientException exception = null;
         try {
@@ -316,10 +314,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setName("Managing Director");
 
         // 3. try to update as user3, not owner of role 7 - fail
-        PreemptiveAuthHttpRequestFactory requestFactory = (PreemptiveAuthHttpRequestFactory) restTemplate
-                .getRequestFactory();
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user2", "password"));
+        setupRestTemplate("user2", "password");
 
         try {
             roleService.update(roleMod.getId(), roleMod);
@@ -330,8 +325,7 @@ public class RoleTestITCase extends AbstractTest {
 
         // 4. update as user5, owner of role 7 because owner of role 6 with
         // inheritance - success
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials("user5", "password"));
+        super.setupRestTemplate("user5", ADMIN_PWD);
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());

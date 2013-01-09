@@ -18,15 +18,17 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.junit.Test;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -38,8 +40,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<DerivedSchemaTO> derivedSchemas = Arrays.asList(restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/list.json", DerivedSchemaTO[].class));
+        List<DerivedSchemaTO> derivedSchemas = schemaService.list(USER, DerivedSchemaTO[].class);
         assertFalse(derivedSchemas.isEmpty());
         for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);
