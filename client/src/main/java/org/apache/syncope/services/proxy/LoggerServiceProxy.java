@@ -46,13 +46,13 @@ public class LoggerServiceProxy extends SpringServiceProxy implements LoggerServ
     }
 
     @Override
-    public LoggerTO setLogLevel(String name, Level level) {
+    public LoggerTO update(String name, Level level) {
         return restTemplate.postForObject(baseUrl + "logger/log/{name}/{level}", null, LoggerTO.class, name,
                 level);
     }
 
     @Override
-    public LoggerTO deleteLog(String name) {
+    public LoggerTO delete(String name) {
         return restTemplate.getForObject(baseUrl + "logger/log/delete/{name}", LoggerTO.class, name);
     }
 

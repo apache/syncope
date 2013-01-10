@@ -36,18 +36,14 @@ public interface PolicyService {
 	@POST
     <T extends PolicyTO> T create(final T policyTO);
 
-	@PUT
-	@Path("{policyId}")
-    <T extends PolicyTO> T update(@PathParam("policyId") final Long policyId, final T policyTO);
-
-	@GET
-	@Path("{type}")
-	<T extends PolicyTO> List<T> listByType(@PathParam("type") final PolicyType type);
-
 	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
+	@DELETE
+	@Path("{policyId}")
+	<T extends PolicyTO> T delete(@PathParam("policyId") final Long policyId, Class<T> policyClass);
+
 	@GET
-	@Path("global/{type}")
-	<T extends PolicyTO> T readGlobal(@PathParam("type") final PolicyType type, Class<T> policyClass);
+	@Path("{kind}")
+	<T extends PolicyTO> List<T> listByType(@PathParam("kind") final PolicyType type);
 
 	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
 	@GET
@@ -55,8 +51,12 @@ public interface PolicyService {
 	<T extends PolicyTO> T read(@PathParam("policyId") final Long policyId, Class<T> policyClass);
 
 	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
-	@DELETE
+	@GET
+	@Path("global/{kind}")
+	<T extends PolicyTO> T readGlobal(@PathParam("kind") final PolicyType type, Class<T> policyClass);
+
+	@PUT
 	@Path("{policyId}")
-	<T extends PolicyTO> T delete(@PathParam("policyId") final Long policyId, Class<T> policyClass);
+    <T extends PolicyTO> T update(@PathParam("policyId") final Long policyId, final T policyTO);
 
 }

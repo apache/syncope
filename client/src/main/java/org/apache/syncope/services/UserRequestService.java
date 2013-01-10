@@ -30,7 +30,7 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
 
-@Path("requests/users")
+@Path("requests/user")
 public interface UserRequestService {
 
     @GET
@@ -40,31 +40,25 @@ public interface UserRequestService {
 
     @POST
     @Path("create")
-    //    @RequestMapping(method = RequestMethod.POST, value = "/create")
     UserRequestTO create(final UserTO userTO);
 
     @POST
     @Path("update")
-    //    @RequestMapping(method = RequestMethod.POST, value = "/update")
     UserRequestTO update(final UserMod userMod);
 
     @POST
     @Path("delete")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
     UserRequestTO delete(final Long userId);
 
     @GET
-    //    @RequestMapping(method = RequestMethod.GET, value = "/list")
     List<UserRequestTO> list();
 
     @GET
     @Path("{requestId}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/read/{requestId}")
     UserRequestTO read(@PathParam("requestId") final Long requestId);
 
     @DELETE
     @Path("{requestId}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/deleteRequest/{requestId}")
     UserRequestTO deleteRequest(@PathParam("requestId") final Long requestId);
 
 }

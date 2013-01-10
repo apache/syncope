@@ -44,7 +44,7 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void listByType() {
         List<SyncPolicyTO> policyTOs = policyService.listByType(PolicyType.SYNC);
-        
+
         assertNotNull(policyTOs);
         assertFalse(policyTOs.isEmpty());
     }
@@ -62,7 +62,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
-        assertEquals(8, ((PasswordPolicySpec) policyTO.getSpecification()).getMinLength());
+        assertEquals(8, policyTO.getSpecification().getMinLength());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull("find to update did not work", policy);
 
-        PasswordPolicySpec policySpec = ((PasswordPolicyTO) policy).getSpecification();
+        PasswordPolicySpec policySpec = policy.getSpecification();
         policySpec.setMaxLength(22);
         policy.setSpecification(policySpec);
 
@@ -143,8 +143,8 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
-        assertEquals(22, ((PasswordPolicyTO) policy).getSpecification().getMaxLength());
-        assertEquals(8, ((PasswordPolicyTO) policy).getSpecification().getMinLength());
+        assertEquals(22, policy.getSpecification().getMaxLength());
+        assertEquals(8, policy.getSpecification().getMinLength());
     }
 
     @Test
@@ -166,5 +166,5 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull(t);
     }
-    
+
 }

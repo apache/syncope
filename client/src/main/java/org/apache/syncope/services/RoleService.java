@@ -35,49 +35,48 @@ import org.apache.syncope.client.to.RoleTO;
 @Path("roles")
 public interface RoleService {
 
-	@GET
+    @GET
     @Path("{roleId}/children")
-	List<RoleTO> children(@PathParam("roleId") final Long roleId);
+    List<RoleTO> children(@PathParam("roleId") final Long roleId);
 
-	@POST
-	RoleTO create(final RoleTO roleTO);
+    @POST
+    RoleTO create(final RoleTO roleTO);
 
-	@DELETE
+    @DELETE
     @Path("{roleId}")
-	RoleTO delete(@PathParam("roleId") final Long roleId);
+    RoleTO delete(@PathParam("roleId") final Long roleId);
 
-	@GET
-	List<RoleTO> list();
+    @GET
+    List<RoleTO> list();
 
-	@GET
+    @GET
     @Path("{roleId}/parent")
-	RoleTO parent(@PathParam("roleId") final Long roleId);
+    RoleTO parent(@PathParam("roleId") final Long roleId);
 
-	@GET
-	@Path("{roleId}")
-	RoleTO read(@PathParam("roleId") final Long roleId);
-
-	@POST
-	@Path("search")
-	List<RoleTO> search(final NodeCond searchCondition);
-
-	@POST
-	@Path("search")
-	List<RoleTO> search(final NodeCond searchCondition,
-			@QueryParam("page") final int page,
-			@QueryParam("size") @DefaultValue("25") final int size);
-
-	@POST
-	@Path("search/count")
-	int searchCount(final NodeCond searchCondition);
-
-	/**
-	 * @deprecated Authentication checks should not depend on the method called
-	 */
-	@Deprecated
-	RoleTO selfRead(final Long roleId);
-
-	@POST
+    @GET
     @Path("{roleId}")
-	RoleTO update(@PathParam("roleId") final Long roleId, final RoleMod roleMod);
+    RoleTO read(@PathParam("roleId") final Long roleId);
+
+    @POST
+    @Path("search")
+    List<RoleTO> search(final NodeCond searchCondition);
+
+    @POST
+    @Path("search")
+    List<RoleTO> search(final NodeCond searchCondition,
+            @QueryParam("page") final int page,
+            @QueryParam("size") @DefaultValue("25") final int size);
+
+    @POST
+    @Path("search/count")
+    int searchCount(final NodeCond searchCondition);
+
+    /**
+     * deprecated Authentication checks should not depend on the method called
+     */
+    RoleTO selfRead(final Long roleId);
+
+    @POST
+    @Path("{roleId}")
+    RoleTO update(@PathParam("roleId") final Long roleId, final RoleMod roleMod);
 }

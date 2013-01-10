@@ -29,34 +29,52 @@ import javax.ws.rs.PathParam;
 
 import org.apache.syncope.client.to.AbstractSchemaTO;
 
-@Path("schemas")
+@Path("schemas/{kind}/{type}")
 public interface SchemaService {
 
+    //TODO refactoring needed here. SchemaType exists already in org.apache.syncope.types.
+    // Maybe that (other) type can be renamed to SchemaElementType ?
+    enum SchemaType {
+        NORMAL("schema"), DERIVED("derivedSchema"), VIRTUAL("virtualSchema");
+
+        private final String name;
+
+        private SchemaType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     @POST
-    //    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
-    <T extends AbstractSchemaTO> T create(@PathParam("kind") final String kind, final T schemaTO);
+    <T extends AbstractSchemaTO> T create(@PathParam("kind") final String kind,
+            @PathParam("type") final SchemaType type,
+            final T schemaTO);
 
     @DELETE
-    @Path("{kind}/{schema}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
+    @Path("{name}")
     <T extends AbstractSchemaTO> T delete(@PathParam("kind") final String kind,
-            @PathParam("schema") final String schemaName, final Class<T> type);
+            @PathParam("type") final SchemaType type,
+            @PathParam("name") final String schemaName);
 
     @GET
-    @Path("{kind}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    <T extends AbstractSchemaTO> List<T> list(@PathParam("kind") final String kind, final Class<T[]> type);
+    <T extends AbstractSchemaTO> List<T> list(@PathParam("kind") final String kind,
+            @PathParam("type") final SchemaType type);
 
     @GET
-    @Path("{kind}/{schema}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/read/{schema}")
+    @Path("{name}")
     <T extends AbstractSchemaTO> T read(@PathParam("kind") final String kind,
-            @PathParam("schema") final String schemaName, final Class<T> type);
+            @PathParam("type") final SchemaType type,
+            @PathParam("name") final String schemaName);
 
     @PUT
-    @Path("{kind}/{schema}")
-    //    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
+    @Path("{name}")
     <T extends AbstractSchemaTO> T update(@PathParam("kind") final String kind,
-            @PathParam("schema") final String schemaName, final T schemaTO);
+            @PathParam("type") final SchemaType type,
+            @PathParam("name") final String schemaName,
+            final T schemaTO);
 
 }

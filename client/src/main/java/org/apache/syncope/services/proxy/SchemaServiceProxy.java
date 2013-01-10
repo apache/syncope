@@ -28,67 +28,62 @@ import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.apache.syncope.services.SchemaService;
 import org.springframework.web.client.RestTemplate;
 
+@SuppressWarnings("unchecked")
 public class SchemaServiceProxy extends SpringServiceProxy implements SchemaService {
 
     public SchemaServiceProxy(String baseUrl, RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchemaTO> T create(String kind, T schemaTO) {
-        String schemaType = getSchemaType(schemaTO.getClass());
-
-        return (T) restTemplate.postForObject(baseUrl + schemaType + "/{kind}/create", schemaTO,
-                schemaTO.getClass(), kind);
+    public <T extends AbstractSchemaTO> T create(String kind, SchemaType type, T schemaTO) {
+        return (T) restTemplate.postForObject(baseUrl + type + "/{kind}/create", schemaTO, getTOClass(type), kind);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T delete(String kind, String schemaName, Class<T> type) {
-        String schemaType = getSchemaType(type);
-        return restTemplate.getForObject(baseUrl + schemaType + "/{kind}/delete/{name}.json", type, kind,
+    public <T extends AbstractSchemaTO> T delete(String kind, SchemaType type, String schemaName) {
+        return (T) restTemplate.getForObject(baseUrl + type + "/{kind}/delete/{name}.json", getTOClass(type), kind,
                 schemaName);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(String kind, Class<T[]> type) {
-        String schemaType = getSchemaTypeArray(type);
-        return Arrays.asList(restTemplate.getForObject(baseUrl + schemaType + "/{kind}/list.json", type,
-                kind));
+    public <T extends AbstractSchemaTO> List<T> list(String kind, SchemaType type) {
+        switch (type) {
+        case NORMAL:
+            return (List<T>) Arrays.asList(restTemplate.getForObject(baseUrl + type + "/{kind}/list.json",
+                    SchemaTO[].class, kind));
+        case DERIVED:
+            return (List<T>) Arrays.asList(restTemplate.getForObject(baseUrl + type + "/{kind}/list.json",
+                    DerivedSchemaTO[].class, kind));
+        case VIRTUAL:
+            return (List<T>) Arrays.asList(restTemplate.getForObject(baseUrl + type + "/{kind}/list.json",
+                    VirtualSchemaTO[].class, kind));
+        default:
+            throw new IllegalArgumentException("SchemaType is not supported.");
+        }
+    }
+
+    private Class<? extends AbstractSchemaTO> getTOClass(SchemaType type) {
+        switch (type) {
+        case NORMAL:
+            return SchemaTO.class;
+        case DERIVED:
+            return DerivedSchemaTO.class;
+        case VIRTUAL:
+            return VirtualSchemaTO.class;
+        default:
+            throw new IllegalArgumentException("SchemaType is not supported.");
+        }
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T read(String kind, String schemaName, Class<T> type) {
-        String schemaType = getSchemaType(type);
-        return restTemplate.getForObject(baseUrl + schemaType + "/{kind}/read/{name}.json", type, kind,
+    public <T extends AbstractSchemaTO> T read(String kind, SchemaType type, String schemaName) {
+        return (T) restTemplate.getForObject(baseUrl + type + "/{kind}/read/{name}.json", getTOClass(type), kind,
                 schemaName);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchemaTO> T update(String kind, String schemaName, T schemaTO) {
-        String schemaType = getSchemaType(schemaTO.getClass());
-        return (T) restTemplate.postForObject(baseUrl + schemaType + "/{kind}/update", schemaTO,
-                schemaTO.getClass(), kind);
-    }
-
-    private String getSchemaType(Class<? extends AbstractSchemaTO> type) {
-        return (type.isAssignableFrom(SchemaTO.class))
-                ? "schema"
-                : (type.isAssignableFrom(DerivedSchemaTO.class))
-                        ? "derivedSchema"
-                        : (type.isAssignableFrom(VirtualSchemaTO.class))
-                                ? "virtualSchema"
-                                : "";
-    }
-
-    private <T extends AbstractSchemaTO> String getSchemaTypeArray(Class<T[]> type) {
-        return (type.isAssignableFrom(SchemaTO[].class))
-                ? "schema"
-                : (type.isAssignableFrom(DerivedSchemaTO[].class))
-                        ? "derivedSchema"
-                        : (type.isAssignableFrom(VirtualSchemaTO[].class))
-                                ? "virtualSchema"
-                                : "";
+    public <T extends AbstractSchemaTO> T update(String kind, SchemaType type, String schemaName, T schemaTO) {
+        return (T) restTemplate.postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
     }
 }

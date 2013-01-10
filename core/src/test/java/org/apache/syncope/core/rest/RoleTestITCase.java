@@ -28,13 +28,9 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;

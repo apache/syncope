@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.services.SchemaService;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<DerivedSchemaTO> derivedSchemas = schemaService.list(USER, DerivedSchemaTO[].class);
+        List<DerivedSchemaTO> derivedSchemas = schemaService.list(USER, SchemaService.SchemaType.DERIVED);
         assertFalse(derivedSchemas.isEmpty());
         for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);
@@ -49,7 +50,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        DerivedSchemaTO derivedSchemaTO = schemaService.read(USER, "cn", DerivedSchemaTO.class);
+        DerivedSchemaTO derivedSchemaTO = schemaService.read(USER, SchemaService.SchemaType.DERIVED, "cn");
         assertNotNull(derivedSchemaTO);
     }
 
@@ -59,25 +60,25 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        DerivedSchemaTO actual = schemaService.create(USER, schema);
+        DerivedSchemaTO actual = schemaService.create(USER, SchemaService.SchemaType.DERIVED, schema);
         assertNotNull(actual);
 
-        actual = schemaService.read(USER, actual.getName(), DerivedSchemaTO.class);
+        actual = schemaService.read(USER, SchemaService.SchemaType.DERIVED, actual.getName());
         assertNotNull(actual);
         assertEquals(actual.getExpression(), "derived_sx + '_' + derived_dx");
     }
 
     @Test
     public void delete() {
-        DerivedSchemaTO schema = schemaService.read(ROLE, "rderiveddata", DerivedSchemaTO.class);
+        DerivedSchemaTO schema = schemaService.read(ROLE, SchemaService.SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
-        DerivedSchemaTO schemaToDelete = schemaService.delete(ROLE, schema.getName(), DerivedSchemaTO.class);
+        DerivedSchemaTO schemaToDelete = schemaService.delete(ROLE, SchemaService.SchemaType.DERIVED, schema.getName());
         assertNotNull(schemaToDelete);
 
         Throwable t = null;
         try {
-            schemaService.read(ROLE, "rderiveddata", DerivedSchemaTO.class);
+            schemaService.read(ROLE, SchemaService.SchemaType.DERIVED, "rderiveddata");
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -87,16 +88,16 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        DerivedSchemaTO schema = schemaService.read(MEMBERSHIP, "mderiveddata", DerivedSchemaTO.class);
+        DerivedSchemaTO schema = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
 
         schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-        schema = schemaService.update(MEMBERSHIP, schema.getName(), schema);
+        schema = schemaService.update(MEMBERSHIP, SchemaService.SchemaType.DERIVED, schema.getName(), schema);
         assertNotNull(schema);
 
-        schema = schemaService.read(MEMBERSHIP, "mderiveddata", DerivedSchemaTO.class);
+        schema = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
     }

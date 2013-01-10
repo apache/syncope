@@ -29,12 +29,14 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 public class AuditLoggerName extends AbstractBaseBean {
 
-    private Category category;
+    private static final long serialVersionUID = -647989486671786839L;
+
+    private final Category category;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-    private Enum<?> subcategory;
+    private final Enum<?> subcategory;
 
-    private Result result;
+    private final Result result;
 
     @JsonCreator
     public AuditLoggerName(@JsonProperty("category") final Category category,

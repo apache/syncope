@@ -39,23 +39,18 @@ import org.apache.syncope.client.to.WorkflowFormTO;
 public interface UserService {
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO activate(long userId, String token);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO activateByUsername(String username, String token);
 
     /**
-     * @deprecated This method needs to be moved to a new workflow service.
+     * deprecated This method needs to be moved to a new workflow service.
      */
-    @Deprecated
     @POST
     @Path("workflow/task/{taskId}/claim")
     WorkflowFormTO claimForm(@PathParam("taskId") final String taskId);
@@ -72,24 +67,21 @@ public interface UserService {
     UserTO delete(@PathParam("userId") final Long userId);
 
     /**
-     * @deprecated This method needs to be moved to a new workflow service.
+     * deprecated This method needs to be moved to workflow service.
      */
-    @Deprecated
     @POST
     UserTO executeWorkflow(@PathParam("taskId") final String taskId, final UserTO userTO);
 
     /**
-     * @deprecated This method needs to be moved to a new workflow service.
+     * deprecated This method needs to be moved to workflow service.
      */
-    @Deprecated
     @GET
     @Path("{userId}/workflow/form")
     WorkflowFormTO getFormForUser(@PathParam("userId") final Long userId);
 
     /**
-     * @deprecated This method needs to be moved to a new workflow service.
+     * deprecated This method needs to be moved to workflow service.
      */
-    @Deprecated
     @GET
     @Path("workflow/form")
     List<WorkflowFormTO> getForms();
@@ -102,24 +94,18 @@ public interface UserService {
             @QueryParam("size") @DefaultValue("25") final int size);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO reactivate(long userId);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO reactivate(long userId, String query);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO reactivateByUsername(String username);
 
     @GET
@@ -130,10 +116,8 @@ public interface UserService {
     UserTO read(@MatrixParam("uname") final String username);
 
     /**
-     * @deprecated As of release 1.2.0, use {@link #read(Long)} or
-     *             {@link #read(String)} instead.
+     * deprecated As of release 1.2.0, use {@link #read(Long)} or {@link #read(String)} instead.
      */
-    @Deprecated
     UserTO readSelf();
 
     @POST
@@ -154,32 +138,25 @@ public interface UserService {
     public abstract UserTO setStatus(@PathParam("userId") final Long userId, final StatusMod statusUpdate);
 
     /**
-     * @deprecated This method needs to be moved to a new workflow service.
+     * deprecated This method needs to be moved to a new workflow service.
      */
-    @Deprecated
     @POST
     @Path("workflow/form")
     UserTO submitForm(final WorkflowFormTO form);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO suspend(long userId);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO suspend(long userId, String query);
 
     /**
-     * @deprecated As of release 1.2.0, replaced by
-     *             {@link #setStatus(Long, StatusMod)}
+     * deprecated As of release 1.2.0, replaced by {@link #setStatus(Long, StatusMod)}
      */
-    @Deprecated
     UserTO suspendByUsername(String username);
 
     @POST

@@ -34,25 +34,20 @@ public interface NotificationService {
 
     @GET
     @Path("{notificationId}")
-//    @RequestMapping(method = RequestMethod.GET, value = "/read/{notificationId}")
     NotificationTO read(@PathParam("notificationId") final Long notificationId);
 
     @GET
-//    @RequestMapping(method = RequestMethod.GET, value = "/list")
     List<NotificationTO> list();
 
     @POST
-//    @RequestMapping(method = RequestMethod.POST, value = "/create")
     NotificationTO create(final NotificationTO notificationTO);
 
     @PUT
     @Path("{notificationId}")
-//    @RequestMapping(method = RequestMethod.POST, value = "/update")
     NotificationTO update(@PathParam("notificationId") final Long notificationId, final NotificationTO notificationTO);
 
     @DELETE
     @Path("{notificationId}")
-//    @RequestMapping(method = RequestMethod.GET, value = "/delete/{notificationId}")
     NotificationTO delete(@PathParam("notificationId") final Long notificationId);
 
 }

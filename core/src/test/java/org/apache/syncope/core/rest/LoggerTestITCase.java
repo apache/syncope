@@ -65,7 +65,7 @@ public class LoggerTestITCase extends AbstractTest {
         assertNotNull(loggers);
         int startSize = loggers.size();
 
-        LoggerTO logger = loggerService.setLogLevel("TEST", Level.INFO);
+        LoggerTO logger = loggerService.update("TEST", Level.INFO);
         assertNotNull(logger);
         assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
 
@@ -74,7 +74,7 @@ public class LoggerTestITCase extends AbstractTest {
         assertEquals(startSize + 1, loggers.size());
 
         // TEST Delete
-        loggerService.deleteLog("TEST");
+        loggerService.delete("TEST");
         loggers = loggerService.listLogs();
         assertNotNull(loggers);
         assertEquals(startSize, loggers.size());

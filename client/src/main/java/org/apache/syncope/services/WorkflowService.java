@@ -32,20 +32,15 @@ public interface WorkflowService {
 
     @GET
     @Path("{kind}")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/definition/user")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/definition/role")
     WorkflowDefinitionTO getDefinition(@PathParam("kind") final String kind);
 
 
 
     @PUT
     @Path("{kind}")
-//    @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
-//    @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
     void updateDefinition(@PathParam("kind") final String kind, final WorkflowDefinitionTO definition);
 
     @GET
     @Path("{kind}/tasks")
-//    @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
     List<String> getDefinedTasks(@PathParam("kind") final String kind);
 }

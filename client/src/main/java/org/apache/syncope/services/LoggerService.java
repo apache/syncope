@@ -36,6 +36,7 @@ import ch.qos.logback.classic.Level;
 @Path("logger")
 public interface LoggerService {
 
+    //TODO use list(LoggerType) signature for both normal logger and audit logger instead of two different methods
     @GET
     @RequestMapping(method = RequestMethod.GET, value = "/log/list")
     List<LoggerTO> listLogs();
@@ -48,25 +49,17 @@ public interface LoggerService {
     @PUT
     @Path("{name}/level")
     @RequestMapping(method = RequestMethod.POST, value = "/log/{name}/{level}")
-    LoggerTO setLogLevel(@PathParam("name") final String name, final Level level);
+    LoggerTO update(@PathParam("name") final String name, final Level level);
 
     @DELETE
     @Path("{name}")
     @RequestMapping(method = RequestMethod.GET, value = "/log/delete/{name}")
-    LoggerTO deleteLog(@PathParam("name") final String name);
+    LoggerTO delete(@PathParam("name") final String name);
 
-    /**
-     * @deprecated Refactoring needed here. Use {@link #setLogLevel(String, Level)} after refactoring is done.
-     */
-    @Deprecated
-    @RequestMapping(method = RequestMethod.PUT, value = "/audit/enable")
-    void enableAudit(final AuditLoggerName auditLoggerName);
+    // TODO refactor this method to use update()
+    void enableAudit(AuditLoggerName auditLoggerName);
 
-    /**
-     * @deprecated Refactoring needed here. Use {@link #deleteLog(String)} after refactoring is done.
-     */
-    @Deprecated
-    @RequestMapping(method = RequestMethod.PUT, value = "/audit/disable")
-    void disableAudit(final AuditLoggerName auditLoggerName);
+    // TODO refactor this method to use delete()
+    void disableAudit(AuditLoggerName auditLoggerName);
 
 }

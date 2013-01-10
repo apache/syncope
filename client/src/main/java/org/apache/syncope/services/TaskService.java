@@ -34,89 +34,64 @@ import javax.ws.rs.QueryParam;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Path("tasks")
 public interface TaskService {
 
     @GET
     @Path("{kind}/count")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/count")
     int count(@PathParam("kind") final String kind);
-
-    //    @RequestMapping(method = RequestMethod.POST, value = "/create/sync")
-    //    TaskTO createSyncTask(  final SyncTaskTO taskTO);
-    //
-    //    @RequestMapping(method = RequestMethod.POST, value = "/create/sched")
-    //    TaskTO createSchedTask( final SchedTaskTO taskTO);
 
     @POST
     <T extends TaskTO> T create(T taskTO);
 
     @DELETE
     @Path("{taskId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{taskId}")
     <T extends TaskTO> T delete(@PathParam("taskId") final Long taskId, Class<T> type);
 
     @DELETE
     @Path("executions/{executionId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
     TaskExecTO deleteExecution(@PathParam("executionId") final Long executionId);
 
     @POST
     @Path("{taskId}/execute")
-    @RequestMapping(method = RequestMethod.POST, value = "/execute/{taskId}")
     TaskExecTO execute(@PathParam("taskId") final Long taskId,
             @QueryParam("dryRun") @DefaultValue("false") final boolean dryRun);
 
     @GET
     @Path("jobClasses")
-    @RequestMapping(method = RequestMethod.GET, value = "/jobClasses")
     Set<String> getJobClasses();
 
     @GET
     @Path("syncActionsClasses")
-    @RequestMapping(method = RequestMethod.GET, value = "/syncActionsClasses")
     Set<String> getSyncActionsClasses();
 
     @GET
     @Path("{kind}")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     <T extends TaskTO> List<T> list(@PathParam("kind") final String kind, Class<T[]> type);
 
     @GET
     @Path("{kind}")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list/{page}/{size}")
     <T extends TaskTO> List<T> list(@PathParam("kind") final String kind, @QueryParam("page") final int page,
             @QueryParam("size") @DefaultValue("25") final int size, Class<T[]> type);
 
     @GET
     @Path("{kind}/executions")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/execution/list")
     List<TaskExecTO> listExecutions(@PathParam("kind") final String kind);
 
     @GET
     @Path("{taskId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{taskId}")
     <T extends TaskTO> T read(@PathParam("taskId") final Long taskId, Class<T> type);
 
     @GET
     @Path("executions/{executionId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     TaskExecTO readExecution(@PathParam("executionId") final Long executionId);
 
     @POST
     @Path("executions/{executionId}/report")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/report/{executionId}")
+    //TODO create new TaskExecutionReportTO object which contains status and message
     TaskExecTO report(@PathParam("executionId") final Long executionId,
             @HeaderParam("Execution-Status") final PropagationTaskExecStatus status, final String message);
-
-    //    @RequestMapping(method = RequestMethod.POST, value = "/update/sync")
-    //    TaskTO updateSync(final SyncTaskTO taskTO);
-    //
-    //    @RequestMapping(method = RequestMethod.POST, value = "/update/sched")
-    //    TaskTO updateSched(final SchedTaskTO taskTO);
 
     @PUT
     @Path("{taskId}")
