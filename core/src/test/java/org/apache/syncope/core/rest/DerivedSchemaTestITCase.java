@@ -82,6 +82,10 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
+        } finally {
+        	// Recreate schema to make test re-runnable
+        	schema = schemaService.create(ROLE, SchemaService.SchemaType.DERIVED, schemaToDelete);
+        	assertNotNull(schema);
         }
         assertNotNull(t);
     }
@@ -91,14 +95,20 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         DerivedSchemaTO schema = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
+        try {
+            schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-        schema.setExpression("mderived_sx + '.' + mderived_dx");
+            schema = schemaService.update(MEMBERSHIP, SchemaService.SchemaType.DERIVED, schema.getName(), schema);
+            assertNotNull(schema);
 
-        schema = schemaService.update(MEMBERSHIP, SchemaService.SchemaType.DERIVED, schema.getName(), schema);
-        assertNotNull(schema);
-
-        schema = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
-        assertNotNull(schema);
-        assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
+            schema = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
+            assertNotNull(schema);
+            assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
+        } finally {
+    		// Set updated back to make test re-runnable
+    		schema.setExpression("mderived_sx + '-' + mderived_dx");
+            schema = schemaService.update(MEMBERSHIP, SchemaService.SchemaType.DERIVED, schema.getName(), schema);
+            assertNotNull(schema);
+    	}
     }
 }

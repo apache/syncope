@@ -54,34 +54,7 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void create() {
         String resourceName = "ws-target-resource-create";
-        ResourceTO resourceTO = new ResourceTO();
-
-        resourceTO.setName(resourceName);
-        resourceTO.setConnectorId(102L);
-
-        MappingTO mapping = new MappingTO();
-
-        MappingItemTO item = new MappingItemTO();
-        item.setExtAttrName("uid");
-        item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserSchema);
-        mapping.addItem(item);
-
-        item = new MappingItemTO();
-        item.setExtAttrName("username");
-        item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserId);
-        item.setAccountid(true);
-        mapping.setAccountIdItem(item);
-
-        item = new MappingItemTO();
-        item.setExtAttrName("fullname");
-        item.setIntAttrName("cn");
-        item.setIntMappingType(IntMappingType.UserSchema);
-        item.setAccountid(false);
-        mapping.addItem(item);
-
-        resourceTO.setUmapping(mapping);
+        ResourceTO resourceTO = buildResourceTO(resourceName);
 
         ResourceTO actual = resourceService.create(resourceTO);
         assertNotNull(actual);
@@ -335,23 +308,26 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void updateResetSyncToken() {
-        // pre condition: sync token is set
-        String resourceName = "ws-target-resource-update-resetsynctoken";
-        ResourceTO pre = resourceService.read(resourceName);
-        assertNotNull(pre.getUsyncToken());
+        // create resource with sync token
+        String resourceName = "ws-target-resource-update-resetsynctoken" + getUUIDString();
+    	ResourceTO pre = buildResourceTO(resourceName);
+    	pre.setUsyncToken("test");
+    	resourceService.create(pre);
 
-        pre.setUsyncToken(null);
-
-        ResourceTO actual = resourceService.update(pre.getName(), pre);
-
-        // check that the synctoken has been reset
-        assertNull(actual.getUsyncToken());
+		pre.setUsyncToken(null);
+		ResourceTO actual = resourceService.update(pre.getName(), pre);
+		// check that the synctoken has been reset
+		assertNull(actual.getUsyncToken());
     }
 
     @Test
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 
+        ResourceTO resource = buildResourceTO(resourceName);
+        ResourceTO actual = resourceService.create(resource);
+        assertNotNull(actual);
+        
         ResourceTO deletedResource = resourceService.delete(resourceName);
         assertNotNull(deletedResource);
 
@@ -387,4 +363,37 @@ public class ResourceTestITCase extends AbstractTest {
 
         assertNotNull(actual);
     }
+
+	private ResourceTO buildResourceTO(String resourceName) {
+		ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        MappingTO mapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setExtAttrName("uid");
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        mapping.addItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("username");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("fullname");
+        item.setIntAttrName("cn");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setAccountid(false);
+        mapping.addItem(item);
+
+        resourceTO.setUmapping(mapping);
+		return resourceTO;
+	}
+
 }

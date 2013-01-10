@@ -69,17 +69,22 @@ public class UserTestITCase extends AbstractTest {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
+    public static UserTO getSampleUniqueTO() {
+    	return getSampleTO(getUUIDString() + "@test.com");
+    }
+    
     public static UserTO getSampleTO(final String email) {
+    	String uid = email;
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
-        userTO.setUsername(email);
+        userTO.setUsername(uid);
 
-        userTO.addAttribute(attributeTO("fullname", email));
-        userTO.addAttribute(attributeTO("firstname", email));
+        userTO.addAttribute(attributeTO("fullname", uid));
+        userTO.addAttribute(attributeTO("firstname", uid));
         userTO.addAttribute(attributeTO("surname", "surname"));
         userTO.addAttribute(attributeTO("type", "a type"));
-        userTO.addAttribute(attributeTO("userId", email));
-        userTO.addAttribute(attributeTO("email", email));
+        userTO.addAttribute(attributeTO("userId", uid));
+        userTO.addAttribute(attributeTO("email", uid));
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         userTO.addAttribute(attributeTO("loginDate", sdf.format(new Date())));
         userTO.addDerivedAttribute(attributeTO("cn", null));

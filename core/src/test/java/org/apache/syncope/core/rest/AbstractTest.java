@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest;
 
+import java.util.UUID;
+
 import javax.sql.DataSource;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -89,7 +91,7 @@ public abstract class AbstractTest {
     public static final String ADMIN_UID = "admin";
 
     public static final String ADMIN_PWD = "password";
-
+    
     protected PolicyServiceProxy policyService;
 
     @Autowired
@@ -124,6 +126,10 @@ public abstract class AbstractTest {
     @Autowired
     protected DataSource testDataSource;
 
+    public static String getUUIDString() {
+    	return UUID.randomUUID().toString().substring(0, 8);
+    }
+
     protected RestTemplate anonymousRestTemplate() {
         return new RestTemplate();
     }
@@ -154,4 +160,5 @@ public abstract class AbstractTest {
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
         userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
+    
 }

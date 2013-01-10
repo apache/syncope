@@ -107,9 +107,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        SyncPolicyTO policy = new SyncPolicyTO();
-        policy.setSpecification(new SyncPolicySpec());
-        policy.setDescription("Sync policy");
+        SyncPolicyTO policy = buildSyncPolicyTO();
 
         SyncPolicyTO policyTO = policyService.create(policy);
 
@@ -149,17 +147,17 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        final SyncPolicyTO policyTO = policyService.read(7L, SyncPolicyTO.class);
-
-        assertNotNull("find to delete did not work", policyTO);
+        SyncPolicyTO policy = buildSyncPolicyTO();
+        SyncPolicyTO policyTO = policyService.create(policy);
+        assertNotNull(policyTO);
 
         PolicyTO policyToDelete =
-                policyService.delete(7L, SyncPolicyTO.class);
+                policyService.delete(policyTO.getId(), SyncPolicyTO.class);
         assertNotNull(policyToDelete);
 
         Throwable t = null;
         try {
-        	policyService.read(7L, SyncPolicyTO.class);
+        	policyService.read(policyTO.getId(), SyncPolicyTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }
@@ -167,4 +165,10 @@ public class PolicyTestITCase extends AbstractTest {
         assertNotNull(t);
     }
 
+	private SyncPolicyTO buildSyncPolicyTO() {
+		SyncPolicyTO policy = new SyncPolicyTO();
+        policy.setSpecification(new SyncPolicySpec());
+        policy.setDescription("Sync policy");
+		return policy;
+	}
 }

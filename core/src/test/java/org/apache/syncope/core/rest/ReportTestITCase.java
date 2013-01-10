@@ -96,7 +96,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void create() {
         ReportTO report = new ReportTO();
-        report.setName("testReportForCreate");
+        report.setName("testReportForCreate" + getUUIDString());
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
@@ -112,7 +112,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void update() {
         ReportTO report = new ReportTO();
-        report.setName("testReportForUpdate");
+        report.setName("testReportForUpdate" + getUUIDString());
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
@@ -180,7 +180,7 @@ public class ReportTestITCase extends AbstractTest {
 
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
-        reportTO.setName("executeAndExport");
+        reportTO.setName("executeAndExport" + getUUIDString());
         reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
@@ -252,7 +252,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE43() {
         ReportTO reportTO = new ReportTO();
-        reportTO.setName("issueSYNCOPE43");
+        reportTO.setName("issueSYNCOPE43" + getUUIDString());
         reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
@@ -279,7 +279,7 @@ public class ReportTestITCase extends AbstractTest {
         // Create
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
-        reportTO.setName("issueSYNCOPE102");
+        reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = reportService.create(reportTO);
         assertNotNull(reportTO);
 
