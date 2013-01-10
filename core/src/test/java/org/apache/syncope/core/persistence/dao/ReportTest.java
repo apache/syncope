@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.ReportDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -26,11 +25,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.client.report.UserReportletConf;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.Report;
 
 @Transactional
-public class ReportTest extends AbstractTest {
+public class ReportTest extends AbstractDAOTest {
 
     @Autowired
     private ReportDAO reportDAO;

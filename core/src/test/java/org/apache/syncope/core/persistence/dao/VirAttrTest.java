@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.VirAttrDAO;
-import org.apache.syncope.core.persistence.dao.MembershipDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -30,7 +25,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
@@ -41,7 +35,7 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 
 @Transactional
-public class VirAttrTest extends AbstractTest {
+public class VirAttrTest extends AbstractDAOTest {
 
     @Autowired
     private VirAttrDAO virAttrDAO;

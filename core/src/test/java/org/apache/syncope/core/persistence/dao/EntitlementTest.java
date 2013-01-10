@@ -18,20 +18,17 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.Entitlement;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.AbstractTest;
 
 @Transactional
-public class EntitlementTest extends AbstractTest {
+public class EntitlementTest extends AbstractDAOTest {
 
     @Autowired
     private EntitlementDAO entitlementDAO;

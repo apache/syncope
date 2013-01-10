@@ -21,16 +21,15 @@ package org.apache.syncope.core.persistence.dao;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.types.AttributableType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.user.UDerSchema;
-import org.apache.syncope.core.AbstractTest;
-import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.types.AttributableType;
 
 @Transactional
-public class DerSchemaTest extends AbstractTest {
+public class DerSchemaTest extends AbstractDAOTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;

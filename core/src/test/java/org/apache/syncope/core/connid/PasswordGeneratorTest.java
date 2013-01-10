@@ -16,30 +16,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.connid;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.core.AbstractTest;
-import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
+import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.PasswordPolicySpec;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PasswordGeneratorTest extends AbstractTest {
+public class PasswordGeneratorTest extends AbstractDAOTest {
 
     @Autowired
     private PasswordGenerator passwordGenerator;
 
     @Autowired
     private UserDAO userDAO;
+
+    @Test
+    public void issueSYNCOPE226() {
+        SyncopeUser user = userDAO.find(5L);
+        String password = "";
+        try {
+            password = passwordGenerator.generateUserPassword(user);
+        } catch (IncompatiblePolicyException ex) {
+            fail(ex.getMessage());
+        }
+        assertNotNull(password);
+
+        user.setPassword(password, CipherAlgorithm.AES, 0);
+
+        SyncopeUser actual = userDAO.save(user);
+        assertNotNull(actual);
+    }
 
     @Test
     public void testPasswordGenerator() {
@@ -60,6 +78,7 @@ public class PasswordGeneratorTest extends AbstractTest {
     @Test
     public void startEndWithDigit()
             throws IncompatiblePolicyException {
+
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMustStartWithDigit(true);
 
@@ -76,6 +95,7 @@ public class PasswordGeneratorTest extends AbstractTest {
     @Test
     public void startWithDigitAndWithAlpha()
             throws IncompatiblePolicyException {
+
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMustStartWithDigit(true);
 
@@ -92,6 +112,7 @@ public class PasswordGeneratorTest extends AbstractTest {
     @Test
     public void passwordWithNonAlpha()
             throws IncompatiblePolicyException {
+
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setNonAlphanumericRequired(true);
 
@@ -101,13 +122,14 @@ public class PasswordGeneratorTest extends AbstractTest {
         passwordPolicySpecs.add(passwordPolicySpec);
         passwordPolicySpecs.add(passwordPolicySpec2);
         String generatedPassword = passwordGenerator.generatePasswordFromPwdSpec(passwordPolicySpecs);
-        assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword.toString()).matches());
+        assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
 
     @Test(expected = IncompatiblePolicyException.class)
     public void incopatiblePolicies()
             throws IncompatiblePolicyException {
+
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMinLength(12);
 

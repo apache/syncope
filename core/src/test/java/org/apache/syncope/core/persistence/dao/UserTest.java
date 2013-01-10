@@ -23,23 +23,17 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.AbstractTest;
-import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.util.IncompatiblePolicyException;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class UserTest extends AbstractTest {
-
-    @Autowired
-    private PasswordGenerator passwordGenerator;
+public class UserTest extends AbstractDAOTest {
 
     @Autowired
     private UserDAO userDAO;
@@ -195,20 +189,4 @@ public class UserTest extends AbstractTest {
         assertNotNull(actual);
     }
 
-    @Test
-    public void issueSYNCOPE226() {
-        SyncopeUser user = userDAO.find(5L);
-        String password = "";
-        try {
-            password = passwordGenerator.generateUserPassword(user);
-        } catch (IncompatiblePolicyException ex) {
-            fail(ex.getMessage());
-        }
-        assertNotNull(password);
-
-        user.setPassword(password, CipherAlgorithm.AES, 0);
-
-        SyncopeUser actual = userDAO.save(user);
-        assertNotNull(actual);
-    }
 }

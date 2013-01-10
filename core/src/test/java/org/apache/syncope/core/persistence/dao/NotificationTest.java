@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.types.EntityViolationType;
@@ -36,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class NotificationTest extends AbstractTest {
+public class NotificationTest extends AbstractDAOTest {
 
     @Autowired
     private NotificationDAO notificationDAO;

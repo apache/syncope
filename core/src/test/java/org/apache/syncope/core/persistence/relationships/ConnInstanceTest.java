@@ -21,18 +21,18 @@ package org.apache.syncope.core.persistence.relationships;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.beans.ConnInstance;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
+import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.types.ConnectorCapability;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.AbstractTest;
-import org.apache.syncope.types.ConnectorCapability;
 
 @Transactional
-public class ConnInstanceTest extends AbstractTest {
+public class ConnInstanceTest extends AbstractDAOTest {
 
     @Autowired
     private ResourceDAO resourceDAO;

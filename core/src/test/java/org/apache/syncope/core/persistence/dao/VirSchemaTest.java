@@ -18,21 +18,18 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import org.apache.syncope.core.persistence.dao.SchemaDAO;
-import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import static org.junit.Assert.*;
 
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 
 @Transactional
-public class VirSchemaTest extends AbstractTest {
+public class VirSchemaTest extends AbstractDAOTest {
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;

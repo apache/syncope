@@ -22,23 +22,23 @@ import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.USchema;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.AbstractTest;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SchemaTest extends AbstractTest {
+public class SchemaTest extends AbstractDAOTest {
 
     @Autowired
     private UserDAO userDAO;

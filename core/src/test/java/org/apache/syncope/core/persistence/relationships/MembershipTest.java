@@ -19,25 +19,25 @@
 package org.apache.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
-import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.MembershipDAO;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class MembershipTest extends AbstractTest {
+public class MembershipTest extends AbstractDAOTest {
 
     @Autowired
     private MembershipDAO membershipDAO;
 
     @Autowired
-    private RoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Test
     public void delete() {
@@ -52,7 +52,7 @@ public class MembershipTest extends AbstractTest {
         for (Membership m : user.getMemberships()) {
             assertTrue(m.getId() != 4L);
         }
-        for (Membership m : syncopeRoleDAO.findMemberships(role)) {
+        for (Membership m : roleDAO.findMemberships(role)) {
             assertTrue(m.getId() != 4L);
         }
     }

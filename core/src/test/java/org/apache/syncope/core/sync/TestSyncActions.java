@@ -16,16 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.quartz;
+package org.apache.syncope.core.sync;
 
 import java.util.Collections;
 import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.core.sync.DefaultSyncActions;
-import org.apache.syncope.core.sync.SyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;
 
 public class TestSyncActions extends DefaultSyncActions {
@@ -33,7 +32,7 @@ public class TestSyncActions extends DefaultSyncActions {
     private int counter = 0;
 
     @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncopeSyncResultHandler handler,
+    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncResultsHandler handler,
             final SyncDelta delta, final T subject) throws JobExecutionException {
 
         AttributeTO attrTO = null;
@@ -54,7 +53,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
+            final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
         subjectMod.addAttributeToBeRemoved("fullname");

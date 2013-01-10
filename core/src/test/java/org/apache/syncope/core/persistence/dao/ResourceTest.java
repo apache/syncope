@@ -22,10 +22,9 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -36,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceTest extends AbstractTest {
+public class ResourceTest extends AbstractDAOTest {
 
     @Autowired
     private ResourceDAO resourceDAO;

@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.membership.MAttrValue;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
@@ -39,7 +38,7 @@ import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 
 @Transactional
-public class DerAttrTest extends AbstractTest {
+public class DerAttrTest extends AbstractDAOTest {
 
     @Autowired
     private DerAttrDAO derAttrDAO;

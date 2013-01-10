@@ -50,6 +50,7 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -100,11 +101,13 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * Keep track of members of the role being updated <b>before</b> actual update takes place. This is not needed on
      * <ul> <li>beforeCreate() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete() -
      * because role delete cascades as membership removal for all users involved</li> </ul>
+     *
+     * {@inheritDoc}
      */
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
+            final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
         if (subject instanceof RoleTO) {
@@ -268,15 +271,21 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     /**
      * Synchronize membership at role synchronization time (because SyncJob first synchronize users then roles).
+     * {@inheritDoc}
      */
     @Override
-    public <T extends AbstractAttributableTO> void after(final SyncopeSyncResultHandler handler, final SyncDelta delta,
+    public <T extends AbstractAttributableTO> void after(final SyncResultsHandler handler, final SyncDelta delta,
             final T subject, final SyncResult result) throws JobExecutionException {
 
-        if (!(subject instanceof RoleTO) || handler.getSyncTask().getResource().getUmapping() == null) {
+        if (!(handler instanceof SyncopeSyncResultHandler)) {
+            return;
+        }
+
+        SyncopeSyncResultHandler intHandler = (SyncopeSyncResultHandler) handler;
+        if (!(subject instanceof RoleTO) || intHandler.getSyncTask().getResource().getUmapping() == null) {
             super.after(handler, delta, subject, result);
         } else {
-            synchronizeMemberships(handler, delta, (RoleTO) subject);
+            synchronizeMemberships(intHandler, delta, (RoleTO) subject);
         }
     }
 }

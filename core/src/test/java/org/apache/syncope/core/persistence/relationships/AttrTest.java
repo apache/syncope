@@ -19,22 +19,19 @@
 package org.apache.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
-import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.user.UAttr;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
-import org.apache.syncope.core.persistence.dao.AttrDAO;
-import org.apache.syncope.core.persistence.dao.AttrValueDAO;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.beans.user.UAttr;
+import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
+import org.apache.syncope.core.persistence.dao.AttrDAO;
+import org.apache.syncope.core.persistence.dao.AttrValueDAO;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.MembershipDAO;
@@ -43,9 +40,12 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.SchemaType;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttrTest extends AbstractTest {
+public class AttrTest extends AbstractDAOTest {
 
     @Autowired
     private AttrDAO attrDAO;

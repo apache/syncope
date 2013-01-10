@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
@@ -33,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceTest extends AbstractTest {
+public class ConnInstanceTest extends AbstractDAOTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;

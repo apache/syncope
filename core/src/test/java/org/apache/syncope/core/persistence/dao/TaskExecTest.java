@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import java.util.Date;
 import static org.junit.Assert.*;
 
+import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
@@ -34,7 +33,7 @@ import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 
 @Transactional
-public class TaskExecTest extends AbstractTest {
+public class TaskExecTest extends AbstractDAOTest {
 
     @Autowired
     private TaskExecDAO taskExecDAO;

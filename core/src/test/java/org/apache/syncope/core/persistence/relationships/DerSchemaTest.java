@@ -19,21 +19,21 @@
 package org.apache.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
-import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.types.AttributableType;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DerSchemaTest extends AbstractTest {
+public class DerSchemaTest extends AbstractDAOTest {
 
     @Autowired
     private UserDAO userDAO;

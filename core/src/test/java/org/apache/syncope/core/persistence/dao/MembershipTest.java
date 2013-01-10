@@ -27,10 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.AbstractTest;
 
 @Transactional
-public class MembershipTest extends AbstractTest {
+public class MembershipTest extends AbstractDAOTest {
 
     @Autowired
     private MembershipDAO membershipDAO;
