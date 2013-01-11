@@ -18,16 +18,11 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AttributeTO;
@@ -81,7 +76,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = schemaService.create("user", SchemaService.SchemaType.NORMAL, schemaTO);
+        SchemaTO newSchemaTO = schemaService.create("user", SchemaService.SchemaKind.NORMAL, schemaTO);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -99,19 +94,19 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = schemaService.read("user", SchemaService.SchemaType.NORMAL, "authTestSchema");
+        schemaTO = schemaService.read("user", SchemaService.SchemaKind.NORMAL, "authTestSchema");
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
         super.setupRestTemplate(userTO.getUsername(), "password123");
 
-        schemaTO = schemaService.read("user", SchemaService.SchemaType.NORMAL, "authTestSchema");
+        schemaTO = schemaService.read("user", SchemaService.SchemaKind.NORMAL, "authTestSchema");
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         HttpClientErrorException exception = null;
         try {
-            schemaService.update("role", SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
+            schemaService.update("role", SchemaService.SchemaKind.NORMAL, schemaTO.getName(), schemaTO);
         } catch (HttpClientErrorException e) {
             exception = e;
         }

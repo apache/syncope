@@ -19,13 +19,11 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
@@ -35,30 +33,29 @@ public interface UserRequestService {
 
     @GET
     @Path("create/allowed")
-    //    @RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
+    //@RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
     boolean isCreateAllowed();
 
     @POST
     @Path("create")
-    UserRequestTO create(final UserTO userTO);
+    UserRequestTO create(UserTO userTO);
 
     @POST
     @Path("update")
-    UserRequestTO update(final UserMod userMod);
+    UserRequestTO update(UserMod userMod);
 
     @POST
     @Path("delete")
-    UserRequestTO delete(final Long userId);
+    UserRequestTO delete(Long userId);
 
     @GET
     List<UserRequestTO> list();
 
     @GET
     @Path("{requestId}")
-    UserRequestTO read(@PathParam("requestId") final Long requestId);
+    UserRequestTO read(@PathParam("requestId") Long requestId);
 
     @DELETE
     @Path("{requestId}")
-    UserRequestTO deleteRequest(@PathParam("requestId") final Long requestId);
-
+    UserRequestTO deleteRequest(@PathParam("requestId") Long requestId);
 }

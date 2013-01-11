@@ -19,12 +19,10 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 
 @Path("workflows")
@@ -32,15 +30,13 @@ public interface WorkflowService {
 
     @GET
     @Path("{kind}")
-    WorkflowDefinitionTO getDefinition(@PathParam("kind") final String kind);
-
-
+    WorkflowDefinitionTO getDefinition(@PathParam("kind") String kind);
 
     @PUT
     @Path("{kind}")
-    void updateDefinition(@PathParam("kind") final String kind, final WorkflowDefinitionTO definition);
+    void updateDefinition(@PathParam("kind") String kind, WorkflowDefinitionTO definition);
 
     @GET
     @Path("{kind}/tasks")
-    List<String> getDefinedTasks(@PathParam("kind") final String kind);
+    List<String> getDefinedTasks(@PathParam("kind") String kind);
 }

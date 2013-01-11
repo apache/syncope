@@ -19,7 +19,6 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -29,7 +28,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.types.ConnConfProperty;
@@ -39,49 +37,49 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Path("connectors")
 public interface ConnectorService {
 
-	@POST
-	ConnInstanceTO create(final ConnInstanceTO connectorTO);
+    @POST
+    ConnInstanceTO create(ConnInstanceTO connectorTO);
 
-	@DELETE
-	@Path("{connectorId}")
-	ConnInstanceTO delete(@PathParam("connectorId") final Long connectorId);
+    @DELETE
+    @Path("{connectorId}")
+    ConnInstanceTO delete(@PathParam("connectorId") Long connectorId);
 
-	@GET
-	@Path("bundles")
-	List<ConnBundleTO> getBundles(@QueryParam("lang") final String lang);
+    @GET
+    @Path("bundles")
+    List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
-	@GET
-	@Path("{connectorId}/configuration")
-	List<ConnConfProperty> getConfigurationProperties(
-			@PathParam("connectorId") final Long connectorId);
+    @GET
+    @Path("{connectorId}/configuration")
+    List<ConnConfProperty> getConfigurationProperties(
+            @PathParam("connectorId") Long connectorId);
 
-	@GET
-	@POST
-	@Path("{connectorId}/schemas")
-	List<String> getSchemaNames(
-			@PathParam("connectorId") final Long connectorId,
-			ConnInstanceTO connectorTO,
-			@QueryParam("showall") @DefaultValue("false") final boolean showall);
+    @GET
+    @POST
+    @Path("{connectorId}/schemas")
+    List<String> getSchemaNames(
+            @PathParam("connectorId") Long connectorId,
+            ConnInstanceTO connectorTO,
+            @QueryParam("showall") @DefaultValue("false") boolean showall);
 
-	@GET
-	List<ConnInstanceTO> list(@QueryParam("lang") final String lang);
+    @GET
+    List<ConnInstanceTO> list(@QueryParam("lang") String lang);
 
-	@GET
-	@Path("{connectorId}")
-	ConnInstanceTO read(@PathParam("connectorId") final Long connectorId);
+    @GET
+    @Path("{connectorId}")
+    ConnInstanceTO read(@PathParam("connectorId") Long connectorId);
 
-	@GET
-	@RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
-	ConnInstanceTO readConnectorBean(
-			@MatrixParam("resourceName") String resourceName);
+    @GET
+    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
+    ConnInstanceTO readConnectorBean(
+            @MatrixParam("resourceName") String resourceName);
 
-	@PUT
-	@Path("{connectorId}")
-	ConnInstanceTO update(@PathParam("connectorId") final Long connectorId,
-			final ConnInstanceTO connectorTO);
+    @PUT
+    @Path("{connectorId}")
+    ConnInstanceTO update(@PathParam("connectorId") Long connectorId,
+            ConnInstanceTO connectorTO);
 
-	@POST
-	@Path("validate")
-	@RequestMapping(method = RequestMethod.POST, value = "/check")
-	boolean validate(final ConnInstanceTO connectorTO);
+    @POST
+    @Path("validate")
+    @RequestMapping(method = RequestMethod.POST, value = "/check")
+    boolean validate(ConnInstanceTO connectorTO);
 }

@@ -19,7 +19,6 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -30,7 +29,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.types.ReportExecExportFormat;
@@ -41,11 +39,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface ReportService {
 
     @POST
-    ReportTO create(final ReportTO reportTO);
+    ReportTO create(ReportTO reportTO);
 
     @PUT
     @Path("{reportId}")
-    ReportTO update(@PathParam("reportId") final Long reportId, final ReportTO reportTO);
+    ReportTO update(@PathParam("reportId") Long reportId, ReportTO reportTO);
 
     @GET
     @Path("count")
@@ -55,8 +53,8 @@ public interface ReportService {
     List<ReportTO> list();
 
     @GET
-    List<ReportTO> list(@QueryParam("page") final int page,
-            @QueryParam("size") @DefaultValue("25") final int size);
+    List<ReportTO> list(@QueryParam("page") int page,
+            @QueryParam("size") @DefaultValue("25") int size);
 
     @GET
     @Path("executions")
@@ -68,30 +66,29 @@ public interface ReportService {
 
     @GET
     @Path("{reportId}")
-    ReportTO read(@PathParam("reportId") final Long reportId);
+    ReportTO read(@PathParam("reportId") Long reportId);
 
     @GET
     @Path("executions/{executionId}")
-    ReportExecTO readExecution(@PathParam("executionId") final Long executionId);
+    ReportExecTO readExecution(@PathParam("executionId") Long executionId);
 
     @GET
     @Path("executions/{executionId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    void exportExecutionResult(@PathParam("executionId") final Long executionId,
-            @QueryParam("format") final ReportExecExportFormat fmt);
+    void exportExecutionResult(@PathParam("executionId") Long executionId,
+            @QueryParam("format") ReportExecExportFormat fmt);
 
     @POST
     @Path("{reportId}/execute")
-    ReportExecTO execute(@PathParam("reportId") final Long reportId);
+    ReportExecTO execute(@PathParam("reportId") Long reportId);
 
     @DELETE
     @Path("{reportId}")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{reportId}")
-    ReportTO delete(@PathParam("reportId") final Long reportId);
+    ReportTO delete(@PathParam("reportId") Long reportId);
 
     @DELETE
     @Path("executions/{executionId}")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
-    ReportExecTO deleteExecution(@PathParam("executionId") final Long executionId);
-
+    ReportExecTO deleteExecution(@PathParam("executionId") Long executionId);
 }

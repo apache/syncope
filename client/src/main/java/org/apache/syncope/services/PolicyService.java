@@ -19,44 +19,41 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.types.PolicyType;
 
 @Path("policies")
 public interface PolicyService {
 
-	@POST
-    <T extends PolicyTO> T create(final T policyTO);
+    @POST
+    <T extends PolicyTO> T create(T policyTO);
 
-	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
-	@DELETE
-	@Path("{policyId}")
-	<T extends PolicyTO> T delete(@PathParam("policyId") final Long policyId, Class<T> policyClass);
+    // TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
+    @DELETE
+    @Path("{policyId}")
+    <T extends PolicyTO> T delete(@PathParam("policyId") Long policyId, Class<T> policyClass);
 
-	@GET
-	@Path("{kind}")
-	<T extends PolicyTO> List<T> listByType(@PathParam("kind") final PolicyType type);
+    @GET
+    @Path("{kind}")
+    <T extends PolicyTO> List<T> listByType(@PathParam("kind") PolicyType type);
 
-	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
-	@GET
-	@Path("{policyId}")
-	<T extends PolicyTO> T read(@PathParam("policyId") final Long policyId, Class<T> policyClass);
+    // TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
+    @GET
+    @Path("{policyId}")
+    <T extends PolicyTO> T read(@PathParam("policyId") Long policyId, Class<T> policyClass);
 
-	// TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
-	@GET
-	@Path("global/{kind}")
-	<T extends PolicyTO> T readGlobal(@PathParam("kind") final PolicyType type, Class<T> policyClass);
+    // TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
+    @GET
+    @Path("global/{kind}")
+    <T extends PolicyTO> T readGlobal(@PathParam("kind") PolicyType type, Class<T> policyClass);
 
-	@PUT
-	@Path("{policyId}")
-    <T extends PolicyTO> T update(@PathParam("policyId") final Long policyId, final T policyTO);
-
+    @PUT
+    @Path("{policyId}")
+    <T extends PolicyTO> T update(@PathParam("policyId") Long policyId, T policyTO);
 }

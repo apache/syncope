@@ -20,7 +20,6 @@ package org.apache.syncope.services;
 
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,40 +29,38 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.client.to.ConfigurationTO;
 
 @Path("configurations")
 public interface ConfigurationService {
 
-	@POST
-	ConfigurationTO create(final ConfigurationTO configurationTO);
+    @POST
+    ConfigurationTO create(ConfigurationTO configurationTO);
 
-	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	Response dbExport();
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    Response dbExport();
 
-	@DELETE
-	@Path("{key}")
-	ConfigurationTO delete(@PathParam("key") final String key);
+    @DELETE
+    @Path("{key}")
+    ConfigurationTO delete(@PathParam("key") String key);
 
-	@GET
-	@Path("mailTemplates")
-	Set<String> getMailTemplates();
+    @GET
+    @Path("mailTemplates")
+    Set<String> getMailTemplates();
 
-	@GET
-	@Path("validators")
-	Set<String> getValidators();
+    @GET
+    @Path("validators")
+    Set<String> getValidators();
 
-	@GET
-	List<ConfigurationTO> list();
+    @GET
+    List<ConfigurationTO> list();
 
-	@GET
-	@Path("{key}")
-	ConfigurationTO read(@PathParam("key") final String key);
+    @GET
+    @Path("{key}")
+    ConfigurationTO read(@PathParam("key") String key);
 
-	@PUT
-	@Path("{key}")
-	ConfigurationTO update(@PathParam("key") final String key, final ConfigurationTO configurationTO);
-
+    @PUT
+    @Path("{key}")
+    ConfigurationTO update(@PathParam("key") String key, ConfigurationTO configurationTO);
 }

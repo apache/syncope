@@ -19,7 +19,6 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -27,7 +26,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
@@ -37,46 +35,43 @@ public interface RoleService {
 
     @GET
     @Path("{roleId}/children")
-    List<RoleTO> children(@PathParam("roleId") final Long roleId);
+    List<RoleTO> children(@PathParam("roleId") Long roleId);
 
     @POST
-    RoleTO create(final RoleTO roleTO);
+    RoleTO create(RoleTO roleTO);
 
     @DELETE
     @Path("{roleId}")
-    RoleTO delete(@PathParam("roleId") final Long roleId);
+    RoleTO delete(@PathParam("roleId") Long roleId);
 
     @GET
     List<RoleTO> list();
 
     @GET
     @Path("{roleId}/parent")
-    RoleTO parent(@PathParam("roleId") final Long roleId);
+    RoleTO parent(@PathParam("roleId") Long roleId);
 
     @GET
     @Path("{roleId}")
-    RoleTO read(@PathParam("roleId") final Long roleId);
+    RoleTO read(@PathParam("roleId") Long roleId);
 
     @POST
     @Path("search")
-    List<RoleTO> search(final NodeCond searchCondition);
+    List<RoleTO> search(NodeCond searchCondition);
 
     @POST
     @Path("search")
-    List<RoleTO> search(final NodeCond searchCondition,
-            @QueryParam("page") final int page,
-            @QueryParam("size") @DefaultValue("25") final int size);
+    List<RoleTO> search(NodeCond searchCondition,
+            @QueryParam("page") int page,
+            @QueryParam("size") @DefaultValue("25") int size);
 
     @POST
     @Path("search/count")
-    int searchCount(final NodeCond searchCondition);
+    int searchCount(NodeCond searchCondition);
 
-    /**
-     * deprecated Authentication checks should not depend on the method called
-     */
-    RoleTO selfRead(final Long roleId);
+    RoleTO selfRead(Long roleId);
 
     @POST
     @Path("{roleId}")
-    RoleTO update(@PathParam("roleId") final Long roleId, final RoleMod roleMod);
+    RoleTO update(@PathParam("roleId") Long roleId, RoleMod roleMod);
 }

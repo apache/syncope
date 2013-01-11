@@ -19,14 +19,12 @@
 package org.apache.syncope.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.client.to.NotificationTO;
 
 @Path("notifications")
@@ -34,20 +32,19 @@ public interface NotificationService {
 
     @GET
     @Path("{notificationId}")
-    NotificationTO read(@PathParam("notificationId") final Long notificationId);
+    NotificationTO read(@PathParam("notificationId") Long notificationId);
 
     @GET
     List<NotificationTO> list();
 
     @POST
-    NotificationTO create(final NotificationTO notificationTO);
+    NotificationTO create(NotificationTO notificationTO);
 
     @PUT
     @Path("{notificationId}")
-    NotificationTO update(@PathParam("notificationId") final Long notificationId, final NotificationTO notificationTO);
+    NotificationTO update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
 
     @DELETE
     @Path("{notificationId}")
-    NotificationTO delete(@PathParam("notificationId") final Long notificationId);
-
+    NotificationTO delete(@PathParam("notificationId") Long notificationId);
 }

@@ -18,20 +18,17 @@
  */
 package org.apache.syncope.services;
 
+import ch.qos.logback.classic.Level;
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.types.AuditLoggerName;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import ch.qos.logback.classic.Level;
 
 @Path("logger")
 public interface LoggerService {
@@ -49,17 +46,16 @@ public interface LoggerService {
     @PUT
     @Path("{name}/level")
     @RequestMapping(method = RequestMethod.POST, value = "/log/{name}/{level}")
-    LoggerTO update(@PathParam("name") final String name, final Level level);
+    LoggerTO update(@PathParam("name") String name, Level level);
 
     @DELETE
     @Path("{name}")
     @RequestMapping(method = RequestMethod.GET, value = "/log/delete/{name}")
-    LoggerTO delete(@PathParam("name") final String name);
+    LoggerTO delete(@PathParam("name") String name);
 
     // TODO refactor this method to use update()
     void enableAudit(AuditLoggerName auditLoggerName);
 
     // TODO refactor this method to use delete()
     void disableAudit(AuditLoggerName auditLoggerName);
-
 }

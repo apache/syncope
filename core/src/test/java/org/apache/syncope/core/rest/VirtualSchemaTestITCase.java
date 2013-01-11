@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.List;
-
 import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.services.SchemaService;
@@ -35,22 +33,24 @@ import org.junit.runners.MethodSorters;
 public class VirtualSchemaTestITCase extends AbstractTest {
 
     private static final String ROLE = "role";
+
     private static final String USER = "user";
+
     private static final String MEMBERSHIP = "membership";
 
     @Test
     public void list() {
-        List<VirtualSchemaTO> VirtualSchemas = schemaService.list(USER, SchemaService.SchemaType.VIRTUAL);
-        assertFalse(VirtualSchemas.isEmpty());
-        for (VirtualSchemaTO VirtualSchemaTO : VirtualSchemas) {
-            assertNotNull(VirtualSchemaTO);
+        List<VirtualSchemaTO> vSchemas = schemaService.list(USER, SchemaService.SchemaKind.VIRTUAL);
+        assertFalse(vSchemas.isEmpty());
+        for (VirtualSchemaTO vSchemaTO : vSchemas) {
+            assertNotNull(vSchemaTO);
         }
     }
 
     @Test
     public void read() {
-        VirtualSchemaTO VirtualSchemaTO = schemaService.read(MEMBERSHIP, SchemaService.SchemaType.VIRTUAL, "mvirtualdata");
-        assertNotNull(VirtualSchemaTO);
+        VirtualSchemaTO vSchemaTO = schemaService.read(MEMBERSHIP, SchemaService.SchemaKind.VIRTUAL, "mvirtualdata");
+        assertNotNull(vSchemaTO);
     }
 
     @Test
@@ -58,24 +58,24 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        VirtualSchemaTO actual = schemaService.create(USER, SchemaService.SchemaType.VIRTUAL, schema);
+        VirtualSchemaTO actual = schemaService.create(USER, SchemaService.SchemaKind.VIRTUAL, schema);
         assertNotNull(actual);
 
-        actual = schemaService.read(USER, SchemaService.SchemaType.VIRTUAL, actual.getName());
+        actual = schemaService.read(USER, SchemaService.SchemaKind.VIRTUAL, actual.getName());
         assertNotNull(actual);
     }
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = schemaService.read(ROLE, SchemaService.SchemaType.VIRTUAL, "rvirtualdata");
+        VirtualSchemaTO schema = schemaService.read(ROLE, SchemaService.SchemaKind.VIRTUAL, "rvirtualdata");
         assertNotNull(schema);
 
-        VirtualSchemaTO deletedSchema = schemaService.delete(ROLE, SchemaService.SchemaType.VIRTUAL, schema.getName());
+        VirtualSchemaTO deletedSchema = schemaService.delete(ROLE, SchemaService.SchemaKind.VIRTUAL, schema.getName());
         assertNotNull(deletedSchema);
 
         Throwable t = null;
         try {
-            schema = schemaService.read(ROLE, SchemaService.SchemaType.VIRTUAL, "rvirtualdata");
+            schemaService.read(ROLE, SchemaService.SchemaKind.VIRTUAL, "rvirtualdata");
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));

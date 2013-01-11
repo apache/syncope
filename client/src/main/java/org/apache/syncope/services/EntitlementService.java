@@ -19,7 +19,6 @@
 package org.apache.syncope.services;
 
 import java.util.Set;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -32,5 +31,4 @@ public interface EntitlementService {
     @GET
     @Path("own")
     Set<String> getMyEntitlements();
-
 }
