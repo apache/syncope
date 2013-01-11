@@ -322,6 +322,9 @@ under the License.
     <test.csvdir.path>${project.build.directory}/test-csvdir</test.csvdir.path>
         
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- static secret key, only used for build: generated overlays will override this during archetype:generate -->
+    <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
   </properties>
 
   <dependencyManagement>
@@ -363,11 +366,11 @@ under the License.
         <version>${commons-jexl.version}</version>
       </dependency>
 
-	  <dependency>
-		<groupId>javax.ws.rs</groupId>
-    	<artifactId>javax.ws.rs-api</artifactId>
-    	<version>2.0-m10</version>
-    </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>2.0-m10</version>
+      </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>

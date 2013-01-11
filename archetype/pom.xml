@@ -154,13 +154,13 @@ under the License.
                   <else>
                     <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
                     <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
-                    <get src="${SVNRepoURL}/core/src/test/resources/security.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/security.properties" />
                     <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
                     <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
                     <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
 
                     <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
                     <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
+                    <get src="${SVNRepoURL}/core/src/main/resources/security.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/security.properties" />
                     <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
                     <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
                     <get src="${SVNRepoURL}/core/src/main/resources/META-INF/spring-persistence.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF/spring-persistence.xml" />

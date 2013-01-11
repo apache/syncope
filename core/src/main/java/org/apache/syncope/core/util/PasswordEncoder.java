@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -41,8 +44,41 @@ public final class PasswordEncoder {
     private static SecretKeySpec keySpec;
 
     static {
+        String secretKey = null;
+
+        InputStream propStream = null;
         try {
-            keySpec = new SecretKeySpec(ArrayUtils.subarray("1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
+            propStream = PasswordEncoder.class.getResourceAsStream("/security.properties");
+            Properties props = new Properties();
+            props.load(propStream);
+            secretKey = props.getProperty("secretKey");
+        } catch (Exception e) {
+            LOG.error("Could not read secretKey", e);
+        } finally {
+            if (propStream != null) {
+                try {
+                    propStream.close();
+                } catch (IOException e) {
+                    LOG.error("While closing property stream", e);
+                }
+            }
+        }
+
+        if (secretKey == null) {
+            secretKey = "1abcdefghilmnopqrstuvz2!";
+            LOG.debug("secretKey not found, reverting to default");
+        }
+        if (secretKey.length() < 16) {
+            StringBuilder secretKeyPadding = new StringBuilder(secretKey);
+            for (int i = 0; i < 16 - secretKey.length(); i++) {
+                secretKeyPadding.append('0');
+            }
+            secretKey = secretKeyPadding.toString();
+            LOG.debug("secretKey too short, adding some random characters");
+        }
+
+        try {
+            keySpec = new SecretKeySpec(ArrayUtils.subarray(secretKey.getBytes("UTF8"), 0, 16), "AES");
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
         }
@@ -67,7 +103,6 @@ public final class PasswordEncoder {
                 encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             } else {
                 encodedPassword = getDigester(cipherAlgorithm).digest(password);
-
             }
         }
 

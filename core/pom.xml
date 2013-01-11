@@ -734,7 +734,6 @@ under the License.
                     <excludes>
                       <exclude>content.xml</exclude>
                       <exclude>persistence.properties</exclude>
-                      <exclude>security.properties</exclude>
                       <exclude>workflow.properties</exclude>
                     </excludes>
                   </resource>
