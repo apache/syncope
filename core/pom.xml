@@ -472,7 +472,6 @@ under the License.
                   <patternset>
                     <exclude name="**/content.xml" />
                     <exclude name="**/persistence.properties" />
-                    <exclude name="**/security.properties" />
                     <exclude name="**/workflow.properties" />
                   </patternset>
                 </unzip>
@@ -716,7 +715,6 @@ under the License.
                     <excludes>
                       <exclude>content.xml</exclude>
                       <exclude>persistence.properties</exclude>
-                      <exclude>security.properties</exclude>
                       <exclude>workflow.properties</exclude>
                     </excludes>
                   </resource>

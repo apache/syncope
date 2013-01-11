@@ -140,6 +140,7 @@ under the License.
 
                     <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
+                    <copy file="${basedir}/../core/src/main/resources/security.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
                     <copy file="${basedir}/../core/src/main/resources/META-INF/spring-persistence.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF" overwrite="true" />

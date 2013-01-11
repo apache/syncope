@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.beans.user;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -28,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -58,7 +61,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.springframework.security.crypto.codec.Base64;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -68,6 +70,7 @@ import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 import org.apache.syncope.types.CipherAlgorithm;
+import org.springframework.security.crypto.codec.Base64;
 
 @Entity
 @Cacheable
@@ -79,8 +82,41 @@ public class SyncopeUser extends AbstractAttributable {
     private static SecretKeySpec keySpec;
 
     static {
+        String secretKey = null;
+
+        InputStream propStream = null;
         try {
-            keySpec = new SecretKeySpec(ArrayUtils.subarray("1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
+            propStream = SyncopeUser.class.getResourceAsStream("/security.properties");
+            Properties props = new Properties();
+            props.load(propStream);
+            secretKey = props.getProperty("secretKey");
+        } catch (Exception e) {
+            LOG.error("Could not read secretKey", e);
+        } finally {
+            if (propStream != null) {
+                try {
+                    propStream.close();
+                } catch (IOException e) {
+                    LOG.error("While closing property stream", e);
+                }
+            }
+        }
+
+        if (secretKey == null) {
+            secretKey = "1abcdefghilmnopqrstuvz2!";
+            LOG.debug("secretKey not found, reverting to default");
+        }
+        if (secretKey.length() < 16) {
+            StringBuilder secretKeyPadding = new StringBuilder(secretKey);
+            for (int i = 0; i < 16 - secretKey.length(); i++) {
+                secretKeyPadding.append('0');
+            }
+            secretKey = secretKeyPadding.toString();
+            LOG.debug("secretKey too short, adding some random characters");
+        }
+
+        try {
+            keySpec = new SecretKeySpec(ArrayUtils.subarray(secretKey.getBytes("UTF8"), 0, 16), "AES");
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
         }
@@ -520,11 +556,9 @@ public class SyncopeUser extends AbstractAttributable {
 
         if (password != null) {
             if (cipherAlgoritm == null || cipherAlgoritm == CipherAlgorithm.AES) {
-
                 final byte[] cleartext = password.getBytes("UTF8");
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
-
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
                 byte[] encoded = cipher.doFinal(cleartext);
@@ -555,16 +589,15 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public boolean verifyPasswordHistory(final String password, final int size) {
-
         boolean res = false;
 
         if (size > 0) {
             try {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
-                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm != null
-                        ? encodePassword(password, cipherAlgorithm)
-                        : password);
+                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
+                        ? password
+                        : encodePassword(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }
