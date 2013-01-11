@@ -55,7 +55,7 @@ under the License.
   </bean>
   
   <bean id="baseURL" class="java.lang.String">
-    <constructor-arg value="${scheme}://${host}:${port}${path}"/>
+    <constructor-arg value="${scheme}://${host}:${port}${rootPath}"/>
   </bean>
 
   <bean id="version" class="java.lang.String">
