@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.apache.syncope.core.init.SpringContextInitializer;
+import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -46,7 +46,7 @@ public class WorkflowTestITCase extends AbstractTest {
 
     @Test//TODO TestCase needs to be extended
     public void testUpdateUserDefinition() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         WorkflowDefinitionTO definition = workflowService.getDefinition(USER_TYPE);
         assertNotNull(definition);
@@ -58,7 +58,7 @@ public class WorkflowTestITCase extends AbstractTest {
 
     @Test//TODO TestCase needs to be extended
     public void testUpdateRoleDefinition() {
-        Assume.assumeTrue(SpringContextInitializer.isActivitiEnabledForRoles());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
         WorkflowDefinitionTO definition = workflowService.getDefinition(ROLE_TYPE);
         assertNotNull(definition);

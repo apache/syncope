@@ -42,9 +42,9 @@ import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.core.init.SpringContextInitializer;
 import org.apache.syncope.core.sync.SyncJob;
 import org.apache.syncope.core.sync.TestSyncActions;
+import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TraceLevel;
@@ -267,7 +267,7 @@ public class TaskTestITCase extends AbstractTest {
         userTO = userService.read(userTO.getId());
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
-        assertEquals(SpringContextInitializer.isActivitiEnabledForUsers()
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
                 ? "active"
                 : "created", userTO.getStatus());
         assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));

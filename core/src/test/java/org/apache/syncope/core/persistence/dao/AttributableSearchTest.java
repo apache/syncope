@@ -41,8 +41,7 @@ import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.types.AttributableType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
-    "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
+@ContextConfiguration(locations = {"classpath:persistenceTestEnv.xml"})
 @Transactional
 public class AttributableSearchTest {
 

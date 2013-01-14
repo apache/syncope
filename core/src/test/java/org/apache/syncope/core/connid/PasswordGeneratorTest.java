@@ -22,8 +22,9 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.IncompatiblePolicyException;
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PasswordGeneratorTest extends AbstractDAOTest {
+public class PasswordGeneratorTest extends AbstractTest {
 
     @Autowired
     private PasswordGenerator passwordGenerator;

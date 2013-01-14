@@ -36,9 +36,8 @@ under the License.
 
   <context:annotation-config/>
   <context:component-scan base-package="org.apache.syncope.core.persistence"/>
-  <context:component-scan base-package="org.apache.syncope.core.rest.data"/>
+  <context:component-scan base-package="org.apache.syncope.core.util"/>
   <context:component-scan base-package="org.apache.syncope.core.policy"/>
-  <context:component-scan base-package="org.apache.syncope.core.policy.impl"/>
 
   <aop:aspectj-autoproxy/>
 

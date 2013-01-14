@@ -33,7 +33,7 @@ public interface WorkflowAdapter {
      * @return null if no init is needed or the WorkflowLoader class for handling initialization
      * @see org.apache.syncope.core.init.SpringContextInitializer
      */
-    Class<? extends WorkflowLoader> getLoaderClass();
+    Class<? extends WorkflowInstanceLoader> getLoaderClass();
 
     /**
      * Get workflow definition.

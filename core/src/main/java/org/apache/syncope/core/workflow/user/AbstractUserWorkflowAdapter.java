@@ -28,7 +28,7 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
-import org.apache.syncope.core.workflow.WorkflowLoader;
+import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +43,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected UserDAO userDAO;
 
     @Override
-    public Class<? extends WorkflowLoader> getLoaderClass() {
+    public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
         return null;
     }
 

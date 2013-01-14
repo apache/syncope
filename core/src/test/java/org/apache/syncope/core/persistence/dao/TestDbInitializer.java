@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.init;
+package org.apache.syncope.core.persistence.dao;
 
 import javax.servlet.ServletContext;
 
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
-import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,25 +31,9 @@ import org.springframework.web.context.ServletContextAware;
  * Take care of all initializations needed by Syncope to run up and safe.
  */
 @Component
-public class SpringContextInitializer implements ServletContextAware, InitializingBean {
-
-    @Autowired
-    private ConnectorFactory connInstanceLoader;
-
+public class TestDbInitializer implements ServletContextAware, InitializingBean {
     @Autowired
     private ContentLoader contentLoader;
-
-    @Autowired
-    private JobInstanceLoader jobInstanceLoader;
-
-    @Autowired
-    private LoggerLoader loggerLoader;
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
-    
-    @Autowired
-    private WorkflowAdapterLoader workflowSetup;
 
     @Override
     public void setServletContext(final ServletContext servletContext) {
@@ -59,10 +42,5 @@ public class SpringContextInitializer implements ServletContextAware, Initializi
     @Override
     public void afterPropertiesSet() throws Exception {
         contentLoader.load(ActivitiDetector.isActivitiEnabledForUsers());
-        connInstanceLoader.load();
-        jobInstanceLoader.load();
-        loggerLoader.load();
-        classNamesLoader.load();
-        workflowSetup.load();
     }
 }

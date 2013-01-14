@@ -64,7 +64,7 @@ import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowException;
-import org.apache.syncope.core.workflow.WorkflowLoader;
+import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
 import org.apache.syncope.types.ResourceOperation;
@@ -136,7 +136,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private RepositoryService repositoryService;
 
     @Override
-    public Class<? extends WorkflowLoader> getLoaderClass() {
+    public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
         return ActivitiWorkflowLoader.class;
     }
 

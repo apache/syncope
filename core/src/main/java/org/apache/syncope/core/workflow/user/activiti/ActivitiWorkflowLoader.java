@@ -23,12 +23,12 @@ import java.io.InputStream;
 import java.util.List;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
-import org.apache.syncope.core.workflow.WorkflowLoader;
+import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ActivitiWorkflowLoader implements WorkflowLoader {
+public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiWorkflowLoader.class);
 

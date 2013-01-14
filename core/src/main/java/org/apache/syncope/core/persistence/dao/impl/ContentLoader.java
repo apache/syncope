@@ -16,17 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.init;
+package org.apache.syncope.core.persistence.dao.impl;
 
+import java.io.Closeable;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.util.ImportExport;
 import org.slf4j.Logger;
@@ -37,11 +40,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * If empty, load default content to Syncope database by reading from
- * <code>ckasspath:/content.xml</code>.
+ * Initialize Database with default content if no data is present already
  */
 @Component
 public class ContentLoader {
+    private static final String VIEWS_FILE = "/views.xml";
+    private static final String INDEXES_FILE = "/indexes.xml";
+    private static final String CONTENT_FILE = "/content.xml";
 
     /**
      * Logger.
@@ -55,61 +60,57 @@ public class ContentLoader {
     private ImportExport importExport;
 
     @Transactional
-    public void load() {
-        // 0. DB connection, to be used below
+    public void load(boolean activitiEnabledForUsers) {
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
-        // 1. Check wether we are allowed to load default content into the DB
-        PreparedStatement statement = null;
+        boolean existingData = isDataPresent(conn);
+        if (existingData) {
+            LOG.info("Data found in the database, leaving untouched");
+            closeConnection(conn);
+            return;
+        }
+
+        LOG.info("Empty database found, loading default content");
+
+        createViews(conn);
+        createIndexes(conn);
+        if (activitiEnabledForUsers) {
+            deleteActivitiProperties(conn);
+        }
+        closeConnection(conn);
+        loadDefaultContent();
+    }
+
+    private boolean isDataPresent(Connection conn) {
         ResultSet resultSet = null;
-        boolean existingData = false;
+        PreparedStatement statement = null;
         try {
             final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
             statement = conn.prepareStatement(
                     queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             resultSet = statement.executeQuery();
             resultSet.last();
-
-            existingData = resultSet.getRow() > 0;
+            return resultSet.getRow() > 0;
         } catch (SQLException e) {
             LOG.error("Could not access to table " + SyncopeConf.class.getSimpleName(), e);
-
-            // Setting this to true make nothing to be done below
-            existingData = true;
+            return true;
         } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-            } catch (SQLException e) {
-                LOG.error("While closing SQL result set", e);
-            }
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException e) {
-                LOG.error("While closing SQL statement", e);
-            }
+            closeResultSet(resultSet);
+            closeStatement(statement);
         }
+    }
 
-        if (existingData) {
-            LOG.info("Data found in the database, leaving untouched");
-            return;
-        }
-
-        LOG.info("Empty database found, loading default content");
-
-        // 2. Create views
+    private void createViews(Connection conn) {
         LOG.debug("Creating views");
         try {
-            InputStream viewsStream = getClass().getResourceAsStream("/views.xml");
+            InputStream viewsStream = getClass().getResourceAsStream(VIEWS_FILE);
             Properties views = new Properties();
             views.loadFromXML(viewsStream);
+            close(viewsStream);
 
             for (String idx : views.stringPropertyNames()) {
                 LOG.debug("Creating view {}", views.get(idx).toString());
-
+                PreparedStatement statement = null;
                 try {
                     final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
                     statement = conn.prepareStatement(updateViews);
@@ -127,69 +128,95 @@ public class ContentLoader {
         } catch (Exception e) {
             LOG.error("While creating views", e);
         }
+    }
 
-        // 3. Create indexes
+    private void createIndexes(Connection conn) {
         LOG.debug("Creating indexes");
+
+        InputStream indexesStream = getClass().getResourceAsStream(INDEXES_FILE);
+        Properties indexes = new Properties();
         try {
-            InputStream indexesStream = getClass().getResourceAsStream("/indexes.xml");
-            Properties indexes = new Properties();
             indexes.loadFromXML(indexesStream);
-
-            for (String idx : indexes.stringPropertyNames()) {
-                LOG.debug("Creating index {}", indexes.get(idx).toString());
-
-                try {
-                    final String updateIndexed = indexes.get(idx).toString();
-                    statement = conn.prepareStatement(updateIndexed);
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    LOG.error("Could not create index ", e);
-                } finally {
-                    if (statement != null) {
-                        statement.close();
-                    }
-                }
-            }
-
-            LOG.debug("Indexes created, go for default content");
         } catch (Exception e) {
-            LOG.error("While creating indexes", e);
+            throw new RuntimeException("Error loading properties from stream", e);
         }
+        close(indexesStream);
 
-        // Can't test uwfAdapter.getClass() because it is @Autowired
-        if (SpringContextInitializer.isActivitiEnabledForUsers()) {
+        for (String idx : indexes.stringPropertyNames()) {
+            LOG.debug("Creating index {}", indexes.get(idx).toString());
+            PreparedStatement statement = null;
             try {
-                statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
+                final String updateIndexed = indexes.get(idx).toString();
+                statement = conn.prepareStatement(updateIndexed);
                 statement.executeUpdate();
             } catch (SQLException e) {
-                LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
+                LOG.error("Could not create index ", e);
             } finally {
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        LOG.error("Error closing statement of ACT_GE_PROPERTY delete rows", e);
-                    }
-                }
+                closeStatement(statement);
             }
         }
+    }
 
+    private void deleteActivitiProperties(Connection conn) {
+        PreparedStatement statement = null;
         try {
-            conn.close();
+            statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
+            statement.executeUpdate();
         } catch (SQLException e) {
-            LOG.error("While closing SQL connection", e);
+            LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
         } finally {
-            DataSourceUtils.releaseConnection(conn, dataSource);
+            closeStatement(statement);
         }
+    }
 
-        // 4. Load default content
+    private void loadDefaultContent() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(getClass().getResourceAsStream("/content.xml"), importExport);
+            parser.parse(getClass().getResourceAsStream(CONTENT_FILE), importExport);
             LOG.debug("Default content successfully loaded");
         } catch (Exception e) {
             LOG.error("While loading default content", e);
+        }
+    }
+
+    private void closeResultSet(ResultSet resultSet) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            LOG.error("While closing SQL result set", e);
+        }
+    }
+
+    private void closeStatement(PreparedStatement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                LOG.error("Error closing SQL statement", e);
+            }
+        }
+    }
+
+    private void closeConnection(Connection conn) {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            LOG.error("Error closing SQL connection", e);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+    }
+    
+    private void close(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Throwable t) {
+                LOG.error("Error closing closeable", t);
+            }
         }
     }
 }

@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+package org.apache.syncope.core.policy;
 
-public interface WorkflowLoader {
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.types.AccountPolicySpec;
 
-    void load();
+public interface UserSuspender {
+    void suspend(final AccountPolicySpec policy, final SyncopeUser user);
 }
