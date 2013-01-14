@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +31,7 @@ import java.util.Set;
 import org.apache.syncope.client.search.AttributableCond;
 import org.apache.syncope.client.search.MembershipCond;
 import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.to.NotificationTaskTO;
@@ -653,5 +655,59 @@ public class TaskTestITCase extends AbstractTest {
             throw new RuntimeException("Timeout when executing task " + taskId);
         }
         return taskTO.getExecutions().get(0);
+    }
+
+    @Test
+    public void issueSYNCOPE272() {
+
+        //Create user with testdb resource
+        UserTO userTO = new UserTO();
+        userTO.setUsername("syncope272@syncope.apache.org");
+        userTO.setPassword("password");
+        userTO.addAttribute(attributeTO("firstname", "syncope272"));
+        userTO.addAttribute(attributeTO("surname", "syncope272"));
+        userTO.addAttribute(attributeTO("userId", "syncope272@syncope.apache.org"));
+        userTO.addAttribute(attributeTO("fullname", "syncope272"));
+        userTO.addResource("resource-testdb");
+
+        userTO = userService.create(userTO);
+
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getPropagationTOs().size());
+        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+
+        // Update sync task
+        SyncTaskTO task = taskService.read(SYNC_TASK_ID, SyncTaskTO.class);
+        assertNotNull(task);
+
+        // add user template
+
+        AttributeTO newAttrTO = new AttributeTO();
+        newAttrTO.setSchema("firstname");
+        newAttrTO.setValues(Collections.singletonList(""));
+
+        UserTO template = new UserTO();
+        template.addAttribute(newAttrTO);
+        template.addAttribute(attributeTO("userId", "'test'"));
+        template.addAttribute(attributeTO("fullname", "'test'"));
+        template.addAttribute(attributeTO("surname", "'test'"));
+        template.addResource("resource-testdb");
+
+        task.setUserTemplate(template);
+
+        SyncTaskTO actual = taskService.update(task.getId(), task);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+
+        TaskExecTO taskExecTO = execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, false);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+
+        assertNotNull(taskExecTO.getStatus());
+        assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());
+
+        userTO = userService.read("syncope272@syncope.apache.org");
+        assertNotNull(userTO);
+        assertNotNull(userTO.getAttributeMap().get("firstname").getValues().get(0));
     }
 }
