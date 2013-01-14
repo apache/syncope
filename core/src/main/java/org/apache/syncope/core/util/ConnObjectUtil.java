@@ -366,7 +366,10 @@ public class ConnObjectUtil {
 
         Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
         for (AttributeTO attrTO : template.getAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
+
+            if (!currentAttrMap.containsKey(attrTO.getSchema())
+                    && attrTO.getValues() != null
+                    && !attrTO.getValues().isEmpty()) {
                 attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, attrTO));
             }
         }
@@ -380,7 +383,9 @@ public class ConnObjectUtil {
 
         currentAttrMap = attributableTO.getVirtualAttributeMap();
         for (AttributeTO attrTO : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
+            if (!currentAttrMap.containsKey(attrTO.getSchema())
+                    && attrTO.getValues() != null
+                    && !attrTO.getValues().isEmpty()) {
                 attributableTO.addVirtualAttribute(evaluateAttrTemplate(attributableTO, attrTO));
             }
         }
@@ -391,12 +396,10 @@ public class ConnObjectUtil {
         AttributeTO result = new AttributeTO();
         result.setSchema(template.getSchema());
 
-        if (template.getValues() != null && !template.getValues().isEmpty()) {
-            for (String value : template.getValues()) {
-                String evaluated = jexlUtil.evaluate(value, attributableTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    result.addValue(evaluated);
-                }
+        for (String value : template.getValues()) {
+            String evaluated = jexlUtil.evaluate(value, attributableTO);
+            if (StringUtils.isNotBlank(evaluated)) {
+                result.addValue(evaluated);
             }
         }
 

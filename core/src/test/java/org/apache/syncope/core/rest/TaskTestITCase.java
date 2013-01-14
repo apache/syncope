@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.search.MembershipCond;
@@ -761,5 +762,117 @@ public class TaskTestITCase extends AbstractTest {
         email = userTO.getAttributeMap().get("email").getValues().iterator().next();
         assertNotNull(email);
         assertEquals("updatedSYNCOPE230@syncope.apache.org", email);
+    }
+
+    @Test
+    public void issueSYNCOPE272() {
+
+        //Create user with testdb resource
+
+        UserTO userTO = new UserTO();
+        userTO.setUsername("syncope261@syncope.apache.org");
+        userTO.setPassword("password");
+
+        AttributeTO attributeTO = new AttributeTO();
+
+        attributeTO.setSchema("firstname");
+        attributeTO.addValue("syncope261");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("surname");
+        attributeTO.addValue("syncope261");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("syncope261@syncope.apache.org");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("fullname");
+        attributeTO.addValue("syncope261");
+        userTO.addAttribute(attributeTO);
+
+        userTO.addResource("resource-testdb");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getPropagationTOs().size());
+        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+
+        // Update sync task
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 7);
+        task.setFullReconciliation(true);
+        assertNotNull(task);
+
+        //  add user template
+        UserTO template = new UserTO();
+
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema("firstname");
+        attrTO.setValues(Collections.singletonList(""));
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("userId");
+        attrTO.addValue("'test'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("'fullname");
+        attrTO.addValue("'test'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("surname");
+        attrTO.addValue("'test'");
+        template.addAttribute(attrTO);
+
+        task.setUserTemplate(template);
+
+        SyncTaskTO actual = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+
+        // read executions before sync (dryrun test could be executed before)
+        int preSyncSize = actual.getExecutions().size();
+
+        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
+                actual.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = 20;
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
+
+            assertNotNull(actual);
+            assertNotNull(actual.getExecutions());
+
+            i++;
+
+        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
+
+        assertEquals(2, actual.getExecutions().size());
+
+        final String status = actual.getExecutions().get(1).getStatus();
+
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        final UserTO updateTO =
+                restTemplate.getForObject(BASE_URL
+                + "user/readByUsername/{username}.json", UserTO.class, "syncope261@syncope.apache.org");
+
+        assertNotNull(updateTO);
+        assertNotNull(updateTO.getAttributeMap().get("firstname").getValues().get(0));
     }
 }
