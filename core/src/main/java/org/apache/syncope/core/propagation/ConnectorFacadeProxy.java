@@ -454,8 +454,8 @@ public class ConnectorFacadeProxy {
     /**
      * Return resource schema names.
      *
-     * @param showall return __NAME__ and __PASSWORD__ attribute if true.
-     * @return a list of schema names.
+     * @param showall return special attributes (like as __NAME__ or __PASSWORD__) if true
+     * @return a list of schema names
      */
     public Set<String> getSchema(final boolean showall) {
         final Set<String> resourceSchemaNames = new HashSet<String>();

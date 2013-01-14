@@ -56,6 +56,8 @@ import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.wicket.markup.html.basic.Label;
 
 /**
  * Resources WebPage.
@@ -114,6 +116,50 @@ public class Resources extends BasePage {
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+
+        columns.add(new AbstractColumn<ResourceTO, String>(new ResourceModel("connector", "connector")) {
+
+            private static final long serialVersionUID = 8263694778917279290L;
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
+                    final IModel<ResourceTO> rowModel) {
+
+                final ConnInstanceTO connectorTO = connectorRestClient.read(rowModel.getObject().getConnectorId());
+
+                final IndicatingAjaxLink<String> editLink = new IndicatingAjaxLink<String>("link") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
+                                        connectorTO);
+                            }
+                        });
+
+                        editConnectorWin.show(target);
+                    }
+                };
+                editLink.add(new Label("linkTitle", connectorTO.getDisplayName()));
+
+                LinkPanel editConnPanel = new LinkPanel(componentId);
+                editConnPanel.add(editLink);
+
+                cellItem.add(editConnPanel);
+
+                MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                        "Connectors", "read"));
+            }
+        });
+
         columns.add(new PropertyColumn(new ResourceModel("propagationPrimary"), "propagationPrimary",
                 "propagationPrimary"));
         columns.add(new PropertyColumn(new ResourceModel("propagationPriority"), "propagationPriority",
@@ -296,7 +342,6 @@ public class Resources extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -433,7 +478,7 @@ public class Resources extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -477,7 +522,7 @@ public class Resources extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

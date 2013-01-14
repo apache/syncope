@@ -291,7 +291,7 @@ public class ResourceConnConfPanel extends Panel {
          * Constructor.
          *
          * @param target request target.
-         * @param target connector configuration properties.
+         * @param conf connector configuration properties.
          */
         public ConnConfModEvent(final AjaxRequestTarget target, final List<ConnConfProperty> conf) {
             super(target);

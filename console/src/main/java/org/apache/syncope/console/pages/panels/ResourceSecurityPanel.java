@@ -21,6 +21,11 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.client.to.PolicyTO;
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -32,29 +37,24 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.types.PolicyType;
 
 public class ResourceSecurityPanel extends Panel {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ResourceSecurityPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceSecurityPanel.class);
 
     private static final long serialVersionUID = -7982691107029848579L;
 
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    IModel<Map<Long, String>> passwordPolicies = null;
+    private IModel<Map<Long, String>> passwordPolicies = null;
 
-    IModel<Map<Long, String>> accountPolicies = null;
+    private IModel<Map<Long, String>> accountPolicies = null;
 
-    IModel<Map<Long, String>> syncPolicies = null;
+    private IModel<Map<Long, String>> syncPolicies = null;
 
     public ResourceSecurityPanel(final String id, final ResourceTO resourceTO) {
 
@@ -114,7 +114,7 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                        "passwordPolicy"));
+                "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
@@ -130,7 +130,7 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                        "accountPolicy"));
+                "accountPolicy"));
 
         accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
@@ -145,7 +145,8 @@ public class ResourceSecurityPanel extends Panel {
         // Sync policy specification
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
-                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel<Long>(resourceTO, "syncPolicy"));
+                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel<Long>(resourceTO,
+                "syncPolicy"));
 
         syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
 

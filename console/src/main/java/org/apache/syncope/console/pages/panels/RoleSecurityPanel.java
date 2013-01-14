@@ -21,6 +21,12 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.client.to.AbstractAttributableTO;
+import org.apache.syncope.client.to.PolicyTO;
+import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.types.PolicyType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -33,12 +39,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.types.PolicyType;
 
 public class RoleSecurityPanel extends Panel {
 
@@ -52,12 +52,11 @@ public class RoleSecurityPanel extends Panel {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    IModel<Map<Long, String>> passwordPolicies = null;
+    private IModel<Map<Long, String>> passwordPolicies = null;
 
-    IModel<Map<Long, String>> accountPolicies = null;
+    private IModel<Map<Long, String>> accountPolicies = null;
 
     public <T extends AbstractAttributableTO> RoleSecurityPanel(final String id, final T entityTO) {
-
         super(id);
 
         setOutputMarkupId(true);

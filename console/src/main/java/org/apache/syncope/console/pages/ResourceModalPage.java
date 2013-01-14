@@ -26,6 +26,7 @@ import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -63,9 +64,10 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
 
         //--------------------------------
-        // Resource mapping panel
+        // Resource mapping panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("mapping", resourceTO));
+        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
+        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE));
         //--------------------------------
 
         //--------------------------------
@@ -86,23 +88,39 @@ public class ResourceModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
                 final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
 
-                int accountIdCount = 0;
+                boolean accountIdError = false;
 
-                for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
-                    if (item.isAccountid()) {
-                        accountIdCount++;
+                if (resourceTO.getUmapping().getItems().isEmpty()) {
+                    resourceTO.setUmapping(null);
+                } else {
+                    int uAccountIdCount = 0;
+                    for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
+                        if (item.isAccountid()) {
+                            uAccountIdCount++;
+                        }
                     }
+                    accountIdError = uAccountIdCount != 1;
                 }
 
-                if (accountIdCount == 0 || accountIdCount > 1) {
+                if (resourceTO.getRmapping().getItems().isEmpty()) {
+                    resourceTO.setRmapping(null);
+                } else {
+                    int rAccountIdCount = 0;
+                    for (MappingItemTO item : resourceTO.getRmapping().getItems()) {
+                        if (item.isAccountid()) {
+                            rAccountIdCount++;
+                        }
+                    }
+                    accountIdError |= rAccountIdCount != 1;
+                }
+
+                if (accountIdError) {
                     error(new ResourceModel("accountIdValidation", "accountIdValidation").getObject());
                     target.add(feedbackPanel);
                 } else {
                     try {
-
                         if (createFlag) {
                             restClient.create(resourceTO);
                         } else {
@@ -111,9 +129,8 @@ public class ResourceModalPage extends BaseModalPage {
 
                         ((Resources) pageref.getPage()).setModalResult(true);
                         window.close(target);
-
                     } catch (Exception e) {
-                        LOG.error("Failuer managing resource {}", resourceTO);
+                        LOG.error("Failure managing resource {}", resourceTO);
                         error(new ResourceModel("error", "error").getObject() + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
