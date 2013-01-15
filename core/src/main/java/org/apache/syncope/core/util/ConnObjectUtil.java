@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
@@ -118,6 +119,13 @@ public class ConnObjectUtil {
         // update password if and only if password is really changed
         if (StringUtils.isBlank(updated.getPassword()) || userDataBinder.verifyPassword(user, updated.getPassword())) {
             updated.setPassword(null);
+        }
+
+        for (MembershipTO membTO : updated.getMemberships()) {
+            Membership memb = user.getMembership(membTO.getRoleId());
+            if (memb != null) {
+                membTO.setId(memb.getId());
+            }
         }
 
         final UserMod userMod = AttributableOperations.diff(updated, original, true);
@@ -236,7 +244,6 @@ public class ConnObjectUtil {
 
         if (pwd instanceof GuardedString) {
             ((GuardedString) pwd).access(new GuardedString.Accessor() {
-
                 @Override
                 public void access(final char[] clearChars) {
                     result.append(clearChars);
@@ -244,7 +251,6 @@ public class ConnObjectUtil {
             });
         } else if (pwd instanceof GuardedByteArray) {
             ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
-
                 @Override
                 public void access(final byte[] clearBytes) {
                     result.append(new String(clearBytes));
@@ -401,7 +407,7 @@ public class ConnObjectUtil {
             if (StringUtils.isNotBlank(evaluated)) {
                 result.addValue(evaluated);
             }
-        }
+        }   
 
         return result;
     }
