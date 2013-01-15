@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.services.proxy;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.client.to.AccountPolicyTO;
@@ -37,7 +38,7 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
     public <T extends PolicyTO> T create(PolicyType type, final T policyTO) {
         @SuppressWarnings("unchecked")
         T result = (T) getRestTemplate().postForObject(baseUrl + "policy/{kind}/create", policyTO, policyTO.getClass(),
-                typeToUrl(policyTO.getType()));
+        		typeToUrl(policyTO.getType()));
         return result;
     }
 
@@ -49,10 +50,27 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> listByType(PolicyType type) {
-        @SuppressWarnings("unchecked")
-        List<T> result = getRestTemplate().getForObject(baseUrl + "policy/{kind}/list", List.class, typeToUrl(type));
-        return result;
+        switch (type) {
+        case ACCOUNT:
+        case GLOBAL_ACCOUNT:
+			return (List<T>) Arrays.asList(getRestTemplate().getForObject(
+					baseUrl + "policy/{kind}/list", AccountPolicyTO[].class,
+					type));
+        case PASSWORD:
+        case GLOBAL_PASSWORD:
+			return (List<T>) Arrays.asList(getRestTemplate().getForObject(
+					baseUrl + "policy/{kind}/list", PasswordPolicyTO[].class,
+					type));
+        case SYNC:
+        case GLOBAL_SYNC:
+			return (List<T>) Arrays.asList(getRestTemplate().getForObject(
+					baseUrl + "policy/{kind}/list", SyncPolicyTO[].class,
+					type));
+        default:
+            throw new IllegalArgumentException("Policy Type not supported: " + type);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -70,21 +88,11 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
         return result;
     }
 
-    private String typeToUrl(PolicyType type) {
-        String url = type.name().toLowerCase();
-        int index = url.indexOf("_");
-        if (index != -1) {
-            return url.substring(index + 1);
-        } else {
-            return url;
-        }
-    }
-
     @Override
     public <T extends PolicyTO> T update(PolicyType type, Long policyId, T policyTO) {
         @SuppressWarnings("unchecked")
         T result = (T) getRestTemplate().postForObject(baseUrl + "policy/{kind}/update", policyTO, policyTO.getClass(),
-                typeToUrl(policyTO.getType()));
+        		typeToUrl(policyTO.getType()));
         return result;
     }
 
@@ -101,6 +109,16 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
             return SyncPolicyTO.class;
         default:
             throw new IllegalArgumentException("Policy Type not supported: " + type);
+        }
+    }
+
+    private String typeToUrl(PolicyType type) {
+        String url = type.name().toLowerCase();
+        int index = url.indexOf("_");
+        if (index != -1) {
+            return url.substring(index + 1);
+        } else {
+            return url;
         }
     }
 

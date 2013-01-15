@@ -123,7 +123,7 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
             return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list/{page}/{size}.json",
                     SyncTaskTO[].class, type, page, size));
         default:
-            throw new IllegalArgumentException("TaskType is not supported.");
+            throw new IllegalArgumentException("TaskType is not supported :" + type);
         }
     }
 
