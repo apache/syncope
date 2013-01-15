@@ -23,41 +23,40 @@ import java.util.List;
 
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.services.NotificationService;
-import org.springframework.web.client.RestTemplate;
 
 public class NotificationServiceProxy extends SpringServiceProxy implements NotificationService {
 
-    public NotificationServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public NotificationServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
     public NotificationTO read(Long notificationId) {
-        return restTemplate.getForObject(baseUrl + "notification/read/{notificationId}.json",
+        return getRestTemplate().getForObject(baseUrl + "notification/read/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
 
     @Override
     public List<NotificationTO> list() {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "notification/list.json",
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "notification/list.json",
                 NotificationTO[].class));
     }
 
     @Override
     public NotificationTO create(NotificationTO notificationTO) {
-        return restTemplate.postForObject(baseUrl + "notification/create.json", notificationTO,
+        return getRestTemplate().postForObject(baseUrl + "notification/create.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
     public NotificationTO update(Long notificationId, NotificationTO notificationTO) {
-        return restTemplate.postForObject(baseUrl + "notification/update.json", notificationTO,
+        return getRestTemplate().postForObject(baseUrl + "notification/update.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
     public NotificationTO delete(Long notificationId) {
-        return restTemplate.getForObject(baseUrl + "notification/delete/{notificationId}.json",
+        return getRestTemplate().getForObject(baseUrl + "notification/delete/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
 

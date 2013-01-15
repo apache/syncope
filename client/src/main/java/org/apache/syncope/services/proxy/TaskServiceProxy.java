@@ -23,26 +23,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.syncope.client.to.NotificationTaskTO;
+import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.SchedTaskTO;
 import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.services.TaskService;
 import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.springframework.web.client.RestTemplate;
+import org.apache.syncope.types.TaskType;
 
+@SuppressWarnings("unchecked")
 public class TaskServiceProxy extends SpringServiceProxy implements TaskService {
 
-    public TaskServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public TaskServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
-    public int count(String kind) {
-        return restTemplate.getForObject(baseUrl + "task/{kind}/count.json", Integer.class, kind);
+    public int count(TaskType type) {
+        return getRestTemplate().getForObject(baseUrl + "task/{type}/count.json", Integer.class, type);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> T create(T taskTO) {
         String subTypeString = (taskTO instanceof SyncTaskTO)
@@ -51,19 +53,18 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
                         ? "sched"
                         : "";
 
-        return (T) restTemplate.postForObject(baseUrl + "task/create/{type}", taskTO, taskTO.getClass(),
-                subTypeString);
+        return (T) getRestTemplate().postForObject(baseUrl + "task/create/{type}", taskTO, taskTO.getClass(), subTypeString);
     }
 
     @Override
-    public <T extends TaskTO> T delete(Long taskId, Class<T> type) {
-        return restTemplate.getForObject(baseUrl + "task/delete/{taskId}", type, taskId);
+    public <T extends TaskTO> T delete(TaskType type, Long taskId) {
+        return (T) getRestTemplate().getForObject(baseUrl + "task/delete/{taskId}", getTOClass(type), taskId);
     }
 
     @Override
     public TaskExecTO deleteExecution(Long executionId) {
-        // TODO Auto-generated method stub
-        return null;
+        return getRestTemplate()
+                .getForObject(baseUrl + "task/execution/delete/{executionId}", TaskExecTO.class, executionId);
     }
 
     @Override
@@ -71,58 +72,98 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         String param = (dryRun)
                 ? "?dryRun=true"
                 : "";
-        return restTemplate.postForObject(baseUrl + "task/execute/{taskId}" + param, null, TaskExecTO.class,
-                taskId);
+        return getRestTemplate().postForObject(baseUrl + "task/execute/{taskId}" + param, null, TaskExecTO.class, taskId);
     }
 
     @Override
     public Set<String> getJobClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl + "task/jobClasses.json",
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/jobClasses.json",
                 String[].class)));
     }
 
     @Override
     public Set<String> getSyncActionsClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
-                + "task/syncActionsClasses.json", String[].class)));
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/syncActionsClasses.json",
+                String[].class)));
     }
 
     @Override
-    public <T extends TaskTO> List<T> list(String kind, Class<T[]> type) {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/list", type, kind));
+    public <T extends TaskTO> List<T> list(TaskType type) {
+        switch (type) {
+        case PROPAGATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list",
+                    PropagationTaskTO[].class, type));
+        case NOTIFICATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list",
+                    NotificationTaskTO[].class, type));
+        case SCHEDULED:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list", SchedTaskTO[].class,
+                    type));
+        case SYNCHRONIZATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list", SyncTaskTO[].class,
+                    type));
+        default:
+            throw new IllegalArgumentException("TaskType is not supported.");
+        }
+    }
+
+    private Class<? extends TaskTO> getTOClass(TaskType type) {
+        switch (type) {
+        case PROPAGATION:
+            return PropagationTaskTO.class;
+        case NOTIFICATION:
+            return NotificationTaskTO.class;
+        case SCHEDULED:
+            return SchedTaskTO.class;
+        case SYNCHRONIZATION:
+            return SyncTaskTO.class;
+        default:
+            throw new IllegalArgumentException("SchemaType is not supported.");
+        }
     }
 
     @Override
-    public <T extends TaskTO> List<T> list(String kind, int page, int size, Class<T[]> type) {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/list/{page}/{size}.json",
-                type, kind, page, size));
+    public <T extends TaskTO> List<T> list(TaskType type, int page, int size) {
+        switch (type) {
+        case PROPAGATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list/{page}/{size}.json",
+                    PropagationTaskTO[].class, type, page, size));
+        case NOTIFICATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list/{page}/{size}.json",
+                    NotificationTaskTO[].class, type, page, size));
+        case SCHEDULED:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list/{page}/{size}.json",
+                    SchedTaskTO[].class, type, page, size));
+        case SYNCHRONIZATION:
+            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/list/{page}/{size}.json",
+                    SyncTaskTO[].class, type, page, size));
+        default:
+            throw new IllegalArgumentException("TaskType is not supported.");
+        }
     }
 
     @Override
-    public List<TaskExecTO> listExecutions(String kind) {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "task/{kind}/execution/list",
-                TaskExecTO[].class, kind));
+    public List<TaskExecTO> listExecutions(TaskType type) {
+        return Arrays.asList(getRestTemplate()
+                .getForObject(baseUrl + "task/{type}/execution/list", TaskExecTO[].class, type));
     }
 
     @Override
-    public <T extends TaskTO> T read(Long taskId, Class<T> type) {
-        return restTemplate.getForObject(baseUrl + "task/read/{taskId}", type, taskId);
+    public <T extends TaskTO> T read(TaskType type, Long taskId) {
+        return (T) getRestTemplate().getForObject(baseUrl + "task/read/{taskId}", getTOClass(type), taskId);
     }
 
     @Override
     public TaskExecTO readExecution(Long executionId) {
-        return restTemplate.getForObject(baseUrl + "task/execution/read/{taskId}", TaskExecTO.class,
-                executionId);
+        return getRestTemplate().getForObject(baseUrl + "task/execution/read/{taskId}", TaskExecTO.class, executionId);
     }
 
     @Override
     public TaskExecTO report(Long executionId, PropagationTaskExecStatus status, String message) {
-        return restTemplate.getForObject(baseUrl + "task/execution/report/{executionId}"
-                + "?executionStatus={status}&message={message}", TaskExecTO.class, executionId, status,
-                message);
+        return getRestTemplate().getForObject(baseUrl + "task/execution/report/{executionId}"
+                + "?executionStatus={status}&message={message}", TaskExecTO.class, executionId, status, message);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> T update(Long taskId, T taskTO) {
         String path = (taskTO instanceof SyncTaskTO)
@@ -133,7 +174,7 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         if (path == null)
             throw new IllegalArgumentException("Task can only be instance of SchedTaskTO or SyncTaskTO");
 
-        return (T) restTemplate.postForObject(baseUrl + "task/update/" + path, taskTO, taskTO.getClass());
+        return (T) getRestTemplate().postForObject(baseUrl + "task/update/" + path, taskTO, taskTO.getClass());
     }
 
 }

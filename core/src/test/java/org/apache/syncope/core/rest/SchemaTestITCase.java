@@ -29,6 +29,7 @@ import org.apache.syncope.client.util.AttributableOperations;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.services.SchemaService;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.EntityViolationType;
 import org.apache.syncope.types.SchemaType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
@@ -41,12 +42,6 @@ import org.springframework.web.client.HttpClientErrorException;
 @FixMethodOrder(MethodSorters.JVM)
 public class SchemaTestITCase extends AbstractTest {
 
-    private static final String ROLE = "role";
-
-    private static final String USER = "user";
-
-    private static final String MEMBERSHIP = "membership";
-
     @Test
     public void create() {
         SchemaTO schemaTO = new SchemaTO();
@@ -54,10 +49,10 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        SchemaTO newSchemaTO = schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+        SchemaTO newSchemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertEquals(schemaTO, newSchemaTO);
 
-        newSchemaTO = schemaService.create(MEMBERSHIP, SchemaService.SchemaKind.NORMAL, schemaTO);
+        newSchemaTO = schemaService.create(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL, schemaTO);
         assertEquals(schemaTO, newSchemaTO);
     }
 
@@ -68,7 +63,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.String);
 
         try {
-            schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+            schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
@@ -87,7 +82,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Enum);
 
         try {
-            schemaService.create(ROLE, SchemaService.SchemaKind.NORMAL, schemaTO);
+            schemaService.create(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
@@ -106,7 +101,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Enum);
 
         try {
-            schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+            schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
@@ -120,11 +115,11 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        SchemaTO deletedSchema = schemaService.delete(USER, SchemaService.SchemaKind.NORMAL, "cool");
+        SchemaTO deletedSchema = schemaService.delete(AttributableType.USER, SchemaService.SchemaType.NORMAL, "cool");
         assertNotNull(deletedSchema);
         SchemaTO firstname = null;
         try {
-            firstname = schemaService.read(USER, SchemaService.SchemaKind.NORMAL, "cool");
+            firstname = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "cool");
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -133,19 +128,19 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<SchemaTO> userSchemas = schemaService.list(USER, SchemaService.SchemaKind.NORMAL);
+        List<SchemaTO> userSchemas = schemaService.list(AttributableType.USER, SchemaService.SchemaType.NORMAL);
         assertFalse(userSchemas.isEmpty());
         for (SchemaTO schemaTO : userSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> roleSchemas = schemaService.list(ROLE, SchemaService.SchemaKind.NORMAL);
+        List<SchemaTO> roleSchemas = schemaService.list(AttributableType.ROLE, SchemaService.SchemaType.NORMAL);
         assertFalse(roleSchemas.isEmpty());
         for (SchemaTO schemaTO : roleSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> membershipSchemas = schemaService.list(MEMBERSHIP, SchemaService.SchemaKind.NORMAL);
+        List<SchemaTO> membershipSchemas = schemaService.list(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL);
         assertFalse(membershipSchemas.isEmpty());
         for (SchemaTO schemaTO : membershipSchemas) {
             assertNotNull(schemaTO);
@@ -154,15 +149,15 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchemaTO schemaTO = schemaService.read(ROLE, SchemaService.SchemaKind.NORMAL, "icon");
+        SchemaTO schemaTO = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, "icon");
         assertNotNull(schemaTO);
 
-        SchemaTO updatedTO = schemaService.update(ROLE, SchemaService.SchemaKind.NORMAL, schemaTO.getName(), schemaTO);
+        SchemaTO updatedTO = schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(SchemaType.Date);
         try {
-            schemaService.update(ROLE, SchemaService.SchemaKind.NORMAL, schemaTO.getName(), updatedTO);
+            schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), updatedTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
@@ -176,7 +171,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setName("schema_issue258");
         schemaTO.setType(SchemaType.Double);
 
-        schemaTO = schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue258@syncope.apache.org");
@@ -187,7 +182,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         schemaTO.setType(SchemaType.Long);
         try {
-            schemaService.update(USER, SchemaService.SchemaKind.NORMAL, schemaTO.getName(), schemaTO);
+            schemaService.update(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
@@ -202,7 +197,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setUniqueConstraint(true);
         schemaTO.setType(SchemaType.Long);
 
-        schemaTO = schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue259@syncope.apache.org");
@@ -228,7 +223,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
-        schemaTO = schemaService.create(USER, SchemaService.SchemaKind.NORMAL, schemaTO);
+        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getSampleTO("issue260@syncope.apache.org");
@@ -238,7 +233,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         schemaTO.setUniqueConstraint(false);
         try {
-            schemaService.update(USER, SchemaService.SchemaKind.NORMAL, schemaTO.getName(), schemaTO);
+            schemaService.update(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);

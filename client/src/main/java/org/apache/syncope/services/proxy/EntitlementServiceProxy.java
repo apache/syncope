@@ -26,21 +26,21 @@ import org.apache.syncope.services.EntitlementService;
 import org.springframework.web.client.RestTemplate;
 
 public class EntitlementServiceProxy extends SpringServiceProxy implements EntitlementService {
-	
-	public EntitlementServiceProxy(String baseUrl, RestTemplate restTemplate) {
-		super(baseUrl, restTemplate);
-	}
 
-	@Override
-	public Set<String> getAllEntitlements() {
-		return new HashSet<String>(Arrays.asList(new RestTemplate().getForObject(
-                baseUrl + "auth/allentitlements.json", String[].class)));
-	}
+    public EntitlementServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
+    }
 
-	@Override
-	public Set<String> getMyEntitlements() {
-		return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
-                + "auth/entitlements.json", String[].class)));
-	}
+    @Override
+    public Set<String> getAllEntitlements() {
+        return new HashSet<String>(Arrays.asList(new RestTemplate().getForObject(baseUrl + "auth/allentitlements.json",
+                String[].class)));
+    }
+
+    @Override
+    public Set<String> getMyEntitlements() {
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl + "auth/entitlements.json",
+                String[].class)));
+    }
 
 }

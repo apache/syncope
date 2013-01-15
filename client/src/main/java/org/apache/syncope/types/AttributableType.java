@@ -24,4 +24,9 @@ public enum AttributableType {
     ROLE,
     MEMBERSHIP;
 
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    };
+
 }

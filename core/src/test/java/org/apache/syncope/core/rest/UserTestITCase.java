@@ -18,7 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,6 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.syncope.client.mod.AttributeMod;
 import org.apache.syncope.client.mod.MembershipMod;
 import org.apache.syncope.client.mod.UserMod;
@@ -33,7 +39,6 @@ import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.PropagationTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
@@ -48,8 +53,10 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
+import org.apache.syncope.types.PolicyType;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.types.TaskType;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -72,7 +79,7 @@ public class UserTestITCase extends AbstractTest {
     public static UserTO getSampleUniqueTO() {
     	return getSampleTO(getUUIDString() + "@test.com");
     }
-    
+
     public static UserTO getSampleTO(final String email) {
     	String uid = email;
         UserTO userTO = new UserTO();
@@ -110,7 +117,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void createUserWithNoPropagation() {
         // get task list
-        List<PropagationTaskTO> tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -138,7 +145,7 @@ public class UserTestITCase extends AbstractTest {
         userService.create(userTO);
 
         // get the new task list
-        tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -153,7 +160,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        PropagationTaskTO taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -167,11 +174,11 @@ public class UserTestITCase extends AbstractTest {
      * introducing a simple control.
      */
     public void issue172() {
-        PolicyTO policyTO = policyService.read(2L, PasswordPolicyTO.class);
+        PolicyTO policyTO = policyService.read(PolicyType.PASSWORD, 2L);
 
         assertNotNull(policyTO);
 
-        policyService.delete(2L, PasswordPolicyTO.class);
+        policyService.delete(PolicyType.PASSWORD, 2L);
 
         UserTO userTO = new UserTO();
         userTO.setUsername("issue172@syncope.apache.org");
@@ -184,7 +191,7 @@ public class UserTestITCase extends AbstractTest {
 
         userService.create(userTO);
 
-        policyService.create(policyTO);
+        policyService.create(PolicyType.PASSWORD, policyTO);
 
         assertNotNull(policyTO);
     }
@@ -409,7 +416,7 @@ public class UserTestITCase extends AbstractTest {
     public void create() {
         // get task list
         List<PropagationTaskTO> tasks =
-                taskService.list("propagation", PropagationTaskTO[].class);
+                taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -421,7 +428,7 @@ public class UserTestITCase extends AbstractTest {
                 maxId = task.getId();
             }
         }
-        PropagationTaskTO taskTO = taskService.read(maxId, PropagationTaskTO.class);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, maxId);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -462,7 +469,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("virtualvalue", newUserTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
-        tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -481,7 +488,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
+        taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -914,7 +921,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void updatePasswordOnly() {
-        List<PropagationTaskTO> beforeTasks = taskService.list("propagation", PropagationTaskTO[].class);
+        List<PropagationTaskTO> beforeTasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(beforeTasks);
         assertFalse(beforeTasks.isEmpty());
 
@@ -939,7 +946,7 @@ public class UserTestITCase extends AbstractTest {
         passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
-        List<PropagationTaskTO> afterTasks = taskService.list("propagation", PropagationTaskTO[].class);
+        List<PropagationTaskTO> afterTasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(afterTasks);
         assertFalse(afterTasks.isEmpty());
 
@@ -949,7 +956,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        List<PropagationTaskTO> tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -978,7 +985,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -1009,7 +1016,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         // get max task id
         maxId = newMaxId;
@@ -1024,7 +1031,7 @@ public class UserTestITCase extends AbstractTest {
         //             all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
-        final PropagationTaskTO taskTO = taskService.read(newMaxId, PropagationTaskTO.class);
+        final PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -1035,7 +1042,7 @@ public class UserTestITCase extends AbstractTest {
         userService.delete(userTO.getId());
 
         // get the new task list
-        tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         // get max task id
         maxId = newMaxId;

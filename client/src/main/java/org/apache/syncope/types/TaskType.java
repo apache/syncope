@@ -16,22 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services.proxy;
+package org.apache.syncope.types;
 
-import org.springframework.web.client.RestTemplate;
+public enum TaskType {
 
-public abstract class SpringServiceProxy {
+    PROPAGATION("propagation"),
+    NOTIFICATION("notification"),
+    SCHEDULED("sched"),
+    SYNCHRONIZATION("sync");
 
-	protected String baseUrl;
+    private String name;
 
-	private final SpringRestTemplate callback;
-
-	public SpringServiceProxy(String baseUrl, SpringRestTemplate callback) {
-		this.baseUrl = baseUrl;
-		this.callback = callback;
-	}
-
-    public RestTemplate getRestTemplate() {
-        return callback.getRestTemplate();
+    private TaskType(String name) {
+        this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public static TaskType fromString(String name) {
+        if (name != null) {
+          for (TaskType t : TaskType.values()) {
+            if (t.name.equalsIgnoreCase(name)) {
+              return t;
+            }
+          }
+        }
+        return null;
+      }
 }

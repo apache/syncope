@@ -20,18 +20,7 @@ package org.apache.syncope.services.proxy;
 
 import org.springframework.web.client.RestTemplate;
 
-public abstract class SpringServiceProxy {
+public interface SpringRestTemplate {
 
-	protected String baseUrl;
-
-	private final SpringRestTemplate callback;
-
-	public SpringServiceProxy(String baseUrl, SpringRestTemplate callback) {
-		this.baseUrl = baseUrl;
-		this.callback = callback;
-	}
-
-    public RestTemplate getRestTemplate() {
-        return callback.getRestTemplate();
-    }
+    RestTemplate getRestTemplate();
 }

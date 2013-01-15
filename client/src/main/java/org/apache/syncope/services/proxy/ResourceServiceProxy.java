@@ -28,62 +28,63 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.services.ResourceService;
 import org.apache.syncope.types.AttributableType;
-import org.springframework.web.client.RestTemplate;
 
 public class ResourceServiceProxy extends SpringServiceProxy implements ResourceService {
 
-    public ResourceServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public ResourceServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
     public ResourceTO create(ResourceTO resourceTO) {
-        return restTemplate.postForObject(baseUrl + "resource/create.json", resourceTO, ResourceTO.class);
+        return getRestTemplate().postForObject(baseUrl + "resource/create.json", resourceTO, ResourceTO.class);
     }
 
     @Override
     public ResourceTO update(String resourceName, ResourceTO resourceTO) {
-        return restTemplate.postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
+        return getRestTemplate().postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     @Override
     public ResourceTO delete(String resourceName) {
-        return restTemplate.getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class,
+        return getRestTemplate().getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class,
                 resourceName);
     }
 
     @Override
     public ResourceTO read(String resourceName) {
-        return restTemplate.getForObject(baseUrl + "resource/read/{resourceName}.json", ResourceTO.class,
-                resourceName);
+        return getRestTemplate().getForObject(baseUrl + "resource/read/{resourceName}.json", ResourceTO.class, resourceName);
     }
 
     @Override
     public Set<String> getPropagationActionsClasses() {
-        return new HashSet<String>(Arrays.asList(restTemplate.getForObject(baseUrl
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl
                 + "resource/propagationActionsClasses.json", String[].class)));
     }
 
     @Override
-    public List<ResourceTO> list(Long connInstanceId) {
-        String query = (connInstanceId != null)
-                ? query = "?connInstanceId=" + connInstanceId.toString()
-                : "";
+    public List<ResourceTO> list() {
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json", ResourceTO[].class));
+    }
 
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "resource/list.json" + query,
-                ResourceTO[].class, connInstanceId));
+    @Override
+    public List<ResourceTO> list(Long connInstanceId) {
+        if (connInstanceId == null)
+            return list();
+
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json?connInstanceId={connId}", ResourceTO[].class,
+                connInstanceId));
     }
 
     @Override
     public ConnObjectTO getConnector(String resourceName, AttributableType type, String objectId) {
-        return restTemplate.getForObject(baseUrl + "resource/{resourceName}/read/{type}/{objectId}.json",
-                ConnObjectTO.class, resourceName, type, objectId);
+        return getRestTemplate().getForObject(baseUrl + "resource/{resourceName}/read/{type}/{objectId}.json",
+                ConnObjectTO.class, resourceName, type.toString().toUpperCase(), objectId);
     }
 
     @Override
     public boolean check(ResourceTO resourceTO) {
-        return restTemplate.postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class)
-                .booleanValue();
+        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).booleanValue();
     }
 
 }

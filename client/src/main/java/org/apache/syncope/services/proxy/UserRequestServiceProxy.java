@@ -24,12 +24,11 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.services.UserRequestService;
-import org.springframework.web.client.RestTemplate;
 
 public class UserRequestServiceProxy extends SpringServiceProxy implements UserRequestService {
 
-    public UserRequestServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public UserRequestServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
@@ -40,17 +39,17 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public UserRequestTO create(UserTO userTO) {
-        return restTemplate.postForObject(baseUrl + "user/request/create", userTO, UserRequestTO.class);
+        return getRestTemplate().postForObject(baseUrl + "user/request/create", userTO, UserRequestTO.class);
     }
 
     @Override
     public UserRequestTO update(UserMod userMod) {
-        return restTemplate.postForObject(baseUrl + "user/request/update", userMod, UserRequestTO.class);
+        return getRestTemplate().postForObject(baseUrl + "user/request/update", userMod, UserRequestTO.class);
     }
 
     @Override
     public UserRequestTO delete(Long userId) {
-        return restTemplate.getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class,
+        return getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class,
                 userId);
     }
 

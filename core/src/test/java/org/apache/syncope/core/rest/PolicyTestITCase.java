@@ -51,14 +51,14 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        SyncPolicyTO policyTO = policyService.read(1L, SyncPolicyTO.class);
+        SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 1L);
 
         assertNotNull(policyTO);
     }
 
     @Test
     public void getGlobalPasswordPolicy() {
-        PasswordPolicyTO policyTO = policyService.readGlobal(PolicyType.PASSWORD, PasswordPolicyTO.class);
+        PasswordPolicyTO policyTO = policyService.readGlobal(PolicyType.PASSWORD);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
@@ -67,7 +67,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void getGlobalAccountPolicy() {
-        AccountPolicyTO policyTO = policyService.readGlobal(PolicyType.ACCOUNT, AccountPolicyTO.class);
+        AccountPolicyTO policyTO = policyService.readGlobal(PolicyType.ACCOUNT);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
@@ -82,7 +82,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            policyService.create(policy);
+            policyService.create(PolicyType.PASSWORD, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             t = sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy);
@@ -97,7 +97,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         Throwable t = null;
         try {
-            policyService.create(policy);
+            policyService.create(PolicyType.SYNC, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             t = sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy);
@@ -109,7 +109,7 @@ public class PolicyTestITCase extends AbstractTest {
     public void create() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        SyncPolicyTO policyTO = policyService.create(policy);
+        SyncPolicyTO policyTO = policyService.create(PolicyType.SYNC, policy);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -118,17 +118,17 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void update() {
         // get global password
-        PasswordPolicyTO globalPolicy = policyService.read(2L, PasswordPolicyTO.class);
+        PasswordPolicyTO globalPolicy = policyService.read(PolicyType.PASSWORD, 2L);
 
         PasswordPolicyTO policy = new PasswordPolicyTO();
         policy.setDescription("A simple password policy");
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        policy = policyService.create(policy);
+        policy = policyService.create(PolicyType.PASSWORD, policy);
 
         // read new password policy
-        policy = policyService.read(policy.getId(), PasswordPolicyTO.class);
+        policy = policyService.read(PolicyType.PASSWORD, policy.getId());
 
         assertNotNull("find to update did not work", policy);
 
@@ -137,7 +137,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(policySpec);
 
         // update new password policy
-        policy = policyService.update(policy.getId(), policy);
+        policy = policyService.update(PolicyType.PASSWORD, policy.getId(), policy);
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
@@ -148,16 +148,16 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
-        SyncPolicyTO policyTO = policyService.create(policy);
+        SyncPolicyTO policyTO = policyService.create(PolicyType.SYNC, policy);
         assertNotNull(policyTO);
 
         PolicyTO policyToDelete =
-                policyService.delete(policyTO.getId(), SyncPolicyTO.class);
+                policyService.delete(PolicyType.SYNC, policyTO.getId());
         assertNotNull(policyToDelete);
 
         Throwable t = null;
         try {
-        	policyService.read(policyTO.getId(), SyncPolicyTO.class);
+        	policyService.read(PolicyType.SYNC, policyTO.getId());
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }

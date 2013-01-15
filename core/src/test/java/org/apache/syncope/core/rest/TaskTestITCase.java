@@ -47,6 +47,7 @@ import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.types.TaskType;
 import org.apache.syncope.types.TraceLevel;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -96,7 +97,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = taskService.create(task);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getId(), SyncTaskTO.class);
+        task = taskService.read(TaskType.SYNCHRONIZATION, actual.getId());
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
@@ -106,7 +107,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_ID, SchedTaskTO.class);
+        SchedTaskTO task = taskService.read(TaskType.SCHEDULED, SCHED_TASK_ID);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -121,14 +122,14 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void count() {
-        Integer count = taskService.count("propagation");
+        Integer count = taskService.count(TaskType.PROPAGATION);
         assertNotNull(count);
         assertTrue(count > 0);
     }
 
     @Test
     public void list() {
-        List<PropagationTaskTO> tasks = taskService.list("propagation", PropagationTaskTO[].class);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -139,7 +140,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void paginatedList() {
-        List<PropagationTaskTO> tasks = taskService.list("propagation", 1, 2, PropagationTaskTO[].class);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -149,7 +150,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskService.list("propagation", 2, 2, PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION, 2, 2);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -158,7 +159,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskService.list("propagation", 100, 2, PropagationTaskTO[].class);
+        tasks = taskService.list(TaskType.PROPAGATION, 100, 2);
 
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
@@ -166,7 +167,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void listExecutions() {
-        List<TaskExecTO> executions = taskService.listExecutions("propagation");
+        List<TaskExecTO> executions = taskService.listExecutions(TaskType.PROPAGATION);
         assertNotNull(executions);
         assertFalse(executions.isEmpty());
         for (TaskExecTO execution : executions) {
@@ -176,7 +177,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        PropagationTaskTO taskTO = taskService.read(3L, PropagationTaskTO.class);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, 3L);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
@@ -192,7 +193,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void deal() {
         try {
-            taskService.delete(0L, TaskTO.class);
+            taskService.delete(TaskType.PROPAGATION, 0L);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -203,7 +204,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
         assertEquals("OK", exec.getMessage());
 
-        taskService.delete(1L, PropagationTaskTO.class);
+        taskService.delete(TaskType.PROPAGATION, 1L);
         try {
             taskService.readExecution(exec.getId());
         } catch (HttpStatusCodeException e) {
@@ -235,7 +236,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(usersPre);
 
         // Update sync task
-        SyncTaskTO task = taskService.read(SYNC_TASK_ID, SyncTaskTO.class);
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
         assertNotNull(task);
 
         //  add custom SyncJob actions
@@ -243,8 +244,7 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         UserTO template = new UserTO();
-        template.addAttribute(attributeTO("type",
-                "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
+        template.addAttribute(attributeTO("type", "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
         template.addDerivedAttribute(attributeTO("cn", null));
         template.addResource("resource-testdb");
 
@@ -260,7 +260,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(task.getId(), actual.getId());
         assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
 
-        execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, false);
+        execSyncTask(SYNC_TASK_ID, 50, false);
 
         // after execution of the sync task the user data should be synced from
         // csv datasource and processed by user template
@@ -309,7 +309,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileUsers() {
         // Update sync task
-        SyncTaskTO task = taskService.read(7L, SyncTaskTO.class);
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 7L);
         assertNotNull(task);
 
         //  add user template
@@ -327,7 +327,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(template, actual.getUserTemplate());
         assertEquals(new RoleTO(), actual.getRoleTemplate());
 
-        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
+        TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
 
         final String status = execution.getStatus();
         assertNotNull(status);
@@ -335,14 +335,13 @@ public class TaskTestITCase extends AbstractTest {
 
         final UserTO userTO = userService.read("testuser1");
         assertNotNull(userTO);
-        assertEquals("reconciled@syncope.apache.org",
-                userTO.getAttributeMap().get("userId").getValues().get(0));
+        assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
     }
 
     @Test
     public void reconcileRoles() {
         // Update sync task
-        SyncTaskTO task = taskService.read(11L, SyncTaskTO.class);
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 11L);
         assertNotNull(task);
 
         //  add user template
@@ -358,7 +357,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(template, actual.getRoleTemplate());
         assertEquals(new UserTO(), actual.getUserTemplate());
 
-        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 20, false);
+        TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
 
         // 1. verify execution status
         final String status = execution.getStatus();
@@ -397,15 +396,14 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void dryRun() {
-        TaskExecTO execution = execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, true);
-        assertEquals(
-                "Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
+        TaskExecTO execution = execSyncTask(SYNC_TASK_ID, 50, true);
+        assertEquals("Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
     }
 
     @Test
     public void issueSYNCOPE81() {
-        NotificationTaskTO taskTO = taskService.read(8L, NotificationTaskTO.class);
+        NotificationTaskTO taskTO = taskService.read(TaskType.NOTIFICATION, 8L);
         assertNotNull(taskTO);
 
         int executions = taskTO.getExecutions().size();
@@ -426,7 +424,7 @@ public class TaskTestITCase extends AbstractTest {
                 } catch (InterruptedException e) {
                 }
 
-                taskTO = taskService.read(taskTO.getId(), NotificationTaskTO.class);
+                taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
 
                 assertNotNull(taskTO);
                 assertNotNull(taskTO.getExecutions());
@@ -437,7 +435,7 @@ public class TaskTestITCase extends AbstractTest {
             assertFalse(taskTO.getExecutions().isEmpty());
         }
 
-        taskTO = taskService.delete(taskTO.getId(), NotificationTaskTO.class);
+        taskTO = taskService.delete(TaskType.NOTIFICATION, taskTO.getId());
         assertNotNull(taskTO);
     }
 
@@ -479,7 +477,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 3. get NotificationTaskTO for user just created
-        List<NotificationTaskTO> tasks = taskService.list("notification", NotificationTaskTO[].class);
+        List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -497,7 +495,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(execution);
 
         // 5. verify
-        taskTO = taskService.read(taskTO.getId(), NotificationTaskTO.class);
+        taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
     }
@@ -547,7 +545,7 @@ public class TaskTestITCase extends AbstractTest {
         //-----------------------------
 
         // Update sync task
-        SyncTaskTO task = taskService.read(9L, SyncTaskTO.class);
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 9L);
         assertNotNull(task);
 
         task.setUserTemplate(template);
@@ -558,15 +556,14 @@ public class TaskTestITCase extends AbstractTest {
         assertFalse(actual.getUserTemplate().getResources().isEmpty());
         assertFalse(actual.getUserTemplate().getMemberships().isEmpty());
 
-        TaskExecTO execution = execTask(SyncTaskTO.class, actual.getId(), 50, false);
+        TaskExecTO execution = execSyncTask(actual.getId(), 50, false);
         final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         userTO = userService.read("testuser2");
         assertNotNull(userTO);
-        assertEquals("testuser2@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues()
-                .get(0));
+        assertEquals("testuser2@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertEquals(2, userTO.getMemberships().size());
         assertEquals(4, userTO.getResources().size());
     }
@@ -583,7 +580,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
 
-        task = taskService.read(actual.getId(), SchedTaskTO.class);
+        task = taskService.read(TaskType.SCHEDULED, actual.getId());
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -600,7 +597,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE230() {
         // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
-        execTask(SyncTaskTO.class, 10L, 20, false);
+        execSyncTask(10L, 20, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
         UserTO userTO = userService.read("issuesyncope230");
@@ -613,7 +610,7 @@ public class TaskTestITCase extends AbstractTest {
         jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the SyncTask
-        execTask(SyncTaskTO.class, 10L, 20, false);
+        execSyncTask(10L, 20, false);
 
         // 6. verify that the e-mail was updated
         userTO = userService.read("issuesyncope230");
@@ -623,10 +620,10 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("updatedSYNCOPE230@syncope.apache.org", email);
     }
 
-    private TaskExecTO execTask(final Class<? extends TaskTO> taskClass, final Long taskId,
-            final int maxWaitSeconds, final boolean dryRun) {
+    private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds,
+            final boolean dryRun) {
 
-        TaskTO taskTO = taskService.read(taskId, taskClass);
+        TaskTO taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskId);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -644,7 +641,7 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(taskTO.getId(), taskClass);
+            taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskTO.getId());
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
@@ -677,7 +674,7 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
 
         // Update sync task
-        SyncTaskTO task = taskService.read(SYNC_TASK_ID, SyncTaskTO.class);
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
         assertNotNull(task);
 
         // add user template
@@ -699,7 +696,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
 
-        TaskExecTO taskExecTO = execTask(SyncTaskTO.class, SYNC_TASK_ID, 50, false);
+        TaskExecTO taskExecTO = execSyncTask(SYNC_TASK_ID, 50, false);
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
 

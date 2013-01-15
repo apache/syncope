@@ -25,32 +25,31 @@ import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.services.ReportService;
 import org.apache.syncope.types.ReportExecExportFormat;
-import org.springframework.web.client.RestTemplate;
 
 public class ReportServiceProxy extends SpringServiceProxy implements ReportService {
 
-    public ReportServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public ReportServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
     public ReportTO create(ReportTO reportTO) {
-        return restTemplate.postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
+        return getRestTemplate().postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
     }
 
     @Override
     public ReportTO update(Long reportId, ReportTO reportTO) {
-        return restTemplate.postForObject(baseUrl + "report/update", reportTO, ReportTO.class);
+        return getRestTemplate().postForObject(baseUrl + "report/update", reportTO, ReportTO.class);
     }
 
     @Override
     public int count() {
-        return restTemplate.getForObject(baseUrl + "report/count.json", Integer.class);
+        return getRestTemplate().getForObject(baseUrl + "report/count.json", Integer.class);
     }
 
     @Override
     public List<ReportTO> list() {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "report/list", ReportTO[].class));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/list", ReportTO[].class));
     }
 
     @Override
@@ -61,24 +60,24 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public List<ReportExecTO> listExecutions() {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "report/execution/list",
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/execution/list",
                 ReportExecTO[].class));
     }
 
     @Override
     public List<String> getReportletConfClasses() {
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "report/reportletConfClasses.json",
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/reportletConfClasses.json",
                 String[].class));
     }
 
     @Override
     public ReportTO read(Long reportId) {
-        return restTemplate.getForObject(baseUrl + "report/read/{reportId}", ReportTO.class, reportId);
+        return getRestTemplate().getForObject(baseUrl + "report/read/{reportId}", ReportTO.class, reportId);
     }
 
     @Override
     public ReportExecTO readExecution(Long executionId) {
-        return restTemplate.getForObject(baseUrl + "report/execution/read/{reportId}",
+        return getRestTemplate().getForObject(baseUrl + "report/execution/read/{reportId}",
                 ReportExecTO.class, executionId);
     }
 
@@ -90,13 +89,13 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public ReportExecTO execute(Long reportId) {
-        return restTemplate.postForObject(baseUrl + "report/execute/{reportId}", null,
+        return getRestTemplate().postForObject(baseUrl + "report/execute/{reportId}", null,
                 ReportExecTO.class, reportId);
     }
 
     @Override
     public ReportTO delete(Long reportId) {
-        return restTemplate.getForObject(baseUrl + "report/delete/{reportId}",
+        return getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}",
                 ReportTO.class, reportId);
     }
 

@@ -32,20 +32,21 @@ import javax.ws.rs.QueryParam;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.types.TaskType;
 
 @Path("tasks")
 public interface TaskService {
 
     @GET
-    @Path("{kind}/count")
-    int count(@PathParam("kind") String kind);
+    @Path("{type}/count")
+    int count(@PathParam("type") TaskType taskType);
 
     @POST
     <T extends TaskTO> T create(T taskTO);
 
     @DELETE
-    @Path("{taskId}")
-    <T extends TaskTO> T delete(@PathParam("taskId") Long taskId, Class<T> type);
+    @Path("{type}/{taskId}")
+    <T extends TaskTO> T delete(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
 
     @DELETE
     @Path("executions/{executionId}")
@@ -65,21 +66,21 @@ public interface TaskService {
     Set<String> getSyncActionsClasses();
 
     @GET
-    @Path("{kind}")
-    <T extends TaskTO> List<T> list(@PathParam("kind") String kind, Class<T[]> type);
+    @Path("{type}")
+    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType);
 
     @GET
-    @Path("{kind}")
-    <T extends TaskTO> List<T> list(@PathParam("kind") String kind, @QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size, Class<T[]> type);
+    @Path("{type}")
+    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
+            @QueryParam("size") @DefaultValue("25") int size);
 
     @GET
-    @Path("{kind}/executions")
-    List<TaskExecTO> listExecutions(@PathParam("kind") String kind);
+    @Path("{type}/executions")
+    List<TaskExecTO> listExecutions(@PathParam("type") TaskType taskType);
 
     @GET
-    @Path("{taskId}")
-    <T extends TaskTO> T read(@PathParam("taskId") Long taskId, Class<T> type);
+    @Path("{type}/{taskId}")
+    <T extends TaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
 
     @GET
     @Path("executions/{executionId}")

@@ -37,6 +37,10 @@ public interface RoleService {
     @Path("{roleId}/children")
     List<RoleTO> children(@PathParam("roleId") Long roleId);
 
+    @GET
+    @Path("count")
+    Integer count();
+
     @POST
     RoleTO create(RoleTO roleTO);
 
@@ -46,6 +50,9 @@ public interface RoleService {
 
     @GET
     List<RoleTO> list();
+
+    @GET
+    List<RoleTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     @GET
     @Path("{roleId}/parent")
@@ -61,8 +68,7 @@ public interface RoleService {
 
     @POST
     @Path("search")
-    List<RoleTO> search(NodeCond searchCondition,
-            @QueryParam("page") int page,
+    List<RoleTO> search(NodeCond searchCondition, @QueryParam("page") int page,
             @QueryParam("size") @DefaultValue("25") int size);
 
     @POST

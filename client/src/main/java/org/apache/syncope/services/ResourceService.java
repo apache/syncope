@@ -55,6 +55,9 @@ public interface ResourceService {
     Set<String> getPropagationActionsClasses();
 
     @GET
+    List<ResourceTO> list();
+
+    @GET
     List<ResourceTO> list(@MatrixParam("connInstanceId") Long connInstanceId);
 
     @GET

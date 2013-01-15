@@ -25,29 +25,28 @@ import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.services.ConnectorService;
 import org.apache.syncope.types.ConnConfProperty;
-import org.springframework.web.client.RestTemplate;
 
 public class ConnectorServiceProxy extends SpringServiceProxy implements ConnectorService {
 
-    public ConnectorServiceProxy(String baseUrl, RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
+    public ConnectorServiceProxy(String baseUrl, SpringRestTemplate callback) {
+        super(baseUrl, callback);
     }
 
     @Override
     public ConnInstanceTO create(ConnInstanceTO connectorTO) {
-        return restTemplate.postForObject(baseUrl + "connector/create.json", connectorTO,
+        return getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
                 ConnInstanceTO.class);
     }
 
     @Override
     public ConnInstanceTO update(Long connectorId, ConnInstanceTO connectorTO) {
-        return restTemplate.postForObject(baseUrl + "connector/update.json", connectorTO,
+        return getRestTemplate().postForObject(baseUrl + "connector/update.json", connectorTO,
                 ConnInstanceTO.class);
     }
 
     @Override
     public ConnInstanceTO delete(Long connectorId) {
-        return restTemplate.getForObject(baseUrl + "connector/delete/{connectorId}.json",
+        return getRestTemplate().getForObject(baseUrl + "connector/delete/{connectorId}.json",
                 ConnInstanceTO.class, connectorId);
     }
 
@@ -57,13 +56,13 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
                 ? "?lang=" + lang
                 : "";
 
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "connector/list.json" + param,
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "connector/list.json" + param,
                 ConnInstanceTO[].class));
     }
 
     @Override
     public ConnInstanceTO read(Long connectorId) {
-        return restTemplate.getForObject(baseUrl + "connector/read/{connectorId}", ConnInstanceTO.class,
+        return getRestTemplate().getForObject(baseUrl + "connector/read/{connectorId}", ConnInstanceTO.class,
                 connectorId);
     }
 
@@ -73,7 +72,7 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
                 ? "?lang=" + lang
                 : "";
 
-        return Arrays.asList(restTemplate.getForObject(baseUrl + "connector/bundle/list.json" + param,
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "connector/bundle/list.json" + param,
                 ConnBundleTO[].class));
     }
 
@@ -83,25 +82,25 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
                 ? "?showall=true"
                 : "?showall=false";
 
-        return Arrays.asList(restTemplate.postForObject(baseUrl + "connector/schema/list" + param, connectorTO,
+        return Arrays.asList(getRestTemplate().postForObject(baseUrl + "connector/schema/list" + param, connectorTO,
                 String[].class));
     }
 
     @Override
     public List<ConnConfProperty> getConfigurationProperties(Long connectorId) {
-        return Arrays.asList(restTemplate
+        return Arrays.asList(getRestTemplate()
                 .getForObject(baseUrl + "connector/{connectorId}/configurationProperty/list",
                         ConnConfProperty[].class, connectorId));
     }
 
     @Override
     public boolean validate(ConnInstanceTO connectorTO) {
-        return restTemplate.postForObject(baseUrl + "connector/check.json", connectorTO, Boolean.class);
+        return getRestTemplate().postForObject(baseUrl + "connector/check.json", connectorTO, Boolean.class);
     }
 
     @Override
     public ConnInstanceTO readConnectorBean(String resourceName) {
-        return restTemplate.getForObject(baseUrl + "connector/{resourceName}/connectorBean",
+        return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/connectorBean",
                 ConnInstanceTO.class, resourceName);
     }
 

@@ -19,26 +19,29 @@
 package org.apache.syncope.services;
 
 import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+
 import org.apache.syncope.client.to.AbstractSchemaTO;
+import org.apache.syncope.types.AttributableType;
 
 @Path("schemas/{kind}/{type}")
 public interface SchemaService {
 
-    enum SchemaKind {
+    enum SchemaType {
 
         NORMAL("schema"),
         DERIVED("derivedSchema"),
         VIRTUAL("virtualSchema");
 
-        private String name;
+        private final String name;
 
-        private SchemaKind(String name) {
+        private SchemaType(String name) {
             this.name = name;
         }
 
@@ -49,30 +52,30 @@ public interface SchemaService {
     }
 
     @POST
-    <T extends AbstractSchemaTO> T create(@PathParam("kind") String kind,
-            @PathParam("type") SchemaKind type,
+    <T extends AbstractSchemaTO> T create(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type,
             T schemaTO);
 
     @DELETE
     @Path("{name}")
-    <T extends AbstractSchemaTO> T delete(@PathParam("kind") String kind,
-            @PathParam("type") SchemaKind type,
+    <T extends AbstractSchemaTO> T delete(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
     @GET
-    <T extends AbstractSchemaTO> List<T> list(@PathParam("kind") String kind,
-            @PathParam("type") SchemaKind type);
+    <T extends AbstractSchemaTO> List<T> list(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type);
 
     @GET
     @Path("{name}")
-    <T extends AbstractSchemaTO> T read(@PathParam("kind") String kind,
-            @PathParam("type") SchemaKind type,
+    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
     @PUT
     @Path("{name}")
-    <T extends AbstractSchemaTO> T update(@PathParam("kind") String kind,
-            @PathParam("type") SchemaKind type,
+    <T extends AbstractSchemaTO> T update(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName,
             T schemaTO);
 }
