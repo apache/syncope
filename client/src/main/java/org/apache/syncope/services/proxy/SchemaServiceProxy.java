@@ -63,19 +63,6 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
         }
     }
 
-    private Class<? extends AbstractSchemaTO> getTOClass(SchemaType type) {
-        switch (type) {
-        case NORMAL:
-            return SchemaTO.class;
-        case DERIVED:
-            return DerivedSchemaTO.class;
-        case VIRTUAL:
-            return VirtualSchemaTO.class;
-        default:
-            throw new IllegalArgumentException("SchemaType is not supported.");
-        }
-    }
-
     @Override
     public <T extends AbstractSchemaTO> T read(AttributableType kind, SchemaType type, String schemaName) {
         return (T) getRestTemplate().getForObject(baseUrl + type + "/{kind}/read/{name}.json", getTOClass(type), kind,
@@ -86,4 +73,18 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     public <T extends AbstractSchemaTO> T update(AttributableType kind, SchemaType type, String schemaName, T schemaTO) {
         return (T) getRestTemplate().postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
     }
+
+    private Class<? extends AbstractSchemaTO> getTOClass(SchemaType type) {
+        switch (type) {
+        case NORMAL:
+            return SchemaTO.class;
+        case DERIVED:
+            return DerivedSchemaTO.class;
+        case VIRTUAL:
+            return VirtualSchemaTO.class;
+        default:
+            throw new IllegalArgumentException("SchemaType is not supported: " + type);
+        }
+    }
+
 }

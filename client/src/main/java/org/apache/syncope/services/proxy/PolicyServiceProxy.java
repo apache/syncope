@@ -48,22 +48,6 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
         return result;
     }
 
-    private Class<? extends PolicyTO> getTOClass(PolicyType type) {
-        switch (type) {
-        case ACCOUNT:
-        case GLOBAL_ACCOUNT:
-            return AccountPolicyTO.class;
-        case PASSWORD:
-        case GLOBAL_PASSWORD:
-            return PasswordPolicyTO.class;
-        case SYNC:
-        case GLOBAL_SYNC:
-            return SyncPolicyTO.class;
-        default:
-            throw new IllegalArgumentException("Policy Type not supported");
-        }
-    }
-
     @Override
     public <T extends PolicyTO> List<T> listByType(PolicyType type) {
         @SuppressWarnings("unchecked")
@@ -103,4 +87,21 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
                 typeToUrl(policyTO.getType()));
         return result;
     }
+
+    private Class<? extends PolicyTO> getTOClass(PolicyType type) {
+        switch (type) {
+        case ACCOUNT:
+        case GLOBAL_ACCOUNT:
+            return AccountPolicyTO.class;
+        case PASSWORD:
+        case GLOBAL_PASSWORD:
+            return PasswordPolicyTO.class;
+        case SYNC:
+        case GLOBAL_SYNC:
+            return SyncPolicyTO.class;
+        default:
+            throw new IllegalArgumentException("Policy Type not supported: " + type);
+        }
+    }
+
 }

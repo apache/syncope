@@ -107,21 +107,6 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         }
     }
 
-    private Class<? extends TaskTO> getTOClass(TaskType type) {
-        switch (type) {
-        case PROPAGATION:
-            return PropagationTaskTO.class;
-        case NOTIFICATION:
-            return NotificationTaskTO.class;
-        case SCHEDULED:
-            return SchedTaskTO.class;
-        case SYNCHRONIZATION:
-            return SyncTaskTO.class;
-        default:
-            throw new IllegalArgumentException("SchemaType is not supported.");
-        }
-    }
-
     @Override
     public <T extends TaskTO> List<T> list(TaskType type, int page, int size) {
         switch (type) {
@@ -175,6 +160,21 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
             throw new IllegalArgumentException("Task can only be instance of SchedTaskTO or SyncTaskTO");
 
         return (T) getRestTemplate().postForObject(baseUrl + "task/update/" + path, taskTO, taskTO.getClass());
+    }
+
+    private Class<? extends TaskTO> getTOClass(TaskType type) {
+        switch (type) {
+        case PROPAGATION:
+            return PropagationTaskTO.class;
+        case NOTIFICATION:
+            return NotificationTaskTO.class;
+        case SCHEDULED:
+            return SchedTaskTO.class;
+        case SYNCHRONIZATION:
+            return SyncTaskTO.class;
+        default:
+            throw new IllegalArgumentException("SchemaType is not supported: " + type);
+        }
     }
 
 }
