@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -227,6 +227,16 @@ under the License.
         <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~jbernhardt/</url>
+    </developer>
+    <developer>
+      <id>ashakirin</id>
+      <name>Andrei Shakirin</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~ashakirin/</url>
     </developer>
   </developers>
 
