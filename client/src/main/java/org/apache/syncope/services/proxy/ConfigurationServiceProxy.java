@@ -26,11 +26,12 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.services.ConfigurationService;
+import org.springframework.web.client.RestTemplate;
 
 public class ConfigurationServiceProxy extends SpringServiceProxy implements ConfigurationService {
 
-    public ConfigurationServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public ConfigurationServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

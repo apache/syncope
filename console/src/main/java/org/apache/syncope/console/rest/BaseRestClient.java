@@ -19,11 +19,12 @@
 package org.apache.syncope.console.rest;
 
 import java.io.Serializable;
+
+import org.apache.syncope.console.SyncopeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class BaseRestClient implements Serializable {
+public abstract class BaseRestClient implements Serializable {
 
     /**
      * Logger.
@@ -32,10 +33,7 @@ public class BaseRestClient implements Serializable {
 
     private static final long serialVersionUID = 1523999867826481989L;
 
-    @Autowired
-    protected String baseURL;
-
-    protected BaseRestClient() {
-        // Empty, only to prevent direct instantiation
+    protected <T> T getService(Class<T> serviceClass) {
+        return SyncopeSession.get().getService(serviceClass);
     }
 }

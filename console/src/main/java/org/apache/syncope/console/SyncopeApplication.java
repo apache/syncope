@@ -170,7 +170,6 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
 
     @Override
     public boolean hasAnyRole(final org.apache.wicket.authroles.authorization.strategies.role.Roles roles) {
-
         return SyncopeSession.get().hasAnyRole(roles);
     }
 }

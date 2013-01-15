@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.syncope.client.to.NotificationTaskTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
 import org.apache.syncope.client.to.SchedTaskTO;
@@ -28,7 +29,8 @@ import org.apache.syncope.client.to.SyncTaskTO;
 import org.apache.syncope.client.to.TaskExecTO;
 import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.TaskService;
+import org.apache.syncope.types.TaskType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,6 +38,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TaskRestClient extends BaseRestClient implements ExecutionRestClient {
+
+    private static final long serialVersionUID = 6284485820911028843L;
 
     /**
      * Return a list of job classes.
@@ -46,8 +50,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         List<String> jobClasses = null;
 
         try {
-            jobClasses = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/jobClasses.json", String[].class));
+            jobClasses = new ArrayList<String>(getService(TaskService.class).getJobClasses());
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job classes", e);
         }
@@ -58,8 +61,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         List<String> actions = null;
 
         try {
-            actions = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/syncActionsClasses.json", String[].class));
+            actions = new ArrayList<String>(getService(TaskService.class).getSyncActionsClasses());
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all sync actions classes", e);
         }
@@ -73,8 +75,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @return number of stored tasks.
      */
     public Integer count(final String kind) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/{kind}/count.json", Integer.class, kind);
+        return getService(TaskService.class).count(TaskType.fromString(kind));
     }
 
     /**
@@ -86,42 +87,34 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
         List<T> result = Collections.emptyList();
+        result = getService(TaskService.class).list(getTaskType(reference), page, size);
+        return result;
+    }
 
-        if (PropagationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/propagation/list/{page}/{size}.json", PropagationTaskTO[].class, page, size));
-        } else if (NotificationTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/notification/list/{page}/{size}.json", NotificationTaskTO[].class, page, size));
-        } else if (SchedTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/sched/list/{page}/{size}.json", SchedTaskTO[].class, page, size));
-        } else if (SyncTaskTO.class == reference) {
-            result = (List<T>) Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/sync/list/{page}/{size}.json", SyncTaskTO[].class, page, size));
+    private TaskType getTaskType(Class<?> reference) {
+        TaskType result = null;
+        if (PropagationTaskTO.class.equals(reference)) {
+            result = TaskType.PROPAGATION;
+        } else if (NotificationTaskTO.class.equals(reference)) {
+            result = TaskType.NOTIFICATION;
+        } else if (SchedTaskTO.class.equals(reference)) {
+            result = TaskType.SCHEDULED;
+        } else if (SyncTaskTO.class.equals(reference)) {
+            result = TaskType.SYNCHRONIZATION;
         }
-
         return result;
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/read/{taskId}", PropagationTaskTO.class, taskId);
+        return getService(TaskService.class).read(TaskType.PROPAGATION, taskId);
     }
 
     public NotificationTaskTO readNotificationTask(final Long taskId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/read/{taskId}", NotificationTaskTO.class, taskId);
+        return getService(TaskService.class).read(TaskType.NOTIFICATION, taskId);
     }
 
     public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
-        if (SyncTaskTO.class.getName().equals(reference.getName())) {
-            return (T) SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/read/{taskId}", SyncTaskTO.class, taskId);
-        } else {
-            return (T) SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "task/read/{taskId}", SchedTaskTO.class, taskId);
-        }
+            return getService(TaskService.class).read(getTaskType(reference), taskId);
     }
 
     /**
@@ -131,8 +124,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     @Override
     public List<TaskExecTO> listExecutions() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/execution/list", TaskExecTO[].class));
+        throw new UnsupportedOperationException("You need to specify type of executed tasks to be listed");
+//        return getService(TaskService.class).listExecutions();
+//                Arrays.asList(SyncopeSession.get().getRestTemplate()
+//                .getForObject(baseURL + "task/execution/list", TaskExecTO[].class)); FIXME interface?
     }
 
     /**
@@ -141,8 +136,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param taskId task to delete
      */
     public TaskTO delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/delete/{taskId}", taskToClass, taskId);
+        return getService(TaskService.class).delete(getTaskType(taskToClass), taskId);
     }
 
     @Override
@@ -156,8 +150,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param taskId task id
      */
     public void startExecution(final Long taskId, boolean dryRun) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "task/execute/{taskId}?dryRun={dryRun}", null, TaskExecTO.class, taskId, dryRun);
+        getService(TaskService.class).execute(taskId, dryRun);
     }
 
     /**
@@ -167,27 +160,22 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     @Override
     public void deleteExecution(final Long taskExecId) {
-        SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "task/execution/delete/{execId}", TaskExecTO.class, taskExecId);
+        getService(TaskService.class).deleteExecution(taskExecId);
     }
 
     public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "task/create/sync", taskTO, SyncTaskTO.class);
+        return getService(TaskService.class).create(taskTO);
     }
 
     public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "task/create/sched", taskTO, SchedTaskTO.class);
+        return getService(TaskService.class).create(taskTO);
     }
 
     public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "task/update/sched", taskTO, SchedTaskTO.class);
+        return getService(TaskService.class).update(taskTO.getId(), taskTO);
     }
 
     public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "task/update/sync", taskTO, SyncTaskTO.class);
+        return getService(TaskService.class).update(taskTO.getId(), taskTO);
     }
 }

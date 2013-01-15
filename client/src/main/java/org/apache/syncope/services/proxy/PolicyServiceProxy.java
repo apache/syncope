@@ -27,11 +27,12 @@ import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.SyncPolicyTO;
 import org.apache.syncope.services.PolicyService;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.web.client.RestTemplate;
 
 public class PolicyServiceProxy extends SpringServiceProxy implements PolicyService {
 
-    public PolicyServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public PolicyServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

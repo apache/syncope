@@ -18,39 +18,36 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.UserRequestService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserRequestRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = 171408947099311191L;
+
     public List<UserRequestTO> list() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "user/request/list", UserRequestTO[].class));
+        return getService(UserRequestService.class).list();
     }
 
     public UserRequestTO delete(final Long requestId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
+        return getService(UserRequestService.class).delete(requestId);
     }
 
     public UserRequestTO requestCreate(final UserTO userTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/request/create", userTO, UserRequestTO.class);
+        return getService(UserRequestService.class).create(userTO);
     }
 
     public UserRequestTO requestUpdate(final UserMod userMod) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/request/update", userMod, UserRequestTO.class);
+        return getService(UserRequestService.class).update(userMod);
     }
 
     public UserRequestTO requestDelete(final Long userId) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/request/delete/", userId, UserRequestTO.class);
+        return getService(UserRequestService.class).delete(userId);
     }
 }

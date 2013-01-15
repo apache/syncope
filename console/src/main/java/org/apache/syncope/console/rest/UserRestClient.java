@@ -18,15 +18,19 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.List;
+
+import org.apache.syncope.client.mod.StatusMod;
+import org.apache.syncope.client.mod.StatusMod.Status;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.services.ResourceService;
+import org.apache.syncope.services.UserService;
+import org.apache.syncope.types.AttributableType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,9 +39,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserRestClient extends AbstractAttributableRestClient {
 
+    private static final long serialVersionUID = -1575748964398293968L;
+
     @Override
     public Integer count() {
-        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/count.json", Integer.class);
+        return getService(UserService.class).count();
     }
 
     /**
@@ -49,32 +55,26 @@ public class UserRestClient extends AbstractAttributableRestClient {
      */
     @Override
     public List<UserTO> list(final int page, final int size) {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "user/list/{page}/{size}.json", UserTO[].class, page, size));
+        return getService(UserService.class).list(page, size);
     }
 
-    public UserTO create(final UserTO userTO)
-            throws SyncopeClientCompositeErrorException {
-
-        return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/create", userTO, UserTO.class);
+    public UserTO create(final UserTO userTO) throws SyncopeClientCompositeErrorException {
+        return getService(UserService.class).create(userTO);
     }
 
-    public UserTO update(UserMod userModTO)
-            throws SyncopeClientCompositeErrorException {
-
-        return SyncopeSession.get().getRestTemplate().postForObject(baseURL + "user/update", userModTO, UserTO.class);
+    public UserTO update(UserMod userModTO) throws SyncopeClientCompositeErrorException {
+        return getService(UserService.class).update(userModTO.getId(), userModTO);
     }
 
     @Override
     public UserTO delete(final Long id) {
-        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/delete/{userId}", UserTO.class, id);
+        return getService(UserService.class).delete(id);
     }
 
     public UserTO read(final Long id) {
         UserTO userTO = null;
         try {
-            userTO = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "user/read/{userId}.json", UserTO.class, id);
+            userTO = getService(UserService.class).read(id);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a user", e);
         }
@@ -84,8 +84,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
     public UserTO read(final String username) {
         UserTO userTO = null;
         try {
-            userTO = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "user/readByUsername/{username}.json", UserTO.class, username);
+            userTO = getService(UserService.class).read(username);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a user", e);
         }
@@ -93,71 +92,60 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public UserTO readProfile() {
-        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "user/read/self", UserTO.class);
+        return getService(UserService.class).readSelf();
     }
 
     @Override
     public Integer searchCount(final NodeCond searchCond) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/search/count.json", searchCond, Integer.class);
+        return getService(UserService.class).searchCount(searchCond);
     }
 
     @Override
     public List<UserTO> search(final NodeCond searchCond, final int page, final int size)
             throws SyncopeClientCompositeErrorException {
-
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/search/{page}/{size}", searchCond, UserTO[].class, page, size));
+        return getService(UserService.class).search(searchCond, page, size);
     }
 
     @Override
     public ConnObjectTO getRemoteObject(final String resourceName, final String objectId)
             throws SyncopeClientCompositeErrorException {
-
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "/resource/{resourceName}/read/USER/{objectId}.json",
-                ConnObjectTO.class, resourceName, objectId);
+        return getService(ResourceService.class).getConnector(resourceName, AttributableType.USER, objectId);
     }
 
-    public UserTO reactivate(long userId, List<StatusBean> statuses)
-            throws SyncopeClientCompositeErrorException {
-
+    public UserTO reactivate(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
         return enable(userId, statuses, true);
     }
 
-    public UserTO suspend(long userId, List<StatusBean> statuses)
-            throws SyncopeClientCompositeErrorException {
-
+    public UserTO suspend(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
         return enable(userId, statuses, false);
     }
 
     private UserTO enable(final long userId, final List<StatusBean> statuses, final boolean enable)
             throws SyncopeClientCompositeErrorException {
 
-        final StringBuilder query = new StringBuilder();
+        StatusMod statusMod = new StatusMod();
+        statusMod.setId(userId);
 
-        query.append(baseURL).append("user/").append(enable
-                ? "reactivate/"
-                : "suspend/").append(userId).append("?").
-                // perform on resource if and only if resources have been speciofied
-                append("performRemotely=").append(!statuses.isEmpty()).append("&");
+        statusMod.setStatus(enable
+                ? Status.REACTIVATE
+                : Status.SUSPEND);
 
-        boolean performLocal = false;
+        // perform on resource if and only if resources have been speciofied
+        statusMod.setUpdateRemote(!statuses.isEmpty());
+
+        // perform on syncope if and only if it has been requested
+        statusMod.setUpdateInternal(false);
 
         for (StatusBean status : statuses) {
             if ((enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
-
                 if ("Syncope".equals(status.getResourceName())) {
-                    performLocal = true;
+                    statusMod.setUpdateInternal(true);
                 } else {
-                    query.append("resourceNames=").append(status.getResourceName()).append("&");
+                    statusMod.getExcludeResources().add(status.getResourceName());
                 }
             }
         }
 
-        // perform on syncope if and only if it has been requested
-        query.append("performLocally=").append(performLocal);
-
-        return SyncopeSession.get().getRestTemplate().getForObject(query.toString(), UserTO.class);
+        return getService(UserService.class).setStatus(userId, statusMod);
     }
 }

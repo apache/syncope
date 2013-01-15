@@ -18,31 +18,31 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.stereotype.Component;
+
 import org.apache.syncope.client.to.LoggerTO;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.LoggerService;
 import org.apache.syncope.types.AuditElements;
 import org.apache.syncope.types.AuditElements.Category;
 import org.apache.syncope.types.AuditLoggerName;
 import org.apache.syncope.types.SyncopeLoggerLevel;
+import org.springframework.stereotype.Component;
 
 @Component
 public class LoggerRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = 4579786978763032240L;
+
     public List<LoggerTO> listLogs() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "logger/log/list", LoggerTO[].class));
+        return getService(LoggerService.class).listLogs();
     }
 
     public List<AuditLoggerName> listAudits() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "logger/audit/list", AuditLoggerName[].class));
+        return getService(LoggerService.class).listAudits();
     }
 
     public Map<AuditElements.Category, Set<AuditLoggerName>> listAuditsByCategory() {
@@ -59,22 +59,18 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public void setLogLevel(final String name, final SyncopeLoggerLevel level) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "logger/log/{name}/{level}", null, LoggerTO.class, name, level);
+        getService(LoggerService.class).update(name, level.getLevel());
     }
 
     public void enableAudit(final AuditLoggerName auditLoggerName) {
-        SyncopeSession.get().getRestTemplate().put(
-                baseURL + "logger/audit/enable", auditLoggerName);
+        getService(LoggerService.class).enableAudit(auditLoggerName);
     }
 
     public LoggerTO deleteLog(final String name) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "logger/log/delete/{name}", LoggerTO.class, name);
+        return getService(LoggerService.class).delete(name);
     }
 
     public void disableAudit(final AuditLoggerName auditLoggerName) {
-        SyncopeSession.get().getRestTemplate().put(
-                baseURL + "logger/audit/disable", auditLoggerName);
+        getService(LoggerService.class).disableAudit(auditLoggerName);
     }
 }

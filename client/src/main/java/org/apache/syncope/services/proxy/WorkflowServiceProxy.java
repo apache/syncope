@@ -23,11 +23,12 @@ import java.util.List;
 
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.services.WorkflowService;
+import org.springframework.web.client.RestTemplate;
 
 public class WorkflowServiceProxy extends SpringServiceProxy implements WorkflowService {
 
-    public WorkflowServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public WorkflowServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

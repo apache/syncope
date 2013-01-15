@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.console.SyncopeSession;
+
+import org.apache.syncope.services.EntitlementService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,8 +38,7 @@ public class AuthRestClient extends BaseRestClient {
      * @return List<String>
      */
     public List<String> getAllEntitlements() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "auth/allentitlements.json", String[].class));
+        return new ArrayList<String>(getService(EntitlementService.class).getAllEntitlements());
     }
 
     /**
@@ -47,7 +47,6 @@ public class AuthRestClient extends BaseRestClient {
      * @return List<String>
      */
     public List<String> getOwnedEntitlements() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "auth/entitlements.json", String[].class));
+        return new ArrayList<String>(getService(EntitlementService.class).getMyEntitlements());
     }
 }

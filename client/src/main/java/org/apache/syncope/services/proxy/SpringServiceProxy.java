@@ -24,14 +24,19 @@ public abstract class SpringServiceProxy {
 
 	protected String baseUrl;
 
-	private final SpringRestTemplate callback;
+	private RestTemplate restTemplate;
 
-	public SpringServiceProxy(String baseUrl, SpringRestTemplate callback) {
+	public SpringServiceProxy(String baseUrl, RestTemplate restTemplate) {
 		this.baseUrl = baseUrl;
-		this.callback = callback;
+		this.restTemplate = restTemplate;
 	}
 
+	public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public RestTemplate getRestTemplate() {
-        return callback.getRestTemplate();
+        //return callback.getRestTemplate();
+        return restTemplate;
     }
 }

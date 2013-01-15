@@ -28,11 +28,12 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.services.ResourceService;
 import org.apache.syncope.types.AttributableType;
+import org.springframework.web.client.RestTemplate;
 
 public class ResourceServiceProxy extends SpringServiceProxy implements ResourceService {
 
-    public ResourceServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public ResourceServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

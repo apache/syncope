@@ -27,12 +27,13 @@ import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.to.VirtualSchemaTO;
 import org.apache.syncope.services.SchemaService;
 import org.apache.syncope.types.AttributableType;
+import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
 public class SchemaServiceProxy extends SpringServiceProxy implements SchemaService {
 
-    public SchemaServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public SchemaServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

@@ -27,11 +27,12 @@ import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.services.UserService;
+import org.springframework.web.client.RestTemplate;
 
 public class UserServiceProxy extends SpringServiceProxy implements UserService {
 
-    public UserServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public UserServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

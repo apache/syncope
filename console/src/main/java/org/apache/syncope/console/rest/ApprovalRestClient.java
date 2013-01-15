@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.to.UserTO;
+
 import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.UserService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,18 +30,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApprovalRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = -4785231164900813921L;
+
     public List<WorkflowFormTO> getForms() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "user/workflow/form/list", WorkflowFormTO[].class));
+        return getService(UserService.class).getForms();
     }
 
     public WorkflowFormTO claimForm(final String taskId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "user/workflow/form/claim/{taskId}", WorkflowFormTO.class, taskId);
+        return getService(UserService.class).claimForm(taskId);
     }
 
     public void submitForm(final WorkflowFormTO form) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "user/workflow/form/submit", form, UserTO.class);
+        getService(UserService.class).submitForm(form);
     }
 }

@@ -25,11 +25,12 @@ import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.services.ReportService;
 import org.apache.syncope.types.ReportExecExportFormat;
+import org.springframework.web.client.RestTemplate;
 
 public class ReportServiceProxy extends SpringServiceProxy implements ReportService {
 
-    public ReportServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public ReportServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

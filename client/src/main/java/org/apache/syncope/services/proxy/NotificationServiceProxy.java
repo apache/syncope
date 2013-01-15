@@ -23,11 +23,12 @@ import java.util.List;
 
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.services.NotificationService;
+import org.springframework.web.client.RestTemplate;
 
 public class NotificationServiceProxy extends SpringServiceProxy implements NotificationService {
 
-    public NotificationServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public NotificationServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

@@ -25,11 +25,12 @@ import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.services.ConnectorService;
 import org.apache.syncope.types.ConnConfProperty;
+import org.springframework.web.client.RestTemplate;
 
 public class ConnectorServiceProxy extends SpringServiceProxy implements ConnectorService {
 
-    public ConnectorServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public ConnectorServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

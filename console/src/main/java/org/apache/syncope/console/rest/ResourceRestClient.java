@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.ResourceService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,12 +32,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResourceRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = -6898907679835668987L;
+
     public List<String> getPropagationActionsClasses() {
         List<String> actions = null;
 
         try {
-            actions = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "resource/propagationActionsClasses.json", String[].class));
+            actions = new ArrayList<String>(getService(ResourceService.class).getPropagationActionsClasses());
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all propagation actions classes", e);
         }
@@ -47,8 +49,7 @@ public class ResourceRestClient extends BaseRestClient {
         List<ResourceTO> resources = null;
 
         try {
-            resources = Arrays.asList(SyncopeSession.get().getRestTemplate().
-                    getForObject(baseURL + "resource/list.json", ResourceTO[].class));
+            resources = getService(ResourceService.class).list();
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading all resources", e);
         }
@@ -57,15 +58,14 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public void create(final ResourceTO resourceTO) {
-        SyncopeSession.get().getRestTemplate().postForObject(baseURL + "resource/create", resourceTO, ResourceTO.class);
+        getService(ResourceService.class).create(resourceTO);
     }
 
     public ResourceTO read(final String name) {
         ResourceTO resourceTO = null;
 
         try {
-            resourceTO = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "resource/read/" + name + ".json", ResourceTO.class);
+            resourceTO = getService(ResourceService.class).read(name);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a resource", e);
         }
@@ -73,12 +73,10 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public void update(final ResourceTO resourceTO) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "resource/update.json", resourceTO, ResourceTO.class);
+        getService(ResourceService.class).update(resourceTO.getName(), resourceTO);
     }
 
     public ResourceTO delete(final String name) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "resource/delete/{resourceName}.json", ResourceTO.class, name);
+        return getService(ResourceService.class).delete(name);
     }
 }

@@ -19,15 +19,15 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Component;
+
 import org.apache.syncope.client.to.AccountPolicyTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.PolicyService;
 import org.apache.syncope.types.PolicyType;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Policy services.
@@ -35,157 +35,78 @@ import org.apache.syncope.types.PolicyType;
 @Component
 public class PolicyRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = -1392090291817187902L;
+
+    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
 
         T policy = null;
 
         try {
+            policy = getService(PolicyService.class).readGlobal(type);
+        } catch (Exception e) {
+            LOG.warn("No global " + type + " policy found", e);
             switch (type) {
-                case GLOBAL_ACCOUNT:
-                    try {
-                        policy = (T) SyncopeSession.get().getRestTemplate().getForObject(
-                                baseURL + "policy/account/global/read", AccountPolicyTO.class);
-                    } catch (Exception e) {
-                        LOG.debug("No account policy found", e);
-                        policy = (T) new AccountPolicyTO();
-                    }
-                    break;
-                case GLOBAL_PASSWORD:
-                    try {
-                        policy = (T) SyncopeSession.get().getRestTemplate().getForObject(
-                                baseURL + "policy/password/global/read", PasswordPolicyTO.class);
-                    } catch (Exception e) {
-                        LOG.debug("No password policy found", e);
-                        policy = (T) new PasswordPolicyTO();
-                    }
-                    break;
-                case GLOBAL_SYNC:
-                    try {
-                        policy = (T) SyncopeSession.get().getRestTemplate().getForObject(
-                                baseURL + "policy/sync/global/read", SyncPolicyTO.class);
-                    } catch (Exception e) {
-                        LOG.debug("No password policy found", e);
-                        policy = (T) new SyncPolicyTO();
-                    }
-                    break;
-                default:
-                    throw new Exception("Invalid policy type");
+            case GLOBAL_ACCOUNT:
+                policy = (T) new AccountPolicyTO();
+                break;
+            case GLOBAL_PASSWORD:
+                policy = (T) new PasswordPolicyTO();
+                break;
+            case GLOBAL_SYNC:
+                policy = (T) new SyncPolicyTO();
+                break;
+            default:
+                LOG.warn("Invalid policy type");
             }
-        } catch (Exception ignore) {
-            LOG.error("Invalid policy type", ignore);
         }
-
         return policy;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<T>();
-
-        T[] policies = null;
-
-        final Class reference;
-        final Class globalReference;
-        final String policy;
+        List<T> policies = new ArrayList<T>();
 
         try {
-
-            switch (type) {
-                case ACCOUNT:
-                    reference = AccountPolicyTO[].class;
-                    globalReference = AccountPolicyTO.class;
-                    policy = "account";
-                    break;
-                case PASSWORD:
-                    reference = PasswordPolicyTO[].class;
-                    globalReference = PasswordPolicyTO.class;
-                    policy = "password";
-                    break;
-                case SYNC:
-                    reference = SyncPolicyTO[].class;
-                    globalReference = SyncPolicyTO.class;
-                    policy = "sync";
-                    break;
-                default:
-                    throw new Exception("Invalid policy type");
-            }
-
-            try {
-                policies = (T[]) SyncopeSession.get().getRestTemplate().getForObject(
-                        baseURL + "policy/" + policy + "/list", reference);
-            } catch (Exception ignore) {
-                LOG.debug("No policy found", ignore);
-            }
-
-            if (policies != null) {
-                res.addAll(Arrays.asList(policies));
-            }
-
-            if (includeGlobal) {
-                PolicyTO globalPolicy = null;
-
-                try {
-                    globalPolicy = (T) SyncopeSession.get().getRestTemplate().getForObject(
-                            baseURL + "policy/" + policy + "/global/read", globalReference);
-                } catch (Exception ignore) {
-                    LOG.warn("No global policy found", ignore);
-                }
-
-                if (globalPolicy != null) {
-                    res.add(0, (T) globalPolicy);
-                }
-            }
-
+            policies = (List<T>) getService(PolicyService.class).listByType(type);
+            res.addAll(policies);
         } catch (Exception ignore) {
-            LOG.error("No policy found", ignore);
+            LOG.debug("No policy found", ignore);
+        }
+
+        if (includeGlobal) {
+            try {
+                PolicyTO globalPolicy = getGlobalPolicy(type);
+                res.add(0, (T) globalPolicy);
+            } catch (Exception ignore) {
+                LOG.warn("No global policy found", ignore);
+            }
         }
 
         return res;
     }
 
-    public <T extends PolicyTO> T createPolicy(final T policy)
-            throws InvalidPolicyType {
-
-        switch (policy.getType()) {
-            case GLOBAL_ACCOUNT:
-            case ACCOUNT:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/account/create", policy, AccountPolicyTO.class);
-            case GLOBAL_PASSWORD:
-            case PASSWORD:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/password/create", policy,
-                        PasswordPolicyTO.class);
-            case GLOBAL_SYNC:
-            case SYNC:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/sync/create", policy, SyncPolicyTO.class);
-            default:
-                throw new InvalidPolicyType("Invalid type " + policy.getType());
-        }
+    public <T extends PolicyTO> T createPolicy(final T policy) throws InvalidPolicyType {
+        return getService(PolicyService.class).create(policy.getType(), policy);
     }
 
-    public <T extends PolicyTO> T updatePolicy(final T policy)
-            throws InvalidPolicyType {
-
-        switch (policy.getType()) {
-            case GLOBAL_ACCOUNT:
-            case ACCOUNT:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/account/update", policy, AccountPolicyTO.class);
-            case GLOBAL_PASSWORD:
-            case PASSWORD:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/password/update", policy, PasswordPolicyTO.class);
-            case GLOBAL_SYNC:
-            case SYNC:
-                return (T) SyncopeSession.get().getRestTemplate().postForObject(
-                        baseURL + "policy/sync/update", policy, SyncPolicyTO.class);
-            default:
-                throw new InvalidPolicyType("Invalid type " + policy.getType());
-        }
+    public <T extends PolicyTO> T updatePolicy(final T policy) throws InvalidPolicyType {
+        return getService(PolicyService.class).update(policy.getType(), policy.getId(), policy);
     }
 
     public PolicyTO delete(final Long id, Class<? extends PolicyTO> policyClass) {
-        return SyncopeSession.get().getRestTemplate().getForObject(baseURL + "policy/delete/" + id, policyClass);
+        return getService(PolicyService.class).delete(getPolicyType(policyClass), id);
+    }
+
+    private PolicyType getPolicyType(Class<? extends PolicyTO> clazz) {
+        if (AccountPolicyTO.class.equals(clazz))
+            return PolicyType.ACCOUNT;
+        else if (PasswordPolicyTO.class.equals(clazz))
+            return PolicyType.PASSWORD;
+        else if (SyncPolicyTO.class.equals(clazz))
+            return PolicyType.SYNC;
+        else
+            throw new IllegalArgumentException("Policy Type not supported");
     }
 }

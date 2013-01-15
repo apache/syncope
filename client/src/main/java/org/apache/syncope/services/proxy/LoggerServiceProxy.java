@@ -24,13 +24,14 @@ import java.util.List;
 import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.services.LoggerService;
 import org.apache.syncope.types.AuditLoggerName;
+import org.springframework.web.client.RestTemplate;
 
 import ch.qos.logback.classic.Level;
 
 public class LoggerServiceProxy extends SpringServiceProxy implements LoggerService {
 
-    public LoggerServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public LoggerServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

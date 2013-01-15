@@ -25,6 +25,8 @@ import org.apache.syncope.client.to.ConnObjectTO;
 
 public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
+    private static final long serialVersionUID = 1962529678091410544L;
+
     public abstract Integer count();
 
     public abstract List<? extends AbstractAttributableTO> list(int page, int size);

@@ -50,7 +50,6 @@ import org.apache.syncope.services.proxy.ReportServiceProxy;
 import org.apache.syncope.services.proxy.ResourceServiceProxy;
 import org.apache.syncope.services.proxy.RoleServiceProxy;
 import org.apache.syncope.services.proxy.SchemaServiceProxy;
-import org.apache.syncope.services.proxy.SpringRestTemplate;
 import org.apache.syncope.services.proxy.TaskServiceProxy;
 import org.apache.syncope.services.proxy.UserRequestServiceProxy;
 import org.apache.syncope.services.proxy.UserServiceProxy;
@@ -66,7 +65,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
-public abstract class AbstractTest implements SpringRestTemplate {
+public abstract class AbstractTest {
 
     protected static AttributeTO attributeTO(final String schema, final String value) {
         AttributeTO attr = new AttributeTO();
@@ -146,25 +145,20 @@ public abstract class AbstractTest implements SpringRestTemplate {
     @Before
     public void resetRestTemplate() {
         setupRestTemplate(ADMIN_UID, ADMIN_PWD);
-        userService = new UserServiceProxy(BASE_URL, this);
-        roleService = new RoleServiceProxy(BASE_URL, this);
-        resourceService = new ResourceServiceProxy(BASE_URL, this);
-        entitlementService = new EntitlementServiceProxy(BASE_URL, this);
-        configurationService = new ConfigurationServiceProxy(BASE_URL, this);
-        connectorService = new ConnectorServiceProxy(BASE_URL, this);
-        loggerService = new LoggerServiceProxy(BASE_URL, this);
-        reportService = new ReportServiceProxy(BASE_URL, this);
-        taskService = new TaskServiceProxy(BASE_URL, this);
-        policyService = new PolicyServiceProxy(BASE_URL, this);
-        workflowService = new WorkflowServiceProxy(BASE_URL, this);
-        notificationService = new NotificationServiceProxy(BASE_URL, this);
-        schemaService = new SchemaServiceProxy(BASE_URL, this);
-        userRequestService = new UserRequestServiceProxy(BASE_URL, this);
-    }
-
-    @Override
-    public RestTemplate getRestTemplate() {
-        return restTemplate;
+        userService = new UserServiceProxy(BASE_URL, restTemplate);
+        roleService = new RoleServiceProxy(BASE_URL, restTemplate);
+        resourceService = new ResourceServiceProxy(BASE_URL, restTemplate);
+        entitlementService = new EntitlementServiceProxy(BASE_URL, restTemplate);
+        configurationService = new ConfigurationServiceProxy(BASE_URL, restTemplate);
+        connectorService = new ConnectorServiceProxy(BASE_URL, restTemplate);
+        loggerService = new LoggerServiceProxy(BASE_URL, restTemplate);
+        reportService = new ReportServiceProxy(BASE_URL, restTemplate);
+        taskService = new TaskServiceProxy(BASE_URL, restTemplate);
+        policyService = new PolicyServiceProxy(BASE_URL, restTemplate);
+        workflowService = new WorkflowServiceProxy(BASE_URL, restTemplate);
+        notificationService = new NotificationServiceProxy(BASE_URL, restTemplate);
+        schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
+        userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
 
 }

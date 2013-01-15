@@ -32,12 +32,13 @@ import org.apache.syncope.client.to.TaskTO;
 import org.apache.syncope.services.TaskService;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.syncope.types.TaskType;
+import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
 public class TaskServiceProxy extends SpringServiceProxy implements TaskService {
 
-    public TaskServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public TaskServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

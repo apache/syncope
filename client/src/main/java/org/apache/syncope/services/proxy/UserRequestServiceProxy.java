@@ -24,11 +24,12 @@ import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.services.UserRequestService;
+import org.springframework.web.client.RestTemplate;
 
 public class UserRequestServiceProxy extends SpringServiceProxy implements UserRequestService {
 
-    public UserRequestServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public UserRequestServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

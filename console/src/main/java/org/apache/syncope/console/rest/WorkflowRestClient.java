@@ -18,22 +18,21 @@
  */
 package org.apache.syncope.console.rest;
 
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.WorkflowDefinitionTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.WorkflowService;
+import org.springframework.stereotype.Component;
 
 @Component
 public class WorkflowRestClient extends BaseRestClient {
 
-    public WorkflowDefinitionTO getDefinition()
-            throws SyncopeClientCompositeErrorException {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "workflow/definition/user.json", WorkflowDefinitionTO.class);
+    private static final long serialVersionUID = 5049285686167071017L;
+
+    public WorkflowDefinitionTO getDefinition() throws SyncopeClientCompositeErrorException {
+        return getService(WorkflowService.class).getDefinition("user");
     }
 
-    public void updateDefinition(final WorkflowDefinitionTO workflowDef)
-            throws SyncopeClientCompositeErrorException {
-        SyncopeSession.get().getRestTemplate().put(baseURL + "workflow/definition/user.json", workflowDef);
+    public void updateDefinition(final WorkflowDefinitionTO workflowDef) throws SyncopeClientCompositeErrorException {
+        getService(WorkflowService.class).updateDefinition("user", workflowDef);
     }
 }

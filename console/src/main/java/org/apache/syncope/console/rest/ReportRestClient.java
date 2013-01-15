@@ -18,57 +18,52 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.services.ReportService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
 
+    private static final long serialVersionUID = 1644689667998953604L;
+
     public List<String> getReportletConfClasses() {
         List<String> reportletClasses = null;
 
         try {
-            reportletClasses = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "report/reportletConfClasses.json", String[].class));
+            reportletClasses = getService(ReportService.class).getReportletConfClasses();
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting available reportlet classes", e);
         }
         return reportletClasses;
     }
-    
+
     public ReportTO read(final Long reportId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/read/{taskId}", ReportTO.class, reportId);
+        return getService(ReportService.class).read(reportId);
     }
 
     public List<ReportTO> list() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/list", ReportTO[].class));
+        return getService(ReportService.class).list();
     }
 
     public List<ReportTO> list(final int page, final int size) {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/list/{page}/{size}.json", ReportTO[].class, page, size));
+        return getService(ReportService.class).list(page, size);
     }
 
     public int count() {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/count.json", Integer.class);
+        return getService(ReportService.class).count();
     }
 
     public ReportTO create(final ReportTO reportTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "report/create", reportTO, ReportTO.class);
+        return getService(ReportService.class).create(reportTO);
     }
 
     public ReportTO update(final ReportTO reportTO) {
-        return SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "report/update", reportTO, ReportTO.class);
+        return getService(ReportService.class).update(reportTO.getId(), reportTO);
     }
 
     /**
@@ -77,8 +72,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      * @param reportId report to delete
      */
     public ReportTO delete(final Long reportId) {
-        return SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/delete/{reportId}", ReportTO.class, reportId);
+        return getService(ReportService.class).delete(reportId);
     }
 
     /**
@@ -88,8 +82,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      */
     @Override
     public void startExecution(final Long reportId) {
-        SyncopeSession.get().getRestTemplate().postForObject(
-                baseURL + "report/execute/{reportId}", null, ReportExecTO.class, reportId);
+        getService(ReportService.class).execute(reportId);
     }
 
     /**
@@ -99,8 +92,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      */
     @Override
     public void deleteExecution(final Long reportExecId) {
-        SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/execution/delete/{execId}", ReportExecTO.class, reportExecId);
+        getService(ReportService.class).deleteExecution(reportExecId);
     }
 
     /**
@@ -110,7 +102,6 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      */
     @Override
     public List<ReportExecTO> listExecutions() {
-        return Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
-                baseURL + "report/execution/list", ReportExecTO[].class));
+        return getService(ReportService.class).listExecutions();
     }
 }

@@ -27,8 +27,8 @@ import org.springframework.web.client.RestTemplate;
 
 public class EntitlementServiceProxy extends SpringServiceProxy implements EntitlementService {
 
-    public EntitlementServiceProxy(String baseUrl, SpringRestTemplate callback) {
-        super(baseUrl, callback);
+    public EntitlementServiceProxy(String baseUrl, RestTemplate restTemplate) {
+        super(baseUrl, restTemplate);
     }
 
     @Override

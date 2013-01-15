@@ -19,7 +19,38 @@
 package org.apache.syncope.console;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.services.ConfigurationService;
+import org.apache.syncope.services.ConnectorService;
+import org.apache.syncope.services.EntitlementService;
+import org.apache.syncope.services.LoggerService;
+import org.apache.syncope.services.NotificationService;
+import org.apache.syncope.services.PolicyService;
+import org.apache.syncope.services.ReportService;
+import org.apache.syncope.services.ResourceService;
+import org.apache.syncope.services.RoleService;
+import org.apache.syncope.services.SchemaService;
+import org.apache.syncope.services.TaskService;
+import org.apache.syncope.services.UserRequestService;
+import org.apache.syncope.services.UserService;
+import org.apache.syncope.services.WorkflowService;
+import org.apache.syncope.services.proxy.ConfigurationServiceProxy;
+import org.apache.syncope.services.proxy.ConnectorServiceProxy;
+import org.apache.syncope.services.proxy.EntitlementServiceProxy;
+import org.apache.syncope.services.proxy.LoggerServiceProxy;
+import org.apache.syncope.services.proxy.NotificationServiceProxy;
+import org.apache.syncope.services.proxy.PolicyServiceProxy;
+import org.apache.syncope.services.proxy.ReportServiceProxy;
+import org.apache.syncope.services.proxy.ResourceServiceProxy;
+import org.apache.syncope.services.proxy.RoleServiceProxy;
+import org.apache.syncope.services.proxy.SchemaServiceProxy;
+import org.apache.syncope.services.proxy.SpringServiceProxy;
+import org.apache.syncope.services.proxy.TaskServiceProxy;
+import org.apache.syncope.services.proxy.UserRequestServiceProxy;
+import org.apache.syncope.services.proxy.UserServiceProxy;
+import org.apache.syncope.services.proxy.WorkflowServiceProxy;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -42,7 +73,11 @@ public class SyncopeSession extends WebSession {
 
     private Roles roles = new Roles();
 
-    private RestTemplate restTemplate;
+    protected String baseURL;
+
+    private final RestTemplate restTemplate;
+
+    private final HashMap<Class<?>, SpringServiceProxy> services = new HashMap<Class<?>, SpringServiceProxy>();
 
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
@@ -55,6 +90,27 @@ public class SyncopeSession extends WebSession {
                 WebApplicationContextUtils.getWebApplicationContext(WebApplication.get().getServletContext());
 
         restTemplate = applicationContext.getBean(RestTemplate.class);
+        baseURL = applicationContext.getBean("baseURL", String.class);
+
+        services.put(ConfigurationService.class, new ConfigurationServiceProxy(baseURL, restTemplate));
+        services.put(ConnectorService.class, new ConnectorServiceProxy(baseURL, restTemplate));
+        services.put(EntitlementService.class, new EntitlementServiceProxy(baseURL, restTemplate));
+        services.put(LoggerService.class, new LoggerServiceProxy(baseURL, restTemplate));
+        services.put(NotificationService.class, new NotificationServiceProxy(baseURL, restTemplate));
+        services.put(PolicyService.class, new PolicyServiceProxy(baseURL, restTemplate));
+        services.put(ReportService.class, new ReportServiceProxy(baseURL, restTemplate));
+        services.put(ResourceService.class, new ResourceServiceProxy(baseURL, restTemplate));
+        services.put(RoleService.class, new RoleServiceProxy(baseURL, restTemplate));
+        services.put(SchemaService.class, new SchemaServiceProxy(baseURL, restTemplate));
+        services.put(TaskService.class, new TaskServiceProxy(baseURL, restTemplate));
+        services.put(UserRequestService.class, new UserRequestServiceProxy(baseURL, restTemplate));
+        services.put(UserService.class, new UserServiceProxy(baseURL, restTemplate));
+        services.put(WorkflowService.class, new WorkflowServiceProxy(baseURL, restTemplate));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> service) {
+        return (T) services.get(service);
     }
 
     public RestTemplate getRestTemplate() {
