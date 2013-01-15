@@ -39,6 +39,7 @@ import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.PropagationTO;
 import org.apache.syncope.client.to.PropagationTaskTO;
@@ -76,8 +77,8 @@ public class UserTestITCase extends AbstractTest {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
-    public static UserTO getSampleUniqueTO() {
-    	return getSampleTO(getUUIDString() + "@test.com");
+    public static UserTO getUniqueSampleTO(final String email) {
+    	return getSampleTO(getUUIDString() + email);
     }
 
     public static UserTO getSampleTO(final String email) {
@@ -131,13 +132,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // create a new user
-        UserTO userTO = new UserTO();
-        userTO.setUsername("xxx@xxx.xxx");
-
-        userTO.addAttribute(attributeTO("firstname", "xxx"));
-        userTO.addAttribute(attributeTO("surname", "xxx"));
-        userTO.addAttribute(attributeTO("userId", "xxx@xxx.xxx"));
-        userTO.addAttribute(attributeTO("fullname", "xxx"));
+        UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
 
         userTO.setPassword("password123");
         userTO.addResource("ws-target-resource-nopropagation");
@@ -174,38 +169,33 @@ public class UserTestITCase extends AbstractTest {
      * introducing a simple control.
      */
     public void issue172() {
-        PolicyTO policyTO = policyService.read(PolicyType.PASSWORD, 2L);
+    	List<PasswordPolicyTO> policies = policyService.listByType(PolicyType.GLOBAL_PASSWORD);
+    	for (PasswordPolicyTO policyTO : policies) {
+            policyService.delete(PolicyType.PASSWORD, policyTO.getId());
+    	}
 
-        assertNotNull(policyTO);
-
-        policyService.delete(PolicyType.PASSWORD, 2L);
-
-        UserTO userTO = new UserTO();
-        userTO.setUsername("issue172@syncope.apache.org");
-        userTO.setPassword("password");
-
-        userTO.addAttribute(attributeTO("firstname", "issue172"));
-        userTO.addAttribute(attributeTO("surname", "issue172"));
-        userTO.addAttribute(attributeTO("userId", "issue172@syncope.apache.org"));
-        userTO.addAttribute(attributeTO("fullname", "issue172"));
-
-        userService.create(userTO);
-
-        policyService.create(PolicyType.PASSWORD, policyTO);
-
-        assertNotNull(policyTO);
+    	try {
+            UserTO userTO = getUniqueSampleTO("issue172@syncope.apache.org");
+            userService.create(userTO);
+    	} finally {
+        	for (PasswordPolicyTO policyTO : policies) {
+                PolicyTO cPolicyTO = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
+                assertNotNull(cPolicyTO);
+        	}
+    	}
     }
 
     @Test
     public void issue186() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
-        userTO.setUsername("issue186@syncope.apache.org");
+        String userId = getUUIDString() + "issue186@syncope.apache.org";
+        userTO.setUsername(userId);
         userTO.setPassword("password");
 
-        userTO.addAttribute(attributeTO("userId", "issue186@syncope.apache.org"));
-        userTO.addAttribute(attributeTO("fullname", "issue186"));
-        userTO.addAttribute(attributeTO("surname", "issue186"));
+        userTO.addAttribute(attributeTO("userId", userId));
+        userTO.addAttribute(attributeTO("fullname", userId));
+        userTO.addAttribute(attributeTO("surname", userId));
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
@@ -259,7 +249,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void testEnforceMandatoryCondition() {
-        UserTO userTO = getSampleTO("issue183@apache.org");
+        UserTO userTO = getUniqueSampleTO("enforce@apache.org");
         userTO.addResource("ws-target-resource-2");
         userTO.setPassword("newPassword");
 
@@ -294,7 +284,7 @@ public class UserTestITCase extends AbstractTest {
         resourceTO = resourceService.create(resourceTO);
         assertNotNull(resourceTO);
 
-        UserTO userTO = getSampleTO("syncope222@apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
         userTO.addResource(resourceTO.getName());
         userTO.setPassword("newPassword");
 
@@ -316,7 +306,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue147() {
         // 1. create an user without role nor resources
-        UserTO userTO = getSampleTO("issue147@tirasa.net");
+        UserTO userTO = getUniqueSampleTO("147@t.com");
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
@@ -344,13 +334,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void createUserWithDbPropagation() {
-        UserTO userTO = new UserTO();
-        userTO.setPassword("password");
-        userTO.setUsername("yyy@yyy.yyy");
-        userTO.addAttribute(attributeTO("firstname", "yyy"));
-        userTO.addAttribute(attributeTO("surname", "yyy"));
-        userTO.addAttribute(attributeTO("userId", "yyy@yyy.yyy"));
-        userTO.addAttribute(attributeTO("fullname", "yyy"));
+        UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
         userTO.addResource("resource-testdb");
         userTO = userService.create(userTO);
         assertNotNull(userTO);
@@ -433,7 +417,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
 
-        UserTO userTO = getSampleTO("a.b@c.com");
+        UserTO userTO = getUniqueSampleTO("a.b@c.com");
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
@@ -501,7 +485,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(verify);
 
         // 4. try (and fail) to create another user with same (unique) values
-        userTO = getSampleTO("pippo@c.com");
+        userTO = getSampleTO(userTO.getUsername());
         for (AttributeTO attr : userTO.getAttributes()) {
             if ("userId".equals(attr.getSchema())) {
                 attr.getValues().clear();
@@ -571,7 +555,7 @@ public class UserTestITCase extends AbstractTest {
     public void createWithReject() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        UserTO userTO = getSampleTO("createWithReject@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("createWithReject@syncope.apache.org");
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -630,7 +614,7 @@ public class UserTestITCase extends AbstractTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
-        UserTO userTO = getSampleTO("createWithApproval@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("createWithApproval@syncope.apache.org");
         userTO.addResource("resource-testdb");
 
         // User with role 9 are defined in workflow as subject to approval
@@ -814,7 +798,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void updateWithouPassword() {
-        UserTO userTO = getSampleTO("updatewithout@password.com");
+        UserTO userTO = getUniqueSampleTO("updatewithout@password.com");
 
         userTO = userService.create(userTO);
 
@@ -861,7 +845,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        UserTO userTO = getSampleTO("g.h@t.com");
+        UserTO userTO = getUniqueSampleTO("g.h@t.com");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
@@ -882,10 +866,12 @@ public class UserTestITCase extends AbstractTest {
         userMod.setPassword("new2Password");
 
         userMod.addAttributeToBeRemoved("userId");
-        userMod.addAttributeToBeUpdated(attributeMod("userId", "t.w@spre.net"));
+        String newUserId = getUUIDString() + "t.w@spre.net";
+        userMod.addAttributeToBeUpdated(attributeMod("userId", newUserId));
 
         userMod.addAttributeToBeRemoved("fullname");
-        userMod.addAttributeToBeUpdated(attributeMod("fullname", "g.h@t.com"));
+        String newFullName = getUUIDString() +  "g.h@t.com";
+        userMod.addAttributeToBeUpdated(attributeMod("fullname", newFullName));
 
         userMod.addDerivedAttributeToBeAdded("cn");
         userMod.addMembershipToBeAdded(membershipMod);
@@ -908,11 +894,11 @@ public class UserTestITCase extends AbstractTest {
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             if ("userId".equals(attributeTO.getSchema())) {
                 userIdFound = true;
-                assertEquals(Collections.singletonList("t.w@spre.net"), attributeTO.getValues());
+                assertEquals(Collections.singletonList(newUserId), attributeTO.getValues());
             }
             if ("fullname".equals(attributeTO.getSchema())) {
                 fullnameFound = true;
-                assertEquals(Collections.singletonList("g.h@t.com"), attributeTO.getValues());
+                assertEquals(Collections.singletonList(newFullName), attributeTO.getValues());
             }
         }
         assertTrue(userIdFound);
@@ -925,7 +911,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(beforeTasks);
         assertFalse(beforeTasks.isEmpty());
 
-        UserTO userTO = getSampleTO("pwdonly@t.com");
+        UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
         membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
@@ -973,7 +959,7 @@ public class UserTestITCase extends AbstractTest {
         // Create operation
         // --------------------------------------
 
-        UserTO userTO = getSampleTO("task@propagation.mode");
+        UserTO userTO = getUniqueSampleTO("t@p.mode");
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
@@ -1062,7 +1048,7 @@ public class UserTestITCase extends AbstractTest {
     public void createActivate() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        UserTO userTO = getSampleTO("createActivate@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(11L);
@@ -1089,7 +1075,7 @@ public class UserTestITCase extends AbstractTest {
     public void createActivateByUsername() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        UserTO userTO = getSampleTO("createActivateByUsername@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("createActivateByUsername@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(11L);
@@ -1115,7 +1101,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void suspendReactivate() {
-        UserTO userTO = getSampleTO("suspendReactivate@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("suspendReactivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -1139,7 +1125,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void suspendReactivateByUsername() {
-        UserTO userTO = getSampleTO("suspendReactivateByUsername@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("suspendReactivateByUsername@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -1163,7 +1149,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void suspendReactivateOnResource() {
-        UserTO userTO = getSampleTO("suspreactonresource@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("suspreactonresource@syncope.apache.org");
 
         userTO.getMemberships().clear();
         userTO.getResources().clear();
@@ -1259,7 +1245,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
-        UserTO userTO = getSampleTO("issue213@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("issue213@syncope.apache.org");
         userTO.addResource("resource-testdb");
 
         userTO = userService.create(userTO);
@@ -1287,10 +1273,10 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issue234() {
-        UserTO userTO = getSampleTO("issue234@syncope.apache.org");
-        userTO.addResource("resource-ldap");
+        UserTO inUserTO = getUniqueSampleTO("issue234@syncope.apache.org");
+        inUserTO.addResource("resource-ldap");
 
-        userTO = userService.create(userTO);
+        UserTO userTO = userService.create(inUserTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -1302,13 +1288,13 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
 
-        assertEquals("1issue234@syncope.apache.org", userTO.getUsername());
+        assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
     }
 
     @Test
     public void issue270() {
         // 1. create a new user without virtual attributes
-        UserTO original = getSampleTO("issue270@syncope.apache.org");
+        UserTO original = getUniqueSampleTO("issue270@syncope.apache.org");
         // be sure to remove all virtual attributes
         original.setVirtualAttributes(Collections.<AttributeTO>emptyList());
 
@@ -1340,7 +1326,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void issue280() {
-        UserTO userTO = getSampleTO("issue280@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("issue280@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1371,7 +1357,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issue281() {
-        UserTO userTO = getSampleTO("issue281@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("issue281@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1408,7 +1394,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void roleAttrPropagation() {
-        UserTO userTO = getSampleTO("checkRoleAttrPropagation@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("checkRoleAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1436,7 +1422,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void membershipAttrPropagation() {
-        UserTO userTO = getSampleTO("checkMembAttrPropagation@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("checkMembAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1465,7 +1451,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE16() {
-        UserTO userTO = getSampleTO("virattrupdate@apache.org");
+        UserTO userTO = getUniqueSampleTO("issue16@apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
@@ -1497,7 +1483,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE108() {
-        UserTO userTO = getSampleTO("syncope108@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope108@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1587,7 +1573,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE111() {
-        UserTO userTO = getSampleTO("syncope111@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope111@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -1711,7 +1697,7 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
         // create user and check virtual attribute value propagation
         // ----------------------------------
-        UserTO userTO = getSampleTO("syncope260@apache.org");
+        UserTO userTO = getUniqueSampleTO("260@a.com");
         userTO.addResource("ws-target-resource-2");
 
         userTO = userService.create(userTO);
@@ -1825,7 +1811,7 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
         // create user and check virtual attribute value propagation
         // ----------------------------------
-        UserTO userTO = getSampleTO("syncope267@apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope267@apache.org");
         userTO.getResources().clear();
         userTO.addResource("resource-db-virattr");
 

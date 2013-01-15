@@ -54,7 +54,7 @@ public class UserRequestTestITCase extends AbstractTest {
         configurationTO = configurationService.create(configurationTO);
         assertNotNull(configurationTO);
 
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("selfcreate@syncope.apache.org");
 
         // 2. get unauthorized when trying to request user create
         SyncopeClientException exception = null;
@@ -96,7 +96,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void update() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("selfupdate@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
         userTO = userService.create(userTO);
@@ -152,7 +152,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void delete() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("selfdelete@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
         userTO = userService.create(userTO);

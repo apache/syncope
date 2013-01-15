@@ -176,7 +176,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("issue258@syncope.apache.org");
         userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
 
         userTO = userService.create(userTO);
@@ -200,7 +200,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("issue259@syncope.apache.org");
         userTO.addAttribute(attributeTO(schemaTO.getName(), "1"));
         userTO = userService.create(userTO);
         assertNotNull(userTO);
@@ -224,7 +224,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(schemaTO);
 
-        UserTO userTO = UserTestITCase.getSampleUniqueTO();
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("issue260@syncope.apache.org");
         userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
         userTO = userService.create(userTO);
         assertNotNull(userTO);
