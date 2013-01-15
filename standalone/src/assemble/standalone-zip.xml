@@ -32,6 +32,7 @@ under the License.
       <outputDirectory>apache-syncope-standalone-${project.version}</outputDirectory>
       <excludes>
         <exclude>**/*.sh</exclude>
+		<exclude>**/*.bat</exclude>
       </excludes>
     </fileSet>
     <fileSet>
@@ -39,6 +40,7 @@ under the License.
       <outputDirectory>apache-syncope-standalone-${project.version}/apache-tomcat-${tomcat.version}/bin</outputDirectory>
       <includes>
         <include>*.sh</include>
+		<include>*.bat</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>

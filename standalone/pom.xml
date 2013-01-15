@@ -118,6 +118,8 @@ under the License.
                 
                 <copy file="src/main/resources/setenv.sh"
                       todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+				<copy file="src/main/resources/setenv.bat"
+                      todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" 
                          token="8080" value="${cargo.servlet.port}"/>
                 
