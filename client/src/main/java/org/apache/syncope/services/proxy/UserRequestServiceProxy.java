@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.services.proxy;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.client.mod.UserMod;
@@ -34,8 +35,7 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public boolean isCreateAllowed() {
-        // TODO Auto-generated method stub
-        return false;
+        return getRestTemplate().getForObject(baseUrl + "user/request/create/allowed", Boolean.class);
     }
 
     @Override
@@ -50,26 +50,24 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public UserRequestTO delete(Long userId) {
-        return getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class,
-                userId);
+        return getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class, userId);
     }
 
     @Override
     public List<UserRequestTO> list() {
-        // TODO Auto-generated method stub
-        return null;
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "user/request/list", UserRequestTO[].class));
     }
 
     @Override
     public UserRequestTO read(Long requestId) {
-        // TODO Auto-generated method stub
-        return null;
+        return getRestTemplate()
+                .getForObject(baseUrl + "user/request/read/{requestId}", UserRequestTO.class, requestId);
     }
 
     @Override
     public UserRequestTO deleteRequest(Long requestId) {
-        // TODO Auto-generated method stub
-        return null;
+        return getRestTemplate().getForObject(baseUrl + "user/request/deleteRequest/{requestId}", UserRequestTO.class,
+                requestId);
     }
 
 }

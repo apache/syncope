@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.services.proxy;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
@@ -55,14 +58,13 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public List<ReportTO> list(int page, int size) {
-        // TODO Auto-generated method stub
-        return null;
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/list/{page}/{size}", ReportTO[].class,
+                page, size));
     }
 
     @Override
     public List<ReportExecTO> listExecutions() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/execution/list",
-                ReportExecTO[].class));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/execution/list", ReportExecTO[].class));
     }
 
     @Override
@@ -78,32 +80,35 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public ReportExecTO readExecution(Long executionId) {
-        return getRestTemplate().getForObject(baseUrl + "report/execution/read/{reportId}",
-                ReportExecTO.class, executionId);
+        return getRestTemplate().getForObject(baseUrl + "report/execution/read/{executionId}", ReportExecTO.class,
+                executionId);
     }
 
     @Override
-    public void exportExecutionResult(Long executionId, ReportExecExportFormat fmt) {
-        // TODO Auto-generated method stub
-
+    public Response exportExecutionResult(Long executionId, ReportExecExportFormat fmt) {
+        String format = (fmt != null)
+                ? "?fmt=" + fmt.toString()
+                : "";
+        InputStream stream = getRestTemplate().getForObject(baseUrl + "report/execution/export/{executionId}" + format,
+                InputStream.class, executionId);
+        return Response.ok(stream).build();
     }
 
     @Override
     public ReportExecTO execute(Long reportId) {
-        return getRestTemplate().postForObject(baseUrl + "report/execute/{reportId}", null,
-                ReportExecTO.class, reportId);
+        return getRestTemplate().postForObject(baseUrl + "report/execute/{reportId}", null, ReportExecTO.class,
+                reportId);
     }
 
     @Override
     public ReportTO delete(Long reportId) {
-        return getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}",
-                ReportTO.class, reportId);
+        return getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}", ReportTO.class, reportId);
     }
 
     @Override
     public ReportExecTO deleteExecution(Long executionId) {
-        // TODO Auto-generated method stub
-        return null;
+        return getRestTemplate().getForObject(baseUrl + "report/execution/delete/{executionId}", ReportExecTO.class,
+                executionId);
     }
 
 }

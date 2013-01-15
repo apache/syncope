@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.services.proxy;
 
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -64,20 +66,20 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public Set<String> getValidators() {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+                baseUrl + "configuration/validators.json", String[].class)));
     }
 
     @Override
     public Set<String> getMailTemplates() {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+                baseUrl + "configuration/mailTemplates.json", String[].class)));
     }
 
     @Override
     public Response dbExport() {
-        // TODO Auto-generated method stub
-        return null;
+        return Response.ok(getRestTemplate().getForObject(baseUrl + "configuration/dbexport", InputStream.class))
+                .build();
     }
 
 }

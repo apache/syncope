@@ -29,6 +29,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.types.ReportExecExportFormat;
@@ -75,7 +77,7 @@ public interface ReportService {
     @GET
     @Path("executions/{executionId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    void exportExecutionResult(@PathParam("executionId") Long executionId,
+    Response exportExecutionResult(@PathParam("executionId") Long executionId,
             @QueryParam("format") ReportExecExportFormat fmt);
 
     @POST
