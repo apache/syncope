@@ -62,28 +62,11 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("lastRole");
-        roleTO.setParent(8L);
-
-        // verify inheritance password and account policies
-        roleTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        roleTO.setAccountPolicy(6L);
-
-        roleTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        roleTO.setPasswordPolicy(2L);
-
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-
+        RoleTO roleTO = buildRoleTO("lastRole");
         roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
-
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
-
         roleTO.setRoleOwner(8L);
 
-        roleTO.addResource("resource-ldap");
 
         roleTO = roleService.create(roleTO);
         assertNotNull(roleTO);
@@ -102,7 +85,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(roleTO.getResources().contains("resource-ldap"));
 
         ConnObjectTO connObjectTO = resourceService.getConnector("resource-ldap", AttributableType.ROLE,
-                "lastRole");
+        		roleTO.getName());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }
@@ -110,7 +93,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void createWithPasswordPolicy() {
         RoleTO roleTO = new RoleTO();
-        roleTO.setName("roleWithPassword");
+        roleTO.setName("roleWithPassword" + getUUIDString());
         roleTO.setParent(8L);
         roleTO.setPasswordPolicy(4L);
 
@@ -207,23 +190,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("latestRole");
-        roleTO.setParent(8L);
-
-        // verify inheritance password and account policies
-        roleTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        roleTO.setAccountPolicy(6L);
-
-        roleTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        roleTO.setPasswordPolicy(2L);
-
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-
-        roleTO.addResource("resource-ldap");
-
+        RoleTO roleTO = buildRoleTO("latestRole");
         roleTO = roleService.create(roleTO);
 
         assertEquals(1, roleTO.getAttributes().size());
@@ -236,7 +203,8 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.setName("finalRole");
+        String modName = "finalRole" + getUUIDString(); 
+        roleMod.setName(modName);
         roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
 
         // change password policy inheritance
@@ -244,7 +212,7 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
-        assertEquals("finalRole", roleTO.getName());
+        assertEquals(modName, roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());
 
         // changes ignored because not requested (null ReferenceMod)
@@ -257,9 +225,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingVirAttribute() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("withvirtual");
-        roleTO.setParent(8L);
+        RoleTO roleTO = buildBasicRoleTO("withvirtual");
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
 
         roleTO = roleService.create(roleTO);
@@ -279,9 +245,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingDerAttribute() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("withderived");
-        roleTO.setParent(8L);
+        RoleTO roleTO = buildBasicRoleTO("withderived");
         roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
 
         roleTO = roleService.create(roleTO);
@@ -338,36 +302,30 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void issue178() {
         RoleTO roleTO = new RoleTO();
-        roleTO.setName("torename");
+        String roleName = "torename" + getUUIDString(); 
+        roleTO.setName(roleName);
 
         RoleTO actual = roleService.create(roleTO);
 
         assertNotNull(actual);
-        assertEquals("torename", actual.getName());
+        assertEquals(roleName, actual.getName());
         assertEquals(0L, actual.getParent());
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(actual.getId());
-        roleMod.setName("renamed");
+        String renamedRole = "renamed" + getUUIDString(); 
+        roleMod.setName(renamedRole);
 
         actual = roleService.update(roleMod.getId(), roleMod);
-        ;
 
         assertNotNull(actual);
-        assertEquals("renamed", actual.getName());
+        assertEquals(renamedRole, actual.getName());
         assertEquals(0L, actual.getParent());
     }
 
     @Test
     public void issueSYNCOPE228() {
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("issueSYNCOPE228");
-        roleTO.setParent(8L);
-        roleTO.setInheritAccountPolicy(false);
-        roleTO.setAccountPolicy(6L);
-        roleTO.setInheritPasswordPolicy(true);
-        roleTO.setPasswordPolicy(2L);
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
+        RoleTO roleTO = buildRoleTO("issueSYNCOPE228");
         roleTO.addEntitlement("USER_READ");
         roleTO.addEntitlement("SCHEMA_READ");
 
@@ -394,4 +352,30 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().isEmpty());
     }
+
+	private RoleTO buildBasicRoleTO(String name) {
+		RoleTO roleTO = new RoleTO();
+        roleTO.setName(name + getUUIDString());
+        roleTO.setParent(8L);
+		return roleTO;
+	}
+
+	private RoleTO buildRoleTO(String name) {
+		RoleTO roleTO = buildBasicRoleTO(name);
+
+        // verify inheritance password and account policies
+        roleTO.setInheritAccountPolicy(false);
+        // not inherited so setter execution shouldn't be ignored
+        roleTO.setAccountPolicy(6L);
+
+        roleTO.setInheritPasswordPolicy(true);
+        // inherited so setter execution should be ignored
+        roleTO.setPasswordPolicy(2L);
+
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
+
+        roleTO.addResource("resource-ldap");
+		return roleTO;
+	}
+
 }

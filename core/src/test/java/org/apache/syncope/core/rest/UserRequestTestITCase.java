@@ -54,7 +54,7 @@ public class UserRequestTestITCase extends AbstractTest {
         configurationTO = configurationService.create(configurationTO);
         assertNotNull(configurationTO);
 
-        UserTO userTO = UserTestITCase.getSampleTO("selfcreate@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getSampleUniqueTO();
 
         // 2. get unauthorized when trying to request user create
         SyncopeClientException exception = null;
@@ -83,7 +83,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 6. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
         attrCond.setSchema("userId");
-        attrCond.setExpression("selfcreate@syncope.apache.org");
+        attrCond.setExpression(userTO.getUsername());
 
         final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(attrCond));
         assertTrue(matchingUsers.isEmpty());
@@ -96,7 +96,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void update() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleTO("selfupdate@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getSampleUniqueTO();
         String initialPassword = userTO.getPassword();
 
         userTO = userService.create(userTO);
@@ -152,7 +152,7 @@ public class UserRequestTestITCase extends AbstractTest {
     @Test
     public void delete() {
         // 1. create an user (as admin)
-        UserTO userTO = UserTestITCase.getSampleTO("selfdelete@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getSampleUniqueTO();
         String initialPassword = userTO.getPassword();
 
         userTO = userService.create(userTO);

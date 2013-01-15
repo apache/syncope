@@ -59,33 +59,12 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        NotificationTO notificationTO = new NotificationTO();
-        notificationTO.setTraceLevel(TraceLevel.SUMMARY);
-        notificationTO.addEvent("create");
-
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
-                NodeCond.getLeafCond(fullnameLeafCond2));
-
-        notificationTO.setAbout(about);
+        NotificationTO notificationTO = buildNotificationTO();
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
         NodeCond recipients = NodeCond.getLeafCond(membCond);
-
         notificationTO.setRecipients(recipients);
-
-        notificationTO.setRecipientAttrName("email");
-        notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
-
-        notificationTO.setSender("syncope@syncope.apache.org");
-        notificationTO.setSubject("Test notification");
-        notificationTO.setTemplate("test");
 
         NotificationTO actual = notificationService.create(notificationTO);
 
@@ -123,12 +102,23 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        NotificationTO deletedNotification = notificationService.delete(101L);
+    	NotificationTO notification = null;
+    	try {
+    		// Check for pre-loaded notification: must be deleted for other create tests success
+    		notification = notificationService.read(101L);	
+    	} catch (SyncopeClientCompositeErrorException e) {
+    		assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
+    		notification = buildNotificationTO();
+            notification.setSelfAsRecipient(true);
+            notification = notificationService.create(notification);
+    	}
+    	
+        NotificationTO deletedNotification = notificationService.delete(notification.getId());
         assertNotNull(deletedNotification);
 
         SyncopeClientException exception = null;
         try {
-            notificationService.read(101L);
+            notificationService.read(notification.getId());
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.NotFound);
         }
@@ -137,6 +127,25 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE83() {
+        NotificationTO notificationTO = buildNotificationTO();
+        notificationTO.setSelfAsRecipient(true);
+
+        NotificationTO actual = null;
+        SyncopeClientException exception = null;
+        try {
+            actual = notificationService.create(notificationTO);
+
+        } catch (SyncopeClientCompositeErrorException e) {
+            exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
+        }
+        assertNull(exception);
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        notificationTO.setId(actual.getId());
+        assertEquals(actual, notificationTO);
+    }
+
+	private NotificationTO buildNotificationTO() {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.addEvent("create");
@@ -155,24 +164,9 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setRecipientAttrName("email");
         notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
 
-        notificationTO.setSelfAsRecipient(true);
-
         notificationTO.setSender("syncope@syncope.apache.org");
-        notificationTO.setSubject("Test notification without");
+        notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
-
-        NotificationTO actual = null;
-        SyncopeClientException exception = null;
-        try {
-            actual = notificationService.create(notificationTO);
-
-        } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
-        }
-        assertNull(exception);
-        assertNotNull(actual);
-        assertNotNull(actual.getId());
-        notificationTO.setId(actual.getId());
-        assertEquals(actual, notificationTO);
-    }
+		return notificationTO;
+	}
 }
