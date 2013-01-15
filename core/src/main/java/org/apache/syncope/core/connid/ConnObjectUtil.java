@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
@@ -200,6 +201,13 @@ public class ConnObjectUtil {
                     || userDataBinder.verifyPassword(user, ((UserTO) updated).getPassword())) {
 
                 ((UserTO) updated).setPassword(null);
+            }
+
+            for (MembershipTO membTO : ((UserTO) updated).getMemberships()) {
+                Membership memb = user.getMembership(membTO.getRoleId());
+                if (memb != null) {
+                    membTO.setId(memb.getId());
+                }
             }
 
             return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
