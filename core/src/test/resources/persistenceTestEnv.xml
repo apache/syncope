@@ -24,7 +24,7 @@
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <bean class="org.apache.syncope.core.persistence.dao.TestDbInitializer"/>
+  <bean class="org.apache.syncope.core.persistence.dao.impl.TestDbInitializer"/>
   <bean class="org.apache.syncope.core.persistence.dao.DummyConnectorRegistry"> 
   </bean>
   <bean class="org.apache.syncope.core.persistence.dao.impl.ContentLoader">

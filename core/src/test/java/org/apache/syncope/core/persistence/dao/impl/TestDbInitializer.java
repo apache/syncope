@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.dao;
+package org.apache.syncope.core.persistence.dao.impl;
 
 import javax.servlet.ServletContext;
 
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
-import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,6 +40,6 @@ public class TestDbInitializer implements ServletContextAware, InitializingBean 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        contentLoader.load(ActivitiDetector.isActivitiEnabledForUsers());
+        contentLoader.load(true);
     }
 }
