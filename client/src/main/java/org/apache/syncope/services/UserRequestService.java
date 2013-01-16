@@ -33,7 +33,6 @@ public interface UserRequestService {
 
     @GET
     @Path("create/allowed")
-    //@RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
     boolean isCreateAllowed();
 
     @POST

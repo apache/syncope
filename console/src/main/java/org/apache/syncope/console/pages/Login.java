@@ -30,6 +30,8 @@ import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.syncope.services.EntitlementService;
+import org.apache.syncope.services.UserRequestService;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -185,14 +187,13 @@ public class Login extends WebPage {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
 
         // 2. Search authorizations for user specified by credentials
-        return restTemplate.getForObject(baseURL + "auth/entitlements.json", String[].class);
+        return SyncopeSession.get().getService(EntitlementService.class).getMyEntitlements().toArray(new String[0]);
     }
 
     private boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
-            result = restTemplate.getForObject(baseURL + "user/request/create/allowed", Boolean.class);
+            result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
         } catch (HttpClientErrorException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
