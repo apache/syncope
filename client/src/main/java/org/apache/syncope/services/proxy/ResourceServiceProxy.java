@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.services.ResourceService;
@@ -32,29 +30,30 @@ import org.springframework.web.client.RestTemplate;
 
 public class ResourceServiceProxy extends SpringServiceProxy implements ResourceService {
 
-    public ResourceServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public ResourceServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public ResourceTO create(ResourceTO resourceTO) {
+    public ResourceTO create(final ResourceTO resourceTO) {
         return getRestTemplate().postForObject(baseUrl + "resource/create.json", resourceTO, ResourceTO.class);
     }
 
     @Override
-    public ResourceTO update(String resourceName, ResourceTO resourceTO) {
+    public ResourceTO update(final String resourceName, final ResourceTO resourceTO) {
         return getRestTemplate().postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     @Override
-    public ResourceTO delete(String resourceName) {
+    public ResourceTO delete(final String resourceName) {
         return getRestTemplate().getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class,
                 resourceName);
     }
 
     @Override
-    public ResourceTO read(String resourceName) {
-        return getRestTemplate().getForObject(baseUrl + "resource/read/{resourceName}.json", ResourceTO.class, resourceName);
+    public ResourceTO read(final String resourceName) {
+        return getRestTemplate().getForObject(baseUrl + "resource/read/{resourceName}.json", ResourceTO.class,
+                resourceName);
     }
 
     @Override
@@ -69,23 +68,24 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
     }
 
     @Override
-    public List<ResourceTO> list(Long connInstanceId) {
-        if (connInstanceId == null)
+    public List<ResourceTO> list(final Long connInstanceId) {
+        if (connInstanceId == null) {
             return list();
+        }
 
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json?connInstanceId={connId}", ResourceTO[].class,
-                connInstanceId));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json?connInstanceId={connId}",
+                ResourceTO[].class, connInstanceId));
     }
 
     @Override
-    public ConnObjectTO getConnector(String resourceName, AttributableType type, String objectId) {
+    public ConnObjectTO getConnector(final String resourceName, final AttributableType type, final String objectId) {
         return getRestTemplate().getForObject(baseUrl + "resource/{resourceName}/read/{type}/{objectId}.json",
-                ConnObjectTO.class, resourceName, type.toString().toUpperCase(), objectId);
+                ConnObjectTO.class, resourceName, type.name(), objectId);
     }
 
     @Override
-    public boolean check(ResourceTO resourceTO) {
-        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).booleanValue();
+    public boolean check(final ResourceTO resourceTO) {
+        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).
+                booleanValue();
     }
-
 }

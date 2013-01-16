@@ -555,7 +555,7 @@ public class ResourceMappingPanel extends Panel {
         final List<IntMappingType> res = new ArrayList<IntMappingType>();
 
         if (entity != null) {
-            res.addAll(IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.toString())));
+            res.addAll(IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.name())));
         }
 
         return res;
