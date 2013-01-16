@@ -123,7 +123,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             user = userDAO.find(username);
 
             if (user != null) {
-                if (user.getSuspended()) {
+                if (user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
                 authenticated = PasswordEncoder.verifyPassword(

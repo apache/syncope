@@ -19,8 +19,8 @@
 package org.apache.syncope.core.policy;
 
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.types.AccountPolicySpec;
 
 public interface UserSuspender {
-    void suspend(final AccountPolicySpec policy, final SyncopeUser user);
+
+    void suspend(SyncopeUser user, boolean suspend);
 }

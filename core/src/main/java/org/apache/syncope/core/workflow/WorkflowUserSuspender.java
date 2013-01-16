@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.workflow;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
-
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -30,7 +29,6 @@ import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
-import org.apache.syncope.types.AccountPolicySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WorkflowUserSuspender implements UserSuspender {
+
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowUserSuspender.class);
 
     @Autowired
@@ -53,7 +52,7 @@ public class WorkflowUserSuspender implements UserSuspender {
     private UserDataBinder userDataBinder;
 
     @Override
-    public void suspend(AccountPolicySpec policy, SyncopeUser user) {
+    public void suspend(final SyncopeUser user, final boolean suspend) {
         try {
             LOG.debug("User {}:{} is over to max failed logins", user.getId(), user.getUsername());
 
@@ -64,7 +63,7 @@ public class WorkflowUserSuspender implements UserSuspender {
             final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
 
             // propagate suspension if and only if it is required by policy
-            if (policy.isPropagateSuspension()) {
+            if (suspend) {
                 final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                         new WorkflowResult<Map.Entry<Long, Boolean>>(
                         new SimpleEntry<Long, Boolean>(updated.getResult(), Boolean.FALSE),
@@ -79,6 +78,6 @@ public class WorkflowUserSuspender implements UserSuspender {
             }
         } catch (Exception e) {
             LOG.error("Error during user suspension", e);
-        }    }
-
+        }
+    }
 }

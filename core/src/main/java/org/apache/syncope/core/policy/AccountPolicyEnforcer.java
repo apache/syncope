@@ -19,7 +19,6 @@
 package org.apache.syncope.core.policy;
 
 import java.util.regex.Pattern;
-
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PolicyType;
@@ -34,9 +33,9 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
     private static final Pattern LCPATTERN = Pattern.compile("[a-z0-9-_@. ]+");
 
     private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
-    
-    @Autowired(required=false)
-    UserSuspender userSuspender;
+
+    @Autowired(required = false)
+    private UserSuspender userSuspender;
 
     /* (non-Javadoc)
      * @see AccountPolicyEnforcer#enforce(AccountPolicySpec, PolicyType, SyncopeUser)
@@ -74,6 +73,7 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
         if ((policy.isAllLowerCase() && !LCPATTERN.matcher(user.getUsername()).matches())
                 || (policy.isAllUpperCase() && !UCPATTERN.matcher(user.getUsername()).matches())
                 || !PATTERN.matcher(user.getUsername()).matches()) {
+
             throw new AccountPolicyException("Invalid username syntax");
         }
 
@@ -92,10 +92,11 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
         }
 
         // check for subsequent failed logins
-        if (user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.getSuspended()) {
-            userSuspender.suspend(policy, user);
+        if (userSuspender != null
+                && user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
+                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.isSuspended()) {
+
+            userSuspender.suspend(user, policy.isPropagateSuspension());
         }
     }
-
 }

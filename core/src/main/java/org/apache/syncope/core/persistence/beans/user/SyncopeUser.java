@@ -490,7 +490,7 @@ public class SyncopeUser extends AbstractAttributable {
         this.suspended = getBooleanAsInteger(suspended);
     }
 
-    public Boolean getSuspended() {
+    public Boolean isSuspended() {
         return isBooleanAsInteger(suspended);
     }
 

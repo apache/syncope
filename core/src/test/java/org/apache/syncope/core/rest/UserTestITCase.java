@@ -78,11 +78,11 @@ public class UserTestITCase extends AbstractTest {
     }
 
     public static UserTO getUniqueSampleTO(final String email) {
-    	return getSampleTO(getUUIDString() + email);
+        return getSampleTO(getUUIDString() + email);
     }
 
     public static UserTO getSampleTO(final String email) {
-    	String uid = email;
+        String uid = email;
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
         userTO.setUsername(uid);
@@ -169,20 +169,20 @@ public class UserTestITCase extends AbstractTest {
      * introducing a simple control.
      */
     public void issue172() {
-    	List<PasswordPolicyTO> policies = policyService.listByType(PolicyType.GLOBAL_PASSWORD);
-    	for (PasswordPolicyTO policyTO : policies) {
+        List<PasswordPolicyTO> policies = policyService.listByType(PolicyType.GLOBAL_PASSWORD);
+        for (PasswordPolicyTO policyTO : policies) {
             policyService.delete(PolicyType.PASSWORD, policyTO.getId());
-    	}
+        }
 
-    	try {
+        try {
             UserTO userTO = getUniqueSampleTO("issue172@syncope.apache.org");
             userService.create(userTO);
-    	} finally {
-        	for (PasswordPolicyTO policyTO : policies) {
+        } finally {
+            for (PasswordPolicyTO policyTO : policies) {
                 PolicyTO cPolicyTO = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
                 assertNotNull(cPolicyTO);
-        	}
-    	}
+            }
+        }
     }
 
     @Test
@@ -870,7 +870,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.addAttributeToBeUpdated(attributeMod("userId", newUserId));
 
         userMod.addAttributeToBeRemoved("fullname");
-        String newFullName = getUUIDString() +  "g.h@t.com";
+        String newFullName = getUUIDString() + "g.h@t.com";
         userMod.addAttributeToBeUpdated(attributeMod("fullname", newFullName));
 
         userMod.addDerivedAttributeToBeAdded("cn");

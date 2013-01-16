@@ -23,14 +23,15 @@ package org.apache.syncope.core.propagation;
  */
 public class PropagationException extends Exception {
 
+    private static final long serialVersionUID = -4828426289616526116L;
+
     /**
      * The resource involved in this exception.
      */
     private final String resourceName;
 
     /**
-     * Create a new instance based on resource name and original stacktrace
-     * received during propagation.
+     * Create a new instance based on resource name and original stacktrace received during propagation.
      *
      * @param resourceName name of resource involved in this exception
      * @param stackTrace original stacktrace
