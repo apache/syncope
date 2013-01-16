@@ -27,14 +27,15 @@ under the License.
   </properties>
 
   <body>    
-    <section name="Identity and Role Administration">
+    <section name="Account and Role Administration">
       <ul>
         <li>Password management and Self-Service Operations</li>
         <li>Configurable Password encryption</li>
         <li>Attribute validators (Reg-Exp based and custom)</li>
         <li>Account Policy management</li>
         <li>Password Policy management</li>
-        <li>Role-based provisioning</li>
+        <li>User role-based provisioning</li>
+        <li>Role provisioning</li>
         <li>Account status information on external resources</li>
       </ul>
     </section>

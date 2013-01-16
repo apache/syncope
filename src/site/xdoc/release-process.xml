@@ -106,6 +106,83 @@ under the License.
     
     <section name="Release steps">
       
+      <subsection name="Verify DBMS and JEE containers">
+        <p>
+        This is an optional step.<br/>
+        These verifications take some time and have quite strong environment requirements. However, it is of fundamental
+        importance to go through these at least once for every major release.
+        </p>
+        <p>
+          All verifications takes place in the <tt>core</tt> submodule.
+        <ol>
+          <li>DBMS
+            <ul>
+              <li>PostgreSQL
+                <ul>
+                  <li>configure <tt>src/test/resources/postgres/persistence.properties</tt></li>
+                  <li>
+<source>$ mvn -P postgres-it</source>
+                  </li>
+                </ul>
+              </li>
+              <li>MySQL
+                <ul>
+                  <li>configure <tt>src/test/resources/mysql/persistence.properties</tt></li>
+                  <li>
+<source>$ mvn -P mysql-it</source>
+                  </li>
+                </ul>
+              </li>                
+              <li>Oracle database
+                <ul>
+                  <li>configure <tt>src/test/resources/oracle/persistence.properties</tt></li>
+                  <li>
+<source>$ mvn -P oracle-it</source>
+                  </li>
+                </ul>
+              </li>               
+              <li>MS SQL Server
+                <ul>
+                  <li>configure <tt>src/test/resources/sqlserver/persistence.properties</tt></li>
+                  <li>
+<source>$ mvn -P sqlserver-it</source>
+                  </li>
+                </ul>
+              </li>                
+            </ul>
+          </li>
+          <li>JEE containers
+            <ul>
+              <li>Glassfish
+                <ul>
+                  <li>
+<source>$ mvn -P glassfish-it</source>
+                  </li>
+                </ul>
+              </li>
+              <li>JBoss AS
+                <ul>
+                  <li>
+<source>$ mvn -P jboss-it</source>
+                  </li>
+                </ul>
+              </li>
+              <li>Oracle WebLogic
+                <ul>
+                  <li>Put local WebLogic installation under <tt>/opt/weblogic-12.1.1</tt> or 
+pass <tt>-Dweblogic.home=...</tt> to Maven
+                  </li>
+                  <li>
+<source>$ mvn -P weblogic-it</source>
+                  </li>
+                </ul>
+              </li>                
+            </ul>
+          </li>
+        </ol>
+        </p>
+      </subsection>
+      
       <subsection name="Prepare the source for release">
         <ol>
           <li>Clean up JIRA so the             
