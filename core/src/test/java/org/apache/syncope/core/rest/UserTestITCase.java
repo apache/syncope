@@ -2189,4 +2189,22 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getVirtualAttributes().size());
         assertEquals("virtualvalue", userTO.getVirtualAttributes().get(0).getValues().get(0));
     }
+
+    @Test
+    public void issueSYNCOPE266() {
+        UserTO userTO = getSampleTO("syncope266@apache.org");
+        userTO.getResources().clear();
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        // this resource has not a mapping for Password
+        userMod.addResourceToBeAdded("ws-target-resource-update");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+    }
 }

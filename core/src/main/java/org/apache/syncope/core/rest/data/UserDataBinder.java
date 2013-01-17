@@ -51,6 +51,7 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.CipherAlgorithm;
 import org.apache.syncope.types.IntMappingType;
@@ -360,15 +361,24 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // now, let's see if there are new resource subscriptions without providing password
-        Set<String> updatedResources = user.getResourceNames();
-        updatedResources.removeAll(currentResources);
-        if (!updatedResources.isEmpty() && StringUtils.isBlank(userMod.getPassword())) {
+        if (StringUtils.isBlank(userMod.getPassword())) {
+            Set<String> updatedResources = user.getResourceNames();
+            updatedResources.removeAll(currentResources);
 
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-            sce.addElement("password cannot be empty " + "when subscribing to new resources");
-            scce.addException(sce);
+            for (String res : updatedResources) {
+                final ExternalResource extRes = resourceDAO.find(res);
 
-            throw scce;
+                if (extRes != null && !SchemaMappingUtil.getMappings(
+                        extRes.getMappings(), "password", IntMappingType.Password).isEmpty()) {
+
+                    SyncopeClientException sce =
+                            new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+                    sce.addElement("password cannot be empty " + "when subscribing to new resources");
+                    scce.addException(sce);
+
+                    throw scce;
+                }
+            }
         }
 
         propByRes.addAll(PropagationOperation.DELETE, toBeDeprovisioned);
