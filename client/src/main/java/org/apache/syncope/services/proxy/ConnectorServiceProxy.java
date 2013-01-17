@@ -20,7 +20,6 @@ package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.services.ConnectorService;
@@ -29,30 +28,30 @@ import org.springframework.web.client.RestTemplate;
 
 public class ConnectorServiceProxy extends SpringServiceProxy implements ConnectorService {
 
-    public ConnectorServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public ConnectorServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public ConnInstanceTO create(ConnInstanceTO connectorTO) {
+    public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
         return getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
                 ConnInstanceTO.class);
     }
 
     @Override
-    public ConnInstanceTO update(Long connectorId, ConnInstanceTO connectorTO) {
+    public ConnInstanceTO update(final Long connectorId, final ConnInstanceTO connectorTO) {
         return getRestTemplate().postForObject(baseUrl + "connector/update.json", connectorTO,
                 ConnInstanceTO.class);
     }
 
     @Override
-    public ConnInstanceTO delete(Long connectorId) {
+    public ConnInstanceTO delete(final Long connectorId) {
         return getRestTemplate().getForObject(baseUrl + "connector/delete/{connectorId}.json",
                 ConnInstanceTO.class, connectorId);
     }
 
     @Override
-    public List<ConnInstanceTO> list(String lang) {
+    public List<ConnInstanceTO> list(final String lang) {
         String param = (lang != null)
                 ? "?lang=" + lang
                 : "";
@@ -62,13 +61,13 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public ConnInstanceTO read(Long connectorId) {
+    public ConnInstanceTO read(final Long connectorId) {
         return getRestTemplate().getForObject(baseUrl + "connector/read/{connectorId}", ConnInstanceTO.class,
                 connectorId);
     }
 
     @Override
-    public List<ConnBundleTO> getBundles(String lang) {
+    public List<ConnBundleTO> getBundles(final String lang) {
         String param = (lang != null)
                 ? "?lang=" + lang
                 : "";
@@ -78,31 +77,29 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public List<String> getSchemaNames(Long connectorId, ConnInstanceTO connectorTO, boolean showall) {
-        String param = (showall)
-                ? "?showall=true"
-                : "?showall=false";
+    public List<String> getSchemaNames(final Long connectorId, final ConnInstanceTO connectorTO, boolean showall) {
+        final String queryString = "?showall=" + String.valueOf(showall);
 
-        return Arrays.asList(getRestTemplate().postForObject(baseUrl + "connector/schema/list" + param, connectorTO,
+        return Arrays.asList(getRestTemplate().postForObject(baseUrl + "connector/schema/list" + queryString,
+                connectorTO,
                 String[].class));
     }
 
     @Override
-    public List<ConnConfProperty> getConfigurationProperties(Long connectorId) {
+    public List<ConnConfProperty> getConfigurationProperties(final Long connectorId) {
         return Arrays.asList(getRestTemplate()
                 .getForObject(baseUrl + "connector/{connectorId}/configurationProperty/list",
-                        ConnConfProperty[].class, connectorId));
+                ConnConfProperty[].class, connectorId));
     }
 
     @Override
-    public boolean validate(ConnInstanceTO connectorTO) {
+    public boolean validate(final ConnInstanceTO connectorTO) {
         return getRestTemplate().postForObject(baseUrl + "connector/check.json", connectorTO, Boolean.class);
     }
 
     @Override
-    public ConnInstanceTO readConnectorBean(String resourceName) {
+    public ConnInstanceTO readConnectorBean(final String resourceName) {
         return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/connectorBean",
                 ConnInstanceTO.class, resourceName);
     }
-
 }

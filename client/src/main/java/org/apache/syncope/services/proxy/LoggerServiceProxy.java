@@ -18,19 +18,17 @@
  */
 package org.apache.syncope.services.proxy;
 
+import ch.qos.logback.classic.Level;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.client.to.LoggerTO;
 import org.apache.syncope.services.LoggerService;
 import org.apache.syncope.types.AuditLoggerName;
 import org.springframework.web.client.RestTemplate;
 
-import ch.qos.logback.classic.Level;
-
 public class LoggerServiceProxy extends SpringServiceProxy implements LoggerService {
 
-    public LoggerServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public LoggerServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
@@ -41,29 +39,27 @@ public class LoggerServiceProxy extends SpringServiceProxy implements LoggerServ
 
     @Override
     public List<AuditLoggerName> listAudits() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/audit/list",
-                AuditLoggerName[].class));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/audit/list", AuditLoggerName[].class));
     }
 
     @Override
-    public LoggerTO update(String name, Level level) {
+    public LoggerTO update(final String name, final Level level) {
         return getRestTemplate().postForObject(baseUrl + "logger/log/{name}/{level}", null, LoggerTO.class, name,
                 level);
     }
 
     @Override
-    public LoggerTO delete(String name) {
+    public LoggerTO delete(final String name) {
         return getRestTemplate().getForObject(baseUrl + "logger/log/delete/{name}", LoggerTO.class, name);
     }
 
     @Override
-    public void enableAudit(AuditLoggerName auditLoggerName) {
+    public void enableAudit(final AuditLoggerName auditLoggerName) {
         getRestTemplate().put(baseUrl + "logger/audit/enable", auditLoggerName);
     }
 
     @Override
-    public void disableAudit(AuditLoggerName auditLoggerName) {
+    public void disableAudit(final AuditLoggerName auditLoggerName) {
         getRestTemplate().put(baseUrl + "logger/audit/disable", auditLoggerName);
     }
-
 }

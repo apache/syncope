@@ -22,16 +22,16 @@ import org.springframework.web.client.RestTemplate;
 
 public abstract class SpringServiceProxy {
 
-	protected String baseUrl;
+    protected String baseUrl;
 
-	private RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-	public SpringServiceProxy(String baseUrl, RestTemplate restTemplate) {
-		this.baseUrl = baseUrl;
-		this.restTemplate = restTemplate;
-	}
+    public SpringServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
+        this.baseUrl = baseUrl;
+        this.restTemplate = restTemplate;
+    }
 
-	public void setRestTemplate(RestTemplate restTemplate) {
+    public void setRestTemplate(final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

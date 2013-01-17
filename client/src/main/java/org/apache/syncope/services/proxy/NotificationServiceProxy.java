@@ -20,19 +20,18 @@ package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.services.NotificationService;
 import org.springframework.web.client.RestTemplate;
 
 public class NotificationServiceProxy extends SpringServiceProxy implements NotificationService {
 
-    public NotificationServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public NotificationServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public NotificationTO read(Long notificationId) {
+    public NotificationTO read(final Long notificationId) {
         return getRestTemplate().getForObject(baseUrl + "notification/read/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
@@ -44,21 +43,20 @@ public class NotificationServiceProxy extends SpringServiceProxy implements Noti
     }
 
     @Override
-    public NotificationTO create(NotificationTO notificationTO) {
+    public NotificationTO create(final NotificationTO notificationTO) {
         return getRestTemplate().postForObject(baseUrl + "notification/create.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
-    public NotificationTO update(Long notificationId, NotificationTO notificationTO) {
+    public NotificationTO update(final Long notificationId, final NotificationTO notificationTO) {
         return getRestTemplate().postForObject(baseUrl + "notification/update.json", notificationTO,
                 NotificationTO.class);
     }
 
     @Override
-    public NotificationTO delete(Long notificationId) {
+    public NotificationTO delete(final Long notificationId) {
         return getRestTemplate().getForObject(baseUrl + "notification/delete/{notificationId}.json",
                 NotificationTO.class, notificationId);
     }
-
 }

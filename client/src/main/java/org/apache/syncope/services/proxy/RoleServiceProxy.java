@@ -20,7 +20,6 @@ package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.RoleTO;
@@ -29,14 +28,14 @@ import org.springframework.web.client.RestTemplate;
 
 public class RoleServiceProxy extends SpringServiceProxy implements RoleService {
 
-    public RoleServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public RoleServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public List<RoleTO> children(Long roleId) {
-        return Arrays
-                .asList(getRestTemplate().getForObject(baseUrl + "role/children/{roleId}.json", RoleTO[].class, roleId));
+    public List<RoleTO> children(final Long roleId) {
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "role/children/{roleId}.json",
+                RoleTO[].class, roleId));
     }
 
     @Override
@@ -46,12 +45,12 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
     }
 
     @Override
-    public RoleTO create(RoleTO roleTO) {
+    public RoleTO create(final RoleTO roleTO) {
         return getRestTemplate().postForObject(baseUrl + "role/create", roleTO, RoleTO.class);
     }
 
     @Override
-    public RoleTO delete(Long roleId) {
+    public RoleTO delete(final Long roleId) {
         return getRestTemplate().getForObject(baseUrl + "role/delete/{roleId}", RoleTO.class, roleId);
     }
 
@@ -61,45 +60,44 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
     }
 
     @Override
-    public List<RoleTO> list(int page, int size) {
-        //        return Arrays.asList(getRestTemplate().getForObject(baseURL + "role/list.json", RoleTO[].class, page, size));
+    public List<RoleTO> list(final int page, final int size) {
+        //return Arrays.asList(getRestTemplate().getForObject(baseURL + "role/list.json", RoleTO[].class, page, size));
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public RoleTO parent(Long roleId) {
+    public RoleTO parent(final Long roleId) {
         return getRestTemplate().getForObject(baseUrl + "role/parent/{roleId}.json", RoleTO.class, roleId);
     }
 
     @Override
-    public RoleTO read(Long roleId) {
+    public RoleTO read(final Long roleId) {
         return getRestTemplate().getForObject(baseUrl + "role/read/{roleId}.json", RoleTO.class, roleId);
     }
 
     @Override
-    public List<RoleTO> search(NodeCond searchCondition) {
+    public List<RoleTO> search(final NodeCond searchCondition) {
         return Arrays.asList(getRestTemplate().postForObject(baseUrl + "role/search", searchCondition, RoleTO[].class));
     }
 
     @Override
-    public List<RoleTO> search(NodeCond searchCondition, int page, int size) {
+    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size) {
         return Arrays.asList(getRestTemplate().postForObject(baseUrl + "role/search/{page}/{size}", searchCondition,
                 RoleTO[].class, page, size));
     }
 
     @Override
-    public int searchCount(NodeCond searchCondition) {
+    public int searchCount(final NodeCond searchCondition) {
         return getRestTemplate().postForObject(baseUrl + "role/search/count.json", searchCondition, Integer.class);
     }
 
     @Override
-    public RoleTO selfRead(Long roleId) {
+    public RoleTO selfRead(final Long roleId) {
         return getRestTemplate().getForObject(baseUrl + "role/selfRead/{roleId}", RoleTO.class, roleId);
     }
 
     @Override
-    public RoleTO update(Long roleId, RoleMod roleMod) {
+    public RoleTO update(final Long roleId, final RoleMod roleMod) {
         return getRestTemplate().postForObject(baseUrl + "role/update", roleMod, RoleTO.class);
     }
-
 }

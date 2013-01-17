@@ -20,7 +20,6 @@ package org.apache.syncope.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserRequestTO;
 import org.apache.syncope.client.to.UserTO;
@@ -29,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class UserRequestServiceProxy extends SpringServiceProxy implements UserRequestService {
 
-    public UserRequestServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public UserRequestServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
@@ -39,17 +38,17 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
     }
 
     @Override
-    public UserRequestTO create(UserTO userTO) {
+    public UserRequestTO create(final UserTO userTO) {
         return getRestTemplate().postForObject(baseUrl + "user/request/create", userTO, UserRequestTO.class);
     }
 
     @Override
-    public UserRequestTO update(UserMod userMod) {
+    public UserRequestTO update(final UserMod userMod) {
         return getRestTemplate().postForObject(baseUrl + "user/request/update", userMod, UserRequestTO.class);
     }
 
     @Override
-    public UserRequestTO delete(Long userId) {
+    public UserRequestTO delete(final Long userId) {
         return getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class, userId);
     }
 
@@ -59,15 +58,14 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
     }
 
     @Override
-    public UserRequestTO read(Long requestId) {
-        return getRestTemplate()
-                .getForObject(baseUrl + "user/request/read/{requestId}", UserRequestTO.class, requestId);
+    public UserRequestTO read(final Long requestId) {
+        return getRestTemplate().getForObject(
+                baseUrl + "user/request/read/{requestId}", UserRequestTO.class, requestId);
     }
 
     @Override
-    public UserRequestTO deleteRequest(Long requestId) {
-        return getRestTemplate().getForObject(baseUrl + "user/request/deleteRequest/{requestId}", UserRequestTO.class,
-                requestId);
+    public UserRequestTO deleteRequest(final Long requestId) {
+        return getRestTemplate().getForObject(
+                baseUrl + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
     }
-
 }

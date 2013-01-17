@@ -23,27 +23,25 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.apache.syncope.services.ConfigurationService;
 import org.springframework.web.client.RestTemplate;
 
 public class ConfigurationServiceProxy extends SpringServiceProxy implements ConfigurationService {
 
-    public ConfigurationServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public ConfigurationServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public ConfigurationTO create(ConfigurationTO configurationTO) {
-        return getRestTemplate()
-                .postForObject(baseUrl + "configuration/create", configurationTO, ConfigurationTO.class);
+    public ConfigurationTO create(final ConfigurationTO configurationTO) {
+        return getRestTemplate().postForObject(
+                baseUrl + "configuration/create", configurationTO, ConfigurationTO.class);
     }
 
     @Override
-    public ConfigurationTO delete(String key) {
+    public ConfigurationTO delete(final String key) {
         return getRestTemplate().getForObject(baseUrl + "configuration/delete/{key}.json", ConfigurationTO.class, key);
     }
 
@@ -54,12 +52,12 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
     }
 
     @Override
-    public ConfigurationTO read(String key) {
+    public ConfigurationTO read(final String key) {
         return getRestTemplate().getForObject(baseUrl + "configuration/read/{key}.json", ConfigurationTO.class, key);
     }
 
     @Override
-    public ConfigurationTO update(String key, ConfigurationTO configurationTO) {
+    public ConfigurationTO update(final String key, final ConfigurationTO configurationTO) {
         return getRestTemplate()
                 .postForObject(baseUrl + "configuration/update", configurationTO, ConfigurationTO.class);
     }
@@ -81,5 +79,4 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
         return Response.ok(getRestTemplate().getForObject(baseUrl + "configuration/dbexport", InputStream.class))
                 .build();
     }
-
 }

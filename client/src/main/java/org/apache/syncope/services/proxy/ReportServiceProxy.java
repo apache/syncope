@@ -21,9 +21,7 @@ package org.apache.syncope.services.proxy;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.services.ReportService;
@@ -32,17 +30,17 @@ import org.springframework.web.client.RestTemplate;
 
 public class ReportServiceProxy extends SpringServiceProxy implements ReportService {
 
-    public ReportServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public ReportServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public ReportTO create(ReportTO reportTO) {
+    public ReportTO create(final ReportTO reportTO) {
         return getRestTemplate().postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
     }
 
     @Override
-    public ReportTO update(Long reportId, ReportTO reportTO) {
+    public ReportTO update(final Long reportId, final ReportTO reportTO) {
         return getRestTemplate().postForObject(baseUrl + "report/update", reportTO, ReportTO.class);
     }
 
@@ -57,7 +55,7 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public List<ReportTO> list(int page, int size) {
+    public List<ReportTO> list(final int page, final int size) {
         return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/list/{page}/{size}", ReportTO[].class,
                 page, size));
     }
@@ -74,18 +72,18 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public ReportTO read(Long reportId) {
+    public ReportTO read(final Long reportId) {
         return getRestTemplate().getForObject(baseUrl + "report/read/{reportId}", ReportTO.class, reportId);
     }
 
     @Override
-    public ReportExecTO readExecution(Long executionId) {
+    public ReportExecTO readExecution(final Long executionId) {
         return getRestTemplate().getForObject(baseUrl + "report/execution/read/{executionId}", ReportExecTO.class,
                 executionId);
     }
 
     @Override
-    public Response exportExecutionResult(Long executionId, ReportExecExportFormat fmt) {
+    public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         String format = (fmt != null)
                 ? "?fmt=" + fmt.toString()
                 : "";
@@ -95,20 +93,19 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public ReportExecTO execute(Long reportId) {
+    public ReportExecTO execute(final Long reportId) {
         return getRestTemplate().postForObject(baseUrl + "report/execute/{reportId}", null, ReportExecTO.class,
                 reportId);
     }
 
     @Override
-    public ReportTO delete(Long reportId) {
+    public ReportTO delete(final Long reportId) {
         return getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}", ReportTO.class, reportId);
     }
 
     @Override
-    public ReportExecTO deleteExecution(Long executionId) {
+    public ReportExecTO deleteExecution(final Long executionId) {
         return getRestTemplate().getForObject(baseUrl + "report/execution/delete/{executionId}", ReportExecTO.class,
                 executionId);
     }
-
 }

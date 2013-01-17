@@ -21,13 +21,12 @@ package org.apache.syncope.services.proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.syncope.services.EntitlementService;
 import org.springframework.web.client.RestTemplate;
 
 public class EntitlementServiceProxy extends SpringServiceProxy implements EntitlementService {
 
-    public EntitlementServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public EntitlementServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
@@ -42,5 +41,4 @@ public class EntitlementServiceProxy extends SpringServiceProxy implements Entit
         return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl + "auth/entitlements.json",
                 String[].class)));
     }
-
 }

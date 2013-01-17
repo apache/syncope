@@ -32,60 +32,71 @@ import org.springframework.web.client.RestTemplate;
 @SuppressWarnings("unchecked")
 public class SchemaServiceProxy extends SpringServiceProxy implements SchemaService {
 
-    public SchemaServiceProxy(String baseUrl, RestTemplate restTemplate) {
+    public SchemaServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T create(AttributableType kind, SchemaType type, T schemaTO) {
+    public <T extends AbstractSchemaTO> T create(final AttributableType kind, final SchemaType type, final T schemaTO) {
         return (T) getRestTemplate().postForObject(baseUrl + type + "/{kind}/create", schemaTO, getTOClass(type), kind);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T delete(AttributableType kind, SchemaType type, String schemaName) {
+    public <T extends AbstractSchemaTO> T delete(final AttributableType kind, final SchemaType type,
+            final String schemaName) {
+
         return (T) getRestTemplate().getForObject(baseUrl + type + "/{kind}/delete/{name}.json", getTOClass(type), kind,
                 schemaName);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(AttributableType kind, SchemaType type) {
+    public <T extends AbstractSchemaTO> List<T> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
-        case NORMAL:
-            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
-                    SchemaTO[].class, kind));
-        case DERIVED:
-            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
-                    DerivedSchemaTO[].class, kind));
-        case VIRTUAL:
-            return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
-                    VirtualSchemaTO[].class, kind));
-        default:
-            throw new IllegalArgumentException("SchemaType is not supported.");
+            case NORMAL:
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                        SchemaTO[].class, kind));
+
+            case DERIVED:
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                        DerivedSchemaTO[].class, kind));
+
+            case VIRTUAL:
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                        VirtualSchemaTO[].class, kind));
+
+            default:
+                throw new IllegalArgumentException("SchemaType is not supported.");
         }
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T read(AttributableType kind, SchemaType type, String schemaName) {
+    public <T extends AbstractSchemaTO> T read(final AttributableType kind, final SchemaType type,
+            final String schemaName) {
+
         return (T) getRestTemplate().getForObject(baseUrl + type + "/{kind}/read/{name}.json", getTOClass(type), kind,
                 schemaName);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T update(AttributableType kind, SchemaType type, String schemaName, T schemaTO) {
+    public <T extends AbstractSchemaTO> T update(final AttributableType kind, final SchemaType type,
+            final String schemaName, final T schemaTO) {
+
         return (T) getRestTemplate().postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
     }
 
-    private Class<? extends AbstractSchemaTO> getTOClass(SchemaType type) {
+    private Class<? extends AbstractSchemaTO> getTOClass(final SchemaType type) {
         switch (type) {
-        case NORMAL:
-            return SchemaTO.class;
-        case DERIVED:
-            return DerivedSchemaTO.class;
-        case VIRTUAL:
-            return VirtualSchemaTO.class;
-        default:
-            throw new IllegalArgumentException("SchemaType is not supported: " + type);
+            case NORMAL:
+                return SchemaTO.class;
+
+            case DERIVED:
+                return DerivedSchemaTO.class;
+
+            case VIRTUAL:
+                return VirtualSchemaTO.class;
+
+            default:
+                throw new IllegalArgumentException("SchemaType is not supported: " + type);
         }
     }
-
 }
