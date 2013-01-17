@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -288,7 +287,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(cancel);
 
         add(schemaForm);
-        add(new CloseOnESCBehavior(window));
     }
 
     private String getEnumValuesAsString(final List<String> enumerationValues) {

@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.SelectOnlyUserSearchResultPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
@@ -72,7 +71,6 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
             }
         });
 
-        add(new CloseOnESCBehavior(window));
     }
 
     private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,

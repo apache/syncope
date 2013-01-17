@@ -80,7 +80,6 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment = new Fragment("userModalFrag", "userModalEditFrag", this);
         fragment.setOutputMarkupId(true);
         add(fragment);
-        add(new CloseOnESCBehavior(window));
     }
 
     public UserTO getUserTO() {

@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.util.AttributableOperations;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.PageReference;
@@ -149,7 +148,6 @@ public class RoleModalPage extends BaseModalPage {
         form.add(cancel);
 
         add(form);
-        add(new CloseOnESCBehavior(window));
     }
 
     protected void submitAction(final AjaxRequestTarget target, final Form form) {

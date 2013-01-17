@@ -19,51 +19,36 @@
 package org.apache.syncope.console.commons;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 
-public class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
+public class CloseOnESCBehavior extends AjaxEventBehavior {
 
     private static final long serialVersionUID = 5826308247642534260L;
 
-    private ModalWindow modalWindow;
-
-    public CloseOnESCBehavior(ModalWindow modalWindow) {
-        this.modalWindow = modalWindow;
-    }
-
-    private static final String PRE_JS = "$(document).ready(function() {\n"
-            + "$(document).bind('keyup', function(evt) {\n"
-            + "    if (evt.keyCode == 27){\n";
-
-    private static final String POST_JS = "\n evt.preventDefault();\n"
-            + "evt.stopPropagation();\n"
-            + "    }\n"
-            + "  });\n"
-            + "});";
-
-    @Override
-    protected void respond(final AjaxRequestTarget target) {
-        modalWindow.close(target);
+    public CloseOnESCBehavior(String event) {
+        super(event);
     }
 
     @Override
-    protected String findIndicatorId() {
-        return null;
+    protected void onEvent(final AjaxRequestTarget target) {
+        ModalWindow.closeCurrent(target);
     }
 
     @Override
-    public void renderHead(Component component, IHeaderResponse response) {
-        super.renderHead(component, response);
-        response.render(JavaScriptHeaderItem.forScript(
-                new StringBuilder(PRE_JS).append(getCallbackScript()).append(POST_JS).toString(),
-                "closeModalOnEsc"));
-    }
+    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+        super.updateAjaxAttributes(attributes);
 
-    public void setModalWindow(ModalWindow modalWindow) {
-        this.modalWindow = modalWindow;
+        attributes.getAjaxCallListeners().add(new AjaxCallListener() {
+            private static final long serialVersionUID = 7160235486520935153L;
+
+            @Override
+            public CharSequence getPrecondition(final Component aComponent) {
+                return " if(Wicket.Event.keyCode(attrs.event) != 27){return false;}";
+            }
+        });
     }
 }

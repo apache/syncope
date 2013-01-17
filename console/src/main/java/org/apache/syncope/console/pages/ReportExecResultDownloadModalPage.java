@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -67,6 +66,5 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
             }
         });
         add(format);
-        add(new CloseOnESCBehavior(window));
     }
 }

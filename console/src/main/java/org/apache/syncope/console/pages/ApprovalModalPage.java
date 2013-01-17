@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.WorkflowFormPropertyTO;
 import org.apache.syncope.client.to.WorkflowFormTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.MapChoiceRenderer;
 import org.apache.syncope.console.rest.ApprovalRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -221,6 +220,5 @@ public class ApprovalModalPage extends BaseModalPage {
                 "submit"));
 
         add(form);
-        add(new CloseOnESCBehavior(window));
     }
 }

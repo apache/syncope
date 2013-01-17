@@ -26,7 +26,6 @@ import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -121,7 +120,6 @@ public class ReportModalPage extends BaseModalPage {
         form = new Form<ReportTO>("form");
         form.setModel(new CompoundPropertyModel(reportTO));
         add(form);
-        add(new CloseOnESCBehavior(window));
 
         setupProfile();
         setupExecutions();

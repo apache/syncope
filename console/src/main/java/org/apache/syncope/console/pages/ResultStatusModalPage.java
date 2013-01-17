@@ -30,7 +30,6 @@ import org.apache.syncope.client.to.ConnObjectTO;
 import org.apache.syncope.client.to.PropagationTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -191,7 +190,6 @@ public class ResultStatusModalPage extends BaseModalPage {
         container.add(close);
 
         setOutputMarkupId(true);
-        add(new CloseOnESCBehavior(window));
     }
 
     /**

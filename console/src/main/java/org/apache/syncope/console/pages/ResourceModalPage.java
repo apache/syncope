@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.client.to.MappingItemTO;
 import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
@@ -164,7 +163,6 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(cancel);
 
         add(form);
-        add(new CloseOnESCBehavior(window));
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
                 createFlag

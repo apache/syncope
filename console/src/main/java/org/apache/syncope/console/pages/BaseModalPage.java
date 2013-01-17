@@ -27,9 +27,9 @@ public abstract class BaseModalPage extends AbstractBasePage {
 
     private static final long serialVersionUID = -1443079028368471943L;
 
-    protected CloseOnESCBehavior closeOnEscBehavior;
-
     public BaseModalPage() {
         super();
+        
+        add(new CloseOnESCBehavior("keyup"));
     }
 }

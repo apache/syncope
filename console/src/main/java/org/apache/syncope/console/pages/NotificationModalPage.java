@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -249,7 +248,6 @@ class NotificationModalPage extends BaseModalPage {
         form.add(cancel);
 
         add(form);
-        add(new CloseOnESCBehavior(window));
     }
 
     private List<String> getSchemaNames(final IntMappingType type) {

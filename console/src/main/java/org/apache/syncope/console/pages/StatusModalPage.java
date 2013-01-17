@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.to.AbstractAttributableTO;
 import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.CloseOnESCBehavior;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -49,7 +48,6 @@ public class StatusModalPage extends BaseModalPage {
 
         final Form form = new Form("form");
         add(form);
-        add(new CloseOnESCBehavior(window));
 
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
