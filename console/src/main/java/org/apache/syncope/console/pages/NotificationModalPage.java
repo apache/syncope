@@ -57,16 +57,16 @@ class NotificationModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1975312550059578553L;
 
+    /**
+     * OnChange event name.
+     */
+    private static final String ON_CHANGE = "onchange";
+
     @SpringBean
     private NotificationRestClient restClient;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
-
-    /**
-     * OnChange event name.
-     */
-    private static String onchange = "onchange";
 
     public NotificationModalPage(final PageReference callPageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
@@ -124,7 +124,10 @@ class NotificationModalPage extends BaseModalPage {
         recipientAttrName.setRequired(true);
         form.add(recipientAttrName);
 
-        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 recipientAttrName.setChoices(getSchemaNames(notificationTO.getRecipientAttrType()));
@@ -160,7 +163,8 @@ class NotificationModalPage extends BaseModalPage {
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
-        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -175,7 +179,8 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -191,11 +196,11 @@ class NotificationModalPage extends BaseModalPage {
         });
 
         AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
 
@@ -225,6 +230,7 @@ class NotificationModalPage extends BaseModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -252,20 +258,24 @@ class NotificationModalPage extends BaseModalPage {
 
     private List<String> getSchemaNames(final IntMappingType type) {
         if (type == null) {
-            return Collections.emptyList();
+            return Collections.<String>emptyList();
         }
 
         switch (type) {
             case UserSchema:
                 return schemaRestClient.getSchemaNames(AttributableType.USER);
+
             case UserDerivedSchema:
                 return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+
             case UserVirtualSchema:
                 return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+
             case Username:
                 return Collections.singletonList("Username");
+
             default:
-                return Collections.emptyList();
+                return Collections.<String>emptyList();
         }
     }
 }

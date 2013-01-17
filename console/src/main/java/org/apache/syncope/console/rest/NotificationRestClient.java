@@ -20,7 +20,6 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.client.to.NotificationTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.services.ConfigurationService;
