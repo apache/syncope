@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.sync;
+package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
-import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
@@ -34,6 +32,8 @@ import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.sync.SyncActions;
+import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.types.ConflictResolutionAction;

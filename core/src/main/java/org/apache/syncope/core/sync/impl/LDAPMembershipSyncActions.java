@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.sync;
+package org.apache.syncope.core.sync.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +30,6 @@ import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -40,6 +39,8 @@ import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.sync.DefaultSyncActions;
+import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;

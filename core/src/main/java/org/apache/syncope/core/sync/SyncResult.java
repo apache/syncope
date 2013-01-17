@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.beans;
+package org.apache.syncope.core.sync;
 
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;

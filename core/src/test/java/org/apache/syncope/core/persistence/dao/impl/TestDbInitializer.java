@@ -40,6 +40,6 @@ public class TestDbInitializer implements ServletContextAware, InitializingBean 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        contentLoader.load(true);
+        contentLoader.load(false);
     }
 }

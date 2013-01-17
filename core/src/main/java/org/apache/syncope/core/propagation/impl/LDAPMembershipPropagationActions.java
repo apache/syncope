@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Simple action for propagating role memberships to LDAP groups, when the same resource is configured for both users
  * and roles.
  * 
- * @see org.apache.syncope.core.sync.LDAPMembershipSyncActions
+ * @see org.apache.syncope.core.sync.impl.LDAPMembershipSyncActions
  */
 public class LDAPMembershipPropagationActions extends DefaultPropagationActions {
 

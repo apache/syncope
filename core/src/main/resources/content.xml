@@ -122,8 +122,4 @@ under the License.
   <Entitlement name="AUDIT_ENABLE"/>
   <Entitlement name="AUDIT_DISABLE"/>
 
-  <ACT_GE_PROPERTY NAME_="schema.version" VALUE_="${activiti.version}" REV_="1"/>
-  <ACT_GE_PROPERTY NAME_="schema.history" VALUE_="create(${activiti.version})" REV_="1"/>
-  <ACT_GE_PROPERTY NAME_="next.dbid" VALUE_="1" REV_="1"/>
-  <ACT_GE_PROPERTY NAME_="historyLevel" VALUE_="1" REV_="1"/>    
 </dataset>

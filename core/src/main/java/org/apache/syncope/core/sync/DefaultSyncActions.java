@@ -21,8 +21,6 @@ package org.apache.syncope.core.sync;
 import java.util.List;
 import org.apache.syncope.client.mod.AbstractAttributableMod;
 import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.core.persistence.beans.SyncActions;
-import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;

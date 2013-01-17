@@ -87,7 +87,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     /**
      * This method has an explicit Transactional annotation because it is called by SyncJob.
      *
-     * @see org.apache.syncope.core.sync.SyncJob
+     * @see org.apache.syncope.core.sync.impl.SyncJob
      *
      * @param resource entity to be merged
      * @return the same entity, updated

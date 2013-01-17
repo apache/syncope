@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.sync;
+package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +40,6 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SyncActions;
-import org.apache.syncope.core.persistence.beans.SyncResult;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -58,6 +56,9 @@ import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.sync.SyncActions;
+import org.apache.syncope.core.sync.SyncResult;
+import org.apache.syncope.core.sync.SyncResult.Status;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;

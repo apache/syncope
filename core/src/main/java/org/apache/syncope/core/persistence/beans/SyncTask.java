@@ -80,7 +80,7 @@ public class SyncTask extends SchedTask {
     public SyncTask() {
         super();
 
-        super.setJobClassName("org.apache.syncope.core.sync.SyncJob");
+        super.setJobClassName("org.apache.syncope.core.sync.impl.SyncJob");
     }
 
     @Override

@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.validation.entity;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.types.EntityViolationType;
 
 public class SyncTaskValidator extends AbstractValidator implements ConstraintValidator<SyncTaskCheck, SyncTask> {

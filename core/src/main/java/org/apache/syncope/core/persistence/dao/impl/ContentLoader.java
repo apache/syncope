@@ -47,10 +47,8 @@ public class ContentLoader {
     private static final String VIEWS_FILE = "/views.xml";
     private static final String INDEXES_FILE = "/indexes.xml";
     private static final String CONTENT_FILE = "/content.xml";
+    private static final String ACTIVITY_CONTENT_FILE = "/activiticontent.xml";
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
     @Autowired
@@ -78,7 +76,10 @@ public class ContentLoader {
             deleteActivitiProperties(conn);
         }
         closeConnection(conn);
-        loadDefaultContent();
+        loadDefaultContent(CONTENT_FILE);
+        if (activitiEnabledForUsers) {
+            loadDefaultContent(ACTIVITY_CONTENT_FILE);
+        }
     }
 
     private boolean isDataPresent(Connection conn) {
@@ -169,11 +170,11 @@ public class ContentLoader {
         }
     }
 
-    private void loadDefaultContent() {
+    private void loadDefaultContent(String contentPath) {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(getClass().getResourceAsStream(CONTENT_FILE), importExport);
+            parser.parse(getClass().getResourceAsStream(contentPath), importExport);
             LOG.debug("Default content successfully loaded");
         } catch (Exception e) {
             LOG.error("While loading default content", e);
