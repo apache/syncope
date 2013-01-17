@@ -24,6 +24,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.to.NotificationTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.rest.NotificationRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.types.TraceLevel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -40,33 +52,21 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.rest.NotificationRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.TraceLevel;
 
 class NotificationModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1975312550059578553L;
+
+    /**
+     * OnChange event name.
+     */
+    private static final String ON_CHANGE = "onchange";
 
     @SpringBean
     private NotificationRestClient restClient;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
-
-    /**
-     * OnChange event name.
-     */
-    private static String onchange = "onchange";
 
     public NotificationModalPage(final PageReference callPageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
@@ -124,7 +124,9 @@ class NotificationModalPage extends BaseModalPage {
         recipientAttrName.setRequired(true);
         form.add(recipientAttrName);
 
-        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -161,7 +163,7 @@ class NotificationModalPage extends BaseModalPage {
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
-        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -177,7 +179,7 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(onchange) {
+        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -199,10 +201,9 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
-                
+
                 try {
                     if (createFlag) {
                         restClient.createNotification(notificationTO);
@@ -240,20 +241,24 @@ class NotificationModalPage extends BaseModalPage {
 
     private List<String> getSchemaNames(final IntMappingType type) {
         if (type == null) {
-            return Collections.emptyList();
+            return Collections.<String>emptyList();
         }
 
         switch (type) {
             case UserSchema:
                 return schemaRestClient.getSchemaNames(AttributableType.USER);
+
             case UserDerivedSchema:
                 return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+
             case UserVirtualSchema:
                 return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+
             case Username:
                 return Collections.singletonList("Username");
+
             default:
-                return Collections.emptyList();
+                return Collections.<String>emptyList();
         }
     }
 }
