@@ -45,6 +45,7 @@ import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.util.PasswordEncoder;
 import org.apache.syncope.types.AttributableType;
@@ -382,15 +383,24 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // now, let's see if there are new resource subscriptions without providing password
-        Set<String> updatedResources = user.getResourceNames();
-        updatedResources.removeAll(currentResources);
-        if (!updatedResources.isEmpty() && StringUtils.isBlank(userMod.getPassword())) {
+        if (StringUtils.isBlank(userMod.getPassword())) {
+            Set<String> updatedResources = user.getResourceNames();
+            updatedResources.removeAll(currentResources);
 
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-            sce.addElement("password cannot be empty " + "when subscribing to new resources");
-            scce.addException(sce);
+            for (String res : updatedResources) {
+                final ExternalResource extRes = resourceDAO.find(res);
 
-            throw scce;
+                if (extRes != null && extRes.getUmapping() != null && !MappingUtil.getMatchingMappingItems(
+                        extRes.getUmapping().getItems(), "password", IntMappingType.Password).isEmpty()) {
+
+                    SyncopeClientException sce =
+                            new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+                    sce.addElement("password cannot be empty " + "when subscribing to new resources");
+                    scce.addException(sce);
+
+                    throw scce;
+                }
+            }
         }
 
         propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
