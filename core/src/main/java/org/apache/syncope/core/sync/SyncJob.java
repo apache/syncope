@@ -31,8 +31,8 @@ import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -313,7 +313,7 @@ public class SyncJob extends AbstractTaskJob {
         }
         final SyncTask syncTask = (SyncTask) this.task;
 
-        ConnectorFacadeProxy connector;
+        SyncopeConnector connector;
         try {
             connector = connInstanceLoader.getConnector(syncTask.getResource());
         } catch (Exception e) {

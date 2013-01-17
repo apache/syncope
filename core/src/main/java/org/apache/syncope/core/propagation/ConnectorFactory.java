@@ -27,7 +27,7 @@ import org.springframework.beans.BeansException;
 
 public interface ConnectorFactory {
 
-    ConnectorFacadeProxy createConnectorBean(ConnInstance connInstance, Set<ConnConfProperty> configuration)
+    SyncopeConnector createConnectorBean(ConnInstance connInstance, Set<ConnConfProperty> configuration)
             throws NotFoundException;
 
     /**
@@ -38,7 +38,7 @@ public interface ConnectorFactory {
      * @throws BeansException if there is any problem with Spring
      * @throws NotFoundException if the connector is not registered in the context
      */
-    ConnectorFacadeProxy getConnector(ExternalResource resource)
+    SyncopeConnector getConnector(ExternalResource resource)
             throws BeansException, NotFoundException;
 
     void load();

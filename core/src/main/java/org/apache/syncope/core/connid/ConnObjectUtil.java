@@ -47,8 +47,8 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -469,7 +469,7 @@ public class ConnObjectUtil {
                     final OperationOptionsBuilder oob = new OperationOptionsBuilder();
                     oob.setAttributesToGet(extAttrNames);
 
-                    final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(resource);
+                    final SyncopeConnector connector = connInstanceLoader.getConnector(resource);
                     final ConnectorObject connObj =
                             connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
                     if (connObj != null) {

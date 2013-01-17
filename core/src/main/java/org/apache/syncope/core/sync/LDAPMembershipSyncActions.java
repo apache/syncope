@@ -35,11 +35,11 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.PropagationException;
-import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
@@ -62,7 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Simple action for synchronizing LDAP groups memberships to Syncope role memberships, when the same resource is
  * configured for both users and roles.
  *
- * @see org.apache.syncope.core.propagation.LDAPMembershipPropagationActions
+ * @see org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions
  */
 public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
@@ -158,7 +158,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @return value of attribute returned by getGroupMembershipAttrName()
      * @see getGroupMembershipAttrName()
      */
-    protected List<Object> getMembAttrValues(final SyncDelta delta, final ConnectorFacadeProxy connector) {
+    protected List<Object> getMembAttrValues(final SyncDelta delta, final SyncopeConnector connector) {
         List<Object> result = Collections.<Object>emptyList();
 
         // first, try to read the configured attribute from delta, returned by the ongoing synchronization
@@ -220,7 +220,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         final SyncTask task = handler.getSyncTask();
         final ExternalResource resource = task.getResource();
 
-        ConnectorFacadeProxy connector;
+        SyncopeConnector connector;
         try {
             connector = connInstanceLoader.getConnector(resource);
         } catch (Exception e) {

@@ -36,8 +36,9 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
@@ -365,7 +366,7 @@ public class ConnInstanceController extends AbstractController {
     public ModelAndView check(final HttpServletResponse response, @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        final ConnectorFacadeProxy connector = new ConnectorFacadeProxy(binder.getConnInstance(connectorTO),
+        final SyncopeConnector connector = new ConnectorFacadeProxy(binder.getConnInstance(connectorTO),
                 bundleManager);
 
         boolean result;
@@ -431,7 +432,7 @@ public class ConnInstanceController extends AbstractController {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
-        final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
+        final SyncopeConnector connector = connLoader.getConnector(resource);
 
         auditManager.audit(Category.connector, ConnectorSubCategory.readConnectorBean, Result.success,
                 "Successfully read connector for resource: " + resourceName);

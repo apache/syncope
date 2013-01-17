@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.propagation.impl;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AbstractAttributableDataBinder;
 import org.apache.syncope.core.rest.data.RoleDataBinder;

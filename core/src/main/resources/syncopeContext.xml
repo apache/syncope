@@ -67,8 +67,8 @@ under the License.
     </property>
   </bean>
   
-  <bean id="propagationManager" class="org.apache.syncope.core.propagation.PropagationManager"/>
-  <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.PriorityPropagationTaskExecutor"/>
+  <bean id="propagationManager" class="org.apache.syncope.core.propagation.impl.PropagationManager"/>
+  <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.impl.PriorityPropagationTaskExecutor"/>
     
   <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
   

@@ -25,8 +25,9 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
@@ -65,7 +66,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
      * @see ConnectorFactory#getConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
      */
     @Override
-    public ConnectorFacadeProxy getConnector(final ExternalResource resource)
+    public SyncopeConnector getConnector(final ExternalResource resource)
             throws BeansException, NotFoundException {
 
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
@@ -73,10 +74,10 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
             registerConnector(resource);
         }
 
-        return (ConnectorFacadeProxy) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
+        return (SyncopeConnector) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
     }
 
-    public ConnectorFacadeProxy createConnectorBean(final ExternalResource resource)
+    public SyncopeConnector createConnectorBean(final ExternalResource resource)
             throws NotFoundException {
 
         final ConnInstance connInstanceClone = resourceDataBinder.getConnInstance(resource);
@@ -93,7 +94,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
      * @throws NotFoundException when not able to fetch all the required data.
      */
     @Override
-    public ConnectorFacadeProxy createConnectorBean(final ConnInstance connInstance,
+    public SyncopeConnector createConnectorBean(final ConnInstance connInstance,
             final Set<ConnConfProperty> configuration)
             throws NotFoundException {
 
@@ -111,7 +112,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
     public void registerConnector(final ExternalResource resource)
             throws NotFoundException {
 
-        final ConnectorFacadeProxy connector = createConnectorBean(resource);
+        final SyncopeConnector connector = createConnectorBean(resource);
         LOG.debug("Connector to be registered: {}", connector);
 
         final String beanName = getBeanName(resource);

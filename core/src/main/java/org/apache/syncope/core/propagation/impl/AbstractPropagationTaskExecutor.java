@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.propagation.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,10 +30,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PropagationActions;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.DefaultPropagationActions;
+import org.apache.syncope.core.propagation.PropagationActions;
+import org.apache.syncope.core.propagation.PropagationException;
+import org.apache.syncope.core.propagation.PropagationHandler;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -114,7 +120,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
-            final ConnectorFacadeProxy connector, final Set<String> propagationAttempted) {
+            final SyncopeConnector connector, final Set<String> propagationAttempted) {
 
         // set of attributes to be propagated
         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
@@ -222,7 +228,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
-            final ConnectorFacadeProxy connector, final Set<String> propagationAttempted) {
+            final SyncopeConnector connector, final Set<String> propagationAttempted) {
 
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
@@ -275,7 +281,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
-        ConnectorFacadeProxy connector = null;
+        SyncopeConnector connector = null;
         try {
             connector = connLoader.getConnector(task.getResource());
 
@@ -421,7 +427,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param latest 'FALSE' to retrieve object using old accountId if not null.
      * @return remote connector object.
      */
-    protected ConnectorObject getRemoteObject(final PropagationTask task, final ConnectorFacadeProxy connector,
+    protected ConnectorObject getRemoteObject(final PropagationTask task, final SyncopeConnector connector,
             final boolean latest) {
 
         String accountId = latest || task.getOldAccountId() == null

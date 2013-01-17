@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.propagation;
 
-import org.apache.syncope.core.persistence.beans.PropagationActions;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;

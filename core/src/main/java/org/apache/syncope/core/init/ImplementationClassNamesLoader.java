@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.syncope.core.persistence.beans.PropagationActions;
 import org.apache.syncope.core.persistence.beans.SyncActions;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
+import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.report.ReportJob;

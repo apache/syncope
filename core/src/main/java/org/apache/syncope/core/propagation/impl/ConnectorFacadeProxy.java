@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.propagation.impl;
 
 import java.io.File;
 import java.net.URI;
@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.types.ConnConfProperty;
@@ -67,7 +68,7 @@ import org.springframework.util.ClassUtils;
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
  * allow every single operation: if not, simply do nothing.
  */
-public class ConnectorFacadeProxy {
+public class ConnectorFacadeProxy implements SyncopeConnector {
 
     /**
      * Logger.
@@ -161,16 +162,10 @@ public class ConnectorFacadeProxy {
         connector.validate();
     }
 
-    /**
-     * Create user on a connector instance.
-     *
-     * @param propagationMode propagation mode
-     * @param objectClass ConnId's object class
-     * @param attrs attributes for creation
-     * @param options ConnId's OperationOptions
-     * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
-     * @return Uid for created user
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#create(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
+    @Override
     public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
             final OperationOptions options, final Set<String> propagationAttempted) {
 
@@ -191,17 +186,10 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    /**
-     * Update user on a connector instance.
-     *
-     * @param propagationMode propagation mode
-     * @param objectClass ConnId's object class
-     * @param uid user to be updated
-     * @param attrs attributes for update
-     * @param options ConnId's OperationOptions
-     * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
-     * @return Uid for created user
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#update(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
+    @Override
     public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
             final Set<Attribute> attrs, final OperationOptions options, final Set<String> propagationAttempted) {
 
@@ -223,15 +211,10 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    /**
-     * Delete user on a connector instance.
-     *
-     * @param propagationMode propagation mode
-     * @param objectClass ConnId's object class
-     * @param uid user to be deleted
-     * @param options ConnId's OperationOptions
-     * @param propagationAttempted if deletion is actually performed (based on connector instance's capabilities)
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#delete(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
+    @Override
     public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
             final OperationOptions options, final Set<String> propagationAttempted) {
 
@@ -248,13 +231,10 @@ public class ConnectorFacadeProxy {
         }
     }
 
-    /**
-     * Sync users from a connector instance.
-     *
-     * @param objectClass ConnId's object class.
-     * @param token to be passed to the underlying connector
-     * @param handler to be used to handle deltas.
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#sync(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.SyncToken, org.identityconnectors.framework.common.objects.SyncResultsHandler, org.identityconnectors.framework.common.objects.OperationOptions)
      */
+    @Override
     public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
             final OperationOptions options) {
 
@@ -266,12 +246,10 @@ public class ConnectorFacadeProxy {
         }
     }
 
-    /**
-     * Read latest sync token from a connector instance.
-     *
-     * @param objectClass ConnId's object class.
-     * @return latest sync token
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getLatestSyncToken(org.identityconnectors.framework.common.objects.ObjectClass)
      */
+    @Override
     public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
         SyncToken result = null;
 
@@ -285,29 +263,18 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    /**
-     * Get remote object.
-     *
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return ConnId's connector object for given uid
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
      */
+    @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
         return getObject(null, null, objectClass, uid, options);
     }
 
-    /**
-     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
-     * update (object exists).
-     *
-     * @param propagationMode propagation mode
-     * @param operationType resource operation type
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return ConnId's connector object for given uid
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.apache.syncope.types.PropagationMode, org.apache.syncope.types.ResourceOperation, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
      */
+    @Override
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
@@ -350,6 +317,10 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#search(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.filter.Filter, org.identityconnectors.framework.common.objects.OperationOptions)
+     */
+    @Override
     public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
             final OperationOptions options) {
 
@@ -371,14 +342,10 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    /**
-     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
-     * update (object exists).
-     *
-     * @param objectClass ConnId's object class.
-     * @param handler to be used to handle deltas.
-     * @param options ConnId's OperationOptions.
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getAllObjects(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.SyncResultsHandler, org.identityconnectors.framework.common.objects.OperationOptions)
      */
+    @Override
     public void getAllObjects(final ObjectClass objectClass, final SyncResultsHandler handler,
             final OperationOptions options) {
 
@@ -403,15 +370,10 @@ public class ConnectorFacadeProxy {
         }
     }
 
-    /**
-     * Read attribute for a given connector object.
-     *
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @param attributeName attribute to read
-     * @return attribute (if present)
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObjectAttribute(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.lang.String)
      */
+    @Override
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
 
@@ -427,13 +389,10 @@ public class ConnectorFacadeProxy {
         return attribute;
     }
 
-    /**
-     *
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return attributes (if present)
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObjectAttributes(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
      */
+    @Override
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
 
@@ -451,12 +410,10 @@ public class ConnectorFacadeProxy {
         return attributes;
     }
 
-    /**
-     * Return resource schema names.
-     *
-     * @param showall return special attributes (like as __NAME__ or __PASSWORD__) if true
-     * @return a list of schema names
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getSchema(boolean)
      */
+    @Override
     public Set<String> getSchema(final boolean showall) {
         final Set<String> resourceSchemaNames = new HashSet<String>();
 
@@ -478,29 +435,34 @@ public class ConnectorFacadeProxy {
         return resourceSchemaNames;
     }
 
-    /**
-     * Validate a connector instance.
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#validate()
      */
+    @Override
     public void validate() {
         connector.validate();
     }
 
-    /**
-     * Check connection to resource.
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#test()
      */
+    @Override
     public void test() {
         connector.test();
     }
 
-    /**
-     * Getter for active connector instance.
-     *
-     * @return active connector instance.
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getActiveConnInstance()
      */
+    @Override
     public ConnInstance getActiveConnInstance() {
         return activeConnInstance;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getOperationOptions(java.util.Collection)
+     */
+    @Override
     public OperationOptions getOperationOptions(final Collection<AbstractMappingItem> mapItems) {
         // -------------------------------------
         // Ask just for mapped attributes
@@ -565,9 +527,13 @@ public class ConnectorFacadeProxy {
         return (name.startsWith("__") && name.endsWith("__"));
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#toString()
+     */
     @Override
     public String toString() {
         return "ConnectorFacadeProxy{"
                 + "connector=" + connector + "\n" + "capabitilies=" + activeConnInstance.getCapabilities() + '}';
     }
+
 }

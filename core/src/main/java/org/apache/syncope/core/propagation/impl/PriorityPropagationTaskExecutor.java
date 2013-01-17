@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.propagation.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.propagation.PropagationException;
+import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.types.PropagationTaskExecStatus;
 
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {

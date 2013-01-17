@@ -31,8 +31,9 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnBundleManager;
@@ -218,7 +219,7 @@ public class ResourceController extends AbstractController {
         AttributableUtil attrUtil = AttributableUtil.getInstance(type);
         ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
-        final ConnectorFacadeProxy connector = connLoader.getConnector(resource);
+        final SyncopeConnector connector = connLoader.getConnector(resource);
 
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
                 connector.getOperationOptions(attrUtil.getMappingItems(resource)));
@@ -251,7 +252,7 @@ public class ResourceController extends AbstractController {
 
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);
 
-        final ConnectorFacadeProxy connector = new ConnectorFacadeProxy(connInstance, bundleManager);
+        final SyncopeConnector connector = new ConnectorFacadeProxy(connInstance, bundleManager);
 
         boolean result;
         try {

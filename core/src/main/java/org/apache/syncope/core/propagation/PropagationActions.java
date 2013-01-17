@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.beans;
+package org.apache.syncope.core.propagation;
 
+import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public interface PropagationActions {
