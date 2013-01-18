@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
-public class IncompatiblePolicyException extends Exception {
+public class IncompatiblePolicyException extends RuntimeException {
 
     private static final long serialVersionUID = 4810651743226663580L;
 

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.rest;
 
-public class InvalidPolicyType extends Exception {
+public class InvalidPolicyType extends RuntimeException {
 
     private static final long serialVersionUID = -1230154509336169378L;
 

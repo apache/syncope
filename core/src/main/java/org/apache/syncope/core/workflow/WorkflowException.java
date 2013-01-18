@@ -24,7 +24,7 @@ package org.apache.syncope.core.workflow;
  *
  * @see UserWorkflowAdapter
  */
-public class WorkflowException extends Exception {
+public class WorkflowException extends RuntimeException {
 
     /**
      * Generated serialVersionUID.

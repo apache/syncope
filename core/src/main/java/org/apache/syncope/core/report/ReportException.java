@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.report;
 
-public class ReportException extends Exception {
+public class ReportException extends RuntimeException {
 
     private static final long serialVersionUID = 6719507778589395283L;
 

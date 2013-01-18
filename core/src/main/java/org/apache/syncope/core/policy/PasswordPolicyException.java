@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.policy;
 
-public class PasswordPolicyException extends Exception {
+public class PasswordPolicyException extends RuntimeException {
 
     private static final long serialVersionUID = 8072104484395278469L;
 

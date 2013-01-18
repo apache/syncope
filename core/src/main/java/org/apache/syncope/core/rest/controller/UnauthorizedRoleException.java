@@ -21,9 +21,11 @@ package org.apache.syncope.core.rest.controller;
 import java.util.Collections;
 import java.util.Set;
 
-public class UnauthorizedRoleException extends Exception {
+public class UnauthorizedRoleException extends RuntimeException {
 
-    private final Set<Long> roleIds;
+	private static final long serialVersionUID = 7540587364235915081L;
+	
+	private final Set<Long> roleIds;
 
     public UnauthorizedRoleException(final Set<Long> roleIds) {
         super("Missing entitlement for role(s) " + roleIds);

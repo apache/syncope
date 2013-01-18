@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-public class MissingConfKeyException extends Exception {
-
-    private String confKey;
+public class MissingConfKeyException extends RuntimeException {
+	private static final long serialVersionUID = -3257107672657462752L;
+	
+	private String confKey;
 
     public MissingConfKeyException(final String confKey) {
         super();

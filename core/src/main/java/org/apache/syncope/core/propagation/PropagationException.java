@@ -21,7 +21,7 @@ package org.apache.syncope.core.propagation;
 /**
  * Bear stacktrace received during propagation towards a certain resource.
  */
-public class PropagationException extends Exception {
+public class PropagationException extends RuntimeException {
 
     private static final long serialVersionUID = -4828426289616526116L;
 
