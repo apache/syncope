@@ -20,7 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.to.MailTemplateTO;
 import org.apache.syncope.client.to.NotificationTO;
+import org.apache.syncope.client.to.ValidatorTO;
+import org.apache.syncope.client.util.CollectionWrapper;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.services.ConfigurationService;
 import org.apache.syncope.services.NotificationService;
@@ -53,7 +56,8 @@ public class NotificationRestClient extends BaseRestClient {
     }
 
     public List<String> getMailTemplates() throws SyncopeClientCompositeErrorException {
-        return new ArrayList<String>(getService(ConfigurationService.class).getMailTemplates());
+        return CollectionWrapper.unwrapMailTemplates(new ArrayList<MailTemplateTO>(getService(
+                ConfigurationService.class).getMailTemplates()));
     }
 
     public List<String> getEvents() throws SyncopeClientCompositeErrorException {

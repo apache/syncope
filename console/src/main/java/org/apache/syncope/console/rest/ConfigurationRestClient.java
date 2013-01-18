@@ -64,6 +64,8 @@ public class ConfigurationRestClient extends BaseRestClient {
      * Delete a configuration by key.
      */
     public ConfigurationTO deleteConfiguration(final String key) {
-        return getService(ConfigurationService.class).delete(key);
+        ConfigurationTO response = getService(ConfigurationService.class).read(key);
+        getService(ConfigurationService.class).delete(key);
+        return response;
     }
 }

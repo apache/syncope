@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.client.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.client.AbstractBaseBean;
 
+@XmlRootElement(name = "configuration")
+@XmlType
 public class ConfigurationTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -3825039700228595590L;
@@ -32,7 +37,7 @@ public class ConfigurationTO extends AbstractBaseBean {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -40,7 +45,7 @@ public class ConfigurationTO extends AbstractBaseBean {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 }

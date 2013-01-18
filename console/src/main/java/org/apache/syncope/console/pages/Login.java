@@ -21,13 +21,17 @@ package org.apache.syncope.console.pages;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.client.to.EntitlementTO;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.client.util.CollectionWrapper;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.syncope.services.EntitlementService;
@@ -187,7 +191,8 @@ public class Login extends WebPage {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
 
         // 2. Search authorizations for user specified by credentials
-        return SyncopeSession.get().getService(EntitlementService.class).getMyEntitlements().toArray(new String[0]);
+        Set<EntitlementTO> entitlements = SyncopeSession.get().getService(EntitlementService.class).getMyEntitlements();
+        return CollectionWrapper.unwrap(entitlements).toArray(new String[0]);
     }
 
     private boolean isSelfRegistrationAllowed() {

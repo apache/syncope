@@ -16,28 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.client.to;
 
-import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import org.apache.syncope.client.AbstractBaseBean;
 
-import org.apache.syncope.client.to.EntitlementTO;
+@XmlRootElement(name = "mailTemplate")
+@XmlType
+public class MailTemplateTO extends AbstractBaseBean {
 
-@Path("entitlements")
-public interface EntitlementService {
+    private static final long serialVersionUID = 7232619557172031478L;
+
+    private String name;
+
+    public static MailTemplateTO instance(final String name) {
+        MailTemplateTO templateTO = new MailTemplateTO();
+        templateTO.setName(name);
+        return templateTO;
+    }
 
     /**
-     * @return Returns a collection of all known entitlements.
+     * @return the name
      */
-    @GET
-    Set<EntitlementTO> getAllEntitlements();
+    public String getName() {
+        return name;
+    }
 
     /**
-     * @return Returns a collection of entitlements assigned to user making this request (Service Call).
+     * @param name the name to set
      */
-    @GET
-    @Path("own")
-    Set<EntitlementTO> getMyEntitlements();
+    public void setName(final String name) {
+        this.name = name;
+    }
 }

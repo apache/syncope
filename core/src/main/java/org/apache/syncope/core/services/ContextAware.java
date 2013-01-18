@@ -16,28 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services;
+package org.apache.syncope.core.services;
 
-import java.util.Set;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+public interface ContextAware {
 
-import org.apache.syncope.client.to.EntitlementTO;
-
-@Path("entitlements")
-public interface EntitlementService {
-
-    /**
-     * @return Returns a collection of all known entitlements.
-     */
-    @GET
-    Set<EntitlementTO> getAllEntitlements();
-
-    /**
-     * @return Returns a collection of entitlements assigned to user making this request (Service Call).
-     */
-    @GET
-    @Path("own")
-    Set<EntitlementTO> getMyEntitlements();
+    @Context
+    void setUriInfo(UriInfo ui);
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.services;
 
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,13 +30,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.client.to.MailTemplateTO;
+import org.apache.syncope.client.to.ValidatorTO;
 
 @Path("configurations")
 public interface ConfigurationService {
 
     @POST
-    ConfigurationTO create(ConfigurationTO configurationTO);
+    Response create(ConfigurationTO configurationTO);
 
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -43,15 +47,15 @@ public interface ConfigurationService {
 
     @DELETE
     @Path("{key}")
-    ConfigurationTO delete(@PathParam("key") String key);
+    void delete(@PathParam("key") String key);
 
     @GET
     @Path("mailTemplates")
-    Set<String> getMailTemplates();
+    Set<MailTemplateTO> getMailTemplates();
 
     @GET
     @Path("validators")
-    Set<String> getValidators();
+    Set<ValidatorTO> getValidators();
 
     @GET
     List<ConfigurationTO> list();

@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
 import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.client.to.EntitlementTO;
 import org.apache.syncope.client.to.MembershipTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.SchemaTO;
@@ -48,14 +54,14 @@ public class AuthenticationTestITCase extends AbstractTest {
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
-        Set<String> allEntitlements = entitlementService.getAllEntitlements();
+        Set<EntitlementTO> allEntitlements = entitlementService.getAllEntitlements();
         assertNotNull(allEntitlements);
         assertFalse(allEntitlements.isEmpty());
 
         // 2. as admin, read own entitlements
         super.resetRestTemplate();
 
-        Set<String> adminEntitlements = entitlementService.getMyEntitlements();
+        Set<EntitlementTO> adminEntitlements = entitlementService.getMyEntitlements();
 
         assertEquals(allEntitlements, adminEntitlements);
     }

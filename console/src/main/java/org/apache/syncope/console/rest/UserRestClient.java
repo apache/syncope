@@ -58,11 +58,11 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(UserService.class).list(page, size);
     }
 
-    public UserTO create(final UserTO userTO) throws SyncopeClientCompositeErrorException {
+    public UserTO create(final UserTO userTO) {
         return getService(UserService.class).create(userTO);
     }
 
-    public UserTO update(UserMod userModTO) throws SyncopeClientCompositeErrorException {
+    public UserTO update(final UserMod userModTO) {
         return getService(UserService.class).update(userModTO.getId(), userModTO);
     }
 
@@ -101,27 +101,24 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCond, final int page, final int size)
-            throws SyncopeClientCompositeErrorException {
+    public List<UserTO> search(final NodeCond searchCond, final int page, final int size) {
         return getService(UserService.class).search(searchCond, page, size);
     }
 
     @Override
-    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId)
-            throws SyncopeClientCompositeErrorException {
+    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId) {
         return getService(ResourceService.class).getConnector(resourceName, AttributableType.USER, objectId);
     }
 
-    public UserTO reactivate(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
+    public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
         return enable(userId, statuses, true);
     }
 
-    public UserTO suspend(long userId, List<StatusBean> statuses) throws SyncopeClientCompositeErrorException {
+    public UserTO suspend(final long userId, final List<StatusBean> statuses) {
         return enable(userId, statuses, false);
     }
 
-    private UserTO enable(final long userId, final List<StatusBean> statuses, final boolean enable)
-            throws SyncopeClientCompositeErrorException {
+    private UserTO enable(final long userId, final List<StatusBean> statuses, final boolean enable) {
 
         StatusMod statusMod = new StatusMod();
         statusMod.setId(userId);

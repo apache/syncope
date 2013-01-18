@@ -19,12 +19,18 @@
 package org.apache.syncope.services.proxy;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.client.to.MailTemplateTO;
+import org.apache.syncope.client.to.ValidatorTO;
+import org.apache.syncope.client.util.CollectionWrapper;
 import org.apache.syncope.services.ConfigurationService;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,14 +41,16 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
     }
 
     @Override
-    public ConfigurationTO create(final ConfigurationTO configurationTO) {
-        return getRestTemplate().postForObject(
-                baseUrl + "configuration/create", configurationTO, ConfigurationTO.class);
+    public Response create(final ConfigurationTO configurationTO) {
+        ConfigurationTO created = getRestTemplate().postForObject(baseUrl + "configuration/create",
+                configurationTO, ConfigurationTO.class);
+        URI location = URI.create(baseUrl + "configuration/read/" + created.getKey() + ".json");
+        return Response.created(location).entity(created).build();
     }
 
     @Override
-    public ConfigurationTO delete(final String key) {
-        return getRestTemplate().getForObject(baseUrl + "configuration/delete/{key}.json", ConfigurationTO.class, key);
+    public void delete(final String key) {
+        getRestTemplate().getForObject(baseUrl + "configuration/delete/{key}.json", ConfigurationTO.class, key);
     }
 
     @Override
@@ -58,20 +66,22 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public ConfigurationTO update(final String key, final ConfigurationTO configurationTO) {
-        return getRestTemplate()
-                .postForObject(baseUrl + "configuration/update", configurationTO, ConfigurationTO.class);
+        return getRestTemplate().postForObject(baseUrl + "configuration/update", configurationTO,
+                ConfigurationTO.class);
     }
 
     @Override
-    public Set<String> getValidators() {
-        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+    public Set<ValidatorTO> getValidators() {
+        Set<String> response = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
                 baseUrl + "configuration/validators.json", String[].class)));
+        return CollectionWrapper.wrapValidator(response);
     }
 
     @Override
-    public Set<String> getMailTemplates() {
-        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+    public Set<MailTemplateTO> getMailTemplates() {
+        Set<String> response = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
                 baseUrl + "configuration/mailTemplates.json", String[].class)));
+        return CollectionWrapper.wrapMailTemplates(response);
     }
 
     @Override
@@ -79,4 +89,5 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
         return Response.ok(getRestTemplate().getForObject(baseUrl + "configuration/dbexport", InputStream.class))
                 .build();
     }
+
 }

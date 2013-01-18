@@ -16,33 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.services.proxy;
+package org.apache.syncope.core.services;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.syncope.client.to.EntitlementTO;
 import org.apache.syncope.client.util.CollectionWrapper;
+import org.apache.syncope.core.rest.controller.AuthenticationController;
 import org.apache.syncope.services.EntitlementService;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public class EntitlementServiceProxy extends SpringServiceProxy implements EntitlementService {
+@Service
+public class EntitlementServiceImpl implements EntitlementService {
 
-    public EntitlementServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
-        super(baseUrl, restTemplate);
-    }
+    @Autowired
+    private AuthenticationController authenticationController;
 
     @Override
     public Set<EntitlementTO> getAllEntitlements() {
-        Set<String> entitlements = new HashSet<String>(Arrays.asList(new RestTemplate().getForObject(
-                baseUrl + "auth/allentitlements.json", String[].class)));
+        Set<String> entitlements = new HashSet<String>(authenticationController.listEntitlements());
         return CollectionWrapper.wrap(entitlements);
     }
 
     @Override
     public Set<EntitlementTO> getMyEntitlements() {
-        Set<String> entitlements = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "auth/entitlements.json", String[].class)));
+        Set<String> entitlements = authenticationController.getEntitlements();
         return CollectionWrapper.wrap(entitlements);
     }
 }

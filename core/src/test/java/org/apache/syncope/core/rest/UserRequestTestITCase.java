@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.search.AttributeCond;
 import org.apache.syncope.client.search.NodeCond;
@@ -51,7 +53,10 @@ public class UserRequestTestITCase extends AbstractTest {
         configurationTO.setKey("createRequest.allowed");
         configurationTO.setValue("false");
 
-        configurationTO = configurationService.create(configurationTO);
+        Response response = configurationService.create(configurationTO);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+        assertTrue(response.hasEntity());
+        configurationTO = (ConfigurationTO) response.getEntity();
         assertNotNull(configurationTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfcreate@syncope.apache.org");
@@ -69,7 +74,10 @@ public class UserRequestTestITCase extends AbstractTest {
         // 3. set create request allowed
         configurationTO.setValue("true");
 
-        configurationTO = configurationService.create(configurationTO);
+        response = configurationService.create(configurationTO);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+        assertTrue(response.hasEntity());
+        configurationTO = (ConfigurationTO) response.getEntity();
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works

@@ -36,7 +36,6 @@ public abstract class SpringServiceProxy {
     }
 
     public RestTemplate getRestTemplate() {
-        //return callback.getRestTemplate();
         return restTemplate;
     }
 }

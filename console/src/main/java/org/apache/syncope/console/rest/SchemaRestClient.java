@@ -23,7 +23,9 @@ import java.util.List;
 
 import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.apache.syncope.client.to.SchemaTO;
+import org.apache.syncope.client.to.ValidatorTO;
 import org.apache.syncope.client.to.VirtualSchemaTO;
+import org.apache.syncope.client.util.CollectionWrapper;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.services.ConfigurationService;
 import org.apache.syncope.services.SchemaService;
@@ -104,7 +106,8 @@ public class SchemaRestClient extends BaseRestClient {
         final List<String> userDerivedSchemasNames = new ArrayList<String>();
 
         try {
-            final List<DerivedSchemaTO> userDerivedSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
+            final List<DerivedSchemaTO> userDerivedSchemas = getService(SchemaService.class).list(type,
+                    SchemaType.DERIVED);
 
             for (DerivedSchemaTO schemaTO : userDerivedSchemas) {
                 userDerivedSchemasNames.add(schemaTO.getName());
@@ -143,7 +146,8 @@ public class SchemaRestClient extends BaseRestClient {
         final List<String> userVirtualSchemasNames = new ArrayList<String>();
 
         try {
-            final List<VirtualSchemaTO> userVirtualSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
+            final List<VirtualSchemaTO> userVirtualSchemas = getService(SchemaService.class).list(type,
+                    SchemaType.VIRTUAL);
             for (VirtualSchemaTO schemaTO : userVirtualSchemas) {
                 userVirtualSchemasNames.add(schemaTO.getName());
             }
@@ -273,13 +277,15 @@ public class SchemaRestClient extends BaseRestClient {
      * Populator for Validator Schema DropDown components.
      */
     public List<String> getAllValidatorClasses() {
-        List<String> validators = null;
+        List<String> response = null;
 
         try {
-            validators = new ArrayList<String>(getService(ConfigurationService.class).getValidators());
+            List<ValidatorTO> validators = new ArrayList<ValidatorTO>(getService(ConfigurationService.class)
+                    .getValidators());
+            response = CollectionWrapper.unwrapValidator(validators);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all validators", e);
         }
-        return validators;
+        return response;
     }
 }

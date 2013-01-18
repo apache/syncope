@@ -20,9 +20,12 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.client.to.ConfigurationTO;
 import org.junit.FixMethodOrder;
@@ -34,71 +37,71 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCase extends AbstractTest {
 
-	@Test
-	public void create() {
-		ConfigurationTO configurationTO = new ConfigurationTO();
-		configurationTO.setKey("testKey");
-		configurationTO.setValue("testValue");
+    @Test
+    public void create() {
+        ConfigurationTO configurationTO = new ConfigurationTO();
+        configurationTO.setKey("testKey");
+        configurationTO.setValue("testValue");
 
-		ConfigurationTO newConfigurationTO = configurationService
-				.create(configurationTO);
-		assertEquals(configurationTO, newConfigurationTO);
-	}
+        Response response = configurationService.create(configurationTO);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+        assertTrue(response.hasEntity());
+        ConfigurationTO newConfigurationTO = (ConfigurationTO) response.getEntity();
+        assertEquals(configurationTO, newConfigurationTO);
+    }
 
-	@Test
-	public void delete() throws UnsupportedEncodingException {
+    @Test
+    public void delete() throws UnsupportedEncodingException {
 
-		try {
-			configurationService.delete("nonExistent");
-		} catch (HttpStatusCodeException e) {
-			assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-		}
+        try {
+            configurationService.delete("nonExistent");
+        } catch (HttpStatusCodeException e) {
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        }
 
-		ConfigurationTO tokenLengthTO = configurationService
-				.read("token.length");
+        ConfigurationTO tokenLengthTO = configurationService.read("token.length");
 
-		ConfigurationTO deletedConfig = configurationService
-				.delete("token.length");
-		assertNotNull(deletedConfig);
-		try {
-			configurationService.read("token.length");
-		} catch (HttpStatusCodeException e) {
-			assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
-		}
+        configurationService.delete("token.length");
+        try {
+            configurationService.read("token.length");
+        } catch (HttpStatusCodeException e) {
+            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+        }
 
-		ConfigurationTO newConfigurationTO = configurationService
-				.create(tokenLengthTO);
-		assertEquals(tokenLengthTO, newConfigurationTO);
-	}
+        Response response = configurationService.create(tokenLengthTO);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+        assertTrue(response.hasEntity());
+        ConfigurationTO newConfigurationTO = (ConfigurationTO) response.getEntity();
+        assertEquals(tokenLengthTO, newConfigurationTO);
+    }
 
-	@Test
-	public void list() {
-		List<ConfigurationTO> configurations = configurationService.list();
-		assertNotNull(configurations);
-		for (ConfigurationTO configuration : configurations) {
-			assertNotNull(configuration);
-		}
-	}
+    @Test
+    public void list() {
+        List<ConfigurationTO> configurations = configurationService.list();
+        assertNotNull(configurations);
+        for (ConfigurationTO configuration : configurations) {
+            assertNotNull(configuration);
+        }
+    }
 
-	@Test
-	public void read() {
-		ConfigurationTO configurationTO = configurationService
-				.read("token.expireTime");
+    @Test
+    public void read() {
+        ConfigurationTO configurationTO = configurationService.read("token.expireTime");
 
-		assertNotNull(configurationTO);
-	}
+        assertNotNull(configurationTO);
+    }
 
-	@Test
-	public void update() {
-		ConfigurationTO configurationTO = configurationService.read("token.expireTime");
-		int value = Integer.parseInt(configurationTO.getValue());
-		value++;
-		configurationTO.setValue(value + "");
+    @Test
+    public void update() {
+        ConfigurationTO configurationTO = configurationService.read("token.expireTime");
+        int value = Integer.parseInt(configurationTO.getValue());
+        value++;
+        configurationTO.setValue(value + "");
 
-		ConfigurationTO newConfigurationTO = configurationService.update(configurationTO.getKey(), configurationTO);
-		assertEquals(configurationTO, newConfigurationTO);
+        ConfigurationTO newConfigurationTO = configurationService.update(configurationTO.getKey(), configurationTO);
+        assertEquals(configurationTO, newConfigurationTO);
 
-		newConfigurationTO = configurationService.read("token.expireTime");
-		assertEquals(configurationTO, newConfigurationTO);
-	}
+        newConfigurationTO = configurationService.read("token.expireTime");
+        assertEquals(configurationTO, newConfigurationTO);
+    }
 }
