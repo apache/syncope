@@ -280,7 +280,7 @@ under the License.
 
     <activiti.version>5.10</activiti.version>
 
-	<cxf.version>2.7.0</cxf.version>	
+    <cxf.version>2.7.0</cxf.version>	
     <spring.version>3.1.3.RELEASE</spring.version>
     <spring-security.version>3.1.3.RELEASE</spring-security.version>
     <aspectj.version>1.7.1</aspectj.version>
@@ -566,26 +566,26 @@ under the License.
         <version>${aspectj.version}</version>
       </dependency>
 	  
-	  <dependency>
+      <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         <version>${cxf.version}</version>
       </dependency>
-  	  <dependency>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-rt-rs-extension-providers</artifactId>
-		<version>${cxf.version}</version>
-	  </dependency>
-	  <dependency>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-rt-rs-extension-search</artifactId>
-		<version>${cxf.version}</version>
-	  </dependency>
-	  <dependency>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-rt-frontend-jaxws</artifactId>
-		<version>${cxf.version}</version>
-	  </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-extension-providers</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-extension-search</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
@@ -597,11 +597,11 @@ under the License.
         <artifactId>jackson-mapper-asl</artifactId>
         <version>${jackson.version}</version>
       </dependency>
-	  <dependency>
-	    <groupId>org.codehaus.jackson</groupId>
-	    <artifactId>jackson-jaxrs</artifactId>
-	    <version>${jackson.version}</version>
-	  </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-jaxrs</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
