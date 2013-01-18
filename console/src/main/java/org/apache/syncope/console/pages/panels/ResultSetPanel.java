@@ -71,6 +71,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
 public class ResultSetPanel extends Panel implements IEventSource {
 
@@ -343,19 +344,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
-
-            Field field = null;
-
-            try {
-                field = UserTO.class.getDeclaredField(name);
-            } catch (Exception ue) {
-                LOG.debug("Error retrieving UserTO field {}", name, ue);
-                try {
-                    field = AbstractAttributableTO.class.getDeclaredField(name);
-                } catch (Exception aae) {
-                    LOG.error("Error retrieving AbstractAttributableTO field {}", name, aae);
-                }
-            }
+            final Field field = ReflectionUtils.findField(UserTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
                 columns.add(new TokenColumn("token"));

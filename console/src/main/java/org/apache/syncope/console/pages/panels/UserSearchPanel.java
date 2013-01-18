@@ -23,6 +23,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.search.AttributeCond;
+import org.apache.syncope.client.search.MembershipCond;
+import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.client.search.ResourceCond;
+import org.apache.syncope.client.search.SyncopeUserCond;
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.SearchCondWrapper;
+import org.apache.syncope.console.commons.SearchCondWrapper.FilterType;
+import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
+import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -47,21 +62,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.search.ResourceCond;
-import org.apache.syncope.client.search.SyncopeUserCond;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.SearchCondWrapper;
-import org.apache.syncope.console.commons.SearchCondWrapper.FilterType;
-import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
-import org.apache.syncope.console.rest.ResourceRestClient;
-import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.types.AttributableType;
 
 public class UserSearchPanel extends Panel {
 
@@ -72,7 +72,8 @@ public class UserSearchPanel extends Panel {
      */
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchPanel.class);
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{"attributes", "derivedAttributes",
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.
+            asList(new String[]{"attributes", "derivedAttributes",
                 "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
 
     @SpringBean
@@ -156,15 +157,16 @@ public class UserSearchPanel extends Panel {
         }
     };
 
-    final private IModel<List<AttributeCond.Type>> attributeTypes = new LoadableDetachableModel<List<AttributeCond.Type>>() {
+    final private IModel<List<AttributeCond.Type>> attributeTypes =
+            new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
-        private static final long serialVersionUID = 5275935387613157437L;
+                private static final long serialVersionUID = 5275935387613157437L;
 
-        @Override
-        protected List<AttributeCond.Type> load() {
-            return Arrays.asList(AttributeCond.Type.values());
-        }
-    };
+                @Override
+                protected List<AttributeCond.Type> load() {
+                    return Arrays.asList(AttributeCond.Type.values());
+                }
+            };
 
     final private IModel<List<FilterType>> filterTypes = new LoadableDetachableModel<List<FilterType>>() {
 
@@ -358,7 +360,7 @@ public class UserSearchPanel extends Panel {
             return null;
         }
 
-        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[] {
+        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[]{
                     searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
                     searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
                     searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator()});
