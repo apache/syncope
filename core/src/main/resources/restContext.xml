@@ -41,7 +41,7 @@ under the License.
    </bean>
   
   <!-- CXF Configuration - BEGINN -->
-   <context:component-scan base-package="org.apache.syncope.core.services" />
+   <context:component-scan base-package="org.apache.syncope.core.services.impl" />
 
    <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
       <property name="depthProperties">
