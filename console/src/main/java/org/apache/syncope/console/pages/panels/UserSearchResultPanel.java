@@ -49,6 +49,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.springframework.util.ReflectionUtils;
 
 public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
@@ -66,17 +67,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                 new ArrayList<IColumn<AbstractAttributableTO, String>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
-            Field field = null;
-            try {
-                field = UserTO.class.getDeclaredField(name);
-            } catch (Exception ue) {
-                LOG.debug("Error retrieving UserTO field {}", name, ue);
-                try {
-                    field = AbstractAttributableTO.class.getDeclaredField(name);
-                } catch (Exception aae) {
-                    LOG.error("Error retrieving AbstractAttributableTO field {}", name, aae);
-                }
-            }
+            final Field field = ReflectionUtils.findField(UserTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
                 columns.add(new TokenColumn("token"));
