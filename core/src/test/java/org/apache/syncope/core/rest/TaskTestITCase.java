@@ -427,7 +427,9 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE81() {
-    	NotificationTaskTO taskTO = taskService.read(TaskType.NOTIFICATION, 8L);
+
+        String sender = createNotificationTask();
+        NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
 
         int executions = taskTO.getExecutions().size();
@@ -465,8 +467,47 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE86() {
-        // 1. create suitable notification for subsequent tests
-        NotificationTO notification = new NotificationTO();
+        // 1. create notification task
+        String sender = createNotificationTask();
+
+        // 2. get NotificationTaskTO for user just created
+        NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
+        assertNotNull(taskTO);
+        assertTrue(taskTO.getExecutions().isEmpty());
+
+        try {
+            // 3. execute the generated NotificationTask
+            TaskExecTO execution = taskService.execute(taskTO.getId(), false);
+            assertNotNull(execution);
+
+            // 4. verify
+            taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
+            assertNotNull(taskTO);
+            assertEquals(1, taskTO.getExecutions().size());
+        } finally {
+        	// Remove execution to make test re-runnable
+        	TaskExecTO taskExecTO = taskService.deleteExecution(taskTO.getExecutions().get(0).getId());
+        	assertNotNull(taskExecTO);
+        }
+    }
+
+	private NotificationTaskTO findNotificationTaskBySender(String sender) {		
+        List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        NotificationTaskTO taskTO = null;
+        for (NotificationTaskTO task : tasks) {
+            if (sender.equals(task.getSender())) {
+                taskTO = task;
+            }
+        }
+		return taskTO;
+	}
+
+	private String createNotificationTask() {
+		// 1. Create notification
+		NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.addEvent("create");
 
@@ -499,36 +540,8 @@ public class TaskTestITCase extends AbstractTest {
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-
-        // 3. get NotificationTaskTO for user just created
-        List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
-        assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
-
-        NotificationTaskTO taskTO = null;
-        for (NotificationTaskTO task : tasks) {
-            if (sender.equals(task.getSender())) {
-                taskTO = task;
-            }
-        }
-        assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions().isEmpty());
-
-        try {
-            // 4. execute the generated NotificationTask
-            TaskExecTO execution = taskService.execute(taskTO.getId(), false);
-            assertNotNull(execution);
-
-            // 5. verify
-            taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
-            assertNotNull(taskTO);
-            assertEquals(1, taskTO.getExecutions().size());
-        } finally {
-        	// Remove execution to make test re-runnable
-        	TaskExecTO taskExecTO = taskService.deleteExecution(taskTO.getExecutions().get(0).getId());
-        	assertNotNull(taskExecTO);
-        }
-    }
+		return sender;
+	}
 
     @Test
     public void issueSYNCOPE68() {
@@ -600,6 +613,13 @@ public class TaskTestITCase extends AbstractTest {
         } finally {
         	UserTO dUserTO = userService.delete(userTO.getId());
         	assertNotNull(dUserTO);
+        }
+    	System.out.println("After");
+        List<PropagationTaskTO> tasksA = taskService.list(TaskType.PROPAGATION);
+        for (PropagationTaskTO task : tasksA) {
+        	System.out.println(task.getId());
+        	System.out.println(task.getAccountId());
+        	System.out.println(task.getOldAccountId());
         }
     }
 

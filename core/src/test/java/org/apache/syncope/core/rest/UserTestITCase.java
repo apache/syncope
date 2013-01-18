@@ -1835,7 +1835,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE266() {
-        UserTO userTO = getSampleTO("syncope266@apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope266@apache.org");
         userTO.getResources().clear();
 
         userTO = userService.create(userTO);
