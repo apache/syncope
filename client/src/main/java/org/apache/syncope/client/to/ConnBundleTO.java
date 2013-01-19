@@ -20,9 +20,17 @@ package org.apache.syncope.client.to;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfPropSchema;
 
+@XmlRootElement(name = "connectorBundle")
+@XmlType
 public class ConnBundleTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 7215115961910138005L;
@@ -35,17 +43,13 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     private String connectorName;
 
-    private List<ConnConfPropSchema> properties;
-
-    public ConnBundleTO() {
-        properties = new ArrayList<ConnConfPropSchema>();
-    }
+    private List<ConnConfPropSchema> properties = new ArrayList<ConnConfPropSchema>();
 
     public String getBundleName() {
         return bundleName;
     }
 
-    public void setBundleName(String bundleName) {
+    public void setBundleName(final String bundleName) {
         this.bundleName = bundleName;
     }
 
@@ -53,7 +57,7 @@ public class ConnBundleTO extends AbstractBaseBean {
         return connectorName;
     }
 
-    public void setConnectorName(String connectorName) {
+    public void setConnectorName(final String connectorName) {
         this.connectorName = connectorName;
     }
 
@@ -61,23 +65,25 @@ public class ConnBundleTO extends AbstractBaseBean {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
+    @XmlElementWrapper(name = "properties")
+    @XmlElement(name = "connConfPropSchema")
     public List<ConnConfPropSchema> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<ConnConfPropSchema> properties) {
+    public void setProperties(final List<ConnConfPropSchema> properties) {
         this.properties = properties;
     }
 
-    public boolean addProperty(ConnConfPropSchema property) {
+    public boolean addProperty(final ConnConfPropSchema property) {
         return properties.add(property);
     }
 
-    public boolean removeProperty(ConnConfPropSchema property) {
+    public boolean removeProperty(final ConnConfPropSchema property) {
         return properties.remove(property);
     }
 
@@ -85,7 +91,7 @@ public class ConnBundleTO extends AbstractBaseBean {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(final String version) {
         this.version = version;
     }
 }

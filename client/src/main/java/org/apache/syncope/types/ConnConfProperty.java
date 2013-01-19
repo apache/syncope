@@ -20,15 +20,23 @@ package org.apache.syncope.types;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.client.AbstractBaseBean;
 
+@XmlRootElement
+@XmlType
 public class ConnConfProperty extends AbstractBaseBean implements Comparable<ConnConfProperty> {
 
     private static final long serialVersionUID = -8391413960221862238L;
 
     private ConnConfPropSchema schema;
 
-    private List values;
+    private List<?> values = new ArrayList<Object>();
 
     private boolean overridable;
 
@@ -36,18 +44,17 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
         return schema;
     }
 
-    public void setSchema(ConnConfPropSchema schema) {
+    public void setSchema(final ConnConfPropSchema schema) {
         this.schema = schema;
     }
 
-    public List getValues() {
-        if (values == null) {
-            values = new ArrayList();
-        }
+    @XmlElementWrapper(name = "values")
+    @XmlElement(name = "value")
+    public List<?> getValues() {
         return values;
     }
 
-    public void setValues(final List values) {
+    public void setValues(final List<?> values) {
         this.values = values;
     }
 
@@ -55,7 +62,7 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
         return overridable;
     }
 
-    public void setOverridable(boolean overridable) {
+    public void setOverridable(final boolean overridable) {
         this.overridable = overridable;
     }
 

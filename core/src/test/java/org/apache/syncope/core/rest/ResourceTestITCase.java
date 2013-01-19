@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,12 +29,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.apache.syncope.client.to.ResourceTO;
+
 import org.apache.syncope.client.to.MappingItemTO;
 import org.apache.syncope.client.to.MappingTO;
+import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.client.validation.SyncopeClientException;
 import org.apache.syncope.types.ConnConfPropSchema;
@@ -39,7 +40,10 @@ import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
@@ -256,7 +260,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        final String resourceName = "ws-target-resource-update";
+        String resourceName = "ws-target-resource-update";
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(101L);
@@ -310,24 +314,24 @@ public class ResourceTestITCase extends AbstractTest {
     public void updateResetSyncToken() {
         // create resource with sync token
         String resourceName = "ws-target-resource-update-resetsynctoken" + getUUIDString();
-    	ResourceTO pre = buildResourceTO(resourceName);
-    	pre.setUsyncToken("test");
-    	resourceService.create(pre);
+        ResourceTO pre = buildResourceTO(resourceName);
+        pre.setUsyncToken("test");
+        resourceService.create(pre);
 
-		pre.setUsyncToken(null);
-		ResourceTO actual = resourceService.update(pre.getName(), pre);
-		// check that the synctoken has been reset
-		assertNull(actual.getUsyncToken());
+        pre.setUsyncToken(null);
+        ResourceTO actual = resourceService.update(pre.getName(), pre);
+        // check that the synctoken has been reset
+        assertNull(actual.getUsyncToken());
     }
 
     @Test
     public void delete() {
-        final String resourceName = "ws-target-resource-delete";
+        String resourceName = "ws-target-resource-delete";
 
         ResourceTO resource = buildResourceTO(resourceName);
         ResourceTO actual = resourceService.create(resource);
         assertNotNull(actual);
-        
+
         ResourceTO deletedResource = resourceService.delete(resourceName);
         assertNotNull(deletedResource);
 
@@ -364,8 +368,8 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(actual);
     }
 
-	private ResourceTO buildResourceTO(String resourceName) {
-		ResourceTO resourceTO = new ResourceTO();
+    private ResourceTO buildResourceTO(String resourceName) {
+        ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
@@ -393,7 +397,7 @@ public class ResourceTestITCase extends AbstractTest {
         mapping.addItem(item);
 
         resourceTO.setUmapping(mapping);
-		return resourceTO;
-	}
+        return resourceTO;
+    }
 
 }

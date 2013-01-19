@@ -484,11 +484,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return oob.build();
     }
 
-    private Object getPropertyValue(final String propType, final List<Object> values) {
+    private Object getPropertyValue(final String propType, final List<?> values) {
         Object value = null;
 
         try {
-            final Class propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
+            final Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
             if (GuardedString.class.equals(propertySchemaClass)) {
                 value = new GuardedString(values.get(0).toString().toCharArray());

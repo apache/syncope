@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.types;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.client.AbstractBaseBean;
 
+@XmlRootElement
+@XmlType
 public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<ConnConfPropSchema> {
 
     private static final long serialVersionUID = -1976365781005801296L;
@@ -42,7 +47,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -50,7 +55,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return required;
     }
 
-    public void setRequired(boolean required) {
+    public void setRequired(final boolean required) {
         this.required = required;
     }
 
@@ -58,7 +63,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -66,7 +71,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
@@ -74,7 +79,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return helpMessage;
     }
 
-    public void setHelpMessage(String helpMessage) {
+    public void setHelpMessage(final String helpMessage) {
         this.helpMessage = helpMessage;
     }
 
@@ -82,7 +87,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return order;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(final int order) {
         this.order = order;
     }
 
@@ -90,7 +95,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return confidential;
     }
 
-    public void setConfidential(boolean confidential) {
+    public void setConfidential(final boolean confidential) {
         this.confidential = confidential;
     }
 

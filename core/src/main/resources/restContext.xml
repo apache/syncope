@@ -67,6 +67,7 @@ under the License.
    <jaxrs:server id="restContainer" address="/">
       <jaxrs:serviceBeans>
          <ref bean="configurationServiceImpl" />
+         <ref bean="connectorServiceImpl" />
          <ref bean="entitlementServiceImpl" />
       </jaxrs:serviceBeans>
       <jaxrs:resourceComparator>

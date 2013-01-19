@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.services.ConnectorService;
@@ -86,7 +87,9 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public ConnInstanceTO delete(Long id) {
-        return getService(ConnectorService.class).delete(id);
+        ConnInstanceTO instanceTO = getService(ConnectorService.class).read(id);
+        getService(ConnectorService.class).delete(id);
+        return instanceTO;
     }
 
     public List<ConnBundleTO> getAllBundles() {
@@ -179,17 +182,19 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
-        List<String> schemaNames = null;
-
+        List<String> schemaNames = new ArrayList<String>();
         try {
-            schemaNames = getService(ConnectorService.class).getSchemaNames(connectorTO.getId(), connectorTO, false);
-
+            List<SchemaTO> response = getService(ConnectorService.class).getSchemaNames(connectorTO.getId(),
+                    connectorTO, false);
+            for (SchemaTO schema : response) {
+                schemaNames.add(schema.getName());
+            }
             // re-order schema names list
             Collections.sort(schemaNames);
         } catch (Exception e) {
             LOG.error("While getting resource schema names", e);
+            schemaNames = null;
         }
-
         return schemaNames;
     }
 }

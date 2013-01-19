@@ -28,8 +28,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.types.ConnConfProperty;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,11 +41,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface ConnectorService {
 
     @POST
-    ConnInstanceTO create(ConnInstanceTO connectorTO);
+    Response create(ConnInstanceTO connectorTO);
 
     @DELETE
     @Path("{connectorId}")
-    ConnInstanceTO delete(@PathParam("connectorId") Long connectorId);
+    void delete(@PathParam("connectorId") Long connectorId);
 
     @GET
     @Path("bundles")
@@ -53,10 +56,9 @@ public interface ConnectorService {
     List<ConnConfProperty> getConfigurationProperties(
             @PathParam("connectorId") Long connectorId);
 
-    @GET
     @POST
     @Path("{connectorId}/schemas")
-    List<String> getSchemaNames(
+    List<SchemaTO> getSchemaNames(
             @PathParam("connectorId") Long connectorId,
             ConnInstanceTO connectorTO,
             @QueryParam("showall") @DefaultValue("false") boolean showall);
@@ -75,7 +77,7 @@ public interface ConnectorService {
 
     @PUT
     @Path("{connectorId}")
-    ConnInstanceTO update(@PathParam("connectorId") Long connectorId,
+    void update(@PathParam("connectorId") Long connectorId,
             ConnInstanceTO connectorTO);
 
     @POST

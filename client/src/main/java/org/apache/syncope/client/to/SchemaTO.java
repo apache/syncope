@@ -18,14 +18,19 @@
  */
 package org.apache.syncope.client.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.types.SchemaType;
 
+@XmlRootElement(name = "schema")
+@XmlType
 public class SchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;
 
-    private SchemaType type;
+    private SchemaType type = SchemaType.String;
 
     private String mandatoryCondition;
 
@@ -43,15 +48,11 @@ public class SchemaTO extends AbstractSchemaTO {
 
     private String validatorClass;
 
-    public SchemaTO() {
-        type = SchemaType.String;
-    }
-
     public String getConversionPattern() {
         return conversionPattern;
     }
 
-    public void setConversionPattern(String conversionPattern) {
+    public void setConversionPattern(final String conversionPattern) {
         this.conversionPattern = conversionPattern;
     }
 
@@ -61,7 +62,7 @@ public class SchemaTO extends AbstractSchemaTO {
                 : "false";
     }
 
-    public void setMandatoryCondition(String mandatoryCondition) {
+    public void setMandatoryCondition(final String mandatoryCondition) {
         this.mandatoryCondition = mandatoryCondition;
     }
 
@@ -69,7 +70,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return enumerationValues;
     }
 
-    public void setEnumerationValues(String enumerationValues) {
+    public void setEnumerationValues(final String enumerationValues) {
         this.enumerationValues = enumerationValues;
     }
 
@@ -77,7 +78,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return enumerationKeys;
     }
 
-    public void setEnumerationKeys(String enumerationKeys) {
+    public void setEnumerationKeys(final String enumerationKeys) {
         this.enumerationKeys = enumerationKeys;
     }
 
@@ -85,7 +86,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return multivalue;
     }
 
-    public void setMultivalue(boolean multivalue) {
+    public void setMultivalue(final boolean multivalue) {
         this.multivalue = multivalue;
     }
 
@@ -93,7 +94,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return uniqueConstraint;
     }
 
-    public void setUniqueConstraint(boolean uniqueConstraint) {
+    public void setUniqueConstraint(final boolean uniqueConstraint) {
         this.uniqueConstraint = uniqueConstraint;
     }
 
@@ -101,7 +102,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return readonly;
     }
 
-    public void setReadonly(boolean readonly) {
+    public void setReadonly(final boolean readonly) {
         this.readonly = readonly;
     }
 
@@ -109,7 +110,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return type;
     }
 
-    public void setType(SchemaType type) {
+    public void setType(final SchemaType type) {
         this.type = type;
     }
 
@@ -117,7 +118,7 @@ public class SchemaTO extends AbstractSchemaTO {
         return validatorClass;
     }
 
-    public void setValidatorClass(String validatorClass) {
+    public void setValidatorClass(final String validatorClass) {
         this.validatorClass = validatorClass;
     }
 }

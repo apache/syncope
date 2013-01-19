@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.to;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.client.AbstractBaseBean;
 
+@XmlType
 public abstract class AbstractSchemaTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4088388951694301759L;
@@ -30,7 +33,7 @@ public abstract class AbstractSchemaTO extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 

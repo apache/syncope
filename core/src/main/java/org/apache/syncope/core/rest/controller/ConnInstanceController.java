@@ -326,7 +326,7 @@ public class ConnInstanceController extends AbstractController {
         final Set<ConnConfProperty> conf = mergeConnConfProperties(connectorTO.getConfiguration(),
                 connInstance.getConfiguration());
 
-        // We cannot use Spring bean because this method could be used during resource definition or modification: 
+        // We cannot use Spring bean because this method could be used during resource definition or modification:
         // bean couldn't exist or couldn't be updated.
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
         final List<String> result = new ArrayList<String>(connLoader.createConnectorBean(connInstance, conf).

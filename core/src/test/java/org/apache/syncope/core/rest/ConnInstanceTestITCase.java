@@ -33,11 +33,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.MappingItemTO;
 import org.apache.syncope.client.to.MappingTO;
 import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.types.ConnConfPropSchema;
 import org.apache.syncope.types.ConnConfProperty;
@@ -133,7 +136,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.addCapability(ConnectorCapability.ONE_PHASE_CREATE);
         connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
 
-        ConnInstanceTO actual = connectorService.create(connectorTO);
+        Response response = connectorService.create(connectorTO);
+        ConnInstanceTO actual = (ConnInstanceTO) response.getEntity();
 
         assertNotNull(actual);
 
@@ -151,7 +155,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.removeCapability(ConnectorCapability.TWO_PHASES_UPDATE);
         actual = null;
         try {
-            actual = connectorService.update(connectorTO.getId(), connectorTO);
+            connectorService.update(connectorTO.getId(), connectorTO);
+            actual = connectorService.read(connectorTO.getId());
         } catch (HttpStatusCodeException e) {
             LOG.error("update failed", e);
             t = e;
@@ -163,8 +168,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // check also for the deletion of the created object
         try {
-            ConnInstanceTO deletedConn = connectorService.delete(actual.getId());
-            assertNotNull(deletedConn);
+            connectorService.delete(actual.getId());
         } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
             t = e;
@@ -221,7 +225,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
-        ConnInstanceTO actual = connectorService.update(connectorTO.getId(), connectorTO);
+        connectorService.update(connectorTO.getId(), connectorTO);
+        ConnInstanceTO actual = connectorService.read(connectorTO.getId());
 
         assertNotNull(actual);
 
@@ -262,7 +267,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Create a new connector instance.
         // ----------------------------------
-        connInstanceTO = connectorService.create(connInstanceTO);
+        Response response = connectorService.create(connInstanceTO);
+        connInstanceTO = (ConnInstanceTO) response.getEntity();
 
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
@@ -299,7 +305,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         connInstanceTO.addCapability(ConnectorCapability.SEARCH);
 
-        ConnInstanceTO actual = connectorService.update(connInstanceTO.getId(), connInstanceTO);
+        connectorService.update(connInstanceTO.getId(), connInstanceTO);
+        ConnInstanceTO actual = connectorService.read(connInstanceTO.getId());
 
         assertNotNull(actual);
         assertFalse(connInstanceTO.getCapabilities().isEmpty());
@@ -497,9 +504,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void getSchemaNames() {
         ConnInstanceTO conn = connectorService.read(101L);
 
-        List<String> schemaNames = connectorService.getSchemaNames(conn.getId(), conn, true);
+        List<SchemaTO> schemaNames = connectorService.getSchemaNames(conn.getId(), conn, true);
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
+        assertNotNull(schemaNames.get(0).getName());
+        assertNull(schemaNames.get(0).getEnumerationValues());
 
         schemaNames = connectorService.getSchemaNames(conn.getId(), conn, false);
 
@@ -516,100 +525,97 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertFalse(schemaNames.isEmpty());
     }
 
-	@Test
-	public void issueSYNCOPE112() {
+    @Test
+    public void issueSYNCOPE112() {
 
-		// ----------------------------------------
-		// Create a new connector
-		// ----------------------------------------
-		ConnInstanceTO connectorTO = new ConnInstanceTO();
+        // ----------------------------------------
+        // Create a new connector
+        // ----------------------------------------
+        ConnInstanceTO connectorTO = new ConnInstanceTO();
 
-		// set connector version
-		connectorTO.setVersion(connidSoapVersion);
+        // set connector version
+        connectorTO.setVersion(connidSoapVersion);
 
-		// set connector name
-		connectorTO
-				.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
+        // set connector name
+        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
 
-		// set bundle name
-		connectorTO.setBundleName("org.connid.bundles.soap");
+        // set bundle name
+        connectorTO.setBundleName("org.connid.bundles.soap");
 
-		// set display name
-		connectorTO.setDisplayName("WSSoap");
+        // set display name
+        connectorTO.setDisplayName("WSSoap");
 
-		// set the connector configuration using PropertyTO
-		Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+        // set the connector configuration using PropertyTO
+        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
 
-		ConnConfPropSchema userSchema = new ConnConfPropSchema();
-		userSchema.setName("endpoint");
-		userSchema.setType(String.class.getName());
-		userSchema.setRequired(true);
-		ConnConfProperty endpoint = new ConnConfProperty();
-		endpoint.setSchema(userSchema);
-		endpoint.setValues(Collections
-				.singletonList("http://localhost:9080/does_not_work"));
-		endpoint.setOverridable(true);
+        ConnConfPropSchema userSchema = new ConnConfPropSchema();
+        userSchema.setName("endpoint");
+        userSchema.setType(String.class.getName());
+        userSchema.setRequired(true);
+        ConnConfProperty endpoint = new ConnConfProperty();
+        endpoint.setSchema(userSchema);
+        endpoint.setValues(Collections.singletonList("http://localhost:9080/does_not_work"));
+        endpoint.setOverridable(true);
 
-		ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
-		keyColumnSchema.setName("servicename");
-		keyColumnSchema.setType(String.class.getName());
-		keyColumnSchema.setRequired(true);
-		ConnConfProperty servicename = new ConnConfProperty();
-		servicename.setSchema(keyColumnSchema);
-		servicename
-				.setValues(Collections
-						.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
-		servicename.setOverridable(false);
+        ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
+        keyColumnSchema.setName("servicename");
+        keyColumnSchema.setType(String.class.getName());
+        keyColumnSchema.setRequired(true);
+        ConnConfProperty servicename = new ConnConfProperty();
+        servicename.setSchema(keyColumnSchema);
+        servicename
+                .setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.setOverridable(false);
 
-		conf.add(endpoint);
-		conf.add(servicename);
+        conf.add(endpoint);
+        conf.add(servicename);
 
-		// set connector configuration
-		connectorTO.setConfiguration(conf);
+        // set connector configuration
+        connectorTO.setConfiguration(conf);
 
-		try {
+        try {
 
-			assertFalse(connectorService.validate(connectorTO));
+            assertFalse(connectorService.validate(connectorTO));
 
-			connectorTO = connectorService.create(connectorTO);
-			assertNotNull(connectorTO);
-			// ----------------------------------------
+            Response response = connectorService.create(connectorTO);
+            connectorTO = (ConnInstanceTO) response.getEntity();
+            assertNotNull(connectorTO);
+            // ----------------------------------------
 
-			// ----------------------------------------
-			// create a resourceTO
-			// ----------------------------------------
-			String resourceName = "checkForPropOverriding";
-			ResourceTO resourceTO = new ResourceTO();
+            // ----------------------------------------
+            // create a resourceTO
+            // ----------------------------------------
+            String resourceName = "checkForPropOverriding";
+            ResourceTO resourceTO = new ResourceTO();
 
-			resourceTO.setName(resourceName);
-			resourceTO.setConnectorId(connectorTO.getId());
+            resourceTO.setName(resourceName);
+            resourceTO.setConnectorId(connectorTO.getId());
 
-			conf = new HashSet<ConnConfProperty>();
-			endpoint.setValues(Collections
-					.singletonList("http://localhost:9080/wssample/services/provisioning"));
-			conf.add(endpoint);
+            conf = new HashSet<ConnConfProperty>();
+            endpoint.setValues(Collections.singletonList("http://localhost:9080/wssample/services/provisioning"));
+            conf.add(endpoint);
 
-			resourceTO.setConnectorConfigurationProperties(conf);
+            resourceTO.setConnectorConfigurationProperties(conf);
 
-			MappingTO mapping = new MappingTO();
-			resourceTO.setUmapping(mapping);
+            MappingTO mapping = new MappingTO();
+            resourceTO.setUmapping(mapping);
 
-			MappingItemTO mapItem = new MappingItemTO();
-			mapItem.setExtAttrName("uid");
-			mapItem.setIntAttrName("userId");
-			mapItem.setIntMappingType(IntMappingType.UserSchema);
-			mapItem.setAccountid(true);
-			mapping.setAccountIdItem(mapItem);
-			// ----------------------------------------
+            MappingItemTO mapItem = new MappingItemTO();
+            mapItem.setExtAttrName("uid");
+            mapItem.setIntAttrName("userId");
+            mapItem.setIntMappingType(IntMappingType.UserSchema);
+            mapItem.setAccountid(true);
+            mapping.setAccountIdItem(mapItem);
+            // ----------------------------------------
 
-			// ----------------------------------------
-			// Check connection without saving the resource ....
-			// ----------------------------------------
-			assertTrue(resourceService.check(resourceTO));
-			// ----------------------------------------
-		} finally {
-			// Remove connector from db to make test re-runnable
-			connectorService.delete(connectorTO.getId());
-		}
-	}
+            // ----------------------------------------
+            // Check connection without saving the resource ....
+            // ----------------------------------------
+            assertTrue(resourceService.check(resourceTO));
+            // ----------------------------------------
+        } finally {
+            // Remove connector from db to make test re-runnable
+            connectorService.delete(connectorTO.getId());
+        }
+    }
 }

@@ -41,6 +41,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Autowired
     private ConfigurationController configurationController;
+
     private UriInfo uriInfo;
 
     @Override

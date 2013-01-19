@@ -18,10 +18,16 @@
  */
 package org.apache.syncope.services.proxy;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.services.ConnectorService;
 import org.apache.syncope.types.ConnConfProperty;
 import org.springframework.web.client.RestTemplate;
@@ -33,28 +39,29 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
-        return getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
+    public Response create(final ConnInstanceTO connectorTO) {
+        ConnInstanceTO response = getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
                 ConnInstanceTO.class);
+        URI location = URI.create(baseUrl + "connector/read" + response.getId());
+        return Response.created(location).entity(response).build();
     }
 
     @Override
-    public ConnInstanceTO update(final Long connectorId, final ConnInstanceTO connectorTO) {
-        return getRestTemplate().postForObject(baseUrl + "connector/update.json", connectorTO,
-                ConnInstanceTO.class);
+    public void update(final Long connectorId, final ConnInstanceTO connectorTO) {
+        getRestTemplate().postForObject(baseUrl + "connector/update.json", connectorTO, ConnInstanceTO.class);
     }
 
     @Override
-    public ConnInstanceTO delete(final Long connectorId) {
-        return getRestTemplate().getForObject(baseUrl + "connector/delete/{connectorId}.json",
-                ConnInstanceTO.class, connectorId);
+    public void delete(final Long connectorId) {
+        getRestTemplate().getForObject(baseUrl + "connector/delete/{connectorId}.json", ConnInstanceTO.class,
+                connectorId);
     }
 
     @Override
     public List<ConnInstanceTO> list(final String lang) {
-        String param = (lang != null)
-                ? "?lang=" + lang
-                : "";
+        String param = (lang == null)
+                ? ""
+                : "?lang=" + lang;
 
         return Arrays.asList(getRestTemplate().getForObject(baseUrl + "connector/list.json" + param,
                 ConnInstanceTO[].class));
@@ -68,28 +75,34 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
 
     @Override
     public List<ConnBundleTO> getBundles(final String lang) {
-        String param = (lang != null)
-                ? "?lang=" + lang
-                : "";
+        String param = (lang == null)
+                ? ""
+                : "?lang=" + lang;
 
         return Arrays.asList(getRestTemplate().getForObject(baseUrl + "connector/bundle/list.json" + param,
                 ConnBundleTO[].class));
     }
 
     @Override
-    public List<String> getSchemaNames(final Long connectorId, final ConnInstanceTO connectorTO, boolean showall) {
-        final String queryString = "?showall=" + String.valueOf(showall);
+    public List<SchemaTO> getSchemaNames(final Long connectorId, final ConnInstanceTO connectorTO,
+            final boolean showall) {
+        final String queryString = "?showall=" + showall;
 
-        return Arrays.asList(getRestTemplate().postForObject(baseUrl + "connector/schema/list" + queryString,
-                connectorTO,
-                String[].class));
+        List<String> response = Arrays.asList(getRestTemplate().postForObject(
+                baseUrl + "connector/schema/list" + queryString, connectorTO, String[].class));
+        List<SchemaTO> schemaNames = new ArrayList<SchemaTO>();
+        for (String name : response) {
+            SchemaTO schemaTO = new SchemaTO();
+            schemaTO.setName(name);
+            schemaNames.add(schemaTO);
+        }
+        return schemaNames;
     }
 
     @Override
     public List<ConnConfProperty> getConfigurationProperties(final Long connectorId) {
-        return Arrays.asList(getRestTemplate()
-                .getForObject(baseUrl + "connector/{connectorId}/configurationProperty/list",
-                ConnConfProperty[].class, connectorId));
+        return Arrays.asList(getRestTemplate().getForObject(
+                baseUrl + "connector/{connectorId}/configurationProperty/list", ConnConfProperty[].class, connectorId));
     }
 
     @Override
@@ -99,7 +112,7 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
 
     @Override
     public ConnInstanceTO readConnectorBean(final String resourceName) {
-        return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/connectorBean",
-                ConnInstanceTO.class, resourceName);
+        return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/connectorBean", ConnInstanceTO.class,
+                resourceName);
     }
 }

@@ -24,11 +24,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.ConnectorCapability;
 
+@XmlRootElement(name = "connector")
+@XmlType
 public class ConnInstanceTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2707778645445168671L;
@@ -41,9 +49,9 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private String connectorName;
 
-    private Set<ConnConfProperty> configuration;
+    private final Set<ConnConfProperty> configuration;
 
-    private Set<ConnectorCapability> capabilities;
+    private final Set<ConnectorCapability> capabilities;
 
     private String displayName;
 
@@ -78,6 +86,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
         this.version = bundleversion;
     }
 
+    @XmlElementWrapper(name = "configuration")
+    @XmlElement(name = "property")
     public Set<ConnConfProperty> getConfiguration() {
         return this.configuration;
     }
@@ -130,6 +140,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return capabilities.remove(capability);
     }
 
+    @XmlElementWrapper(name = "capabilities")
+    @XmlElement(name = "capability")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }
