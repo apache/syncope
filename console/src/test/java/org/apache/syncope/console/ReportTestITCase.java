@@ -42,7 +42,7 @@ public class ReportTestITCase extends AbstractTest {
                 + "\"//div[2]/form/div[2]/div/div/div/div/label\");", "30000");
 
         selenium.select("//form/div[2]/div/div/div[2]/div[2]/span/select",
-                "label=org.apache.syncope.client.report.UserReportletConf");
+                "label=org.apache.syncope.common.report.UserReportletConf");
 
         selenium.click("css=a.w_close");
         selenium.click("css=a.w_close");
