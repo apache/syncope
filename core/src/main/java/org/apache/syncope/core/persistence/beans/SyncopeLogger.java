@@ -23,8 +23,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import org.apache.syncope.types.SyncopeLoggerLevel;
-import org.apache.syncope.types.SyncopeLoggerType;
+
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.SyncopeLoggerType;
 
 @Entity
 public class SyncopeLogger extends AbstractBaseBean {

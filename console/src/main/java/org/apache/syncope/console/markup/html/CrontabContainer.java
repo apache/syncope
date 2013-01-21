@@ -19,6 +19,9 @@
 package org.apache.syncope.console.markup.html;
 
 import java.util.Arrays;
+
+import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.commons.SelectOption;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,8 +33,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.commons.SelectOption;
 
 public class CrontabContainer extends WebMarkupContainer {
 

@@ -25,15 +25,15 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.SyncopeClientExceptionType;
-import org.apache.syncope.types.TraceLevel;
+import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.common.search.MembershipCond;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

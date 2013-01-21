@@ -26,11 +26,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.syncope.annotation.FormAttributeField;
-import org.apache.syncope.client.SyncopeConstants;
-import org.apache.syncope.client.report.ReportletConf;
-import org.apache.syncope.client.search.NodeCond;
+import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.annotation.FormAttributeField;
+import org.apache.syncope.common.report.ReportletConf;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -43,12 +45,12 @@ import org.apache.syncope.console.wicket.markup.html.form.CheckBoxMultipleChoice
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -67,7 +69,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
 public class ReportletConfModalPage extends BaseModalPage {
 

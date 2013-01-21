@@ -20,14 +20,14 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.MailTemplateTO;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.to.ValidatorTO;
-import org.apache.syncope.client.util.CollectionWrapper;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.ConfigurationService;
-import org.apache.syncope.services.NotificationService;
-import org.apache.syncope.services.WorkflowService;
+
+import org.apache.syncope.common.services.ConfigurationService;
+import org.apache.syncope.common.services.NotificationService;
+import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.to.MailTemplateTO;
+import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 @Component

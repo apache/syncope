@@ -21,8 +21,9 @@ package org.apache.syncope.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AbstractAttributableTO;
+
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;

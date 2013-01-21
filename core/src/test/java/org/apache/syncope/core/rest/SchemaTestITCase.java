@@ -18,21 +18,27 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.util.AttributableOperations;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
-import org.apache.syncope.services.SchemaService;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.SchemaType;
-import org.apache.syncope.types.SyncopeClientExceptionType;
+
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.util.AttributableOperations;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

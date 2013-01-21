@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;

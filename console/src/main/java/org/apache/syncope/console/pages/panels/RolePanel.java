@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.workflow.role;
 
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowAdapter;

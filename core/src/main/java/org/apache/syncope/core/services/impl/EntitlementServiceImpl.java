@@ -21,10 +21,10 @@ package org.apache.syncope.core.services.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.syncope.client.to.EntitlementTO;
-import org.apache.syncope.client.util.CollectionWrapper;
+import org.apache.syncope.common.services.EntitlementService;
+import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.AuthenticationController;
-import org.apache.syncope.services.EntitlementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

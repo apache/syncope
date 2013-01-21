@@ -21,17 +21,19 @@ package org.apache.syncope.core.notification;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+
 import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.NotificationSubCategory;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.NotificationSubCategory;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.TraceLevel;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

@@ -21,11 +21,12 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.ResourceTO;
+
+import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;

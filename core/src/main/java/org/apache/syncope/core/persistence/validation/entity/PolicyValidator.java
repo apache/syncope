@@ -20,16 +20,17 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.PasswordPolicySpec;
+import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
-import org.apache.syncope.types.AccountPolicySpec;
-import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.SyncPolicySpec;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class PolicyValidator extends AbstractValidator implements ConstraintValidator<PolicyCheck, Policy> {
 

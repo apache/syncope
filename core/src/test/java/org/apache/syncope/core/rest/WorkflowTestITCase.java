@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
+
+import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.Test;

@@ -19,16 +19,17 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
+
+import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.AuditElements.WorkflowSubCategory;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditElements.WorkflowSubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;

@@ -22,6 +22,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.PasswordPolicyTO;
+import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.PolicyModalPage;
+import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -49,20 +64,6 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.PolicyModalPage;
-import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.types.PolicyType;
 
 public class PoliciesPanel extends Panel {
 

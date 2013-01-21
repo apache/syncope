@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -31,7 +32,8 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.types.TraceLevel;
+
+import org.apache.syncope.common.types.TraceLevel;
 
 /**
  * Encapsulate all information about a notification task.

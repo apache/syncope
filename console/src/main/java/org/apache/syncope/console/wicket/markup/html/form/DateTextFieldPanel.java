@@ -19,6 +19,7 @@
 package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.util.Date;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;

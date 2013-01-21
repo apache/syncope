@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.beans;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,14 +36,15 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.PropagationMode;
+import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.TraceLevel;
+import org.apache.syncope.core.util.XMLSerializer;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 /**

@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.SyncopeSession;
 
 public class AccountInformationPanel extends Panel {
 

@@ -18,16 +18,21 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Date;
+
 import javax.persistence.EntityExistsException;
+
+import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
-import org.apache.syncope.types.ReportExecStatus;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

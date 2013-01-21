@@ -19,7 +19,7 @@ under the License.
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@page import="org.apache.syncope.client.SyncopeConstants"%>
+<%@page import="org.apache.syncope.common.SyncopeConstants"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.apache.openjpa.datacache.CacheStatisticsImpl"%>

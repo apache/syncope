@@ -24,7 +24,22 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.types.ConnConfPropSchema;
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.ConnectorCapability;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -51,21 +66,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.client.to.ConnBundleTO;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.types.ConnConfPropSchema;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.ConnectorCapability;
-import org.apache.wicket.PageReference;
 
 /**
  * Modal window with Connector form.

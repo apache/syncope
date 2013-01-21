@@ -43,6 +43,12 @@ under the License.
   </distributionManagement>
   
   <dependencies>
+	<dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  
   	<dependency>
 		<groupId>javax.ws.rs</groupId>
     	<artifactId>javax.ws.rs-api</artifactId>

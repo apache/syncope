@@ -19,12 +19,14 @@
 package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.List;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
-import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.PropagationTaskExecStatus;
 
 public class PropagationTaskValidator extends AbstractValidator implements
         ConstraintValidator<PropagationTaskCheck, PropagationTask> {

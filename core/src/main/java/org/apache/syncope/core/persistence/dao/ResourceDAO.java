@@ -19,10 +19,11 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+
+import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.types.IntMappingType;
 
 public interface ResourceDAO extends DAO {
 

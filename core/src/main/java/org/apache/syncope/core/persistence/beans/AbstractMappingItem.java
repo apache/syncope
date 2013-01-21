@@ -26,7 +26,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.types.IntMappingType;
+
+import org.apache.syncope.common.types.IntMappingType;
 
 @MappedSuperclass
 @Cacheable

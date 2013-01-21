@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.syncope.client.to.LoggerTO;
-import org.apache.syncope.services.LoggerService;
-import org.apache.syncope.types.AuditElements;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditLoggerName;
-import org.apache.syncope.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.services.LoggerService;
+import org.apache.syncope.common.to.LoggerTO;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
 import org.springframework.stereotype.Component;
 
 @Component

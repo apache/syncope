@@ -20,10 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.ReportService;
+import org.apache.syncope.common.services.ReportService;
+import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 @Component

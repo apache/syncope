@@ -21,6 +21,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.model.IModel;
 

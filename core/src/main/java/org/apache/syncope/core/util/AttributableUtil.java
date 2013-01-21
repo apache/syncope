@@ -20,10 +20,14 @@ package org.apache.syncope.core.util;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -63,9 +67,6 @@ import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.SyncPolicySpec;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class AttributableUtil {

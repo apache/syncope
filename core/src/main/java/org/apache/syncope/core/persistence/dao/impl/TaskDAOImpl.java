@@ -20,7 +20,9 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.Query;
+
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;

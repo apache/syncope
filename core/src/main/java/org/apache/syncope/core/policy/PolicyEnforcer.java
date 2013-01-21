@@ -19,10 +19,11 @@
 package org.apache.syncope.core.policy;
 
 import java.io.InvalidObjectException;
+
+import org.apache.syncope.common.types.AbstractPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.types.AbstractPolicySpec;
-import org.apache.syncope.types.PolicyType;
 
 public abstract class PolicyEnforcer<T extends AbstractPolicySpec, E> {
 

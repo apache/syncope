@@ -19,10 +19,12 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
+
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {

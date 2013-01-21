@@ -21,12 +21,12 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.services.PolicyService;
-import org.apache.syncope.types.PolicyType;
+import org.apache.syncope.common.services.PolicyService;
+import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.PasswordPolicyTO;
+import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.PolicyType;
 import org.springframework.stereotype.Component;
 
 /**

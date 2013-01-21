@@ -21,6 +21,7 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;

@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.syncope.common.types.PropagationMode;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;

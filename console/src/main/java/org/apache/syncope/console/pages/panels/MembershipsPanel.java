@@ -19,10 +19,12 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
+
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;

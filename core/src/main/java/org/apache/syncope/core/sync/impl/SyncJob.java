@@ -20,6 +20,10 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.syncope.common.types.ConflictResolutionAction;
+import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
@@ -36,9 +40,6 @@ import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.types.ConflictResolutionAction;
-import org.apache.syncope.types.SyncPolicySpec;
-import org.apache.syncope.types.TraceLevel;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;

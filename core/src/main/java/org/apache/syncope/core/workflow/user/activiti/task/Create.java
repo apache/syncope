@@ -19,7 +19,7 @@
 package org.apache.syncope.core.workflow.user.activiti.task;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 

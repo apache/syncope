@@ -19,6 +19,7 @@
 package org.apache.syncope.console.wicket.markup.html.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.wicket.extensions.markup.html.repeater.util.TreeModelProvider;
 import org.apache.wicket.model.IModel;

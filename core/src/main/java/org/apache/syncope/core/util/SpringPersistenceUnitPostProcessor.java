@@ -19,7 +19,9 @@
 package org.apache.syncope.core.util;
 
 import java.io.IOException;
+
 import javax.persistence.Entity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

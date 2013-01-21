@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;

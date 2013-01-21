@@ -26,10 +26,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.client.to.WorkflowFormPropertyTO;
-import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.to.WorkflowFormPropertyTO;
+import org.apache.syncope.common.to.WorkflowFormTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.MapChoiceRenderer;
 import org.apache.syncope.console.rest.ApprovalRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;

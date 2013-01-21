@@ -20,10 +20,11 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;

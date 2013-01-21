@@ -20,10 +20,14 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
+
+import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
@@ -39,9 +43,6 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.ResourceOperation;
-import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

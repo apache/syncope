@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.MappingItemTO;
-import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.apache.syncope.console.rest.ResourceRestClient;
-import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;

@@ -25,10 +25,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.apache.syncope.client.to.LoggerTO;
-import org.apache.syncope.types.AuditElements;
-import org.apache.syncope.types.AuditLoggerName;
-import org.apache.syncope.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.to.LoggerTO;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

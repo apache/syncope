@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -33,9 +34,10 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.core.util.XMLSerializer;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.ConnectorCapability;
 
 @Entity
 public class ConnInstance extends AbstractBaseBean {

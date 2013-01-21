@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;

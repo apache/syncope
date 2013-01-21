@@ -19,12 +19,13 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
+
+import org.apache.syncope.common.to.NotificationTaskTO;
+import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 public class NotificationTaskModalPage extends TaskModalPage {
 

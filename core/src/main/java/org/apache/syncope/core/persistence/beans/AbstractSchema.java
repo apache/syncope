@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
@@ -33,10 +34,11 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
+
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.AbstractValidator;
+import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.validation.entity.SchemaCheck;
-import org.apache.syncope.types.SchemaType;
 
 @MappedSuperclass
 @SchemaCheck

@@ -20,11 +20,12 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.RoleTO;
+
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 

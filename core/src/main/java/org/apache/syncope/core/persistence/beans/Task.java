@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;

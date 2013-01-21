@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.io.Serializable;
+
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.slf4j.Logger;

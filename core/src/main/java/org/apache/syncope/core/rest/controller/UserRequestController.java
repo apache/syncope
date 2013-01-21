@@ -23,9 +23,12 @@ import java.util.List;
 
 import javax.persistence.RollbackException;
 
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.to.UserRequestTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.AuditElements.UserRequestSubCategory;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.UserRequest;
@@ -33,9 +36,6 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.rest.data.UserRequestDataBinder;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditElements.UserRequestSubCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

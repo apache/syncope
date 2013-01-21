@@ -22,7 +22,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import org.apache.syncope.client.report.ReportletConf;
+
+import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity

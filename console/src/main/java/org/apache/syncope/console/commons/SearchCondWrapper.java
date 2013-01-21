@@ -19,10 +19,11 @@
 package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.AttributeCond.Type;
+import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.common.search.AttributeCond.Type;
 
 /**
  * Generic search condition wrapper class.

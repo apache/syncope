@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.types.ResourceOperation;
+
+import org.apache.syncope.common.types.ResourceOperation;
 
 /**
  * Utility class for encapsulating operations to be performed on various resources.

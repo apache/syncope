@@ -19,9 +19,10 @@
 package org.apache.syncope.core.policy;
 
 import java.util.regex.Pattern;
+
+import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.types.AccountPolicySpec;
-import org.apache.syncope.types.PolicyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

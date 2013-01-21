@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.rest.data;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -26,17 +28,18 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.to.MappingItemTO;
-import org.apache.syncope.client.to.MappingTO;
-import org.apache.syncope.client.to.ResourceTO;
+
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
-import org.apache.syncope.types.IntMappingType;
-import org.apache.syncope.types.PropagationMode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

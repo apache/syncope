@@ -23,8 +23,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.client.to.RoleTO;
+
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Session;
 

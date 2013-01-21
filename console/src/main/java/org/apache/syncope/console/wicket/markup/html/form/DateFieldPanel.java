@@ -24,7 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import org.apache.syncope.client.SyncopeConstants;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;

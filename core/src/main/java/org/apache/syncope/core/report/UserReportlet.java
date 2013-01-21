@@ -18,27 +18,33 @@
  */
 package org.apache.syncope.core.report;
 
+import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_DATETIME;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_INT;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_LONG;
+import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.client.report.UserReportletConf;
-import org.apache.syncope.client.report.UserReportletConf.Feature;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.report.UserReportletConf;
+import org.apache.syncope.common.report.UserReportletConf.Feature;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import static org.apache.syncope.core.report.ReportXMLConst.*;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.types.AttributableType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

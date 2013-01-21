@@ -19,9 +19,11 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.List;
+
 import javax.persistence.Cacheable;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.types.IntMappingType;
+
+import org.apache.syncope.common.types.IntMappingType;
 import org.identityconnectors.framework.common.objects.Uid;
 
 @MappedSuperclass

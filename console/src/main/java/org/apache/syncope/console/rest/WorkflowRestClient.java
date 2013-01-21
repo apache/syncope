@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.console.rest;
 
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.WorkflowService;
+import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 @Component

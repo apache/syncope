@@ -20,11 +20,12 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+
+import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
 
 public class AjaxPalettePanel<T> extends AbstractFieldPanel {
 

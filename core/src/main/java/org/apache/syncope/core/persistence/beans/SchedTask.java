@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
+
 import org.apache.syncope.core.persistence.validation.entity.SchedTaskCheck;
 
 @Entity

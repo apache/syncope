@@ -24,10 +24,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
+
+import org.apache.syncope.common.types.AbstractPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.validation.entity.PolicyCheck;
 import org.apache.syncope.core.util.XMLSerializer;
-import org.apache.syncope.types.AbstractPolicySpec;
-import org.apache.syncope.types.PolicyType;
 
 @Entity
 @PolicyCheck

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 public class AlwaysTrueValidator extends AbstractValidator {
 

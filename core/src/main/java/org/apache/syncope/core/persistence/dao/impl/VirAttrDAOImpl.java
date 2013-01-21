@@ -19,10 +19,12 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
+
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {

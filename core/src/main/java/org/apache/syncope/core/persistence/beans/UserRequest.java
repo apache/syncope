@@ -26,10 +26,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.UserRequestType;
 import org.apache.syncope.core.util.XMLSerializer;
-import org.apache.syncope.types.UserRequestType;
 
 @Entity
 public class UserRequest extends AbstractBaseBean {

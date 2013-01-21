@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
+
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.validation.entity.USchemaCheck;
 

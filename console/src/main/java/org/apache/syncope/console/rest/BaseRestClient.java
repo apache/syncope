@@ -19,6 +19,7 @@
 package org.apache.syncope.console.rest;
 
 import java.io.Serializable;
+
 import org.apache.syncope.console.SyncopeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

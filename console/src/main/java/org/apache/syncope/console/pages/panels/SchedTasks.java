@@ -20,9 +20,10 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;

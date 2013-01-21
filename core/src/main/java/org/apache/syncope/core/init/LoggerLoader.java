@@ -18,19 +18,21 @@
  */
 package org.apache.syncope.core.init;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.SyncopeLoggerType;
+import org.apache.syncope.core.persistence.beans.SyncopeLogger;
+import org.apache.syncope.core.persistence.dao.LoggerDAO;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.SyncopeLogger;
-import org.apache.syncope.core.persistence.dao.LoggerDAO;
-import org.apache.syncope.types.SyncopeLoggerLevel;
-import org.apache.syncope.types.SyncopeLoggerType;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 
 @Component
 public class LoggerLoader {

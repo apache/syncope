@@ -20,9 +20,10 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.util.AttributableOperations;
+
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
 import org.apache.syncope.console.pages.panels.StatusPanel;

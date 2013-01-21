@@ -19,10 +19,12 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.Collection;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.syncope.core.util.ApplicationContextProvider;

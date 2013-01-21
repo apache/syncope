@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;

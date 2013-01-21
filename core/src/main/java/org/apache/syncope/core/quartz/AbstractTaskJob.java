@@ -21,6 +21,7 @@ package org.apache.syncope.core.quartz;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;

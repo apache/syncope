@@ -20,6 +20,7 @@ package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
 import java.util.Comparator;
+
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;

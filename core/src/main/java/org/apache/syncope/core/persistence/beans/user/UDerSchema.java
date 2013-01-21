@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
+
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.validation.entity.USchemaCheck;
 

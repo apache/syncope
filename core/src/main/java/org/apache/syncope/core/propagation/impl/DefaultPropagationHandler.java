@@ -19,10 +19,11 @@
 package org.apache.syncope.core.propagation.impl;
 
 import java.util.List;
-import org.apache.syncope.client.to.PropagationTO;
+
+import org.apache.syncope.common.to.PropagationTO;
+import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.propagation.PropagationHandler;
-import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public class DefaultPropagationHandler implements PropagationHandler {

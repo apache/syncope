@@ -21,6 +21,14 @@ package org.apache.syncope.core.security;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.dao.DataAccessException;
@@ -29,13 +37,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.apache.syncope.core.persistence.beans.Entitlement;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.util.EntitlementUtil;
 
 @Configurable
 public class SyncopeUserDetailsService implements UserDetailsService {

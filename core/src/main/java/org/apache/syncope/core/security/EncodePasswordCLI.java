@@ -20,8 +20,8 @@ package org.apache.syncope.core.security;
 
 import java.util.Arrays;
 
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.util.PasswordEncoder;
-import org.apache.syncope.types.CipherAlgorithm;
 
 /**
  * Command line version of encoder to encode the admin password.

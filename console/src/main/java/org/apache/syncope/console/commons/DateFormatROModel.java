@@ -19,9 +19,10 @@
 package org.apache.syncope.console.commons;
 
 import java.util.Date;
+
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.syncope.console.SyncopeSession;
 
 public class DateFormatROModel implements IModel<String> {
 

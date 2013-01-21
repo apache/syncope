@@ -20,10 +20,11 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.types.EntityViolationType;
 
 public class AttrValueValidator extends AbstractValidator implements
         ConstraintValidator<AttrValueCheck, AbstractAttrValue> {

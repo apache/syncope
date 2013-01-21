@@ -54,7 +54,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-client</artifactId>
+      <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -296,6 +296,12 @@ under the License.
     </dependency> 
 
     <!-- TEST -->
+	<dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-client</artifactId>
+      <version>${project.version}</version>
+	  <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
@@ -598,8 +604,7 @@ under the License.
                   org.apache.commons.jexl2*;version="[2.1,3)",
                   org.apache.commons.lang*;version="[2.6,3)",
                   org.apache.openjpa*;version="[2,3)",
-                  org.apache.syncope.client*;version=${project.version},
-                  org.apache.syncope.types;version=${project.version},
+                  org.apache.syncope.common*;version=${project.version},
                   org.apache.velocity*;version="[1.7,2)",
                   org.aspectj.lang*;version="[1.7,2)",
                   org.codehaus.jackson*;version="[1.9,2)",

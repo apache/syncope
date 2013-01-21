@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.util;
 
-import com.thoughtworks.xstream.XStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * Helper class for serialization and deserialization of configuration objects, empowering XStream.

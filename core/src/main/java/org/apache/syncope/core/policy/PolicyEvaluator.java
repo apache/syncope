@@ -19,13 +19,14 @@
 package org.apache.syncope.core.policy;
 
 import java.util.List;
+
+import org.apache.syncope.common.types.AbstractPolicySpec;
+import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.types.AbstractPolicySpec;
-import org.apache.syncope.types.AccountPolicySpec;
-import org.apache.syncope.types.PasswordPolicySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

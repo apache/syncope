@@ -19,7 +19,9 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
+
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;

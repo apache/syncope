@@ -25,16 +25,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.ConnectorCapability;
+import org.apache.syncope.common.types.PropagationMode;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.ConnectorCapability;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -163,7 +164,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#create(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#create(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
     @Override
     public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
@@ -187,7 +188,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#update(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#update(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
     @Override
     public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
@@ -212,7 +213,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#delete(org.apache.syncope.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#delete(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
      */
     @Override
     public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
@@ -272,7 +273,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.apache.syncope.types.PropagationMode, org.apache.syncope.types.ResourceOperation, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.apache.syncope.common.types.PropagationMode, org.apache.syncope.common.types.ResourceOperation, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
      */
     @Override
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,

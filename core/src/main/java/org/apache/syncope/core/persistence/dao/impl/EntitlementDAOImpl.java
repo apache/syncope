@@ -19,14 +19,16 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDAO {

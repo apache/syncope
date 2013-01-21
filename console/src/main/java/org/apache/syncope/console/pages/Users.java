@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;

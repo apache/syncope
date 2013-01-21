@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.console.pages;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.to.LoggerTO;
-import org.apache.syncope.client.to.NotificationTO;
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.LoggerTO;
+import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -42,8 +43,6 @@ import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.types.PolicyType;
-import org.apache.syncope.types.SyncopeLoggerLevel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -78,6 +77,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 
 /**
  * Configurations WebPage.

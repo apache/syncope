@@ -18,25 +18,23 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.LoggerTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
+
+import org.apache.syncope.common.to.LoggerTO;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.LoggerSubCategory;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.SyncopeLoggerType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.LoggerSubCategory;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditLoggerName;
-import org.apache.syncope.types.SyncopeClientExceptionType;
-import org.apache.syncope.types.SyncopeLoggerLevel;
-import org.apache.syncope.types.SyncopeLoggerType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +46,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 
 @Controller
 @RequestMapping("/logger")

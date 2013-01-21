@@ -19,6 +19,7 @@
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.util.Date;
+
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;

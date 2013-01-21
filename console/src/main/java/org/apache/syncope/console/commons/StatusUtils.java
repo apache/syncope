@@ -24,17 +24,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.MappingItemTO;
-import org.apache.syncope.client.to.MappingTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
-import org.apache.syncope.types.IntMappingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

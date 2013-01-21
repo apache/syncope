@@ -19,6 +19,20 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
+
+import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.PasswordPolicyTO;
+import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.AbstractPolicySpec;
+import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.PasswordPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
+import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -27,19 +41,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
-import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.AbstractPolicySpec;
-import org.apache.syncope.types.AccountPolicySpec;
-import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.PolicyType;
-import org.apache.syncope.types.SyncPolicySpec;
 
 /**
  * Modal window with Resource form.

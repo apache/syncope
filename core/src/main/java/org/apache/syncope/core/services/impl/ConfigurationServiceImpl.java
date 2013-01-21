@@ -26,13 +26,13 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.to.MailTemplateTO;
-import org.apache.syncope.client.to.ValidatorTO;
-import org.apache.syncope.client.util.CollectionWrapper;
+import org.apache.syncope.common.services.ConfigurationService;
+import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.MailTemplateTO;
+import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
-import org.apache.syncope.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

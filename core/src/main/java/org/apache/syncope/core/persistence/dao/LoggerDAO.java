@@ -19,9 +19,10 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+
+import org.apache.syncope.common.types.SyncopeLoggerType;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.types.SyncopeLoggerType;
 
 public interface LoggerDAO extends DAO {
 

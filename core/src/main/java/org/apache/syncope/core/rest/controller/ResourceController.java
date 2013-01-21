@@ -20,10 +20,17 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletResponse;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.ResourceSubCategory;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
@@ -38,11 +45,6 @@ import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.AuditElements;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.ResourceSubCategory;
-import org.apache.syncope.types.AuditElements.Result;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;

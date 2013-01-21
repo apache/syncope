@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import org.apache.syncope.client.to.RoleTO;
+
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 

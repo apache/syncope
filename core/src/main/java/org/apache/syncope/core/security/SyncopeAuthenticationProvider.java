@@ -19,14 +19,15 @@
 package org.apache.syncope.core.security;
 
 import java.util.Date;
+
+import org.apache.syncope.common.types.AuditElements.AuthenticationSubCategory;
+import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.PasswordEncoder;
-import org.apache.syncope.types.AuditElements.AuthenticationSubCategory;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.CipherAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

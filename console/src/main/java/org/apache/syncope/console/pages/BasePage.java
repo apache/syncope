@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.rest.UserRestClient;

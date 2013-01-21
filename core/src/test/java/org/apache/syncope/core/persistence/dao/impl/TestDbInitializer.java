@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import javax.servlet.ServletContext;
 
-import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

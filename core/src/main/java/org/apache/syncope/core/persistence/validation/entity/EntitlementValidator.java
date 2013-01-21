@@ -20,10 +20,12 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Entitlement;
-import org.apache.syncope.types.EntityViolationType;
 
 public class EntitlementValidator extends AbstractValidator implements
         ConstraintValidator<EntitlementCheck, Entitlement> {

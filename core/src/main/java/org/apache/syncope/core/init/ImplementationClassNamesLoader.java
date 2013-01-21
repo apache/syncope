@@ -25,11 +25,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.propagation.PropagationActions;
-import org.apache.syncope.core.report.Reportlet;
-import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.report.ReportJob;
+import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.quartz.Job;

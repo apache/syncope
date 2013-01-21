@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.policy;
 
-import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.PolicyType;
+import org.apache.syncope.common.types.PasswordPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, String> {
 
     /* (non-Javadoc)
-	 * @see org.apache.syncope.core.policy.PasswordPolicyEnforcer#enforce(org.apache.syncope.types.PasswordPolicySpec, org.apache.syncope.types.PolicyType, java.lang.String)
+	 * @see org.apache.syncope.core.policy.PasswordPolicyEnforcer#enforce(org.apache.syncope.common.types.PasswordPolicySpec, org.apache.syncope.common.types.PolicyType, java.lang.String)
 	 */
 	@Override
     public void enforce(final PasswordPolicySpec policy, final PolicyType type, final String password)

@@ -22,9 +22,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
-import org.apache.syncope.types.EntityViolationType;
+
+import org.apache.syncope.common.types.EntityViolationType;
 
 public class InvalidEntityException extends ValidationException {
 

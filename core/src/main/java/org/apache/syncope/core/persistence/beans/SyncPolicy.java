@@ -19,7 +19,8 @@
 package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
-import org.apache.syncope.types.PolicyType;
+
+import org.apache.syncope.common.types.PolicyType;
 
 @Entity
 public class SyncPolicy extends Policy {

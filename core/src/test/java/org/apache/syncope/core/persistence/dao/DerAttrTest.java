@@ -18,16 +18,14 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
-import org.apache.syncope.core.persistence.beans.user.UDerAttr;
-import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+
 import org.apache.syncope.core.persistence.beans.membership.MAttrValue;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
@@ -36,6 +34,13 @@ import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.beans.user.UAttrValue;
+import org.apache.syncope.core.persistence.beans.user.UDerAttr;
+import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class DerAttrTest extends AbstractDAOTest {

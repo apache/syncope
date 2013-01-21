@@ -20,14 +20,14 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.ResourceService;
-import org.apache.syncope.services.RoleService;
-import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.services.RoleService;
+import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

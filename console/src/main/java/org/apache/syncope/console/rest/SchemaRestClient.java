@@ -21,16 +21,16 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.ValidatorTO;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.client.util.CollectionWrapper;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.ConfigurationService;
-import org.apache.syncope.services.SchemaService;
-import org.apache.syncope.services.SchemaService.SchemaType;
-import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.common.services.ConfigurationService;
+import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.services.SchemaService.SchemaType;
+import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

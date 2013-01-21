@@ -19,12 +19,13 @@
 package org.apache.syncope.core.sync;
 
 import java.util.Collection;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.ResourceOperation;
-import org.apache.syncope.types.TraceLevel;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.common.types.TraceLevel;
 
 public class SyncResult {
     public enum Status {

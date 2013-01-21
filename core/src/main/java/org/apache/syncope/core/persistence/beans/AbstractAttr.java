@@ -21,7 +21,9 @@ package org.apache.syncope.core.persistence.beans;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.persistence.MappedSuperclass;
+
 import org.apache.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.apache.syncope.core.persistence.validation.entity.AttrCheck;
 import org.apache.syncope.core.util.AttributableUtil;

@@ -19,9 +19,10 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.ConnObjectTO;
+
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.ConnObjectTO;
 
 public abstract class AbstractAttributableRestClient extends BaseRestClient {
 

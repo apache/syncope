@@ -19,11 +19,13 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
+
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {

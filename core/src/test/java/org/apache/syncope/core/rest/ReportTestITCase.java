@@ -32,9 +32,9 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.report.UserReportletConf;
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
+import org.apache.syncope.common.report.UserReportletConf;
+import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.ReportTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

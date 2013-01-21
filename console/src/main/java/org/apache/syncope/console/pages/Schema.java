@@ -22,11 +22,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.DerivedSchemaTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.types.AttributableType;
+
+import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SchemaModalPageFactory;
+import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -51,15 +61,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.SchemaModalPageFactory;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Schema WebPage.

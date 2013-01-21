@@ -19,16 +19,18 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import org.apache.syncope.core.util.XMLSerializer;
+
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.PropagationMode;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.ResourceOperation;
+import org.apache.syncope.core.util.XMLSerializer;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 /**

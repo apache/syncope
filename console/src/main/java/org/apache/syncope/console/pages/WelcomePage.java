@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.SyncopeApplication;
+import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.SyncopeApplication;
-import org.apache.syncope.console.commons.XMLRolesReader;
 
 /**
  * Welcome page to display after successful login.

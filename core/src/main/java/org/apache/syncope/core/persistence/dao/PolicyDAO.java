@@ -19,11 +19,12 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
-import org.apache.syncope.types.PolicyType;
 
 public interface PolicyDAO extends DAO {
 

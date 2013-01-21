@@ -20,8 +20,9 @@ package org.apache.syncope.core.workflow;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.to.WorkflowDefinitionTO;
-import org.apache.syncope.client.to.WorkflowFormTO;
+
+import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.core.util.NotFoundException;
 
 public interface WorkflowAdapter {

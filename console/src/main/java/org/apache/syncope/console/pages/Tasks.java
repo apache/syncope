@@ -23,9 +23,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.TaskExecTO;
-import org.apache.syncope.client.to.TaskTO;
+
+import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.to.TaskExecTO;
+import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.pages.panels.NotificationTasks;
 import org.apache.syncope.console.pages.panels.PropagationTasks;

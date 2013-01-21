@@ -27,15 +27,15 @@ import java.util.Arrays;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.apache.syncope.client.report.UserReportletConf;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.to.WorkflowFormPropertyTO;
-import org.apache.syncope.types.AuditElements;
-import org.apache.syncope.types.AuditLoggerName;
+import org.apache.syncope.common.report.UserReportletConf;
+import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.common.search.MembershipCond;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.WorkflowFormPropertyTO;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditLoggerName;
 
 public class JSONTest {
 

@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.util.Arrays;
 
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.types.SchemaType;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 public class BasicValidator extends AbstractValidator {
 

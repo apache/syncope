@@ -35,17 +35,17 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.client.to.ConnBundleTO;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.MappingItemTO;
-import org.apache.syncope.client.to.MappingTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.types.ConnConfPropSchema;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.ConnectorCapability;
-import org.apache.syncope.types.IntMappingType;
+import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.types.ConnConfPropSchema;
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.ConnectorCapability;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;

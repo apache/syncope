@@ -20,11 +20,10 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.syncope.client.to.EntitlementTO;
-import org.apache.syncope.client.util.CollectionWrapper;
-import org.apache.syncope.services.EntitlementService;
+import org.apache.syncope.common.services.EntitlementService;
+import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
 /**

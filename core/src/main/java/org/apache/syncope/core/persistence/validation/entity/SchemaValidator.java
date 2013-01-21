@@ -20,9 +20,10 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.SchemaType;
 
 public class SchemaValidator extends AbstractValidator implements ConstraintValidator<SchemaCheck, AbstractSchema> {
 

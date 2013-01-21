@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.html.basic.Label;

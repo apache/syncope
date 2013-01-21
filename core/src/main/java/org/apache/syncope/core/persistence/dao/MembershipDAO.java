@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;

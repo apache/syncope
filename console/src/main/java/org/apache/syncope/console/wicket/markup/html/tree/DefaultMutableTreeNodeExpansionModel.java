@@ -19,7 +19,9 @@
 package org.apache.syncope.console.wicket.markup.html.tree;
 
 import java.util.Set;
+
 import javax.swing.tree.DefaultMutableTreeNode;
+
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
 public class DefaultMutableTreeNodeExpansionModel

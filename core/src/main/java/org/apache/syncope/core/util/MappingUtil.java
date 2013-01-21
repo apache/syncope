@@ -25,7 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.client.mod.AttributeMod;
+
+import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -45,7 +47,6 @@ import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
-import org.apache.syncope.types.IntMappingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

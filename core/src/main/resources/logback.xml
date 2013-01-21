@@ -82,7 +82,7 @@ under the License.
     </encoder>
   </appender>
 
-  <logger name="org.apache.syncope.client" additivity="false">
+  <logger name="org.apache.syncope.common" additivity="false">
     <level value="OFF"/>
     <appender-ref ref="main"/>
   </logger>

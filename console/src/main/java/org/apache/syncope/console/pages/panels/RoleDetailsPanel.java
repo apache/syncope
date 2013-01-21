@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.RoleSelectModalPage;
 import org.apache.syncope.console.pages.UserOwnerSelectModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;

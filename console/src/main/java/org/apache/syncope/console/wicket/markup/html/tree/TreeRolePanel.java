@@ -19,7 +19,8 @@
 package org.apache.syncope.console.wicket.markup.html.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.client.to.RoleTO;
+
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Roles.TreeNodeClickUpdate;

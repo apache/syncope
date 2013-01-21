@@ -20,13 +20,15 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.Arrays;
 import java.util.List;
+
 import javax.persistence.Transient;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
-import org.apache.syncope.types.EntityViolationType;
 
 public class USchemaValidator extends AbstractValidator implements ConstraintValidator<USchemaCheck, Object> {
 

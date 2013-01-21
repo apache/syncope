@@ -25,15 +25,15 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.types.PasswordPolicySpec;
-import org.apache.syncope.types.PolicyType;
-import org.apache.syncope.types.SyncPolicySpec;
-import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.PasswordPolicyTO;
+import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.PasswordPolicySpec;
+import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

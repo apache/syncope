@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.util;
 
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.SyncTaskTO;
-import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.common.to.NotificationTaskTO;
+import org.apache.syncope.common.to.PropagationTaskTO;
+import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.to.SyncTaskTO;
+import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;

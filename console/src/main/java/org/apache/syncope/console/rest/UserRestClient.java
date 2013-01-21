@@ -20,17 +20,17 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
-import org.apache.syncope.client.mod.StatusMod;
-import org.apache.syncope.client.mod.StatusMod.Status;
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.mod.StatusMod;
+import org.apache.syncope.common.mod.StatusMod.Status;
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.services.ResourceService;
-import org.apache.syncope.services.UserService;
-import org.apache.syncope.types.AttributableType;
 import org.springframework.stereotype.Component;
 
 /**

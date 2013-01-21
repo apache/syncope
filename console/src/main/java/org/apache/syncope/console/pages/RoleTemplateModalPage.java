@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.SyncTaskTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;

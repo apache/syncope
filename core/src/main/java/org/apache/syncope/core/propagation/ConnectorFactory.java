@@ -19,10 +19,11 @@
 package org.apache.syncope.core.propagation;
 
 import java.util.Set;
+
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.ConnConfProperty;
 import org.springframework.beans.BeansException;
 
 public interface ConnectorFactory {

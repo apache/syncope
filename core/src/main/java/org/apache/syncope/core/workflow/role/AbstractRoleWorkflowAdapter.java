@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.role;
 
-import org.apache.syncope.client.mod.RoleMod;
+import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;

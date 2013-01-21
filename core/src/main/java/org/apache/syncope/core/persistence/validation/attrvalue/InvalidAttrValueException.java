@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import javax.validation.ValidationException;
+
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class InvalidAttrValueException extends ValidationException {

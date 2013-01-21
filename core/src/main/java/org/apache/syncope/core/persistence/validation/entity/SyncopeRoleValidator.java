@@ -20,8 +20,9 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.types.EntityViolationType;
 
 public class SyncopeRoleValidator extends AbstractValidator implements
         ConstraintValidator<SyncopeRoleCheck, SyncopeRole> {

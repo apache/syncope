@@ -20,7 +20,9 @@ package org.apache.syncope.core.init;
 
 import java.util.Locale;
 import java.util.Set;
+
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
@@ -32,7 +34,6 @@ import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.types.ConnConfProperty;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -19,12 +19,14 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
+
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.SyncopeLoggerType;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
-import org.apache.syncope.types.SyncopeLoggerLevel;
-import org.apache.syncope.types.SyncopeLoggerType;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class LoggerDAOImpl extends AbstractDAOImpl implements LoggerDAO {

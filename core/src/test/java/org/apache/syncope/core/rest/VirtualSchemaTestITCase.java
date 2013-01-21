@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.SchemaService;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SyncopeClientExceptionType;
+
+import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

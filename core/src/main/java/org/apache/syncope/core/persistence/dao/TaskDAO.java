@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;

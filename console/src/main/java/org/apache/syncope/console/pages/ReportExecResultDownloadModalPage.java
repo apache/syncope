@@ -19,14 +19,15 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
+
+import org.apache.syncope.common.types.ReportExecExportFormat;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.Model;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.types.ReportExecExportFormat;
 
 public class ReportExecResultDownloadModalPage extends BaseModalPage {
 

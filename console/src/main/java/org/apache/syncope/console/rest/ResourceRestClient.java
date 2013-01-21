@@ -21,9 +21,9 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.services.ResourceService;
+import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

@@ -21,6 +21,7 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;

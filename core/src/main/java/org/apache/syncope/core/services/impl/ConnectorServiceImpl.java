@@ -26,15 +26,15 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.syncope.client.to.ConnBundleTO;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.services.ConnectorService;
+import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.rest.controller.ConnInstanceController;
 import org.apache.syncope.core.util.NotFoundException;
-import org.apache.syncope.services.ConnectorService;
-import org.apache.syncope.types.ConnConfProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -19,6 +19,7 @@
 package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
 public abstract class ActionLink implements Serializable {

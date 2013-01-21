@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.sync;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.dao.AbstractDAOTest;

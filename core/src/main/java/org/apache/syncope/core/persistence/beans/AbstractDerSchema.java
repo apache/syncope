@@ -21,7 +21,8 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.types.SchemaType;
+
+import org.apache.syncope.common.types.SchemaType;
 
 @MappedSuperclass
 public abstract class AbstractDerSchema extends AbstractBaseBean {

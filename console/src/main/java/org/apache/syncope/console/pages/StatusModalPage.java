@@ -20,8 +20,9 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.to.AbstractAttributableTO;
-import org.apache.syncope.client.to.UserTO;
+
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;

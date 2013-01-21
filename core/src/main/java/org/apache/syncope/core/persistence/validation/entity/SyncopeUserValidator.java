@@ -20,8 +20,13 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -32,9 +37,6 @@ import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.AccountPolicyEnforcer;
 import org.apache.syncope.core.policy.PasswordPolicyEnforcer;
 import org.apache.syncope.core.policy.PolicyEvaluator;
-import org.apache.syncope.types.AccountPolicySpec;
-import org.apache.syncope.types.EntityViolationType;
-import org.apache.syncope.types.PasswordPolicySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SyncopeUserValidator extends AbstractValidator implements

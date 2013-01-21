@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.report.ReportletConf;
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+
+import org.apache.syncope.common.report.ReportletConf;
+import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.ReportExecStatus;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -36,7 +38,6 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.types.ReportExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;

@@ -20,8 +20,8 @@ package org.apache.syncope.console.pages;
 
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  * Syncope Logout.

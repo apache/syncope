@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.console.commons;
 
-import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.AbstractSchemaModalPage;
 import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.DerivedSchemaModalPage;
 import org.apache.syncope.console.pages.SchemaModalPage;
 import org.apache.syncope.console.pages.VirtualSchemaModalPage;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.types.AttributableType;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Schema form.

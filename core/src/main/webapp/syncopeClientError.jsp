@@ -18,7 +18,7 @@ under the License.
 --%>
 <%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.springframework.orm.jpa.JpaSystemException"%>
-<%@page import="org.apache.syncope.types.EntityViolationType"%>
+<%@page import="org.apache.syncope.common.types.EntityViolationType"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
 <%@page import="org.apache.syncope.core.persistence.validation.entity.InvalidEntityException"%>
@@ -27,14 +27,14 @@ under the License.
 <%@page import="org.apache.syncope.core.persistence.dao.InvalidSearchConditionException"%>
 <%@page import="org.apache.syncope.core.rest.controller.UnauthorizedRoleException"%>
 <%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
-<%@page import="org.apache.syncope.client.validation.SyncopeClientException"%>
-<%@page import="org.apache.syncope.client.validation.SyncopeClientCompositeErrorException"%>
+<%@page import="org.apache.syncope.common.validation.SyncopeClientException"%>
+<%@page import="org.apache.syncope.common.validation.SyncopeClientCompositeErrorException"%>
 <%@page import="org.apache.syncope.core.propagation.PropagationException"%>
 <%@page import="org.apache.syncope.core.workflow.WorkflowException"%>
-<%@page import="org.apache.syncope.types.SyncopeClientExceptionType"%>
+<%@page import="org.apache.syncope.common.types.SyncopeClientExceptionType"%>
 <%@page import="org.apache.syncope.core.util.NotFoundException"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
-<%@page import="org.apache.syncope.client.validation.SyncopeClientErrorHandler"%>
+<%@page import="org.apache.syncope.common.validation.SyncopeClientErrorHandler"%>
 <%@page import="org.slf4j.LoggerFactory"%>
 <%@page import="org.slf4j.Logger"%>
 <%@page import="org.apache.syncope.core.rest.controller.AbstractController"%>

@@ -23,12 +23,13 @@ import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
+
+import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
+import org.apache.syncope.core.persistence.dao.DAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
-import org.apache.syncope.core.persistence.dao.DAO;
 
 @Configurable
 public abstract class AbstractDAOImpl implements DAO {

@@ -18,20 +18,24 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
+
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.role.RAttr;
+import org.apache.syncope.core.persistence.beans.role.RSchema;
+import org.apache.syncope.core.persistence.beans.user.USchema;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.beans.role.RSchema;
-import org.apache.syncope.core.persistence.beans.user.USchema;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
-import org.apache.syncope.core.persistence.beans.role.RAttr;
-import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaTest extends AbstractDAOTest {

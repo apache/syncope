@@ -20,8 +20,9 @@ package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 public class EmailAddressValidator extends AbstractValidator {
 

@@ -18,18 +18,20 @@
  */
 package org.apache.syncope.core.connid;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.syncope.common.types.CipherAlgorithm;
+import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.AbstractTest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.IncompatiblePolicyException;
-import org.apache.syncope.types.CipherAlgorithm;
-import org.apache.syncope.types.PasswordPolicySpec;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

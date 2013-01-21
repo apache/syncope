@@ -24,13 +24,15 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.syncope.types.CipherAlgorithm;
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.jasypt.digest.StandardStringDigester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

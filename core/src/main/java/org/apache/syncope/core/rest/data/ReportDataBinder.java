@@ -20,9 +20,10 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.syncope.client.report.ReportletConf;
-import org.apache.syncope.client.to.ReportExecTO;
-import org.apache.syncope.client.to.ReportTO;
+
+import org.apache.syncope.common.report.ReportletConf;
+import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Report;

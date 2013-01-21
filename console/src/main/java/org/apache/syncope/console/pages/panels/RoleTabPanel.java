@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.client.search.MembershipCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.common.search.MembershipCond;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;

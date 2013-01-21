@@ -18,11 +18,20 @@
  */
 package org.apache.syncope.core.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.PropagationMode;
+import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -33,10 +42,6 @@ import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.PropagationMode;
-import org.apache.syncope.types.PropagationTaskExecStatus;
-import org.apache.syncope.types.ResourceOperation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;

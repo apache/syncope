@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.workflow;
 
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+
 /**
  * Wrapper for all workflow related exceptions. Original exceptions will depend
  * on UserWorkflowAdapter implementation.

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.propagation;
 
-import org.apache.syncope.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**

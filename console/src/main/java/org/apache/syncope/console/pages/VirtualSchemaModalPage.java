@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.VirtualSchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -31,7 +32,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Schema form.

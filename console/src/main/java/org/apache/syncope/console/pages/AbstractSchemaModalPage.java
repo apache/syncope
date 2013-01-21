@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.client.AbstractBaseBean;
+import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.types.AttributableType;
 
 /**
  * Modal window with Schema form.

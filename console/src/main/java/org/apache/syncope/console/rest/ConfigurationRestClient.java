@@ -20,8 +20,8 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.services.ConfigurationService;
+import org.apache.syncope.common.services.ConfigurationService;
+import org.apache.syncope.common.to.ConfigurationTO;
 import org.springframework.stereotype.Component;
 
 @Component

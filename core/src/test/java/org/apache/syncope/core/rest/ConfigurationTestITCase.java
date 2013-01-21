@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.common.to.ConfigurationTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

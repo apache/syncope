@@ -28,15 +28,15 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.client.mod.UserMod;
-import org.apache.syncope.client.search.AttributeCond;
-import org.apache.syncope.client.search.NodeCond;
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.to.UserRequestTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.client.validation.SyncopeClientException;
-import org.apache.syncope.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.UserRequestTO;
+import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

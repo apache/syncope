@@ -19,6 +19,7 @@
 package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
+
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class SelectOption implements Serializable {

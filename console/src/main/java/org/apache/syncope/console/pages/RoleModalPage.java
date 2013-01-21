@@ -20,9 +20,10 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.mod.RoleMod;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.util.AttributableOperations;
+
+import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.PageReference;

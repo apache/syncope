@@ -17,67 +17,67 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd"
+>
 
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="locations">
-      <list>
-        <value>classpath:persistence.properties</value>
-        <value>classpath:security.properties</value>
-        <value>classpath:workflow.properties</value>
-      </list>
-    </property>
-    <property name="ignoreResourceNotFound" value="true" />
-    <property name="ignoreUnresolvablePlaceholders" value="true" />
-  </bean>
+   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="locations">
+         <list>
+            <value>classpath:persistence.properties</value>
+            <value>classpath:security.properties</value>
+            <value>classpath:workflow.properties</value>
+         </list>
+      </property>
+      <property name="ignoreResourceNotFound" value="true" />
+      <property name="ignoreUnresolvablePlaceholders" value="true" />
+   </bean>
 
-  <bean class="org.apache.syncope.core.util.ApplicationContextProvider"/>
+   <bean class="org.apache.syncope.core.util.ApplicationContextProvider" />
 
-  <context:component-scan base-package="org.apache.syncope.core.init"/>
-  <context:component-scan base-package="org.apache.syncope.core.audit"/>
-  <context:component-scan base-package="org.apache.syncope.core.connid"/>
-  <context:component-scan base-package="org.apache.syncope.core.rest.data"/>
-  <context:component-scan base-package="org.apache.syncope.core.workflow"/>
+   <context:component-scan base-package="org.apache.syncope.core.init" />
+   <context:component-scan base-package="org.apache.syncope.core.audit" />
+   <context:component-scan base-package="org.apache.syncope.core.connid" />
+   <context:component-scan base-package="org.apache.syncope.core.rest.data" />
+   <context:component-scan base-package="org.apache.syncope.core.workflow" />
 
-  <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
-    <property name="dataSource" ref="dataSource"/>
-    <property name="enabled" value="true"/>
-    <property name="databasePopulator">
-      <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
-        <property name="continueOnError" value="true"/>
-        <property name="ignoreFailedDrops" value="true"/>
-        <property name="sqlScriptEncoding" value="UTF-8"/>
-        <property name="scripts">
-          <array>
-            <value type="org.springframework.core.io.Resource">
-              classpath:/quartz/${quartz.sql}
-            </value>
-            <value type="org.springframework.core.io.Resource">
-              classpath:/logback/${logback.sql}
-            </value>
-          </array>
-        </property>
-      </bean>
-    </property>
-  </bean>
-  
-  <bean id="propagationManager" class="org.apache.syncope.core.propagation.impl.PropagationManager"/>
-  <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.impl.PriorityPropagationTaskExecutor"/>
-    
-  <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
-  
-  <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
-          
-  <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
-    <property name="cache" value="512"/>
-    <property name="lenient" value="true"/>
-    <property name="silent" value="false"/>
-  </bean>
-  <bean id="jexlUtil" class="org.apache.syncope.core.util.JexlUtil"/>
+   <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
+      <property name="dataSource" ref="dataSource" />
+      <property name="enabled" value="true" />
+      <property name="databasePopulator">
+         <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+            <property name="continueOnError" value="true" />
+            <property name="ignoreFailedDrops" value="true" />
+            <property name="sqlScriptEncoding" value="UTF-8" />
+            <property name="scripts">
+               <array>
+                  <value type="org.springframework.core.io.Resource">
+                     classpath:/quartz/${quartz.sql}
+                  </value>
+                  <value type="org.springframework.core.io.Resource">
+                     classpath:/logback/${logback.sql}
+                  </value>
+               </array>
+            </property>
+         </bean>
+      </property>
+   </bean>
+
+   <bean id="propagationManager" class="org.apache.syncope.core.propagation.impl.PropagationManager" />
+   <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.impl.PriorityPropagationTaskExecutor" />
+
+   <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager" />
+
+   <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager" />
+
+   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
+      <property name="cache" value="512" />
+      <property name="lenient" value="true" />
+      <property name="silent" value="false" />
+   </bean>
+   <bean id="jexlUtil" class="org.apache.syncope.core.util.JexlUtil" />
 </beans>

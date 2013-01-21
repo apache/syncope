@@ -20,7 +20,8 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.search.NodeCond;
+
+import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.util.AttributableUtil;
 

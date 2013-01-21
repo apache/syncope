@@ -22,6 +22,7 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
 import org.apache.syncope.core.persistence.validation.entity.EntitlementCheck;
 
 @Entity
