@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -34,8 +35,6 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Path("reports")
 public interface ReportService {
@@ -86,11 +85,9 @@ public interface ReportService {
 
     @DELETE
     @Path("{reportId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{reportId}")
     ReportTO delete(@PathParam("reportId") Long reportId);
 
     @DELETE
     @Path("executions/{executionId}")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
     ReportExecTO deleteExecution(@PathParam("executionId") Long executionId);
 }

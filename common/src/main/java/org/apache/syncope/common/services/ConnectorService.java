@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -34,8 +35,6 @@ import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Path("connectors")
 public interface ConnectorService {
@@ -71,7 +70,6 @@ public interface ConnectorService {
     ConnInstanceTO read(@PathParam("connectorId") Long connectorId);
 
     @GET
-    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/connectorBean")
     ConnInstanceTO readConnectorBean(
             @MatrixParam("resourceName") String resourceName);
 
@@ -82,6 +80,5 @@ public interface ConnectorService {
 
     @POST
     @Path("validate")
-    @RequestMapping(method = RequestMethod.POST, value = "/check")
     boolean validate(ConnInstanceTO connectorTO);
 }
