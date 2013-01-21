@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.interceptor.Session;
@@ -97,7 +96,7 @@ public class SyncopeGroupManager extends GroupManager implements SyncopeSession 
     }
 
     @Override
-    public void updateGroup(final Group updatedGroup) {
+    public void updateGroup(final GroupEntity updatedGroup) {
         throw new UnsupportedOperationException();
     }
 }

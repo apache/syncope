@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
@@ -99,13 +98,11 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
 
     @Override
     public IdentityInfoEntity findUserInfoByUserIdAndKey(final String userId, final String key) {
-
         throw new UnsupportedOperationException();
     }
 
     @Override
     public List<String> findUserInfoKeysByUserIdAndType(final String userId, final String type) {
-
         throw new UnsupportedOperationException();
     }
 
@@ -115,7 +112,7 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
     }
 
     @Override
-    public void updateUser(final User updatedUser) {
+    public void updateUser(final UserEntity updatedUser) {
         throw new UnsupportedOperationException();
     }
 }
