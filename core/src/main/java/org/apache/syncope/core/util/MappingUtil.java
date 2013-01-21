@@ -30,7 +30,6 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -250,8 +249,8 @@ public final class MappingUtil {
      * @param intMappingType source mapping type
      * @return corresponding Class object, if any (can be null)
      */
-    public static Class<? extends AbstractBaseBean> getIntMappingTypeClass(final IntMappingType intMappingType) {
-        Class<? extends AbstractBaseBean> result;
+    public static Class getIntMappingTypeClass(final IntMappingType intMappingType) {
+        Class result;
 
         switch (intMappingType) {
             case UserSchema:
