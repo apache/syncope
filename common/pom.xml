@@ -92,10 +92,10 @@ under the License.
         <configuration>
           <instructions>
             <Bundle-Name>${project.name}</Bundle-Name>
-            <Bundle-SymbolicName>org.apache.syncope.client</Bundle-SymbolicName>
+            <Bundle-SymbolicName>org.apache.syncope.common</Bundle-SymbolicName>
             <Bundle-Version>${project.version}</Bundle-Version>
             <Export-Package>
-              org.apache.syncope*;version=${project.version};-split-package:=merge-first
+              org.apache.syncope.common*;version=${project.version};-split-package:=merge-first
             </Export-Package>
             <Import-Package>
               org.apache.commons.lang*;version="[2.6,3)",
