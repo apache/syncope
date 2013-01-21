@@ -109,7 +109,7 @@ under the License.
          </list>
       </property>
       <property name="errorHandler">
-         <bean id="syncopeClientErrorHandler" class="org.apache.syncope.client.validation.SyncopeClientErrorHandler" />
+         <bean id="syncopeClientErrorHandler" class="org.apache.syncope.common.validation.SyncopeClientErrorHandler" />
       </property>
    </bean>
 
