@@ -16,60 +16,60 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-   xmlns:aop="http://www.springframework.org/schema/aop"
-   xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd
-       http://www.springframework.org/schema/aop
-       http://www.springframework.org/schema/aop/spring-aop.xsd"
->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-   <import resource="persistenceContextEMFactory.xml" />
+  <import resource="persistenceContextEMFactory.xml"/>
 
-   <context:annotation-config />
-   <context:component-scan base-package="org.apache.syncope.core.persistence" />
-   <context:component-scan base-package="org.apache.syncope.core.util" />
-   <context:component-scan base-package="org.apache.syncope.core.policy" />
+  <context:annotation-config/>
+  <context:component-scan base-package="org.apache.syncope.core.persistence"/>
+  <context:component-scan base-package="org.apache.syncope.core.util"/>
+  <context:component-scan base-package="org.apache.syncope.core.policy"/>
 
-   <aop:aspectj-autoproxy />
+  <aop:aspectj-autoproxy/>
 
-   <bean id="xStream" class="com.thoughtworks.xstream.XStream" />
+  <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
   <!-- Use JNDI datasource as default but, when not available, revert to
-       local datasource, with different properties for execution and testing. 
-       In any case, get all JDBC connections with a determined isolation level. -->
-   <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-      <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource" />
-      <property name="defaultObject" ref="localDataSource" />
-   </bean>
+  local datasource, with different properties for execution and testing. 
+  In any case, get all JDBC connections with a determined isolation level. -->
+  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
+    <property name="defaultObject" ref="localDataSource"/>
+  </bean>
 
-   <bean id="localDataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
-      <property name="targetDataSource">
-         <bean class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-            <property name="driverClassName" value="${jpa.driverClassName}" />
-            <property name="url" value="${jpa.url}" />
-            <property name="username" value="${jpa.username}" />
-            <property name="password" value="${jpa.password}" />
-         </bean>
-      </property>
-      <property name="isolationLevelName" value="ISOLATION_READ_COMMITTED" />
-   </bean>
+  <bean id="localDataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
+    <property name="targetDataSource">
+      <bean class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jpa.driverClassName}"/>
+        <property name="url" value="${jpa.url}"/>
+        <property name="username" value="${jpa.username}"/>
+        <property name="password" value="${jpa.password}"/>
+      </bean>
+    </property>
+    <property name="isolationLevelName" value="ISOLATION_READ_COMMITTED"/>
+  </bean>
 
-   <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
-      <property name="entityManagerFactory" ref="entityManagerFactory" />
-   </bean>
+  <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
 
-   <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-      <property name="entityManagerFactory" ref="entityManagerFactory" />
-   </bean>
-   <tx:annotation-driven />
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+  <tx:annotation-driven/>
 
-   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+  <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 </beans>

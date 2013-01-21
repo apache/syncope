@@ -20,7 +20,7 @@ under the License.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="entityManagerFactory"
         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
@@ -37,8 +37,8 @@ under the License.
     <property name="jpaPropertyMap">
       <map>
         <!--<entry key="openjpa.Log" value="SQL=TRACE"/>
-        <entry key="openjpa.ConnectionFactoryProperties" 
-               value="PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80"/>-->
+ <entry key="openjpa.ConnectionFactoryProperties" 
+        value="PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80"/>-->
                 
         <entry key="openjpa.NontransactionalWrite" value="false"/>
         <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
@@ -46,7 +46,7 @@ under the License.
         <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
         <entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
                 
-        <entry key="openjpa.DataCache" value="true" />
+        <entry key="openjpa.DataCache" value="true"/>
         <entry key="openjpa.QueryCache" value="true"/>
         <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
       </map>
