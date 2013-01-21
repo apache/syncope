@@ -393,7 +393,7 @@ under the License.
         <artifactId>httpcore</artifactId>
         <version>${httpcomponents.version}</version>
       </dependency>
-	  <dependency>
+      <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${httpcomponents.version}</version>
@@ -1256,7 +1256,7 @@ under the License.
   <modules>
     <module>archetype</module>
     <module>build-tools</module>
-	<module>common</module>
+    <module>common</module>
     <module>client</module>
     <module>core</module>
     <module>console</module>
