@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.services.impl;
+package org.apache.syncope.core.services;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;

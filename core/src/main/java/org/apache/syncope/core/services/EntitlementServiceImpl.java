@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.services.impl;
+package org.apache.syncope.core.services;
 
 import java.util.HashSet;
 import java.util.Set;
