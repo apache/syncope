@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.beans.role;
 
 import javax.persistence.Entity;
-
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 
 @Entity

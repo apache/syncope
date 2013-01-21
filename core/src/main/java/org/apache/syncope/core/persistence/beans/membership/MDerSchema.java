@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.membership;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 
 @Entity

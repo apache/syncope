@@ -25,12 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -94,7 +94,6 @@ public final class MappingUtil {
      * @param mappingItem mapping item
      * @param attributables list of attributables
      * @param password password
-     * @param schemaDAO schema DAO
      * @return attribute values.
      */
     public static List<AbstractAttrValue> getIntValues(final AbstractMappingItem mappingItem,
@@ -251,8 +250,8 @@ public final class MappingUtil {
      * @param intMappingType source mapping type
      * @return corresponding Class object, if any (can be null)
      */
-    public static Class getIntMappingTypeClass(final IntMappingType intMappingType) {
-        Class result;
+    public static Class<? extends AbstractBaseBean> getIntMappingTypeClass(final IntMappingType intMappingType) {
+        Class<? extends AbstractBaseBean> result;
 
         switch (intMappingType) {
             case UserSchema:

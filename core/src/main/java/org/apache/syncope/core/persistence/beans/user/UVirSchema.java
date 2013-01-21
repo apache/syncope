@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.validation.entity.USchemaCheck;
 
@@ -30,4 +29,5 @@ import org.apache.syncope.core.persistence.validation.entity.USchemaCheck;
 public class UVirSchema extends AbstractVirSchema {
 
     private static final long serialVersionUID = 1089308700791426201L;
+
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-
 import org.apache.syncope.common.types.SchemaType;
 
 @MappedSuperclass
@@ -39,7 +38,7 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -47,7 +46,7 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
         return expression;
     }
 
-    public void setExpression(String expression) {
+    public void setExpression(final String expression) {
         this.expression = expression;
     }
 

@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import static javax.persistence.EnumType.STRING;
-
 import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import static javax.persistence.EnumType.STRING;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -34,7 +32,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
@@ -112,7 +109,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(SchemaType type) {
+    public void setType(final SchemaType type) {
         this.type = type;
     }
 
@@ -211,6 +208,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.conversionPattern = conversionPattern;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Format> T getFormatter() {
         T result = null;
 

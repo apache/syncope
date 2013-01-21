@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-
 import org.apache.syncope.common.types.SchemaType;
 
 @MappedSuperclass
@@ -33,7 +32,7 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
