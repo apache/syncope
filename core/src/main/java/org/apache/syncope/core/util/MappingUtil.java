@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,14 +26,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
@@ -46,8 +53,14 @@ import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.identityconnectors.framework.common.FrameworkUtil;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public final class MappingUtil {
 
@@ -88,15 +101,197 @@ public final class MappingUtil {
     }
 
     /**
+     * Prepare an attribute to be sent to a connector instance.
+     *
+     * @param resource target resource
+     * @param <T> user / role
+     * @param mapItem mapping item for the given attribute
+     * @param subject given user
+     * @param password clear-text password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @return account link + prepared attribute
+     * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
+     */
+    public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
+            final ExternalResource resource, final AbstractMappingItem mapItem,
+            final T subject, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated)
+            throws ClassNotFoundException {
+
+        final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
+
+        switch (mapItem.getIntMappingType().getAttributableType()) {
+            case USER:
+                if (subject instanceof SyncopeUser) {
+                    attributables.add(subject);
+                }
+                break;
+
+            case ROLE:
+                if (subject instanceof SyncopeUser) {
+                    attributables.addAll(((SyncopeUser) subject).getRoles());
+                }
+                if (subject instanceof SyncopeRole) {
+                    attributables.add(subject);
+                }
+                break;
+
+            case MEMBERSHIP:
+                if (subject instanceof SyncopeUser) {
+                    attributables.addAll(((SyncopeUser) subject).getMemberships());
+                }
+                break;
+
+            default:
+        }
+
+        final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables, password,
+                vAttrsToBeRemoved, vAttrsToBeUpdated);
+
+        AbstractSchema schema = null;
+        SchemaType schemaType;
+        switch (mapItem.getIntMappingType()) {
+            case UserSchema:
+            case RoleSchema:
+            case MembershipSchema:
+                final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+                final SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
+                schema = schemaDAO.find(mapItem.getIntAttrName(),
+                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                schemaType = schema == null ? SchemaType.String : schema.getType();
+                break;
+
+            default:
+                schemaType = SchemaType.String;
+        }
+
+        final String extAttrName = mapItem.getExtAttrName();
+
+        LOG.debug("Define mapping for: "
+                + "\n* ExtAttrName " + extAttrName
+                + "\n* is accountId " + mapItem.isAccountid()
+                + "\n* is password " + (mapItem.isPassword() || mapItem.getIntMappingType() == IntMappingType.Password)
+                + "\n* mandatory condition " + mapItem.getMandatoryCondition()
+                + "\n* Schema " + mapItem.getIntAttrName()
+                + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
+                + "\n* ClassType " + schemaType.getClassName()
+                + "\n* Values " + values);
+
+        List<Object> objValues = new ArrayList<Object>();
+
+        for (AbstractAttrValue value : values) {
+            if (FrameworkUtil.isSupportedAttributeType(Class.forName(schemaType.getClassName()))) {
+                objValues.add(value.getValue());
+            } else {
+                objValues.add(value.getValueAsString());
+            }
+        }
+
+        Map.Entry<String, Attribute> result;
+
+        if (mapItem.isAccountid()) {
+            result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
+        } else if (mapItem.isPassword()) {
+            result = new AbstractMap.SimpleEntry<String, Attribute>(null,
+                    AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
+        } else {
+            if (schema != null && schema.isMultivalue()) {
+                result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
+                        objValues));
+            } else {
+                result = new AbstractMap.SimpleEntry<String, Attribute>(null, objValues.isEmpty()
+                        ? AttributeBuilder.build(extAttrName)
+                        : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Build __NAME__ for propagation. First look if there ia a defined accountLink for the given resource (and in this
+     * case evaluate as JEXL); otherwise, take given accountId.
+     *
+     * @param <T> user / role
+     * @param subject given user / role
+     * @param resource target resource
+     * @param accountId accountId
+     * @return the value to be propagated as __NAME__
+     */
+    public static <T extends AbstractAttributable> Name evaluateNAME(final T subject,
+            final ExternalResource resource, final String accountId) {
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
+
+        if (StringUtils.isBlank(accountId)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
+            LOG.error("Missing accountId for '{}': ", resource.getName());
+        }
+
+        // Evaluate AccountLink expression
+        String evalAccountLink = null;
+        if (StringUtils.isNotBlank(attrUtil.getAccountLink(resource))) {
+            final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+            final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
+
+            final JexlContext jexlContext = new MapContext();
+            jexlUtil.addFieldsToContext(subject, jexlContext);
+            jexlUtil.addAttrsToContext(subject.getAttributes(), jexlContext);
+            jexlUtil.addDerAttrsToContext(subject.getDerivedAttributes(), subject.getAttributes(), jexlContext);
+            evalAccountLink = jexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
+        }
+
+        // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),
+        // otherwise evaluated AccountLink expression is taken as Name().
+        Name name;
+        if (StringUtils.isBlank(evalAccountLink)) {
+            // add AccountId as __NAME__ attribute ...
+            LOG.debug("Add AccountId [{}] as __NAME__", accountId);
+            name = new Name(accountId);
+        } else {
+            LOG.debug("Add AccountLink [{}] as __NAME__", evalAccountLink);
+            name = new Name(evalAccountLink);
+
+            // AccountId not propagated: it will be used to set the value for __UID__ attribute
+            LOG.debug("AccountId will be used just as __UID__ attribute");
+        }
+
+        return name;
+    }
+
+    private static <T extends AbstractAttributable> String getRoleOwnerValue(final ExternalResource resource,
+            final T subject) {
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
+
+        String accountId = null;
+        try {
+            Map.Entry<String, Attribute> preparedAttr = prepareAttribute(
+                    resource, attrUtil.getAccountIdItem(resource), subject, null,
+                    Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap());
+            accountId = preparedAttr.getKey();
+        } catch (ClassNotFoundException e) {
+            LOG.error("Could not get accountId for {} on {}", subject, resource, e);
+        }
+
+        final Name roleOwnerName = evaluateNAME(subject, resource, accountId);
+        return roleOwnerName.getNameValue();
+    }
+
+    /**
      * Get attribute values.
      *
+     * @param resource target resource
      * @param mappingItem mapping item
      * @param attributables list of attributables
-     * @param password password
+     * @param pwd password
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @return attribute values.
      */
-    public static List<AbstractAttrValue> getIntValues(final AbstractMappingItem mappingItem,
-            final List<AbstractAttributable> attributables, final String password,
+    public static List<AbstractAttrValue> getIntValues(final ExternalResource resource,
+            final AbstractMappingItem mappingItem, final List<AbstractAttributable> attributables, final String pwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mappingItem.getIntMappingType());
@@ -171,8 +366,7 @@ public final class MappingUtil {
                         values.add(attrValue);
                     }
 
-                    LOG.
-                            debug("Retrieved attribute {}"
+                    LOG.debug("Retrieved attribute {}"
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
@@ -202,8 +396,8 @@ public final class MappingUtil {
 
             case Password:
                 AbstractAttrValue attrValue = new UAttrValue();
-                if (password != null) {
-                    attrValue.setStringValue(password);
+                if (pwd != null) {
+                    attrValue.setStringValue(pwd);
                 }
                 values.add(attrValue);
                 break;
@@ -214,6 +408,27 @@ public final class MappingUtil {
                         attrValue = new RAttrValue();
                         attrValue.setStringValue(((SyncopeRole) attributable).getName());
                         values.add(attrValue);
+                    }
+                }
+                break;
+
+            case RoleOwnerSchema:
+                for (AbstractAttributable attributable : attributables) {
+                    if (attributable instanceof SyncopeRole) {
+                        SyncopeRole role = (SyncopeRole) attributable;
+                        String roleOwnerValue = null;
+                        if (role.getUserOwner() != null && resource.getUmapping() != null) {
+                            roleOwnerValue = getRoleOwnerValue(resource, role.getUserOwner());
+                        }
+                        if (role.getRoleOwner() != null && resource.getRmapping() != null) {
+                            roleOwnerValue = getRoleOwnerValue(resource, role.getRoleOwner());
+                        }
+
+                        if (StringUtils.isNotBlank(roleOwnerValue)) {
+                            attrValue = new RAttrValue();
+                            attrValue.setStringValue(roleOwnerValue);
+                            values.add(attrValue);
+                        }
                     }
                 }
                 break;
@@ -233,11 +448,11 @@ public final class MappingUtil {
      * @param accountIdItem accountid mapping item
      * @return accountId internal value
      */
-    public static String getAccountIdValue(final AbstractAttributable attributable,
+    public static String getAccountIdValue(final AbstractAttributable attributable, final ExternalResource resource,
             final AbstractMappingItem accountIdItem) {
 
-        List<AbstractAttrValue> values = getIntValues(
-                accountIdItem, Collections.<AbstractAttributable>singletonList(attributable), null, null, null);
+        List<AbstractAttrValue> values = getIntValues(resource, accountIdItem,
+                Collections.<AbstractAttributable>singletonList(attributable), null, null, null);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

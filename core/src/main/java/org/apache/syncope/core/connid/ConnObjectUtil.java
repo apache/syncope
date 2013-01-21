@@ -446,7 +446,7 @@ public class ConnObjectUtil {
             LOG.debug("Retrieve remote object from '{}'", resource.getName());
             try {
                 final String accountId = attrUtil.getAccountIdItem(resource) == null
-                        ? null : MappingUtil.getAccountIdValue(owner, attrUtil.getAccountIdItem(resource));
+                        ? null : MappingUtil.getAccountIdValue(owner, resource, attrUtil.getAccountIdItem(resource));
 
                 LOG.debug("Search for object with accountId '{}'", accountId);
 

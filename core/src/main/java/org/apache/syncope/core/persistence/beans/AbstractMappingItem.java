@@ -26,7 +26,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
 import org.apache.syncope.common.types.IntMappingType;
 
 @MappedSuperclass
@@ -117,12 +116,16 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
                 name = "username";
                 break;
 
+            case Password:
+                name = "password";
+                break;
+
             case RoleName:
                 name = "roleName";
                 break;
 
-            case Password:
-                name = "password";
+            case RoleOwnerSchema:
+                name = "roleOwnerSchema";
                 break;
 
             default:
@@ -140,7 +143,7 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
         return intMappingType;
     }
 
-    public void setIntMappingType(IntMappingType intMappingType) {
+    public void setIntMappingType(final IntMappingType intMappingType) {
         this.intMappingType = intMappingType;
     }
 
@@ -148,7 +151,7 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
         return isBooleanAsInteger(accountid);
     }
 
-    public void setAccountid(boolean accountid) {
+    public void setAccountid(final boolean accountid) {
         this.accountid = getBooleanAsInteger(accountid);
     }
 
@@ -156,7 +159,7 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
         return isBooleanAsInteger(password);
     }
 
-    public void setPassword(boolean password) {
+    public void setPassword(final boolean password) {
         this.password = getBooleanAsInteger(password);
     }
 }

@@ -26,27 +26,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.connid.ConnObjectUtil;
-import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AbstractAttributableDataBinder;
@@ -57,11 +48,9 @@ import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowResult;
-import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,12 +84,6 @@ public class PropagationManager {
      */
     @Autowired
     private ResourceDAO resourceDAO;
-
-    /**
-     * Schema DAO.
-     */
-    @Autowired
-    private SchemaDAO schemaDAO;
 
     /**
      * ConnObjectUtil.
@@ -444,110 +427,6 @@ public class PropagationManager {
     }
 
     /**
-     * Prepare an attribute to be sent to a connector instance.
-     *
-     * @param <T> user / role
-     * @param mapItem mapping item for the given attribute
-     * @param subject given user
-     * @param password clear-text password
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @return account link + prepared attribute
-     * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
-     */
-    protected <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
-            final AbstractMappingItem mapItem, final T subject, final String password,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated)
-            throws ClassNotFoundException {
-
-        final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
-
-        switch (mapItem.getIntMappingType().getAttributableType()) {
-            case USER:
-                if (subject instanceof SyncopeUser) {
-                    attributables.add(subject);
-                }
-                break;
-
-            case ROLE:
-                if (subject instanceof SyncopeUser) {
-                    attributables.addAll(((SyncopeUser) subject).getRoles());
-                }
-                if (subject instanceof SyncopeRole) {
-                    attributables.add(subject);
-                }
-                break;
-
-            case MEMBERSHIP:
-                if (subject instanceof SyncopeUser) {
-                    attributables.addAll(((SyncopeUser) subject).getMemberships());
-                }
-                break;
-
-            default:
-        }
-
-        final List<AbstractAttrValue> values =
-                MappingUtil.getIntValues(mapItem, attributables, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
-
-        AbstractSchema schema = null;
-        final SchemaType schemaType;
-        switch (mapItem.getIntMappingType()) {
-            case UserSchema:
-            case RoleSchema:
-            case MembershipSchema:
-                schema = schemaDAO.find(mapItem.getIntAttrName(),
-                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
-                schemaType = schema == null ? SchemaType.String : schema.getType();
-                break;
-
-            default:
-                schemaType = SchemaType.String;
-        }
-
-        final String extAttrName = mapItem.getExtAttrName();
-
-        LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + extAttrName
-                + "\n* is accountId " + mapItem.isAccountid()
-                + "\n* is password " + (mapItem.isPassword() || mapItem.getIntMappingType() == IntMappingType.Password)
-                + "\n* mandatory condition " + mapItem.getMandatoryCondition()
-                + "\n* Schema " + mapItem.getIntAttrName()
-                + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
-                + "\n* ClassType " + schemaType.getClassName()
-                + "\n* Values " + values);
-
-        List<Object> objValues = new ArrayList<Object>();
-
-        for (AbstractAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(Class.forName(schemaType.getClassName()))) {
-                objValues.add(value.getValue());
-            } else {
-                objValues.add(value.getValueAsString());
-            }
-        }
-
-        Map.Entry<String, Attribute> result;
-
-        if (mapItem.isAccountid()) {
-            result = new SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
-        } else if (mapItem.isPassword()) {
-            result = new SimpleEntry<String, Attribute>(null,
-                    AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
-        } else {
-            if (schema != null && schema.isMultivalue()) {
-                result = new SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName, objValues));
-            } else {
-                result = new SimpleEntry<String, Attribute>(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(extAttrName)
-                        : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Prepare attributes for sending to a connector instance.
      *
      * @param <T> user / role
@@ -557,13 +436,11 @@ public class PropagationManager {
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param resource target resource
-     * @param attrUtil attributable util to get info about subject
      * @return account link + prepared attributes
      */
     protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(final T subject,
             final String password, final Set<String> vAttrsToBeRemoved,
-            final Map<String, AttributeMod> vAttrsToBeUpdated, final Boolean enable, final ExternalResource resource,
-            final AttributableUtil attrUtil) {
+            final Map<String, AttributeMod> vAttrsToBeUpdated, final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
                 subject, resource, subject.getAttributes());
@@ -571,12 +448,13 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
 
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
         for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource)) {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
-                Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(
-                        mapping, subject, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                Map.Entry<String, Attribute> preparedAttribute = MappingUtil.prepareAttribute(
+                        resource, mapping, subject, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
@@ -591,7 +469,7 @@ public class PropagationManager {
                     } else {
                         attributes.remove(alreadyAdded);
 
-                        Set values = new HashSet(alreadyAdded.getValue());
+                        Set<Object> values = new HashSet<Object>(alreadyAdded.getValue());
                         values.addAll(preparedAttribute.getValue().getValue());
 
                         attributes.add(AttributeBuilder.build(preparedAttribute.getValue().getName(), values));
@@ -602,34 +480,7 @@ public class PropagationManager {
             }
         }
 
-        if (StringUtils.isBlank(accountId)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.error("Missing accountId for '{}': ", resource.getName());
-        }
-
-        // Evaluate AccountLink expression
-        String evalAccountLink = null;
-        if (StringUtils.isNotBlank(attrUtil.getAccountLink(resource))) {
-            final JexlContext jexlContext = new MapContext();
-            jexlUtil.addFieldsToContext(subject, jexlContext);
-            jexlUtil.addAttrsToContext(subject.getAttributes(), jexlContext);
-            jexlUtil.addDerAttrsToContext(subject.getDerivedAttributes(), subject.getAttributes(), jexlContext);
-            evalAccountLink = jexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
-        }
-
-        // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),
-        // otherwise evaluated AccountLink expression is taken as Name().
-        if (StringUtils.isBlank(evalAccountLink)) {
-            // add AccountId as __NAME__ attribute ...
-            LOG.debug("Add AccountId [{}] as __NAME__", accountId);
-            attributes.add(new Name(accountId));
-        } else {
-            LOG.debug("Add AccountLink [{}] as __NAME__", evalAccountLink);
-            attributes.add(new Name(evalAccountLink));
-
-            // AccountId not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("AccountId will be used just as __UID__ attribute");
-        }
+        attributes.add(MappingUtil.evaluateNAME(subject, resource, accountId));
 
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
@@ -658,8 +509,6 @@ public class PropagationManager {
 
         LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
 
-        AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
-
         // Avoid duplicates - see javadoc
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
@@ -684,7 +533,7 @@ public class PropagationManager {
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
                     Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(subject, password,
-                            vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource, attrUtil);
+                            vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
                     task.setAttributes(preparedAttrs.getValue());
 

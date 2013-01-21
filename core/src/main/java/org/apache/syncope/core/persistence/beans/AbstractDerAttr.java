@@ -19,12 +19,10 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.Collection;
-
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -50,7 +48,6 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
      * @return the value of this derived attribute
      */
     public String getValue(final Collection<? extends AbstractAttr> attributes) {
-
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 

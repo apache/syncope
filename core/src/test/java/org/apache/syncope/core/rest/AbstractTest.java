@@ -19,9 +19,7 @@
 package org.apache.syncope.core.rest;
 
 import java.util.UUID;
-
 import javax.sql.DataSource;
-
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
@@ -64,22 +62,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
+@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
-
-    protected static AttributeTO attributeTO(final String schema, final String value) {
-        AttributeTO attr = new AttributeTO();
-        attr.setSchema(schema);
-        attr.addValue(value);
-        return attr;
-    }
-
-    protected static AttributeMod attributeMod(final String schema, final String valueToBeAdded) {
-        AttributeMod attr = new AttributeMod();
-        attr.setSchema(schema);
-        attr.addValueToBeAdded(valueToBeAdded);
-        return attr;
-    }
 
     /**
      * Logger.
@@ -88,14 +72,15 @@ public abstract class AbstractTest {
 
     protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
-    public static final String ADMIN_UID = "admin";
+    protected static final String ADMIN_UID = "admin";
 
-    public static final String ADMIN_PWD = "password";
-
-    protected PolicyServiceProxy policyService;
+    protected static final String ADMIN_PWD = "password";
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    protected DataSource testDataSource;
 
     protected UserService userService;
 
@@ -123,23 +108,36 @@ public abstract class AbstractTest {
 
     protected UserRequestService userRequestService;
 
-    @Autowired
-    protected DataSource testDataSource;
+    protected PolicyServiceProxy policyService;
 
-    public static String getUUIDString() {
-    	return UUID.randomUUID().toString().substring(0, 8);
+    protected static String getUUIDString() {
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    protected RestTemplate anonymousRestTemplate() {
-        return new RestTemplate();
+    protected static AttributeTO attributeTO(final String schema, final String value) {
+        AttributeTO attr = new AttributeTO();
+        attr.setSchema(schema);
+        attr.addValue(value);
+        return attr;
     }
 
-    public void setupRestTemplate(final String uid, final String pwd) {
+    protected static AttributeMod attributeMod(final String schema, final String valueToBeAdded) {
+        AttributeMod attr = new AttributeMod();
+        attr.setSchema(schema);
+        attr.addValueToBeAdded(valueToBeAdded);
+        return attr;
+    }
+
+    protected void setupRestTemplate(final String uid, final String pwd) {
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
                 .getRequestFactory());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(uid, pwd));
+    }
+
+    protected RestTemplate anonymousRestTemplate() {
+        return new RestTemplate();
     }
 
     @Before
@@ -160,5 +158,4 @@ public abstract class AbstractTest {
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
         userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
-
 }

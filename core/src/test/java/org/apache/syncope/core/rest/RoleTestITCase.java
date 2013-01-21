@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -44,6 +43,31 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
+
+    private RoleTO buildBasicRoleTO(final String name) {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName(name + getUUIDString());
+        roleTO.setParent(8L);
+        return roleTO;
+    }
+
+    private RoleTO buildRoleTO(final String name) {
+        RoleTO roleTO = buildBasicRoleTO(name);
+
+        // verify inheritance password and account policies
+        roleTO.setInheritAccountPolicy(false);
+        // not inherited so setter execution shouldn't be ignored
+        roleTO.setAccountPolicy(6L);
+
+        roleTO.setInheritPasswordPolicy(true);
+        // inherited so setter execution should be ignored
+        roleTO.setPasswordPolicy(2L);
+
+        roleTO.addAttribute(attributeTO("icon", "anIcon"));
+
+        roleTO.addResource("resource-ldap");
+        return roleTO;
+    }
 
     @Test
     public void createWithException() {
@@ -63,10 +87,8 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void create() {
         RoleTO roleTO = buildRoleTO("lastRole");
-        roleTO.addDerivedAttribute(attributeTO("ownerDN", null));
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
         roleTO.setRoleOwner(8L);
-
 
         roleTO = roleService.create(roleTO);
         assertNotNull(roleTO);
@@ -85,7 +107,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(roleTO.getResources().contains("resource-ldap"));
 
         ConnObjectTO connObjectTO = resourceService.getConnector("resource-ldap", AttributableType.ROLE,
-        		roleTO.getName());
+                roleTO.getName());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }
@@ -203,7 +225,7 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        String modName = "finalRole" + getUUIDString(); 
+        String modName = "finalRole" + getUUIDString();
         roleMod.setName(modName);
         roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
 
@@ -302,7 +324,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void issue178() {
         RoleTO roleTO = new RoleTO();
-        String roleName = "torename" + getUUIDString(); 
+        String roleName = "torename" + getUUIDString();
         roleTO.setName(roleName);
 
         RoleTO actual = roleService.create(roleTO);
@@ -313,7 +335,7 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(actual.getId());
-        String renamedRole = "renamed" + getUUIDString(); 
+        String renamedRole = "renamed" + getUUIDString();
         roleMod.setName(renamedRole);
 
         actual = roleService.update(roleMod.getId(), roleMod);
@@ -352,30 +374,4 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().isEmpty());
     }
-
-	private RoleTO buildBasicRoleTO(String name) {
-		RoleTO roleTO = new RoleTO();
-        roleTO.setName(name + getUUIDString());
-        roleTO.setParent(8L);
-		return roleTO;
-	}
-
-	private RoleTO buildRoleTO(String name) {
-		RoleTO roleTO = buildBasicRoleTO(name);
-
-        // verify inheritance password and account policies
-        roleTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        roleTO.setAccountPolicy(6L);
-
-        roleTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        roleTO.setPasswordPolicy(2L);
-
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
-
-        roleTO.addResource("resource-ldap");
-		return roleTO;
-	}
-
 }

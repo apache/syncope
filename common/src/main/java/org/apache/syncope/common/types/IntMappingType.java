@@ -45,6 +45,7 @@ public enum IntMappingType {
     RoleVirtualSchema(AttributableType.ROLE),
     RoleId(AttributableType.ROLE),
     RoleName(AttributableType.ROLE),
+    RoleOwnerSchema(AttributableType.ROLE),
     // -------------------------
     // Membership attribute types (the same in MembershipMappingType)
     // -------------------------
@@ -92,20 +93,21 @@ public enum IntMappingType {
             case ROLE:
                 enumset = EnumSet.allOf(RoleMappingType.class);
                 break;
+
             case MEMBERSHIP:
                 enumset = EnumSet.allOf(MembershipMappingType.class);
                 break;
+
             default:
                 enumset = EnumSet.allOf(UserMappingType.class);
         }
 
-        final Set<IntMappingType> res = new HashSet<IntMappingType>();
-
+        final Set<IntMappingType> result = new HashSet<IntMappingType>(enumset.size());
         for (Object obj : enumset) {
-            res.add(IntMappingType.valueOf(obj.toString()));
+            result.add(IntMappingType.valueOf(obj.toString()));
         }
 
-        return res;
+        return result;
     }
 
     public static Set<IntMappingType> getEmbedded() {
@@ -175,7 +177,8 @@ public enum IntMappingType {
         RoleDerivedSchema,
         RoleVirtualSchema,
         RoleId,
-        RoleName;
+        RoleName,
+        RoleOwnerSchema;
 
     }
 
