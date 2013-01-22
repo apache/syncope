@@ -34,7 +34,7 @@ under the License.
     </div>
 
     <section name="Introduction">
-      <p>The Syncope team is using the 
+      <p>The Syncope team uses the 
         <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
         More details on releasing artifacts and using Nexus can be found on the Maven website at
         <a href="http://maven.apache.org/developers/release/apache-release.html">http://maven.apache.org/developers/release/apache-release.html</a>.
@@ -51,12 +51,11 @@ under the License.
       </subsection>
 
       <subsection name="Apache Maven">
-        <p>Install Apache Maven 3.0.3 or higher; we strongly
-          encourage our committers to install 
+        <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
           <a href="http://maven.apache.org/download.html">Apache Maven 3.0.4</a>.
         </p>
       
-        <p>As of Maven 2.1.0 you can now encrypt your servers passwords. We highly recommend that you follow this
+        <p>Maven allows you to encrypt your servers' passwords. We highly recommend that you follow this
           <a href="http://maven.apache.org/guides/mini/guide-encryption.html">guide</a> to set your master password and
           use it to encrypt your ASF password in the next section.
         </p>
@@ -197,12 +196,12 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
           </li>
           <li>
             Update the <a href="downloads.html">downloads</a> site page by adding the new release artifacts with base 
-            URL <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>
-            and by moving current release artifacts to 'Older Releases' section, also changing base URL to 
+            URL <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>,
+            moving current release artifacts to 'Older Releases' section and changing base URL to 
             <source>http://archive.apache.org/dist/syncope/</source>
           </li>
           <li>
-            Commit any changes back to svn:
+            Commit any changes back to SVN:
             <source>svn commit -m "updating files for release"</source>
           </li>
           <li>
@@ -229,7 +228,7 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
             <source>mvn -P apache-release release:branch -DbranchName=1_0_X</source>
           </li>
           <li>
-            Checkout a clean copy of the trunk/branch to release using command line svn:
+            Checkout a clean copy of the trunk/branch to release using command line SVN:
             <source>svn checkout https://svn.apache.org/repos/asf/syncope/trunk/ release</source>
           </li>
         </ol>
