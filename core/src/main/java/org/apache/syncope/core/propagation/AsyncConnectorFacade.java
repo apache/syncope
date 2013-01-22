@@ -147,12 +147,11 @@ public class AsyncConnectorFacade {
 
         Attribute attribute = null;
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
-            attribute = object.getAttributeByName(attributeName);
-        } catch (NullPointerException e) {
-            // ignore exception
+        final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        if (object == null) {
             LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
+            attribute = object.getAttributeByName(attributeName);
         }
 
         return new AsyncResult<Attribute>(attribute);
@@ -167,15 +166,14 @@ public class AsyncConnectorFacade {
 
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
-        try {
-            final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        final ConnectorObject object = connector.getObject(objectClass, uid, options);
 
+        if (object == null) {
+            LOG.debug("Object for '{}' not found", uid.getUidValue());
+        } else {
             for (String attribute : options.getAttributesToGet()) {
                 attributes.add(object.getAttributeByName(attribute));
             }
-        } catch (NullPointerException e) {
-            // ignore exception
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
 
         return new AsyncResult<Set<Attribute>>(attributes);

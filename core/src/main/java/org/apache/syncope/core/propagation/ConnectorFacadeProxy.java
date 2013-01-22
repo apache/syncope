@@ -24,10 +24,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import javassist.NotFoundException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -487,17 +485,9 @@ public class ConnectorFacadeProxy {
      */
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
-
-        Attribute attribute = null;
-
         try {
-            final Future<Attribute> future =
-                    asyncFacade.getObjectAttribute(connector, objectClass, uid, options, attributeName);
-
-            attribute = future.get(timeout, TimeUnit.SECONDS);
-        } catch (NullPointerException e) {
-            // ignore exception
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
+            return asyncFacade.getObjectAttribute(connector, objectClass, uid, options, attributeName).
+                    get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
@@ -508,8 +498,6 @@ public class ConnectorFacadeProxy {
                 throw new IllegalArgumentException(e.getCause());
             }
         }
-
-        return attribute;
     }
 
     /**
@@ -523,14 +511,8 @@ public class ConnectorFacadeProxy {
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
 
-        final Set<Attribute> attributes = new HashSet<Attribute>();
-
         try {
-            final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
-            attributes.addAll(future.get(timeout, TimeUnit.SECONDS));
-        } catch (NullPointerException e) {
-            // ignore exception
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
+            return asyncFacade.getObjectAttributes(connector, objectClass, uid, options).get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
@@ -541,8 +523,6 @@ public class ConnectorFacadeProxy {
                 throw new IllegalArgumentException(e.getCause());
             }
         }
-
-        return attributes;
     }
 
     /**
@@ -552,12 +532,8 @@ public class ConnectorFacadeProxy {
      * @return a list of schema names.
      */
     public Set<String> getSchema(final boolean showall) {
-        final Set<String> resourceSchemaNames = new HashSet<String>();
-
-        final Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
-
         try {
-            resourceSchemaNames.addAll(future.get(timeout, TimeUnit.SECONDS));
+            return asyncFacade.getSchema(connector, showall).get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
@@ -568,9 +544,6 @@ public class ConnectorFacadeProxy {
                 throw new IllegalArgumentException(e.getCause());
             }
         }
-
-        return resourceSchemaNames;
-
     }
 
     /**
