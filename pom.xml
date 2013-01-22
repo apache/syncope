@@ -839,6 +839,7 @@ under the License.
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
+            <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</argLine>
           </configuration>
         </plugin>
         <plugin>
