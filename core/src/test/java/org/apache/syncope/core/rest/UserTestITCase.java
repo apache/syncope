@@ -2207,4 +2207,12 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
         assertNotNull(userTO);
     }
+
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void issueSYNCOPE279() {
+        UserTO userTO = getSampleTO("syncope260@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-3");
+        restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+    }
 }

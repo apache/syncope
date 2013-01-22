@@ -110,7 +110,8 @@ public class ConnInstanceLoader {
 
         connInstanceClone.setConfiguration(configuration);
 
-        return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
+        return getBeanFactory().getBean(
+                "connectorFacadeProxy", ConnectorFacadeProxy.class, connInstanceClone, connBundleManager);
     }
 
     public void registerConnector(final ExternalResource resource)
@@ -150,6 +151,7 @@ public class ConnInstanceLoader {
             }
         }
 
-        LOG.info("Done loading {} connectors.", getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class).size());
+        LOG.info("Done loading {} connectors.", 
+                getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class, false, true).size());
     }
 }

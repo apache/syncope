@@ -68,6 +68,6 @@ public class ConnInstanceLoaderTest extends AbstractTest {
 
         assertEquals(resourceDAO.findAll().size(),
                 ApplicationContextProvider.getApplicationContext().
-                getBeanNamesForType(ConnectorFacadeProxy.class).length);
+                getBeanNamesForType(ConnectorFacadeProxy.class, false, true).length);
     }
 }

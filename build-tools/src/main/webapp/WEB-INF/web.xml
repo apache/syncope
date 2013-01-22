@@ -44,8 +44,16 @@ under the License.
         <servlet-name>ApacheDSRootDseServlet</servlet-name>
         <servlet-class>org.apache.syncope.buildtools.ApacheDSRootDseServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ServiceTimeoutServlet</servlet-name>
+        <servlet-class>org.apache.syncope.buildtools.ServiceTimeoutServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ApacheDSRootDseServlet</servlet-name>
         <url-pattern>/apacheDS</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServiceTimeoutServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
 </web-app>

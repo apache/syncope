@@ -369,8 +369,8 @@ public class ConnInstanceController extends AbstractController {
     public ModelAndView check(final HttpServletResponse response, @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        final ConnectorFacadeProxy connector = new ConnectorFacadeProxy(binder.getConnInstance(connectorTO),
-                bundleManager);
+        final ConnectorFacadeProxy connector =
+                connLoader.createConnectorBean(binder.getConnInstance(connectorTO), connectorTO.getConfiguration());
 
         boolean result;
         try {

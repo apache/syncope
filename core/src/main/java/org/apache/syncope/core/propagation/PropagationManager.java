@@ -889,6 +889,9 @@ public class PropagationManager {
                     ? task.getAccountId()
                     : task.getOldAccountId()), connector.getOperationOptions(task.getResource()));
 
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
         } catch (RuntimeException ignore) {
             LOG.debug("Resolving username", ignore);
             return null;

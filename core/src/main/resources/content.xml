@@ -26,6 +26,7 @@ under the License.
   <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
+  <SyncopeConf confKey="connectorRequest.timeout" confValue="10"/>
     
   <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="GLOBAL_SYNC"
           specification="%3Corg.apache.syncope.types.SyncPolicySpec%2F%3E"/>

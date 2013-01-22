@@ -20,11 +20,14 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/task
+                           http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
@@ -69,7 +72,13 @@ under the License.
   <bean id="propagationManager" class="org.apache.syncope.core.propagation.PropagationManager"/>
   <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
   <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
-          
+  
+  <bean id="connectorFacadeProxy" class="org.apache.syncope.core.propagation.ConnectorFacadeProxy" scope="prototype"/>
+  <bean id="asyncConnFacade" class="org.apache.syncope.core.propagation.AsyncConnectorFacade" scope="singleton"/>
+  
+  <task:annotation-driven executor="connectorExecutor"/>
+  <task:executor id="connectorExecutor" pool-size="10"/>
+  
   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
     <property name="cache" value="512"/>
     <property name="lenient" value="true"/>

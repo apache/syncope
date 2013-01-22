@@ -51,4 +51,13 @@ under the License.
     <security:authentication-provider ref="syncopeAuthenticationProvider"/>
   </security:authentication-manager>
 
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass" value="org.springframework.security.core.context.SecurityContextHolder"/> 
+    <property name="targetMethod" value="setStrategyName"/> 
+    <property name="arguments">
+      <list>
+        <value>MODE_INHERITABLETHREADLOCAL</value>
+      </list>
+    </property>
+  </bean>
 </beans>
