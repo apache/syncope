@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
@@ -44,7 +45,8 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
 
     @Override
     public List<Report> findAll(final int page, final int itemsPerPage) {
-        final Query query = entityManager.createQuery("SELECT e FROM " + Report.class.getSimpleName() + " e");
+        final TypedQuery<Report> query = entityManager.createQuery(
+                "SELECT e FROM " + Report.class.getSimpleName() + " e", Report.class);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0

@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -64,6 +63,7 @@ public class ReportDataBinder {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
+    @SuppressWarnings("unchecked")
     public Set<Class<Reportlet>> getAllReportletClasses() {
         Set<Class<Reportlet>> reportletClasses = new HashSet<Class<Reportlet>>();
 

@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -40,7 +38,8 @@ public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
 
     @Override
     public List<? extends Policy> find(final PolicyType type) {
-        final Query query = entityManager.createQuery("SELECT e FROM Policy e WHERE e.type=:type");
+        final TypedQuery<Policy> query = entityManager.createQuery("SELECT e FROM Policy e WHERE e.type=:type",
+                Policy.class);
         query.setParameter("type", type);
 
         return query.getResultList();
@@ -72,12 +71,12 @@ public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
 
     @Override
     public List<Policy> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM Policy e");
+        TypedQuery<Policy> query = entityManager.createQuery("SELECT e FROM Policy e", Policy.class);
         return query.getResultList();
     }
 
     @Override
-    public Policy save(final Policy policy) {
+    public <T extends Policy> T save(final T policy) {
         return entityManager.merge(policy);
     }
 

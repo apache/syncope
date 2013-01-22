@@ -20,9 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -75,7 +73,7 @@ public class SchemaController extends AbstractController {
     public SchemaTO delete(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).schemaClass();
+        Class<? extends AbstractSchema> reference = getAttributableUtil(kind).schemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             throw new NotFoundException("Schema '" + schemaName + "'");

@@ -26,10 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
-
+import javax.persistence.TypedQuery;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
@@ -59,7 +58,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      *
      * @param attrValue value to be split
      * @param literals literals/tokens
-     * @return
+     * @return splitted value
      */
     private List<String> split(final String attrValue, final List<String> literals) {
         final List<String> attrValues = new ArrayList<String>();
@@ -80,6 +79,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      *
      * @param expression derived schema expression
      * @param value derived attribute value
+     * @param attrUtil USER / ROLE
      * @return where clauses to use to build the query
      * @throws InvalidSearchConditionException in case of errors retrieving identifiers
      */
@@ -97,7 +97,6 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         // Get schema names and literals
         Token token;
         while ((token = parser.getNextToken()) != null && StringUtils.hasText(token.toString())) {
-
             if (token.kind == ParserConstants.STRING_LITERAL) {
                 literals.add(token.toString().substring(1, token.toString().length() - 1));
             }
@@ -111,7 +110,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         Collections.sort(literals, new Comparator<String>() {
 
             @Override
-            public int compare(String t, String t1) {
+            public int compare(final String t, final String t1) {
                 if (t == null && t1 == null) {
                     return 0;
                 } else if (t != null && t1 == null) {
@@ -203,7 +202,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         return clauses;
     }
 
-    protected abstract <T extends AbstractAttributable> T find(final Long id);
+    protected abstract <T extends AbstractAttributable> T findInternal(final Long id);
 
     @Override
     public <T extends AbstractAttributable> List<T> findByAttrValue(final String schemaName,
@@ -212,19 +211,20 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
-            return Collections.EMPTY_LIST;
+            return Collections.<T>emptyList();
         }
 
         final String entityName = schema.isUniqueConstraint()
                 ? attrUtil.attrUniqueValueClass().getName()
                 : attrUtil.attrValueClass().getName();
 
-        Query query = entityManager.createQuery("SELECT e FROM " + entityName + " e"
+        TypedQuery<AbstractAttrValue> query = entityManager.createQuery("SELECT e FROM " + entityName + " e"
                 + " WHERE e.attribute.schema.name = :schemaName " + " AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)" + " OR (e.booleanValue IS NOT NULL"
                 + " AND e.booleanValue = :booleanValue)" + " OR (e.dateValue IS NOT NULL"
                 + " AND e.dateValue = :dateValue)" + " OR (e.longValue IS NOT NULL" + " AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL" + " AND e.doubleValue = :doubleValue)");
+                + " OR (e.doubleValue IS NOT NULL" + " AND e.doubleValue = :doubleValue)",
+                AbstractAttrValue.class);
 
         query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrValue.getStringValue());
@@ -240,7 +240,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
         List<T> result = new ArrayList<T>();
-        for (AbstractAttrValue value : (List<AbstractAttrValue>) query.getResultList()) {
+        for (AbstractAttrValue value : query.getResultList()) {
             T subject = value.getAttribute().getOwner();
             if (!result.contains(subject)) {
                 result.add(subject);
@@ -276,8 +276,10 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      * specify a derived attribute expression you must be quite sure that string literals used to build the expression
      * cannot be found into the attribute values used to replace attribute schema names used as identifiers.
      *
+     * @param <T> user / role
      * @param schemaName derived schema name
      * @param value derived attribute value
+     * @param attrUtil AttributableUtil
      * @return list of users / roles
      * @throws InvalidSearchConditionException in case of errors retrieving schema names used to buid the derived schema
      * expression.
@@ -290,7 +292,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         AbstractDerSchema schema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
-            return Collections.EMPTY_LIST;
+            return Collections.<T>emptyList();
         }
 
         // query string
@@ -321,7 +323,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
         final List<T> result = new ArrayList<T>();
 
         for (Object userId : query.getResultList()) {
-            T subject = find(Long.parseLong(userId.toString()));
+            T subject = findInternal(Long.parseLong(userId.toString()));
             if (!result.contains(subject)) {
                 result.add(subject);
             }
@@ -334,8 +336,8 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
     public <T extends AbstractAttributable> List<T> findByResource(final ExternalResource resource,
             final Class<T> reference) {
 
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e "
-                + "WHERE :resource MEMBER OF e.resources");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e "
+                + "WHERE :resource MEMBER OF e.resources", reference);
         query.setParameter("resource", resource);
 
         return query.getResultList();

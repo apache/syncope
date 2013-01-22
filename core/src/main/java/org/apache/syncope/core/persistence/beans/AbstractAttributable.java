@@ -29,6 +29,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4801685541488201119L;
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
         for (Iterator<? extends AbstractAttr> itor = getAttributes().iterator(); result == null && itor.hasNext();) {
@@ -40,6 +41,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractDerAttr> T getDerivedAttribute(final String derivedSchemaName) {
         T result = null;
         for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator();
@@ -56,6 +58,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractVirAttr> T getVirtualAttribute(final String virtualSchemaName) {
         T result = null;
         for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator();

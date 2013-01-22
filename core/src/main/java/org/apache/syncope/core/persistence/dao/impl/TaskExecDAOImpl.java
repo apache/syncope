@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
@@ -45,9 +43,9 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
     }
 
     private <T extends Task> TaskExec findLatest(final T task, final String field) {
-
-        Query query = entityManager.createQuery("SELECT e " + "FROM " + TaskExec.class.getSimpleName() + " e "
-                + "WHERE e.task=:task " + "ORDER BY e." + field + " DESC");
+        TypedQuery<TaskExec> query = entityManager.createQuery("SELECT e " + "FROM " + TaskExec.class.getSimpleName()
+                + " e "
+                + "WHERE e.task=:task " + "ORDER BY e." + field + " DESC", TaskExec.class);
         query.setParameter("task", task);
         query.setMaxResults(1);
 
@@ -68,7 +66,7 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
     }
 
     @Override
-    public <T extends Task> List<TaskExec> findAll(Class<T> reference) {
+    public <T extends Task> List<TaskExec> findAll(final Class<T> reference) {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(TaskExec.class.getSimpleName()).append(
                 " e WHERE e.task IN (").append("SELECT t FROM ").append(reference.getSimpleName()).append(" t");
         if (SchedTask.class.equals(reference)) {
@@ -77,7 +75,7 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
         }
         queryString.append(')');
 
-        Query query = entityManager.createQuery(queryString.toString());
+        TypedQuery<TaskExec> query = entityManager.createQuery(queryString.toString(), TaskExec.class);
         return query.getResultList();
     }
 

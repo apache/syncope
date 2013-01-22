@@ -21,12 +21,11 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
@@ -45,6 +44,12 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     @Autowired
     private RoleDAO roleDAO;
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T extends AbstractAttributable> T findInternal(final Long id) {
+        return (T) find(id);
+    }
+
     @Override
     public SyncopeUser find(final Long id) {
         TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
@@ -53,8 +58,9 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
         SyncopeUser result = null;
         try {
-            return query.getSingleResult();
+            result = query.getSingleResult();
         } catch (NoResultException e) {
+            LOG.error("No user found with id {}", id, e);
         }
 
         return result;
@@ -68,8 +74,9 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
         SyncopeUser result = null;
         try {
-            return query.getSingleResult();
+            result = query.getSingleResult();
         } catch (NoResultException e) {
+            LOG.error("No user found with username {}", username, e);
         }
 
         return result;
@@ -142,6 +149,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         return findAll(adminRoles, -1, -1);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final List<SyncopeUser> findAll(final Set<Long> adminRoles, final int page, final int itemsPerPage) {
         final Query query = entityManager.createNativeQuery(getFindAllQuery(adminRoles).toString());
@@ -155,7 +163,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         }
 
         List<Number> userIds = new ArrayList<Number>();
-        List resultList = query.getResultList();
+        List<Object> resultList = query.getResultList();
 
         //fix for HHH-5902 - bug hibernate
         if (resultList != null) {
@@ -172,7 +180,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
         SyncopeUser user;
         for (Object userId : userIds) {
-            user = find(((Number) userId).longValue());
+            user = findInternal(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
             } else {
@@ -206,7 +214,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
     @Override
     public void delete(final Long id) {
-        SyncopeUser user = find(id);
+        SyncopeUser user = findInternal(id);
         if (user == null) {
             return;
         }

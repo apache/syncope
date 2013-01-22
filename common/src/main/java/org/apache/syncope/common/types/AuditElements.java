@@ -52,6 +52,7 @@ public final class AuditElements {
             return subCategory;
         }
 
+        @SuppressWarnings("unchecked")
         public EnumSet<? extends Enum<?>> getSubCategoryElements() {
             return EnumSet.allOf(getSubCategory());
         }
@@ -232,7 +233,9 @@ public final class AuditElements {
         read,
         update,
         delete,
-        isCreateAllowed,}
+        isCreateAllowed
+
+    }
 
     public enum WorkflowSubCategory {
 

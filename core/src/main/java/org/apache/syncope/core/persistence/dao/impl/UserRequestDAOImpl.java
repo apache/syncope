@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -29,7 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Transactional(noRollbackFor = { Throwable.class })
+@Transactional(noRollbackFor = {Throwable.class})
 public class UserRequestDAOImpl extends AbstractDAOImpl implements UserRequestDAO {
 
     @Override
@@ -41,18 +39,18 @@ public class UserRequestDAOImpl extends AbstractDAOImpl implements UserRequestDA
     @Override
     @Transactional(readOnly = true)
     public List<UserRequest> findAll() {
-        Query query = entityManager.createQuery("SELECT e " + "FROM " + UserRequest.class.getSimpleName() + " e");
+        TypedQuery<UserRequest> query = entityManager.createQuery(
+                "SELECT e " + "FROM " + UserRequest.class.getSimpleName() + " e", UserRequest.class);
         return query.getResultList();
     }
 
     @Override
-    public UserRequest save(UserRequest userRequest) throws InvalidEntityException {
-
+    public UserRequest save(final UserRequest userRequest) throws InvalidEntityException {
         return entityManager.merge(userRequest);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(final Long id) {
         entityManager.remove(find(id));
     }
 }

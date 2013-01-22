@@ -19,17 +19,17 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import javax.servlet.ServletContext;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
 /**
- * Take care of all initializations needed by Syncope to run up and safe.
+ * Take care of all initializations needed by Syncope to run up and safe for tests.
  */
 @Component
 public class TestDbInitializer implements ServletContextAware, InitializingBean {
+
     @Autowired
     private ContentLoader contentLoader;
 

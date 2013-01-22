@@ -24,7 +24,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
@@ -32,8 +31,11 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class MAttrValue extends AbstractAttrValue {
 
+    private static final long serialVersionUID = -7188881172631198385L;
+
     @Id
     private Long id;
+
     @ManyToOne
     @NotNull
     private MAttr attribute;
@@ -43,11 +45,13 @@ public class MAttrValue extends AbstractAttrValue {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttr> T getAttribute() {
         return (T) attribute;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttr> void setAttribute(T attribute) {
         if (!(attribute instanceof MAttr)) {

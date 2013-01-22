@@ -19,10 +19,9 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -68,7 +67,7 @@ public class MembershipDAOImpl extends AbstractDAOImpl implements MembershipDAO 
 
     @Override
     public List<Membership> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM Membership e");
+        TypedQuery<Membership> query = entityManager.createQuery("SELECT e FROM Membership e", Membership.class);
         return query.getResultList();
     }
 

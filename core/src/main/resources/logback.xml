@@ -90,10 +90,6 @@ under the License.
     <level value="INFO"/>
     <appender-ref ref="persistence"/>
   </logger>
-  <logger name="org.apache.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
-    <level value="INFO"/>
-    <appender-ref ref="persistence"/>
-  </logger>
     
   <logger name="org.apache.syncope.core.security" additivity="false">
     <level value="INFO"/>

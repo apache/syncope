@@ -25,9 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.validation.ValidationException;
-
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
@@ -183,7 +181,7 @@ public abstract class AbstractAttributableDataBinder {
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                ? Collections.EMPTY_LIST
+                ? Collections.<String>emptyList()
                 : Collections.singletonList(values.iterator().next()));
 
         for (String value : valuesProvided) {
@@ -707,7 +705,8 @@ public abstract class AbstractAttributableDataBinder {
     protected void fillTO(final AbstractAttributableTO abstractAttributableTO,
             final Collection<? extends AbstractAttr> attributes,
             final Collection<? extends AbstractDerAttr> derivedAttributes,
-            final Collection<? extends AbstractVirAttr> virtualAttributes, final Collection<ExternalResource> resources) {
+            final Collection<? extends AbstractVirAttr> virtualAttributes,
+            final Collection<ExternalResource> resources) {
 
         AttributeTO attributeTO;
         for (AbstractAttr attribute : attributes) {

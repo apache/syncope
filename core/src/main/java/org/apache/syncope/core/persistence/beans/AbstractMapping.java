@@ -19,10 +19,8 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.List;
-
 import javax.persistence.Cacheable;
 import javax.persistence.MappedSuperclass;
-
 import org.apache.syncope.common.types.IntMappingType;
 import org.identityconnectors.framework.common.objects.Uid;
 
@@ -51,6 +49,7 @@ public abstract class AbstractMapping extends AbstractBaseBean {
         this.accountLink = accountLink;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> T getAccountIdItem() {
         T accountIdItem = null;
         for (AbstractMappingItem item : getItems()) {

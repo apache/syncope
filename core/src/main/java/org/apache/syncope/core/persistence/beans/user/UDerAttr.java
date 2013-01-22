@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.beans.user;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -30,18 +29,21 @@ import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 public class UDerAttr extends AbstractDerAttr {
 
     private static final long serialVersionUID = 4723044452807292060L;
+
     @ManyToOne
     private SyncopeUser owner;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private UDerSchema derivedSchema;
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
     }
 
     @Override
-    public <T extends AbstractAttributable> void setOwner(T owner) {
+    public <T extends AbstractAttributable> void setOwner(final T owner) {
         if (!(owner instanceof SyncopeUser)) {
             throw new ClassCastException("expected type SyncopeUser, found: " + owner.getClass().getName());
         }
@@ -49,13 +51,14 @@ public class UDerAttr extends AbstractDerAttr {
         this.owner = (SyncopeUser) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractDerSchema> T getDerivedSchema() {
         return (T) derivedSchema;
     }
 
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema) {
+    public <T extends AbstractDerSchema> void setDerivedSchema(final T derivedSchema) {
         if (!(derivedSchema instanceof UDerSchema)) {
             throw new ClassCastException("expected type UDerSchema, found: " + derivedSchema.getClass().getName());
         }

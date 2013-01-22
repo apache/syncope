@@ -82,6 +82,7 @@ public class RMapping extends AbstractMapping {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> List<T> getItems() {
         return (List<T>) this.items;
     }
@@ -103,6 +104,7 @@ public class RMapping extends AbstractMapping {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> void setItems(final List<T> items) {
         this.items.clear();
         if (items != null && !items.isEmpty()) {

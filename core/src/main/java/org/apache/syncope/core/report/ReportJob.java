@@ -30,13 +30,11 @@ import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.beans.Report;
@@ -58,6 +56,7 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Quartz job for executing a given report.
  */
+@SuppressWarnings("unchecked")
 @DisallowConcurrentExecution
 public class ReportJob implements Job {
 
@@ -98,6 +97,7 @@ public class ReportJob implements Job {
         this.reportId = reportId;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         Report report = reportDAO.find(reportId);

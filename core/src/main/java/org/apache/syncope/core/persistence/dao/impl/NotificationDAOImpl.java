@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -37,13 +35,13 @@ public class NotificationDAOImpl extends AbstractDAOImpl implements Notification
 
     @Override
     public List<Notification> findAll() {
-        Query query = entityManager.createQuery("SELECT e " + "FROM " + Notification.class.getSimpleName() + " e");
+        TypedQuery<Notification> query = entityManager.createQuery(
+                "SELECT e " + "FROM " + Notification.class.getSimpleName() + " e", Notification.class);
         return query.getResultList();
     }
 
     @Override
     public Notification save(final Notification notification) throws InvalidEntityException {
-
         return entityManager.merge(notification);
     }
 

@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -43,7 +42,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -254,6 +252,7 @@ public class SyncopeRole extends AbstractAttributable {
         return attributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setAttributes(final List<? extends AbstractAttr> attributes) {
         this.attributes.clear();
@@ -283,11 +282,12 @@ public class SyncopeRole extends AbstractAttributable {
         return derivedAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
-        this.attributes.clear();
-        if (attributes != null && !attributes.isEmpty()) {
-            this.attributes.addAll((List<RAttr>) attributes);
+        this.derivedAttributes.clear();
+        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
+            this.derivedAttributes.addAll((List<RDerAttr>) derivedAttributes);
         }
     }
 
@@ -312,6 +312,7 @@ public class SyncopeRole extends AbstractAttributable {
         return virtualAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
@@ -333,6 +334,7 @@ public class SyncopeRole extends AbstractAttributable {
      *
      * @return a list of inherited and only inherited attributes.
      */
+    @SuppressWarnings("unchecked")
     public List<RAttr> findInheritedAttributes() {
         final Map<RSchema, RAttr> result = new HashMap<RSchema, RAttr>();
 
@@ -371,6 +373,7 @@ public class SyncopeRole extends AbstractAttributable {
      *
      * @return a list of inherited and only inherited attributes.
      */
+    @SuppressWarnings("unchecked")
     public List<RDerAttr> findInheritedDerivedAttributes() {
         final Map<RDerSchema, RDerAttr> result = new HashMap<RDerSchema, RDerAttr>();
 
@@ -410,6 +413,7 @@ public class SyncopeRole extends AbstractAttributable {
      *
      * @return a list of inherited and only inherited attributes.
      */
+    @SuppressWarnings("unchecked")
     public List<RVirAttr> findInheritedVirtualAttributes() {
         final Map<RVirSchema, RVirAttr> result = new HashMap<RVirSchema, RVirAttr>();
 

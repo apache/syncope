@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.beans.user;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 
@@ -42,6 +41,7 @@ public class UMappingItem extends AbstractMappingItem {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMapping> T getMapping() {
         return (T) mapping;
     }

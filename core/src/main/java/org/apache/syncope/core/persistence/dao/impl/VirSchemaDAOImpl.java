@@ -21,9 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
@@ -50,7 +48,7 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Override
     public <T extends AbstractVirSchema> List<T> findAll(final Class<T> reference) {
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
@@ -71,7 +69,7 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
         final Set<Long> virAttrIds = new HashSet<Long>(attributes.size());
 
-        Class attributeClass = null;
+        Class<? extends AbstractVirAttr> attributeClass = null;
 
         for (AbstractVirAttr attribute : attributes) {
             virAttrIds.add(attribute.getId());
@@ -91,8 +89,8 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
     public <T extends AbstractVirAttr> List<T> getAttributes(final AbstractVirSchema virtualSchema,
             final Class<T> reference) {
 
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.virtualSchema=:schema");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
+                + " WHERE e.virtualSchema=:schema", reference);
         query.setParameter("schema", virtualSchema);
 
         return query.getResultList();

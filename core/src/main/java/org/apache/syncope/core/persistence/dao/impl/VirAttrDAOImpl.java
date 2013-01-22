@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.springframework.stereotype.Repository;
@@ -37,20 +35,17 @@ public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
 
     @Override
     public <T extends AbstractVirAttr> List<T> findAll(final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends AbstractVirAttr> T save(final T virtualAttribute) {
-
         return entityManager.merge(virtualAttribute);
     }
 
     @Override
     public <T extends AbstractVirAttr> void delete(final Long id, final Class<T> reference) {
-
         T virtualAttribute = find(id, reference);
         if (virtualAttribute == null) {
             return;
@@ -61,7 +56,6 @@ public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
 
     @Override
     public <T extends AbstractVirAttr> void delete(final T virtualAttribute) {
-
         if (virtualAttribute.getOwner() != null) {
             virtualAttribute.getOwner().removeVirtualAttribute(virtualAttribute);
         }

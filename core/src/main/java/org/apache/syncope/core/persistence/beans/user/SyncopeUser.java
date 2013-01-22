@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -54,7 +53,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
@@ -306,6 +304,7 @@ public class SyncopeUser extends AbstractAttributable {
         return attributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setAttributes(final List<? extends AbstractAttr> attributes) {
         this.attributes.clear();
@@ -336,6 +335,7 @@ public class SyncopeUser extends AbstractAttributable {
         return derivedAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
         this.derivedAttributes.clear();
@@ -365,6 +365,7 @@ public class SyncopeUser extends AbstractAttributable {
         return virtualAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
@@ -459,9 +460,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Integer getFailedLogins() {
-        return failedLogins != null
-                ? failedLogins
-                : 0;
+        return failedLogins == null ? 0 : failedLogins;
     }
 
     public void setFailedLogins(final Integer failedLogins) {

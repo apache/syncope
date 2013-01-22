@@ -49,6 +49,7 @@ public final class AttributableOperations {
     private AttributableOperations() {
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends AbstractAttributableTO> T clone(final T original) {
         return (T) SerializationUtils.clone(original);
     }
@@ -69,7 +70,7 @@ public final class AttributableOperations {
 
             Set<String> originalValues = originalAttrs.containsKey(entry.getKey())
                     ? new HashSet<String>(originalAttrs.get(entry.getKey()).getValues())
-                    : Collections.EMPTY_SET;
+                    : Collections.<String>emptySet();
 
             if (!updatedValues.equals(originalValues)) {
                 // avoid unwanted inputs

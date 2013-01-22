@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 
+@SuppressWarnings("unchecked")
 public enum TaskUtil {
 
     PROPAGATION,
@@ -43,15 +44,20 @@ public enum TaskUtil {
             case PROPAGATION:
                 result = PropagationTask.class;
                 break;
+
             case SCHED:
                 result = SchedTask.class;
                 break;
+
             case SYNC:
                 result = SyncTask.class;
                 break;
+
             case NOTIFICATION:
                 result = NotificationTask.class;
                 break;
+
+            default:
         }
 
         return result;
@@ -64,15 +70,20 @@ public enum TaskUtil {
             case PROPAGATION:
                 result = (T) new PropagationTask();
                 break;
+
             case SCHED:
                 result = (T) new SchedTask();
                 break;
+
             case SYNC:
                 result = (T) new SyncTask();
                 break;
+
             case NOTIFICATION:
                 result = (T) new NotificationTask();
                 break;
+
+            default:
         }
 
         return result;
@@ -85,15 +96,20 @@ public enum TaskUtil {
             case PROPAGATION:
                 result = PropagationTaskTO.class;
                 break;
+
             case SCHED:
                 result = SchedTaskTO.class;
                 break;
+
             case SYNC:
                 result = SyncTaskTO.class;
                 break;
+
             case NOTIFICATION:
                 result = NotificationTaskTO.class;
                 break;
+
+            default:
         }
 
         return result;
@@ -106,14 +122,20 @@ public enum TaskUtil {
             case PROPAGATION:
                 result = (T) new PropagationTaskTO();
                 break;
+
             case SCHED:
                 result = (T) new SchedTaskTO();
                 break;
+
             case SYNC:
                 result = (T) new SyncTaskTO();
                 break;
+
             case NOTIFICATION:
                 result = (T) new NotificationTaskTO();
+                break;
+
+            default:
         }
 
         return result;

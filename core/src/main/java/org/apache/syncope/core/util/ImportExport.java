@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -53,7 +52,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.common.SyncopeConstants;
@@ -123,22 +121,23 @@ public class ImportExport extends DefaultHandler {
     }
 
     private void setParameters(final String tableName, final Attributes attrs, final Query query) {
-
         Map<String, Integer> colTypes = new HashMap<String, Integer>();
 
-        Connection conn = DataSourceUtils.getConnection(dataSource);
+        Connection conn = null;
         ResultSet rs = null;
         PreparedStatement stmt = null;
-
         try {
+            conn = DataSourceUtils.getConnection(dataSource);
+
             final String queryString = "SELECT * FROM " + tableName;
             stmt = conn.prepareStatement(queryString);
             rs = stmt.executeQuery();
             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                colTypes.put(rs.getMetaData().getColumnName(i + 1).toUpperCase(), rs.getMetaData().getColumnType(i + 1));
+                colTypes.put(rs.getMetaData().getColumnName(i + 1).toUpperCase(),
+                        rs.getMetaData().getColumnType(i + 1));
             }
         } catch (SQLException e) {
-            LOG.error("While", e);
+            LOG.error("While setting column types", e);
         } finally {
             if (stmt != null) {
                 try {
@@ -154,7 +153,17 @@ public class ImportExport extends DefaultHandler {
                     LOG.error("While closing result set", e);
                 }
             }
+
             DataSourceUtils.releaseConnection(conn, dataSource);
+            if (conn != null) {
+                try {
+                    if (!conn.isClosed()) {
+                        conn.close();
+                    }
+                } catch (SQLException e) {
+                    LOG.error("While releasing connection", e);
+                }
+            }
         }
 
         for (int i = 0; i < attrs.getLength(); i++) {
@@ -392,7 +401,6 @@ public class ImportExport extends DefaultHandler {
                 while (rs.next()) {
                     pkTableNames.add(rs.getString("PKTABLE_NAME"));
                 }
-
             } finally {
                 if (rs != null) {
                     try {
@@ -404,7 +412,6 @@ public class ImportExport extends DefaultHandler {
             }
 
             for (String pkTableName : pkTableNames) {
-
                 if (!tableName.equalsIgnoreCase(pkTableName)) {
 
                     MultiParentNode<String> pkNode = exploited.get(pkTableName);
@@ -445,11 +452,10 @@ public class ImportExport extends DefaultHandler {
         handler.startDocument();
         handler.startElement("", "", ROOT_ELEMENT, new AttributesImpl());
 
-        final Connection conn = DataSourceUtils.getConnection(dataSource);
-
+        Connection conn = null;
         ResultSet rs = null;
-
         try {
+            conn = DataSourceUtils.getConnection(dataSource);
             final DatabaseMetaData meta = conn.getMetaData();
 
             final String schema = readSchema();
@@ -481,7 +487,17 @@ public class ImportExport extends DefaultHandler {
                     LOG.error("While closing tables result set", e);
                 }
             }
+
             DataSourceUtils.releaseConnection(conn, dataSource);
+            if (conn != null) {
+                try {
+                    if (!conn.isClosed()) {
+                        conn.close();
+                    }
+                } catch (SQLException e) {
+                    LOG.error("While releasing connection", e);
+                }
+            }
         }
 
         handler.endElement("", "", ROOT_ELEMENT);

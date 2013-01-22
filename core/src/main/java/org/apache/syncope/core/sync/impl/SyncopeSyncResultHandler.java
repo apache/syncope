@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -390,12 +389,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 : findByAttributableSearch(connObj, policySpec, attrUtil);
     }
 
-    protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil,
-            final boolean dryRun) throws JobExecutionException {
+    protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
+            throws JobExecutionException {
 
         if (!syncTask.isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
-            return Collections.EMPTY_LIST;
+            return Collections.<SyncResult>emptyList();
         }
 
         final SyncResult result = new SyncResult();
@@ -486,7 +485,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.EMPTY_LIST;
+            return Collections.<SyncResult>emptyList();
         }
 
         LOG.debug("About to update {}", subjects);
@@ -568,7 +567,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         if (!syncTask.isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
-            return Collections.EMPTY_LIST;
+            return Collections.<SyncResult>emptyList();
         }
 
         LOG.debug("About to delete {}", subjects);
@@ -596,10 +595,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
                 if (!dryRun) {
                     try {
-                        List<PropagationTask> tasks = Collections.EMPTY_LIST;
+                        List<PropagationTask> tasks = Collections.<PropagationTask>emptyList();
                         if (AttributableType.USER == attrUtil.getType()) {
                             tasks = propagationManager.getUserDeleteTaskIds(id, syncTask.getResource().getName());
-                            notificationManager.createTasks(id, Collections.singleton("delete"));
+                            notificationManager.createTasks(id, Collections.<String>singleton("delete"));
                         }
                         if (AttributableType.ROLE == attrUtil.getType()) {
                             tasks = propagationManager.getRoleDeleteTaskIds(id, syncTask.getResource().getName());

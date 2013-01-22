@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
@@ -186,7 +185,10 @@ public class ConnObjectUtil {
      * @param attrUtil AttributableUtil
      * @param <T> user/role
      * @return modifications for the user/role to be updated
+     * @throws NotFoundException if given id does not correspond to a T instance
+     * @throws UnauthorizedRoleException if there are no enough entitlements to access the T instance
      */
+    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public <T extends AbstractAttributableMod> T getAttributableMod(final Long id, final ConnectorObject obj,
             final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil)

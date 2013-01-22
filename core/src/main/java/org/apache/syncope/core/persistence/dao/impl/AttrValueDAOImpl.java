@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.dao.AttrValueDAO;
 import org.springframework.stereotype.Repository;
@@ -31,14 +29,12 @@ public class AttrValueDAOImpl extends AbstractDAOImpl implements AttrValueDAO {
 
     @Override
     public <T extends AbstractAttrValue> T find(final Long id, final Class<T> reference) {
-
         return entityManager.find(reference, id);
     }
 
     @Override
     public <T extends AbstractAttrValue> List<T> findAll(final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
@@ -49,7 +45,6 @@ public class AttrValueDAOImpl extends AbstractDAOImpl implements AttrValueDAO {
 
     @Override
     public <T extends AbstractAttrValue> void delete(final Long id, final Class<T> reference) {
-
         T attributeValue = find(id, reference);
         if (attributeValue == null) {
             return;
@@ -60,7 +55,6 @@ public class AttrValueDAOImpl extends AbstractDAOImpl implements AttrValueDAO {
 
     @Override
     public <T extends AbstractAttrValue> void delete(final T attributeValue) {
-
         if (attributeValue.getAttribute() != null) {
             attributeValue.getAttribute().removeValue(attributeValue);
         }

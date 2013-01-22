@@ -20,11 +20,9 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerivedSchemaTO;
@@ -85,12 +83,15 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
             switch (type) {
                 case NORMAL:
                     normalSchemaController.delete(kind.toString(), schemaName);
+                    break;
 
                 case DERIVED:
                     derivedSchemaController.delete(kind.toString(), schemaName);
+                    break;
 
                 case VIRTUAL:
                     virtualSchemaController.delete(kind.toString(), schemaName);
+                    break;
 
                 default:
                     throw new BadRequestException();
@@ -142,18 +143,21 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
     }
 
     @Override
-    public  <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
+    public <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
             final String schemaName, final T schemaTO) {
         try {
             switch (type) {
                 case NORMAL:
                     normalSchemaController.update((SchemaTO) schemaTO, kind.toString());
+                    break;
 
                 case DERIVED:
                     derivedSchemaController.update((DerivedSchemaTO) schemaTO, kind.toString());
+                    break;
 
                 case VIRTUAL:
                     virtualSchemaController.update((VirtualSchemaTO) schemaTO, kind.toString());
+                    break;
 
                 default:
                     throw new BadRequestException();

@@ -21,7 +21,6 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.IntMappingType;
 
@@ -47,6 +46,7 @@ public class MappingTO extends AbstractBaseBean {
         this.accountLink = accountLink;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends MappingItemTO> T getAccountIdItem() {
         T accountIdItem = null;
         for (MappingItemTO item : getItems()) {
@@ -103,6 +103,7 @@ public class MappingTO extends AbstractBaseBean {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends MappingItemTO> List<T> getItems() {
         return (List<T>) items;
     }

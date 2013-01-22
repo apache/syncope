@@ -20,7 +20,6 @@ package org.apache.syncope.core.util;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -69,6 +68,7 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
+@SuppressWarnings("unchecked")
 public class AttributableUtil {
 
     private final AttributableType type;
@@ -127,12 +127,14 @@ public class AttributableUtil {
             case ROLE:
                 result = SyncopeRole.class;
                 break;
+
             case MEMBERSHIP:
                 result = Membership.class;
+                break;
+
             case USER:
             default:
                 result = SyncopeUser.class;
-                break;
         }
 
         return result;

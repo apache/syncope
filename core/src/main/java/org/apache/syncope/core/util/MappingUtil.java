@@ -113,6 +113,7 @@ public final class MappingUtil {
      * @return account link + prepared attribute
      * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
+    @SuppressWarnings("unchecked")
     public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final ExternalResource resource, final AbstractMappingItem mapItem,
             final T subject, final String password,

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.beans.membership;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -30,31 +29,35 @@ import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 public class MDerAttr extends AbstractDerAttr {
 
     private static final long serialVersionUID = -443509121923448129L;
+
     @ManyToOne
     private Membership owner;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private MDerSchema derivedSchema;
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
     }
 
     @Override
-    public <T extends AbstractAttributable> void setOwner(T owner) {
+    public <T extends AbstractAttributable> void setOwner(final T owner) {
         if (!(owner instanceof Membership)) {
             throw new ClassCastException("expected type Membership, found: " + owner.getClass().getName());
         }
         this.owner = (Membership) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractDerSchema> T getDerivedSchema() {
         return (T) derivedSchema;
     }
 
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema) {
+    public <T extends AbstractDerSchema> void setDerivedSchema(final T derivedSchema) {
         if (!(derivedSchema instanceof MDerSchema)) {
             throw new ClassCastException("expected type MDerSchema, found: " + derivedSchema.getClass().getName());
         }

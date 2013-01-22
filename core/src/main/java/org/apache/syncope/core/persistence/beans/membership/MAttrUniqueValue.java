@@ -23,7 +23,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
@@ -48,6 +47,7 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttr> T getAttribute() {
         return (T) attribute;
@@ -61,6 +61,7 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
         this.attribute = (MAttr) attribute;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractSchema> T getSchema() {
         return (T) schema;
@@ -68,7 +69,7 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Override
     public <T extends AbstractSchema> void setSchema(final T schema) {
-                if (!(schema instanceof MSchema)) {
+        if (!(schema instanceof MSchema)) {
             throw new ClassCastException("expected type MSchema, found: " + schema.getClass().getName());
         }
 

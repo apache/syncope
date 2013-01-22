@@ -41,6 +41,7 @@ public class RMappingItem extends AbstractMappingItem {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMapping> T getMapping() {
         return (T) mapping;
     }

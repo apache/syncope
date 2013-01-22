@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -260,6 +259,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return propByRes;
     }
 
+    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public RoleTO getRoleTO(final SyncopeRole role) {
         connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));

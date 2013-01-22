@@ -179,7 +179,7 @@ public class PropagationManager {
             final PropagationByResource propByRes, final Set<String> syncResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.<PropagationTask>emptyList();
         }
 
         if (syncResourceNames != null) {
@@ -318,9 +318,9 @@ public class PropagationManager {
                 ? userDataBinder : roleDataBinder;
 
         PropagationByResource localPropByRes = binder.fillVirtual(attributable, vAttrsToBeRemoved == null
-                ? Collections.EMPTY_SET
+                ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
-                ? Collections.EMPTY_SET
+                ? Collections.<AttributeMod>emptySet()
                 : vAttrsToBeUpdated, AttributableUtil.getInstance(attributable));
 
         if (propByRes == null || propByRes.isEmpty()) {

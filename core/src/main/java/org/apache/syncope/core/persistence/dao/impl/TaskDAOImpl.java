@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
@@ -35,8 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
 
-    @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    @Override
     public <T extends Task> T find(final Long id) {
         return (T) entityManager.find(Task.class, id);
     }
@@ -68,13 +68,12 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         }
         queryString.append("ORDER BY e.id DESC");
 
-        final Query query = entityManager.createQuery(queryString.toString());
+        final TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends Task> List<T> findAll(final ExternalResource resource, final Class<T> reference) {
-
         StringBuilder queryString = buildfindAllQuery(reference);
 
         if (SchedTask.class.equals(reference)) {
@@ -86,7 +85,7 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         queryString.append("e.resource=:resource ");
         queryString.append("ORDER BY e.id DESC");
 
-        final Query query = entityManager.createQuery(queryString.toString());
+        final TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
         query.setParameter("resource", resource);
 
         return query.getResultList();
@@ -99,11 +98,10 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
 
     @Override
     public <T extends Task> List<T> findAll(final int page, final int itemsPerPage, final Class<T> reference) {
-
         StringBuilder queryString = buildfindAllQuery(reference);
         queryString.append("ORDER BY e.id DESC");
 
-        final Query query = entityManager.createQuery(queryString.toString());
+        final TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0

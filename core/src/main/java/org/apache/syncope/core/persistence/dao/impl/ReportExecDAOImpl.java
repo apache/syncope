@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
@@ -38,9 +36,9 @@ public class ReportExecDAOImpl extends AbstractDAOImpl implements ReportExecDAO 
     }
 
     private ReportExec findLatest(final Report report, final String field) {
-
-        Query query = entityManager.createQuery("SELECT e " + "FROM " + ReportExec.class.getSimpleName() + " e "
-                + "WHERE e.report=:report " + "ORDER BY e." + field + " DESC");
+        TypedQuery<ReportExec> query = entityManager.createQuery(
+                "SELECT e " + "FROM " + ReportExec.class.getSimpleName() + " e "
+                + "WHERE e.report=:report " + "ORDER BY e." + field + " DESC", ReportExec.class);
         query.setParameter("report", report);
         query.setMaxResults(1);
 
@@ -62,7 +60,8 @@ public class ReportExecDAOImpl extends AbstractDAOImpl implements ReportExecDAO 
 
     @Override
     public List<ReportExec> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM " + ReportExec.class.getSimpleName() + " e");
+        TypedQuery<ReportExec> query = entityManager.createQuery(
+                "SELECT e FROM " + ReportExec.class.getSimpleName() + " e", ReportExec.class);
         return query.getResultList();
     }
 

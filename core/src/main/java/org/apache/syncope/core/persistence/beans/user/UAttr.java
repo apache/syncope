@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,7 +29,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -90,6 +88,7 @@ public class UAttr extends AbstractAttr {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
@@ -103,6 +102,7 @@ public class UAttr extends AbstractAttr {
         this.owner = (SyncopeUser) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractSchema> T getSchema() {
         return (T) schema;
@@ -134,11 +134,13 @@ public class UAttr extends AbstractAttr {
         return values.remove((UAttrValue) attributeValue);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> List<T> getValues() {
         return (List<T>) values;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
 
@@ -151,6 +153,7 @@ public class UAttr extends AbstractAttr {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> T getUniqueValue() {
         return (T) uniqueValue;

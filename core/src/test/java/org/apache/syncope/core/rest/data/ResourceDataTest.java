@@ -28,13 +28,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationMode;
-import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.USchema;
@@ -46,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceDataTest extends AbstractTest {
+public class ResourceDataTest extends AbstractNonDAOTest {
 
     @Autowired
     private ResourceDAO resourceDAO;

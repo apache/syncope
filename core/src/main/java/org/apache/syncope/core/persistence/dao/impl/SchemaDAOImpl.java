@@ -21,9 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
@@ -51,17 +49,15 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
 
     @Override
     public <T extends AbstractSchema> List<T> findAll(final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
 
         return query.getResultList();
     }
 
     @Override
     public <T extends AbstractAttr> List<T> getAttributes(final AbstractSchema schema, final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.schema=:schema");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
+                + " WHERE e.schema=:schema", reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();

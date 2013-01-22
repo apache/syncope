@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.springframework.stereotype.Repository;
@@ -31,26 +29,23 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
 
     @Override
     public <T extends AbstractDerAttr> T find(final Long id, final Class<T> reference) {
-
         return entityManager.find(reference, id);
     }
 
     @Override
     public <T extends AbstractDerAttr> List<T> findAll(final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery(
+                "SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends AbstractDerAttr> T save(final T derivedAttribute) {
-
         return entityManager.merge(derivedAttribute);
     }
 
     @Override
     public <T extends AbstractDerAttr> void delete(final Long id, final Class<T> reference) {
-
         T derivedAttribute = find(id, reference);
         if (derivedAttribute == null) {
             return;
@@ -61,7 +56,6 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
 
     @Override
     public <T extends AbstractDerAttr> void delete(final T derivedAttribute) {
-
         if (derivedAttribute.getOwner() != null) {
             derivedAttribute.getOwner().removeDerivedAttribute(derivedAttribute);
         }

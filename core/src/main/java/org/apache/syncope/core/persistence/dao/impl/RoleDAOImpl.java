@@ -20,12 +20,10 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -51,6 +49,12 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     @Autowired
     private EntitlementDAO entitlementDAO;
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T extends AbstractAttributable> T findInternal(final Long id) {
+        return (T) find(id);
+    }
+
     @Override
     public SyncopeRole find(final Long id) {
         TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.id = :id",
@@ -61,6 +65,7 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
+            LOG.error("No role found with id {}", id, e);
         }
 
         return result;
@@ -68,7 +73,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> find(final String name) {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.name = :name");
+        TypedQuery<SyncopeRole> query =
+                entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.name = :name", SyncopeRole.class);
         query.setParameter("name", name);
 
         return query.getResultList();
@@ -76,14 +82,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public SyncopeRole find(final String name, final Long parentId) {
-        Query query;
-        if (parentId != null) {
+        TypedQuery<SyncopeRole> query;
+        if (parentId == null) {
             query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE "
-                    + "r.name=:name AND r.parent.id=:parentId");
-            query.setParameter("parentId", parentId);
+                    + "r.name=:name AND r.parent IS NULL", SyncopeRole.class);
         } else {
             query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE "
-                    + "r.name=:name AND r.parent IS NULL");
+                    + "r.name=:name AND r.parent.id=:parentId", SyncopeRole.class);
+            query.setParameter("parentId", parentId);
         }
         query.setParameter("name", name);
 
@@ -116,11 +122,11 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
             queryString.append("OR e.roleOwner.id=").append(roleId).append(' ');
         }
 
-        Query query = entityManager.createQuery(queryString.toString());
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(queryString.toString(), SyncopeRole.class);
         query.setParameter("owner", owner);
 
         List<SyncopeRole> result = new ArrayList<SyncopeRole>();
-        for (SyncopeRole role : (List<SyncopeRole>) query.getResultList()) {
+        for (SyncopeRole role : query.getResultList()) {
             findSameOwnerDescendants(result, role);
         }
 
@@ -129,8 +135,9 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findByEntitlement(final Entitlement entitlement) {
-        Query query = entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
-                + "WHERE :entitlement MEMBER OF e.entitlements");
+        TypedQuery<SyncopeRole> query =
+                entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
+                + "WHERE :entitlement MEMBER OF e.entitlements", SyncopeRole.class);
         query.setParameter("entitlement", entitlement);
 
         return query.getResultList();
@@ -152,8 +159,10 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findChildren(final SyncopeRole role) {
-        Query query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent=:role");
+        TypedQuery<SyncopeRole> query =
+                entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent=:role", SyncopeRole.class);
         query.setParameter("role", role);
+
         return query.getResultList();
     }
 
@@ -199,14 +208,15 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeRole e");
+        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM SyncopeRole e", SyncopeRole.class);
         return query.getResultList();
     }
 
     @Override
     public List<Membership> findMemberships(final SyncopeRole role) {
-        Query query = entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName() + " e"
-                + " WHERE e.syncopeRole=:role");
+        TypedQuery<Membership> query =
+                entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName() + " e"
+                + " WHERE e.syncopeRole=:role", Membership.class);
         query.setParameter("role", role);
 
         return query.getResultList();
@@ -257,7 +267,7 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public void delete(final Long id) {
-        SyncopeRole role = find(id);
+        SyncopeRole role = findInternal(id);
         if (role == null) {
             return;
         }

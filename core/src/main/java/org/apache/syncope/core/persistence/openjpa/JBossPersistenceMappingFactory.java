@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
 import org.apache.openjpa.conf.OpenJPAConfiguration;
 import org.apache.openjpa.conf.OpenJPAConfigurationImpl;
 import org.apache.openjpa.lib.meta.ClassArgParser;
@@ -56,6 +55,7 @@ import org.apache.openjpa.persistence.jdbc.PersistenceMappingFactory;
 /**
  * Temporary class used while issue OPENJPA-2229 gets fixed and reaches mainstream distribution.
  */
+@SuppressWarnings("unchecked")
 public class JBossPersistenceMappingFactory extends PersistenceMappingFactory {
 
     private static final Localizer _loc = Localizer.forPackage(PersistenceMetaDataFactory.class);
@@ -93,7 +93,7 @@ public class JBossPersistenceMappingFactory extends PersistenceMappingFactory {
     @Override
     protected Set<String> parsePersistentTypeNames(ClassLoader loader)
             throws IOException {
-        
+
         ClassArgParser cparser = newClassArgParser();
         String[] clss;
         Set<String> names = new HashSet<String>();

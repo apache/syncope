@@ -26,14 +26,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.EntitlementCond;
@@ -205,6 +203,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends AbstractAttributable> List<T> doSearch(final Set<Long> adminRoles, final NodeCond nodeCond,
             final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
@@ -532,6 +531,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         return query.toString();
     }
 
+    @SuppressWarnings("rawtypes")
     private String getQuery(final AttributableCond cond, final boolean not, final List<Object> parameters,
             final AttributableUtil attrUtil) {
 

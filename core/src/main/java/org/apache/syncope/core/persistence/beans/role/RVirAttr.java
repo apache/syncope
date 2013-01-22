@@ -20,11 +20,9 @@ package org.apache.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -40,6 +38,7 @@ public class RVirAttr extends AbstractVirAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private RVirSchema virtualSchema;
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
@@ -53,6 +52,7 @@ public class RVirAttr extends AbstractVirAttr {
         this.owner = (SyncopeRole) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractVirSchema> T getVirtualSchema() {
         return (T) virtualSchema;

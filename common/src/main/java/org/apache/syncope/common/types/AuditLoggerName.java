@@ -75,6 +75,7 @@ public class AuditLoggerName extends AbstractBaseBean {
                 append(result.name()).toString();
     }
 
+    @SuppressWarnings("unchecked")
     public static AuditLoggerName fromLoggerName(final String loggerName)
             throws IllegalArgumentException, ParseException {
 

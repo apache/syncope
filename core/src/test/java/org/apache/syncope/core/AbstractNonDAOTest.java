@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.dao;
+package org.apache.syncope.core;
 
-import org.apache.syncope.core.AbstractTest;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:persistenceTestEnv.xml"})
-public abstract class AbstractDAOTest extends AbstractTest {
+@ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
+public abstract class AbstractNonDAOTest extends AbstractTest {
 }

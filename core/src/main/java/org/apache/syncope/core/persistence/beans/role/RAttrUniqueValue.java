@@ -23,7 +23,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
@@ -32,10 +31,13 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 public class RAttrUniqueValue extends AbstractAttrUniqueValue {
 
     private static final long serialVersionUID = 4681561795607192855L;
+
     @Id
     private Long id;
+
     @OneToOne(optional = false)
     private RAttr attribute;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "schema_name")
     private RSchema schema;
@@ -45,6 +47,7 @@ public class RAttrUniqueValue extends AbstractAttrUniqueValue {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttr> T getAttribute() {
         return (T) attribute;
@@ -58,6 +61,7 @@ public class RAttrUniqueValue extends AbstractAttrUniqueValue {
         this.attribute = (RAttr) attribute;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractSchema> T getSchema() {
         return (T) schema;

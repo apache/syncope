@@ -21,9 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -49,7 +47,8 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstance
 
     @Override
     public List<ConnInstance> findAll() {
-        Query query = entityManager.createQuery("SELECT e " + "FROM " + ConnInstance.class.getSimpleName() + " e");
+        TypedQuery<ConnInstance> query = entityManager.createQuery(
+                "SELECT e " + "FROM " + ConnInstance.class.getSimpleName() + " e", ConnInstance.class);
         return query.getResultList();
     }
 

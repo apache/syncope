@@ -20,14 +20,12 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -101,6 +99,7 @@ public class UMapping extends AbstractMapping {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> List<T> getItems() {
         return (List<T>) this.items;
     }
@@ -122,6 +121,7 @@ public class UMapping extends AbstractMapping {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> void setItems(final List<T> items) {
         this.items.clear();
         if (items != null && !items.isEmpty()) {

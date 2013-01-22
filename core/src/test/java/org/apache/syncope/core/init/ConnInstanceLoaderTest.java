@@ -20,7 +20,7 @@ package org.apache.syncope.core.init;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.syncope.core.AbstractTest;
+import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
@@ -33,7 +33,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceLoaderTest extends AbstractTest {
+public class ConnInstanceLoaderTest extends AbstractNonDAOTest {
 
     private ConnInstanceLoader cil;
 

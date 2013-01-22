@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
@@ -32,7 +30,6 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public SyncopeConf find(final String name) throws MissingConfKeyException {
-
         SyncopeConf result = find(name, null);
         if (result == null) {
             throw new MissingConfKeyException(name);
@@ -56,13 +53,12 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public List<SyncopeConf> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeConf e");
+        TypedQuery<SyncopeConf> query = entityManager.createQuery("SELECT e FROM SyncopeConf e", SyncopeConf.class);
         return query.getResultList();
     }
 
     @Override
     public SyncopeConf save(final SyncopeConf syncopeConfiguration) {
-
         return entityManager.merge(syncopeConfiguration);
     }
 

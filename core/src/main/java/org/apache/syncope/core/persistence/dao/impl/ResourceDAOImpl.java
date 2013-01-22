@@ -21,12 +21,10 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -68,6 +66,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
+            LOG.error("No resource found with name {}", name, e);
         }
 
         return result;
@@ -75,14 +74,17 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
 
     @Override
     public List<ExternalResource> findAll() {
-        Query query = entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e");
+        TypedQuery<ExternalResource> query =
+                entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e",
+                ExternalResource.class);
         return query.getResultList();
     }
 
     @Override
     public List<ExternalResource> findAllByPriority() {
-        Query query = entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e "
-                + "ORDER BY e.propagationPriority");
+        TypedQuery<ExternalResource> query =
+                entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e "
+                + "ORDER BY e.propagationPriority", ExternalResource.class);
         return query.getResultList();
     }
 
@@ -114,16 +116,16 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
             return;
         }
 
-        Query query = entityManager.createQuery("SELECT m FROM " + reference.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType");
+        TypedQuery<T> query = entityManager.createQuery("SELECT m FROM " + reference.getSimpleName()
+                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", reference);
         query.setParameter("intAttrName", intAttrName);
         query.setParameter("intMappingType", intMappingType);
 
         Set<Long> itemIds = new HashSet<Long>();
-        for (T item : (List<T>) query.getResultList()) {
+        for (T item : query.getResultList()) {
             itemIds.add(item.getId());
         }
-        Class mappingRef = null;
+        Class<? extends AbstractMapping> mappingRef = null;
         for (Long itemId : itemIds) {
             T item = entityManager.find(reference, itemId);
             if (item != null) {

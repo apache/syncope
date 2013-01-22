@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.PropagationTO;
@@ -133,7 +131,7 @@ public class RoleController extends AbstractController {
         Set<Long> ownedRoleIds;
         SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
         if (authUser == null) {
-            ownedRoleIds = Collections.EMPTY_SET;
+            ownedRoleIds = Collections.<Long>emptySet();
         } else {
             ownedRoleIds = authUser.getRoleIds();
         }

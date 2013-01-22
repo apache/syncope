@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.persistence.beans.Report;
@@ -214,6 +213,7 @@ public class JobInstanceLoader {
         unregisterJob(getJobName(report));
     }
 
+    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public void load() {
         // 1. jobs for SchedTasks

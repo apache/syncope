@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,7 +29,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -69,6 +67,7 @@ public class MAttr extends AbstractAttr {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
@@ -82,6 +81,7 @@ public class MAttr extends AbstractAttr {
         this.owner = (Membership) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractSchema> T getSchema() {
         return (T) schema;
@@ -116,11 +116,13 @@ public class MAttr extends AbstractAttr {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> List<T> getValues() {
         return (List<T>) values;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
 
@@ -133,6 +135,7 @@ public class MAttr extends AbstractAttr {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> T getUniqueValue() {
         return (T) uniqueValue;

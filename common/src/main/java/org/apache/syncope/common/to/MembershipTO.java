@@ -58,7 +58,7 @@ public class MembershipTO extends AbstractAttributableTO {
 
     @Override
     public Set<String> getResources() {
-        return Collections.EMPTY_SET;
+        return Collections.<String>emptySet();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MembershipTO extends AbstractAttributableTO {
 
     @Override
     public List<PropagationTO> getPropagationTOs() {
-        return Collections.EMPTY_LIST;
+        return Collections.<PropagationTO>emptyList();
     }
 
     @Override

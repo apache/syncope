@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
@@ -43,7 +41,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
 
     @Override
     public List<Entitlement> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM Entitlement e");
+        TypedQuery<Entitlement> query = entityManager.createQuery("SELECT e FROM Entitlement e", Entitlement.class);
 
         return query.getResultList();
     }

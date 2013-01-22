@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
 import org.apache.syncope.common.types.SyncopeLoggerType;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
@@ -38,8 +36,8 @@ public class LoggerDAOImpl extends AbstractDAOImpl implements LoggerDAO {
 
     @Override
     public List<SyncopeLogger> findAll(final SyncopeLoggerType type) {
-        Query query = entityManager.createQuery("SELECT e FROM " + SyncopeLogger.class.getSimpleName() + " e "
-                + "WHERE e.type=:type");
+        TypedQuery<SyncopeLogger> query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeLogger.class.getSimpleName() + " e WHERE e.type=:type", SyncopeLogger.class);
         query.setParameter("type", type);
         return query.getResultList();
     }

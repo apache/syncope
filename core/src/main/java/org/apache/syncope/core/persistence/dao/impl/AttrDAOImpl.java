@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.springframework.stereotype.Repository;
@@ -37,7 +35,7 @@ public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
 
     @Override
     public <T extends AbstractAttr> List<T> findAll(final Class<T> reference) {
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 

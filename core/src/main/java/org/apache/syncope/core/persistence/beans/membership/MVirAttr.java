@@ -20,11 +20,9 @@ package org.apache.syncope.core.persistence.beans.membership;
 
 import java.util.Collections;
 import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -40,6 +38,7 @@ public class MVirAttr extends AbstractVirAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private MVirSchema virtualSchema;
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttributable> T getOwner() {
         return (T) owner;
@@ -54,6 +53,7 @@ public class MVirAttr extends AbstractVirAttr {
         this.owner = (Membership) owner;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractVirSchema> T getVirtualSchema() {
         return (T) virtualSchema;

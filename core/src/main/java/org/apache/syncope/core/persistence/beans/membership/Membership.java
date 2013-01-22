@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -31,7 +30,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -123,6 +121,7 @@ public class Membership extends AbstractAttributable {
         return attributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setAttributes(final List<? extends AbstractAttr> attributes) {
         this.attributes.clear();
@@ -153,6 +152,7 @@ public class Membership extends AbstractAttributable {
         return derivedAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
         this.derivedAttributes.clear();
@@ -184,6 +184,7 @@ public class Membership extends AbstractAttributable {
         return virtualAttributes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
         this.virtualAttributes.clear();
@@ -214,6 +215,7 @@ public class Membership extends AbstractAttributable {
 
     @Override
     public void setResources(final Set<ExternalResource> resources) {
+        // Memberships cannot be directly associated to resources.
     }
 
     @Override

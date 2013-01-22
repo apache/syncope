@@ -21,15 +21,18 @@ package org.apache.syncope.core.services;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Dummy (empty) HttpServletResponse.
+ */
 public class DummyHTTPServletResponse implements HttpServletResponse {
 
     @Override
     public void flushBuffer() throws IOException {
+        // No action.
     }
 
     @Override
@@ -69,103 +72,124 @@ public class DummyHTTPServletResponse implements HttpServletResponse {
 
     @Override
     public void reset() {
+        // No action.
     }
 
     @Override
     public void resetBuffer() {
+        // No action.
     }
 
     @Override
-    public void setBufferSize(int arg0) {
+    public void setBufferSize(final int arg0) {
+        // No action.
     }
 
     @Override
-    public void setCharacterEncoding(String arg0) {
+    public void setCharacterEncoding(final String arg0) {
+        // No action.
     }
 
     @Override
-    public void setContentLength(int arg0) {
+    public void setContentLength(final int arg0) {
+        // No action.
     }
 
     @Override
-    public void setContentType(String arg0) {
+    public void setContentType(final String arg0) {
+        // No action.
     }
 
     @Override
-    public void setLocale(Locale arg0) {
+    public void setLocale(final Locale arg0) {
+        // No action.
     }
 
     @Override
-    public void addCookie(Cookie arg0) {
+    public void addCookie(final Cookie arg0) {
+        // No action.
     }
 
     @Override
-    public void addDateHeader(String arg0, long arg1) {
+    public void addDateHeader(final String arg0, final long arg1) {
+        // No action.
     }
 
     @Override
-    public void addHeader(String arg0, String arg1) {
+    public void addHeader(final String arg0, final String arg1) {
+        // No action.
     }
 
     @Override
-    public void addIntHeader(String arg0, int arg1) {
+    public void addIntHeader(final String arg0, final int arg1) {
+        // No action.
     }
 
     @Override
-    public boolean containsHeader(String arg0) {
+    public boolean containsHeader(final String arg0) {
         return false;
     }
 
     @Override
-    public String encodeRedirectURL(String arg0) {
-        return null;
+    public String encodeRedirectURL(final String arg0) {
+        return arg0;
     }
 
     @Override
-    public String encodeRedirectUrl(String arg0) {
-        return null;
+    @Deprecated
+    public String encodeRedirectUrl(final String arg0) {
+        return arg0;
     }
 
     @Override
-    public String encodeURL(String arg0) {
-        return null;
+    public String encodeURL(final String arg0) {
+        return arg0;
     }
 
     @Override
-    public String encodeUrl(String arg0) {
-        return null;
+    @Deprecated
+    public String encodeUrl(final String arg0) {
+        return arg0;
     }
 
     @Override
-    public void sendError(int arg0) throws IOException {
+    public void sendError(final int arg0) throws IOException {
+        // No action.
     }
 
     @Override
-    public void sendError(int arg0, String arg1) throws IOException {
+    public void sendError(final int arg0, final String arg1) throws IOException {
+        // No action.
     }
 
     @Override
-    public void sendRedirect(String arg0) throws IOException {
+    public void sendRedirect(final String arg0) throws IOException {
+        // No action.
     }
 
     @Override
-    public void setDateHeader(String arg0, long arg1) {
+    public void setDateHeader(final String arg0, final long arg1) {
+        // No action.
     }
 
     @Override
-    public void setHeader(String arg0, String arg1) {
+    public void setHeader(final String arg0, final String arg1) {
+        // No action.
     }
 
     @Override
-    public void setIntHeader(String arg0, int arg1) {
+    public void setIntHeader(final String arg0, final int arg1) {
+        // No action.
     }
 
     @Override
-    public void setStatus(int arg0) {
+    public void setStatus(final int arg0) {
+        // No action.
     }
 
     @Override
-    public void setStatus(int arg0, String arg1) {
+    @Deprecated
+    public void setStatus(final int arg0, final String arg1) {
+        // No action.
     }
-
 }

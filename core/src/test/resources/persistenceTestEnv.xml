@@ -33,10 +33,8 @@ under the License.
                            http://www.springframework.org/schema/aop/spring-aop.xsd">
 
   <bean class="org.apache.syncope.core.persistence.dao.impl.TestDbInitializer"/>
-  <bean class="org.apache.syncope.core.persistence.dao.DummyConnectorRegistry"> 
-  </bean>
-  <bean class="org.apache.syncope.core.persistence.dao.impl.ContentLoader">
-  </bean>
+  <bean class="org.apache.syncope.core.persistence.dao.DummyConnectorRegistry"/> 
+  <bean class="org.apache.syncope.core.persistence.dao.impl.ContentLoader"/>
   
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">

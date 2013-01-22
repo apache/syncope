@@ -21,9 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.Query;
-
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
@@ -45,14 +43,12 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
     @Override
     public <T extends AbstractDerSchema> T find(final String name, final Class<T> reference) {
-
         return entityManager.find(reference, name);
     }
 
     @Override
     public <T extends AbstractDerSchema> List<T> findAll(final Class<T> reference) {
-
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e");
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
@@ -72,7 +68,7 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
         final Set<Long> derivedAttributeIds = new HashSet<Long>(attributes.size());
 
-        Class attributeClass = null;
+        Class<? extends AbstractDerAttr> attributeClass = null;
         for (AbstractDerAttr attribute : attributes) {
             derivedAttributeIds.add(attribute.getId());
             attributeClass = attribute.getClass();
@@ -91,9 +87,8 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     public <T extends AbstractDerAttr> List<T> getAttributes(final AbstractDerSchema derivedSchema,
             final Class<T> reference) {
 
-        Query query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.derivedSchema=:schema");
-
+        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
+                + " WHERE e.derivedSchema=:schema", reference);
         query.setParameter("schema", derivedSchema);
 
         return query.getResultList();

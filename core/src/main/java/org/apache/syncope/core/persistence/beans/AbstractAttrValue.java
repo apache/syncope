@@ -21,14 +21,12 @@ package org.apache.syncope.core.persistence.beans;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
-
 import javax.persistence.Basic;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.DateUtils;
@@ -169,6 +167,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getValue() {
         return (T) (booleanValue != null
                 ? getBooleanValue()
