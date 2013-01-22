@@ -238,6 +238,17 @@ under the License.
       </roles>
       <url>http://people.apache.org/~ashakirin/</url>
     </developer>
+    <developer>
+      <id>cschneider</id>
+      <name>Christian Schneider</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~cschneider/</url>
+      <email>chris@die-schneider.net</email>
+    </developer>
   </developers>
 
   <contributors>
