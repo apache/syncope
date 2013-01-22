@@ -83,7 +83,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     /**
      * Active Connector instance.
      *
-     * @see org.apache.syncope.core.persistence.beans.ConnInstance
+     * @see ConnInstance
      */
     private final ConnInstance activeConnInstance;
 
@@ -163,7 +163,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#create(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see SyncopeConnector#create(PropagationMode, ObjectClass, Set, OperationOptions, Set)
      */
     @Override
     public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
@@ -187,7 +187,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#update(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, java.util.Set, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see SyncopeConnector#update(PropagationMode, ObjectClass, Uid, Set, OperationOptions, Set)
      */
     @Override
     public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
@@ -212,7 +212,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#delete(org.apache.syncope.common.types.PropagationMode, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.util.Set)
+     * @see SyncopeConnector#delete(PropagationMode, ObjectClass, Uid, OperationOptions, Set)
      */
     @Override
     public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
@@ -232,7 +232,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#sync(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.SyncToken, org.identityconnectors.framework.common.objects.SyncResultsHandler, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#sync(ObjectClass, SyncToken, SyncResultsHandler, OperationOptions)
      */
     @Override
     public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
@@ -247,7 +247,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getLatestSyncToken(org.identityconnectors.framework.common.objects.ObjectClass)
+     * @see SyncopeConnector#getLatestSyncToken(ObjectClass)
      */
     @Override
     public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
@@ -264,7 +264,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#getObject(ObjectClass, Uid, OperationOptions)
      */
     @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
@@ -272,7 +272,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObject(org.apache.syncope.common.types.PropagationMode, org.apache.syncope.common.types.ResourceOperation, org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#getObject(PropagationMode, ResourceOperation, ObjectClass, Uid, OperationOptions)
      */
     @Override
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
@@ -318,7 +318,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#search(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.filter.Filter, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#search(ObjectClass, filter.Filter, OperationOptions)
      */
     @Override
     public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
@@ -343,7 +343,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getAllObjects(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.SyncResultsHandler, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#getAllObjects(ObjectClass, SyncResultsHandler, OperationOptions)
      */
     @Override
     public void getAllObjects(final ObjectClass objectClass, final SyncResultsHandler handler,
@@ -371,7 +371,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObjectAttribute(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions, java.lang.String)
+     * @see SyncopeConnector#getObjectAttribute(ObjectClass, Uid, OperationOptions, String)
      */
     @Override
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
@@ -390,7 +390,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getObjectAttributes(org.identityconnectors.framework.common.objects.ObjectClass, org.identityconnectors.framework.common.objects.Uid, org.identityconnectors.framework.common.objects.OperationOptions)
+     * @see SyncopeConnector#getObjectAttributes(ObjectClass, Uid, OperationOptions)
      */
     @Override
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
@@ -411,7 +411,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getSchema(boolean)
+     * @see SyncopeConnector#getSchema(boolean)
      */
     @Override
     public Set<String> getSchema(final boolean showall) {
@@ -436,7 +436,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#validate()
+     * @see SyncopeConnector#validate()
      */
     @Override
     public void validate() {
@@ -444,7 +444,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#test()
+     * @see SyncopeConnector#test()
      */
     @Override
     public void test() {
@@ -452,7 +452,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getActiveConnInstance()
+     * @see SyncopeConnector#getActiveConnInstance()
      */
     @Override
     public ConnInstance getActiveConnInstance() {
@@ -460,7 +460,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#getOperationOptions(java.util.Collection)
+     * @see SyncopeConnector#getOperationOptions(Collection)
      */
     @Override
     public OperationOptions getOperationOptions(final Collection<AbstractMappingItem> mapItems) {
@@ -528,12 +528,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.syncope.core.propagation.impl.SyncopeConnector#toString()
+     * @see SyncopeConnector#toString()
      */
     @Override
     public String toString() {
         return "ConnectorFacadeProxy{"
                 + "connector=" + connector + "\n" + "capabitilies=" + activeConnInstance.getCapabilities() + '}';
     }
-
 }

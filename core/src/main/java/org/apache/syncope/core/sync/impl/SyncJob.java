@@ -20,7 +20,10 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.mod.ReferenceMod;
+import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.TraceLevel;
@@ -33,13 +36,18 @@ import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +85,24 @@ public class SyncJob extends AbstractTaskJob {
      */
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    /**
+     * Role DAO.
+     */
+    @Autowired
+    private UserDAO userDAO;
+
+    /**
+     * Role DAO.
+     */
+    @Autowired
+    private RoleDAO roleDAO;
+
+    /**
+     * Role workflow adapter.
+     */
+    @Autowired
+    private RoleWorkflowAdapter rwfAdapter;
 
     /**
      * SyncJob actions.
@@ -302,6 +328,32 @@ public class SyncJob extends AbstractTaskJob {
                 new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
     }
 
+    protected void setRoleOwners(final SyncopeSyncResultHandler handler)
+            throws UnauthorizedRoleException, NotFoundException {
+
+        for (Map.Entry<Long, String> entry : handler.getRoleOwnerMap().entrySet()) {
+            RoleMod roleMod = new RoleMod();
+            roleMod.setId(entry.getKey());
+
+            if (StringUtils.isBlank(entry.getValue())) {
+                roleMod.setRoleOwner(null);
+                roleMod.setUserOwner(null);
+            } else {
+                Long userId = handler.findMatchingAttributableId(ObjectClass.ACCOUNT, entry.getValue());
+                if (userId == null) {
+                    Long roleId = handler.findMatchingAttributableId(ObjectClass.GROUP, entry.getValue());
+                    if (roleId != null) {
+                        roleMod.setRoleOwner(new ReferenceMod(roleId));
+                    }
+                } else {
+                    roleMod.setUserOwner(new ReferenceMod(userId));
+                }
+            }
+
+            rwfAdapter.update(roleMod);
+        }
+    }
+
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
         // get all entitlements to perform updates
@@ -349,7 +401,8 @@ public class SyncJob extends AbstractTaskJob {
         final SyncopeSyncResultHandler handler =
                 (SyncopeSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setConnector(connector);
         handler.setActions(actions);
         handler.setDryRun(dryRun);
         handler.setResAct(resAct);
@@ -391,6 +444,13 @@ public class SyncJob extends AbstractTaskJob {
         } catch (Exception e) {
             throw new JobExecutionException("While syncing on connector", e);
         }
+
+        try {
+            setRoleOwners(handler);
+        } catch (Exception e) {
+            LOG.error("While setting role owners", e);
+        }
+
         actions.afterAll(handler, results);
 
         final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);

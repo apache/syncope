@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -56,6 +58,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
@@ -71,10 +74,13 @@ import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +118,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     private RoleDAO roleDAO;
 
     /**
-     * User search DAO.
+     * Search DAO.
      */
     @Autowired
     private AttributableSearchDAO searchDAO;
@@ -166,6 +172,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     private NotificationManager notificationManager;
 
     /**
+     * Syncing connector.
+     */
+    private SyncopeConnector connector;
+
+    /**
      * SyncJob actions.
      */
     private SyncActions actions;
@@ -177,6 +188,16 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     private ConflictResolutionAction resAct;
 
     private boolean dryRun;
+
+    private Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
+
+    public SyncopeConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(final SyncopeConnector connector) {
+        this.connector = connector;
+    }
 
     public SyncActions getActions() {
         return actions;
@@ -216,6 +237,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
     public void setDryRun(final boolean dryRun) {
         this.dryRun = dryRun;
+    }
+
+    public Map<Long, String> getRoleOwnerMap() {
+        return roleOwnerMap;
     }
 
     @Override
@@ -389,6 +414,39 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 : findByAttributableSearch(connObj, policySpec, attrUtil);
     }
 
+    public Long findMatchingAttributableId(final ObjectClass objectClass, final String name) {
+        Long result = null;
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(objectClass);
+
+        final List<ConnectorObject> found = connector.search(objectClass,
+                new EqualsFilter(new Name(name)),
+                connector.getOperationOptions(attrUtil.getMappingItems(syncTask.getResource())));
+
+        if (found.isEmpty()) {
+            LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
+        } else {
+            if (found.size() > 1) {
+                LOG.warn("More than one {} found on {} with __NAME__ {} - taking first only",
+                        objectClass, syncTask.getResource(), name);
+            }
+
+            ConnectorObject connObj = found.iterator().next();
+            final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, attrUtil);
+            if (subjectIds.isEmpty()) {
+                LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
+            } else {
+                if (subjectIds.size() > 1) {
+                    LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
+                }
+
+                result = subjectIds.iterator().next();
+            }
+        }
+
+        return result;
+    }
+
     protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
             throws JobExecutionException {
 
@@ -447,6 +505,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 }
                 if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
+                    AttributeTO roleOwner = subjectTO.getAttributeMap().get("");
+                    if (roleOwner != null) {
+                        roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
+                    }
 
                     EntitlementUtil.extendAuthContext(created.getResult());
 
@@ -532,6 +594,15 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         }
                         if (AttributableType.ROLE == attrUtil.getType()) {
                             WorkflowResult<Long> updated = rwfAdapter.update((RoleMod) mod);
+                            String roleOwner = null;
+                            for (AttributeMod attrMod : mod.getAttributesToBeUpdated()) {
+                                if ("".equals(attrMod.getSchema())) {
+                                    roleOwner = attrMod.getValuesToBeAdded().iterator().next();
+                                }
+                            }
+                            if (roleOwner != null) {
+                                roleOwnerMap.put(updated.getResult(), roleOwner);
+                            }
 
                             List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
                                     mod.getVirtualAttributesToBeRemoved(), mod.getVirtualAttributesToBeUpdated(),

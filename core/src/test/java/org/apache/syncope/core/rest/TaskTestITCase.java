@@ -27,8 +27,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.search.AttributableCond;
+import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AttributeTO;
@@ -212,126 +212,112 @@ public class TaskTestITCase extends AbstractTest {
         }
     }
 
-	@Test
-	public void sync() {
-		try {
-			// -----------------------------
-			// Create a new user ... it should be updated applying sync policy
-			// -----------------------------
-			UserTO inUserTO = new UserTO();
-			inUserTO.setPassword("password123");
-			String userName = "test9";
-			inUserTO.setUsername(userName);
-			inUserTO.addAttribute(attributeTO("firstname", "nome9"));
-			inUserTO.addAttribute(attributeTO("surname", "cognome"));
-			inUserTO.addAttribute(attributeTO("type", "a type"));
-			inUserTO.addAttribute(attributeTO("fullname", "nome cognome"));
-			inUserTO.addAttribute(attributeTO("userId",
-					"user5@syncope.apache.org"));
-			inUserTO.addAttribute(attributeTO("email",
-					"user5@syncope.apache.org"));
-			inUserTO.addDerivedAttribute(attributeTO("csvuserid", null));
+    @Test
+    public void sync() {
+        try {
+            // -----------------------------
+            // Create a new user ... it should be updated applying sync policy
+            // -----------------------------
+            UserTO inUserTO = new UserTO();
+            inUserTO.setPassword("password123");
+            String userName = "test9";
+            inUserTO.setUsername(userName);
+            inUserTO.addAttribute(attributeTO("firstname", "nome9"));
+            inUserTO.addAttribute(attributeTO("surname", "cognome"));
+            inUserTO.addAttribute(attributeTO("type", "a type"));
+            inUserTO.addAttribute(attributeTO("fullname", "nome cognome"));
+            inUserTO.addAttribute(attributeTO("userId", "user5@syncope.apache.org"));
+            inUserTO.addAttribute(attributeTO("email", "user5@syncope.apache.org"));
+            inUserTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
-			inUserTO = userService.create(inUserTO);
-			assertNotNull(inUserTO);
-			// -----------------------------
+            inUserTO = userService.create(inUserTO);
+            assertNotNull(inUserTO);
+            // -----------------------------
 
-			int usersPre = userService.count();
-			assertNotNull(usersPre);
+            int usersPre = userService.count();
+            assertNotNull(usersPre);
 
-			// Update sync task
-			SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION,
-					SYNC_TASK_ID);
-			assertNotNull(task);
+            // Update sync task
+            SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
+            assertNotNull(task);
 
-			// add custom SyncJob actions
-			task.setActionsClassName(TestSyncActions.class.getName());
+            // add custom SyncJob actions
+            task.setActionsClassName(TestSyncActions.class.getName());
 
-			// add user template
-			UserTO template = new UserTO();
-			template.addAttribute(attributeTO("type",
-					"email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
-			template.addDerivedAttribute(attributeTO("cn", null));
-			template.addResource("resource-testdb");
+            // add user template
+            UserTO template = new UserTO();
+            template.addAttribute(attributeTO("type", "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
+            template.addDerivedAttribute(attributeTO("cn", null));
+            template.addResource("resource-testdb");
 
-			MembershipTO membershipTO = new MembershipTO();
-			membershipTO.setRoleId(8L);
-			membershipTO.addAttribute(attributeTO("subscriptionDate",
-					"'2009-08-18T16:33:12.203+0200'"));
-			template.addMembership(membershipTO);
+            MembershipTO membershipTO = new MembershipTO();
+            membershipTO.setRoleId(8L);
+            membershipTO.addAttribute(attributeTO("subscriptionDate", "'2009-08-18T16:33:12.203+0200'"));
+            template.addMembership(membershipTO);
 
-			task.setUserTemplate(template);
+            task.setUserTemplate(template);
 
-			SyncTaskTO actual = taskService.update(task.getId(), task);
-			assertNotNull(actual);
-			assertEquals(task.getId(), actual.getId());
-			assertEquals(TestSyncActions.class.getName(),
-					actual.getActionsClassName());
+            SyncTaskTO actual = taskService.update(task.getId(), task);
+            assertNotNull(actual);
+            assertEquals(task.getId(), actual.getId());
+            assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
 
-			execSyncTask(SYNC_TASK_ID, 50, false);
+            execSyncTask(SYNC_TASK_ID, 50, false);
 
-			// after execution of the sync task the user data should be synced
-			// from
-			// csv datasource and processed by user template
-			UserTO userTO = userService.read(inUserTO.getId());
-			assertNotNull(userTO);
-			assertEquals("test9", userTO.getUsername());
-			assertEquals(
-					ActivitiDetector.isActivitiEnabledForUsers() ? "active"
-							: "created", userTO.getStatus());
-			assertEquals("test9@syncope.apache.org", userTO.getAttributeMap()
-					.get("email").getValues().get(0));
-			assertEquals("test9@syncope.apache.org", userTO.getAttributeMap()
-					.get("userId").getValues().get(0));
-			assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname")
-					.getValues().get(0)) <= 10);
+            // after execution of the sync task the user data should be synced
+            // from
+            // csv datasource and processed by user template
+            UserTO userTO = userService.read(inUserTO.getId());
+            assertNotNull(userTO);
+            assertEquals("test9", userTO.getUsername());
+            assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active"
+                    : "created", userTO.getStatus());
+            assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
+            assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
+            assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);
 
-			// check for user template
-			userTO = userService.read("test7");
-			assertNotNull(userTO);
-			assertEquals("TYPE_OTHER", userTO.getAttributeMap().get("type")
-					.getValues().get(0));
-			assertEquals(2, userTO.getResources().size());
-			assertTrue(userTO.getResources().contains("resource-testdb"));
-			assertTrue(userTO.getResources().contains("ws-target-resource-2"));
-			assertEquals(1, userTO.getMemberships().size());
-			assertTrue(userTO.getMemberships().get(0).getAttributeMap()
-					.containsKey("subscriptionDate"));
+            // check for user template
+            userTO = userService.read("test7");
+            assertNotNull(userTO);
+            assertEquals("TYPE_OTHER", userTO.getAttributeMap().get("type").getValues().get(0));
+            assertEquals(2, userTO.getResources().size());
+            assertTrue(userTO.getResources().contains("resource-testdb"));
+            assertTrue(userTO.getResources().contains("ws-target-resource-2"));
+            assertEquals(1, userTO.getMemberships().size());
+            assertTrue(userTO.getMemberships().get(0).getAttributeMap().containsKey("subscriptionDate"));
 
-			userTO = userService.read("test8");
-			assertNotNull(userTO);
-			assertEquals("TYPE_8", userTO.getAttributeMap().get("type")
-					.getValues().get(0));
+            userTO = userService.read("test8");
+            assertNotNull(userTO);
+            assertEquals("TYPE_8", userTO.getAttributeMap().get("type").getValues().get(0));
 
-			// check for sync results
-			int usersPost = userService.count();
-			assertNotNull(usersPost);
-			assertEquals(usersPre + 9, usersPost);
+            // check for sync results
+            int usersPost = userService.count();
+            assertNotNull(usersPost);
+            assertEquals(usersPre + 9, usersPost);
 
-			// Check for issue 215:
-			// * expected disabled user test1
-			// * expected enabled user test2
+            // Check for issue 215:
+            // * expected disabled user test1
+            // * expected enabled user test2
 
-			userTO = userService.read("test1");
-			assertNotNull(userTO);
-			assertEquals("suspended", userTO.getStatus());
+            userTO = userService.read("test1");
+            assertNotNull(userTO);
+            assertEquals("suspended", userTO.getStatus());
 
-			userTO = userService.read("test3");
-			assertNotNull(userTO);
-			assertEquals("active", userTO.getStatus());
-
-		} finally {
-			// remove initial and synchronized users to make test re-runnable
-			for (int i = 0; i < 10; i++) {
-				String cUserName = "test" + i;
-				UserTO cUserTO = userService.read(cUserName);
-				userService.delete(cUserTO.getId());
-			}
-		}
-	}
+            userTO = userService.read("test3");
+            assertNotNull(userTO);
+            assertEquals("active", userTO.getStatus());
+        } finally {
+            // remove initial and synchronized users to make test re-runnable
+            for (int i = 0; i < 10; i++) {
+                String cUserName = "test" + i;
+                UserTO cUserTO = userService.read(cUserName);
+                userService.delete(cUserTO.getId());
+            }
+        }
+    }
 
     @Test
-    public void reconcileUsers() {
+    public void reconcileFromDB() {
         // Update sync task
         SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 7L);
         assertNotNull(task);
@@ -363,7 +349,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void reconcileRoles() {
+    public void reconcileFromLDAP() {
         // Update sync task
         SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 11L);
         assertNotNull(task);
@@ -396,11 +382,20 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.size());
 
+        final AttributableCond usernameLeafCond = new AttributableCond(AttributeCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("syncFromLDAP");
+        final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.size());
+
         final RoleTO roleTO = matchingRoles.iterator().next();
         assertNotNull(roleTO);
         assertEquals("testLDAPGroup", roleTO.getName());
         assertEquals(8L, roleTO.getParent());
         assertEquals("true", roleTO.getAttributeMap().get("show").getValues().get(0));
+        assertEquals(matchingUsers.iterator().next().getId(), (long) roleTO.getUserOwner());
+        assertNull(roleTO.getRoleOwner());
 
         // 3. verify that LDAP group membership is propagated as Syncope role membership
         final MembershipCond membershipCond = new MembershipCond();
@@ -485,13 +480,13 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(taskTO);
             assertEquals(1, taskTO.getExecutions().size());
         } finally {
-        	// Remove execution to make test re-runnable
-        	TaskExecTO taskExecTO = taskService.deleteExecution(taskTO.getExecutions().get(0).getId());
-        	assertNotNull(taskExecTO);
+            // Remove execution to make test re-runnable
+            TaskExecTO taskExecTO = taskService.deleteExecution(taskTO.getExecutions().get(0).getId());
+            assertNotNull(taskExecTO);
         }
     }
 
-	private NotificationTaskTO findNotificationTaskBySender(String sender) {		
+    private NotificationTaskTO findNotificationTaskBySender(String sender) {
         List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -502,12 +497,12 @@ public class TaskTestITCase extends AbstractTest {
                 taskTO = task;
             }
         }
-		return taskTO;
-	}
+        return taskTO;
+    }
 
-	private String createNotificationTask() {
-		// 1. Create notification
-		NotificationTO notification = new NotificationTO();
+    private String createNotificationTask() {
+        // 1. Create notification
+        NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.addEvent("create");
 
@@ -540,8 +535,8 @@ public class TaskTestITCase extends AbstractTest {
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-		return sender;
-	}
+        return sender;
+    }
 
     @Test
     public void issueSYNCOPE68() {
@@ -559,8 +554,8 @@ public class TaskTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO("userId", "testuser2@syncope.apache.org"));
         userTO.addAttribute(attributeTO("email", "testuser2@syncope.apache.org"));
 
-    	userTO.addResource("ws-target-resource-nopropagation2");
-    	userTO.addResource("ws-target-resource-nopropagation4");
+        userTO.addResource("ws-target-resource-nopropagation2");
+        userTO.addResource("ws-target-resource-nopropagation4");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -611,15 +606,15 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(2, userTO.getMemberships().size());
             assertEquals(4, userTO.getResources().size());
         } finally {
-        	UserTO dUserTO = userService.delete(userTO.getId());
-        	assertNotNull(dUserTO);
+            UserTO dUserTO = userService.delete(userTO.getId());
+            assertNotNull(dUserTO);
         }
-    	System.out.println("After");
+        System.out.println("After");
         List<PropagationTaskTO> tasksA = taskService.list(TaskType.PROPAGATION);
         for (PropagationTaskTO task : tasksA) {
-        	System.out.println(task.getId());
-        	System.out.println(task.getAccountId());
-        	System.out.println(task.getOldAccountId());
+            System.out.println(task.getId());
+            System.out.println(task.getAccountId());
+            System.out.println(task.getOldAccountId());
         }
     }
 
@@ -712,9 +707,9 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE272() {
 
-    	try {
-        	//Create user with testdb resource
-        	UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
+        try {
+            //Create user with testdb resource
+            UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
             userTO.addResource("resource-testdb");
 
             userTO = userService.create(userTO);
@@ -756,13 +751,13 @@ public class TaskTestITCase extends AbstractTest {
             userTO = userService.read(userTO.getUsername());
             assertNotNull(userTO);
             assertNotNull(userTO.getAttributeMap().get("firstname").getValues().get(0));
-    	} finally {
-			// remove initial and synchronized users to make test re-runnable
-			for (int i = 0; i < 10; i++) {
-				String cUserName = "test" + i;
-				UserTO cUserTO = userService.read(cUserName);
-				userService.delete(cUserTO.getId());
-			}
-    	}
+        } finally {
+            // remove initial and synchronized users to make test re-runnable
+            for (int i = 0; i < 10; i++) {
+                String cUserName = "test" + i;
+                UserTO cUserTO = userService.read(cUserName);
+                userService.delete(cUserTO.getId());
+            }
+        }
     }
 }

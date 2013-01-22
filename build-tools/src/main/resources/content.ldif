@@ -30,6 +30,7 @@ objectClass: top
 cn: testLDAPGroup
 uniqueMember: uid=admin,ou=system
 uniqueMember: uid=syncFromLDAP,ou=People,o=isp
+owner: uid=syncFromLDAP,ou=People,o=isp
 
 DN: uid=syncFromLDAP,ou=People,o=isp
 objectClass: organizationalPerson

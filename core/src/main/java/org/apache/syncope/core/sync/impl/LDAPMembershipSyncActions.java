@@ -28,7 +28,6 @@ import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -36,24 +35,19 @@ import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.apache.syncope.core.sync.SyncResult;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +66,6 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     @Autowired
     protected RoleDAO roleDAO;
-
-    @Autowired
-    protected ConnectorFactory connInstanceLoader;
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
@@ -169,8 +160,8 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         if (membAttr == null) {
             final OperationOptionsBuilder oob = new OperationOptionsBuilder();
             oob.setAttributesToGet(getGroupMembershipAttrName());
-            membAttr = connector.getObjectAttribute(
-                    ObjectClass.GROUP, delta.getUid(), oob.build(), getGroupMembershipAttrName());
+            membAttr = connector.getObjectAttribute(ObjectClass.GROUP, delta.getUid(), oob.build(),
+                    getGroupMembershipAttrName());
         }
         if (membAttr != null && membAttr.getValue() != null) {
             result = membAttr.getValue();
@@ -221,44 +212,13 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
         final SyncTask task = handler.getSyncTask();
         final ExternalResource resource = task.getResource();
-
-        SyncopeConnector connector;
-        try {
-            connector = connInstanceLoader.getConnector(resource);
-        } catch (Exception e) {
-            final String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                    resource, resource.getConnector());
-
-            throw new JobExecutionException(msg, e);
-        }
+        final SyncopeConnector connector = handler.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
-
-            final List<ConnectorObject> found = connector.search(ObjectClass.ACCOUNT,
-                    new EqualsFilter(new Name(membValue.toString())),
-                    connector.getOperationOptions(resource.getUmapping().getItems()));
-
-            if (found.isEmpty()) {
-                LOG.debug("No account found on {} with __NAME__ {}", resource, membValue.toString());
-            } else {
-                if (found.size() > 1) {
-                    LOG.warn("More than one account found on {} with __NAME__ {} - taking first only",
-                            resource, membValue.toString());
-                }
-
-                ConnectorObject externalAccount = found.iterator().next();
-                final List<Long> userIds = handler.findExisting(externalAccount.getUid().getUidValue(),
-                        externalAccount, AttributableUtil.getInstance(AttributableType.USER));
-                if (userIds.isEmpty()) {
-                    LOG.debug("No matching user found for {}, aborting", externalAccount);
-                } else {
-                    if (userIds.size() > 1) {
-                        LOG.warn("More than one user found {} - taking first only", userIds);
-                    }
-
-                    UserMod userMod = getUserMod(userIds.iterator().next(), roleTO);
-                    userUpdate(userMod, resource.getName());
-                }
+            Long userId = handler.findMatchingAttributableId(ObjectClass.ACCOUNT, membValue.toString());
+            if (userId != null) {
+                UserMod userMod = getUserMod(userId, roleTO);
+                userUpdate(userMod, resource.getName());
             }
         }
 

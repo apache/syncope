@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@JsonIgnoreProperties({"displayName", "empty"})
+@JsonIgnoreProperties({"displayName"})
 public class RoleTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
@@ -118,15 +118,15 @@ public class RoleTO extends AbstractAttributableTO {
         return inheritVirtualAttributes;
     }
 
-    public void setInheritVirtualAttributes(boolean inheritVirtualAttributes) {
+    public void setInheritVirtualAttributes(final boolean inheritVirtualAttributes) {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
-    public boolean addEntitlement(String entitlement) {
+    public boolean addEntitlement(final String entitlement) {
         return entitlements.add(entitlement);
     }
 
-    public boolean removeEntitlement(String entitlement) {
+    public boolean removeEntitlement(final String entitlement) {
         return entitlements.remove(entitlement);
     }
 
@@ -134,7 +134,7 @@ public class RoleTO extends AbstractAttributableTO {
         return entitlements;
     }
 
-    public void setEntitlements(List<String> entitlements) {
+    public void setEntitlements(final List<String> entitlements) {
         this.entitlements.clear();
         if (entitlements != null && !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
@@ -145,7 +145,7 @@ public class RoleTO extends AbstractAttributableTO {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(Long passwordPolicy) {
+    public void setPasswordPolicy(final Long passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 
@@ -158,7 +158,7 @@ public class RoleTO extends AbstractAttributableTO {
      *
      * @param inheritPasswordPolicy 'true' to inherit policy, false otherwise.
      */
-    public void setInheritPasswordPolicy(boolean inheritPasswordPolicy) {
+    public void setInheritPasswordPolicy(final boolean inheritPasswordPolicy) {
         this.inheritPasswordPolicy = inheritPasswordPolicy;
     }
 
@@ -166,7 +166,7 @@ public class RoleTO extends AbstractAttributableTO {
         return accountPolicy;
     }
 
-    public void setAccountPolicy(Long accountPolicy) {
+    public void setAccountPolicy(final Long accountPolicy) {
         this.accountPolicy = accountPolicy;
     }
 
@@ -179,16 +179,12 @@ public class RoleTO extends AbstractAttributableTO {
      *
      * @param inheritAccountPolicy 'true' to inherit policy, false otherwise.
      */
-    public void setInheritAccountPolicy(boolean inheritAccountPolicy) {
+    public void setInheritAccountPolicy(final boolean inheritAccountPolicy) {
         this.inheritAccountPolicy = inheritAccountPolicy;
     }
 
     public String getDisplayName() {
         return getId() + " " + getName();
-    }
-
-    public String getEmpty() {
-        return "";
     }
 
     public static long fromDisplayName(final String displayName) {

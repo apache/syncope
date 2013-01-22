@@ -261,6 +261,18 @@ public class ConnObjectUtil {
                     }
                     break;
 
+                case RoleOwnerSchema:
+                    if (attributableTO instanceof RoleTO && attribute != null && !attribute.getValue().isEmpty()) {
+                        // using a special attribute (with schema "", that will be ignored) for carrying the
+                        // RoleOwnerSchema value
+                        attributeTO = new AttributeTO();
+                        attributeTO.setSchema("");
+                        attributeTO.addValue(attribute.getValue().get(0).toString());
+
+                        ((RoleTO) attributableTO).addAttribute(attributeTO);
+                    }
+                    break;
+
                 case UserSchema:
                 case RoleSchema:
                     attributeTO = new AttributeTO();

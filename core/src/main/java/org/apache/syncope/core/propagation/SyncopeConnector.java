@@ -21,7 +21,6 @@ package org.apache.syncope.core.propagation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -81,12 +80,12 @@ public interface SyncopeConnector {
     /**
      * Sync users from a connector instance.
      *
-     * @param objectClass ConnId's object class.
+     * @param objectClass ConnId's object class
      * @param token to be passed to the underlying connector
-     * @param handler to be used to handle deltas.
+     * @param handler to be used to handle deltas
+     * @param options ConnId's OperationOptions
      */
-    void sync(ObjectClass objectClass, SyncToken token,
-            SyncResultsHandler handler, OperationOptions options);
+    void sync(ObjectClass objectClass, SyncToken token, SyncResultsHandler handler, OperationOptions options);
 
     /**
      * Read latest sync token from a connector instance.
@@ -104,8 +103,7 @@ public interface SyncopeConnector {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    ConnectorObject getObject(ObjectClass objectClass, Uid uid,
-            OperationOptions options);
+    ConnectorObject getObject(ObjectClass objectClass, Uid uid, OperationOptions options);
 
     /**
      * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
@@ -122,8 +120,15 @@ public interface SyncopeConnector {
             ResourceOperation operationType, ObjectClass objectClass, Uid uid,
             OperationOptions options);
 
-    List<ConnectorObject> search(ObjectClass objectClass, Filter filter,
-            OperationOptions options);
+    /**
+     * Search for remote objects.
+     *
+     * @param objectClass ConnId's object class
+     * @param filter search filter
+     * @param options ConnId's OperationOptions
+     * @return ConnId's connector objects matching the given filter
+     */
+    List<ConnectorObject> search(ObjectClass objectClass, Filter filter, OperationOptions options);
 
     /**
      * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
@@ -133,8 +138,7 @@ public interface SyncopeConnector {
      * @param handler to be used to handle deltas.
      * @param options ConnId's OperationOptions.
      */
-    void getAllObjects(ObjectClass objectClass, SyncResultsHandler handler,
-            OperationOptions options);
+    void getAllObjects(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
 
     /**
      * Read attribute for a given connector object.
@@ -145,8 +149,7 @@ public interface SyncopeConnector {
      * @param attributeName attribute to read
      * @return attribute (if present)
      */
-    Attribute getObjectAttribute(ObjectClass objectClass, Uid uid,
-            OperationOptions options, String attributeName);
+    Attribute getObjectAttribute(ObjectClass objectClass, Uid uid, OperationOptions options, String attributeName);
 
     /**
      *
@@ -155,8 +158,7 @@ public interface SyncopeConnector {
      * @param options ConnId's OperationOptions
      * @return attributes (if present)
      */
-    Set<Attribute> getObjectAttributes(ObjectClass objectClass, Uid uid,
-            OperationOptions options);
+    Set<Attribute> getObjectAttributes(ObjectClass objectClass, Uid uid, OperationOptions options);
 
     /**
      * Return resource schema names.
@@ -183,9 +185,8 @@ public interface SyncopeConnector {
      */
     ConnInstance getActiveConnInstance();
 
-    OperationOptions getOperationOptions(
-            Collection<AbstractMappingItem> mapItems);
+    OperationOptions getOperationOptions(Collection<AbstractMappingItem> mapItems);
 
+    @Override
     String toString();
-
 }
