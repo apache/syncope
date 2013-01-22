@@ -39,7 +39,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<VirtualSchemaTO> vSchemas = schemaService.list(AttributableType.USER, SchemaService.SchemaType.VIRTUAL);
+        @SuppressWarnings("unchecked")
+        List<VirtualSchemaTO> vSchemas = (List<VirtualSchemaTO>) schemaService.list(AttributableType.USER, SchemaService.SchemaType.VIRTUAL);
         assertFalse(vSchemas.isEmpty());
         for (VirtualSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);

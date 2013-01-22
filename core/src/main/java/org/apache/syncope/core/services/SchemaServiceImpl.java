@@ -103,16 +103,16 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final AttributableType kind, final SchemaType type) {
+    public List<? extends AbstractSchemaTO> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
             case NORMAL:
-                return (List<T>) normalSchemaController.list(kind.toString());
+                return (List<? extends AbstractSchemaTO>) normalSchemaController.list(kind.toString());
 
             case DERIVED:
-                return (List<T>) derivedSchemaController.list(kind.toString());
+                return (List<? extends AbstractSchemaTO>) derivedSchemaController.list(kind.toString());
 
             case VIRTUAL:
-                return (List<T>) virtualSchemaController.list(kind.toString());
+                return (List<? extends AbstractSchemaTO>) virtualSchemaController.list(kind.toString());
 
             default:
                 throw new BadRequestException();

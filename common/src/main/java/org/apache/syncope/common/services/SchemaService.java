@@ -68,7 +68,7 @@ public interface SchemaService {
             @PathParam("name") String schemaName);
 
     @GET
-    <T extends AbstractSchemaTO> List<T> list(@PathParam("kind") AttributableType kind,
+    List<? extends AbstractSchemaTO> list(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type);
 
     @GET

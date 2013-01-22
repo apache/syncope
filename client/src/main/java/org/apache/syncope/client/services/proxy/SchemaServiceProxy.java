@@ -56,18 +56,18 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final AttributableType kind, final SchemaType type) {
+    public List<? extends AbstractSchemaTO> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
             case NORMAL:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
                         SchemaTO[].class, kind));
 
             case DERIVED:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
                         DerivedSchemaTO[].class, kind));
 
             case VIRTUAL:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
                         VirtualSchemaTO[].class, kind));
 
             default:
