@@ -45,7 +45,7 @@ under the License.
       </twitter>
       <ohloh>
         <projectId>syncope</projectId>
-        <widget>factoids</widget>
+        <widget>thin-badge</widget>
       </ohloh>
     </fluidoSkin>
   </custom>

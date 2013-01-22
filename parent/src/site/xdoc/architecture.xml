@@ -36,7 +36,8 @@ under the License.
       
     <section name="Introduction">
       <p>
-        From an high-level point of view, the component architecture of Apache Syncope can be summarized by following figure.
+        From a high-level point of view, the component architecture of Apache Syncope can be summarized by the following
+        figure:
         <div style="width:100%; text-align:center; margin:20px;">
           <img src="images/apache-syncope-architecture.png" alt="Apache Syncope Architecture" width="600px"/>
         </div>
@@ -48,67 +49,84 @@ under the License.
 
     <section name="The core">
       <p>
-        The web application that implements IdM features; it offers a RESTful interface for caller applications, implements the provisioning core by mean of its workflow engine and its propagation layer, manages data persistence.
+        The web application that implements IdM features. It offers a RESTful interface for caller applications, 
+        implements the provisioning core by mean of its workflow engine and its propagation layer, and manages data 
+        persistence.
       </p>
       
       <subsection name="Apache Syncope core logic">
         <p>
           This central component orchestrates the whole data flow throughout the system.
-          Gets involved upon RESTful calls, processes data alongside the defined workflow, propagates to and synchronize from configured external resources, if needed.
+          Handles RESTful calls, processes data alongside the defined workflow and propagates to and synchronizes from 
+          configured external resources (if needed).
         </p>
       </subsection>
 
       <subsection name="RESTful controllers">
         <p>
-          RESTful controllers take care of the communication with outside world.
-          Implemented by leveraging Spring's REST and MVC features, these controllers exchange data in both XML and JSON formats.
+          RESTful controllers take care of communication with outside world.
+          Implemented by leveraging Spring's REST and MVC features, these controllers exchange data in both XML and JSON
+          formats.
         </p>
       </subsection>
 
       <subsection name="Workflow engine">
         <p>
-          Workflow engine is a pluggable aspect of Apache Syncope: this lets every deployment choose among one of provided engine implementations or define new, custom ones.
+          The Workflow engine is a pluggable aspect of Apache Syncope: this lets every deployment choose among one of 
+          provided engine implementations or define new, custom ones.
         </p>
 
         <p>
-          Default implementation is based on 
-          <a href="http://www.activiti.org" target="_blank">Activiti BPM</a>, reference Open Source implementation that supports the definition of an XML descriptor in which user lifecycle is defined.
+          The default implementation is based on 
+          <a href="http://www.activiti.org" target="_blank">Activiti BPM</a>, the reference Open Source implementation 
+          that supports the definition of an XML descriptor in which the user lifecycle is defined.
           This aspect makes the whole system very flexible to adapt to different situations.
           <br/>
-          Default implementation also provides notification, approval, and end-user request management.
+          The default implementation also provides notification, approval, and end-user request management.
         </p>
       </subsection>
 
       <subsection name="JPA persistence layer">
         <p>
-          All the data in Apache Syncope (users, roles, attributes, resources, ...) is managed at an high level with a standard JPA 2.0 approach and persisted to underlying database.
+          All data in Apache Syncope (users, roles, attributes, resources, ...) is managed at a high level using a 
+          standard JPA 2.0 approach and persisted to an underlying database.
         </p>
         <p>
-          <a href="http://openjpa.apache.org">Apache OpenJPA</a>, the chosen JPA implementation, makes Apache Syncope to be successfully deployable on most DBMS without any modification on the source code; in order to have an idea of this possibility, take a look at 
+          <a href="http://openjpa.apache.org">Apache OpenJPA</a>, the chosen JPA implementation, allows Apache Syncope 
+          to be successfully deployable to most DBMSs without any modification of the source code; for more information,
+          see these 
           <a href="http://openjpa.apache.org/builds/latest/docs/docbook/manual/ref_guide_dbsetup_dbsupport.html">available options</a>.
           <br/>
-          Currently, Apache Syncope officially supports MySQL, PostgreSQL and Oracle DB.
+          Currently, Apache Syncope officially supports MySQL, PostgreSQL, Oracle DB and MS SQL Server.
         </p>
       </subsection>
 
       <subsection name="Connectors layer">
         <p>
-          Connector layer is implemented with 
-          <a href="http://connid.googlecode.com" target="_blank">ConnId</a>; ConnId is designed to separate the implementation of an application from the dependencies of the system that the application is attempting to connect to.
+          The Connector layer is implemented with 
+          <a href="http://tirasa.github.com/ConnId/" target="_blank">ConnId</a>; ConnId is designed to separate the 
+          implementation of an application from the dependencies of the system that the application is attempting to 
+          connect to.
         </p>
         <p>
-          Connid is the continuation of Identity connectors, a project that used to be part of the market leader Sun IdM and have been released by Sun as an Open Source project.
-          This makes the connectors layer particularly reliable since most connectors are already implemented in the framework and widely tested. Lately, the original project has been forked into the new ConnId project, whose main purpose is to provide all that is required nowadays for a modern Open Source project: Apache Maven driven build, artifacts and mailing lists.
-          Additional connectors – like as SOAP, CSV  and Active Directory – are also provided.
+          Connid is the continuation of Identity connectors, a project that used to be part of market leader Sun IdM 
+          and has since been released by Sun as an Open Source project.
+          This makes the connectors layer particularly reliable since most connectors have already been implemented in 
+          the framework and widely tested. 
+          The new ConnId project provides all that is required nowadays for a modern Open Source project, including an 
+          Apache Maven driven build, artifacts and mailing lists.
+          Additional connectors – such as for SOAP, CSV and Active Directory – are also provided.
         </p>
         <p>
           Apache Syncope supports either
           <ul>
             <li>
-              <em>propagation</em> towards external resources (when user data is copied from Syncope to external resources)
+              <em>propagation</em> towards external resources (when user data is copied from Syncope to external 
+              resources)
             </li>
             <li>
-              <em>synchronization</em> from external resources (when user data is pulled from external resources into Syncope)
+              <em>synchronization</em> from external resources (when user data is pulled from external resources into 
+              Syncope)
             </li>
           </ul>
         
@@ -121,7 +139,7 @@ under the License.
       <p>The web management interface for configuring and administering Syncope core, implemented with 
         <a href="http://wicket.apache,org">Apache Wicket</a>
       </p>
-      <p>Like as other external applications, the console communicates with the core by REST calls.</p>
+      <p>As with other external applications, the console communicates with the core using REST calls.</p>
     </section>
   </body>
 </document>
