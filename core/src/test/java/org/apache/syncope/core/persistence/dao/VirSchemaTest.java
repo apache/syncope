@@ -37,9 +37,6 @@ public class VirSchemaTest extends AbstractDAOTest {
     @Autowired
     private VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private SchemaDAO schemaDAO;
-
     @Test
     public void findAll() {
         List<UVirSchema> list = virSchemaDAO.findAll(UVirSchema.class);

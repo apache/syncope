@@ -26,6 +26,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlEnum;
 
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -33,6 +35,7 @@ import org.apache.syncope.common.types.AttributableType;
 @Path("schemas/{kind}/{type}")
 public interface SchemaService {
 
+    @XmlEnum
     enum SchemaType {
 
         NORMAL("schema"),
@@ -49,16 +52,20 @@ public interface SchemaService {
         public String toString() {
             return name;
         }
+
+        public static SchemaType fromString(String value) {
+            return valueOf(value.toUpperCase());
+        }
     }
 
     @POST
-    <T extends AbstractSchemaTO> T create(@PathParam("kind") AttributableType kind,
+    <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type,
             T schemaTO);
 
     @DELETE
     @Path("{name}")
-    <T extends AbstractSchemaTO> T delete(@PathParam("kind") AttributableType kind,
+    void delete(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
@@ -74,7 +81,7 @@ public interface SchemaService {
 
     @PUT
     @Path("{name}")
-    <T extends AbstractSchemaTO> T update(@PathParam("kind") AttributableType kind,
+    <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName,
             T schemaTO);

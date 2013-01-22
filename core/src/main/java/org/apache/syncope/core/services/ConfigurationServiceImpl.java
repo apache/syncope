@@ -48,7 +48,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     public Response create(final ConfigurationTO configurationTO) {
         ConfigurationTO created = configurationController.create(new DummyHTTPServletResponse(), configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
-        return Response.created(location).entity(created).build();
+        return Response.created(location).build();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
-    public ConfigurationTO read(String key) {
+    public ConfigurationTO read(final String key) {
         try {
             return configurationController.read(null, key);
         } catch (MissingConfKeyException e) {
@@ -92,7 +92,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
-    public ConfigurationTO update(String key, ConfigurationTO configurationTO) {
+    public ConfigurationTO update(final String key, final ConfigurationTO configurationTO) {
         try {
             return configurationController.update(null, configurationTO);
         } catch (MissingConfKeyException e) {
@@ -101,7 +101,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
-    public void setUriInfo(UriInfo ui) {
+    public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
     }
 }

@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.net.URI;
 import java.util.UUID;
+
 import javax.sql.DataSource;
+
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
@@ -157,5 +162,10 @@ public abstract class AbstractTest {
         notificationService = new NotificationServiceProxy(BASE_URL, restTemplate);
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
         userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
+    }
+
+    public <T> T getObject(final URI location, final Class<T> type) {
+        assertNotNull(location);
+        return restTemplate.getForEntity(location, type).getBody();
     }
 }

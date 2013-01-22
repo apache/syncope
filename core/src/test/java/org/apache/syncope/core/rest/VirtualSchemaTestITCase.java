@@ -23,6 +23,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -46,7 +48,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        VirtualSchemaTO vSchemaTO = schemaService.read(AttributableType.MEMBERSHIP, SchemaService.SchemaType.VIRTUAL, "mvirtualdata");
+        VirtualSchemaTO vSchemaTO = schemaService.read(AttributableType.MEMBERSHIP, SchemaService.SchemaType.VIRTUAL,
+                "mvirtualdata");
         assertNotNull(vSchemaTO);
     }
 
@@ -55,7 +58,10 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        VirtualSchemaTO actual = schemaService.create(AttributableType.USER, SchemaService.SchemaType.VIRTUAL, schema);
+        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.VIRTUAL, schema);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+        VirtualSchemaTO actual = getObject(response.getLocation(), VirtualSchemaTO.class);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaService.SchemaType.VIRTUAL, actual.getName());
@@ -64,11 +70,12 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.VIRTUAL, "rvirtualdata");
+        VirtualSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.VIRTUAL,
+                "rvirtualdata");
         assertNotNull(schema);
 
-        VirtualSchemaTO deletedSchema = schemaService.delete(AttributableType.ROLE, SchemaService.SchemaType.VIRTUAL, schema.getName());
-        assertNotNull(deletedSchema);
+        schemaService.delete(AttributableType.ROLE, SchemaService.SchemaType.VIRTUAL,
+                schema.getName());
 
         Throwable t = null;
         try {

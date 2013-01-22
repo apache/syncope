@@ -37,9 +37,6 @@ public class DerSchemaTest extends AbstractDAOTest {
     @Autowired
     private DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private SchemaDAO schemaDAO;
-
     @Test
     public void findAll() {
         List<UDerSchema> list = derSchemaDAO.findAll(UDerSchema.class);

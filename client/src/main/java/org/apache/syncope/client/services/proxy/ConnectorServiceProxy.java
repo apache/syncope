@@ -42,8 +42,8 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     public Response create(final ConnInstanceTO connectorTO) {
         ConnInstanceTO response = getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
                 ConnInstanceTO.class);
-        URI location = URI.create(baseUrl + "connector/read" + response.getId());
-        return Response.created(location).entity(response).build();
+        URI location = URI.create(baseUrl + "connector/read/" + response.getId() + ".json");
+        return Response.created(location).build();
     }
 
     @Override

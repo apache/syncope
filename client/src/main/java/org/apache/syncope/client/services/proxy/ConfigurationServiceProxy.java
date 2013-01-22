@@ -45,7 +45,7 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
         ConfigurationTO created = getRestTemplate().postForObject(baseUrl + "configuration/create",
                 configurationTO, ConfigurationTO.class);
         URI location = URI.create(baseUrl + "configuration/read/" + created.getKey() + ".json");
-        return Response.created(location).entity(created).build();
+        return Response.created(location).build();
     }
 
     @Override

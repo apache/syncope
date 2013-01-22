@@ -189,7 +189,7 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param schemaTO updated
      */
-    public void updateSchema(final AttributableType type, SchemaTO schemaTO) {
+    public void updateSchema(final AttributableType type, final SchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.NORMAL, schemaTO.getName(), schemaTO);
     }
 
@@ -199,8 +199,10 @@ public class SchemaRestClient extends BaseRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public SchemaTO deleteSchema(final AttributableType type, String name) {
-        return getService(SchemaService.class).delete(type, SchemaType.NORMAL, name);
+    public SchemaTO deleteSchema(final AttributableType type, final String name) {
+        SchemaTO response = getService(SchemaService.class).read(type, SchemaType.NORMAL, name);
+        getService(SchemaService.class).delete(type, SchemaType.NORMAL, name);
+        return response;
     }
 
     /**
@@ -260,8 +262,10 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param name (e.g.:surname)
      */
-    public DerivedSchemaTO deleteDerivedSchema(final AttributableType type, String name) {
-        return getService(SchemaService.class).delete(type, SchemaType.DERIVED, name);
+    public DerivedSchemaTO deleteDerivedSchema(final AttributableType type, final String name) {
+        DerivedSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
+        getService(SchemaService.class).delete(type, SchemaType.DERIVED, name);
+        return schemaTO;
     }
 
     /**
@@ -270,7 +274,9 @@ public class SchemaRestClient extends BaseRestClient {
      * @param name (e.g.:surname)
      */
     public VirtualSchemaTO deleteVirtualSchema(final AttributableType type, final String name) {
-        return getService(SchemaService.class).delete(type, SchemaType.VIRTUAL, name);
+        VirtualSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.VIRTUAL, name);
+        getService(SchemaService.class).delete(type, SchemaType.VIRTUAL, name);
+        return schemaTO;
     }
 
     /**

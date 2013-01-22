@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.MembershipTO;
@@ -53,10 +55,18 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO schemaTO = buildSchemaTO("testAttribute", SchemaType.String);
         schemaTO.setMandatoryCondition("false");
 
-        SchemaTO newSchemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+
+        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
 
-        newSchemaTO = schemaService.create(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL, schemaTO);
+        response = schemaService.create(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL, schemaTO);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+
+        newSchemaTO = getObject(response.getLocation(), SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
     }
 
@@ -74,8 +84,7 @@ public class SchemaTestITCase extends AbstractTest {
 
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next()
-                    .contains(EntityViolationType.InvalidUSchema.name()));
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidUSchema.name()));
         }
     }
 
@@ -123,8 +132,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
 
-        SchemaTO deletedSchema = schemaService.delete(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName());
-        assertNotNull(deletedSchema);
+        schemaService.delete(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName());
         SchemaTO firstname = null;
         try {
             firstname = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName());
@@ -148,7 +156,8 @@ public class SchemaTestITCase extends AbstractTest {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> membershipSchemas = schemaService.list(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL);
+        List<SchemaTO> membershipSchemas = schemaService.list(AttributableType.MEMBERSHIP,
+                SchemaService.SchemaType.NORMAL);
         assertFalse(membershipSchemas.isEmpty());
         for (SchemaTO schemaTO : membershipSchemas) {
             assertNotNull(schemaTO);
@@ -160,7 +169,9 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO schemaTO = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, "icon");
         assertNotNull(schemaTO);
 
-        SchemaTO updatedTO = schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
+        schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL,
+                schemaTO.getName(), schemaTO);
+        SchemaTO updatedTO = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, "icon");
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(SchemaType.Date);
@@ -179,7 +190,10 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setName("schema_issue258");
         schemaTO.setType(SchemaType.Double);
 
-        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+        schemaTO = getObject(response.getLocation(), SchemaTO.class);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue258@syncope.apache.org");
@@ -203,7 +217,10 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO schemaTO = buildSchemaTO("schema_issue259", SchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
-        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+        schemaTO = getObject(response.getLocation(), SchemaTO.class);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue259@syncope.apache.org");
@@ -227,7 +244,10 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO schemaTO = buildSchemaTO("schema_issue260", SchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
-        schemaTO = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+        schemaTO = getObject(response.getLocation(), SchemaTO.class);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue260@syncope.apache.org");
@@ -245,10 +265,10 @@ public class SchemaTestITCase extends AbstractTest {
         }
     }
 
-	private SchemaTO buildSchemaTO(String name, SchemaType type) {
-		SchemaTO schemaTO = new SchemaTO();
+    private SchemaTO buildSchemaTO(final String name, final SchemaType type) {
+        SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName(name + getUUIDString());
         schemaTO.setType(type);
-		return schemaTO;
-	}
+        return schemaTO;
+    }
 }

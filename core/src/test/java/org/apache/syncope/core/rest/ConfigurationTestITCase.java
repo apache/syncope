@@ -28,6 +28,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.ConnInstanceTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -44,9 +45,9 @@ public class ConfigurationTestITCase extends AbstractTest {
         configurationTO.setValue("testValue");
 
         Response response = configurationService.create(configurationTO);
+        assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        assertTrue(response.hasEntity());
-        ConfigurationTO newConfigurationTO = (ConfigurationTO) response.getEntity();
+        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -70,8 +71,8 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         Response response = configurationService.create(tokenLengthTO);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        assertTrue(response.hasEntity());
-        ConfigurationTO newConfigurationTO = (ConfigurationTO) response.getEntity();
+        assertNotNull(response);
+        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 

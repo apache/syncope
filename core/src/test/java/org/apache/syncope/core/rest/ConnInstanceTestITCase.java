@@ -137,7 +137,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
-        ConnInstanceTO actual = (ConnInstanceTO) response.getEntity();
+        assertNotNull(response);
+        ConnInstanceTO actual = getObject(response.getLocation(), ConnInstanceTO.class);
 
         assertNotNull(actual);
 
@@ -268,7 +269,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Create a new connector instance.
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
-        connInstanceTO = (ConnInstanceTO) response.getEntity();
+        assertNotNull(response);
+        connInstanceTO = getObject(response.getLocation(), ConnInstanceTO.class);
 
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
@@ -578,7 +580,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertFalse(connectorService.validate(connectorTO));
 
             Response response = connectorService.create(connectorTO);
-            connectorTO = (ConnInstanceTO) response.getEntity();
+            assertNotNull(response);
+            connectorTO = getObject(response.getLocation(), ConnInstanceTO.class);
             assertNotNull(connectorTO);
             // ----------------------------------------
 

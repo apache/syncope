@@ -51,7 +51,7 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
         try {
             ConnInstanceTO connector = connectorController.create(new DummyHTTPServletResponse(), connectorTO);
             URI location = uriInfo.getAbsolutePathBuilder().path(connector.getId() + "").build();
-            return Response.created(location).entity(connector).build();
+            return Response.created(location).build();
         } catch (SyncopeClientCompositeErrorException e) {
             throw new BadRequestException(e);
         } catch (NotFoundException e) {

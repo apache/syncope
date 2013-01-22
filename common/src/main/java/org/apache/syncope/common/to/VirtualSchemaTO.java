@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "virtualSchema")
 public class VirtualSchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8198557479659701343L;

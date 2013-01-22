@@ -31,6 +31,7 @@ import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
@@ -49,8 +50,8 @@ public class JSONTest {
         final MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleName("root");
 
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond), NodeCond.getLeafCond(
-                membershipCond));
+        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond),
+                NodeCond.getLeafCond(membershipCond));
 
         assertTrue(searchCondition.isValid());
 
@@ -66,21 +67,24 @@ public class JSONTest {
     @Test
     public void testLists() throws IOException {
 
-        List<SchemaTO> schemas = new ArrayList<SchemaTO>();
-        SchemaTO schemaTO = new SchemaTO();
-        schemaTO.setName("name1");
-        schemas.add(schemaTO);
-        schemaTO = new SchemaTO();
-        schemaTO.setName("name2");
-        schemas.add(schemaTO);
+        List<ConfigurationTO> confList = new ArrayList<ConfigurationTO>();
+        ConfigurationTO configuration = new ConfigurationTO();
+        configuration.setKey("key1");
+        configuration.setValue("value1");
+        confList.add(configuration);
+        configuration = new ConfigurationTO();
+        configuration.setKey("key2");
+        configuration.setValue("value2");
+        confList.add(configuration);
 
         ObjectMapper mapper = new ObjectMapper();
 
         StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, schemas);
+        mapper.writeValue(writer, confList);
 
-        List<SchemaTO> unserializedSchemas = Arrays.asList(mapper.readValue(writer.toString(), SchemaTO[].class));
-        for (SchemaTO unserializedSchema : unserializedSchemas) {
+        List<ConfigurationTO> unserializedSchemas = Arrays.asList(mapper.readValue(writer.toString(),
+                ConfigurationTO[].class));
+        for (ConfigurationTO unserializedSchema : unserializedSchemas) {
             assertNotNull(unserializedSchema);
         }
     }

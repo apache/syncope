@@ -18,10 +18,17 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
+@XmlEnum
 public enum AttributableType {
 
     USER,
     ROLE,
     MEMBERSHIP;
+
+    public static AttributableType fromString(String value) {
+        return valueOf(value.toUpperCase());
+    }
 
 }

@@ -86,7 +86,7 @@ public class ConnectorRestClient extends BaseRestClient {
         getService(ConnectorService.class).update(connectorTO.getId(), connectorTO);
     }
 
-    public ConnInstanceTO delete(Long id) {
+    public ConnInstanceTO delete(final Long id) {
         ConnInstanceTO instanceTO = getService(ConnectorService.class).read(id);
         getService(ConnectorService.class).delete(id);
         return instanceTO;

@@ -47,7 +47,7 @@ public class ConfigurationRestClient extends BaseRestClient {
      *
      * @param configurationTO
      */
-    public void createConfiguration(ConfigurationTO configurationTO) {
+    public void createConfiguration(final ConfigurationTO configurationTO) {
         getService(ConfigurationService.class).create(configurationTO);
     }
 

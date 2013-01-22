@@ -69,6 +69,7 @@ under the License.
       <ref bean="configurationServiceImpl"/>
       <ref bean="connectorServiceImpl"/>
       <ref bean="entitlementServiceImpl"/>
+      <ref bean="schemaServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
       <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>

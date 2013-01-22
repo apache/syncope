@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
@@ -37,15 +40,18 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T create(final AttributableType kind, final SchemaType type, final T schemaTO) {
-        return (T) getRestTemplate().postForObject(baseUrl + type + "/{kind}/create", schemaTO, getTOClass(type), kind);
+    public <T extends AbstractSchemaTO> Response create(final AttributableType kind, final SchemaType type,
+            final T schemaTO) {
+        AbstractSchemaTO schema = getRestTemplate().postForObject(baseUrl + type + "/{kind}/create", schemaTO,
+                getTOClass(type), kind);
+        return Response.created(URI.create(baseUrl + type + "/" + kind + "/read/" + schema.getName() + ".json"))
+                .build();
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T delete(final AttributableType kind, final SchemaType type,
-            final String schemaName) {
+    public void delete(final AttributableType kind, final SchemaType type, final String schemaName) {
 
-        return (T) getRestTemplate().getForObject(baseUrl + type + "/{kind}/delete/{name}.json", getTOClass(type), kind,
+        getRestTemplate().getForObject(baseUrl + type + "/{kind}/delete/{name}.json", getTOClass(type), kind,
                 schemaName);
     }
 
@@ -78,10 +84,10 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T update(final AttributableType kind, final SchemaType type,
+    public <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
             final String schemaName, final T schemaTO) {
 
-        return (T) getRestTemplate().postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
+        getRestTemplate().postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
     }
 
     private Class<? extends AbstractSchemaTO> getTOClass(final SchemaType type) {
