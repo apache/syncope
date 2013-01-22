@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest;
+package org.apache.syncope.core.rest.utils;
 
 import java.util.Map.Entry;
 import java.util.Set;
@@ -193,15 +193,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                             : ex.getCause().getMessage());
             response = responseBuilder.build();
 
-        } else if (ex instanceof PersistenceException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
-                    ex.getCause() == null
-                            ? ex.getMessage()
-                            : ex.getCause().getMessage());
-            response = responseBuilder.build();
-
         } else if (ex instanceof ConfigurationException) {
             responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                     SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
@@ -273,6 +264,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         } else if (ex instanceof InvalidSearchConditionException) {
             responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                     SyncopeClientExceptionType.InvalidSearchCondition.getHeaderValue());
+            response = responseBuilder.build();
+        } else if (ex instanceof PersistenceException) {
+            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                    SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
+            responseBuilder.header(SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
+                    ex.getCause() == null
+                            ? ex.getMessage()
+                            : ex.getCause().getMessage());
             response = responseBuilder.build();
         }
 

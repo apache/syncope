@@ -62,7 +62,7 @@ under the License.
     <property name="mapper" ref="jacksonObjectMapper"/>
   </bean>
 
-  <bean id="exceptionMapper" class="org.apache.syncope.core.rest.RestServiceExceptionMapper"/>
+  <bean id="exceptionMapper" class="org.apache.syncope.core.rest.utils.RestServiceExceptionMapper"/>
 
   <jaxrs:server id="restContainer" address="/">
     <jaxrs:serviceBeans>
@@ -71,7 +71,7 @@ under the License.
       <ref bean="entitlementServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
-      <bean id="myServiceComparator" class="org.apache.syncope.core.rest.QueryResourceInfoComperator"/>
+      <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>
     </jaxrs:resourceComparator>
     <jaxrs:providers>
       <ref bean="jaxbProvider"/>
