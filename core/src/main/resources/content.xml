@@ -30,6 +30,7 @@ under the License.
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
+  <SyncopeConf confKey="connectorRequest.timeout" confValue="10"/>
     
   <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="GLOBAL_SYNC"
           specification="%3Corg.apache.syncope.common.types.SyncPolicySpec%2F%3E"/>

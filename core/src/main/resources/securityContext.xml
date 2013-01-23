@@ -26,6 +26,16 @@ under the License.
                            http://www.springframework.org/schema/security/spring-security.xsd">
 
   <security:global-method-security pre-post-annotations="enabled"/>
+  
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass" value="org.springframework.security.core.context.SecurityContextHolder"/>
+    <property name="targetMethod" value="setStrategyName"/> 
+    <property name="arguments">
+      <list>
+        <value>MODE_INHERITABLETHREADLOCAL</value>
+      </list>
+    </property>
+  </bean>
 
   <bean id="securityContextRepository" class='org.springframework.security.web.context.NullSecurityContextRepository'/>
 
@@ -50,5 +60,4 @@ under the License.
   <security:authentication-manager>
     <security:authentication-provider ref="syncopeAuthenticationProvider"/>
   </security:authentication-manager>
-
 </beans>

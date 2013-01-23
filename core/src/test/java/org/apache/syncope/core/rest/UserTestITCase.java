@@ -1858,4 +1858,12 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userTO.getId(), userMod);
         assertNotNull(userTO);
     }
+
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void issueSYNCOPE279() {
+        UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-3");
+        userService.create(userTO);
+    }
 }

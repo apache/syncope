@@ -68,6 +68,6 @@ public class ConnInstanceLoaderTest extends AbstractNonDAOTest {
 
         assertEquals(resourceDAO.findAll().size(),
                 ApplicationContextProvider.getApplicationContext().
-                getBeanNamesForType(SyncopeConnector.class).length);
+                getBeanNamesForType(SyncopeConnector.class, false, true).length);
     }
 }

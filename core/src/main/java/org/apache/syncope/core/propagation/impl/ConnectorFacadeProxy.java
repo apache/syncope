@@ -25,14 +25,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -44,16 +48,13 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
-import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
@@ -62,6 +63,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -86,6 +88,23 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      * @see ConnInstance
      */
     private final ConnInstance activeConnInstance;
+
+    private int timeout;
+
+    @Autowired
+    private AsyncConnectorFacade asyncFacade;
+
+    @Autowired
+    private ConfDAO confDAO;
+
+    @Autowired
+    private void setTimeout() {
+        try {
+            timeout = Integer.parseInt(confDAO.find("connectorRequest.timeout", "60").getValue());
+        } catch (Throwable t) {
+            timeout = 60;
+        }
+    }
 
     /**
      * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
@@ -177,7 +196,20 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
 
             propagationAttempted.add("create");
 
-            result = connector.create(objectClass, attrs, options);
+            final Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
+            try {
+                result = future.get(timeout, TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e.getCause());
+                }
+            }
         } else {
             LOG.info("Create was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
@@ -201,7 +233,21 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
 
             propagationAttempted.add("update");
 
-            result = connector.update(objectClass, uid, attrs, options);
+            final Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
+
+            try {
+                result = future.get(timeout, TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e.getCause());
+                }
+            }
         } else {
             LOG.info("Update for {} was attempted, although the "
                     + "connector only has these capabilities: {}. No action.", uid.getUidValue(), activeConnInstance.
@@ -224,7 +270,21 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
 
             propagationAttempted.add("delete");
 
-            connector.delete(objectClass, uid, options);
+            final Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
+
+            try {
+                future.get(timeout, TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e.getCause());
+                }
+            }
         } else {
             LOG.info("Delete for {} was attempted, although the connector only has these capabilities: {}. No action.",
                     uid.getUidValue(), activeConnInstance.getCapabilities());
@@ -254,7 +314,21 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         SyncToken result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
-            result = connector.getLatestSyncToken(objectClass);
+            final Future<SyncToken> future = asyncFacade.getLatestSyncToken(connector, objectClass);
+
+            try {
+                result = future.get(timeout, TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e.getCause());
+                }
+            }
         } else {
             LOG.info("getLatestSyncToken was attempted, although the "
                     + "connector only has these capabilities: {}. No action.", activeConnInstance.getCapabilities());
@@ -278,11 +352,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
-        ConnectorObject result = null;
+        Future<ConnectorObject> future = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (operationType == null) {
-                result = connector.getObject(objectClass, uid, options);
+                future = asyncFacade.getObject(connector, objectClass, uid, options);
             } else {
                 switch (operationType) {
                     case CREATE:
@@ -292,7 +366,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
                                 : activeConnInstance.getCapabilities().
                                 contains(ConnectorCapability.TWO_PHASES_CREATE))) {
 
-                            result = connector.getObject(objectClass, uid, options);
+                            future = asyncFacade.getObject(connector, objectClass, uid, options);
                         }
                         break;
                     case UPDATE:
@@ -302,11 +376,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
                                 : activeConnInstance.getCapabilities().
                                 contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
 
-                            result = connector.getObject(objectClass, uid, options);
+                            future = asyncFacade.getObject(connector, objectClass, uid, options);
                         }
                         break;
                     default:
-                        result = connector.getObject(objectClass, uid, options);
+                        future = asyncFacade.getObject(connector, objectClass, uid, options);
                 }
             }
         } else {
@@ -314,30 +388,37 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
                     activeConnInstance.getCapabilities());
         }
 
-        return result;
+        try {
+            return future == null ? null : future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
+        }
     }
 
     /* (non-Javadoc)
      * @see SyncopeConnector#search(ObjectClass, filter.Filter, OperationOptions)
      */
     @Override
-    public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
-            final OperationOptions options) {
+    public List<ConnectorObject> search(
+            final ObjectClass objectClass, final Filter filter, final OperationOptions options) {
 
         final List<ConnectorObject> result = new ArrayList<ConnectorObject>();
 
-        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            connector.search(objectClass, filter, new ResultsHandler() {
+        search(objectClass, filter, new ResultsHandler() {
 
-                @Override
-                public boolean handle(final ConnectorObject obj) {
-                    return result.add(obj);
-                }
-            }, options);
-        } else {
-            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
-                    activeConnInstance.getCapabilities());
-        }
+            @Override
+            public boolean handle(final ConnectorObject obj) {
+                return result.add(obj);
+            }
+        }, options);
 
         return result;
     }
@@ -346,28 +427,22 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      * @see SyncopeConnector#getAllObjects(ObjectClass, SyncResultsHandler, OperationOptions)
      */
     @Override
-    public void getAllObjects(final ObjectClass objectClass, final SyncResultsHandler handler,
-            final OperationOptions options) {
+    public void getAllObjects(
+            final ObjectClass objectClass, final SyncResultsHandler handler, final OperationOptions options) {
 
-        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            connector.search(objectClass, null, new ResultsHandler() {
+        search(objectClass, null, new ResultsHandler() {
 
-                @Override
-                public boolean handle(final ConnectorObject obj) {
-                    final SyncDeltaBuilder bld = new SyncDeltaBuilder();
-                    bld.setObject(obj);
-                    bld.setUid(obj.getUid());
-                    bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
-                    bld.setToken(new SyncToken(""));
+            @Override
+            public boolean handle(final ConnectorObject obj) {
+                final SyncDeltaBuilder bld = new SyncDeltaBuilder();
+                bld.setObject(obj);
+                bld.setUid(obj.getUid());
+                bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
+                bld.setToken(new SyncToken(""));
 
-                    return handler.handle(bld.build());
-                }
-            }, options);
-
-        } else {
-            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
-                    activeConnInstance.getCapabilities());
-        }
+                return handler.handle(bld.build());
+            }
+        }, options);
     }
 
     /* (non-Javadoc)
@@ -376,17 +451,21 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     @Override
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
-
-        Attribute attribute = null;
-
-        final ConnectorObject object = connector.getObject(objectClass, uid, options);
-        if (object == null) {
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
-        } else {
-            attribute = object.getAttributeByName(attributeName);
+        final Future<Attribute> future = asyncFacade.getObjectAttribute(connector, objectClass, uid, options,
+                attributeName);
+        try {
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
         }
-
-        return attribute;
     }
 
     /* (non-Javadoc)
@@ -395,19 +474,20 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     @Override
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
-
-        final Set<Attribute> attributes = new HashSet<Attribute>();
-
-        ConnectorObject object = connector.getObject(objectClass, uid, options);
-        if (object == null) {
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
-        } else {
-            for (String attribute : options.getAttributesToGet()) {
-                attributes.add(object.getAttributeByName(attribute));
+        final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
+        try {
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
             }
         }
-
-        return attributes;
     }
 
     /* (non-Javadoc)
@@ -415,24 +495,20 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      */
     @Override
     public Set<String> getSchema(final boolean showall) {
-        final Set<String> resourceSchemaNames = new HashSet<String>();
-
-        final Schema schema = connector.schema();
-
+        final Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
         try {
-            for (ObjectClassInfo info : schema.getObjectClassInfo()) {
-                for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall || !isSpecialName(attrInfo.getName())) {
-                        resourceSchemaNames.add(attrInfo.getName());
-                    }
-                }
-            }
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
         } catch (Exception e) {
-            // catch exception in order to manage unpredictable behaviors
-            LOG.debug("Unsupported operation {}", e);
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
         }
-
-        return resourceSchemaNames;
     }
 
     /* (non-Javadoc)
@@ -440,7 +516,20 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      */
     @Override
     public void validate() {
-        connector.validate();
+        final Future<String> future = asyncFacade.test(connector);
+        try {
+            future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -448,7 +537,35 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      */
     @Override
     public void test() {
-        connector.test();
+        final Future<String> future = asyncFacade.test(connector);
+        try {
+            future.get(timeout, TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
+        }
+    }
+
+    private void search(
+            final ObjectClass objectClass,
+            final Filter filter,
+            final ResultsHandler handler,
+            final OperationOptions options) {
+
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
+            connector.search(objectClass, filter, handler, options);
+
+        } else {
+            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
+                    activeConnInstance.getCapabilities());
+        }
     }
 
     /* (non-Javadoc)
@@ -521,10 +638,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
 
         return value;
-    }
-
-    private boolean isSpecialName(final String name) {
-        return (name.startsWith("__") && name.endsWith("__"));
     }
 
     /* (non-Javadoc)

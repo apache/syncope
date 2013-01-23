@@ -44,6 +44,7 @@ import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -235,19 +236,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
         } else {
             /*
-             * We must choose here whether to
-             *  a. actually delete the provided user from the external resource
-             *  b. just update the provided user data onto the external resource
+             * We must choose here whether to a. actually delete the provided user from the external resource b. just
+             * update the provided user data onto the external resource
              *
-             * (a) happens when either there is no user associated with the PropagationTask (this takes
-             * place when the task is generated via UserController.delete()) or the provided updated
-             * user hasn't the current resource assigned (when the task is generated via
-             * UserController.update()).
+             * (a) happens when either there is no user associated with the PropagationTask (this takes place when the
+             * task is generated via UserController.delete()) or the provided updated user hasn't the current resource
+             * assigned (when the task is generated via UserController.update()).
              *
-             * (b) happens when the provided updated user does have the current resource assigned
-             * (when the task is generated via UserController.update()): this basically means that
-             * before such update, this user used to have the current resource assigned by more than
-             * one mean (for example, two different memberships with the same resource).
+             * (b) happens when the provided updated user does have the current resource assigned (when the task is
+             * generated via UserController.update()): this basically means that before such update, this user used to
+             * have the current resource assigned by more than one mean (for example, two different memberships with the
+             * same resource).
              */
             AbstractAttributable subject = getSubject(task);
             if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
@@ -376,7 +375,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public void execute(final Collection<PropagationTask> tasks) throws PropagationException {
+    public void execute(final Collection<PropagationTask> tasks)
+            throws PropagationException {
         execute(tasks, null);
     }
 
@@ -443,6 +443,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
                     getMappingItems(task.getResource())));
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
         } catch (RuntimeException ignore) {
             LOG.debug("While resolving {}", accountId, ignore);
         }

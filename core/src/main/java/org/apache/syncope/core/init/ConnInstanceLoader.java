@@ -103,7 +103,8 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
 
         connInstanceClone.setConfiguration(configuration);
 
-        return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
+        return ApplicationContextProvider.getBeanFactory().getBean(
+                "connectorFacadeProxy", ConnectorFacadeProxy.class, connInstanceClone, connBundleManager);
     }
 
     /* (non-Javadoc)
@@ -150,7 +151,7 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
             }
         }
 
-        LOG.info("Done loading {} connectors.",
-                ApplicationContextProvider.getBeanFactory().getBeansOfType(ConnectorFacadeProxy.class).size());
+        LOG.info("Done loading {} connectors.", ApplicationContextProvider.getBeanFactory().getBeansOfType(
+                ConnectorFacadeProxy.class, false, true).size());
     }
 }
