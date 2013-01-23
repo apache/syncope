@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.to.PropagationTO;
+import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
@@ -285,11 +285,11 @@ public class RoleController extends AbstractController {
 
         List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirtualAttributes());
 
-        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
         final RoleTO savedTO = dataBinder.getRoleTO(created.getResult());
-        savedTO.setPropagationTOs(propagations);
+        savedTO.setPropagationStatusTOs(propagations);
 
         LOG.debug("About to return created role\n{}", savedTO);
 
@@ -314,11 +314,11 @@ public class RoleController extends AbstractController {
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
                 roleMod.getVirtualAttributesToBeRemoved(), roleMod.getVirtualAttributesToBeUpdated());
 
-        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
         final RoleTO updatedTO = dataBinder.getRoleTO(updated.getResult());
-        updatedTO.setPropagationTOs(propagations);
+        updatedTO.setPropagationStatusTOs(propagations);
 
         auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
                 "Successfully updated role: " + role.getId());
@@ -339,7 +339,7 @@ public class RoleController extends AbstractController {
 
         List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId);
 
-        final List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
         rwfAdapter.delete(roleId);

@@ -66,7 +66,7 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    public boolean addPropagationTO(PropagationTO status) {
+    public boolean addPropagationTO(PropagationStatusTO status) {
         return false;
     }
 
@@ -76,11 +76,11 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    public List<PropagationTO> getPropagationTOs() {
-        return Collections.<PropagationTO>emptyList();
+    public List<PropagationStatusTO> getPropagationStatusTOs() {
+        return Collections.<PropagationStatusTO>emptyList();
     }
 
     @Override
-    public void setPropagationTOs(List<PropagationTO> propagationTOs) {
+    public void setPropagationStatusTOs(List<PropagationStatusTO> propagationTOs) {
     }
 }

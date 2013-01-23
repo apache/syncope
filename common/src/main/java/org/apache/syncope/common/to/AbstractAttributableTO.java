@@ -39,7 +39,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private Set<String> resources;
 
-    private List<PropagationTO> propagationTOs;
+    private List<PropagationStatusTO> propagationStatusTOs;
 
     protected AbstractAttributableTO() {
         super();
@@ -47,7 +47,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         derivedAttributes = new ArrayList<AttributeTO>();
         virtualAttributes = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
-        propagationTOs = new ArrayList<PropagationTO>();
+        propagationStatusTOs = new ArrayList<PropagationStatusTO>();
     }
 
     public long getId() {
@@ -141,33 +141,33 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         this.resources = resources;
     }
 
-    public boolean addPropagationTO(final PropagationTO status) {
-        return propagationTOs.add(status);
+    public boolean addPropagationTO(final PropagationStatusTO status) {
+        return propagationStatusTOs.add(status);
     }
 
     public boolean removePropagationTO(final String resource) {
-        if (resource != null && getPropagationTOs().isEmpty()) {
-            final List<PropagationTO> toBeRemoved = new ArrayList<PropagationTO>();
+        if (resource != null && getPropagationStatusTOs().isEmpty()) {
+            final List<PropagationStatusTO> toBeRemoved = new ArrayList<PropagationStatusTO>();
 
-            for (PropagationTO propagationTO : getPropagationTOs()) {
-                if (resource.equals(propagationTO.getResourceName())) {
+            for (PropagationStatusTO propagationTO : getPropagationStatusTOs()) {
+                if (resource.equals(propagationTO.getResource())) {
                     toBeRemoved.add(propagationTO);
                 }
             }
 
-            return propagationTOs.removeAll(toBeRemoved);
+            return propagationStatusTOs.removeAll(toBeRemoved);
         }
         return false;
     }
 
-    public List<PropagationTO> getPropagationTOs() {
-        return propagationTOs;
+    public List<PropagationStatusTO> getPropagationStatusTOs() {
+        return propagationStatusTOs;
     }
 
-    public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
-        if (this.propagationTOs != propagationTOs) {
-            this.propagationTOs.clear();
-            this.propagationTOs.addAll(propagationTOs);
+    public void setPropagationStatusTOs(final List<PropagationStatusTO> propagationStatusTOs) {
+        if (this.propagationStatusTOs != propagationStatusTOs) {
+            this.propagationStatusTOs.clear();
+            this.propagationStatusTOs.addAll(propagationStatusTOs);
         }
     }
 }

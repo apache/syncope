@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -28,10 +27,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-
-import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 
@@ -40,7 +38,11 @@ public interface UserService {
 
     UserTO activate(long userId, String token);
 
+    UserTO activate(long userId, String token, PropagationRequestTO propagationRequestTO);
+
     UserTO activateByUsername(String username, String token);
+
+    UserTO activateByUsername(String username, String token, PropagationRequestTO propagationRequestTO);
 
     @POST
     @Path("workflow/task/{taskId}/claim")
@@ -72,14 +74,15 @@ public interface UserService {
     List<UserTO> list();
 
     @GET
-    List<UserTO> list(@QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+    List<UserTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     UserTO reactivate(long userId);
 
-    UserTO reactivate(long userId, String query);
+    UserTO reactivate(long userId, PropagationRequestTO propagationRequestTO);
 
     UserTO reactivateByUsername(String username);
+
+    UserTO reactivateByUsername(String username, PropagationRequestTO propagationRequestTO);
 
     @GET
     @Path("{userId}")
@@ -104,18 +107,16 @@ public interface UserService {
     int searchCount(NodeCond searchCondition);
 
     @POST
-    @Path("user/{userId}/status")
-    public abstract UserTO setStatus(@PathParam("userId") Long userId, StatusMod statusUpdate);
-
-    @POST
     @Path("workflow/form")
     UserTO submitForm(WorkflowFormTO form);
 
     UserTO suspend(long userId);
 
-    UserTO suspend(long userId, String query);
+    UserTO suspend(long userId, PropagationRequestTO propagationRequestTO);
 
     UserTO suspendByUsername(String username);
+
+    UserTO suspendByUsername(String username, PropagationRequestTO propagationRequestTO);
 
     @POST
     @Path("{userId}")

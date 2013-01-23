@@ -24,7 +24,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 /**
  * Single propagation status.
  */
-public class PropagationTO extends AbstractBaseBean {
+public class PropagationStatusTO extends AbstractBaseBean {
 
     /**
      * Serial version ID.
@@ -44,7 +44,7 @@ public class PropagationTO extends AbstractBaseBean {
     /**
      * Propagated resource name.
      */
-    private String resourceName;
+    private String resource;
 
     /**
      * Propagation task execution status.
@@ -92,23 +92,23 @@ public class PropagationTO extends AbstractBaseBean {
      *
      * @return resource name.
      */
-    public String getResourceName() {
-        return resourceName;
+    public String getResource() {
+        return resource;
     }
 
     /**
      * Resource name setter.
      *
-     * @param resourceName resource name.
+     * @param resource resource name
      */
-    public void setResourceName(final String resourceName) {
-        this.resourceName = resourceName;
+    public void setResource(final String resource) {
+        this.resource = resource;
     }
 
     /**
      * Propagation execution status getter.
      *
-     * @return status.
+     * @return status
      */
     public PropagationTaskExecStatus getStatus() {
         return status;
@@ -117,7 +117,7 @@ public class PropagationTO extends AbstractBaseBean {
     /**
      * Propagation execution status setter.
      *
-     * @param status propagation execution status.
+     * @param status propagation execution status
      */
     public void setStatus(final PropagationTaskExecStatus status) {
         this.status = status;

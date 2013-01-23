@@ -715,8 +715,8 @@ public class TaskTestITCase extends AbstractTest {
             userTO = userService.create(userTO);
 
             assertNotNull(userTO);
-            assertEquals(1, userTO.getPropagationTOs().size());
-            assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+            assertEquals(1, userTO.getPropagationStatusTOs().size());
+            assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
             // Update sync task
             SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);

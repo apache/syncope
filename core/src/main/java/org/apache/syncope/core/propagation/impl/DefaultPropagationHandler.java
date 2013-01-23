@@ -19,8 +19,7 @@
 package org.apache.syncope.core.propagation.impl;
 
 import java.util.List;
-
-import org.apache.syncope.common.to.PropagationTO;
+import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.propagation.PropagationHandler;
@@ -30,19 +29,21 @@ public class DefaultPropagationHandler implements PropagationHandler {
 
     private final ConnObjectUtil connObjectUtil;
 
-    private final List<PropagationTO> propagations;
+    private final List<PropagationStatusTO> propagations;
 
-    public DefaultPropagationHandler(final ConnObjectUtil connObjectUtil, final List<PropagationTO> propagations) {
+    public DefaultPropagationHandler(final ConnObjectUtil connObjectUtil,
+            final List<PropagationStatusTO> propagations) {
+
         this.connObjectUtil = connObjectUtil;
         this.propagations = propagations;
     }
 
     @Override
-    public void handle(final String resourceName, final PropagationTaskExecStatus executionStatus,
+    public void handle(final String resource, final PropagationTaskExecStatus executionStatus,
             final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
-        final PropagationTO propagation = new PropagationTO();
-        propagation.setResourceName(resourceName);
+        final PropagationStatusTO propagation = new PropagationStatusTO();
+        propagation.setResource(resource);
         propagation.setStatus(executionStatus);
 
         if (beforeObj != null) {

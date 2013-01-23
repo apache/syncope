@@ -20,10 +20,10 @@ package org.apache.syncope.client.services.proxy;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.springframework.web.client.RestTemplate;
@@ -113,8 +113,15 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 
     @Override
     public UserTO activate(final long userId, final String token) {
-        return getRestTemplate().getForObject(baseUrl + "user/activate/{userId}?token=" + token, UserTO.class,
-                userId);
+        return getRestTemplate().getForObject(baseUrl + "user/activate/{userId}?token=" + token, UserTO.class, userId);
+    }
+
+    @Override
+    public UserTO activate(final long userId, final String token,
+            final PropagationRequestTO propagationRequestTO) {
+
+        return getRestTemplate().postForObject(baseUrl + "user/activate/{userId}?token=" + token, propagationRequestTO,
+                UserTO.class, userId);
     }
 
     @Override
@@ -124,8 +131,34 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
+    public UserTO activateByUsername(final String username, final String token,
+            final PropagationRequestTO propagationRequestTO) {
+
+        return getRestTemplate().postForObject(baseUrl + "user/activateByUsername/{username}.json?token=" + token,
+                propagationRequestTO, UserTO.class, username);
+    }
+
+    @Override
     public UserTO suspend(final long userId) {
         return getRestTemplate().getForObject(baseUrl + "user/suspend/{userId}", UserTO.class, userId);
+    }
+
+    @Override
+    public UserTO suspend(final long userId, final PropagationRequestTO propagationRequestTO) {
+        return getRestTemplate().postForObject(baseUrl + "user/suspend/{userId}", propagationRequestTO,
+                UserTO.class, userId);
+    }
+
+    @Override
+    public UserTO suspendByUsername(final String username) {
+        return getRestTemplate().getForObject(baseUrl + "user/suspendByUsername/{username}.json",
+                UserTO.class, username);
+    }
+
+    @Override
+    public UserTO suspendByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
+        return getRestTemplate().postForObject(baseUrl + "user/suspendByUsername/{username}.json", propagationRequestTO,
+                UserTO.class, username);
     }
 
     @Override
@@ -134,14 +167,9 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
-    public UserTO reactivate(long userId, String query) {
-        return getRestTemplate().getForObject(baseUrl + "user/reactivate/" + userId + query, UserTO.class);
-    }
-
-    @Override
-    public UserTO suspendByUsername(final String username) {
-        return getRestTemplate().getForObject(baseUrl + "user/suspendByUsername/{username}.json", UserTO.class,
-                username);
+    public UserTO reactivate(final long userId, final PropagationRequestTO propagationRequestTO) {
+        return getRestTemplate().postForObject(baseUrl + "user/reactivate/{userId}", propagationRequestTO,
+                UserTO.class, userId);
     }
 
     @Override
@@ -151,8 +179,9 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
-    public UserTO suspend(final long userId, final String query) {
-        return getRestTemplate().getForObject(baseUrl + "user/suspend/" + userId + query, UserTO.class);
+    public UserTO reactivateByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
+        return getRestTemplate().postForObject(baseUrl + "user/reactivateByUsername/{username}.json",
+                propagationRequestTO, UserTO.class, username);
     }
 
     @Override
@@ -174,12 +203,6 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 
     @Override
     public int searchCount(final NodeCond searchCondition) {
-        return getRestTemplate()
-                .postForObject(baseUrl + "user/search/count.json", searchCondition, Integer.class);
-    }
-
-    @Override
-    public UserTO setStatus(final Long userId, final StatusMod statusUpdate) {
-        return null; // Not used in old REST API
+        return getRestTemplate().postForObject(baseUrl + "user/search/count.json", searchCondition, Integer.class);
     }
 }

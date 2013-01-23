@@ -19,14 +19,12 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-
-import org.apache.syncope.common.mod.StatusMod;
-import org.apache.syncope.common.mod.StatusMod.Status;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -110,39 +108,28 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(ResourceService.class).getConnector(resourceName, AttributableType.USER, objectId);
     }
 
-    public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
-        return enable(userId, statuses, true);
-    }
-
-    public UserTO suspend(final long userId, final List<StatusBean> statuses) {
-        return enable(userId, statuses, false);
-    }
-
-    private UserTO enable(final long userId, final List<StatusBean> statuses, final boolean enable) {
-
-        StatusMod statusMod = new StatusMod();
-        statusMod.setId(userId);
-
-        statusMod.setStatus(enable
-                ? Status.REACTIVATE
-                : Status.SUSPEND);
-
-        // perform on resource if and only if resources have been speciofied
-        statusMod.setUpdateRemote(!statuses.isEmpty());
-
-        // perform on syncope if and only if it has been requested
-        statusMod.setUpdateInternal(false);
+    private PropagationRequestTO getPropagationRequestTO(final List<StatusBean> statuses, final boolean enable) {
+        PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
 
         for (StatusBean status : statuses) {
             if ((enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
+
                 if ("Syncope".equals(status.getResourceName())) {
-                    statusMod.setUpdateInternal(true);
+                    propagationRequestTO.setOnSyncope(true);
                 } else {
-                    statusMod.getExcludeResources().add(status.getResourceName());
+                    propagationRequestTO.addResource(status.getResourceName());
                 }
             }
         }
 
-        return getService(UserService.class).setStatus(userId, statusMod);
+        return propagationRequestTO;
+    }
+
+    public UserTO suspend(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).suspend(userId, getPropagationRequestTO(statuses, false));
+    }
+
+    public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).reactivate(userId, getPropagationRequestTO(statuses, true));
     }
 }

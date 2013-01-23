@@ -20,9 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -40,26 +38,9 @@ import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.SyncopeConnector;
-import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.ConnBundleManager;
 import org.apache.syncope.core.util.NotFoundException;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -104,9 +85,6 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ConnectorFactory connLoader;
-
-    @Autowired
-    private ConnBundleManager bundleManager;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
@@ -231,8 +209,8 @@ public class ResourceController extends AbstractController {
         }
 
         if (AttributableType.MEMBERSHIP == type) {
+            throw new IllegalArgumentException("getObject() not supported for MEMBERSHIP");
         }
-
         AttributableUtil attrUtil = AttributableUtil.getInstance(type);
         ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
@@ -240,7 +218,6 @@ public class ResourceController extends AbstractController {
 
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
                 connector.getOperationOptions(attrUtil.getMappingItems(resource)));
-
         if (connectorObject == null) {
             throw new NotFoundException("Object " + objectId + " not found on resource " + resourceName);
         }

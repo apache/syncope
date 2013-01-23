@@ -24,11 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.PropagationTO;
+import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -104,13 +103,13 @@ public class ResultStatusModalPage extends BaseModalPage {
 
         if (mode == UserModalPage.Mode.ADMIN) {
             // add Syncope propagation status
-            PropagationTO syncope = new PropagationTO();
-            syncope.setResourceName("Syncope");
+            PropagationStatusTO syncope = new PropagationStatusTO();
+            syncope.setResource("Syncope");
             syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
 
-            List<PropagationTO> propagations = new ArrayList<PropagationTO>();
+            List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
             propagations.add(syncope);
-            propagations.addAll(attributable.getPropagationTOs());
+            propagations.addAll(attributable.getPropagationStatusTOs());
 
             fragment.add(new Label("info",
                     ((attributable instanceof UserTO) && ((UserTO) attributable).getUsername() != null)
@@ -119,13 +118,13 @@ public class ResultStatusModalPage extends BaseModalPage {
                     ? ((RoleTO) attributable).getName()
                     : String.valueOf(attributable.getId())));
 
-            final ListView<PropagationTO> propRes = new ListView<PropagationTO>("resources", propagations) {
+            final ListView<PropagationStatusTO> propRes = new ListView<PropagationStatusTO>("resources", propagations) {
 
                 private static final long serialVersionUID = -1020475259727720708L;
 
                 @Override
-                protected void populateItem(final ListItem<PropagationTO> item) {
-                    final PropagationTO propTO = (PropagationTO) item.getDefaultModelObject();
+                protected void populateItem(final ListItem<PropagationStatusTO> item) {
+                    final PropagationStatusTO propTO = (PropagationStatusTO) item.getDefaultModelObject();
 
                     final ListView attributes = getConnObjectView(propTO);
 
@@ -139,7 +138,7 @@ public class ResultStatusModalPage extends BaseModalPage {
                     item.add(attrhead);
                     item.add(attributes);
 
-                    attrhead.add(new Label("resource", propTO.getResourceName()));
+                    attrhead.add(new Label("resource", propTO.getResource()));
 
                     attrhead.add(new Label("propagation", propTO.getStatus() == null
                             ? "UNDEFINED" : propTO.getStatus().toString()));
@@ -199,7 +198,7 @@ public class ResultStatusModalPage extends BaseModalPage {
      * @param propTO propagation TO.
      * @return list view.
      */
-    private ListView getConnObjectView(final PropagationTO propTO) {
+    private ListView getConnObjectView(final PropagationStatusTO propTO) {
         final ConnObjectTO before = propTO.getBeforeObj();
         final ConnObjectTO after = propTO.getAfterObj();
 

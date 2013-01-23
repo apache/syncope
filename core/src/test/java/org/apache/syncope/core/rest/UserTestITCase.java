@@ -31,9 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -43,7 +41,8 @@ import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
-import org.apache.syncope.common.to.PropagationTO;
+import org.apache.syncope.common.to.PropagationRequestTO;
+import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.UserTO;
@@ -342,8 +341,8 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("resource-testdb");
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-        assertEquals(1, userTO.getPropagationTOs().size());
-        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -633,7 +632,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton("resource-testdb"), userTO.getResources());
 
-        assertTrue(userTO.getPropagationTOs().isEmpty());
+        assertTrue(userTO.getPropagationStatusTOs().isEmpty());
 
         Exception exception = null;
         try {
@@ -711,8 +710,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getAttributes().isEmpty());
 
         // check for propagation result
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
         try {
             userService.delete(userTO.getId());
@@ -739,8 +738,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getAttributes().isEmpty());
 
         // check for propagation result
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertTrue(userTO.getPropagationTOs().get(0).getStatus().isSuccessful());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
         try {
             userService.read(userTO.getId());
@@ -1177,10 +1176,11 @@ public class UserTestITCase extends AbstractTest {
                 ? "active"
                 : "created", userTO.getStatus());
 
-        String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
-                + "&performLocally=true"; // check also performLocally
-
-        userTO = userService.suspend(userTO.getId(), query);
+        PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
+        propagationRequestTO.setOnSyncope(true);
+        propagationRequestTO.addResource(dbTable.getName());
+        propagationRequestTO.addResource(ldap.getName());
+        userTO = userService.suspend(userTO.getId(), propagationRequestTO);
 
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -1198,9 +1198,12 @@ public class UserTestITCase extends AbstractTest {
         connObjectTO = readUserConnObj(ldap.getName(), ldapUID);
         assertNotNull(connObjectTO);
 
-        query = "?resourceNames=" + ldap.getName() + "&performLocally=false"; // check also performLocally
+        propagationRequestTO = new PropagationRequestTO();
+        propagationRequestTO.setOnSyncope(false);
+        propagationRequestTO.addResource(ldap.getName());
+        userTO = userService.suspend(userTO.getId(), propagationRequestTO);
 
-        userTO = userService.reactivate(userTO.getId(), query);
+        userTO = userService.reactivate(userTO.getId(), propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
@@ -1208,9 +1211,11 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
                 .getValues().get(0)));
 
-        query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check also performLocally
+        propagationRequestTO = new PropagationRequestTO();
+        propagationRequestTO.setOnSyncope(true);
+        propagationRequestTO.addResource(dbTable.getName());
 
-        userTO = userService.reactivate(userTO.getId(), query);
+        userTO = userService.reactivate(userTO.getId(), propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -1347,13 +1352,13 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
 
-        final List<PropagationTO> propagations = userTO.getPropagationTOs();
+        final List<PropagationStatusTO> propagations = userTO.getPropagationStatusTOs();
 
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
         final PropagationTaskExecStatus status = propagations.get(0).getStatus();
-        final String resource = propagations.get(0).getResourceName();
+        final String resource = propagations.get(0).getResource();
 
         assertNotNull(status);
         assertEquals("resource-testdb", resource);
@@ -1371,13 +1376,13 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.create(userTO);
         assertNotNull(userTO);
 
-        final List<PropagationTO> propagations = userTO.getPropagationTOs();
+        final List<PropagationStatusTO> propagations = userTO.getPropagationStatusTOs();
 
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
         final PropagationTaskExecStatus status = propagations.get(0).getStatus();
-        final String resource = propagations.get(0).getResourceName();
+        final String resource = propagations.get(0).getResource();
 
         assertNotNull(status);
         assertEquals("resource-csv", resource);
@@ -1652,9 +1657,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("resource-ldap", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("resource-ldap", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         // 2. delete this user
         userService.delete(userTO.getId());
@@ -1710,9 +1715,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
@@ -1734,9 +1739,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
@@ -1778,9 +1783,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
@@ -1801,9 +1806,9 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
         assertTrue(userTO.getVirtualAttributes().isEmpty());
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
         assertNotNull(connObjectTO);
@@ -1825,9 +1830,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.create(userTO);
         assertNotNull(userTO);
-        assertFalse(userTO.getPropagationTOs().isEmpty());
-        assertEquals("resource-db-virattr", userTO.getPropagationTOs().get(0).getResourceName());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationTOs().get(0).getStatus());
+        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
+        assertEquals("resource-db-virattr", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO = readUserConnObj("resource-db-virattr", String.valueOf(userTO.getId()));
         assertNotNull(connObjectTO);
