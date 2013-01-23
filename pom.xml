@@ -27,7 +27,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-root</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -38,9 +38,9 @@ under the License.
   </parent>
   
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/tags/syncope-1.0.5</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/tags/syncope-1.0.5</developerConnection>
-    <url>http://svn.apache.org/viewvc/syncope/tags/syncope-1.0.5</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/branches/1_0_X</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/branches/1_0_X</developerConnection>
+    <url>http://svn.apache.org/viewvc/syncope/branches/1_0_X</url>
   </scm>
   
   <build>
