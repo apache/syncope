@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.5
+================================================================================
+** Bug
+    * [SYNCOPE-260] - Update propagation with null virtual attribute values
+    * [SYNCOPE-267] - Possible NullPointerException into SchemaMappingUtil.getAccountIdValue()
+    * [SYNCOPE-269] - AES encryption key defined in source code
+    * [SYNCOPE-272] - During sync null attributes from template are considered
+    * [SYNCOPE-273] - Role deletion inhibits notification update
+    * [SYNCOPE-274] - Sync: during update with user template existing memberships break update
+
+
+
+** Improvement
+    * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
+    * [SYNCOPE-67] - Display all Execute Tasks (Propagation, Notification and Scheduled) and related Execution history items sortered in descending order
+    * [SYNCOPE-201] - AbstractSchema enumerationValues and enumerationKeys too short
+    * [SYNCOPE-255] - Hide Global Password/Account/Sync policy in security resource selections
+    * [SYNCOPE-263] - Inject Recipient and Event variable in Velocity Email Notification Template
+    * [SYNCOPE-264] - Email Notification Templates Documentation
+    * [SYNCOPE-266] - Password should be provided again at resource subscription time if a "Password" schema mapping for that resource exists
+    * [SYNCOPE-279] - Connector instance timeout
+    * [SYNCOPE-283] - website edits
+
 Release Notes - Syncope - Version 1.0.4
 ================================================================================
 ** Bug
