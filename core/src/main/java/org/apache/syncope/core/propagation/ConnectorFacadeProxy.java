@@ -53,6 +53,9 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -320,21 +323,7 @@ public class ConnectorFacadeProxy {
     public void sync(final SyncToken token, final SyncResultsHandler handler, final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
-            final Future<SyncResultsHandler> future =
-                    asyncFacade.sync(connector, token, handler, options);
-
-            try {
-                // no timeout
-                future.get();
-            } catch (Exception e) {
-                LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
-                } else {
-                    throw new IllegalArgumentException(e.getCause());
-                }
-            }
-
+            connector.sync(ObjectClass.ACCOUNT, token, handler, options);
         } else {
             LOG.info("Sync was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
@@ -459,19 +448,19 @@ public class ConnectorFacadeProxy {
             final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            final Future<SyncResultsHandler> future = asyncFacade.getAllObjects(connector, objectClass, handler, options);
+            connector.search(objectClass, null, new ResultsHandler() {
 
-            try {
-                // no timeout
-                future.get();
-            } catch (Exception e) {
-                LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
-                } else {
-                    throw new IllegalArgumentException(e.getCause());
+                @Override
+                public boolean handle(final ConnectorObject obj) {
+                    final SyncDeltaBuilder bld = new SyncDeltaBuilder();
+                    bld.setObject(obj);
+                    bld.setUid(obj.getUid());
+                    bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
+                    bld.setToken(new SyncToken(""));
+
+                    return handler.handle(bld.build());
                 }
-            }
+            }, options);
 
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",

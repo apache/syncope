@@ -30,11 +30,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Schema;
-import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -86,17 +82,6 @@ public class AsyncConnectorFacade {
     }
 
     @Async
-    public Future<SyncResultsHandler> sync(
-            final ConnectorFacade connector,
-            final SyncToken token,
-            final SyncResultsHandler handler,
-            final OperationOptions options) {
-
-        connector.sync(ObjectClass.ACCOUNT, token, handler, options);
-        return new AsyncResult<SyncResultsHandler>(handler);
-    }
-
-    @Async
     public Future<SyncToken> getLatestSyncToken(
             final ConnectorFacade connector) {
 
@@ -111,30 +96,6 @@ public class AsyncConnectorFacade {
             final OperationOptions options) {
 
         return new AsyncResult<ConnectorObject>(connector.getObject(objectClass, uid, options));
-    }
-
-    @Async
-    public Future<SyncResultsHandler> getAllObjects(
-            final ConnectorFacade connector,
-            final ObjectClass objectClass,
-            final SyncResultsHandler handler,
-            final OperationOptions options) {
-
-        connector.search(objectClass, null, new ResultsHandler() {
-
-            @Override
-            public boolean handle(final ConnectorObject obj) {
-                final SyncDeltaBuilder bld = new SyncDeltaBuilder();
-                bld.setObject(obj);
-                bld.setUid(obj.getUid());
-                bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
-                bld.setToken(new SyncToken(""));
-
-                return handler.handle(bld.build());
-            }
-        }, options);
-
-        return new AsyncResult<SyncResultsHandler>(handler);
     }
 
     @Async
