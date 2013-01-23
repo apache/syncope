@@ -1083,6 +1083,7 @@ under the License.
             <exclude>**/*.js</exclude>
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
+            <exclude>**/goal.txt</exclude>
             <exclude>**/maven-eclipse.xml</exclude>
             <exclude>**/*.iml</exclude>
             <exclude>**/*.log</exclude>
