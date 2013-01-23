@@ -117,9 +117,11 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     public void setItems(final Collection<MappingItemTO> items) {
-        this.items.clear();
-        if (items != null && !items.isEmpty()) {
-            this.items.addAll(items);
+        if (this.items != items) {
+            this.items.clear();
+            if (items != null && !items.isEmpty()) {
+                this.items.addAll(items);
+            }
         }
     }
 }

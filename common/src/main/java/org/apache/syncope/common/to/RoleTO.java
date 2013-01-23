@@ -135,9 +135,11 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     public void setEntitlements(final List<String> entitlements) {
-        this.entitlements.clear();
-        if (entitlements != null && !entitlements.isEmpty()) {
-            this.entitlements.addAll(entitlements);
+        if (this.entitlements != entitlements) {
+            this.entitlements.clear();
+            if (entitlements != null && !entitlements.isEmpty()) {
+                this.entitlements.addAll(entitlements);
+            }
         }
     }
 

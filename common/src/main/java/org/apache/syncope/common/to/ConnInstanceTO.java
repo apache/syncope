@@ -118,9 +118,11 @@ public class ConnInstanceTO extends AbstractBaseBean {
     }
 
     public void setConfiguration(Set<ConnConfProperty> configuration) {
-        this.configuration.clear();
-        if (configuration != null && !configuration.isEmpty()) {
-            this.configuration.addAll(configuration);
+        if (this.configuration != configuration) {
+            this.configuration.clear();
+            if (configuration != null && !configuration.isEmpty()) {
+                this.configuration.addAll(configuration);
+            }
         }
     }
 
@@ -147,9 +149,11 @@ public class ConnInstanceTO extends AbstractBaseBean {
     }
 
     public void setCapabilities(final Set<ConnectorCapability> capabilities) {
-        this.capabilities.clear();
-        if (capabilities != null && !capabilities.isEmpty()) {
-            this.capabilities.addAll(capabilities);
+        if (this.capabilities != capabilities) {
+            this.capabilities.clear();
+            if (capabilities != null && !capabilities.isEmpty()) {
+                this.capabilities.addAll(capabilities);
+            }
         }
     }
 

@@ -113,10 +113,11 @@ public class WorkflowFormTO extends AbstractBaseBean {
     }
 
     public void setProperties(final Collection<WorkflowFormPropertyTO> properties) {
-
-        this.properties.clear();
-        if (properties != null) {
-            this.properties.addAll(properties);
+        if (this.properties != properties) {
+            this.properties.clear();
+            if (properties != null) {
+                this.properties.addAll(properties);
+            }
         }
     }
 

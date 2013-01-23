@@ -60,9 +60,11 @@ public class NotificationTaskTO extends TaskTO {
     }
 
     public void setRecipients(final Set<String> recipients) {
-        this.recipients.clear();
-        if (recipients != null) {
-            this.recipients.addAll(recipients);
+        if (this.recipients != recipients) {
+            this.recipients.clear();
+            if (recipients != null) {
+                this.recipients.addAll(recipients);
+            }
         }
     }
 

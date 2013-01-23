@@ -165,7 +165,9 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     }
 
     public void setPropagationTOs(final List<PropagationTO> propagationTOs) {
-        this.propagationTOs.clear();
-        this.propagationTOs.addAll(propagationTOs);
+        if (this.propagationTOs != propagationTOs) {
+            this.propagationTOs.clear();
+            this.propagationTOs.addAll(propagationTOs);
+        }
     }
 }
