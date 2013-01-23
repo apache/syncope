@@ -139,10 +139,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.FORBIDDEN);
 
         if (ex instanceof UnauthorizedRoleException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.UnauthorizedRole.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.UnauthorizedRole.getElementHeaderName(), ex.getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.UnauthorizedRole, ex, null);
         }
         return response;
     }
@@ -162,13 +159,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.CONFLICT);
 
         if (ex instanceof DataIntegrityViolationException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.DataIntegrityViolation.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.DataIntegrityViolation.getElementHeaderName(),
-                    ex.getCause() == null
-                            ? ex.getMessage()
-                            : ex.getCause().getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, ex, null);
         }
         return response;
     }
@@ -178,29 +169,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
 
         if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.Workflow.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.Workflow.getElementHeaderName(),
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, ex,
                     "Currently unavailable. Please try later.");
-            response = responseBuilder.build();
 
         } else if (ex instanceof JpaSystemException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.DataIntegrityViolation.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.DataIntegrityViolation.getElementHeaderName(),
-                    ex.getCause() == null
-                            ? ex.getMessage()
-                            : ex.getCause().getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, ex, null);
 
         } else if (ex instanceof ConfigurationException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.InvalidExternalResource.getElementHeaderName(),
-                    ex.getCause() == null
-                            ? ex.getMessage()
-                            : ex.getCause().getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidExternalResource, ex, null);
         }
 
         return response;
@@ -211,17 +187,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
         if (ex instanceof NotFoundException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.NotFound.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.NotFound.getElementHeaderName(), ex.getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
 
         } else if (ex instanceof MissingConfKeyException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.NotFound.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.NotFound.getElementHeaderName(),
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex,
                     ((MissingConfKeyException) ex).getConfKey());
-            response = responseBuilder.build();
         }
 
         return response;
@@ -248,34 +218,32 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             response = responseBuilder.build();
 
         } else if (ex instanceof WorkflowException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.Workflow.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.Workflow.getElementHeaderName(), ex.getCause()
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, ex, ex.getCause()
                     .getMessage());
-            response = responseBuilder.build();
 
         } else if (ex instanceof PropagationException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.Propagation.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.Propagation.getElementHeaderName(),
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Propagation, ex,
                     ((PropagationException) ex).getResourceName());
-            response = responseBuilder.build();
 
         } else if (ex instanceof InvalidSearchConditionException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.InvalidSearchCondition.getHeaderValue());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, ex, null);
+
         } else if (ex instanceof PersistenceException) {
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    SyncopeClientExceptionType.GenericPersistence.getHeaderValue());
-            responseBuilder.header(SyncopeClientExceptionType.GenericPersistence.getElementHeaderName(),
-                    ex.getCause() == null
-                            ? ex.getMessage()
-                            : ex.getCause().getMessage());
-            response = responseBuilder.build();
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.GenericPersistence, ex, null);
         }
 
         return response;
     }
 
+    private Response buildResponse(ResponseBuilder responseBuilder, SyncopeClientExceptionType hType, Throwable ex,
+            String msg) {
+        responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, hType.getHeaderValue());
+        String exMsg = ex.getCause() == null
+                ? ex.getMessage()
+                : ex.getCause().getMessage();
+        responseBuilder.header(hType.getElementHeaderName(), (msg != null)
+                ? msg
+                : exMsg);
+        return responseBuilder.build();
+    }
 }

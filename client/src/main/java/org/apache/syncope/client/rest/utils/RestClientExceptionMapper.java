@@ -38,64 +38,63 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Provider
-public class RestClientExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
+public class RestClientExceptionMapper implements ExceptionMapper<Exception>,
+		ResponseExceptionMapper<Exception> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestClientExceptionMapper.class);
 
     @Override
-    public Response toResponse(final Exception e) {
-        throw new UnsupportedOperationException(
-                "Call of toResponse() method is not expected in RestClientExceptionnMapper");
-    }
+	public Response toResponse(Exception e) {
+		throw new UnsupportedOperationException("Call of toResponse() method is not expected in RestClientExceptionnMapper");
+	}
 
-    @Override
-    public Exception fromResponse(final Response response) {
-        Exception ex = null;
-        int statusCode = response.getStatus();
-
-        // 1. Check for composite exception in HTTP header
-        SyncopeClientCompositeErrorException scce = checkCompositeException(response);
-        if (scce != null) {
-            ex = scce;
-
-            // 2. TODO Map SC_FORBIDDEN
-            // } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-            // ex = new UnauthorizedRoleException(-1L);
-
-            // 3. Map SC_UNAUTHORIZED
-        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-            ex = new AccessControlException("Remote unauthorized exception");
-
-        } else {
-            // 3. All other codes are mapped to runtime exception with HTTP code information
-            ex = new RuntimeException(String.format("Remote exception with status code: %s", Response.Status
-                    .fromStatusCode(statusCode).name()));
-        }
+	@Override
+	public Exception fromResponse(Response response) {
+		Exception ex = null;
+		int statusCode = response.getStatus();
+		
+		// 1. Check for composite exception in HTTP header 
+		SyncopeClientCompositeErrorException scce = checkCompositeException(response);
+		if (scce != null) {
+			ex = scce;
+			
+			// TODO reduce SCCEE to really composite ones and use normal exception for others
+//		} else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+//			ex = new UnauthorizedRoleException(-1L);
+			
+			// 2. Map  SC_UNAUTHORIZED
+		} else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+			ex = new AccessControlException("Remote unauthorized exception");
+			
+		} else {
+			// 3. All other codes are mapped to runtime exception with HTTP code information 
+			ex = new RuntimeException(String.format(
+					"Remote exception with status code: %s",
+					Response.Status.fromStatusCode(statusCode).name()));
+		}
         LOG.error("Exception thrown by REST methods: " + ex.getMessage(), ex);
-        return ex;
-    }
-
-    private SyncopeClientCompositeErrorException checkCompositeException(final Response response) {
-        int statusCode = response.getStatus();
-        List<Object> exceptionTypesInHeaders = response.getHeaders().get(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
+		return ex;
+	}
+	
+	private SyncopeClientCompositeErrorException checkCompositeException(Response response) {
+		int statusCode = response.getStatus();
+        List<Object> exceptionTypesInHeaders = response.getHeaders().get(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
         if (exceptionTypesInHeaders == null) {
             LOG.debug("No " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + " provided");
             return null;
         }
 
-        SyncopeClientCompositeErrorException compositeException = new SyncopeClientCompositeErrorException(
-                org.springframework.http.HttpStatus.valueOf(statusCode));
+		SyncopeClientCompositeErrorException compositeException = new SyncopeClientCompositeErrorException(
+				org.springframework.http.HttpStatus.valueOf(statusCode));
 
         Set<String> handledExceptions = new HashSet<String>();
         for (Object exceptionTypeValue : exceptionTypesInHeaders) {
-            String exceptionTypeAsString = (String) exceptionTypeValue;
+        	String exceptionTypeAsString = (String) exceptionTypeValue; 
             SyncopeClientExceptionType exceptionType = null;
             try {
                 exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exceptionTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + ": "
-                        + exceptionTypeAsString, e);
+                LOG.error("Unexpected value of " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + ": " + exceptionTypeAsString, e);
             }
             if (exceptionType != null) {
                 handledExceptions.add(exceptionTypeAsString);
@@ -104,14 +103,14 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
                 clientException.setType(exceptionType);
                 if (response.getHeaders().get(exceptionType.getElementHeaderName()) != null
                         && !response.getHeaders().get(exceptionType.getElementHeaderName()).isEmpty()) {
-                    // TODO update clientException to support list of objects
-                    List<Object> elementsObjectList = response.getHeaders().get(exceptionType.getElementHeaderName());
-                    List<String> elementsStringList = new ArrayList<String>();
-                    for (Object elementObject : elementsObjectList) {
-                        if (elementObject instanceof String) {
-                            elementsStringList.add((String) elementObject);
-                        }
-                    }
+                	// TODO: update clientException to support list of objects
+                	List<Object> elementsObjectList = response.getHeaders().get(exceptionType.getElementHeaderName());
+                	List<String> elementsStringList = new ArrayList<String>();
+                	for (Object elementObject : elementsObjectList) {
+                		if (elementObject instanceof String) {
+                			elementsStringList.add((String) elementObject);
+                		}
+                	}
                     clientException.setElements(elementsStringList);
                 }
                 compositeException.addException(clientException);
@@ -126,7 +125,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
         if (compositeException.hasExceptions()) {
             return compositeException;
         }
-
+        
         return null;
-    }
+	}
 }
