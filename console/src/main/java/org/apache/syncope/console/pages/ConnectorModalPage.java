@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -107,6 +106,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 : connectorTO.getCapabilities());
 
         final IModel<List<ConnectorCapability>> capabilities = new LoadableDetachableModel<List<ConnectorCapability>>() {
+
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -164,8 +164,14 @@ public class ConnectorModalPage extends BaseModalPage {
         version.addRequiredLabel();
         version.getField().setOutputMarkupId(true);
 
+        final AjaxTextFieldPanel connRequestTimeout = new AjaxTextFieldPanel(
+                "connRequestTimeout",
+                "connRequestTimeout",
+                new PropertyModel<String>(connectorTO, "connRequestTimeout"));
+
         final ListView<ConnConfProperty> view = new ListView<ConnConfProperty>(
                 "connectorProperties", new PropertyModel<List<ConnConfProperty>>(this, "properties")) {
+
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
@@ -250,7 +256,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
                         "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
-                
+
                 item.add(overridable);
                 connectorTO.addConfiguration(property);
             }
@@ -259,6 +265,7 @@ public class ConnectorModalPage extends BaseModalPage {
         view.setOutputMarkupId(true);
 
         bundleName.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -279,6 +286,7 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         version.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -296,6 +304,7 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         final AjaxLink<String> check = new IndicatingAjaxLink<String>("check", new ResourceModel("check")) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -314,6 +323,7 @@ public class ConnectorModalPage extends BaseModalPage {
         };
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -333,7 +343,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     if (connectorTO.getId() == 0) {
                         restClient.create(conn);
                     } else {
-                            restClient.update(conn);
+                        restClient.update(conn);
                     }
 
                     ((Resources) callerPageRef.getPage()).setModalResult(true);
@@ -354,6 +364,7 @@ public class ConnectorModalPage extends BaseModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -374,7 +385,8 @@ public class ConnectorModalPage extends BaseModalPage {
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
 
-        capabilitiesPalette = new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette", new PropertyModel<List<ConnectorCapability>>(this,
+        capabilitiesPalette = new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
+                new PropertyModel<List<ConnectorCapability>>(this,
                 "selectedCapabilities"), capabilities);
 
         final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>("form");
@@ -396,6 +408,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(bundleName);
         connectorForm.add(displayName);
         connectorForm.add(version);
+        connectorForm.add(connRequestTimeout);
         connectorForm.add(capabilitiesPalette);
         connectorForm.add(submit);
         connectorForm.add(cancel);
@@ -433,7 +446,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 propertyTO.setSchema(key);
                 if (connTO.getId() != 0 && connTO.getConfigurationMap().containsKey(key.getName())) {
                     propertyTO.setValues(connTO.getConfigurationMap().get(key.getName()).getValues());
-                    propertyTO.setOverridable(connTO.getConfigurationMap().get(key.getName()).isOverridable());              
+                    propertyTO.setOverridable(connTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
                 props.add(propertyTO);
             }

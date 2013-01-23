@@ -18,11 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -64,7 +58,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     private static String bundlesDirectory;
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init()
+            throws IOException {
         Properties props = new Properties();
         InputStream propStream = null;
         try {
@@ -106,6 +101,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         connectorTO.setDisplayName("Display name");
 
+        connectorTO.setConnRequestTimeout(15);
+
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
 
@@ -146,6 +143,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
         assertEquals("Display name", actual.getDisplayName());
+        assertEquals(new Integer(15), actual.getConnRequestTimeout());
         assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
 
         Throwable t = null;
@@ -200,6 +198,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
+        
+        connectorTO.setConnRequestTimeout(20);
 
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
@@ -237,6 +237,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
+        assertEquals(new Integer(20), actual.getConnRequestTimeout());
     }
 
     @Test
@@ -565,8 +566,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename
-                .setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
         servicename.setOverridable(false);
 
         conf.add(endpoint);

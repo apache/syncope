@@ -24,16 +24,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @XmlRootElement(name = "connector")
 @XmlType
@@ -54,6 +52,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
     private final Set<ConnectorCapability> capabilities;
 
     private String displayName;
+
+    private Integer connRequestTimeout;
 
     public ConnInstanceTO() {
         super();
@@ -163,5 +163,23 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    /**
+     * Get connector request timeout. It is not applied in case of sync, full reconciliation and search.
+     *
+     * @return timeout.
+     */
+    public Integer getConnRequestTimeout() {
+        return connRequestTimeout;
+    }
+
+    /**
+     * Set connector request timeout. It is not applied in case of sync, full reconciliation and search.
+     *
+     * @param timeout.
+     */
+    public void setConnRequestTimeout(Integer connRequestTimeout) {
+        this.connRequestTimeout = connRequestTimeout;
     }
 }

@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -34,7 +33,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.core.util.XMLSerializer;
@@ -43,6 +41,8 @@ import org.apache.syncope.core.util.XMLSerializer;
 public class ConnInstance extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2294708794497208872L;
+
+    private static final int DEFAULT_TIMEOUT = 10;
 
     @Id
     private Long id;
@@ -88,8 +88,15 @@ public class ConnInstance extends AbstractBaseBean {
     /**
      * External resources associated to the connector.
      */
-    @OneToMany(cascade = { CascadeType.ALL }, mappedBy = "connector")
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "connector")
     private List<ExternalResource> resources;
+
+    /**
+     * Connector request timeout. It is not applied in case of sync, full reconciliation and search.
+     * DEFAULT_TIMEOUT is the default value to be used in case of unspecified timeout.
+     */
+    @Column
+    private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
     public ConnInstance() {
         super();
@@ -181,5 +188,16 @@ public class ConnInstance extends AbstractBaseBean {
         if (capabilities != null && !capabilities.isEmpty()) {
             this.capabilities.addAll(capabilities);
         }
+    }
+
+    public Integer getConnRequestTimeout() {
+        // DEFAULT_TIMEOUT will be returned in case of null timeout:
+        // * instances created by the content loader 
+        // * or with a timeout nullified explicitely
+        return connRequestTimeout == null ? DEFAULT_TIMEOUT : connRequestTimeout;
+    }
+
+    public void setConnRequestTimeout(Integer connRequestTimeout) {
+        this.connRequestTimeout = connRequestTimeout;
     }
 }

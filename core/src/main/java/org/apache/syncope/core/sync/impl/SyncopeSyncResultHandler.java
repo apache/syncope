@@ -85,7 +85,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
@@ -247,7 +246,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     @Override
     public boolean handle(final SyncDelta delta) {
         try {
-            LOG.error("AAAAAAAAAAAAAAAAAAAAAAAAAAAA in handle {}", SecurityContextHolder.getContext().getAuthentication());
             results.addAll(doHandle(delta));
             return true;
         } catch (JobExecutionException e) {
@@ -545,7 +543,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     }
 
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun) throws JobExecutionException {
+            final boolean dryRun)
+            throws JobExecutionException {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
@@ -636,7 +635,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     }
 
     protected List<SyncResult> delete(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun) throws JobExecutionException {
+            final boolean dryRun)
+            throws JobExecutionException {
 
         if (!syncTask.isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
@@ -714,7 +714,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * @return list of synchronization results
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected final List<SyncResult> doHandle(final SyncDelta delta) throws JobExecutionException {
+    protected final List<SyncResult> doHandle(final SyncDelta delta)
+            throws JobExecutionException {
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
         LOG.debug("Process {} for {} as {}",

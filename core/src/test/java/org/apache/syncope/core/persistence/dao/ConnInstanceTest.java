@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
@@ -79,6 +74,8 @@ public class ConnInstanceTest extends AbstractDAOTest {
 
         connectorInstance.setDisplayName("New");
 
+        connectorInstance.setConnRequestTimeout(60);
+
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
 
@@ -120,6 +117,8 @@ public class ConnInstanceTest extends AbstractDAOTest {
         assertEquals("save did not work for \"majorVersion\" attribute", "1.0", connectorInstance.getVersion());
 
         assertEquals("New", actual.getDisplayName());
+
+        assertEquals(new Integer(60), actual.getConnRequestTimeout());
 
         conf = connectorInstance.getConfiguration();
         assertFalse(conf.isEmpty());

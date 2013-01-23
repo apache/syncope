@@ -33,7 +33,6 @@ import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.propagation.TimeoutException;
@@ -89,22 +88,8 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      */
     private final ConnInstance activeConnInstance;
 
-    private int timeout;
-
     @Autowired
     private AsyncConnectorFacade asyncFacade;
-
-    @Autowired
-    private ConfDAO confDAO;
-
-    @Autowired
-    private void setTimeout() {
-        try {
-            timeout = Integer.parseInt(confDAO.find("connectorRequest.timeout", "60").getValue());
-        } catch (Throwable t) {
-            timeout = 60;
-        }
-    }
 
     /**
      * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
@@ -198,7 +183,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
 
             final Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
             try {
-                result = future.get(timeout, TimeUnit.SECONDS);
+                result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
                 future.cancel(true);
                 throw new TimeoutException("Request timeout");
@@ -236,7 +221,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
             final Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
 
             try {
-                result = future.get(timeout, TimeUnit.SECONDS);
+                result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
                 future.cancel(true);
                 throw new TimeoutException("Request timeout");
@@ -273,7 +258,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
             final Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
 
             try {
-                future.get(timeout, TimeUnit.SECONDS);
+                future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
                 future.cancel(true);
                 throw new TimeoutException("Request timeout");
@@ -317,7 +302,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
             final Future<SyncToken> future = asyncFacade.getLatestSyncToken(connector, objectClass);
 
             try {
-                result = future.get(timeout, TimeUnit.SECONDS);
+                result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
                 future.cancel(true);
                 throw new TimeoutException("Request timeout");
@@ -389,7 +374,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
 
         try {
-            return future == null ? null : future.get(timeout, TimeUnit.SECONDS);
+            return future == null ? null : future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
@@ -454,7 +439,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         final Future<Attribute> future = asyncFacade.getObjectAttribute(connector, objectClass, uid, options,
                 attributeName);
         try {
-            return future.get(timeout, TimeUnit.SECONDS);
+            return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
@@ -476,7 +461,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
             final OperationOptions options) {
         final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
         try {
-            return future.get(timeout, TimeUnit.SECONDS);
+            return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
@@ -497,7 +482,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     public Set<String> getSchema(final boolean showall) {
         final Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
         try {
-            return future.get(timeout, TimeUnit.SECONDS);
+            return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
@@ -518,7 +503,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     public void validate() {
         final Future<String> future = asyncFacade.test(connector);
         try {
-            future.get(timeout, TimeUnit.SECONDS);
+            future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
@@ -539,7 +524,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     public void test() {
         final Future<String> future = asyncFacade.test(connector);
         try {
-            future.get(timeout, TimeUnit.SECONDS);
+            future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");

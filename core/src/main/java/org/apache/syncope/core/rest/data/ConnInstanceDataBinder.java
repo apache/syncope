@@ -124,6 +124,10 @@ public class ConnInstanceDataBinder {
         if (connInstanceTO.getDisplayName() != null) {
             connInstance.setDisplayName(connInstanceTO.getDisplayName());
         }
+        
+        if (connInstanceTO.getConnRequestTimeout() != null) {
+            connInstance.setConnRequestTimeout(connInstanceTO.getConnRequestTimeout());
+        }
 
         connInstance.setCapabilities(connInstanceTO.getCapabilities());
 

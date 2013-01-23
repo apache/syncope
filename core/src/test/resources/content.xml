@@ -30,7 +30,6 @@ under the License.
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
-  <SyncopeConf confKey="connectorRequest.timeout" confValue="10"/>
 
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="GLOBAL_SYNC" specification="%3Corg.apache.syncope.common.types.SyncPolicySpec%2F%3E"/>
@@ -275,6 +274,7 @@ under the License.
                 bundleName="org.connid.bundles.soap"
                 connectorName="org.connid.bundles.soap.WebServiceConnector"
                 version="${connid.soap.version}"
+                connRequestTimeout="10"
                 xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.common.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eservicename%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Efalse%3C/overridable%3E%0A++%3C/org.apache.syncope.common.types.ConnConfProperty%3E%0A++%3Corg.apache.syncope.common.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A%3Cvalues%3E%0A%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/wssample/services/provisioning%3C/java.lang.String%3E%0A%3C/values%3E%0A++++%3Coverridable%3Etrue%3C/overridable%3E%0A++%3C/org.apache.syncope.common.types.ConnConfProperty%3E%0A%3C/set%3E"/>
   <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_CREATE"/>
   <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_UPDATE"/>
