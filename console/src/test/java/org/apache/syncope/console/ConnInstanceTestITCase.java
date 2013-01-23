@@ -54,15 +54,17 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.click("//div[3]/div[2]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@name='version:textField']\");", "30000");
+        selenium.waitForCondition(""
+                + "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+        selenium.select("//select[@name='connectorName:dropDownChoiceField']",
+                "label=org.connid.bundles.soap");
+        selenium.select("//select[@name='version:dropDownChoiceField']",
+                "label=1.2.4");
 
-        selenium.select("//select[@name='bundle:dropDownChoiceField']",
-                "label=org.connid.bundles.soap " + connidSoapVersion);
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
+        selenium.click("//div[2]/form/div[2]/ul/li[1]/a/span");
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//form/div[@id='tabs']/ul/li[1]/a/span");
-
-        assertTrue(selenium.isElementPresent("//form/div[2]/div/div/div[4]/div[2]"));
+        assertTrue(selenium.isElementPresent("//form/div[2]/div/div/div[3]/div[2]/"));
 
         selenium.click("css=a.w_close");
     }
@@ -76,14 +78,15 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//tr[4]/td[6]/div/span[8]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@name='version:textField']\");", "30000");
-
+        selenium.waitForCondition(""
+                + "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+        
         assertEquals("ConnInstance103", selenium.getAttribute("//input[@name='displayName:textField']/@value"));
 
-        assertEquals("org.connid.bundles.soap#" + connidSoapVersion, selenium
-                .getSelectedValue("//select[@name='bundle:dropDownChoiceField']"));
+        assertEquals("org.connid.bundles.soap", selenium
+                .getSelectedLabel("//select[@name='connectorName:dropDownChoiceField']"));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
     }
 
@@ -111,11 +114,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//tr[2]/td[6]/div/span[8]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@name='version:textField']\");", "30000");
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//select[@name='version:dropDownChoiceField']\");", "30000");
 
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='version:textField']\");", "30000");
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
 
         selenium.click("//div[2]/form/div[2]/div[2]/div/span/div[2]/div[29]/a/img");
 

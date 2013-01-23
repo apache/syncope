@@ -132,10 +132,11 @@ public class ConnectorRestClient extends BaseRestClient {
             prop.setOverridable(property.isOverridable());
 
             final List<Object> parsed = new ArrayList<Object>();
-
-            for (Object obj : property.getValues()) {
-                if (obj != null && !obj.toString().isEmpty()) {
-                    parsed.add(obj);
+            if (property.getValues() != null) {
+                for (Object obj : property.getValues()) {
+                    if (obj != null && !obj.toString().isEmpty()) {
+                        parsed.add(obj);
+                    }
                 }
             }
             prop.setValues(parsed);
