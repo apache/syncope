@@ -65,8 +65,8 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
     }
 
     @Override
-    public ConfigurationTO update(final String key, final ConfigurationTO configurationTO) {
-        return getRestTemplate().postForObject(baseUrl + "configuration/update", configurationTO,
+    public void update(final String key, final ConfigurationTO configurationTO) {
+        getRestTemplate().postForObject(baseUrl + "configuration/update", configurationTO,
                 ConfigurationTO.class);
     }
 

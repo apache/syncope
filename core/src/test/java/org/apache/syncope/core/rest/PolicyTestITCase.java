@@ -25,6 +25,8 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -43,7 +45,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void listByType() {
-        List<SyncPolicyTO> policyTOs = policyService.listByType(PolicyType.SYNC);
+        List<SyncPolicyTO> policyTOs = policyService.list(PolicyType.SYNC);
 
         assertNotNull(policyTOs);
         assertFalse(policyTOs.isEmpty());
@@ -109,7 +111,9 @@ public class PolicyTestITCase extends AbstractTest {
     public void create() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        SyncPolicyTO policyTO = policyService.create(PolicyType.SYNC, policy);
+        Response response = policyService.create(PolicyType.SYNC, policy);
+        assertNotNull(response);
+        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -125,7 +129,9 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        policy = policyService.create(PolicyType.PASSWORD, policy);
+        Response response = policyService.create(PolicyType.PASSWORD, policy);
+        assertNotNull(response);
+        policy = getObject(response.getLocation(), PasswordPolicyTO.class);
 
         // read new password policy
         policy = policyService.read(PolicyType.PASSWORD, policy.getId());
@@ -137,7 +143,8 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(policySpec);
 
         // update new password policy
-        policy = policyService.update(PolicyType.PASSWORD, policy.getId(), policy);
+        policyService.update(PolicyType.PASSWORD, policy.getId(), policy);
+        policy = policyService.read(PolicyType.PASSWORD, policy.getId());
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
@@ -148,16 +155,16 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
-        SyncPolicyTO policyTO = policyService.create(PolicyType.SYNC, policy);
+        Response response = policyService.create(PolicyType.SYNC, policy);
+        assertNotNull(response);
+        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class);
         assertNotNull(policyTO);
 
-        PolicyTO policyToDelete =
-                policyService.delete(PolicyType.SYNC, policyTO.getId());
-        assertNotNull(policyToDelete);
+        policyService.delete(PolicyType.SYNC, policyTO.getId());
 
         Throwable t = null;
         try {
-        	policyService.read(PolicyType.SYNC, policyTO.getId());
+            policyService.read(PolicyType.SYNC, policyTO.getId());
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }
@@ -165,10 +172,10 @@ public class PolicyTestITCase extends AbstractTest {
         assertNotNull(t);
     }
 
-	private SyncPolicyTO buildSyncPolicyTO() {
-		SyncPolicyTO policy = new SyncPolicyTO();
+    private SyncPolicyTO buildSyncPolicyTO() {
+        SyncPolicyTO policy = new SyncPolicyTO();
         policy.setSpecification(new SyncPolicySpec());
         policy.setDescription("Sync policy");
-		return policy;
-	}
+        return policy;
+    }
 }

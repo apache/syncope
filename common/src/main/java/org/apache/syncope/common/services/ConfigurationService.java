@@ -64,5 +64,5 @@ public interface ConfigurationService {
 
     @PUT
     @Path("{key}")
-    ConfigurationTO update(@PathParam("key") String key, ConfigurationTO configurationTO);
+    void update(@PathParam("key") String key, ConfigurationTO configurationTO);
 }

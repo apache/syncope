@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 
+@XmlRootElement(name = "accountPolicy")
+@XmlType
 public class AccountPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -1557150042828800134L;

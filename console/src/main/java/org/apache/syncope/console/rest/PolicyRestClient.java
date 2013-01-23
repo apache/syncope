@@ -69,7 +69,7 @@ public class PolicyRestClient extends BaseRestClient {
         List<T> policies = new ArrayList<T>();
 
         try {
-            policies = (List<T>) getService(PolicyService.class).listByType(type);
+            policies = (List<T>) getService(PolicyService.class).list(type);
             res.addAll(policies);
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
@@ -87,26 +87,27 @@ public class PolicyRestClient extends BaseRestClient {
         return res;
     }
 
-    public <T extends PolicyTO> T createPolicy(final T policy) throws InvalidPolicyType {
-        return getService(PolicyService.class).create(policy.getType(), policy);
+    public <T extends PolicyTO> void createPolicy(final T policy) {
+        getService(PolicyService.class).create(policy.getType(), policy);
     }
 
-    public <T extends PolicyTO> T updatePolicy(final T policy) throws InvalidPolicyType {
-        return getService(PolicyService.class).update(policy.getType(), policy.getId(), policy);
+    public <T extends PolicyTO> void updatePolicy(final T policy) {
+        getService(PolicyService.class).update(policy.getType(), policy.getId(), policy);
     }
 
-    public PolicyTO delete(final Long id, Class<? extends PolicyTO> policyClass) {
-        return getService(PolicyService.class).delete(getPolicyType(policyClass), id);
+    public void delete(final Long id, final Class<? extends PolicyTO> policyClass) {
+        getService(PolicyService.class).delete(getPolicyType(policyClass), id);
     }
 
-    private PolicyType getPolicyType(Class<? extends PolicyTO> clazz) {
-        if (AccountPolicyTO.class.equals(clazz))
+    private PolicyType getPolicyType(final Class<? extends PolicyTO> clazz) {
+        if (AccountPolicyTO.class.equals(clazz)) {
             return PolicyType.ACCOUNT;
-        else if (PasswordPolicyTO.class.equals(clazz))
+        } else if (PasswordPolicyTO.class.equals(clazz)) {
             return PolicyType.PASSWORD;
-        else if (SyncPolicyTO.class.equals(clazz))
+        } else if (SyncPolicyTO.class.equals(clazz)) {
             return PolicyType.SYNC;
-        else
+        } else {
             throw new IllegalArgumentException("Policy Type not supported");
+        }
     }
 }

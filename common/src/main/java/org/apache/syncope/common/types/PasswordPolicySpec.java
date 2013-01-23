@@ -21,8 +21,13 @@ package org.apache.syncope.common.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.annotation.SchemaList;
 
+@XmlType
 public class PasswordPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -7988778083915548547L;
@@ -252,6 +257,8 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         this.nonAlphanumericRequired = nonAlphanumericRequired;
     }
 
+    @XmlElementWrapper(name = "prefixesNotPermitted")
+    @XmlElement(name = "prefix")
     public List<String> getPrefixesNotPermitted() {
         if (prefixesNotPermitted == null) {
             prefixesNotPermitted = new ArrayList<String>();
@@ -263,6 +270,8 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         this.prefixesNotPermitted = prefixesNotPermitted;
     }
 
+    @XmlElementWrapper(name = "schemasNotPermitted")
+    @XmlElement(name = "schema")
     public List<String> getSchemasNotPermitted() {
         if (schemasNotPermitted == null) {
             schemasNotPermitted = new ArrayList<String>();
@@ -274,6 +283,8 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         this.schemasNotPermitted = schemasNotPermitted;
     }
 
+    @XmlElementWrapper(name = "suffixesNotPermitted")
+    @XmlElement(name = "suffix")
     public List<String> getSuffixesNotPermitted() {
         if (suffixesNotPermitted == null) {
             suffixesNotPermitted = new ArrayList<String>();
@@ -293,6 +304,8 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         this.uppercaseRequired = uppercaseRequired;
     }
 
+    @XmlElementWrapper(name = "wordsNotPermitted")
+    @XmlElement(name = "word")
     public List<String> getWordsNotPermitted() {
         if (wordsNotPermitted == null) {
             wordsNotPermitted = new ArrayList<String>();

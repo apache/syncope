@@ -25,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.types.PolicyType;
@@ -33,25 +34,25 @@ import org.apache.syncope.common.types.PolicyType;
 public interface PolicyService {
 
     @POST
-    <T extends PolicyTO> T create(@PathParam("kind") PolicyType type, T policyTO);
+    <T extends PolicyTO> Response create(@PathParam("kind") PolicyType type, T policyTO);
 
-    // TODO: policyClass is required only for Spring RestTemplate mock. Must be removed for CXF
     @DELETE
     @Path("{policyId}")
-    <T extends PolicyTO> T delete(@PathParam("kind") PolicyType type, @PathParam("policyId") Long policyId);
+    <T extends PolicyTO> void delete(@PathParam("kind") PolicyType type, @PathParam("policyId") Long policyId);
 
     @GET
-    <T extends PolicyTO> List<T> listByType(@PathParam("kind") PolicyType type);
+    <T extends PolicyTO> List<T> list(@PathParam("kind") PolicyType type);
 
     @GET
     @Path("{policyId}")
     <T extends PolicyTO> T read(@PathParam("kind") PolicyType type, @PathParam("policyId") Long policyId);
 
     @GET
-    @Path("global")
+    @Path("0")
     <T extends PolicyTO> T readGlobal(@PathParam("kind") PolicyType type);
 
     @PUT
     @Path("{policyId}")
-    <T extends PolicyTO> T update(@PathParam("kind") PolicyType type,@PathParam("policyId") Long policyId, T policyTO);
+    <T extends PolicyTO> void update(@PathParam("kind") PolicyType type,@PathParam("policyId") Long policyId,
+            T policyTO);
 }

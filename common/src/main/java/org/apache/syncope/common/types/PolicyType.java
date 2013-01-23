@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
+@XmlEnum
 public enum PolicyType {
 
     /**
@@ -26,11 +29,13 @@ public enum PolicyType {
      */
     ACCOUNT("Account Policy"),
     GLOBAL_ACCOUNT("Account Global Policy"),
+
     /**
      * Password policy regarding password syntax.
      */
     PASSWORD("Password Policy"),
     GLOBAL_PASSWORD("Password Global Policy"),
+
     /**
      * SYNC policy regarding account conflicts resolution.
      */
@@ -45,5 +50,9 @@ public enum PolicyType {
 
     public String getDescription() {
         return description;
+    }
+
+    public static PolicyType fromString(String value) {
+        return PolicyType.valueOf(value.toUpperCase());
     }
 }

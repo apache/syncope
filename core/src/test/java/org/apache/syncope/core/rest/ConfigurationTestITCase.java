@@ -99,7 +99,8 @@ public class ConfigurationTestITCase extends AbstractTest {
         value++;
         configurationTO.setValue(value + "");
 
-        ConfigurationTO newConfigurationTO = configurationService.update(configurationTO.getKey(), configurationTO);
+        configurationService.update(configurationTO.getKey(), configurationTO);
+        ConfigurationTO newConfigurationTO = configurationService.read(configurationTO.getKey());
         assertEquals(configurationTO, newConfigurationTO);
 
         newConfigurationTO = configurationService.read("token.expireTime");

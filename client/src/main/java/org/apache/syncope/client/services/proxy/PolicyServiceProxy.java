@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
@@ -36,36 +40,35 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
     }
 
     @Override
-    public <T extends PolicyTO> T create(final PolicyType type, final T policyTO) {
-        return (T) getRestTemplate().postForObject(baseUrl + "policy/{kind}/create", policyTO, policyTO.getClass(),
-                typeToUrl(policyTO.getType()));
+    public <T extends PolicyTO> Response create(final PolicyType type, final T policyTO) {
+        PolicyTO policy = getRestTemplate().postForObject(baseUrl + "policy/{kind}/create", policyTO,
+                policyTO.getClass(), typeToUrl(policyTO.getType()));
+
+        return Response.created(URI.create(baseUrl + "policy/read/" + policy.getId() + ".json")).build();
     }
 
     @Override
-    public <T extends PolicyTO> T delete(final PolicyType type, final Long policyId) {
-        return (T) getRestTemplate().getForObject(baseUrl + "policy/delete/{id}", getTOClass(type), policyId);
+    public <T extends PolicyTO> void delete(final PolicyType type, final Long policyId) {
+        getRestTemplate().getForObject(baseUrl + "policy/delete/{id}", getTOClass(type), policyId);
     }
 
     @Override
-    public <T extends PolicyTO> List<T> listByType(final PolicyType type) {
+    public <T extends PolicyTO> List<T> list(final PolicyType type) {
         switch (type) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(
-                        baseUrl + "policy/{kind}/list", AccountPolicyTO[].class,
-                        type));
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                        AccountPolicyTO[].class, type));
 
             case PASSWORD:
             case GLOBAL_PASSWORD:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(
-                        baseUrl + "policy/{kind}/list", PasswordPolicyTO[].class,
-                        type));
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                        PasswordPolicyTO[].class, type));
 
             case SYNC:
             case GLOBAL_SYNC:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(
-                        baseUrl + "policy/{kind}/list", SyncPolicyTO[].class,
-                        type));
+                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                        SyncPolicyTO[].class, type));
 
             default:
                 throw new IllegalArgumentException("Policy Type not supported: " + type);
@@ -74,21 +77,19 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
 
     @Override
     public <T extends PolicyTO> T read(final PolicyType type, final Long policyId) {
-        return (T) getRestTemplate().getForObject(baseUrl + "policy/read/{id}", getTOClass(type), policyId);
+        return (T) getRestTemplate().getForObject(baseUrl + "policy/read/{id}.json", getTOClass(type), policyId);
     }
 
     @Override
     public <T extends PolicyTO> T readGlobal(final PolicyType type) {
-        return (T) getRestTemplate().getForObject(baseUrl + "policy/{kind}/global/read", getTOClass(type),
+        return (T) getRestTemplate().getForObject(baseUrl + "policy/{kind}/global/read.json", getTOClass(type),
                 typeToUrl(type));
     }
 
     @Override
-    public <T extends PolicyTO> T update(final PolicyType type, final Long policyId, final T policyTO) {
-        @SuppressWarnings("unchecked")
-        T result = (T) getRestTemplate().postForObject(baseUrl + "policy/{kind}/update", policyTO, policyTO.getClass(),
+    public <T extends PolicyTO> void update(final PolicyType type, final Long policyId, final T policyTO) {
+        getRestTemplate().postForObject(baseUrl + "policy/{kind}/update", policyTO, policyTO.getClass(),
                 typeToUrl(policyTO.getType()));
-        return result;
     }
 
     private Class<? extends PolicyTO> getTOClass(final PolicyType type) {

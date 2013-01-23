@@ -21,8 +21,13 @@ package org.apache.syncope.common.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.annotation.SchemaList;
 
+@XmlType
 public class SyncPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
@@ -61,6 +66,8 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
+    @XmlElementWrapper(name = "userAltSearchSchemas")
+    @XmlElement(name = "userAltSearchSchema")
     public List<String> getuAltSearchSchemas() {
         return uAltSearchSchemas;
     }
@@ -69,6 +76,8 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         this.uAltSearchSchemas = uAltSearchSchemas;
     }
 
+    @XmlElementWrapper(name = "roleAltSearchSchemas")
+    @XmlElement(name = "roleAltSearchSchema")
     public List<String> getrAltSearchSchemas() {
         return rAltSearchSchemas;
     }

@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.services;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.ConfigurationService;
@@ -55,7 +58,17 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     public Response dbExport() {
         configurationController.dbExport(new DummyHTTPServletResponse());
         // TODO catch output-stream and forward it to response
-        return null;
+        return Response.ok(new StreamingOutput() {
+
+            @Override
+            public void write(final OutputStream output) throws IOException {
+//                FileInputStream is = new FileInputStream("/etc/hosts");
+//                while (is.available() > 0) {
+//                    output.write(is.read());
+//                }
+//                is.close();
+            }
+        }).build();
     }
 
     @Override
@@ -92,9 +105,9 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
-    public ConfigurationTO update(final String key, final ConfigurationTO configurationTO) {
+    public void update(final String key, final ConfigurationTO configurationTO) {
         try {
-            return configurationController.update(null, configurationTO);
+            configurationController.update(null, configurationTO);
         } catch (MissingConfKeyException e) {
             throw new NotFoundException(e);
         }

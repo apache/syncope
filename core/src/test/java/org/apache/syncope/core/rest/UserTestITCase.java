@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -73,7 +75,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
 
-    private ConnObjectTO readUserConnObj(String resourceName, String userId) {
+    private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
@@ -105,7 +107,7 @@ public class UserTestITCase extends AbstractTest {
         super.setupRestTemplate("user1", ADMIN_PWD);
 
         try {
-            userService.read(1l);
+            userService.read(1L);
             fail();
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
@@ -169,7 +171,7 @@ public class UserTestITCase extends AbstractTest {
      * introducing a simple control.
      */
     public void issue172() {
-        List<PasswordPolicyTO> policies = policyService.listByType(PolicyType.GLOBAL_PASSWORD);
+        List<PasswordPolicyTO> policies = policyService.list(PolicyType.GLOBAL_PASSWORD);
         for (PasswordPolicyTO policyTO : policies) {
             policyService.delete(PolicyType.PASSWORD, policyTO.getId());
         }
@@ -179,7 +181,9 @@ public class UserTestITCase extends AbstractTest {
             userService.create(userTO);
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
-                PolicyTO cPolicyTO = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
+                Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
+                assertNotNull(response);
+                PolicyTO cPolicyTO = getObject(response.getLocation(), PasswordPolicyTO.class);
                 assertNotNull(cPolicyTO);
             }
         }
@@ -399,8 +403,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void create() {
         // get task list
-        List<PropagationTaskTO> tasks =
-                taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -467,7 +470,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // default configuration for ws-target-resource2:
-        //             only failed executions have to be registered
+        // only failed executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxId, maxId);
 
@@ -667,8 +670,8 @@ public class UserTestITCase extends AbstractTest {
 
         exception = null;
         try {
-            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.
-                    getUsername());
+            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
+                    userTO.getUsername());
             assertEquals(userTO.getUsername(), username);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
@@ -687,7 +690,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void delete() {
         try {
-            userService.delete(0l);
+            userService.delete(0L);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -789,7 +792,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        UserTO userTO = userService.read(1l);
+        UserTO userTO = userService.read(1L);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());
@@ -985,7 +988,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // default configuration for ws-target-resource2:
-        //             only failed executions have to be registered
+        // only failed executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxId, maxId);
 
@@ -1014,7 +1017,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // default configuration for ws-target-resource2:
-        //             all update executions have to be registered
+        // all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
         final PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
@@ -1091,7 +1094,6 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.activateByUsername(userTO.getUsername(), userTO.getToken());
 
-
         assertNotNull(userTO);
         assertNull(userTO.getToken());
         assertNull(userTO.getTokenExpireTime());
@@ -1110,7 +1112,9 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.create(userTO);
 
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
+                ? "active"
+                : "created", userTO.getStatus());
 
         userTO = userService.suspend(userTO.getId());
 
@@ -1134,7 +1138,9 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.create(userTO);
 
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
+                ? "active"
+                : "created", userTO.getStatus());
 
         userTO = userService.suspendByUsername(userTO.getUsername());
 
@@ -1167,7 +1173,9 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.create(userTO);
 
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
+                ? "active"
+                : "created", userTO.getStatus());
 
         String query = "?resourceNames=" + dbTable.getName() + "&resourceNames=" + ldap.getName()
                 + "&performLocally=true"; // check also performLocally
@@ -1181,9 +1189,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
-                getValues().
-                get(0)));
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
+                .getValues().get(0)));
 
         String ldapUID = userTO.getUsername();
         assertNotNull(ldapUID);
@@ -1198,9 +1205,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
-                getValues().
-                get(0)));
+        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
+                .getValues().get(0)));
 
         query = "?resourceNames=" + dbTable.getName() + "&performLocally=true"; // check also performLocally
 
@@ -1209,9 +1215,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME).
-                getValues().
-                get(0)));
+        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
+                .getValues().get(0)));
     }
 
     public void updateMultivalueAttribute() {
@@ -1254,8 +1259,8 @@ public class UserTestITCase extends AbstractTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
-        String username =
-                jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
+                userTO.getUsername());
 
         assertEquals(userTO.getUsername(), username);
 
@@ -1615,7 +1620,8 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(actual.getId());
 
         MembershipTO membershipTO = actual.getMemberships().get(0).getRoleId() == 12L
-                ? actual.getMemberships().get(0) : actual.getMemberships().get(1);
+                ? actual.getMemberships().get(0)
+                : actual.getMemberships().get(1);
 
         userMod.addMembershipToBeRemoved(membershipTO.getId());
 
@@ -1627,8 +1633,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
-        assertTrue(postalAddress == null
-                || postalAddress.getValues().isEmpty() || StringUtils.hasText(postalAddress.getValues().get(0)));
+        assertTrue(postalAddress == null || postalAddress.getValues().isEmpty()
+                || StringUtils.hasText(postalAddress.getValues().get(0)));
 
         title = connObjectTO.getAttributeMap().get("title");
         assertNotNull(title);
@@ -1672,7 +1678,8 @@ public class UserTestITCase extends AbstractTest {
         configurationTO.setKey("password.cipher.algorithm");
         configurationTO.setValue("MD5");
 
-        ConfigurationTO newConfTO = configurationService.update(configurationTO.getKey(), configurationTO);
+        configurationService.update(configurationTO.getKey(), configurationTO);
+        ConfigurationTO newConfTO = configurationService.read(configurationTO.getKey());
 
         assertEquals(configurationTO, newConfTO);
 
@@ -1683,11 +1690,12 @@ public class UserTestITCase extends AbstractTest {
             userService.create(userTO);
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            assertTrue(
-                    e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next().contains("MD5"));
+            assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next()
+                    .contains("MD5"));
         }
 
-        ConfigurationTO oldConfTO = configurationService.update(defaultConfigurationTO.getKey(), defaultConfigurationTO);
+        configurationService.update(defaultConfigurationTO.getKey(), defaultConfigurationTO);
+        ConfigurationTO oldConfTO = configurationService.read(defaultConfigurationTO.getKey());
 
         assertEquals(defaultConfigurationTO, oldConfTO);
     }

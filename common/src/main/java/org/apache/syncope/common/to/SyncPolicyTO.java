@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 
+@XmlRootElement(name = "syncPolicy")
+@XmlType
 public class SyncPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;

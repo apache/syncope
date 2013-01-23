@@ -18,9 +18,17 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.PolicyType;
 
+@XmlRootElement(name = "policy")
+@XmlType
+@XmlSeeAlso({AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class})
+//@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="class")
 public abstract class PolicyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2903888572649721035L;
