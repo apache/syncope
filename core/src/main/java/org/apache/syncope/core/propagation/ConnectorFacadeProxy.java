@@ -206,6 +206,7 @@ public class ConnectorFacadeProxy {
             try {
                 result = future.get(timeout, TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
@@ -251,6 +252,7 @@ public class ConnectorFacadeProxy {
             try {
                 result = future.get(timeout, TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
@@ -293,6 +295,7 @@ public class ConnectorFacadeProxy {
             try {
                 future.get(timeout, TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
@@ -352,6 +355,7 @@ public class ConnectorFacadeProxy {
             try {
                 result = future.get(timeout, TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
@@ -431,6 +435,7 @@ public class ConnectorFacadeProxy {
         try {
             return future == null ? null : future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -485,10 +490,12 @@ public class ConnectorFacadeProxy {
      */
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
+        final Future<Attribute> future = asyncFacade.getObjectAttribute(connector, objectClass, uid, options,
+                attributeName);
         try {
-            return asyncFacade.getObjectAttribute(connector, objectClass, uid, options, attributeName).
-                    get(timeout, TimeUnit.SECONDS);
+            return future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -511,9 +518,11 @@ public class ConnectorFacadeProxy {
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
 
+        final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
         try {
-            return asyncFacade.getObjectAttributes(connector, objectClass, uid, options).get(timeout, TimeUnit.SECONDS);
+            return future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -532,9 +541,11 @@ public class ConnectorFacadeProxy {
      * @return a list of schema names.
      */
     public Set<String> getSchema(final boolean showall) {
+        Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
         try {
-            return asyncFacade.getSchema(connector, showall).get(timeout, TimeUnit.SECONDS);
+            return future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -550,9 +561,11 @@ public class ConnectorFacadeProxy {
      * Validate a connector instance.
      */
     public void validate() {
+        final Future<String> future = asyncFacade.test(connector);
         try {
-            asyncFacade.test(connector).get(timeout, TimeUnit.SECONDS);
+            future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -568,9 +581,11 @@ public class ConnectorFacadeProxy {
      * Check connection to resource.
      */
     public void test() {
+        final Future<String> future = asyncFacade.test(connector);
         try {
-            asyncFacade.test(connector).get(timeout, TimeUnit.SECONDS);
+            future.get(timeout, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
