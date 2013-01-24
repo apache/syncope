@@ -91,8 +91,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.String);
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class, entitlementService);
+        SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)

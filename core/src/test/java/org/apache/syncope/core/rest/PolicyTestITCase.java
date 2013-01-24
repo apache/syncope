@@ -116,8 +116,7 @@ public class PolicyTestITCase extends AbstractTest {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
         Response response = policyService.create(PolicyType.SYNC, policy);
-        assertNotNull(response);
-        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class, policyService);
+        SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -134,8 +133,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         // create a new password policy using global password as a template
         Response response = policyService.create(PolicyType.PASSWORD, policy);
-        assertNotNull(response);
-        policy = getObject(response.getLocation(), PasswordPolicyTO.class, policyService);
+        policy = getObject(response, PasswordPolicyTO.class, policyService);
 
         // read new password policy
         policy = policyService.read(PolicyType.PASSWORD, policy.getId());
@@ -160,8 +158,7 @@ public class PolicyTestITCase extends AbstractTest {
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
         Response response = policyService.create(PolicyType.SYNC, policy);
-        assertNotNull(response);
-        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class, policyService);
+        SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
         assertNotNull(policyTO);
 
         policyService.delete(PolicyType.SYNC, policyTO.getId());

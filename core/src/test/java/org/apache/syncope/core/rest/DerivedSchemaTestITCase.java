@@ -69,8 +69,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setExpression("derived_sx + '_' + derived_dx");
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.DERIVED, schema);
-        assertNotNull(response);
-        DerivedSchemaTO actual = getObject(response.getLocation(), DerivedSchemaTO.class, schemaService);
+        DerivedSchemaTO actual = getObject(response, DerivedSchemaTO.class, schemaService);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaService.SchemaType.DERIVED, actual.getName());

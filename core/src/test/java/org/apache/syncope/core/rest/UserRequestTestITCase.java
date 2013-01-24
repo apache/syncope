@@ -61,7 +61,7 @@ public class UserRequestTestITCase extends AbstractTest {
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        configurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
+        configurationTO = getObject(response, ConfigurationTO.class, configurationService);
         assertNotNull(configurationTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfcreate@syncope.apache.org");
@@ -82,7 +82,7 @@ public class UserRequestTestITCase extends AbstractTest {
         response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        configurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
+        configurationTO = getObject(response, ConfigurationTO.class, configurationService);
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works

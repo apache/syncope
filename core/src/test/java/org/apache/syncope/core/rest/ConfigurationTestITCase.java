@@ -50,7 +50,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
+        ConfigurationTO newConfigurationTO = getObject(response, ConfigurationTO.class, configurationService);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -73,9 +73,9 @@ public class ConfigurationTestITCase extends AbstractTest {
         }
 
         Response response = configurationService.create(tokenLengthTO);
-        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
         assertNotNull(response);
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
+        ConfigurationTO newConfigurationTO = getObject(response, ConfigurationTO.class, configurationService);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 

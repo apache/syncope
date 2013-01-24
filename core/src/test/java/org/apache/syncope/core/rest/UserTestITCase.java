@@ -121,6 +121,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("user1", userTO.getUsername());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void createUserWithNoPropagation() {
         // get task list
@@ -186,8 +187,7 @@ public class UserTestITCase extends AbstractTest {
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
-                assertNotNull(response);
-                PolicyTO cPolicyTO = getObject(response.getLocation(), PasswordPolicyTO.class, policyService);
+                PolicyTO cPolicyTO = getObject(response, PasswordPolicyTO.class, policyService);
                 assertNotNull(cPolicyTO);
             }
         }
@@ -404,6 +404,7 @@ public class UserTestITCase extends AbstractTest {
         userService.create(newUserTO);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void create() {
         // get task list

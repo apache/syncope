@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -253,22 +254,24 @@ public abstract class AbstractTest {
     }
     // END CXF Initialization
 
-    public <T> T getObject(final URI location, final Class<T> type, final Object serviceProxy) {
+    public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
         if (!activatedCXF) {
-            return getObjectSpring(location, type);
+            return getObjectSpring(response, type);
         } else {
-            return resolveObjectCXF(location, type, serviceProxy);
+            return getObjectCXF(response, type, serviceProxy);
         }
     }
 
-    public <T> T getObjectSpring(final URI location, final Class<T> type) {
-        assertNotNull(location);
-        return restTemplate.getForEntity(location, type).getBody();
+    private <T> T getObjectSpring(final Response response, final Class<T> type) {
+        return restTemplate.getForEntity(response.getLocation(), type).getBody();
     }
 
-    public static <T> T resolveObjectCXF(final URI location, final Class<T> type, final Object serviceProxy) {
+    private static <T> T getObjectCXF(final Response response, final Class<T> type, final Object serviceProxy) {
+        String location = response.getLocation().toString();
         WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
-        webClient.to(location.toString(), false);
+        webClient.to(location, false);
 
         return webClient.get(type);
     }

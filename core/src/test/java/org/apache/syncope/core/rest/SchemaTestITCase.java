@@ -61,17 +61,11 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-
-        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
+        SchemaTO newSchemaTO = getObject(response, SchemaTO.class, schemaService);
         assertEquals(schemaTO, newSchemaTO);
 
         response = schemaService.create(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-
-        newSchemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
+        newSchemaTO = getObject(response, SchemaTO.class, schemaService);
         assertEquals(schemaTO, newSchemaTO);
     }
 
@@ -197,9 +191,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setType(SchemaType.Double);
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
+        schemaTO = getObject(response, SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue258@syncope.apache.org");
@@ -224,9 +216,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setUniqueConstraint(true);
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
+        schemaTO = getObject(response, SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue259@syncope.apache.org");
@@ -251,9 +241,7 @@ public class SchemaTestITCase extends AbstractTest {
         schemaTO.setUniqueConstraint(true);
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
+        schemaTO = getObject(response, SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue260@syncope.apache.org");

@@ -139,8 +139,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
-        assertNotNull(response);
-        ConnInstanceTO actual = getObject(response.getLocation(), ConnInstanceTO.class, connectorService);
+        ConnInstanceTO actual = getObject(response, ConnInstanceTO.class, connectorService);
 
         assertNotNull(actual);
 
@@ -203,7 +202,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
-        
+
         connectorTO.setConnRequestTimeout(20);
 
         // set the connector configuration using PropertyTO
@@ -275,8 +274,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Create a new connector instance.
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
-        assertNotNull(response);
-        connInstanceTO = getObject(response.getLocation(), ConnInstanceTO.class, connectorService);
+        connInstanceTO = getObject(response, ConnInstanceTO.class, connectorService);
 
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
@@ -585,8 +583,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertFalse(connectorService.validate(connectorTO));
 
             Response response = connectorService.create(connectorTO);
-            assertNotNull(response);
-            connectorTO = getObject(response.getLocation(), ConnInstanceTO.class, configurationService);
+            connectorTO = getObject(response, ConnInstanceTO.class, configurationService);
             assertNotNull(connectorTO);
             // ----------------------------------------
 
