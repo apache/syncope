@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
@@ -100,6 +102,12 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ReportTO create(final HttpServletResponse response, @RequestBody final ReportTO reportTO) {
+        ReportTO createdReportTO = createInternal(reportTO);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return createdReportTO;
+    }
+    
+    public ReportTO createInternal(final ReportTO reportTO) {
         LOG.debug("Creating report " + reportTO);
 
         Report report = new Report();
@@ -122,7 +130,6 @@ public class ReportController extends AbstractController {
         auditManager.audit(Category.report, ReportSubCategory.create, Result.success,
                 "Successfully created report: " + report.getId());
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getReportTO(report);
     }
 
@@ -212,6 +219,12 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/reportletConfClasses")
     public ModelAndView getReportletConfClasses() {
+        Set<String> reportletConfClasses = getReportletConfClassesInternal();
+        return new ModelAndView().addObject(reportletConfClasses);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public Set<String> getReportletConfClassesInternal() {
         Set<String> reportletConfClasses = new HashSet<String>();
 
         for (Class<Reportlet> reportletClass : binder.getAllReportletClasses()) {
@@ -223,8 +236,7 @@ public class ReportController extends AbstractController {
 
         auditManager.audit(Category.report, ReportSubCategory.getReportletConfClasses, Result.success,
                 "Successfully listed all ReportletConf classes: " + reportletConfClasses.size());
-
-        return new ModelAndView().addObject(reportletConfClasses);
+        return reportletConfClasses;
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
@@ -265,30 +277,25 @@ public class ReportController extends AbstractController {
             @PathVariable("executionId") final Long executionId,
             @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt) throws NotFoundException {
 
-        ReportExec reportExec = reportExecDAO.find(executionId);
-        if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionId);
+        ServletOutputStream os;
+        try {
+            os = response.getOutputStream();
+        } catch (IOException e1) {
+            throw new RuntimeException("Could not retrieve stream", e1);
         }
-        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientCompositeErrorException sccee = new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
-            sce.addElement(reportExec.getExecResult() == null
-                    ? "No report data produced"
-                    : "Report did not run successfully");
-            sccee.addException(sce);
-            throw sccee;
-        }
+        ReportExec reportExec = getAndCheckReportExecInternal(executionId);
 
-        ReportExecExportFormat format = fmt == null
-                ? ReportExecExportFormat.XML
-                : fmt;
-
-        LOG.debug("Exporting result of {} as {}", reportExec, format);
+        ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.addHeader("Content-Disposition", "attachment; filename=" + reportExec.getReport().getName() + "."
                 + format.name().toLowerCase());
+
+        exportExecutionResultInternal(os, reportExec, format);
+    }
+
+    public void exportExecutionResultInternal(OutputStream os, ReportExec reportExec, ReportExecExportFormat format) {
+        LOG.debug("Exporting result of {} as {}", reportExec, format);
 
         // streaming SAX handler from a compressed byte array stream
         ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
@@ -333,7 +340,7 @@ public class ReportController extends AbstractController {
                     pipeline.addComponent(XMLSerializer.createXMLSerializer());
             }
 
-            pipeline.setup(response.getOutputStream());
+            pipeline.setup(os);
             pipeline.execute();
 
             LOG.debug("Result of {} successfully exported as {}", reportExec, format);
@@ -350,6 +357,25 @@ public class ReportController extends AbstractController {
 
         auditManager.audit(Category.report, ReportSubCategory.exportExecutionResult, Result.success,
                 "Successfully exported report execution: " + reportExec.getId());
+    }
+
+    public ReportExec getAndCheckReportExecInternal(final Long executionId)
+            throws NotFoundException {
+        ReportExec reportExec = reportExecDAO.find(executionId);
+        if (reportExec == null) {
+            throw new NotFoundException("Report execution " + executionId);
+        }
+        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
+            SyncopeClientCompositeErrorException sccee = new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
+            sce.addElement(reportExec.getExecResult() == null
+                    ? "No report data produced"
+                    : "Report did not run successfully");
+            sccee.addException(sce);
+            throw sccee;
+        }
+        return reportExec;
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")

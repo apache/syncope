@@ -29,6 +29,9 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -43,6 +46,12 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
+    
+    ReportTO createReport(ReportTO report) {
+        Response response = reportService.create(report);
+        Long reportId = (Long) response.getEntity();
+        return reportService.read(reportId);
+    }
 
     // Enable running test more than once with parameters
     public ReportTestITCase(String contentType) {
@@ -51,7 +60,7 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        List<String> reportletClasses = reportService.getReportletConfClasses();
+        Set<String> reportletClasses = reportService.getReportletConfClasses();
         assertNotNull(reportletClasses);
         assertFalse(reportletClasses.isEmpty());
     }
@@ -105,7 +114,7 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = reportService.create(report);
+        report = createReport(report);
         assertNotNull(report);
 
         ReportTO actual = reportService.read(report.getId());
@@ -121,13 +130,14 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = reportService.create(report);
+        report = createReport(report);
         assertNotNull(report);
         assertEquals(2, report.getReportletConfs().size());
 
         report.addReportletConf(new UserReportletConf("last"));
 
-        ReportTO updated = reportService.update(report.getId(), report);
+        reportService.update(report.getId(), report);
+        ReportTO updated = reportService.read(report.getId());
         assertNotNull(updated);
         assertEquals(3, updated.getReportletConfs().size());
     }
@@ -139,11 +149,10 @@ public class ReportTestITCase extends AbstractTest {
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
-        report = reportService.create(report);
+        report = createReport(report);
         assertNotNull(report);
 
-        ReportTO deletedReport = reportService.delete(report.getId());
-        assertNotNull(deletedReport);
+        reportService.delete(report.getId());
 
         try {
             reportService.read(report.getId());
@@ -186,7 +195,7 @@ public class ReportTestITCase extends AbstractTest {
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("executeAndExport" + getUUIDString());
-        reportTO = reportService.create(reportTO);
+        reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
         ReportExecTO execution = reportService.execute(reportTO.getId());
@@ -258,7 +267,7 @@ public class ReportTestITCase extends AbstractTest {
     public void issueSYNCOPE43() {
         ReportTO reportTO = new ReportTO();
         reportTO.setName("issueSYNCOPE43" + getUUIDString());
-        reportTO = reportService.create(reportTO);
+        reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
         ReportExecTO execution = reportService.execute(reportTO.getId());
@@ -285,7 +294,7 @@ public class ReportTestITCase extends AbstractTest {
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
-        reportTO = reportService.create(reportTO);
+        reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
         // Execute (multiple requests)

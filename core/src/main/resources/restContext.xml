@@ -72,6 +72,7 @@ under the License.
       <ref bean="entitlementServiceImpl"/>
       <ref bean="policyServiceImpl"/>
       <ref bean="schemaServiceImpl"/>
+      <ref bean="reportServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
       <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>

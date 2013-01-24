@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -40,11 +41,11 @@ import org.apache.syncope.common.types.ReportExecExportFormat;
 public interface ReportService {
 
     @POST
-    ReportTO create(ReportTO reportTO);
+    Response create(ReportTO reportTO);
 
     @PUT
     @Path("{reportId}")
-    ReportTO update(@PathParam("reportId") Long reportId, ReportTO reportTO);
+    void update(@PathParam("reportId") Long reportId, ReportTO reportTO);
 
     @GET
     @Path("count")
@@ -63,7 +64,7 @@ public interface ReportService {
 
     @GET
     @Path("reportletConfClasses")
-    List<String> getReportletConfClasses();
+    Set<String> getReportletConfClasses();
 
     @GET
     @Path("{reportId}")
@@ -85,9 +86,9 @@ public interface ReportService {
 
     @DELETE
     @Path("{reportId}")
-    ReportTO delete(@PathParam("reportId") Long reportId);
+    void delete(@PathParam("reportId") Long reportId);
 
     @DELETE
     @Path("executions/{executionId}")
-    ReportExecTO deleteExecution(@PathParam("executionId") Long executionId);
+    void deleteExecution(@PathParam("executionId") Long executionId);
 }

@@ -18,7 +18,12 @@
  */
 package org.apache.syncope.console.rest;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -35,7 +40,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         List<String> reportletClasses = null;
 
         try {
-            reportletClasses = getService(ReportService.class).getReportletConfClasses();
+            Set<String> reportletClassesSet = getService(ReportService.class).getReportletConfClasses();
+            reportletClasses = new LinkedList<String>(reportletClassesSet);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting available reportlet classes", e);
         }
@@ -59,11 +65,13 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     }
 
     public ReportTO create(final ReportTO reportTO) {
-        return getService(ReportService.class).create(reportTO);
+        Response response = getService(ReportService.class).create(reportTO);
+        Long reportId = (Long) response.getEntity();
+        return getService(ReportService.class).read(reportId);
     }
 
-    public ReportTO update(final ReportTO reportTO) {
-        return getService(ReportService.class).update(reportTO.getId(), reportTO);
+    public void update(final ReportTO reportTO) {
+        getService(ReportService.class).update(reportTO.getId(), reportTO);
     }
 
     /**
@@ -71,8 +79,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      *
      * @param reportId report to delete
      */
-    public ReportTO delete(final Long reportId) {
-        return getService(ReportService.class).delete(reportId);
+    public void delete(final Long reportId) {
+        getService(ReportService.class).delete(reportId);
     }
 
     /**

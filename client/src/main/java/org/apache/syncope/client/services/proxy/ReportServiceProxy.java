@@ -19,8 +19,12 @@
 package org.apache.syncope.client.services.proxy;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -35,13 +39,15 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public ReportTO create(final ReportTO reportTO) {
-        return getRestTemplate().postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
+    public Response create(final ReportTO reportTO) {
+        ReportTO createdReportTO = getRestTemplate().postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
+        URI location = URI.create(baseUrl + "report/read/" + createdReportTO.getId() + ".json");
+        return Response.created(location).entity(createdReportTO.getId()).build();
     }
 
     @Override
-    public ReportTO update(final Long reportId, final ReportTO reportTO) {
-        return getRestTemplate().postForObject(baseUrl + "report/update", reportTO, ReportTO.class);
+    public void update(final Long reportId, final ReportTO reportTO) {
+        getRestTemplate().postForObject(baseUrl + "report/update", reportTO, ReportTO.class);
     }
 
     @Override
@@ -66,9 +72,10 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public List<String> getReportletConfClasses() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/reportletConfClasses.json",
+    public Set<String> getReportletConfClasses() {
+        List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/reportletConfClasses.json",
                 String[].class));
+        return new HashSet<String>(confClasses);
     }
 
     @Override
@@ -99,13 +106,13 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public ReportTO delete(final Long reportId) {
-        return getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}", ReportTO.class, reportId);
+    public void delete(final Long reportId) {
+        getRestTemplate().getForObject(baseUrl + "report/delete/{reportId}", ReportTO.class, reportId);
     }
 
     @Override
-    public ReportExecTO deleteExecution(final Long executionId) {
-        return getRestTemplate().getForObject(baseUrl + "report/execution/delete/{executionId}", ReportExecTO.class,
+    public void deleteExecution(final Long executionId) {
+        getRestTemplate().getForObject(baseUrl + "report/execution/delete/{executionId}", ReportExecTO.class,
                 executionId);
     }
 }
