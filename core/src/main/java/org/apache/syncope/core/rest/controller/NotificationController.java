@@ -69,7 +69,7 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('NOTIFICATION_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/list")
-    public List<NotificationTO> list() throws NotFoundException {
+    public List<NotificationTO> list() {
 
         List<Notification> notifications = notificationDAO.findAll();
 
@@ -88,15 +88,17 @@ public class NotificationController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO)
             throws NotFoundException {
+        NotificationTO savedNotificationTO = createInternal(notificationTO);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return savedNotificationTO;
+    }
 
+    public NotificationTO createInternal(final NotificationTO notificationTO)
+            throws NotFoundException {
         LOG.debug("Notification create called with parameter {}", notificationTO);
-
         Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
-
         auditManager.audit(Category.notification, NotificationSubCategory.create, Result.success,
                 "Successfully created notification: " + notification.getId());
-
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getNotificationTO(notification);
     }
 

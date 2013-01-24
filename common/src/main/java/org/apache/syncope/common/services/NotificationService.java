@@ -21,25 +21,26 @@ package org.apache.syncope.common.services;
 import java.util.List;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.NotificationTO;
 
 @Path("notifications")
 public interface NotificationService {
+    @POST
+    Response create(NotificationTO notificationTO);
 
     @GET
     @Path("{notificationId}")
-    NotificationTO read(@PathParam("notificationId") Long notificationId);
+    NotificationTO read(@PathParam("notificationId") Long notificationId) throws NotFoundException;
 
     @GET
     List<NotificationTO> list();
-
-    @POST
-    NotificationTO create(NotificationTO notificationTO);
 
     @PUT
     @Path("{notificationId}")

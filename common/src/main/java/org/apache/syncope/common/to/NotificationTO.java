@@ -21,11 +21,14 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 
+@XmlRootElement
 public class NotificationTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6145117115632592612L;

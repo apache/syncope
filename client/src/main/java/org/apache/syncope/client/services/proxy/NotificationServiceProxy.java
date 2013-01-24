@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
 import org.springframework.web.client.RestTemplate;
@@ -43,9 +47,11 @@ public class NotificationServiceProxy extends SpringServiceProxy implements Noti
     }
 
     @Override
-    public NotificationTO create(final NotificationTO notificationTO) {
-        return getRestTemplate().postForObject(baseUrl + "notification/create.json", notificationTO,
+    public Response create(final NotificationTO notificationTO) {
+        NotificationTO notification = getRestTemplate().postForObject(baseUrl + "notification/create.json", notificationTO,
                 NotificationTO.class);
+        URI location = URI.create(baseUrl + "notification/read/" + notification.getId() + ".json");
+        return Response.created(location).entity(notification.getId()).build();
     }
 
     @Override

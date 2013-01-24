@@ -27,6 +27,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
@@ -524,7 +527,9 @@ public class TaskTestITCase extends AbstractTest {
         notification.setSubject(subject);
         notification.setTemplate("optin");
 
-        notification = notificationService.create(notification);
+        Response response = notificationService.create(notification);
+        Long notificationId = (Long) response.getEntity();
+        notification = notificationService.read(notificationId);
         assertNotNull(notification);
 
         // 2. create user

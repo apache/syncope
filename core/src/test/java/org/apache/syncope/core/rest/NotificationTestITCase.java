@@ -25,6 +25,8 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
@@ -66,7 +68,9 @@ public class NotificationTestITCase extends AbstractTest {
         NodeCond recipients = NodeCond.getLeafCond(membCond);
         notificationTO.setRecipients(recipients);
 
-        NotificationTO actual = notificationService.create(notificationTO);
+        Response response = notificationService.create(notificationTO);
+        Long notificationId = (Long) response.getEntity();
+        NotificationTO actual = notificationService.read(notificationId);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -110,7 +114,8 @@ public class NotificationTestITCase extends AbstractTest {
     		assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
     		notification = buildNotificationTO();
             notification.setSelfAsRecipient(true);
-            notification = notificationService.create(notification);
+            Response response = notificationService.create(notification);
+            notification = response.readEntity(NotificationTO.class);
     	}
     	
         NotificationTO deletedNotification = notificationService.delete(notification.getId());
@@ -133,8 +138,9 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO actual = null;
         SyncopeClientException exception = null;
         try {
-            actual = notificationService.create(notificationTO);
-
+            Response response = notificationService.create(notificationTO);
+            Long notificationId = (Long) response.getEntity();
+            actual = notificationService.read(notificationId);
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }
