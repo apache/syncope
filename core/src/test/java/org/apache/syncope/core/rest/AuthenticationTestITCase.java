@@ -34,7 +34,6 @@ import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -88,7 +87,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(response);
-        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class);
+        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class, entitlementService);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)

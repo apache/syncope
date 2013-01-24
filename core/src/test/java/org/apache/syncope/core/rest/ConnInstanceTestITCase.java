@@ -135,7 +135,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         Response response = connectorService.create(connectorTO);
         assertNotNull(response);
-        ConnInstanceTO actual = getObject(response.getLocation(), ConnInstanceTO.class);
+        ConnInstanceTO actual = getObject(response.getLocation(), ConnInstanceTO.class, connectorService);
 
         assertNotNull(actual);
 
@@ -271,7 +271,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
         assertNotNull(response);
-        connInstanceTO = getObject(response.getLocation(), ConnInstanceTO.class);
+        connInstanceTO = getObject(response.getLocation(), ConnInstanceTO.class, connectorService);
 
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
@@ -581,7 +581,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
             Response response = connectorService.create(connectorTO);
             assertNotNull(response);
-            connectorTO = getObject(response.getLocation(), ConnInstanceTO.class);
+            connectorTO = getObject(response.getLocation(), ConnInstanceTO.class, configurationService);
             assertNotNull(connectorTO);
             // ----------------------------------------
 

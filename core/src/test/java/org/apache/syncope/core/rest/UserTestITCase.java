@@ -182,7 +182,7 @@ public class UserTestITCase extends AbstractTest {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
                 assertNotNull(response);
-                PolicyTO cPolicyTO = getObject(response.getLocation(), PasswordPolicyTO.class);
+                PolicyTO cPolicyTO = getObject(response.getLocation(), PasswordPolicyTO.class, policyService);
                 assertNotNull(cPolicyTO);
             }
         }

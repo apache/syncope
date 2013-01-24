@@ -59,14 +59,14 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(response);
         assertNotNull(response.getLocation());
 
-        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class);
+        SchemaTO newSchemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
         assertEquals(schemaTO, newSchemaTO);
 
         response = schemaService.create(AttributableType.MEMBERSHIP, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(response);
         assertNotNull(response.getLocation());
 
-        newSchemaTO = getObject(response.getLocation(), SchemaTO.class);
+        newSchemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
         assertEquals(schemaTO, newSchemaTO);
     }
 
@@ -194,7 +194,7 @@ public class SchemaTestITCase extends AbstractTest {
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(response);
         assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class);
+        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue258@syncope.apache.org");
@@ -221,7 +221,7 @@ public class SchemaTestITCase extends AbstractTest {
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(response);
         assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class);
+        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue259@syncope.apache.org");
@@ -248,7 +248,7 @@ public class SchemaTestITCase extends AbstractTest {
         Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         assertNotNull(response);
         assertNotNull(response.getLocation());
-        schemaTO = getObject(response.getLocation(), SchemaTO.class);
+        schemaTO = getObject(response.getLocation(), SchemaTO.class, schemaService);
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue260@syncope.apache.org");

@@ -186,7 +186,10 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         Response response = null;
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
-        if (ex instanceof NotFoundException) {
+        if (ex instanceof javax.ws.rs.NotFoundException) {
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
+
+        } else if (ex instanceof NotFoundException) {
             response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
 
         } else if (ex instanceof MissingConfKeyException) {
@@ -201,7 +204,10 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         Response response = null;
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 
-        if (ex instanceof InvalidEntityException) {
+        if (ex instanceof javax.ws.rs.BadRequestException) {
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Unknown, ex, null);
+        
+        } else if (ex instanceof InvalidEntityException) {
             SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
                     + ((InvalidEntityException) ex).getEntityClassSimpleName());
 

@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
@@ -113,7 +112,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         Response response = policyService.create(PolicyType.SYNC, policy);
         assertNotNull(response);
-        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class);
+        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class, policyService);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -131,7 +130,7 @@ public class PolicyTestITCase extends AbstractTest {
         // create a new password policy using global password as a template
         Response response = policyService.create(PolicyType.PASSWORD, policy);
         assertNotNull(response);
-        policy = getObject(response.getLocation(), PasswordPolicyTO.class);
+        policy = getObject(response.getLocation(), PasswordPolicyTO.class, policyService);
 
         // read new password policy
         policy = policyService.read(PolicyType.PASSWORD, policy.getId());
@@ -157,7 +156,7 @@ public class PolicyTestITCase extends AbstractTest {
         SyncPolicyTO policy = buildSyncPolicyTO();
         Response response = policyService.create(PolicyType.SYNC, policy);
         assertNotNull(response);
-        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class);
+        SyncPolicyTO policyTO = getObject(response.getLocation(), SyncPolicyTO.class, policyService);
         assertNotNull(policyTO);
 
         policyService.delete(PolicyType.SYNC, policyTO.getId());

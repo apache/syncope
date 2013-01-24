@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.ConfigurationTO;
-import org.apache.syncope.common.to.ConnInstanceTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -47,7 +45,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class);
+        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -72,7 +70,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.create(tokenLengthTO);
         assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
         assertNotNull(response);
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class);
+        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationTO.class, configurationService);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 
