@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
+@XmlEnum
 public enum PropagationMode {
 
     ONE_PHASE,

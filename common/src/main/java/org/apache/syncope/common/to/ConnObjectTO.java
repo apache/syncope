@@ -24,9 +24,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement(name = "connector")
+@XmlType
 public class ConnObjectTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5139554911265442497L;
@@ -47,6 +54,8 @@ public class ConnObjectTO extends AbstractBaseBean {
         return attributes.remove(attribute);
     }
 
+    @XmlElementWrapper(name = "attributes")
+    @XmlElement(name = "attribute")
     public List<AttributeTO> getAttributes() {
         return attributes;
     }
