@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
+@XmlEnum
 public enum TaskType {
 
     PROPAGATION("propagation"),
@@ -38,12 +41,12 @@ public enum TaskType {
 
     public static TaskType fromString(String name) {
         if (name != null) {
-          for (TaskType t : TaskType.values()) {
-            if (t.name.equalsIgnoreCase(name)) {
-              return t;
+            for (TaskType t : TaskType.values()) {
+                if (t.name.equalsIgnoreCase(name)) {
+                    return t;
+                }
             }
-          }
         }
         return null;
-      }
+    }
 }

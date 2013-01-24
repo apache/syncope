@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.common.util;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.MailTemplateTO;
+import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.SyncopeLoggerLevel;
 import org.springframework.web.servlet.ModelAndView;
 
 public final class CollectionWrapper {
@@ -105,6 +111,61 @@ public final class CollectionWrapper {
         Set<ValidatorTO> respons = new HashSet<ValidatorTO>();
         for (String e : collection) {
             respons.add(ValidatorTO.instance(e));
+        }
+        return respons;
+    }
+
+    public static List<LoggerTO> unwrapLogger(List<AuditLoggerName> auditNames) {
+        List<LoggerTO> respons = new ArrayList<LoggerTO>();
+        for (AuditLoggerName l : auditNames) {
+            LoggerTO loggerTO = new LoggerTO();
+            loggerTO.setName(l.toLoggerName());
+            loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+            respons.add(loggerTO);
+        }
+        return respons;
+    }
+
+    public static Set<JobClassTO> wrapJobClasses(Set<String> classes) {
+        Set<JobClassTO> respons = new HashSet<JobClassTO>();
+        for (String cl : classes) {
+            respons.add(JobClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static Set<SyncActionClassTO> wrapSyncActionClasses(Set<String> classes) {
+        Set<SyncActionClassTO> respons = new HashSet<SyncActionClassTO>();
+        for (String cl : classes) {
+            respons.add(SyncActionClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static List<AuditLoggerName> wrapLogger(List<LoggerTO> logger) {
+        List<AuditLoggerName> respons = new ArrayList<AuditLoggerName>();
+        for (LoggerTO l : logger) {
+            try {
+                respons.add(AuditLoggerName.fromLoggerName(l.getName()));
+            } catch (Exception e) {
+                //TODO log event
+            }
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapJobClasses(List<JobClassTO> jobClasses) {
+        List<String> respons = new ArrayList<String>();
+        for (JobClassTO e : jobClasses) {
+            respons.add(e.getName());
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapSyncActionClasses(List<SyncActionClassTO> actions) {
+        List<String> respons = new ArrayList<String>();
+        for (SyncActionClassTO e : actions) {
+            respons.add(e.getName());
         }
         return respons;
     }

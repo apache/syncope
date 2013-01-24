@@ -21,13 +21,18 @@ package org.apache.syncope.common.mod;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Abstract base class for objects that can have attributes removed, added or updated.
- * 
+ *
  * Attributes can be regular attributes, derived attributes, virtual attributes and resources.
  */
+@XmlType
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
@@ -67,9 +72,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     /**
      * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     * 
+     *
      * @param name (schema) of attribute to be removed.
-     * @return true on success. 
+     * @return true on success.
      */
     public boolean addAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.add(attribute);
@@ -77,14 +82,16 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     /**
      * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     * 
+     *
      * @param name (schema) of attribute to be removed.
-     * @return true on success. 
+     * @return true on success.
      */
     public boolean removeAttributeToBeRemoved(String attribute) {
         return attributesToBeRemoved.remove(attribute);
     }
 
+    @XmlElementWrapper(name = "attributesToBeRemoved")
+    @XmlElement(name = "attribute")
     public Set<String> getAttributesToBeRemoved() {
         return attributesToBeRemoved;
     }
@@ -94,8 +101,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
      * @param attribute modification object
      * @see AttributeMod
      * @return true on success
@@ -105,8 +112,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
+     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
      * @param attribute modification object
      * @see AttributeMod
      * @return true on success
@@ -115,6 +122,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeUpdated.remove(attribute);
     }
 
+    @XmlElementWrapper(name = "attributesToBeUpdated")
+    @XmlElement(name = "attributeMod")
     public Set<AttributeMod> getAttributesToBeUpdated() {
         return attributesToBeUpdated;
     }
@@ -124,8 +133,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified. 
-     * 
+     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
+     *
      * @param attribute modification object
      * @see AttributeMod
      * @return true on success
@@ -135,8 +144,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Add a derivedattribute. Value is calculated by its definition. 
-     * 
+     * Add a derivedattribute. Value is calculated by its definition.
+     *
      * @param derivedAttribute
      * @return true on success
      */
@@ -144,6 +153,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
 
+    @XmlElementWrapper(name = "derivedAttributesToBeAdded")
+    @XmlElement(name = "attributeName")
     public Set<String> getDerivedAttributesToBeAdded() {
         return derivedAttributesToBeAdded;
     }
@@ -161,6 +172,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeRemoved.remove(derivedAttribute);
     }
 
+    @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
+    @XmlElement(name = "attribute")
     public Set<String> getDerivedAttributesToBeRemoved() {
         return derivedAttributesToBeRemoved;
     }
@@ -170,6 +183,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
 
+    @XmlElementWrapper(name = "virtualAttributesToBeRemoved")
+    @XmlElement(name = "attribute")
     public Set<String> getVirtualAttributesToBeRemoved() {
         return virtualAttributesToBeRemoved;
     }
@@ -199,6 +214,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
     }
 
+    @XmlElementWrapper(name = "derivedAttributesToBeUpdated")
+    @XmlElement(name = "attribute")
     public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
         return virtualAttributesToBeUpdated;
     }
@@ -216,6 +233,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeAdded.remove(resource);
     }
 
+    @XmlElementWrapper(name = "resourcesToBeAdded")
+    @XmlElement(name = "resource")
     public Set<String> getResourcesToBeAdded() {
         return resourcesToBeAdded;
     }
@@ -232,6 +251,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeRemoved.remove(resource);
     }
 
+    @XmlElementWrapper(name = "resourcesToBeRemoved")
+    @XmlElement(name = "resource")
     public Set<String> getResourcesToBeRemoved() {
         return resourcesToBeRemoved;
     }

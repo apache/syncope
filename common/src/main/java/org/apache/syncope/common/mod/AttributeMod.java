@@ -20,9 +20,17 @@ package org.apache.syncope.common.mod;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.common.AbstractBaseBean;
 
+@XmlRootElement
+@XmlType
 public class AttributeMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = -913573979137431406L;
@@ -56,6 +64,8 @@ public class AttributeMod extends AbstractBaseBean {
         return valuesToBeAdded.remove(value);
     }
 
+    @XmlElementWrapper(name = "valuesToBeAdded")
+    @XmlElement(name = "value")
     public List<String> getValuesToBeAdded() {
         return valuesToBeAdded;
     }
@@ -72,6 +82,8 @@ public class AttributeMod extends AbstractBaseBean {
         return valuesToBeRemoved.remove(value);
     }
 
+    @XmlElementWrapper(name = "valuesToBeRemoved")
+    @XmlElement(name = "value")
     public List<String> getValuesToBeRemoved() {
         return valuesToBeRemoved;
     }

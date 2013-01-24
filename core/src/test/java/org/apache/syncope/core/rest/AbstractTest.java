@@ -21,8 +21,10 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -64,6 +66,7 @@ import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -71,6 +74,8 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.web.client.RestTemplate;
@@ -91,14 +96,20 @@ public abstract class AbstractTest {
     protected static final String ADMIN_PWD = "password";
 
     protected boolean activatedCXF;
-    
+
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private MappingJacksonHttpMessageConverter mappingJacksonHttpMessageConverter;
+
+    @Autowired
+    private PreemptiveAuthHttpRequestFactory httpClientFactory;
+
     protected String contentType;
-    
+
     private TestContextManager testContextManager;
-    
+
     @Autowired
     protected JAXRSClientFactoryBean restClientFactory;
 
@@ -132,11 +143,11 @@ public abstract class AbstractTest {
     protected UserRequestService userRequestService;
 
     protected PolicyService policyService;
-    
+
     public AbstractTest(final String contentType) {
         this.contentType = contentType;
     }
-    
+
     private void setupContext() throws Exception {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
@@ -145,17 +156,17 @@ public abstract class AbstractTest {
     protected void activateCXF() {
         activatedCXF = true;
     }
-    
+
     @Before
     public void setup() throws Exception {
         setupContext();
         if (!activatedCXF) {
-            resetRestTemplate(); 
+            resetRestTemplate();
         } else {
             setupCXFServices();
         }
     }
-    
+
     // BEGIN Spring MVC Initialization
     protected void setupRestTemplate(final String uid, final String pwd) {
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
@@ -166,7 +177,12 @@ public abstract class AbstractTest {
     }
 
     protected RestTemplate anonymousRestTemplate() {
-        return new RestTemplate();
+        RestTemplate template = new RestTemplate(httpClientFactory);
+        List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+        converters.add(mappingJacksonHttpMessageConverter);
+        template.setMessageConverters(converters);
+        template.setErrorHandler(new SyncopeClientErrorHandler());
+        return template;
     }
 
     protected void resetRestTemplate() {
@@ -189,7 +205,7 @@ public abstract class AbstractTest {
     // END Spring MVC Initialization
 
     // BEGIN CXF Initialization
-    public void setupCXFServices() throws Exception { 
+    public void setupCXFServices() throws Exception {
         setupContext();
         restClientFactory.setUsername(ADMIN_UID);
         userService = createServiceInstance(UserService.class);
@@ -215,7 +231,7 @@ public abstract class AbstractTest {
     protected <T> T createServiceInstance(Class<T> serviceClass) {
         return createServiceInstance(serviceClass, ADMIN_UID);
     }
-    
+
     protected <T> T createServiceInstance(Class<T> serviceClass, String username) {
         return createServiceInstance(serviceClass, username, null);
     }
@@ -249,7 +265,7 @@ public abstract class AbstractTest {
         assertNotNull(location);
         return restTemplate.getForEntity(location, type).getBody();
     }
-    
+
     public static <T> T resolveObjectCXF(final URI location, final Class<T> type, final Object serviceProxy) {
         WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
         webClient.to(location.toString(), false);

@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 
 /**
  * Single propagation status.
  */
+@XmlRootElement(name = "propagationStatus")
+@XmlType
 public class PropagationStatusTO extends AbstractBaseBean {
 
     /**

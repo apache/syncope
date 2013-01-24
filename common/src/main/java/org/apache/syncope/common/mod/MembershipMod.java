@@ -20,8 +20,16 @@ package org.apache.syncope.common.mod;
 
 import java.util.Collections;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement
+@XmlType
 public class MembershipMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 2511869129977331525L;
@@ -46,11 +54,15 @@ public class MembershipMod extends AbstractAttributableMod {
         return false;
     }
 
+    @XmlElementWrapper(name = "resourcesToBeAdded")
+    @XmlElement(name = "resource")
     @Override
     public Set<String> getResourcesToBeAdded() {
         return Collections.emptySet();
     }
 
+    @XmlElementWrapper(name = "resourcesToBeRemoved")
+    @XmlElement(name = "resource")
     @Override
     public Set<String> getResourcesToBeRemoved() {
         return Collections.emptySet();

@@ -21,8 +21,15 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
+@XmlRootElement(name = "attribute")
+@XmlType
 public class AttributeTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
@@ -89,6 +96,8 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * @return attribute values as strings
      */
+    //@XmlElementWrapper(name = "values")
+    @XmlElement(name = "value")
     public List<String> getValues() {
         return values;
     }

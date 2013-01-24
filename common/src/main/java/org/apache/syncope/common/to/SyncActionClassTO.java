@@ -21,19 +21,33 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "taskExecution")
+import org.apache.syncope.common.AbstractBaseBean;
+
+@XmlRootElement(name = "syncActionClass")
 @XmlType
-public class TaskExecTO extends AbstractExecTO {
+public class SyncActionClassTO extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -5401795154606268973L;
+    private static final long serialVersionUID = -3379629287646343560L;
 
-    private long task;
+    private String name;
 
-    public long getTask() {
-        return task;
+    public static SyncActionClassTO instance(final String name) {
+        SyncActionClassTO instance = new SyncActionClassTO();
+        instance.setName(name);
+        return instance;
     }
 
-    public void setTask(long task) {
-        this.task = task;
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 }

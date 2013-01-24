@@ -18,10 +18,15 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.types.UserRequestType;
 
+@XmlRootElement(name = "userRequest")
+@XmlType
 public class UserRequestTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1228351243795629329L;

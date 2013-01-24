@@ -25,8 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlType
 public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private static final long serialVersionUID = 4083884098736820255L;
@@ -39,7 +45,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private Set<String> resources;
 
-    private List<PropagationStatusTO> propagationStatusTOs;
+    private final List<PropagationStatusTO> propagationStatusTOs;
 
     protected AbstractAttributableTO() {
         super();
@@ -100,6 +106,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return derivedAttributes.remove(derivedAttribute);
     }
 
+    @XmlElementWrapper(name = "derivedAttributes")
+    @XmlElement(name = "attribute")
     public List<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
     }
@@ -117,6 +125,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return virtualAttributes.remove(virtualAttribute);
     }
 
+    @XmlElementWrapper(name = "virtualAttributes")
+    @XmlElement(name = "attribute")
     public List<AttributeTO> getVirtualAttributes() {
         return virtualAttributes;
     }
@@ -133,6 +143,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return resources.remove(resource);
     }
 
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
     public Set<String> getResources() {
         return resources;
     }
@@ -160,6 +172,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return false;
     }
 
+    @XmlElementWrapper(name = "propagationStatuses")
+    @XmlElement(name = "propagationStatus")
     public List<PropagationStatusTO> getPropagationStatusTOs() {
         return propagationStatusTOs;
     }

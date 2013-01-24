@@ -20,8 +20,16 @@ package org.apache.syncope.common.mod;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement(name = "userMod")
+@XmlType
 public class UserMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 3081848906558106204L;
@@ -49,6 +57,8 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeAdded.remove(membershipMod);
     }
 
+    @XmlElementWrapper(name = "membershipsToBeAdded")
+    @XmlElement(name = "membership")
     public Set<MembershipMod> getMembershipsToBeAdded() {
         return membershipsToBeAdded;
     }
@@ -81,6 +91,8 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeRemoved.remove(membershipToBeRemoved);
     }
 
+    @XmlElementWrapper(name = "membershipsToBeRemoved")
+    @XmlElement(name = "membership")
     public Set<Long> getMembershipsToBeRemoved() {
         return membershipsToBeRemoved;
     }

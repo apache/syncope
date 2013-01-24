@@ -16,24 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.to;
+package org.apache.syncope.common.types;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlEnum;
 
-@XmlRootElement(name = "taskExecution")
-@XmlType
-public class TaskExecTO extends AbstractExecTO {
+@XmlEnum
+public enum LoggerType {
 
-    private static final long serialVersionUID = -5401795154606268973L;
+    /**
+     * This type describes a common logger used to handle system and application events.
+     */
+    NORMAL,
 
-    private long task;
+    /**
+     * Audit logger only focus on security related events, usually logging how did what and when.
+     * In case of a security incident audit loggers should allow an administrator to recall all
+     * actions a certain user has done.
+     */
+    AUDIT;
 
-    public long getTask() {
-        return task;
-    }
-
-    public void setTask(long task) {
-        this.task = task;
+    public static LoggerType fromString(String value) {
+        return LoggerType.valueOf(value.toUpperCase());
     }
 }
