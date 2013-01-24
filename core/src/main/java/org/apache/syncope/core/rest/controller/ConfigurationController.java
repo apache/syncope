@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -209,9 +210,17 @@ public class ConfigurationController extends AbstractController {
     public void dbExport(final HttpServletResponse response) {
         response.setContentType(MediaType.TEXT_XML_VALUE);
         response.setHeader("Content-Disposition", "attachment; filename=content.xml");
-
         try {
-            importExport.export(response.getOutputStream());
+            dbExportInternal(response.getOutputStream());
+        } catch (IOException e) {
+            LOG.error("Getting servlet output stream", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void dbExportInternal(OutputStream os) {
+        try {
+            importExport.export(os);
 
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
                     "Successfully exported database content");

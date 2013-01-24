@@ -56,17 +56,9 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public Response dbExport() {
-        configurationController.dbExport(new DummyHTTPServletResponse());
-        // TODO catch output-stream and forward it to response
         return Response.ok(new StreamingOutput() {
-
-            @Override
-            public void write(final OutputStream output) throws IOException {
-//                FileInputStream is = new FileInputStream("/etc/hosts");
-//                while (is.available() > 0) {
-//                    output.write(is.read());
-//                }
-//                is.close();
+            public void write(final OutputStream os) throws IOException {
+                configurationController.dbExportInternal(os);
             }
         }).build();
     }
