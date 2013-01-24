@@ -31,11 +31,4 @@ public class SyncopeConstants {
 
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-    /**
-     * This constant will be used to identify HTTP header key to look for object ID assigned
-     * to an object after its creation. HTTP Response after PUT operation should contain this
-     * key with resource id as its value.
-     */
-    public static final String REST_HEADER_ID = "org.apache.syncope.id";
-
 }

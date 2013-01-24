@@ -22,13 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "membership")
-@XmlType
 public class MembershipTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
@@ -64,8 +57,6 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
     public Set<String> getResources() {
         return Collections.<String>emptySet();
     }

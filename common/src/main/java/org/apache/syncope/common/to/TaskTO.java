@@ -22,15 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement
-@XmlType
 public class TaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
@@ -40,9 +33,9 @@ public class TaskTO extends AbstractBaseBean {
     private String latestExecStatus;
 
     private List<TaskExecTO> executions;
-
+    
     private Date startDate;
-
+    
     private Date endDate;
 
     public TaskTO() {
@@ -75,8 +68,6 @@ public class TaskTO extends AbstractBaseBean {
         return executions.remove(execution);
     }
 
-    @XmlElementWrapper(name = "excecutions")
-    @XmlElement(name = "excecution")
     public List<TaskExecTO> getExecutions() {
         return executions;
     }

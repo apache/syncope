@@ -20,16 +20,8 @@ package org.apache.syncope.common.to;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@XmlRootElement(name = "role")
-@XmlType
 @JsonIgnoreProperties({"displayName"})
 public class RoleTO extends AbstractAttributableTO {
 
@@ -55,7 +47,7 @@ public class RoleTO extends AbstractAttributableTO {
 
     private boolean inheritAccountPolicy;
 
-    private final List<String> entitlements;
+    private List<String> entitlements;
 
     private Long passwordPolicy;
 
@@ -138,8 +130,6 @@ public class RoleTO extends AbstractAttributableTO {
         return entitlements.remove(entitlement);
     }
 
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
     public List<String> getEntitlements() {
         return entitlements;
     }

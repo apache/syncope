@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.to;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "taskExecution")
-@XmlType
 public class TaskExecTO extends AbstractExecTO {
 
     private static final long serialVersionUID = -5401795154606268973L;
