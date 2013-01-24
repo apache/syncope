@@ -27,32 +27,24 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import org.apache.syncope.common.to.LoggerTO;
-import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.LoggerType;
 
-import ch.qos.logback.classic.Level;
-
-@Path("logger")
+@Path("logger/{type}")
 public interface LoggerService {
 
-    //TODO use list(LoggerType) signature for both normal logger and audit logger instead of two different methods
     @GET
-    List<LoggerTO> listLogs();
+    @Path("{name}")
+    LoggerTO read(@PathParam("type") LoggerType type, @PathParam("name") final String name);
 
     @GET
-    @Path("audit")
-    List<AuditLoggerName> listAudits();
+    List<LoggerTO> list(@PathParam("type") LoggerType type);
 
     @PUT
     @Path("{name}/level")
-    LoggerTO update(@PathParam("name") String name, Level level);
+    void update(@PathParam("type") LoggerType type, @PathParam("name") String name, LoggerTO logger);
 
     @DELETE
     @Path("{name}")
-    LoggerTO delete(@PathParam("name") String name);
+    void delete(@PathParam("type") LoggerType type, @PathParam("name") String name);
 
-    // TODO refactor this method to use update()
-    void enableAudit(AuditLoggerName auditLoggerName);
-
-    // TODO refactor this method to use delete()
-    void disableAudit(AuditLoggerName auditLoggerName);
 }

@@ -23,6 +23,8 @@ import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerivedSchemaTO;
@@ -74,7 +76,7 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
                 throw new BadRequestException();
         }
         URI location = uriInfo.getAbsolutePathBuilder().path(response.getName()).build();
-        return Response.created(location).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, response.getName()).build();
     }
 
     @Override
@@ -106,13 +108,13 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
     public List<? extends AbstractSchemaTO> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
             case NORMAL:
-                return (List<? extends AbstractSchemaTO>) normalSchemaController.list(kind.toString());
+                return normalSchemaController.list(kind.toString());
 
             case DERIVED:
-                return (List<? extends AbstractSchemaTO>) derivedSchemaController.list(kind.toString());
+                return derivedSchemaController.list(kind.toString());
 
             case VIRTUAL:
-                return (List<? extends AbstractSchemaTO>) virtualSchemaController.list(kind.toString());
+                return virtualSchemaController.list(kind.toString());
 
             default:
                 throw new BadRequestException();

@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.client.services.proxy;
 
-import ch.qos.logback.classic.Level;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+
 import org.apache.syncope.common.services.LoggerService;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.LoggerType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.web.client.RestTemplate;
 
 public class LoggerServiceProxy extends SpringServiceProxy implements LoggerService {
@@ -33,33 +38,70 @@ public class LoggerServiceProxy extends SpringServiceProxy implements LoggerServ
     }
 
     @Override
-    public List<LoggerTO> listLogs() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/log/list", LoggerTO[].class));
+    public List<LoggerTO> list(final LoggerType type) {
+        switch (type) {
+            case NORMAL:
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/log/list", LoggerTO[].class));
+
+            case AUDIT:
+                List<AuditLoggerName> auditNames = Arrays.asList(getRestTemplate().getForObject(
+                        baseUrl + "logger/audit/list", AuditLoggerName[].class));
+                return CollectionWrapper.unwrapLogger(auditNames);
+
+            default:
+                throw new BadRequestException();
+        }
     }
 
     @Override
-    public List<AuditLoggerName> listAudits() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/audit/list", AuditLoggerName[].class));
+    public LoggerTO read(final LoggerType type, final String name) {
+        List<LoggerTO> logger = list(type);
+        for (LoggerTO l : logger) {
+            if (l.getName().equals(name)) {
+                return l;
+            }
+        }
+        throw new NotFoundException();
     }
 
     @Override
-    public LoggerTO update(final String name, final Level level) {
-        return getRestTemplate().postForObject(baseUrl + "logger/log/{name}/{level}", null, LoggerTO.class, name,
-                level);
+    public void update(final LoggerType type, final String name, final LoggerTO logger) {
+        switch (type) {
+            case NORMAL:
+                getRestTemplate().postForObject(baseUrl + "logger/log/{name}/{level}", null, LoggerTO.class, name,
+                        logger.getLevel());
+                break;
+
+            case AUDIT:
+                try {
+                    getRestTemplate().put(baseUrl + "logger/audit/enable", AuditLoggerName.fromLoggerName(name));
+                } catch (Exception e) {
+                    throw new BadRequestException(e);
+                }
+                break;
+
+            default:
+                throw new BadRequestException();
+        }
     }
 
     @Override
-    public LoggerTO delete(final String name) {
-        return getRestTemplate().getForObject(baseUrl + "logger/log/delete/{name}", LoggerTO.class, name);
-    }
+    public void delete(final LoggerType type, final String name) {
+        switch (type) {
+            case NORMAL:
+                getRestTemplate().getForObject(baseUrl + "logger/log/delete/{name}", LoggerTO.class, name);
+                break;
+            case AUDIT:
+                try {
+                    getRestTemplate().put(baseUrl + "logger/audit/disable", AuditLoggerName.fromLoggerName(name));
+                } catch (Exception e) {
+                    throw new BadRequestException(e);
+                }
+                break;
 
-    @Override
-    public void enableAudit(final AuditLoggerName auditLoggerName) {
-        getRestTemplate().put(baseUrl + "logger/audit/enable", auditLoggerName);
-    }
+            default:
+                throw new BadRequestException();
+        }
 
-    @Override
-    public void disableAudit(final AuditLoggerName auditLoggerName) {
-        getRestTemplate().put(baseUrl + "logger/audit/disable", auditLoggerName);
     }
 }

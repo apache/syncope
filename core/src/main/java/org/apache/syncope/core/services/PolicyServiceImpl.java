@@ -25,6 +25,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
@@ -64,7 +65,7 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
                 throw new BadRequestException();
         }
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
-        return Response.created(location).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
     }
 
     @Override

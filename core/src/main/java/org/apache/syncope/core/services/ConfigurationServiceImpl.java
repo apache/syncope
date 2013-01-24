@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
@@ -51,7 +52,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     public Response create(final ConfigurationTO configurationTO) {
         ConfigurationTO created = configurationController.create(new DummyHTTPServletResponse(), configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
-        return Response.created(location).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getKey()).build();
     }
 
     @Override

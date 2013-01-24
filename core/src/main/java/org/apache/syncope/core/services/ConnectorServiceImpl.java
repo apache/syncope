@@ -26,6 +26,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -51,7 +52,7 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
         try {
             ConnInstanceTO connector = connectorController.create(new DummyHTTPServletResponse(), connectorTO);
             URI location = uriInfo.getAbsolutePathBuilder().path(connector.getId() + "").build();
-            return Response.created(location).build();
+            return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, connector.getId()).build();
         } catch (SyncopeClientCompositeErrorException e) {
             throw new BadRequestException(e);
         } catch (NotFoundException e) {

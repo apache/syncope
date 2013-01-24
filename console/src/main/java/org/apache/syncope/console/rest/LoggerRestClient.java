@@ -29,7 +29,9 @@ import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,11 +40,13 @@ public class LoggerRestClient extends BaseRestClient {
     private static final long serialVersionUID = 4579786978763032240L;
 
     public List<LoggerTO> listLogs() {
-        return getService(LoggerService.class).listLogs();
+        return getService(LoggerService.class).list(LoggerType.NORMAL);
     }
 
     public List<AuditLoggerName> listAudits() {
-        return getService(LoggerService.class).listAudits();
+        List<LoggerTO> logger =  getService(LoggerService.class).list(LoggerType.AUDIT);
+
+        return CollectionWrapper.wrapLogger(logger);
     }
 
     public Map<AuditElements.Category, Set<AuditLoggerName>> listAuditsByCategory() {
@@ -59,18 +63,25 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public void setLogLevel(final String name, final SyncopeLoggerLevel level) {
-        getService(LoggerService.class).update(name, level.getLevel());
+        LoggerTO loggerTO = new LoggerTO();
+        loggerTO.setName(name);
+        loggerTO.setLevel(level);
+        getService(LoggerService.class).update(LoggerType.NORMAL, name, loggerTO);
     }
 
     public void enableAudit(final AuditLoggerName auditLoggerName) {
-        getService(LoggerService.class).enableAudit(auditLoggerName);
+        String name = auditLoggerName.toLoggerName();
+        LoggerTO loggerTO = new LoggerTO();
+        loggerTO.setName(name);
+        loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+        getService(LoggerService.class).update(LoggerType.AUDIT, name, loggerTO);
     }
 
-    public LoggerTO deleteLog(final String name) {
-        return getService(LoggerService.class).delete(name);
+    public void deleteLog(final String name) {
+        getService(LoggerService.class).delete(LoggerType.NORMAL, name);
     }
 
     public void disableAudit(final AuditLoggerName auditLoggerName) {
-        getService(LoggerService.class).disableAudit(auditLoggerName);
+        getService(LoggerService.class).delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
     }
 }

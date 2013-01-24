@@ -23,17 +23,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import ch.qos.logback.classic.Level;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class LoggerTestITCase extends AbstractTest {
@@ -45,7 +46,7 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void listLogs() {
-        List<LoggerTO> loggers = loggerService.listLogs();
+        List<LoggerTO> loggers = loggerService.list(LoggerType.NORMAL);
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -54,33 +55,37 @@ public class LoggerTestITCase extends AbstractTest {
     }
 
     @Test
-    public void listAudits() {
-        List<AuditLoggerName> audits = loggerService.listAudits();
+    public void listAudits() throws ParseException {
+        List<LoggerTO> audits = loggerService.list(LoggerType.AUDIT);
 
         assertNotNull(audits);
         assertFalse(audits.isEmpty());
-        for (AuditLoggerName audit : audits) {
-            assertNotNull(audit);
+        for (LoggerTO audit : audits) {
+            assertNotNull(AuditLoggerName.fromLoggerName(audit.getName()));
         }
     }
 
     @Test
     public void setLevel() {
-        List<LoggerTO> loggers = loggerService.listLogs();
+        List<LoggerTO> loggers = loggerService.list(LoggerType.NORMAL);
         assertNotNull(loggers);
         int startSize = loggers.size();
 
-        LoggerTO logger = loggerService.update("TEST", Level.INFO);
+        LoggerTO logger = new LoggerTO();
+        logger.setName("TEST");
+        logger.setLevel(SyncopeLoggerLevel.INFO);
+        loggerService.update(LoggerType.NORMAL, logger.getName(), logger);
+        logger = loggerService.read(LoggerType.NORMAL, logger.getName());
         assertNotNull(logger);
         assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
 
-        loggers = loggerService.listLogs();
+        loggers = loggerService.list(LoggerType.NORMAL);
         assertNotNull(loggers);
         assertEquals(startSize + 1, loggers.size());
 
         // TEST Delete
-        loggerService.delete("TEST");
-        loggers = loggerService.listLogs();
+        loggerService.delete(LoggerType.NORMAL, "TEST");
+        loggers = loggerService.list(LoggerType.NORMAL);
         assertNotNull(loggers);
         assertEquals(startSize, loggers.size());
     }
@@ -90,19 +95,23 @@ public class LoggerTestITCase extends AbstractTest {
         AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
                 AuditElements.ReportSubCategory.listExecutions, AuditElements.Result.failure);
 
-        List<AuditLoggerName> audits = loggerService.listAudits();
+        List<AuditLoggerName> audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
 
-        loggerService.enableAudit(auditLoggerName);
+        LoggerTO loggerTO = new LoggerTO();
+        String name = auditLoggerName.toLoggerName();
+        loggerTO.setName(name);
+        loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+        loggerService.update(LoggerType.AUDIT, name, loggerTO);
 
-        audits = loggerService.listAudits();
+        audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertTrue(audits.contains(auditLoggerName));
 
-        loggerService.disableAudit(auditLoggerName);
+        loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
 
-        audits = loggerService.listAudits();
+        audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
     }
