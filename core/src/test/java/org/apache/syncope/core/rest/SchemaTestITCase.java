@@ -50,6 +50,11 @@ import org.springframework.web.client.HttpClientErrorException;
 @FixMethodOrder(MethodSorters.JVM)
 public class SchemaTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public SchemaTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void create() {
         SchemaTO schemaTO = buildSchemaTO("testAttribute", SchemaType.String);

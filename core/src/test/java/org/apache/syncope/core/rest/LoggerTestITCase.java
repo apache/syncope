@@ -38,6 +38,11 @@ import ch.qos.logback.classic.Level;
 @FixMethodOrder(MethodSorters.JVM)
 public class LoggerTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public LoggerTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void listLogs() {
         List<LoggerTO> loggers = loggerService.listLogs();

@@ -36,6 +36,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public ConfigurationTestITCase(String contentType) {
+        super(contentType);
+     }
+
     @Test
     public void create() {
         ConfigurationTO configurationTO = new ConfigurationTO();

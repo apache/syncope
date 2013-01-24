@@ -37,6 +37,11 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class VirtualSchemaTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public VirtualSchemaTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void list() {
         @SuppressWarnings("unchecked")

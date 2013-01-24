@@ -44,6 +44,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public RoleTestITCase(String contentType) {
+        super(contentType);
+    }
+
     private RoleTO buildBasicRoleTO(final String name) {
         RoleTO roleTO = new RoleTO();
         roleTO.setName(name + getUUIDString());

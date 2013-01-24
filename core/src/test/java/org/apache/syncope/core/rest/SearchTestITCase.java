@@ -41,6 +41,11 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class SearchTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public SearchTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void searchUser() {
         // LIKE

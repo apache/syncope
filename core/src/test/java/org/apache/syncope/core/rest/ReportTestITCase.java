@@ -44,6 +44,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public ReportTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void getReportletClasses() {
         List<String> reportletClasses = reportService.getReportletConfClasses();

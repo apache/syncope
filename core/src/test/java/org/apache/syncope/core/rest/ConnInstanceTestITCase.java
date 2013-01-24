@@ -57,6 +57,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String bundlesDirectory;
 
+    // Enable running test more than once with parameters
+    public ConnInstanceTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @BeforeClass
     public static void init()
             throws IOException {

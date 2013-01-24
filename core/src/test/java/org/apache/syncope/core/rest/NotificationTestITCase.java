@@ -43,6 +43,11 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class NotificationTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public NotificationTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void read() {
         NotificationTO notificationTO = notificationService.read(100L);

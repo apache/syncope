@@ -74,6 +74,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public UserTestITCase(String contentType) {
+        super(contentType);
+    }
+
     private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }

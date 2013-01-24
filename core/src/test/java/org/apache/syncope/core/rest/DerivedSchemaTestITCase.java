@@ -39,6 +39,11 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class DerivedSchemaTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public DerivedSchemaTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void list() {
         @SuppressWarnings("unchecked")

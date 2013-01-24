@@ -34,6 +34,11 @@ public class WorkflowTestITCase extends AbstractTest {
 
     public static final String USER_TYPE = "user";
 
+    // Enable running test more than once with parameters
+    public WorkflowTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test //TODO TestCase needs to be extended
     public void testGetUserDefinition() {
         WorkflowDefinitionTO definition = workflowService.getDefinition(USER_TYPE);

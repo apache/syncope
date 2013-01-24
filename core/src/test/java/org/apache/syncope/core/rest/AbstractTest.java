@@ -133,6 +133,10 @@ public abstract class AbstractTest {
 
     protected PolicyService policyService;
     
+    public AbstractTest(final String contentType) {
+        this.contentType = contentType;
+    }
+    
     private void setupContext() throws Exception {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
@@ -273,7 +277,7 @@ public abstract class AbstractTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-      Object[][] data = new Object[][]{};
+      Object[][] data = new Object[][]{{"application/json"}};
       return Arrays.asList(data);
     }
 }

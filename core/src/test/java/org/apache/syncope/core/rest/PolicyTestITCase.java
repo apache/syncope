@@ -42,6 +42,11 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class PolicyTestITCase extends AbstractTest {
 
+    // Enable running test more than once with parameters
+    public PolicyTestITCase(String contentType) {
+        super(contentType);
+    }
+
     @Test
     public void listByType() {
         List<SyncPolicyTO> policyTOs = policyService.list(PolicyType.SYNC);
