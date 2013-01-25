@@ -40,6 +40,36 @@ public class UserRequestTO extends AbstractBaseBean {
     private Long userId;
 
     private UserRequestType type;
+    
+    public UserRequestTO() {
+    }
+
+    /**
+     * Request to create a user
+     * @param userTO
+     */
+    public UserRequestTO(UserTO userTO) {
+        this.type = UserRequestType.CREATE;
+        this.userTO = userTO;
+    }
+
+    /**
+     * Request to update a user
+     * @param userMod
+     */
+    public UserRequestTO(UserMod userMod) {
+        this.userMod = userMod;
+        this.type = UserRequestType.UPDATE;
+    }
+
+    /**
+     * Request to delete a user
+     * @param userId
+     */
+    public UserRequestTO(long userId) {
+        this.type = UserRequestType.DELETE;
+        this.userId = userId;
+    }
 
     public long getId() {
         return id;

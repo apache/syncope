@@ -69,7 +69,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 2. get unauthorized when trying to request user create
         SyncopeClientException exception = null;
         try {
-            userRequestService.create(userTO);
+            userRequestService.create(new UserRequestTO(userTO));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
@@ -122,7 +122,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 2. try to request user update as admin: failure
         SyncopeClientException exception = null;
         try {
-            userRequestService.update(userMod);
+            userRequestService.create(new UserRequestTO(userMod));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
@@ -135,7 +135,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 4. update with same password: not matching password policy
         exception = null;
         try {
-            userRequestService.update(userMod);
+            userRequestService.create(new UserRequestTO(userMod));
         } catch (SyncopeClientCompositeErrorException scce) {
             exception = scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser);
         }
@@ -143,8 +143,8 @@ public class UserRequestTestITCase extends AbstractTest {
 
         // 5. now request user update works
         userMod.setPassword("new" + initialPassword);
-        UserRequestTO request = userRequestService.update(userMod);
-        assertNotNull(request);
+        Response response = userRequestService.create(new UserRequestTO(userMod));
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
         // 6. switch back to admin
         super.resetRestTemplate();
@@ -174,8 +174,7 @@ public class UserRequestTestITCase extends AbstractTest {
         // 2. try to request user delete as admin: failure
         SyncopeClientException exception = null;
         try {
-
-            userRequestService.delete(userTO.getId());
+            userRequestService.create(new UserRequestTO(userTO.getId()));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
@@ -186,8 +185,8 @@ public class UserRequestTestITCase extends AbstractTest {
         super.setupRestTemplate(userTO.getUsername(), initialPassword);
 
         // 4. now request user delete works
-        UserRequestTO request = userRequestService.delete(userTO.getId());
-        assertNotNull(request);
+        Response response = userRequestService.create(new UserRequestTO(userTO.getId()));
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
         // 5. switch back to admin
         super.resetRestTemplate();

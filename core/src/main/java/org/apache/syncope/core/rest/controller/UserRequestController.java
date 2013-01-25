@@ -69,7 +69,7 @@ public class UserRequestController {
     @Autowired
     private UserRequestDataBinder dataBinder;
 
-    private Boolean isCreateAllowedByConf() {
+    public Boolean isCreateAllowedByConf() {
         final SyncopeConf createRequestAllowed = confDAO.find("createRequest.allowed", "false");
 
         return Boolean.valueOf(createRequestAllowed.getValue());

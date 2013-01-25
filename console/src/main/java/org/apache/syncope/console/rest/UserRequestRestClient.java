@@ -20,10 +20,13 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.UserRequestType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,19 +38,31 @@ public class UserRequestRestClient extends BaseRestClient {
         return getService(UserRequestService.class).list();
     }
 
-    public UserRequestTO delete(final Long requestId) {
-        return getService(UserRequestService.class).delete(requestId);
+    public void delete(final Long requestId) {
+        getService(UserRequestService.class).delete(requestId);
     }
 
     public UserRequestTO requestCreate(final UserTO userTO) {
-        return getService(UserRequestService.class).create(userTO);
+        UserRequestTO userRequestTO = new UserRequestTO();
+        userRequestTO.setType(UserRequestType.CREATE);
+        userRequestTO.setUserTO(userTO);
+        Response response = getService(UserRequestService.class).create(userRequestTO);
+        return getService(UserRequestService.class).read((Long) response.getEntity());
     }
 
     public UserRequestTO requestUpdate(final UserMod userMod) {
-        return getService(UserRequestService.class).update(userMod);
+        UserRequestTO userRequestTO = new UserRequestTO();
+        userRequestTO.setType(UserRequestType.UPDATE);
+        userRequestTO.setUserMod(userMod);
+        Response response = getService(UserRequestService.class).create(userRequestTO);
+        return getService(UserRequestService.class).read((Long) response.getEntity());
     }
 
     public UserRequestTO requestDelete(final Long userId) {
-        return getService(UserRequestService.class).delete(userId);
+        UserRequestTO userRequestTO = new UserRequestTO();
+        userRequestTO.setType(UserRequestType.DELETE);
+        userRequestTO.setUserId(userId);
+        Response response = getService(UserRequestService.class).create(userRequestTO);
+        return getService(UserRequestService.class).read((Long) response.getEntity());
     }
 }

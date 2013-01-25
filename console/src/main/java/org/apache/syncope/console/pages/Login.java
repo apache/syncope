@@ -198,7 +198,8 @@ public class Login extends WebPage {
     private boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
+            String createAllowed = SyncopeSession.get().getService(UserRequestService.class).getOptions().getHeaderString(UserRequestService.SYNCOPE_CREATE_ALLOWED);
+            result = Boolean.parseBoolean(createAllowed);
         } catch (HttpClientErrorException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
