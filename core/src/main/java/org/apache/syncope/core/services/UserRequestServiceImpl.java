@@ -48,6 +48,11 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
     }
 
     @Override
+    public boolean isCreateAllowed() {
+        return userRequestController.isCreateAllowedByConf();
+    }
+
+    @Override
     public Response create(UserRequestTO userRequestTO) {
         try {
             UserRequestTO outUserRequestTO = null;

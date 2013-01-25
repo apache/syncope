@@ -37,6 +37,10 @@ public interface UserRequestService {
     @OPTIONS
     Response getOptions();
 
+    @GET
+    @Path("create/allowed")
+    boolean isCreateAllowed();
+
     @POST
     Response create(UserRequestTO userRequestTO);
 

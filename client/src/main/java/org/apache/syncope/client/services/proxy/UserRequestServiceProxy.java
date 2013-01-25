@@ -37,6 +37,7 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
         return Response.ok().allow("GET", "POST", "DELETE").header(SYNCOPE_CREATE_ALLOWED, isCreateAllowed()).build();
     }
 
+    @Override
     public boolean isCreateAllowed() {
         return getRestTemplate().getForObject(baseUrl + "user/request/create/allowed", Boolean.class);
     }

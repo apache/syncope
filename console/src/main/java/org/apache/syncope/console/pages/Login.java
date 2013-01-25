@@ -29,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.common.services.EntitlementService;
+import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -197,12 +198,7 @@ public class Login extends WebPage {
     private boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            // TODO: broken by revision 1438558 - temporary workaround
-            /*String createAllowed = SyncopeSession.get().getService(UserRequestService.class).getOptions().
-             getHeaderString(UserRequestService.SYNCOPE_CREATE_ALLOWED);
-             result = Boolean.parseBoolean(createAllowed);*/
-            result = SyncopeSession.get().getRestTemplate().getForObject(
-                    baseURL + "user/request/create/allowed", Boolean.class);
+            result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
         } catch (HttpClientErrorException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
