@@ -19,6 +19,10 @@
 package org.apache.syncope.common.types;
 
 import java.text.ParseException;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -27,6 +31,8 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
+@XmlType
+@XmlRootElement
 public class AuditLoggerName extends AbstractBaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;

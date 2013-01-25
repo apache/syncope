@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
 /**
  * Enum of all possible capabilities that a connector instance can expose.
  */
+@XmlEnum
 public enum ConnectorCapability {
 
     ONE_PHASE_CREATE,

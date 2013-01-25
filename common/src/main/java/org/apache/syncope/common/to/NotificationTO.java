@@ -21,11 +21,18 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 
+@XmlRootElement(name = "logger")
+@XmlType
 public class NotificationTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6145117115632592612L;
@@ -64,6 +71,8 @@ public class NotificationTO extends AbstractBaseBean {
         this.about = about;
     }
 
+    @XmlElementWrapper(name = "events")
+    @XmlElement(name = "event")
     public List<String> getEvents() {
         return events;
     }

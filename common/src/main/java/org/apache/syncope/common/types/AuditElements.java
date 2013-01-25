@@ -20,11 +20,14 @@ package org.apache.syncope.common.types;
 
 import java.util.EnumSet;
 
+import javax.xml.bind.annotation.XmlEnum;
+
 public final class AuditElements {
 
     private AuditElements() {
     }
 
+    @XmlEnum
     public enum Category {
 
         authentication(AuthenticationSubCategory.class),
@@ -58,6 +61,7 @@ public final class AuditElements {
         }
     }
 
+    @XmlEnum
     public enum Result {
 
         success,
@@ -65,6 +69,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum AuthenticationSubCategory {
 
         login,
@@ -72,6 +77,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum ConfigurationSubCategory {
 
         list,
@@ -85,6 +91,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum ConnectorSubCategory {
 
         list,
@@ -100,6 +107,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum LoggerSubCategory {
 
         list,
@@ -108,6 +116,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum NotificationSubCategory {
 
         list,
@@ -119,6 +128,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum PolicySubCategory {
 
         list,
@@ -129,6 +139,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum ReportSubCategory {
 
         list,
@@ -145,6 +156,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum ResourceSubCategory {
 
         list,
@@ -158,6 +170,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum RoleSubCategory {
 
         list,
@@ -171,6 +184,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum SchemaSubCategory {
 
         list,
@@ -191,6 +205,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum TaskSubCategory {
 
         list,
@@ -208,6 +223,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum UserSubCategory {
 
         list,
@@ -226,6 +242,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum UserRequestSubCategory {
 
         list,
@@ -237,6 +254,7 @@ public final class AuditElements {
 
     }
 
+    @XmlEnum
     public enum WorkflowSubCategory {
 
         getDefinition,

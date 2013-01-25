@@ -25,9 +25,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.common.AbstractBaseBean;
 
+@XmlRootElement(name = "workflowForm")
+@XmlType
 public class WorkflowFormTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
@@ -44,7 +52,7 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     private String owner;
 
-    private List<WorkflowFormPropertyTO> properties;
+    private final List<WorkflowFormPropertyTO> properties;
 
     public WorkflowFormTO() {
         properties = new ArrayList<WorkflowFormPropertyTO>();
@@ -98,6 +106,8 @@ public class WorkflowFormTO extends AbstractBaseBean {
         this.owner = owner;
     }
 
+    @XmlElementWrapper(name = "workflowFormProperties")
+    @XmlElement(name = "workflowFormProperty")
     public List<WorkflowFormPropertyTO> getProperties() {
         return properties;
     }

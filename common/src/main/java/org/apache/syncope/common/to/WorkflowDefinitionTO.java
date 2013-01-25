@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
+@XmlRootElement(name = "workflowDefinition")
+@XmlType
 public class WorkflowDefinitionTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 8803733012885686826L;

@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.types;
 
+import javax.xml.bind.annotation.XmlEnum;
+
 import ch.qos.logback.classic.Level;
 
+@XmlEnum
 public enum SyncopeLoggerLevel {
 
     OFF(Level.OFF),

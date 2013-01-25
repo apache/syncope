@@ -21,9 +21,17 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.report.ReportletConf;
 
+@XmlRootElement(name = "report")
+@XmlType
 public class ReportTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5274568072084814410L;
@@ -79,6 +87,8 @@ public class ReportTO extends AbstractBaseBean {
         return this.reportletConfs.remove(reportlet);
     }
 
+    @XmlElementWrapper(name = "reportletConfigurations")
+    @XmlElement(name = "configuration")
     public List<ReportletConf> getReportletConfs() {
         return reportletConfs;
     }
@@ -103,6 +113,8 @@ public class ReportTO extends AbstractBaseBean {
         return executions.remove(execution);
     }
 
+    @XmlElementWrapper(name = "executions")
+    @XmlElement(name = "execution")
     public List<ReportExecTO> getExecutions() {
         return executions;
     }
@@ -142,7 +154,7 @@ public class ReportTO extends AbstractBaseBean {
             this.nextExec = new Date(nextExec.getTime());
         }
     }
-     
+
     public Date getStartDate() {
         return startDate == null
                 ? null

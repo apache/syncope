@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement
+@XmlRootElement(name = "validator")
 @XmlType
 public class ValidatorTO extends AbstractBaseBean {
 

@@ -20,11 +20,19 @@ package org.apache.syncope.common.to;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Propagation request on internal storage or on 0+ external resources.
  */
+@XmlRootElement(name = "propagationRequest")
+@XmlType
 public class PropagationRequestTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 7601716025754543004L;
@@ -53,6 +61,8 @@ public class PropagationRequestTO extends AbstractBaseBean {
         this.onSyncope = onSyncope;
     }
 
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
     public Set<String> getResources() {
         return resources;
     }
