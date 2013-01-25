@@ -92,6 +92,10 @@ public class SyncopeSession extends WebSession {
         restTemplate = applicationContext.getBean(RestTemplate.class);
         baseURL = applicationContext.getBean("baseURL", String.class);
 
+        setupRESTClients();
+    }
+
+    protected void setupRESTClients() {
         services.put(ConfigurationService.class, new ConfigurationServiceProxy(baseURL, restTemplate));
         services.put(ConnectorService.class, new ConnectorServiceProxy(baseURL, restTemplate));
         services.put(EntitlementService.class, new EntitlementServiceProxy(baseURL, restTemplate));

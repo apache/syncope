@@ -27,6 +27,9 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -95,7 +98,8 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
         roleTO.setRoleOwner(8L);
 
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
         assertNotNull(roleTO);
 
         assertNotNull(roleTO.getVirtualAttributeMap());
@@ -124,7 +128,8 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setParent(8L);
         roleTO.setPasswordPolicy(4L);
 
-        RoleTO actual = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        RoleTO actual = getObject(response, RoleTO.class, roleService);
         assertNotNull(actual);
 
         actual = roleService.read(actual.getId());
@@ -147,7 +152,8 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO.addResource("resource-ldap");
 
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
         assertNotNull(roleTO);
 
         RoleTO deletedRole = roleService.delete(roleTO.getId());
@@ -218,7 +224,8 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void update() {
         RoleTO roleTO = buildRoleTO("latestRole");
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
 
         assertEquals(1, roleTO.getAttributes().size());
 
@@ -255,7 +262,8 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = buildBasicRoleTO("withvirtual");
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
 
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getVirtualAttributes().size());
@@ -275,7 +283,8 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = buildBasicRoleTO("withderived");
         roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
 
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getDerivedAttributes().size());
@@ -332,7 +341,8 @@ public class RoleTestITCase extends AbstractTest {
         String roleName = "torename" + getUUIDString();
         roleTO.setName(roleName);
 
-        RoleTO actual = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        RoleTO actual = getObject(response, RoleTO.class, roleService);
 
         assertNotNull(actual);
         assertEquals(roleName, actual.getName());
@@ -356,7 +366,8 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.addEntitlement("USER_READ");
         roleTO.addEntitlement("SCHEMA_READ");
 
-        roleTO = roleService.create(roleTO);
+        Response response = roleService.create(roleTO);
+        roleTO = getObject(response, RoleTO.class, roleService);
         assertNotNull(roleTO);
         assertNotNull(roleTO.getEntitlements());
         assertFalse(roleTO.getEntitlements().isEmpty());

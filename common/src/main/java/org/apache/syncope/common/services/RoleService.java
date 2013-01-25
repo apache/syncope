@@ -26,6 +26,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
@@ -39,10 +41,10 @@ public interface RoleService {
 
     @GET
     @Path("count")
-    Integer count();
+    int count();
 
     @POST
-    RoleTO create(RoleTO roleTO);
+    Response create(RoleTO roleTO);
 
     @DELETE
     @Path("{roleId}")
@@ -80,4 +82,5 @@ public interface RoleService {
     @POST
     @Path("{roleId}")
     RoleTO update(@PathParam("roleId") Long roleId, RoleMod roleMod);
+
 }

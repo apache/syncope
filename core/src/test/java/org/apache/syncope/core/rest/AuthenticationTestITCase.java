@@ -54,7 +54,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class AuthenticationTestITCase extends AbstractTest {
 
     // Enable running test more than once with parameters
-    public AuthenticationTestITCase(String contentType) {
+    public AuthenticationTestITCase(final String contentType) {
         super(contentType);
      }
 
@@ -81,7 +81,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         authRoleTO.setParent(8L);
         authRoleTO.addEntitlement("SCHEMA_READ");
 
-        authRoleTO = roleService.create(authRoleTO);
+        Response response = roleService.create(authRoleTO);
+        authRoleTO = getObject(response, RoleTO.class, roleService);
         assertNotNull(authRoleTO);
 
         // 1. create a schema (as admin)
@@ -90,7 +91,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);
         assertEquals(schemaTO, newSchemaTO);
 
@@ -411,7 +412,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         parentRole.addEntitlement("ROLE_1");
         parentRole.setParent(1L);
 
-        parentRole = roleService.create(parentRole);
+        Response response = roleService.create(parentRole);
+        parentRole = getObject(response, RoleTO.class, roleService);
         assertNotNull(parentRole);
 
         // Child role, with no entitlements
@@ -419,7 +421,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         childRole.setName("childAdminRole");
         childRole.setParent(parentRole.getId());
 
-        childRole = roleService.create(childRole);
+        response = roleService.create(childRole);
+        childRole = getObject(response, RoleTO.class, roleService);
         assertNotNull(childRole);
 
         // User with child role, created by admin

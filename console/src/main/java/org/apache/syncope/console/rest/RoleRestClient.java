@@ -20,6 +20,8 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.ResourceService;
@@ -27,7 +29,6 @@ import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -58,19 +59,18 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size)
-            throws SyncopeClientCompositeErrorException {
+    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size) {
         return getService(RoleService.class).search(searchCond, page, size);
     }
 
     @Override
-    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId)
-            throws SyncopeClientCompositeErrorException {
+    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId) {
         return getService(ResourceService.class).getConnector(resourceName, AttributableType.ROLE, objectId);
     }
 
     public RoleTO create(final RoleTO roleTO) {
-        return getService(RoleService.class).create(roleTO);
+        Response response = getService(RoleService.class).create(roleTO);
+        return (RoleTO) response.getEntity(); // FIXME after CXF migration
     }
 
     public RoleTO read(final Long id) {

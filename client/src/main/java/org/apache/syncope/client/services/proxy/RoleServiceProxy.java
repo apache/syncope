@@ -18,8 +18,16 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
+import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.core.Response;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.RoleService;
@@ -39,14 +47,16 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
     }
 
     @Override
-    public Integer count() {
-        //return getRestTemplate().getForObject(baseUrl + "role/count.json", Integer.class);
-        throw new UnsupportedOperationException();
+    public int count() {
+        return Integer.valueOf(list().size());
     }
 
     @Override
-    public RoleTO create(final RoleTO roleTO) {
-        return getRestTemplate().postForObject(baseUrl + "role/create", roleTO, RoleTO.class);
+    public Response create(final RoleTO roleTO) {
+        RoleTO role = getRestTemplate().postForObject(baseUrl + "role/create", roleTO, RoleTO.class);
+
+        URI location = URI.create(baseUrl + "role/read/" + role.getId() + ".json");
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, role.getId()).build();
     }
 
     @Override
@@ -61,8 +71,7 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
 
     @Override
     public List<RoleTO> list(final int page, final int size) {
-        //return Arrays.asList(getRestTemplate().getForObject(baseURL + "role/list.json", RoleTO[].class, page, size));
-        throw new UnsupportedOperationException();
+        throw new ServiceUnavailableException();
     }
 
     @Override
