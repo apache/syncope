@@ -91,7 +91,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return result;
     }
 
-    private TaskType getTaskType(Class<?> reference) {
+    private TaskType getTaskType(final Class<?> reference) {
         TaskType result = null;
         if (PropagationTaskTO.class.equals(reference)) {
             result = TaskType.PROPAGATION;
@@ -149,7 +149,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      *
      * @param taskId task id
      */
-    public void startExecution(final Long taskId, boolean dryRun) {
+    public void startExecution(final Long taskId, final boolean dryRun) {
         getService(TaskService.class).execute(taskId, dryRun);
     }
 

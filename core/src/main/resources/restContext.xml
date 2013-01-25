@@ -66,13 +66,15 @@ under the License.
 
   <jaxrs:server id="restContainer" address="/">
     <jaxrs:serviceBeans>
-      <ref bean="configurationServiceImpl"/>
-      <ref bean="notificationServiceImpl"/>
       <ref bean="connectorServiceImpl"/>
+      <ref bean="configurationServiceImpl"/>
       <ref bean="entitlementServiceImpl"/>
+      <ref bean="loggerServiceImpl"/>
+      <ref bean="notificationServiceImpl"/>
       <ref bean="policyServiceImpl"/>
-      <ref bean="schemaServiceImpl"/>
       <ref bean="reportServiceImpl"/>
+      <ref bean="resourceServiceImpl"/>
+      <ref bean="schemaServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
       <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>

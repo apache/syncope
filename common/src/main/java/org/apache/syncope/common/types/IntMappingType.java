@@ -22,9 +22,12 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlEnum;
+
 /**
  * Internal attribute mapping type.
  */
+@XmlEnum
 public enum IntMappingType {
 
     // Unfortunately enum type cannot be extended ...

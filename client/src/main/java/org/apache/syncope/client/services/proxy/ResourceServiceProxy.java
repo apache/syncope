@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.web.client.RestTemplate;
 
 public class ResourceServiceProxy extends SpringServiceProxy implements ResourceService {
@@ -35,19 +41,21 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
     }
 
     @Override
-    public ResourceTO create(final ResourceTO resourceTO) {
-        return getRestTemplate().postForObject(baseUrl + "resource/create.json", resourceTO, ResourceTO.class);
+    public Response create(final ResourceTO resourceTO) {
+        ResourceTO resource = getRestTemplate().postForObject(baseUrl + "resource/create.json", resourceTO,
+                ResourceTO.class);
+
+        return Response.created(URI.create(baseUrl + "resource/read/" + resource.getName() + ".json")).build();
     }
 
     @Override
-    public ResourceTO update(final String resourceName, final ResourceTO resourceTO) {
-        return getRestTemplate().postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
+    public void update(final String resourceName, final ResourceTO resourceTO) {
+        getRestTemplate().postForObject(baseUrl + "resource/update.json", resourceTO, ResourceTO.class);
     }
 
     @Override
-    public ResourceTO delete(final String resourceName) {
-        return getRestTemplate().getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class,
-                resourceName);
+    public void delete(final String resourceName) {
+        getRestTemplate().getForObject(baseUrl + "resource/delete/{resourceName}.json", ResourceTO.class, resourceName);
     }
 
     @Override
@@ -57,9 +65,11 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
     }
 
     @Override
-    public Set<String> getPropagationActionsClasses() {
-        return new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(baseUrl
-                + "resource/propagationActionsClasses.json", String[].class)));
+    public Set<PropagationActionClassTO> getPropagationActionsClasses() {
+        Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+                baseUrl + "resource/propagationActionsClasses.json", String[].class)));
+
+        return CollectionWrapper.wrapPropagationActionClasses(classes);
     }
 
     @Override
@@ -85,7 +95,7 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
 
     @Override
     public boolean check(final ResourceTO resourceTO) {
-        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).
-                booleanValue();
+        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class)
+                .booleanValue();
     }
 }

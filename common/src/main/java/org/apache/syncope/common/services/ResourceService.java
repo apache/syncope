@@ -27,8 +27,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 
@@ -36,24 +38,25 @@ import org.apache.syncope.common.types.AttributableType;
 public interface ResourceService {
 
     @POST
-    ResourceTO create(ResourceTO resourceTO);
+    @Path("validate")
+    boolean check(ResourceTO resourceTO);
 
-    @PUT
-    @Path("{resourceName}")
-    ResourceTO update(@PathParam("resourceName") String resourceName, ResourceTO resourceTO);
+    @POST
+    Response create(ResourceTO resourceTO);
 
     @DELETE
     @Path("{resourceName}")
-    ResourceTO delete(@PathParam("resourceName") String resourceName);
+    void delete(@PathParam("resourceName") String resourceName);
 
     @GET
-    @Path("{resourceName}")
-    ResourceTO read(@PathParam("resourceName") String resourceName);
+    @Path("{resourceName}/{type}/{objectId}")
+    ConnObjectTO getConnector(@PathParam("resourceName") String resourceName,
+            @PathParam("type") AttributableType type, @PathParam("objectId") String objectId);
 
-    // TODO: is it resource method?
+    // TODO: is it a resource method?
     @GET
     @Path("propagationActionsClasses")
-    Set<String> getPropagationActionsClasses();
+    Set<PropagationActionClassTO> getPropagationActionsClasses();
 
     @GET
     List<ResourceTO> list();
@@ -62,11 +65,11 @@ public interface ResourceService {
     List<ResourceTO> list(@MatrixParam("connInstanceId") Long connInstanceId);
 
     @GET
-    @Path("{resourceName}/{type}/{objectId}")
-    ConnObjectTO getConnector(@PathParam("resourceName") String resourceName,
-            @PathParam("type") AttributableType type, @PathParam("objectId") String objectId);
+    @Path("{resourceName}")
+    ResourceTO read(@PathParam("resourceName") String resourceName);
 
-    @POST
-    @Path("validate")
-    boolean check(ResourceTO resourceTO);
+    @PUT
+    @Path("{resourceName}")
+    void update(@PathParam("resourceName") String resourceName, ResourceTO resourceTO);
+
 }

@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.IntMappingType;
 
+@XmlRootElement(name = "mappingItem")
+@XmlType
 public class MappingItemTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2983498836767176862L;

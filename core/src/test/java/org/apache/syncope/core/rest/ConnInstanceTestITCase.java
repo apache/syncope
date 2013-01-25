@@ -58,7 +58,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     private static String bundlesDirectory;
 
     // Enable running test more than once with parameters
-    public ConnInstanceTestITCase(String contentType) {
+    public ConnInstanceTestITCase(final String contentType) {
         super(contentType);
     }
 
@@ -288,7 +288,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Check for connector instance update after resource creation.
         // ----------------------------------
-        resourceTO = resourceService.create(resourceTO);
+        response = resourceService.create(resourceTO);
+        resourceTO = getObject(response, ResourceTO.class, resourceService);
 
         assertNotNull(resourceTO);
 

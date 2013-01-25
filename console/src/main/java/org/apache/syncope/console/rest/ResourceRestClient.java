@@ -20,9 +20,12 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +41,8 @@ public class ResourceRestClient extends BaseRestClient {
         List<String> actions = null;
 
         try {
-            actions = new ArrayList<String>(getService(ResourceService.class).getPropagationActionsClasses());
+            Set<PropagationActionClassTO> response = getService(ResourceService.class).getPropagationActionsClasses();
+            actions = CollectionWrapper.unwrapPropagationActionClasses(response);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all propagation actions classes", e);
         }
@@ -76,7 +80,7 @@ public class ResourceRestClient extends BaseRestClient {
         getService(ResourceService.class).update(resourceTO.getName(), resourceTO);
     }
 
-    public ResourceTO delete(final String name) {
-        return getService(ResourceService.class).delete(name);
+    public void delete(final String name) {
+        getService(ResourceService.class).delete(name);
     }
 }

@@ -31,7 +31,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -75,7 +77,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class UserTestITCase extends AbstractTest {
 
     // Enable running test more than once with parameters
-    public UserTestITCase(String contentType) {
+    public UserTestITCase(final String contentType) {
         super(contentType);
     }
 
@@ -289,7 +291,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceTO);
         resourceTO.setName("resource-csv-enforcing");
         resourceTO.setEnforceMandatoryCondition(true);
-        resourceTO = resourceService.create(resourceTO);
+
+        Response response = resourceService.create(resourceTO);
+        resourceTO = getObject(response, ResourceTO.class, resourceService);
         assertNotNull(resourceTO);
 
         UserTO userTO = getUniqueSampleTO("syncope222@apache.org");

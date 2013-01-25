@@ -21,16 +21,24 @@ package org.apache.syncope.common.to;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.IntMappingType;
 
+@XmlRootElement(name = "mapping")
+@XmlType
 public class MappingTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 8447688036282611118L;
 
     private String accountLink;
 
-    private List<MappingItemTO> items;
+    private final List<MappingItemTO> items;
 
     public MappingTO() {
         super();
@@ -104,6 +112,8 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     @SuppressWarnings("unchecked")
+    @XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
     public <T extends MappingItemTO> List<T> getItems() {
         return (List<T>) items;
     }

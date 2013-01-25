@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.util;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.MailTemplateTO;
+import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.types.AuditLoggerName;
@@ -165,6 +165,22 @@ public final class CollectionWrapper {
     public static List<String> unwrapSyncActionClasses(List<SyncActionClassTO> actions) {
         List<String> respons = new ArrayList<String>();
         for (SyncActionClassTO e : actions) {
+            respons.add(e.getName());
+        }
+        return respons;
+    }
+
+    public static Set<PropagationActionClassTO> wrapPropagationActionClasses(Set<String> classes) {
+        Set<PropagationActionClassTO> respons = new HashSet<PropagationActionClassTO>();
+        for (String cl : classes) {
+            respons.add(PropagationActionClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapPropagationActionClasses(Set<PropagationActionClassTO> actions) {
+        List<String> respons = new ArrayList<String>();
+        for (PropagationActionClassTO e : actions) {
             respons.add(e.getName());
         }
         return respons;

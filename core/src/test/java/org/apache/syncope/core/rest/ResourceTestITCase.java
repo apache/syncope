@@ -30,8 +30,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -49,13 +52,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class ResourceTestITCase extends AbstractTest {
 
     // Enable running test more than once with parameters
-    public ResourceTestITCase(String contentType) {
+    public ResourceTestITCase(final String contentType) {
         super(contentType);
     }
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<String> actions = resourceService.getPropagationActionsClasses();
+        Set<PropagationActionClassTO> actions = resourceService.getPropagationActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -65,7 +68,8 @@ public class ResourceTestITCase extends AbstractTest {
         String resourceName = "ws-target-resource-create";
         ResourceTO resourceTO = buildResourceTO(resourceName);
 
-        ResourceTO actual = resourceService.create(resourceTO);
+        Response response = resourceService.create(resourceTO);
+        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
         assertNotNull(actual);
 
         // check for existence
@@ -116,7 +120,8 @@ public class ResourceTestITCase extends AbstractTest {
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
         resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);
 
-        ResourceTO actual = resourceService.create(resourceTO);
+        Response response = resourceService.create(resourceTO);
+        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
         assertNotNull(actual);
 
         // check the existence
@@ -150,7 +155,9 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setRmapping(rmapping);
 
-        ResourceTO actual = resourceService.create(resourceTO);
+        Response response = resourceService.create(resourceTO);
+        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+
         assertNotNull(actual);
         assertNotNull(actual.getUmapping());
         assertNotNull(actual.getUmapping().getItems());
@@ -240,7 +247,8 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        ResourceTO actual = resourceService.create(resourceTO);
+        Response response = resourceService.create(resourceTO);
+        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
         assertNotNull(actual);
 
         // check the existence
@@ -297,7 +305,8 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        ResourceTO actual = resourceService.update(resourceTO.getName(), resourceTO);
+        resourceService.update(resourceTO.getName(), resourceTO);
+        ResourceTO actual = resourceService.read(resourceTO.getName());
         assertNotNull(actual);
 
         // check for existence
@@ -324,7 +333,8 @@ public class ResourceTestITCase extends AbstractTest {
         resourceService.create(pre);
 
         pre.setUsyncToken(null);
-        ResourceTO actual = resourceService.update(pre.getName(), pre);
+        resourceService.update(pre.getName(), pre);
+        ResourceTO actual = resourceService.read(pre.getName());
         // check that the synctoken has been reset
         assertNull(actual.getUsyncToken());
     }
@@ -334,11 +344,11 @@ public class ResourceTestITCase extends AbstractTest {
         String resourceName = "ws-target-resource-delete";
 
         ResourceTO resource = buildResourceTO(resourceName);
-        ResourceTO actual = resourceService.create(resource);
+        Response response = resourceService.create(resource);
+        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
         assertNotNull(actual);
 
-        ResourceTO deletedResource = resourceService.delete(resourceName);
-        assertNotNull(deletedResource);
+        resourceService.delete(resourceName);
 
         try {
             resourceService.read(resourceName);
