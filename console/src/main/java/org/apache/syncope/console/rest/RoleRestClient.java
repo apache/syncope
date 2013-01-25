@@ -70,7 +70,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
 
     public RoleTO create(final RoleTO roleTO) {
         Response response = getService(RoleService.class).create(roleTO);
-        return (RoleTO) response.getEntity(); // FIXME after CXF migration
+        return response.readEntity(RoleTO.class);
     }
 
     public RoleTO read(final Long id) {

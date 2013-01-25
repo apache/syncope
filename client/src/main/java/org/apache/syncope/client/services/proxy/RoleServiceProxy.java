@@ -56,7 +56,7 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
         RoleTO role = getRestTemplate().postForObject(baseUrl + "role/create", roleTO, RoleTO.class);
 
         URI location = URI.create(baseUrl + "role/read/" + role.getId() + ".json");
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, role.getId()).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, role.getId()).entity(role).build();
     }
 
     @Override
