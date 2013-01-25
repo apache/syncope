@@ -21,13 +21,9 @@ package org.apache.syncope.client.services.proxy;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
-import org.apache.syncope.common.types.UserRequestType;
 import org.springframework.web.client.RestTemplate;
 
 public class UserRequestServiceProxy extends SpringServiceProxy implements UserRequestService {
@@ -35,7 +31,7 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
     public UserRequestServiceProxy(final String baseUrl, final RestTemplate restTemplate) {
         super(baseUrl, restTemplate);
     }
-    
+
     @Override
     public Response getOptions() {
         return Response.ok().allow("GET", "POST", "DELETE").header(SYNCOPE_CREATE_ALLOWED, isCreateAllowed()).build();
@@ -47,14 +43,24 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public Response create(final UserRequestTO userRequestTO) {
-        UserRequestTO created = null;
-        if (userRequestTO.getType() == UserRequestType.CREATE) {
-            created = getRestTemplate().postForObject(baseUrl + "user/request/create", userRequestTO.getUserTO(), UserRequestTO.class);
-        } else if (userRequestTO.getType() == UserRequestType.UPDATE) {
-            created = getRestTemplate().postForObject(baseUrl + "user/request/update", userRequestTO.getUserMod(), UserRequestTO.class);
-        } else if (userRequestTO.getType() == UserRequestType.DELETE) {
-            created = getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class, userRequestTO.getUserId());
+        UserRequestTO created;
+        switch (userRequestTO.getType()) {
+            case UPDATE:
+                created = getRestTemplate().postForObject(baseUrl + "user/request/update", userRequestTO.getUserMod(),
+                        UserRequestTO.class);
+                break;
+
+            case DELETE:
+                created = getRestTemplate().getForObject(baseUrl + "user/request/delete/{userId}", UserRequestTO.class,
+                        userRequestTO.getUserId());
+                break;
+
+            case CREATE:
+            default:
+                created = getRestTemplate().postForObject(baseUrl + "user/request/create", userRequestTO.getUserTO(),
+                        UserRequestTO.class);
         }
+
         URI location = URI.create(baseUrl + "user/request/read/" + created.getId());
         return Response.created(location).entity(created.getId()).build();
     }
@@ -71,7 +77,7 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
     }
 
     @Override
-    public void delete(@PathParam("requestId") Long requestId) {
+    public void delete(final Long requestId) {
         getRestTemplate().getForObject(
                 baseUrl + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
     }
