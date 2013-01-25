@@ -619,13 +619,6 @@ public class TaskTestITCase extends AbstractTest {
             UserTO dUserTO = userService.delete(userTO.getId());
             assertNotNull(dUserTO);
         }
-        System.out.println("After");
-        List<PropagationTaskTO> tasksA = taskService.list(TaskType.PROPAGATION);
-        for (PropagationTaskTO task : tasksA) {
-            System.out.println(task.getId());
-            System.out.println(task.getAccountId());
-            System.out.println(task.getOldAccountId());
-        }
     }
 
     @Test
