@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 
 @XmlRootElement(name = "report")
@@ -88,7 +89,7 @@ public class ReportTO extends AbstractBaseBean {
     }
 
     @XmlElementWrapper(name = "reportletConfigurations")
-    @XmlElement(name = "configuration")
+    @XmlElement(name = "configuration", type=AbstractReportletConf.class)
     public List<ReportletConf> getReportletConfs() {
         return reportletConfs;
     }

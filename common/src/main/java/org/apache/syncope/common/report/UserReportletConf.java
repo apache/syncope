@@ -21,10 +21,13 @@ package org.apache.syncope.common.report;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 
+@XmlRootElement
 public class UserReportletConf extends AbstractReportletConf {
 
     public enum Feature {
