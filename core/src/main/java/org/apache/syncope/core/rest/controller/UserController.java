@@ -37,6 +37,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
@@ -45,6 +46,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
@@ -314,16 +316,55 @@ public class UserController {
 
         LOG.debug("User update called with {}", userMod);
 
+        final String changedPwd = userMod.getPassword();
+
+        // 1. update password internally only if required
+        if (userMod.getPwdPropRequest() != null && !userMod.getPwdPropRequest().isOnSyncope()) {
+            userMod.setPassword(null);
+        }
         WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated, userMod.getPassword(),
-                userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
+        // 2. propagate password update only to requested resources
+        List<PropagationTask> tasks;
+        if (userMod.getPwdPropRequest() == null) {
+            // 2a. no specific password propagation request: generate propagation tasks for any resource associated
+            tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
+                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
+        } else {
+            // 2b. generate the propagation task list in two phases: first the ones containing password, 
+            // the the rest (with no password)
+            final PropagationByResource origPropByRes = new PropagationByResource();
+            origPropByRes.merge(updated.getPropByRes());
+            SyncopeUser user = dataBinder.getUserFromId(updated.getResult().getKey());
+            origPropByRes.addAll(ResourceOperation.UPDATE, user.getResourceNames());
+            origPropByRes.purge();
+
+            final PropagationByResource pwdPropByRes = new PropagationByResource();
+            pwdPropByRes.merge(origPropByRes);
+            pwdPropByRes.retainAll(userMod.getPwdPropRequest().getResources());
+            updated.setPropByRes(pwdPropByRes);
+
+            tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
+                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
+
+            final PropagationByResource nonPwdPropByRes = new PropagationByResource();
+            nonPwdPropByRes.merge(origPropByRes);
+            nonPwdPropByRes.removeAll(userMod.getPwdPropRequest().getResources());
+            updated.setPropByRes(nonPwdPropByRes);
+
+            tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, null,
+                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+
+            updated.setPropByRes(origPropByRes);
+        }
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
+        // 3. create notification tasks
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
+        // 4. prepare result, including propagation status on external resources
         final UserTO updatedTO = dataBinder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationStatusTOs(propagations);
 
@@ -357,10 +398,7 @@ public class UserController {
 
         LOG.debug("About to activate " + userId);
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = dataBinder.getUserFromId(userId);
 
         return setStatus(user, token, propagationRequestTO, true, "activate");
     }
@@ -387,10 +425,7 @@ public class UserController {
 
         LOG.debug("About to activate " + username);
 
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
+        SyncopeUser user = dataBinder.getUserFromUsername(username);
 
         return setStatus(user, token, propagationRequestTO, true, "activate");
     }
@@ -413,10 +448,7 @@ public class UserController {
 
         LOG.debug("About to suspend " + userId);
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = dataBinder.getUserFromId(userId);
 
         return setStatus(user, null, propagationRequestTO, false, "suspend");
     }
@@ -439,11 +471,7 @@ public class UserController {
 
         LOG.debug("About to suspend " + username);
 
-        SyncopeUser user = userDAO.find(username);
-
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
+        SyncopeUser user = dataBinder.getUserFromUsername(username);
 
         return setStatus(user, null, propagationRequestTO, false, "suspend");
     }
@@ -466,10 +494,7 @@ public class UserController {
 
         LOG.debug("About to reactivate " + userId);
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = dataBinder.getUserFromId(userId);
 
         return setStatus(user, null, propagationRequestTO, true, "reactivate");
     }
@@ -491,10 +516,7 @@ public class UserController {
 
         LOG.debug("About to reactivate " + username);
 
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
+        SyncopeUser user = dataBinder.getUserFromUsername(username);
 
         return setStatus(user, null, propagationRequestTO, true, "reactivate");
     }
@@ -610,6 +632,7 @@ public class UserController {
                 updated.getPerformedTasks()),
                 updated.getResult().getValue(),
                 null,
+                null,
                 null);
         taskExecutor.execute(tasks);
 
@@ -642,7 +665,7 @@ public class UserController {
             updated = new WorkflowResult<Long>(user.getId(), null, task);
         }
 
-        // Resources to exclude from propagation.
+        // Resources to exclude from propagation
         Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
         if (propagationRequestTO != null) {
             resourcesToBeExcluded.removeAll(propagationRequestTO.getResources());

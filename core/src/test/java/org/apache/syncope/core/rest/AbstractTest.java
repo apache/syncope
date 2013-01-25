@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -296,7 +295,7 @@ public abstract class AbstractTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-      Object[][] data = new Object[][]{{"application/json"}};
-      return Arrays.asList(data);
+        Object[][] data = new Object[][]{{"application/json"}};
+        return Arrays.asList(data);
     }
 }

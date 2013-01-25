@@ -223,11 +223,9 @@ public class ResourceController extends AbstractController {
         }
 
         final Set<Attribute> attributes = connectorObject.getAttributes();
-
         if (AttributeUtil.find(Uid.NAME, attributes) == null) {
             attributes.add(connectorObject.getUid());
         }
-
         if (AttributeUtil.find(Name.NAME, attributes) == null) {
             attributes.add(connectorObject.getName());
         }

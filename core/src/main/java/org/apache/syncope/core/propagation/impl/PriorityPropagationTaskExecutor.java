@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -64,13 +64,22 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         }
     }
 
-    protected static class PriorityComparator implements Comparator<PropagationTask> {
+    protected static class PriorityComparator implements Comparator<PropagationTask>, Serializable {
+
+        private static final long serialVersionUID = -1969355670784448878L;
 
         @Override
         public int compare(final PropagationTask task1, final PropagationTask task2) {
-            return task1.getResource().getPropagationPriority() > task2.getResource().getPropagationPriority()
+            int prop1 = task1.getResource().getPropagationPriority() == null
+                    ? Integer.MIN_VALUE
+                    : task1.getResource().getPropagationPriority().intValue();
+            int prop2 = task2.getResource().getPropagationPriority() == null
+                    ? Integer.MIN_VALUE
+                    : task2.getResource().getPropagationPriority().intValue();
+
+            return prop1 > prop2
                     ? -1
-                    : task1.getResource().getPropagationPriority() == task2.getResource().getPropagationPriority()
+                    : prop1 == prop2
                     ? 0
                     : 1;
         }

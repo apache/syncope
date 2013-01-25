@@ -44,7 +44,6 @@ import org.apache.syncope.core.rest.data.AbstractAttributableDataBinder;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -92,12 +91,6 @@ public class PropagationManager {
     private ConnObjectUtil connObjectUtil;
 
     /**
-     * JEXL engine for evaluating connector's account link.
-     */
-    @Autowired
-    private JexlUtil jexlUtil;
-
-    /**
      * Create the user on every associated resource.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
@@ -120,13 +113,13 @@ public class PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be set
      * @param vAttrs virtual attributes to be set
-     * @param syncResourceNames external resources performing sync, hence not to be considered for propagation
+     * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs, final Set<String> syncResourceNames)
+            final String password, final List<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
@@ -134,7 +127,7 @@ public class PropagationManager {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.getInstance(AttributableType.USER));
         }
         return getCreateTaskIds(user, password, vAttrs,
-                wfResult.getResult().getValue(), wfResult.getPropByRes(), syncResourceNames);
+                wfResult.getResult().getValue(), wfResult.getPropByRes(), noPropResourceNames);
     }
 
     /**
@@ -158,32 +151,32 @@ public class PropagationManager {
      *
      * @param wfResult role to be propagated (and info associated), as per result from workflow
      * @param vAttrs virtual attributes to be set
-     * @param syncResourceNames external resources performing sync, hence not to be considered for propagation
+     * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if role is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
      */
     public List<PropagationTask> getRoleCreateTaskIds(final WorkflowResult<Long> wfResult,
-            final List<AttributeTO> vAttrs, final Set<String> syncResourceNames)
+            final List<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
         if (vAttrs != null && !vAttrs.isEmpty()) {
             roleDataBinder.fillVirtual(role, vAttrs, AttributableUtil.getInstance(AttributableType.ROLE));
         }
-        return getCreateTaskIds(role, null, vAttrs, null, wfResult.getPropByRes(), syncResourceNames);
+        return getCreateTaskIds(role, null, vAttrs, null, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     protected List<PropagationTask> getCreateTaskIds(final AbstractAttributable attributable,
             final String password, final List<AttributeTO> vAttrs, final Boolean enable,
-            final PropagationByResource propByRes, final Set<String> syncResourceNames) {
+            final PropagationByResource propByRes, final Set<String> noPropResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {
             return Collections.<PropagationTask>emptyList();
         }
 
-        if (syncResourceNames != null) {
-            propByRes.get(ResourceOperation.CREATE).removeAll(syncResourceNames);
+        if (noPropResourceNames != null) {
+            propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
         return createTasks(attributable, password, null, null, enable, false, propByRes);
@@ -194,13 +187,12 @@ public class PropagationManager {
      *
      * @param user to be propagated
      * @param enable whether user must be enabled or not
-     * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
-     * disable/enable actions limited to the external resources only
+     * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      */
     public List<PropagationTask> getUserUpdateTaskIds(final SyncopeUser user, final Boolean enable,
-            final Set<String> syncResourceNames)
+            final Set<String> noPropResourceNames)
             throws NotFoundException {
 
         return getUpdateTaskIds(
@@ -210,7 +202,7 @@ public class PropagationManager {
                 Collections.<String>emptySet(), // no virtual attributes to be managed
                 Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
                 null, // no propagation by resources
-                syncResourceNames);
+                noPropResourceNames);
     }
 
     /**
@@ -253,20 +245,19 @@ public class PropagationManager {
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
-     * disable/enable actions limited to the external resources only
+     * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final Set<String> syncResourceNames)
+            final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
         return getUpdateTaskIds(user, password, wfResult.getResult().getValue(),
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), syncResourceNames);
+                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     /**
@@ -292,26 +283,25 @@ public class PropagationManager {
      * @param wfResult role to be propagated (and info associated), as per result from workflow
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param syncResourceNames external resource names not to be considered for propagation. Use this during sync and
-     * disable/enable actions limited to the external resources only
+     * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if role is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
      */
     public List<PropagationTask> getRoleUpdateTaskIds(final WorkflowResult<Long> wfResult,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final Set<String> syncResourceNames)
+            final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
         return getUpdateTaskIds(role, null, null,
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), syncResourceNames);
+                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     protected List<PropagationTask> getUpdateTaskIds(final AbstractAttributable attributable,
             final String password, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final PropagationByResource propByRes, final Set<String> syncResourceNames)
+            final PropagationByResource propByRes, final Set<String> noPropResourceNames)
             throws NotFoundException {
 
         AbstractAttributableDataBinder binder = attributable instanceof SyncopeUser
@@ -329,10 +319,8 @@ public class PropagationManager {
             localPropByRes.merge(propByRes);
         }
 
-        if (syncResourceNames != null) {
-            localPropByRes.get(ResourceOperation.CREATE).removeAll(syncResourceNames);
-            localPropByRes.get(ResourceOperation.UPDATE).removeAll(syncResourceNames);
-            localPropByRes.get(ResourceOperation.DELETE).removeAll(syncResourceNames);
+        if (noPropResourceNames != null) {
+            localPropByRes.removeAll(noPropResourceNames);
         }
 
         Map<String, AttributeMod> vAttrsToBeUpdatedMap = null;
@@ -369,16 +357,16 @@ public class PropagationManager {
      * the creation fails onto a mandatory resource.
      *
      * @param userId to be deleted
-     * @param syncResourceName name of external resource performing sync, hence not to be considered for propagation
+     * @param noPropResourceNames name of external resource not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
-    public List<PropagationTask> getUserDeleteTaskIds(final Long userId, final String syncResourceName)
+    public List<PropagationTask> getUserDeleteTaskIds(final Long userId, final String noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(userId);
-        return getDeleteTaskIds(user, syncResourceName);
+        return getDeleteTaskIds(user, noPropResourceNames);
     }
 
     /**
@@ -403,25 +391,25 @@ public class PropagationManager {
      * the creation fails onto a mandatory resource.
      *
      * @param roleId to be deleted
-     * @param syncResourceName name of external resource performing sync, hence not to be considered for propagation
+     * @param noPropResourceName name of external resource not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if role is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
      */
-    public List<PropagationTask> getRoleDeleteTaskIds(final Long roleId, final String syncResourceName)
+    public List<PropagationTask> getRoleDeleteTaskIds(final Long roleId, final String noPropResourceName)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(roleId);
-        return getDeleteTaskIds(role, syncResourceName);
+        return getDeleteTaskIds(role, noPropResourceName);
     }
 
     protected List<PropagationTask> getDeleteTaskIds(final AbstractAttributable attributable,
-            final String syncResourceName) {
+            final String noPropResourceName) {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.DELETE, attributable.getResourceNames());
-        if (syncResourceName != null) {
-            propByRes.get(ResourceOperation.DELETE).remove(syncResourceName);
+        if (noPropResourceName != null) {
+            propByRes.get(ResourceOperation.DELETE).remove(noPropResourceName);
         }
         return createTasks(attributable, null, null, null, false, true, propByRes);
     }

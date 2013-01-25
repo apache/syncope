@@ -18,117 +18,117 @@ specific language governing permissions and limitations
 under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xmlns:cxf="http://cxf.apache.org/core"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://cxf.apache.org/jaxrs
-        http://cxf.apache.org/schemas/jaxrs.xsd
-        http://cxf.apache.org/core 
-        http://cxf.apache.org/schemas/core.xsd
-        http://www.springframework.org/schema/util 
-        http://www.springframework.org/schema/util/spring-util.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://cxf.apache.org/jaxrs
+                           http://cxf.apache.org/schemas/jaxrs.xsd
+                           http://cxf.apache.org/core 
+                           http://cxf.apache.org/schemas/core.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<bean id="httpClientConnManager"
-		class="org.apache.http.impl.conn.PoolingClientConnectionManager" />
+  <bean id="httpClientConnManager"
+        class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
 
-	<bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
-		<property name="parameterMap">
-			<map key-type="java.lang.String">
-				<entry>
-					<key>
-						<value>http.protocol.handle-authentication</value>
-					</key>
-					<value type="java.lang.Boolean">
-						false
-					</value>
-				</entry>
-			</map>
-		</property>
-	</bean>
+  <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
+    <property name="parameterMap">
+      <map key-type="java.lang.String">
+        <entry>
+          <key>
+            <value>http.protocol.handle-authentication</value>
+          </key>
+          <value type="java.lang.Boolean">
+            false
+          </value>
+        </entry>
+      </map>
+    </property>
+  </bean>
 
-	<bean id="httpClientFactory"
-		class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
-		<constructor-arg value="localhost" />
-		<constructor-arg value="9080" />
-		<constructor-arg value="http" />
-		<constructor-arg ref="httpClientConnManager" />
-		<constructor-arg ref="httpClientParams" />
-	</bean>
+  <bean id="httpClientFactory"
+        class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
+    <constructor-arg value="localhost"/>
+    <constructor-arg value="9080"/>
+    <constructor-arg value="http"/>
+    <constructor-arg ref="httpClientConnManager"/>
+    <constructor-arg ref="httpClientParams"/>
+  </bean>
 
-	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-		<constructor-arg ref="httpClientFactory" />
-		<property name="messageConverters">
-			<list>
-				<ref bean="mappingJacksonHttpMessageConverter" />
-				<ref bean="mappingXstreamHttpMessageConverter" />
-			</list>
-		</property>
-		<property name="errorHandler">
-			<bean id="syncopeClientErrorHandler"
-				class="org.apache.syncope.common.validation.SyncopeClientErrorHandler" />
-		</property>
-	</bean>
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+    <constructor-arg ref="httpClientFactory"/>
+    <property name="messageConverters">
+      <list>
+        <ref bean="mappingJacksonHttpMessageConverter"/>
+        <ref bean="mappingXstreamHttpMessageConverter"/>
+      </list>
+    </property>
+    <property name="errorHandler">
+      <bean id="syncopeClientErrorHandler"
+            class="org.apache.syncope.common.validation.SyncopeClientErrorHandler"/>
+    </property>
+  </bean>
 
-	<!-- JSON (via Jackson) -->
-	<bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper" />
-	<bean id="mappingJacksonHttpMessageConverter"
-		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-		<property name="objectMapper" ref="jacksonObjectMapper" />
-	</bean>
+  <!-- JSON (via Jackson) -->
+  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper"/>
+  <bean id="mappingJacksonHttpMessageConverter"
+        class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+    <property name="objectMapper" ref="jacksonObjectMapper"/>
+  </bean>
 
-	<!-- XML (via XStream) -->
-	<bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
-		<property name="autodetectAnnotations" value="true" />
-	</bean>
-	<bean id="mappingXstreamHttpMessageConverter"
-		class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
-		<constructor-arg ref="xStreamXmlMarshaller" />
-	</bean>
+  <!-- XML (via XStream) -->
+  <bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+    <property name="autodetectAnnotations" value="true"/>
+  </bean>
+  <bean id="mappingXstreamHttpMessageConverter"
+        class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+    <constructor-arg ref="xStreamXmlMarshaller"/>
+  </bean>
 
-	<!-- CXF Configuration - BEGIN -->
-	<bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
-		<property name="depthProperties">
-			<bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
-				<property name="innerElementCountThreshold" value="500" />
-			</bean>
-		</property>
-		<property name="marshallerProperties">
-			<map>
-				<entry key="jaxb.formatted.output">
-					<value type="java.lang.Boolean">true</value>
-				</entry>
-			</map>
-		</property>
-	</bean>
+  <!-- CXF Configuration - BEGIN -->
+  <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
+    <property name="depthProperties">
+      <bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
+        <property name="innerElementCountThreshold" value="500"/>
+      </bean>
+    </property>
+    <property name="marshallerProperties">
+      <map>
+        <entry key="jaxb.formatted.output">
+          <value type="java.lang.Boolean">true</value>
+        </entry>
+      </map>
+    </property>
+  </bean>
 
-	<bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider">
-		<property name="mapper" ref="jacksonObjectMapper" />
-	</bean>
+  <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider">
+    <property name="mapper" ref="jacksonObjectMapper"/>
+  </bean>
 
-   <bean id="exceptionMapper" class="org.apache.syncope.client.rest.utils.RestClientExceptionMapper" />
+  <bean id="exceptionMapper" class="org.apache.syncope.client.rest.utils.RestClientExceptionMapper"/>
 
-   <bean id="restClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
-      <property name="address" value="http://localhost:9080/syncope/cxf" />
-      <property name="threadSafe" value="true" />
-      <property name="username" value="admin" />
-      <property name="password" value="password" />
-      <property name="inheritHeaders" value="true" />
-      <property name="features">
-         <list>
-            <cxf:logging/>
-         </list>
-      </property>
-      <property name="providers">
-         <list>
-            <ref bean="jaxbProvider" />
-            <ref bean="jsonProvider" />
-            <ref bean="exceptionMapper" />
-         </list>
-      </property>
-   </bean>
+  <bean id="restClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
+    <property name="address" value="http://localhost:9080/syncope/cxf"/>
+    <property name="threadSafe" value="true"/>
+    <property name="username" value="admin"/>
+    <property name="password" value="password"/>
+    <property name="inheritHeaders" value="true"/>
+    <property name="features">
+      <list>
+        <cxf:logging/>
+      </list>
+    </property>
+    <property name="providers">
+      <list>
+        <ref bean="jaxbProvider"/>
+        <ref bean="jsonProvider"/>
+        <ref bean="exceptionMapper"/>
+      </list>
+    </property>
+  </bean>
   <!-- CXF Configuration - END -->
 
 </beans>

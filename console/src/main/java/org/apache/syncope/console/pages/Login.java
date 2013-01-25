@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
@@ -123,8 +122,9 @@ public class Login extends WebPage {
                 } catch (HttpClientErrorException e) {
                     error(getString("login-error"));
 
-                    PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
-                            get().getRestTemplate().getRequestFactory());
+                    PreemptiveAuthHttpRequestFactory requestFactory =
+                            ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().
+                            getRequestFactory());
 
                     ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
                 }
@@ -251,18 +251,21 @@ public class Login extends WebPage {
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<Locale>() {
 
+                private static final long serialVersionUID = -6985170095629312963L;
+
                 @Override
                 public Locale getObject() {
                     return getSession().getLocale();
                 }
 
                 @Override
-                public void setObject(Locale object) {
+                public void setObject(final Locale object) {
                     getSession().setLocale(object);
                 }
 
                 @Override
                 public void detach() {
+                    // Empty.
                 }
             });
 

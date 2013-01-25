@@ -20,12 +20,11 @@ package org.apache.syncope.common.mod;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 @XmlRootElement(name = "userMod")
@@ -38,9 +37,11 @@ public class UserMod extends AbstractAttributableMod {
 
     private String username;
 
-    private Set<MembershipMod> membershipsToBeAdded;
+    private final Set<MembershipMod> membershipsToBeAdded;
 
-    private Set<Long> membershipsToBeRemoved;
+    private final Set<Long> membershipsToBeRemoved;
+
+    private PropagationRequestTO pwdPropRequest;
 
     public UserMod() {
         super();
@@ -49,12 +50,20 @@ public class UserMod extends AbstractAttributableMod {
         membershipsToBeRemoved = new HashSet<Long>();
     }
 
-    public boolean addMembershipToBeAdded(MembershipMod membershipMod) {
-        return membershipsToBeAdded.add(membershipMod);
+    public String getUsername() {
+        return username;
     }
 
-    public boolean removeMembershipToBeAdded(MembershipMod membershipMod) {
-        return membershipsToBeAdded.remove(membershipMod);
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 
     @XmlElementWrapper(name = "membershipsToBeAdded")
@@ -63,32 +72,21 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeAdded;
     }
 
-    public void setMembershipsToBeAdded(Set<MembershipMod> membershipMods) {
-        this.membershipsToBeAdded = membershipMods;
+    public boolean addMembershipToBeAdded(final MembershipMod membershipMod) {
+        return membershipsToBeAdded.add(membershipMod);
     }
 
-    public String getUsername() {
-        return username;
+    public boolean removeMembershipToBeAdded(final MembershipMod membershipMod) {
+        return membershipsToBeAdded.remove(membershipMod);
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean addMembershipToBeRemoved(Long membershipToBeRemoved) {
-        return membershipsToBeRemoved.add(membershipToBeRemoved);
-    }
-
-    public boolean removeMembershipToBeRemoved(Long membershipToBeRemoved) {
-        return membershipsToBeRemoved.remove(membershipToBeRemoved);
+    public void setMembershipsToBeAdded(final Set<MembershipMod> membershipsToBeAdded) {
+        if (this.membershipsToBeAdded != membershipsToBeAdded) {
+            this.membershipsToBeAdded.clear();
+            if (membershipsToBeAdded != null && !membershipsToBeAdded.isEmpty()) {
+                this.membershipsToBeAdded.addAll(membershipsToBeAdded);
+            }
+        }
     }
 
     @XmlElementWrapper(name = "membershipsToBeRemoved")
@@ -97,14 +95,39 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeRemoved;
     }
 
-    public void setMembershipsToBeRemoved(Set<Long> membershipsToBeRemoved) {
-        this.membershipsToBeRemoved = membershipsToBeRemoved;
+    public boolean addMembershipToBeRemoved(final Long membershipToBeRemoved) {
+        return membershipsToBeRemoved.add(membershipToBeRemoved);
+    }
+
+    public boolean removeMembershipToBeRemoved(final Long membershipToBeRemoved) {
+        return membershipsToBeRemoved.remove(membershipToBeRemoved);
+    }
+
+    public void setMembershipsToBeRemoved(final Set<Long> membershipsToBeRemoved) {
+        if (this.membershipsToBeRemoved != membershipsToBeRemoved) {
+            this.membershipsToBeRemoved.clear();
+            if (membershipsToBeRemoved != null && !membershipsToBeRemoved.isEmpty()) {
+                this.membershipsToBeRemoved.addAll(membershipsToBeRemoved);
+            }
+        }
+    }
+
+    public PropagationRequestTO getPwdPropRequest() {
+        return pwdPropRequest;
+    }
+
+    public void setPwdPropRequest(final PropagationRequestTO pwdPropRequest) {
+        this.pwdPropRequest = pwdPropRequest;
     }
 
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && password == null && username == null && membershipsToBeAdded.isEmpty()
-                && membershipsToBeRemoved.isEmpty();
+        return super.isEmpty()
+                && password == null
+                && username == null
+                && membershipsToBeAdded.isEmpty()
+                && membershipsToBeRemoved.isEmpty()
+                && pwdPropRequest == null;
     }
 }

@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -375,8 +374,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public void execute(final Collection<PropagationTask> tasks)
-            throws PropagationException {
+    public void execute(final Collection<PropagationTask> tasks) throws PropagationException {
         execute(tasks, null);
     }
 

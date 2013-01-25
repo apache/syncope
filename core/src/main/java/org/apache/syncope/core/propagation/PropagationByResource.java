@@ -19,12 +19,12 @@
 package org.apache.syncope.core.propagation;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.types.ResourceOperation;
 
 /**
@@ -37,22 +37,22 @@ public class PropagationByResource implements Serializable {
     /**
      * Resources for creation.
      */
-    private Set<String> toBeCreated;
+    private final Set<String> toBeCreated;
 
     /**
      * Resources for update.
      */
-    private Set<String> toBeUpdated;
+    private final Set<String> toBeUpdated;
 
     /**
      * Resources for deletion.
      */
-    private Set<String> toBeDeleted;
+    private final Set<String> toBeDeleted;
 
     /**
      * Mapping target resource names to old account ids (when applicable).
      */
-    private Map<String, String> oldAccountIds;
+    private final Map<String, String> oldAccountIds;
 
     /**
      * Default constructor.
@@ -159,6 +159,61 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
+    /**
+     * Remove some elements.
+     *
+     * @param type resource operation type
+     * @param resourceNames target resources
+     * @return whether the operation was successful or not
+     */
+    public boolean removeAll(final ResourceOperation type, final Set<String> resourceNames) {
+        Set<String> set;
+        switch (type) {
+            case CREATE:
+                set = toBeCreated;
+                break;
+
+            case UPDATE:
+                set = toBeUpdated;
+                break;
+
+            case DELETE:
+            default:
+                set = toBeDeleted;
+                break;
+        }
+
+        return set.removeAll(resourceNames);
+    }
+
+    /**
+     * Removes only the resource names in the underlying resource name sets that are contained in the specified
+     * collection.
+     *
+     * @param resourceNames collection containing resource names to be retained in the underlying resource name sets
+     * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
+     * @see Collection#removeAll(java.util.Collection)
+     */
+    public boolean removeAll(final Collection<String> resourceNames) {
+        return toBeCreated.removeAll(resourceNames)
+                || toBeUpdated.removeAll(resourceNames)
+                || toBeDeleted.removeAll(resourceNames);
+    }
+
+    /**
+     * Retains only the resource names in the underlying resource name sets that are contained in the specified
+     * collection.
+     *
+     * @param resourceNames collection containing resource names to be retained in the underlying resource name sets
+     * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
+     * @see Collection#retainAll(java.util.Collection)
+     */
+    public boolean retainAll(final Collection<String> resourceNames) {
+        return toBeCreated.retainAll(resourceNames)
+                || toBeUpdated.retainAll(resourceNames)
+                || toBeDeleted.retainAll(resourceNames);
+    }
+
     public boolean contains(final ResourceOperation type, final String resourceName) {
         boolean result = false;
 
@@ -188,7 +243,7 @@ public class PropagationByResource implements Serializable {
      * @return resource matching the given type
      */
     public final Set<String> get(final ResourceOperation type) {
-        Set<String> result = Collections.emptySet();
+        Set<String> result = Collections.<String>emptySet();
 
         switch (type) {
             case CREATE:

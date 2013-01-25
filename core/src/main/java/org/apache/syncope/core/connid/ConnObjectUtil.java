@@ -432,7 +432,11 @@ public class ConnObjectUtil {
             if (attr.getValue() != null) {
                 for (Object value : attr.getValue()) {
                     if (value != null) {
-                        attrTO.addValue(value.toString());
+                        if (value instanceof GuardedString || value instanceof GuardedByteArray) {
+                            attrTO.addValue(getPassword(value));
+                        } else {
+                            attrTO.addValue(value.toString());
+                        }
                     }
                 }
             }

@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -31,9 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -331,7 +330,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-            userTO = userService.update(userMod.getId(), userMod);
+            userService.update(userMod.getId(), userMod);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
@@ -1880,5 +1879,65 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.addResource("ws-target-resource-3");
         userService.create(userTO);
+    }
+
+    @Test
+    public void issueSYNCOPE122() {
+        // 1. create user on testdb and testdb2
+        UserTO userTO = getSampleTO("syncope123@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("resource-testdb");
+        userTO.addResource("resource-testdb2");
+        userTO = userService.create(userTO);
+        assertNotNull(userTO);
+        assertTrue(userTO.getResources().contains("resource-testdb"));
+        assertTrue(userTO.getResources().contains("resource-testdb2"));
+
+        final String pwdOnSyncope = userTO.getPassword();
+
+        ConnObjectTO userOnDb =
+                resourceService.getConnector("resource-testdb", AttributableType.USER, userTO.getUsername());
+        final AttributeTO pwdOnTestDbAttr = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        assertNotNull(pwdOnTestDbAttr);
+        assertNotNull(pwdOnTestDbAttr.getValues());
+        assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
+        final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
+
+        ConnObjectTO userOnDb2 =
+                resourceService.getConnector("resource-testdb2", AttributableType.USER, userTO.getUsername());
+        final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        assertNotNull(pwdOnTestDb2Attr);
+        assertNotNull(pwdOnTestDb2Attr.getValues());
+        assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
+        final String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().iterator().next();
+
+        // 2. request to change password only on testdb (no Syncope, no testdb2)
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword(getUUIDString());
+        PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
+        pwdPropRequest.addResource("resource-testdb");
+        userMod.setPwdPropRequest(pwdPropRequest);
+
+        userTO = userService.update(userMod.getId(), userMod);
+
+        // 3a. verify that password hasn't changed on Syncope
+        assertEquals(pwdOnSyncope, userTO.getPassword());
+
+        // 3b. verify that password *has* changed on testdb
+        userOnDb = resourceService.getConnector("resource-testdb", AttributableType.USER, userTO.getUsername());
+        final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        assertNotNull(pwdOnTestDbAttrAfter);
+        assertNotNull(pwdOnTestDbAttrAfter.getValues());
+        assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
+        assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().iterator().next());
+
+        // 3c. verify that password hasn't changed on testdb2
+        userOnDb2 = resourceService.getConnector("resource-testdb2", AttributableType.USER, userTO.getUsername());
+        final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        assertNotNull(pwdOnTestDb2AttrAfter);
+        assertNotNull(pwdOnTestDb2AttrAfter.getValues());
+        assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
+        assertEquals(pwdOnTestDb2, pwdOnTestDb2AttrAfter.getValues().iterator().next());
     }
 }
