@@ -32,7 +32,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -74,11 +76,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
-
-    // Enable running test more than once with parameters
-    public UserTestITCase(final String contentType) {
-        super(contentType);
-    }
 
     private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
@@ -122,7 +119,6 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("user1", userTO.getUsername());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void createUserWithNoPropagation() {
         // get task list
@@ -407,7 +403,6 @@ public class UserTestITCase extends AbstractTest {
         userService.create(newUserTO);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void create() {
         // get task list

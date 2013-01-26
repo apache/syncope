@@ -66,11 +66,6 @@ public class TaskTestITCase extends AbstractTest {
 
     private static final Long SYNC_TASK_ID = 4L;
 
-    // Enable running test more than once with parameters
-    public TaskTestITCase(String contentType) {
-        super(contentType);
-    }
-
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = taskService.getJobClasses();

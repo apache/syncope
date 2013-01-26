@@ -46,11 +46,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserRequestTestITCase extends AbstractTest {
 
-    // Enable running test more than once with parameters
-    public UserRequestTestITCase(String contentType) {
-        super(contentType);
-    }
-
     @Test
     public void create() {
         // 1. set create request not allowed

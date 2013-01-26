@@ -69,7 +69,6 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,10 +76,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestContextManager;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(Parameterized.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
 
@@ -94,8 +93,9 @@ public abstract class AbstractTest {
     protected static final String ADMIN_UID = "admin";
 
     protected static final String ADMIN_PWD = "password";
-
-    protected boolean activatedCXF;
+    
+    private static final String DEFAULT_CONTENT_TYPE = "application/json";
+    private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -106,16 +106,16 @@ public abstract class AbstractTest {
     @Autowired
     private PreemptiveAuthHttpRequestFactory httpClientFactory;
 
-    protected String contentType;
-
-    private TestContextManager testContextManager;
-
     @Autowired
     protected JAXRSClientFactoryBean restClientFactory;
 
     @Autowired
     protected DataSource testDataSource;
 
+    private boolean enabledCXF;
+
+    private String contentType;
+    
     protected UserService userService;
 
     protected RoleService roleService;
@@ -143,24 +143,10 @@ public abstract class AbstractTest {
     protected UserRequestService userRequestService;
 
     protected PolicyService policyService;
-
-    public AbstractTest(final String contentType) {
-        this.contentType = contentType;
-    }
-
-    private void setupContext() throws Exception {
-        this.testContextManager = new TestContextManager(getClass());
-        this.testContextManager.prepareTestInstance(this);
-    }
-
-    protected void activateCXF() {
-        activatedCXF = true;
-    }
-
+ 
     @Before
     public void setup() throws Exception {
-        setupContext();
-        if (!activatedCXF) {
+        if (!enabledCXF) {
             resetRestTemplate();
         } else {
             setupCXFServices();
@@ -206,8 +192,6 @@ public abstract class AbstractTest {
 
     // BEGIN CXF Initialization
     public void setupCXFServices() throws Exception {
-        setupContext();
-        restClientFactory.setUsername(ADMIN_UID);
         userService = createServiceInstance(UserService.class);
         roleService = createServiceInstance(RoleService.class);
         resourceService = createServiceInstance(ResourceService.class);
@@ -224,16 +208,12 @@ public abstract class AbstractTest {
         userRequestService = createServiceInstance(UserRequestService.class);
     }
 
-    public void setupConentType(Client restClient) {
-        restClient.type(contentType).accept(contentType);
-    }
-
     protected <T> T createServiceInstance(Class<T> serviceClass) {
         return createServiceInstance(serviceClass, ADMIN_UID);
     }
 
     protected <T> T createServiceInstance(Class<T> serviceClass, String username) {
-        return createServiceInstance(serviceClass, username, null);
+        return createServiceInstance(serviceClass, username, ADMIN_PWD);
     }
 
     protected <T> T createServiceInstance(Class<T> serviceClass, String username, String password) {
@@ -241,7 +221,7 @@ public abstract class AbstractTest {
         restClientFactory.setPassword(password);
         restClientFactory.setServiceClass(serviceClass);
         T serviceProxy = restClientFactory.create(serviceClass);
-        setupConentType(WebClient.client(serviceProxy));
+        setupContentType(WebClient.client(serviceProxy));
         return serviceProxy;
     }
 
@@ -251,12 +231,24 @@ public abstract class AbstractTest {
         wc.path(path);
         return wc;
     }
+
+    public void setupContentType(Client restClient) {
+        if (contentType == null) {
+            String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+            if ((envContentType != null) && (!envContentType.isEmpty())) {
+                contentType = envContentType;
+            } else {
+                contentType = DEFAULT_CONTENT_TYPE;
+            }
+        }
+        restClient.type(contentType).accept(contentType);
+    }
     // END CXF Initialization
 
     public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
         assertNotNull(response);
         assertNotNull(response.getLocation());
-        if (!activatedCXF) {
+        if (!enabledCXF) {
             return getObjectSpring(response, type);
         } else {
             return getObjectCXF(response, type, serviceProxy);
@@ -267,6 +259,14 @@ public abstract class AbstractTest {
         return restTemplate.getForEntity(response.getLocation(), type).getBody();
     }
 
+    public void setEnabledCXF(boolean enabledCXF) {
+        this.enabledCXF = enabledCXF;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
     private static <T> T getObjectCXF(final Response response, final Class<T> type, final Object serviceProxy) {
         String location = response.getLocation().toString();
         WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
@@ -274,7 +274,7 @@ public abstract class AbstractTest {
 
         return webClient.get(type);
     }
-
+    
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
     }

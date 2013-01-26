@@ -1267,6 +1267,44 @@ under the License.
       </build>
     </profile>
 
+    <profile>
+      <id>jaxrs</id>
+      <properties>
+        <waitForCheck>true</waitForCheck>
+        <javaagent />
+      </properties>
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <excludes>
+                <exclude>**/*TestITCase.java</exclude>
+              </excludes>
+              <includes>
+                <include>**/*TestITCaseJAXRS.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>        
+      </build>
+    </profile>
+
   </profiles>
   
 </project>

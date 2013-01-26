@@ -53,11 +53,6 @@ import org.springframework.web.client.HttpClientErrorException;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
 
-    // Enable running test more than once with parameters
-    public AuthenticationTestITCase(final String contentType) {
-        super(contentType);
-     }
-
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements

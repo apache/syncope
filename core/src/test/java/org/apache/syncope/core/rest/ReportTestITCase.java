@@ -53,11 +53,6 @@ public class ReportTestITCase extends AbstractTest {
         return reportService.read(reportId);
     }
 
-    // Enable running test more than once with parameters
-    public ReportTestITCase(String contentType) {
-        super(contentType);
-    }
-
     @Test
     public void getReportletClasses() {
         Set<String> reportletClasses = reportService.getReportletConfClasses();

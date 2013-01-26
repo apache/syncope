@@ -51,11 +51,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
 
-    // Enable running test more than once with parameters
-    public ResourceTestITCase(final String contentType) {
-        super(contentType);
-    }
-
     @Test
     public void getPropagationActionsClasses() {
         Set<PropagationActionClassTO> actions = resourceService.getPropagationActionsClasses();
