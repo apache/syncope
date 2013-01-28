@@ -21,14 +21,12 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.types.UserRequestType;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.UserRequestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,21 +51,17 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
     }
 
     @Override
-    public Response create(UserRequestTO userRequestTO) {
-        try {
-            UserRequestTO outUserRequestTO = null;
-            if (userRequestTO.getType() == UserRequestType.CREATE) {
-                outUserRequestTO = userRequestController.create(userRequestTO.getUserTO());
-            } else if (userRequestTO.getType() == UserRequestType.UPDATE) {
-                outUserRequestTO = userRequestController.update(userRequestTO.getUserMod());
-            } else if (userRequestTO.getType() == UserRequestType.DELETE) {
-                userRequestController.delete(userRequestTO.getUserId());
-            }
-            URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
-            return Response.created(location).entity(outUserRequestTO).build();
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+    public Response create(final UserRequestTO userRequestTO) {
+        UserRequestTO outUserRequestTO = null;
+        if (userRequestTO.getType() == UserRequestType.CREATE) {
+            outUserRequestTO = userRequestController.create(userRequestTO.getUserTO());
+        } else if (userRequestTO.getType() == UserRequestType.UPDATE) {
+            outUserRequestTO = userRequestController.update(userRequestTO.getUserMod());
+        } else if (userRequestTO.getType() == UserRequestType.DELETE) {
+            userRequestController.delete(userRequestTO.getUserId());
         }
+        URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
+        return Response.created(location).entity(outUserRequestTO).build();
     }
 
     @Override
@@ -76,25 +70,17 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
     }
 
     @Override
-    public UserRequestTO read(@PathParam("requestId") Long requestId) {
-        try {
-            return userRequestController.read(requestId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+    public UserRequestTO read(final Long requestId) {
+        return userRequestController.read(requestId);
     }
 
     @Override
-    public void delete(@PathParam("requestId") Long requestId) {
-        try {
-            userRequestController.deleteRequest(requestId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+    public void delete(final Long requestId) {
+        userRequestController.deleteRequest(requestId);
     }
 
     @Override
-    public void setUriInfo(UriInfo uriInfo) {
+    public void setUriInfo(final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
 

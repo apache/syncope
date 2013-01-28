@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -33,8 +32,6 @@ import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.ResourceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,46 +46,24 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
 
     @Override
     public Response create(final ResourceTO resourceTO) {
-        try {
-            ResourceTO resource = resourceController.create(new DummyHTTPServletResponse(), resourceTO);
-            URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
-            return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, resource.getName()).build();
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        ResourceTO resource = resourceController.create(new DummyHTTPServletResponse(), resourceTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, resource.getName()).build();
     }
 
     @Override
     public void update(final String resourceName, final ResourceTO resourceTO) {
-        try {
-            resourceController.update(resourceTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        resourceController.update(resourceTO);
     }
 
     @Override
     public void delete(final String resourceName) {
-        try {
-            resourceController.delete(resourceName);
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        resourceController.delete(resourceName);
     }
 
     @Override
     public ResourceTO read(final String resourceName) {
-        try {
-            return resourceController.read(resourceName);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return resourceController.read(resourceName);
     }
 
     @Override
@@ -101,45 +76,27 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
 
     @Override
     public List<ResourceTO> list() {
-        try {
-            return resourceController.list(null);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return resourceController.list(null);
     }
 
     @Override
     public List<ResourceTO> list(final Long connInstanceId) {
-        try {
-            return resourceController.list(connInstanceId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return resourceController.list(connInstanceId);
     }
 
     @Override
     public ConnObjectTO getConnector(final String resourceName, final AttributableType type, final String objectId) {
-        try {
-            return resourceController.getObject(resourceName, type, objectId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return resourceController.getObject(resourceName, type, objectId);
     }
 
     @Override
     public boolean check(final ResourceTO resourceTO) {
-        try {
-            return (Boolean) resourceController.check(new DummyHTTPServletResponse(), resourceTO).getModel().values()
+        return (Boolean) resourceController.check(new DummyHTTPServletResponse(), resourceTO).getModel().values()
                     .iterator().next();
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
     }
 
     @Override
-    public void setUriInfo(UriInfo ui) {
+    public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
     }
 

@@ -32,7 +32,6 @@ import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.PolicyController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,11 +69,7 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
 
     @Override
     public void delete(final PolicyType type, final Long policyId) {
-        try {
-            policyController.delete(policyId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        policyController.delete(policyId);
     }
 
     @SuppressWarnings("unchecked")
@@ -86,62 +81,50 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> T read(final PolicyType type, final Long policyId) {
-        try {
-            return (T) policyController.read(policyId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return (T) policyController.read(policyId);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> T readGlobal(final PolicyType type) {
-        try {
-            switch (type) {
-                case ACCOUNT:
-                case GLOBAL_ACCOUNT:
-                    return (T) policyController.getGlobalAccountPolicy();
+        switch (type) {
+            case ACCOUNT:
+            case GLOBAL_ACCOUNT:
+                return (T) policyController.getGlobalAccountPolicy();
 
-                case PASSWORD:
-                case GLOBAL_PASSWORD:
-                    return (T) policyController.getGlobalPasswordPolicy();
+            case PASSWORD:
+            case GLOBAL_PASSWORD:
+                return (T) policyController.getGlobalPasswordPolicy();
 
-                case SYNC:
-                case GLOBAL_SYNC:
-                    return (T) policyController.getGlobalSyncPolicy();
+            case SYNC:
+            case GLOBAL_SYNC:
+                return (T) policyController.getGlobalSyncPolicy();
 
-                default:
-                    throw new BadRequestException();
-            }
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+            default:
+                throw new BadRequestException();
         }
     }
 
     @Override
     public <T extends PolicyTO> void update(final PolicyType type, final Long policyId, final T policyTO) {
-        try {
-            switch (type) {
-                case ACCOUNT:
-                case GLOBAL_ACCOUNT:
-                    policyController.update((AccountPolicyTO) policyTO);
-                    break;
+        switch (type) {
+            case ACCOUNT:
+            case GLOBAL_ACCOUNT:
+                policyController.update((AccountPolicyTO) policyTO);
+                break;
 
-                case PASSWORD:
-                case GLOBAL_PASSWORD:
-                    policyController.update((PasswordPolicyTO) policyTO);
-                    break;
+            case PASSWORD:
+            case GLOBAL_PASSWORD:
+                policyController.update((PasswordPolicyTO) policyTO);
+                break;
 
-                case SYNC:
-                case GLOBAL_SYNC:
-                    policyController.update((SyncPolicyTO) policyTO);
-                    break;
+            case SYNC:
+            case GLOBAL_SYNC:
+                policyController.update((SyncPolicyTO) policyTO);
+                break;
 
-                default:
-                    break;
-            }
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+            default:
+                break;
         }
     }
 

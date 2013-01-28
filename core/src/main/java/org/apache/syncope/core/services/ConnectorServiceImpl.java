@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -32,9 +31,6 @@ import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.ConnInstanceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,62 +45,38 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
 
     @Override
     public Response create(final ConnInstanceTO connectorTO) {
-        try {
-            ConnInstanceTO connector = connectorController.create(new DummyHTTPServletResponse(), connectorTO);
-            URI location = uriInfo.getAbsolutePathBuilder().path(connector.getId() + "").build();
-            return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, connector.getId()).build();
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        ConnInstanceTO connector = connectorController.create(new DummyHTTPServletResponse(), connectorTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(connector.getId() + "").build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, connector.getId()).build();
     }
 
     @Override
     public void delete(final Long connectorId) {
-        try {
-            connectorController.delete(connectorId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        connectorController.delete(connectorId);
     }
 
     @Override
     public List<ConnBundleTO> getBundles(final String lang) {
-        try {
-            return connectorController.getBundles(lang);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        } catch (MissingConfKeyException e) {
-            throw new BadRequestException(e);
-        }
+        return connectorController.getBundles(lang);
     }
 
     @Override
     public List<ConnConfProperty> getConfigurationProperties(final Long connectorId) {
-        try {
-            return connectorController.getConfigurationProperties(connectorId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return connectorController.getConfigurationProperties(connectorId);
     }
 
     @Override
     public List<SchemaTO> getSchemaNames(final Long connectorId, final ConnInstanceTO connectorTO,
             final boolean showall) {
-        try {
-            List<String> schemaNames = connectorController.getSchemaNames(new DummyHTTPServletResponse(), connectorTO,
-                    showall);
-            List<SchemaTO> schemas = new ArrayList<SchemaTO>();
-            for (String name : schemaNames) {
-                SchemaTO schemaTO = new SchemaTO();
-                schemaTO.setName(name);
-                schemas.add(schemaTO);
-            }
-            return schemas;
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+        List<String> schemaNames = connectorController.getSchemaNames(new DummyHTTPServletResponse(), connectorTO,
+                showall);
+        List<SchemaTO> schemas = new ArrayList<SchemaTO>();
+        for (String name : schemaNames) {
+            SchemaTO schemaTO = new SchemaTO();
+            schemaTO.setName(name);
+            schemas.add(schemaTO);
         }
+        return schemas;
     }
 
     @Override
@@ -114,43 +86,23 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
 
     @Override
     public ConnInstanceTO read(final Long connectorId) {
-        try {
-            return connectorController.read(connectorId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return connectorController.read(connectorId);
     }
 
     @Override
     public ConnInstanceTO readConnectorBean(final String resourceName) {
-        try {
-            return connectorController.readConnectorBean(resourceName);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return connectorController.readConnectorBean(resourceName);
     }
 
     @Override
     public void update(final Long connectorId, final ConnInstanceTO connectorTO) {
-        try {
-            connectorController.update(connectorTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        connectorController.update(connectorTO);
     }
 
     @Override
     public boolean validate(final ConnInstanceTO connectorTO) {
-        try {
-            return (Boolean) connectorController.check(new DummyHTTPServletResponse(), connectorTO).getModel().values()
-                    .iterator().next();
-        } catch (SyncopeClientCompositeErrorException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return (Boolean) connectorController.check(new DummyHTTPServletResponse(), connectorTO).getModel().values()
+                .iterator().next();
     }
 
     @Override

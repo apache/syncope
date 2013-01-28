@@ -20,6 +20,7 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
+
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -31,7 +32,6 @@ import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.DerivedSchemaController;
 import org.apache.syncope.core.rest.controller.SchemaController;
 import org.apache.syncope.core.rest.controller.VirtualSchemaController;
@@ -81,29 +81,24 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
 
     @Override
     public void delete(final AttributableType kind, final SchemaType type, final String schemaName) {
-        try {
-            switch (type) {
-                case NORMAL:
-                    normalSchemaController.delete(kind.toString(), schemaName);
-                    break;
+        switch (type) {
+            case NORMAL:
+                normalSchemaController.delete(kind.toString(), schemaName);
+                break;
 
-                case DERIVED:
-                    derivedSchemaController.delete(kind.toString(), schemaName);
-                    break;
+            case DERIVED:
+                derivedSchemaController.delete(kind.toString(), schemaName);
+                break;
 
-                case VIRTUAL:
-                    virtualSchemaController.delete(kind.toString(), schemaName);
-                    break;
+            case VIRTUAL:
+                virtualSchemaController.delete(kind.toString(), schemaName);
+                break;
 
-                default:
-                    throw new BadRequestException();
-            }
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+            default:
+                throw new BadRequestException();
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<? extends AbstractSchemaTO> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
@@ -125,47 +120,39 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
     @Override
     public <T extends AbstractSchemaTO> T read(final AttributableType kind, final SchemaType type,
             final String schemaName) {
-        try {
-            switch (type) {
-                case NORMAL:
-                    return (T) normalSchemaController.read(kind.toString(), schemaName);
+        switch (type) {
+            case NORMAL:
+                return (T) normalSchemaController.read(kind.toString(), schemaName);
 
-                case DERIVED:
-                    return (T) derivedSchemaController.read(kind.toString(), schemaName);
+            case DERIVED:
+                return (T) derivedSchemaController.read(kind.toString(), schemaName);
 
-                case VIRTUAL:
-                    return (T) virtualSchemaController.read(kind.toString(), schemaName);
+            case VIRTUAL:
+                return (T) virtualSchemaController.read(kind.toString(), schemaName);
 
-                default:
-                    throw new BadRequestException();
-            }
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+            default:
+                throw new BadRequestException();
         }
     }
 
     @Override
     public <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
             final String schemaName, final T schemaTO) {
-        try {
-            switch (type) {
-                case NORMAL:
-                    normalSchemaController.update((SchemaTO) schemaTO, kind.toString());
-                    break;
+        switch (type) {
+            case NORMAL:
+                normalSchemaController.update((SchemaTO) schemaTO, kind.toString());
+                break;
 
-                case DERIVED:
-                    derivedSchemaController.update((DerivedSchemaTO) schemaTO, kind.toString());
-                    break;
+            case DERIVED:
+                derivedSchemaController.update((DerivedSchemaTO) schemaTO, kind.toString());
+                break;
 
-                case VIRTUAL:
-                    virtualSchemaController.update((VirtualSchemaTO) schemaTO, kind.toString());
-                    break;
+            case VIRTUAL:
+                virtualSchemaController.update((VirtualSchemaTO) schemaTO, kind.toString());
+                break;
 
-                default:
-                    throw new BadRequestException();
-            }
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
+            default:
+                throw new BadRequestException();
         }
     }
 

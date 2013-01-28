@@ -28,13 +28,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.core.persistence.beans.ReportExec;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.rest.controller.ReportController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,29 +40,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl implements ReportService, ContextAware {
-
     @Autowired
-    private ReportController reportController;
-
+    ReportController reportController;
+    
     @Autowired
     private ReportDAO reportDAO;
-
+    
     private UriInfo uriInfo;
 
     @Override
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = reportController.createInternal(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdReportTO.getId()).build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId()).build();
+        return Response.created(location).build();
     }
 
     @Override
     public void update(final Long reportId, final ReportTO reportTO) {
-        try {
-            reportController.update(reportTO);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        reportController.update(reportTO);
     }
 
     @Override
@@ -94,65 +87,38 @@ public class ReportServiceImpl implements ReportService, ContextAware {
 
     @Override
     public ReportTO read(final Long reportId) {
-        try {
-            return reportController.read(reportId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return reportController.read(reportId);
     }
 
     @Override
     public ReportExecTO readExecution(final Long executionId) {
-        try {
-            return reportController.readExecution(executionId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return reportController.readExecution(executionId);
     }
 
     @Override
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
-        final ReportExecExportFormat format = (fmt == null)
-                ? ReportExecExportFormat.XML
-                : fmt;
-        try {
-            final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
-            return Response.ok(new StreamingOutput() {
-                @Override
-                public void write(final OutputStream os) throws IOException {
-                    reportController.exportExecutionResultInternal(os, reportExec, format);
-                }
-            }).build();
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
+        final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
+        return Response.ok(new StreamingOutput() {
+            public void write(final OutputStream os) throws IOException {
+                reportController.exportExecutionResultInternal(os, reportExec, format);
+            }
+        }).build();
     }
 
     @Override
     public ReportExecTO execute(final Long reportId) {
-        try {
-            return reportController.execute(reportId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return reportController.execute(reportId);
     }
 
     @Override
     public void delete(final Long reportId) {
-        try {
-            reportController.delete(reportId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        reportController.delete(reportId);
     }
 
     @Override
     public void deleteExecution(final Long executionId) {
-        try {
-            reportController.deleteExecution(executionId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        reportController.deleteExecution(executionId);
     }
 
     @Override

@@ -21,7 +21,6 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -31,12 +30,7 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
-import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.rest.controller.RoleController;
-import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
-import org.apache.syncope.core.workflow.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,13 +44,7 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public List<RoleTO> children(final Long roleId) {
-        try {
-            return roleController.children(roleId);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.children(roleId);
     }
 
     @Override
@@ -66,31 +54,15 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public Response create(final RoleTO roleTO) {
-        try {
-            RoleTO created = roleController.create(new DummyHTTPServletResponse(), roleTO);
-            URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
-            return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
-                    .build();
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (WorkflowException e) {
-            throw new BadRequestException(e);
-        } catch (PropagationException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        RoleTO created = roleController.create(new DummyHTTPServletResponse(), roleTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
+                .build();
     }
 
     @Override
     public RoleTO delete(final Long roleId) {
-        try {
-            return roleController.delete(roleId);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.delete(roleId);
     }
 
     @Override
@@ -105,62 +77,32 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public RoleTO parent(final Long roleId) {
-        try {
-            return roleController.parent(roleId);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.parent(roleId);
     }
 
     @Override
     public RoleTO read(final Long roleId) {
-        try {
-            return roleController.read(roleId);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.read(roleId);
     }
 
     @Override
     public List<RoleTO> search(final NodeCond searchCondition) {
-        try {
-            return roleController.search(searchCondition);
-        } catch (InvalidSearchConditionException e) {
-            throw new BadRequestException(e);
-        }
+        return roleController.search(searchCondition);
     }
 
     @Override
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size) {
-        try {
-            return roleController.search(searchCondition, page, size);
-        } catch (InvalidSearchConditionException e) {
-            throw new BadRequestException(e);
-        }
+        return roleController.search(searchCondition, page, size);
     }
 
     @Override
     public int searchCount(final NodeCond searchCondition) {
-        try {
-            return (Integer) roleController.searchCount(searchCondition).getModel().values().iterator().next();
-        } catch (InvalidSearchConditionException e) {
-            throw new BadRequestException(e);
-        }
+        return (Integer) roleController.searchCount(searchCondition).getModel().values().iterator().next();
     }
 
     @Override
     public RoleTO selfRead(final Long roleId) {
-        try {
-            return roleController.selfRead(roleId);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.selfRead(roleId);
     }
 
     @Override
@@ -170,17 +112,7 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
-        try {
-            return roleController.update(roleMod);
-        } catch (UnauthorizedRoleException e) {
-            throw new javax.ws.rs.NotAuthorizedException(e);
-        } catch (WorkflowException e) {
-            throw new BadRequestException(e);
-        } catch (PropagationException e) {
-            throw new BadRequestException(e);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return roleController.update(roleMod);
     }
 
 }

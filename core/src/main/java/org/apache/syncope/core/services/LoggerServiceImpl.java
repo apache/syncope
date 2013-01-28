@@ -88,11 +88,7 @@ public class LoggerServiceImpl implements LoggerService {
     public void delete(final LoggerType type, final String name) {
         switch (type) {
             case NORMAL:
-                try {
-                    loggerController.deleteLog(name);
-                } catch (org.apache.syncope.core.persistence.dao.NotFoundException e) {
-                    throw new NotFoundException(e);
-                }
+                loggerController.deleteLog(name);
                 break;
             case AUDIT:
                 try {

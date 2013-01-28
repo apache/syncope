@@ -24,7 +24,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
@@ -35,7 +34,6 @@ import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,11 +64,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public void delete(final String key) {
-        try {
-            configurationController.delete(key);
-        } catch (MissingConfKeyException e) {
-            throw new NotFoundException(e);
-        }
+        configurationController.delete(key);
     }
 
     @Override
@@ -90,20 +84,13 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public ConfigurationTO read(final String key) {
-        try {
-            return configurationController.read(null, key);
-        } catch (MissingConfKeyException e) {
-            throw new NotFoundException(e);
-        }
+        return configurationController.read(null, key);
+
     }
 
     @Override
     public void update(final String key, final ConfigurationTO configurationTO) {
-        try {
-            configurationController.update(null, configurationTO);
-        } catch (MissingConfKeyException e) {
-            throw new NotFoundException(e);
-        }
+        configurationController.update(null, configurationTO);
     }
 
     @Override

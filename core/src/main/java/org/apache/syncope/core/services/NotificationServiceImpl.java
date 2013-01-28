@@ -26,7 +26,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.NotificationController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,22 +40,14 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
 
     @Override
     public Response create(final NotificationTO notificationTO) {
-        try {
-            NotificationTO createdNotificationTO = notificationController.createInternal(notificationTO);
-            URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
-            return Response.created(location).build();
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        NotificationTO createdNotificationTO = notificationController.createInternal(notificationTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
+        return Response.created(location).build();
     }
 
     @Override
     public NotificationTO read(final Long notificationId) {
-        try {
-            return notificationController.read(notificationId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return notificationController.read(notificationId);
     }
 
     @Override
@@ -65,22 +56,13 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     }
 
     @Override
-    public NotificationTO update(final Long notificationId,
-            final NotificationTO notificationTO) {
-        try {
-            return notificationController.update(notificationTO);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+    public NotificationTO update(final Long notificationId, final NotificationTO notificationTO) {
+        return notificationController.update(notificationTO);
     }
 
     @Override
     public NotificationTO delete(final Long notificationId) {
-        try {
-            return notificationController.delete(notificationId);
-        } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+        return notificationController.delete(notificationId);
     }
 
     @Override
