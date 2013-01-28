@@ -47,12 +47,15 @@ public class PolicyRestClient extends BaseRestClient {
         } catch (Exception e) {
             LOG.warn("No global " + type + " policy found", e);
             switch (type) {
+            case ACCOUNT:
             case GLOBAL_ACCOUNT:
                 policy = (T) new AccountPolicyTO();
                 break;
+            case PASSWORD:
             case GLOBAL_PASSWORD:
                 policy = (T) new PasswordPolicyTO();
                 break;
+            case SYNC:
             case GLOBAL_SYNC:
                 policy = (T) new SyncPolicyTO();
                 break;
