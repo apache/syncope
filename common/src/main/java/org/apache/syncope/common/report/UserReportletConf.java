@@ -21,15 +21,22 @@ package org.apache.syncope.common.report;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 
-@XmlRootElement
+@XmlRootElement(name = "UserReportletConfiguration")
+@XmlType
 public class UserReportletConf extends AbstractReportletConf {
 
+    @XmlEnum
+    @XmlType(name = "UserReportletConfigurationFeature")
     public enum Feature {
 
         id,
@@ -74,6 +81,8 @@ public class UserReportletConf extends AbstractReportletConf {
         features = new ArrayList<Feature>();
     }
 
+    @XmlElementWrapper(name = "normalAttributes")
+    @XmlElement(name = "attribute")
     public List<String> getAttrs() {
         return attrs;
     }
@@ -82,6 +91,8 @@ public class UserReportletConf extends AbstractReportletConf {
         this.attrs = attrs;
     }
 
+    @XmlElementWrapper(name = "derivedAttributes")
+    @XmlElement(name = "attribute")
     public List<String> getDerAttrs() {
         return derAttrs;
     }
@@ -90,6 +101,8 @@ public class UserReportletConf extends AbstractReportletConf {
         this.derAttrs = derAttrs;
     }
 
+    @XmlElementWrapper(name = "features")
+    @XmlElement(name = "feature")
     public List<Feature> getFeatures() {
         return features;
     }
@@ -106,6 +119,8 @@ public class UserReportletConf extends AbstractReportletConf {
         this.matchingCond = matchingCond;
     }
 
+    @XmlElementWrapper(name = "virtualAttributes")
+    @XmlElement(name = "attribute")
     public List<String> getVirAttrs() {
         return virAttrs;
     }

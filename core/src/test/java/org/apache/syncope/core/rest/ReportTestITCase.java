@@ -46,11 +46,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
-    
-    ReportTO createReport(ReportTO report) {
+
+    ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
-        Long reportId = (Long) response.getEntity();
-        return reportService.read(reportId);
+        return getObject(response, ReportTO.class, reportService);
     }
 
     @Test

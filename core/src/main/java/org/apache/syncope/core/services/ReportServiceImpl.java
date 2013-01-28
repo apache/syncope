@@ -24,13 +24,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -44,23 +42,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl implements ReportService, ContextAware {
+
     @Autowired
-    ReportController reportController;
-    
+    private ReportController reportController;
+
     @Autowired
     private ReportDAO reportDAO;
-    
+
     private UriInfo uriInfo;
 
     @Override
-    public Response create(ReportTO reportTO) {
+    public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = reportController.createInternal(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdReportTO.getId()).build();
-        return Response.created(location).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId()).build();
     }
 
     @Override
-    public void update(@PathParam("reportId") Long reportId, ReportTO reportTO) {
+    public void update(final Long reportId, final ReportTO reportTO) {
         try {
             reportController.update(reportTO);
         } catch (NotFoundException e) {
@@ -79,8 +78,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public List<ReportTO> list(@QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size) {
+    public List<ReportTO> list(final int page, final int size) {
         return reportController.list(page, size);
     }
 
@@ -95,16 +93,16 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public ReportTO read(@PathParam("reportId") Long reportId) {
+    public ReportTO read(final Long reportId) {
         try {
             return reportController.read(reportId);
         } catch (NotFoundException e) {
-            throw new javax.ws.rs.NotFoundException();
+            throw new javax.ws.rs.NotFoundException(e);
         }
     }
 
     @Override
-    public ReportExecTO readExecution(@PathParam("executionId") Long executionId) {
+    public ReportExecTO readExecution(final Long executionId) {
         try {
             return reportController.readExecution(executionId);
         } catch (NotFoundException e) {
@@ -113,12 +111,14 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public Response exportExecutionResult(final @PathParam("executionId") Long executionId,
-            final @QueryParam("format") ReportExecExportFormat fmt) {
-        final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
+    public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
+        final ReportExecExportFormat format = (fmt == null)
+                ? ReportExecExportFormat.XML
+                : fmt;
         try {
             final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
             return Response.ok(new StreamingOutput() {
+                @Override
                 public void write(final OutputStream os) throws IOException {
                     reportController.exportExecutionResultInternal(os, reportExec, format);
                 }
@@ -129,7 +129,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public ReportExecTO execute(@PathParam("reportId") Long reportId) {
+    public ReportExecTO execute(final Long reportId) {
         try {
             return reportController.execute(reportId);
         } catch (NotFoundException e) {
@@ -138,7 +138,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public void delete(@PathParam("reportId") Long reportId) {
+    public void delete(final Long reportId) {
         try {
             reportController.delete(reportId);
         } catch (NotFoundException e) {
@@ -147,7 +147,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public void deleteExecution(@PathParam("executionId") Long executionId) {
+    public void deleteExecution(final Long executionId) {
         try {
             reportController.deleteExecution(executionId);
         } catch (NotFoundException e) {
@@ -156,7 +156,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public void setUriInfo(UriInfo uriInfo) {
+    public void setUriInfo(final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
 

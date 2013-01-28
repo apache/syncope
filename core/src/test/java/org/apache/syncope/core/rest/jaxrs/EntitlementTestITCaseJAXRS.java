@@ -28,6 +28,6 @@ public class EntitlementTestITCaseJAXRS extends AuthenticationTestITCase {
     public EntitlementTestITCaseJAXRS() {
        setEnabledCXF(true);
        //JSON is currently not working (fix after CXF migration is complete)
-       setContentType(super.CONTENT_TYPE_XML);
+       setContentType(CONTENT_TYPE_XML);
     }
 }

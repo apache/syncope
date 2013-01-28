@@ -93,7 +93,7 @@ public abstract class AbstractTest {
     protected static final String ADMIN_PWD = "password";
 
     public static final String CONTENT_TYPE_JSON = "application/json";
-    public static final String CONTENT_TYPE_XML = "text/xml";
+    public static final String CONTENT_TYPE_XML = "application/xml";
     public static final String DEFAULT_CONTENT_TYPE = CONTENT_TYPE_JSON;
 
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";

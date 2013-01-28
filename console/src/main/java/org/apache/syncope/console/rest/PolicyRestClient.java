@@ -37,31 +37,12 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
-
         T policy = null;
-
         try {
             policy = getService(PolicyService.class).readGlobal(type);
         } catch (Exception e) {
             LOG.warn("No global " + type + " policy found", e);
-            switch (type) {
-            case ACCOUNT:
-            case GLOBAL_ACCOUNT:
-                policy = (T) new AccountPolicyTO();
-                break;
-            case PASSWORD:
-            case GLOBAL_PASSWORD:
-                policy = (T) new PasswordPolicyTO();
-                break;
-            case SYNC:
-            case GLOBAL_SYNC:
-                policy = (T) new SyncPolicyTO();
-                break;
-            default:
-                LOG.warn("Invalid policy type");
-            }
         }
         return policy;
     }
@@ -81,7 +62,9 @@ public class PolicyRestClient extends BaseRestClient {
         if (includeGlobal) {
             try {
                 PolicyTO globalPolicy = getGlobalPolicy(type);
-                res.add(0, (T) globalPolicy);
+                if (globalPolicy != null) {
+                    res.add(0, (T) globalPolicy);
+                }
             } catch (Exception ignore) {
                 LOG.warn("No global policy found", ignore);
             }
