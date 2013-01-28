@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -47,7 +46,7 @@ under the License.
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
 
-    <javaagent />
+    <javaagent/>
   </properties>
 
   <dependencies>
@@ -437,18 +436,18 @@ under the License.
               <target>
                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                   <patternset>
-                    <exclude name="**/content.xml" />
-                    <exclude name="**/persistence.properties" />
-                    <exclude name="**/workflow.properties" />
+                    <exclude name="**/content.xml"/>
+                    <exclude name="**/persistence.properties"/>
+                    <exclude name="**/workflow.properties"/>
                   </patternset>
                 </unzip>
                 <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncActions.class" 
-                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync" />
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
+                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync"/>
+                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">
-                    <exclude name="**/*.class" />
-                    <exclude name="restClientContext.xml" />
+                    <exclude name="**/*.class"/>
+                    <exclude name="restClientContext.xml"/>
                   </fileset>
                 </copy>
               </target>
@@ -462,7 +461,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -708,7 +707,7 @@ under the License.
       <id>dev</id>
       <properties>
         <waitForCheck>true</waitForCheck>
-        <javaagent />
+        <javaagent/>
       </properties>
       <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -732,6 +731,43 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>jaxrs</id>
+      <properties>
+        <javaagent/>
+      </properties>
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <excludes>
+                <exclude>**/*TestITCase.java</exclude>
+              </excludes>
+              <includes>
+                <include>**/*TestITCaseJAXRS.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>        
       </build>
     </profile>
 
@@ -791,7 +827,7 @@ under the License.
       <properties>
         <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
-        <javaagent />
+        <javaagent/>
       </properties>
       <dependencies>
         <dependency>
@@ -817,7 +853,7 @@ under the License.
                   <target>
                     <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" 
                           file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" 
-                          overwrite="true" />
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -847,7 +883,7 @@ under the License.
     <profile>
       <id>noopworkflow</id>
       <properties>
-        <javaagent />
+        <javaagent/>
       </properties>
       <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -866,7 +902,7 @@ under the License.
                   <target>
                     <copy tofile="${project.build.directory}/classes/workflowContext.xml" 
                           file="${basedir}/src/test/resources/noopworkflow/workflowContext.xml" 
-                          overwrite="true" />
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -898,7 +934,7 @@ under the License.
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>sqljdbc4</jdbcdriver.artifactId>
-        <javaagent />
+        <javaagent/>
       </properties>
       <dependencies>
         <dependency>
@@ -922,7 +958,7 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.sqlserver" overwrite="true" />
+                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.sqlserver" overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -954,7 +990,7 @@ under the License.
       <properties>
         <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
-        <javaagent />
+        <javaagent/>
       </properties>
       <dependencies>
         <dependency>
@@ -988,7 +1024,7 @@ under the License.
       <properties>
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
-        <javaagent />
+        <javaagent/>
       </properties>
       <dependencies>
         <dependency>
@@ -1264,44 +1300,6 @@ under the License.
             </includes>            
           </resource>
         </resources>
-      </build>
-    </profile>
-
-    <profile>
-      <id>jaxrs</id>
-      <properties>
-        <waitForCheck>true</waitForCheck>
-        <javaagent />
-      </properties>
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <excludes>
-                <exclude>**/*TestITCase.java</exclude>
-              </excludes>
-              <includes>
-                <include>**/*TestITCaseJAXRS.java</include>
-              </includes>
-              <systemPropertyVariables>
-                <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
-              </systemPropertyVariables>
-            </configuration>
-            <executions>
-              <execution>
-                <id>verify</id>
-                <goals>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>        
       </build>
     </profile>
 
