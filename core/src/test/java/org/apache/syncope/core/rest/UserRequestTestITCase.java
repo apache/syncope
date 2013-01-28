@@ -97,7 +97,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertTrue(matchingUsers.isEmpty());
 
         // 7. actually create user
-        userTO = userService.create(request.getUserTO());
+        userTO = createUser(request.getUserTO());
         assertNotNull(userTO);
     }
 
@@ -107,7 +107,7 @@ public class UserRequestTestITCase extends AbstractTest {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfupdate@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -163,7 +163,7 @@ public class UserRequestTestITCase extends AbstractTest {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfdelete@syncope.apache.org");
         String initialPassword = userTO.getPassword();
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         // 2. try to request user delete as admin: failure

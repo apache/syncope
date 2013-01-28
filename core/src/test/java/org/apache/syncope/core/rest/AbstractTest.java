@@ -64,6 +64,7 @@ import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -293,5 +294,10 @@ public abstract class AbstractTest {
         attr.setSchema(schema);
         attr.addValueToBeAdded(valueToBeAdded);
         return attr;
+    }
+    
+    protected UserTO createUser(UserTO userTO) {
+        Response response = userService.create(userTO);
+        return response.readEntity(UserTO.class);
     }
 }

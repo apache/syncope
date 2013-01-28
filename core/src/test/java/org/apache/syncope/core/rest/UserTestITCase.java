@@ -141,7 +141,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.addResource("ws-target-resource-nopropagation");
 
-        userService.create(userTO);
+        createUser(userTO);
 
         // get the new task list
         tasks = taskService.list(TaskType.PROPAGATION);
@@ -180,7 +180,7 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             UserTO userTO = getUniqueSampleTO("issue172@syncope.apache.org");
-            userService.create(userTO);
+            createUser(userTO);
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
@@ -202,7 +202,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO("fullname", userId));
         userTO.addAttribute(attributeTO("surname", userId));
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
@@ -269,14 +269,14 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-            userTO = userService.create(userTO);
+            userTO = createUser(userTO);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         assertNotNull(sce);
 
         userTO.addAttribute(type);
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
     }
 
@@ -297,7 +297,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-            userTO = userService.create(userTO);
+            userTO = createUser(userTO);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
@@ -305,7 +305,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(Collections.singleton("resource-csv-enforcing"), userTO.getResources());
     }
@@ -315,7 +315,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create an user without role nor resources
         UserTO userTO = getUniqueSampleTO("147@t.com");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
@@ -343,7 +343,7 @@ public class UserTestITCase extends AbstractTest {
     public void createUserWithDbPropagation() {
         UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
         userTO.addResource("resource-testdb");
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
@@ -353,7 +353,7 @@ public class UserTestITCase extends AbstractTest {
     public void createWithInvalidPassword() {
         UserTO userTO = getSampleTO("invalidpasswd@syncope.apache.org");
         userTO.setPassword("pass");
-        userService.create(userTO);
+        createUser(userTO);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -366,7 +366,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addMembership(membershipTO);
 
-        userService.create(userTO);
+        createUser(userTO);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -378,7 +378,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.setResources(Collections.singleton("ws-target-resource-nopropagation"));
 
-        userService.create(userTO);
+        createUser(userTO);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -393,14 +393,14 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addMembership(membership);
 
-        userService.create(userTO);
+        createUser(userTO);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createWithException() {
         UserTO newUserTO = new UserTO();
         newUserTO.addAttribute(attributeTO("userId", "userId@nowhere.org"));
-        userService.create(newUserTO);
+        createUser(newUserTO);
     }
 
     @Test
@@ -441,7 +441,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO("activationDate", null));
 
         // 1. create user
-        UserTO newUserTO = userService.create(userTO);
+        UserTO newUserTO = createUser(userTO);
 
         assertNotNull(newUserTO);
         assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
@@ -501,7 +501,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeClientException sce = null;
         try {
-            userService.create(userTO);
+            createUser(userTO);
         } catch (SyncopeClientCompositeErrorException e) {
             sce = e.getException(SyncopeClientExceptionType.DataIntegrityViolation);
         }
@@ -529,7 +529,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientCompositeErrorException ex = null;
         try {
             // 1. create user without type (mandatory by UserSchema)
-            userService.create(userTO);
+            createUser(userTO);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
         }
@@ -549,7 +549,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. create user without surname (mandatory when type == 'F')
         ex = null;
         try {
-            userService.create(userTO);
+            createUser(userTO);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
         }
@@ -569,7 +569,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // 1. create user with role 9
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRoleId());
@@ -629,7 +629,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // 1. create user with role 9 (and verify that no propagation occurred)
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRoleId());
@@ -703,7 +703,7 @@ public class UserTestITCase extends AbstractTest {
         // specify a propagation
         userTO.addResource("resource-testdb");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         long id = userTO.getId();
 
@@ -731,7 +731,7 @@ public class UserTestITCase extends AbstractTest {
         // specify a propagation
         userTO.addResource("resource-testdb");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         long id = userTO.getId();
         userTO = userService.read(id);
@@ -806,7 +806,7 @@ public class UserTestITCase extends AbstractTest {
     public void updateWithouPassword() {
         UserTO userTO = getUniqueSampleTO("updatewithout@password.com");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
 
@@ -825,7 +825,7 @@ public class UserTestITCase extends AbstractTest {
     public void updateInvalidPassword() {
         UserTO userTO = getSampleTO("updateinvalid@password.com");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -839,7 +839,7 @@ public class UserTestITCase extends AbstractTest {
     public void updateSamePassword() {
         UserTO userTO = getSampleTO("updatesame@password.com");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -858,7 +858,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertFalse(userTO.getDerivedAttributes().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
@@ -923,7 +923,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
@@ -973,7 +973,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // 1. create user
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         // get the new task list
@@ -1060,7 +1060,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(11L);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getToken());
@@ -1087,7 +1087,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(11L);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getToken());
@@ -1112,7 +1112,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
@@ -1138,7 +1138,7 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
@@ -1173,7 +1173,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(ldap);
         userTO.addResource(ldap.getName());
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
 
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
@@ -1234,7 +1234,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         AttributeTO loginDate = userTO.getAttributeMap().get("loginDate");
@@ -1262,7 +1262,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("issue213@syncope.apache.org");
         userTO.addResource("resource-testdb");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getResources().size());
 
@@ -1290,7 +1290,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO inUserTO = getUniqueSampleTO("issue234@syncope.apache.org");
         inUserTO.addResource("resource-ldap");
 
-        UserTO userTO = userService.create(inUserTO);
+        UserTO userTO = createUser(inUserTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -1312,7 +1312,7 @@ public class UserTestITCase extends AbstractTest {
         // be sure to remove all virtual attributes
         original.setVirtualAttributes(Collections.<AttributeTO>emptyList());
 
-        original = userService.create(original);
+        original = createUser(original);
 
         assertNotNull(original);
 
@@ -1345,7 +1345,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -1377,7 +1377,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerivedAttributes().clear();
         userTO.addResource("resource-csv");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         final List<PropagationStatusTO> propagations = userTO.getPropagationStatusTOs();
@@ -1399,7 +1399,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO("aLong", "STRING"));
 
         try {
-            userService.create(userTO);
+            createUser(userTO);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidValues));
@@ -1423,7 +1423,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addResource("resource-csv");
 
-        UserTO actual = userService.create(userTO);
+        UserTO actual = createUser(userTO);
 
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
@@ -1452,7 +1452,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addResource("resource-csv");
 
-        UserTO actual = userService.create(userTO);
+        UserTO actual = createUser(userTO);
 
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
@@ -1472,7 +1472,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // 1. create user
-        UserTO actual = userService.create(userTO);
+        UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
         // 2. check for virtual attribute value
@@ -1516,7 +1516,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addResource("resource-csv");
 
-        UserTO actual = userService.create(userTO);
+        UserTO actual = createUser(userTO);
 
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
@@ -1605,7 +1605,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addResource("resource-ldap");
 
-        UserTO actual = userService.create(userTO);
+        UserTO actual = createUser(userTO);
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
@@ -1659,7 +1659,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getVirtualAttributes().clear();
         userTO.addResource("resource-ldap");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals("resource-ldap", userTO.getPropagationStatusTOs().get(0).getResource());
@@ -1696,7 +1696,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password");
 
         try {
-            userService.create(userTO);
+            createUser(userTO);
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next()
@@ -1717,7 +1717,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("260@a.com");
         userTO.addResource("ws-target-resource-2");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
@@ -1832,7 +1832,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.addResource("resource-db-virattr");
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals("resource-db-virattr", userTO.getPropagationStatusTOs().get(0).getResource());
@@ -1855,7 +1855,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope266@apache.org");
         userTO.getResources().clear();
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -1873,7 +1873,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
         userTO.addResource("ws-target-resource-3");
-        userService.create(userTO);
+        createUser(userTO);
     }
 
     @Test
@@ -1883,7 +1883,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.addResource("resource-testdb");
         userTO.addResource("resource-testdb2");
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains("resource-testdb"));
         assertTrue(userTO.getResources().contains("resource-testdb2"));

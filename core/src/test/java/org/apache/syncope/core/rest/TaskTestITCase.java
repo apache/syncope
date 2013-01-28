@@ -233,7 +233,7 @@ public class TaskTestITCase extends AbstractTest {
             inUserTO.addAttribute(attributeTO("email", "user5@syncope.apache.org"));
             inUserTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
-            inUserTO = userService.create(inUserTO);
+            inUserTO = createUser(inUserTO);
             assertNotNull(inUserTO);
             // -----------------------------
 
@@ -537,7 +537,7 @@ public class TaskTestITCase extends AbstractTest {
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         return sender;
     }
@@ -566,7 +566,7 @@ public class TaskTestITCase extends AbstractTest {
 
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals("testuser2", userTO.getUsername());
         assertEquals(1, userTO.getMemberships().size());
@@ -709,7 +709,7 @@ public class TaskTestITCase extends AbstractTest {
             UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
             userTO.addResource("resource-testdb");
 
-            userTO = userService.create(userTO);
+            userTO = createUser(userTO);
 
             assertNotNull(userTO);
             assertEquals(1, userTO.getPropagationStatusTOs().size());

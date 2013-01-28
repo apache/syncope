@@ -52,7 +52,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
-
+    
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
@@ -101,7 +101,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
@@ -146,7 +146,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
@@ -182,7 +182,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
@@ -230,7 +230,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
@@ -292,7 +292,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.addAttribute(testAttributeTO);
         userTO.addMembership(membershipTO);
 
-        userTO = userService.create(userTO);
+        userTO = createUser(userTO);
         assertNotNull(userTO);
 
         super.setupRestTemplate(userTO.getUsername(), "password123");
@@ -427,7 +427,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(childRole.getId());
         role1Admin.addMembership(membershipTO);
 
-        role1Admin = userService.create(role1Admin);
+        role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
         super.setupRestTemplate(role1Admin.getUsername(), "password");
@@ -438,7 +438,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(1L);
         role1User.addMembership(membershipTO);
 
-        role1User = userService.create(role1User);
+        role1User = createUser(role1User);
         assertNotNull(role1User);
 
         // reset admin credentials for restTemplate

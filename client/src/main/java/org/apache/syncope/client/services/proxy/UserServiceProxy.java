@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.UserService;
@@ -69,8 +73,10 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
-    public UserTO create(final UserTO userTO) {
-        return getRestTemplate().postForObject(baseUrl + "user/create", userTO, UserTO.class);
+    public Response create(final UserTO userTO) {
+        UserTO created = getRestTemplate().postForObject(baseUrl + "user/create", userTO, UserTO.class);
+        URI location = URI.create(baseUrl + "user/" + created.getId());
+        return Response.created(location).entity(created).build();
     }
 
     @Override

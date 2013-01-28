@@ -19,6 +19,9 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.ResourceService;
@@ -57,7 +60,8 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public UserTO create(final UserTO userTO) {
-        return getService(UserService.class).create(userTO);
+        Response response = getService(UserService.class).create(userTO);
+        return response.readEntity(UserTO.class);
     }
 
     public UserTO update(final UserMod userModTO) {
