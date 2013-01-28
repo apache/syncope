@@ -123,20 +123,27 @@ public class UserController {
     public ModelAndView verifyPassword(@PathVariable("username") String username,
             @RequestParam("password") final String password)
             throws NotFoundException, UnauthorizedRoleException {
+        return new ModelAndView().addObject(verifyPasswordInternal(username, password));
+    }
 
+    public Boolean verifyPasswordInternal(String username,
+            final String password) {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
-
-        return new ModelAndView().addObject(dataBinder.verifyPassword(username, password));
+        return dataBinder.verifyPassword(username, password);
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/count")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView count() {
+        return new ModelAndView().addObject(countInternal());
+    }
+    
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public int countInternal() {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-
-        return new ModelAndView().addObject(userDAO.count(adminRoleIds));
+        return userDAO.count(adminRoleIds);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -144,15 +151,16 @@ public class UserController {
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
+        return new ModelAndView().addObject(searchCountInternal(searchCondition));
+    }
 
+    public int searchCountInternal(final NodeCond searchCondition) {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
-
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        return new ModelAndView().addObject(searchDAO.count(adminRoleIds, searchCondition,
-                AttributableUtil.getInstance(AttributableType.USER)));
+        return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.USER));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -273,7 +281,12 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public UserTO create(final HttpServletResponse response, @RequestBody final UserTO userTO)
             throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
-
+        UserTO savedTO = createInternal(userTO);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return savedTO;
+    }
+    
+    public UserTO createInternal(final UserTO userTO) {
         LOG.debug("User create called with {}", userTO);
 
         Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
@@ -305,7 +318,6 @@ public class UserController {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Successfully created user: " + savedTO.getUsername());
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
 

@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-public class InvalidSearchConditionException extends Exception {
+public class InvalidSearchConditionException extends RuntimeException {
+
+    private static final long serialVersionUID = 1785286543933086849L;
 
     public InvalidSearchConditionException() {
         super();
