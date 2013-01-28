@@ -39,9 +39,10 @@ public class SyncPolicyTO extends PolicyTO {
     public SyncPolicyTO(boolean global) {
         super();
 
-        this.type = global
+        PolicyType type = global
                 ? PolicyType.GLOBAL_SYNC
                 : PolicyType.SYNC;
+        setType(type);
     }
 
     public void setSpecification(final SyncPolicySpec specification) {

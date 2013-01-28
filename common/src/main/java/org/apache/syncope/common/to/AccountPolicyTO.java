@@ -39,9 +39,10 @@ public class AccountPolicyTO extends PolicyTO {
     public AccountPolicyTO(boolean global) {
         super();
 
-        this.type = global
+        PolicyType type = global
                 ? PolicyType.GLOBAL_ACCOUNT
                 : PolicyType.ACCOUNT;
+        setType(type);
     }
 
     public void setSpecification(final AccountPolicySpec specification) {
