@@ -36,13 +36,21 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 @Path("users")
 public interface UserService {
 
-    UserTO activate(long userId, String token);
+    @POST
+    @Path("activate/{userId}")
+    UserTO activate(@PathParam("userId") long userId, String token);
 
-    UserTO activate(long userId, String token, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("activate/{userId}")
+    UserTO activate(@PathParam("userId") long userId, String token, PropagationRequestTO propagationRequestTO);
 
-    UserTO activateByUsername(String username, String token);
+    @POST
+    @Path("activateByUsername/{username}")
+    UserTO activateByUsername(@PathParam("username") String username, @MatrixParam("token") String token);
 
-    UserTO activateByUsername(String username, String token, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("activateByUsername/{username}")
+    UserTO activateByUsername(@PathParam("username") String username, @MatrixParam("token") String token, PropagationRequestTO propagationRequestTO);
 
     @POST
     @Path("workflow/task/{taskId}/claim")
@@ -76,21 +84,32 @@ public interface UserService {
     @GET
     List<UserTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
-    UserTO reactivate(long userId);
+    @POST
+    @Path("reactivate/{userId}")
+    UserTO reactivate(@PathParam("userId") long userId);
 
-    UserTO reactivate(long userId, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("reactivate/{userId}")
+    UserTO reactivate(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
-    UserTO reactivateByUsername(String username);
+    @POST
+    @Path("reactivateByUsername/{username}")
+    UserTO reactivateByUsername(@PathParam("username") String username);
 
-    UserTO reactivateByUsername(String username, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("reactivateByUsername/{username}")
+    UserTO reactivateByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
     @GET
     @Path("{userId}")
     UserTO read(@PathParam("userId") Long userId);
 
     @GET
+    @Path("readByUsername/{username}")
     UserTO read(@MatrixParam("uname") String username);
 
+    @GET
+    @Path("read/self")
     UserTO readSelf();
 
     @POST
@@ -110,18 +129,27 @@ public interface UserService {
     @Path("workflow/form")
     UserTO submitForm(WorkflowFormTO form);
 
-    UserTO suspend(long userId);
+    @POST
+    @Path("suspend/{userId}")
+    UserTO suspend(@PathParam("userId") long userId);
 
-    UserTO suspend(long userId, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("suspend/{userId}")
+    UserTO suspend(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
-    UserTO suspendByUsername(String username);
+    @POST
+    @Path("suspendByUsername/{username}")
+    UserTO suspendByUsername(@PathParam("username") String username);
 
-    UserTO suspendByUsername(String username, PropagationRequestTO propagationRequestTO);
+    @POST
+    @Path("suspendByUsername/{username}")
+    UserTO suspendByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
     @POST
     @Path("{userId}")
     UserTO update(@PathParam("userId") Long userId, UserMod userMod);
 
     @GET
+    @Path("verifyPassword")
     Boolean verifyPassword(@MatrixParam("uname") String username, @MatrixParam("pwd") String password);
 }
