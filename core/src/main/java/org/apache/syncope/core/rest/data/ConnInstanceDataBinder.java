@@ -28,8 +28,8 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.util.ConnBundleManager;
-import org.apache.syncope.core.util.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.BeanUtils;

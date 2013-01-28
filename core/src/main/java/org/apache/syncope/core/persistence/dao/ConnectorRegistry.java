@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.dao;
 
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.util.NotFoundException;
 
 public interface ConnectorRegistry {
 

@@ -90,7 +90,7 @@ public class LoggerServiceImpl implements LoggerService {
             case NORMAL:
                 try {
                     loggerController.deleteLog(name);
-                } catch (org.apache.syncope.core.util.NotFoundException e) {
+                } catch (org.apache.syncope.core.persistence.dao.NotFoundException e) {
                     throw new NotFoundException(e);
                 }
                 break;

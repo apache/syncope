@@ -31,10 +31,10 @@ import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.DerivedSchemaController;
 import org.apache.syncope.core.rest.controller.SchemaController;
 import org.apache.syncope.core.rest.controller.VirtualSchemaController;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

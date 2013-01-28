@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;

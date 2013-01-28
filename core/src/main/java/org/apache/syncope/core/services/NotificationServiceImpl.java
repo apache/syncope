@@ -27,8 +27,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.NotificationController;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

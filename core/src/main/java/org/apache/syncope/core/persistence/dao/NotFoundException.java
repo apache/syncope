@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.persistence.dao;
 
 /**
  * Thrown when something is not found.
  */
-public class NotFoundException extends Exception {
+public class NotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 4810651769126663580L;
 

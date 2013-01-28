@@ -36,9 +36,9 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.core.persistence.beans.ReportExec;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.rest.controller.ReportController;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

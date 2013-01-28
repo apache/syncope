@@ -32,7 +32,7 @@ under the License.
 <%@page import="org.apache.syncope.core.propagation.PropagationException"%>
 <%@page import="org.apache.syncope.core.workflow.WorkflowException"%>
 <%@page import="org.apache.syncope.common.types.SyncopeClientExceptionType"%>
-<%@page import="org.apache.syncope.core.util.NotFoundException"%>
+<%@page import="org.apache.syncope.core.persistence.dao.NotFoundException"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
 <%@page import="org.apache.syncope.common.validation.SyncopeClientErrorHandler"%>
 <%@page import="org.slf4j.LoggerFactory"%>

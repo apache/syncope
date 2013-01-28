@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 
 public interface WorkflowAdapter {
 

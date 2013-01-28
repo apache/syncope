@@ -29,9 +29,9 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.data.DerivedSchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;

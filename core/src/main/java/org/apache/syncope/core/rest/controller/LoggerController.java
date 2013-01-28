@@ -34,7 +34,7 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
-import org.apache.syncope.core.util.NotFoundException;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

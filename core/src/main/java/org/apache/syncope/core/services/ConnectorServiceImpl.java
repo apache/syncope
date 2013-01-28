@@ -34,8 +34,8 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.ConnInstanceController;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

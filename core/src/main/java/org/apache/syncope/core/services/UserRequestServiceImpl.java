@@ -28,8 +28,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.types.UserRequestType;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.UserRequestController;
-import org.apache.syncope.core.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
