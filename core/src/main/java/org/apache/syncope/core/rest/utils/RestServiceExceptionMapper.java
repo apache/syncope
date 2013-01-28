@@ -187,7 +187,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
         if (ex instanceof javax.ws.rs.NotFoundException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
+            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, (ex.getCause() != null)
+                    ? ex.getCause()
+                    : ex, null);
 
         } else if (ex instanceof NotFoundException) {
             response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
@@ -205,8 +207,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 
         if (ex instanceof javax.ws.rs.BadRequestException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Unknown, ex, null);
-        
+            throw (javax.ws.rs.BadRequestException) ex;
+            
         } else if (ex instanceof InvalidEntityException) {
             SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
                     + ((InvalidEntityException) ex).getEntityClassSimpleName());

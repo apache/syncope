@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -66,8 +67,12 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>,
 		} else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
 			ex = new AccessControlException("Remote unauthorized exception");
 			
-		} else {
-			// 3. All other codes are mapped to runtime exception with HTTP code information 
+            // 3. Map  SC_BAD_REQUEST
+        } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+            ex = new BadRequestException();
+
+        } else {
+			// 4. All other codes are mapped to runtime exception with HTTP code information 
 			ex = new RuntimeException(String.format(
 					"Remote exception with status code: %s",
 					Response.Status.fromStatusCode(statusCode).name()));
