@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.common.search;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Search condition to be applied when searching for associated resources.
  */
+@XmlRootElement(name = "resourceCondition")
+@XmlType
 public class ResourceCond extends AbstractBaseBean implements SearchCond {
 
     private String resourceName;

@@ -18,15 +18,23 @@
  */
 package org.apache.syncope.common.search;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Search condition to be applied when comparing attribute values.
  */
+@XmlRootElement(name = "attributeCondition")
+@XmlType
 public class AttributeCond extends AbstractBaseBean implements SearchCond {
 
     private static final long serialVersionUID = 3275277728404021417L;
 
+    @XmlEnum
+    @XmlType(name = "attributeConditionType")
     public enum Type {
 
         LIKE,

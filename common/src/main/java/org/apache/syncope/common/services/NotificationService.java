@@ -32,6 +32,7 @@ import org.apache.syncope.common.to.NotificationTO;
 
 @Path("notifications")
 public interface NotificationService {
+
     @POST
     Response create(NotificationTO notificationTO);
 

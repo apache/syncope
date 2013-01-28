@@ -31,7 +31,7 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 
-@XmlRootElement(name = "logger")
+@XmlRootElement(name = "notification")
 @XmlType
 public class NotificationTO extends AbstractBaseBean {
 

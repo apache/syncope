@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.common.search;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
+@XmlRootElement(name = "entitlementCondition")
+@XmlType
 public class EntitlementCond extends AbstractBaseBean implements SearchCond {
 
     private static final long serialVersionUID = -4077781080368377428L;
