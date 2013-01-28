@@ -23,7 +23,7 @@ body {
 }
 
 #logo {
-  margin-top: 7px;
+  margin-top: 10px;
   margin-bottom: 6px;
 }
 
@@ -85,6 +85,7 @@ body {
   height: 320px;
   margin-left: 37px;
   padding-left: 28px;
+  margin-top: 25px;
 }
 
 #splash ul li {
@@ -231,7 +232,7 @@ select[disabled] {
   color: #FFF;
   font-size: 13px;
   list-style: none;
-  padding: 0px;
+  padding: 1px;
 }
 
 #navigationPane span {
@@ -396,4 +397,22 @@ td.action{
 
 .tree-folder-other {
   padding-top: 2px;
+}
+
+#versionMP {
+  text-align: justify;
+  color: #463;
+  background: url(../img/sf_testa.png) top repeat-x #B9CFB3;
+  border: 1px solid #463;
+  padding: 5px;
+}
+
+#versionMP a {
+  color: white;
+  text-decoration: none;
+}
+
+#versionMP a:hover {
+  color: #463;
+  text-decoration: none;
 }

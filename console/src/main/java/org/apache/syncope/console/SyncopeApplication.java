@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console;
 
+import java.io.Serializable;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Configuration;
 import org.apache.syncope.console.pages.Login;
@@ -29,16 +30,21 @@ import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Todo;
 import org.apache.syncope.console.pages.Users;
+import org.apache.syncope.console.pages.InfoModalPage;
 import org.apache.syncope.console.pages.WelcomePage;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -53,13 +59,15 @@ import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
  * SyncopeApplication class.
  */
 public class SyncopeApplication extends WebApplication implements IUnauthorizedComponentInstantiationListener,
-        IRoleCheckingStrategy {
+        IRoleCheckingStrategy, Serializable {
 
     public static final String IMG_PREFIX = "/img/menu/";
 
     public static final String IMG_NOTSEL = "notsel/";
 
     public static final String IMG_SUFFIX = ".png";
+
+    private static final long serialVersionUID = -2920378752291913495L;
 
     @Override
     protected void init() {
@@ -80,8 +88,34 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
     public void setupNavigationPanel(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel,
             final String version) {
 
-        page.add(new Label("consoleVersion", "Console: " + version));
-        page.add(new Label("coreVersion", "Core: " + SyncopeSession.get().getCoreVersion()));
+        final ModalWindow modal;
+        page.add(modal = new ModalWindow("modal"));
+        modal.setInitialWidth(580);
+        modal.setInitialHeight(285);
+        modal.setPageCreator(new ModalWindow.PageCreator() {
+
+            private static final long serialVersionUID = -7834632442532690940L;
+
+            @Override
+            public Page createPage() {
+                return new InfoModalPage(version, SyncopeSession.get().getCoreVersion());
+            }
+        });
+
+        final AjaxLink versionLink = new IndicatingAjaxLink("versionLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+                modal.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(versionLink, Component.ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "read"));
+        page.add(versionLink);
 
         BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorizeAll(schemaLink, WebPage.ENABLE);

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+
+    <title>Apache Syncope - <wicket:message key="info"/></title>
+
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="all"/>
+  </head>
+  <body>
+    <div id="versionMP">
+      <h1><a wicket:id="syncopeLink" target="_blank"><img style="margin-top: -5px;" src="img/logo.png" alt="syncope" title="syncope"/></a></h1>
+      <br/>
+      <fieldset>
+        <table style="font-size:15px;">
+          <tr>
+            <td>Console:</td>
+            <td><span wicket:id="consoleVersion"/></td>
+          </tr>
+          <tr>
+            <td>Core:</td>
+            <td><span wicket:id="coreVersion"/></td>
+          </tr>
+        </table>
+        <legend><wicket:message key="version"/></legend>
+      </fieldset>
+      <h4>Licensed under the <a wicket:id="licenseLink" target="_blank">Apache License, Version 2.0 </a><wicket:message key="license"/></h4>
+    </div>
+  </body>
+</html>

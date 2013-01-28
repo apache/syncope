@@ -58,6 +58,14 @@ under the License.
   <bean id="version" class="java.lang.String">
     <constructor-arg value="${version}"/>
   </bean>
+  
+  <bean id="site" class="java.lang.String">
+    <constructor-arg value="${syncopeUrl}"/>
+  </bean>
+  
+  <bean id="license" class="java.lang.String">
+    <constructor-arg value="${licenseUrl}"/>
+  </bean>
 
   <bean id="authorizations" class="java.lang.String">
     <constructor-arg value="authorizations.xml"/>
