@@ -69,8 +69,7 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setRecipients(recipients);
 
         Response response = notificationService.create(notificationTO);
-        Long notificationId = (Long) response.getEntity();
-        NotificationTO actual = notificationService.read(notificationId);
+        NotificationTO actual = getObject(response, NotificationTO.class, notificationService);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -106,7 +105,7 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-    	NotificationTO notification = buildNotificationTO();
+        NotificationTO notification = buildNotificationTO();
         notification.setSelfAsRecipient(true);
         Response response = notificationService.create(notification);
         notification = getObject(response, NotificationTO.class, notificationService);
@@ -132,8 +131,7 @@ public class NotificationTestITCase extends AbstractTest {
         SyncopeClientException exception = null;
         try {
             Response response = notificationService.create(notificationTO);
-            Long notificationId = (Long) response.getEntity();
-            actual = notificationService.read(notificationId);
+            actual = getObject(response, NotificationTO.class, notificationService);
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }
@@ -144,7 +142,7 @@ public class NotificationTestITCase extends AbstractTest {
         assertEquals(actual, notificationTO);
     }
 
-	private NotificationTO buildNotificationTO() {
+    private NotificationTO buildNotificationTO() {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.addEvent("create");
@@ -166,6 +164,6 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setSender("syncope@syncope.apache.org");
         notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
-		return notificationTO;
-	}
+        return notificationTO;
+    }
 }

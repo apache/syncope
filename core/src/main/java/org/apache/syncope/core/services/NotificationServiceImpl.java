@@ -21,7 +21,6 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -37,11 +36,11 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
 
     @Autowired
     private NotificationController notificationController;
-    
+
     private UriInfo uriInfo;
 
     @Override
-    public Response create(NotificationTO notificationTO) {
+    public Response create(final NotificationTO notificationTO) {
         try {
             NotificationTO createdNotificationTO = notificationController.createInternal(notificationTO);
             URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
@@ -52,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     }
 
     @Override
-    public NotificationTO read(@PathParam("notificationId") Long notificationId) throws javax.ws.rs.NotFoundException {
+    public NotificationTO read(final Long notificationId) {
         try {
             return notificationController.read(notificationId);
         } catch (NotFoundException e) {
@@ -66,8 +65,8 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     }
 
     @Override
-    public NotificationTO update(@PathParam("notificationId") Long notificationId,
-            NotificationTO notificationTO) {
+    public NotificationTO update(final Long notificationId,
+            final NotificationTO notificationTO) {
         try {
             return notificationController.update(notificationTO);
         } catch (NotFoundException e) {
@@ -76,7 +75,7 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     }
 
     @Override
-    public NotificationTO delete(@PathParam("notificationId") Long notificationId) {
+    public NotificationTO delete(final Long notificationId) {
         try {
             return notificationController.delete(notificationId);
         } catch (NotFoundException e) {

@@ -528,8 +528,7 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTemplate("optin");
 
         Response response = notificationService.create(notification);
-        Long notificationId = (Long) response.getEntity();
-        notification = notificationService.read(notificationId);
+        notification = getObject(response, NotificationTO.class, notificationService);
         assertNotNull(notification);
 
         // 2. create user
