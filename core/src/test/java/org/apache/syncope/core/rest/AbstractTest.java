@@ -21,8 +21,6 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,7 +67,6 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -296,11 +293,5 @@ public abstract class AbstractTest {
         attr.setSchema(schema);
         attr.addValueToBeAdded(valueToBeAdded);
         return attr;
-    }
-
-    @Parameters
-    public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { "application/json" } };
-        return Arrays.asList(data);
     }
 }

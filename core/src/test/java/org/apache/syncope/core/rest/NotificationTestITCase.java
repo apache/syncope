@@ -106,17 +106,10 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-    	NotificationTO notification = null;
-    	try {
-    		// Check for pre-loaded notification: must be deleted for other create tests success
-    		notification = notificationService.read(101L);
-    	} catch (SyncopeClientCompositeErrorException e) {
-    		assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
-    		notification = buildNotificationTO();
-            notification.setSelfAsRecipient(true);
-            Response response = notificationService.create(notification);
-            notification = response.readEntity(NotificationTO.class);
-    	}
+    	NotificationTO notification = buildNotificationTO();
+        notification.setSelfAsRecipient(true);
+        Response response = notificationService.create(notification);
+        notification = getObject(response, NotificationTO.class, notificationService);
 
         NotificationTO deletedNotification = notificationService.delete(notification.getId());
         assertNotNull(deletedNotification);
