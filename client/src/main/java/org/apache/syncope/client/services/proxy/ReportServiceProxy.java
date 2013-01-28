@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -42,7 +44,7 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = getRestTemplate().postForObject(baseUrl + "report/create", reportTO, ReportTO.class);
         URI location = URI.create(baseUrl + "report/read/" + createdReportTO.getId() + ".json");
-        return Response.created(location).entity(createdReportTO.getId()).build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId()).build();
     }
 
     @Override
@@ -73,8 +75,8 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public Set<String> getReportletConfClasses() {
-        List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/reportletConfClasses.json",
-                String[].class));
+        List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(
+                baseUrl + "report/reportletConfClasses.json", String[].class));
         return new HashSet<String>(confClasses);
     }
 
