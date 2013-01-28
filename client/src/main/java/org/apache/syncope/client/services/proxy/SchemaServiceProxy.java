@@ -42,32 +42,32 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     @Override
     public <T extends AbstractSchemaTO> Response create(final AttributableType kind, final SchemaType type,
             final T schemaTO) {
-        AbstractSchemaTO schema = getRestTemplate().postForObject(baseUrl + type + "/{kind}/create", schemaTO,
-                getTOClass(type), kind);
-        return Response.created(URI.create(baseUrl + type + "/" + kind + "/read/" + schema.getName() + ".json"))
-                .build();
+        AbstractSchemaTO schema = getRestTemplate().postForObject(baseUrl + type.toSpringURL() + "/{kind}/create",
+                schemaTO, getTOClass(type), kind);
+        return Response.created(
+                URI.create(baseUrl + type.toSpringURL() + "/" + kind + "/read/" + schema.getName() + ".json")).build();
     }
 
     @Override
     public void delete(final AttributableType kind, final SchemaType type, final String schemaName) {
 
-        getRestTemplate().getForObject(baseUrl + type + "/{kind}/delete/{name}.json", getTOClass(type), kind,
-                schemaName);
+        getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/delete/{name}.json", getTOClass(type),
+                kind, schemaName);
     }
 
     @Override
     public List<? extends AbstractSchemaTO> list(final AttributableType kind, final SchemaType type) {
         switch (type) {
             case NORMAL:
-                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/list.json",
                         SchemaTO[].class, kind));
 
             case DERIVED:
-                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/list.json",
                         DerivedSchemaTO[].class, kind));
 
             case VIRTUAL:
-                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type + "/{kind}/list.json",
+                return Arrays.asList(getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/list.json",
                         VirtualSchemaTO[].class, kind));
 
             default:
@@ -79,15 +79,15 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     public <T extends AbstractSchemaTO> T read(final AttributableType kind, final SchemaType type,
             final String schemaName) {
 
-        return (T) getRestTemplate().getForObject(baseUrl + type + "/{kind}/read/{name}.json", getTOClass(type), kind,
-                schemaName);
+        return (T) getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/read/{name}.json",
+                getTOClass(type), kind, schemaName);
     }
 
     @Override
     public <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
             final String schemaName, final T schemaTO) {
 
-        getRestTemplate().postForObject(baseUrl + type + "/{kind}/update", schemaTO, getTOClass(type), kind);
+        getRestTemplate().postForObject(baseUrl + type.toSpringURL() + "/{kind}/update", schemaTO, getTOClass(type), kind);
     }
 
     private Class<? extends AbstractSchemaTO> getTOClass(final SchemaType type) {

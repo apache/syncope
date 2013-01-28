@@ -74,6 +74,7 @@ under the License.
       <ref bean="policyServiceImpl"/>
       <ref bean="reportServiceImpl"/>
       <ref bean="resourceServiceImpl"/>
+      <ref bean="roleServiceImpl"/>
       <ref bean="schemaServiceImpl"/>
       <ref bean="userRequestServiceImpl"/>
     </jaxrs:serviceBeans>

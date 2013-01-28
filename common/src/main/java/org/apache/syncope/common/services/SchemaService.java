@@ -46,41 +46,35 @@ public interface SchemaService {
             this.name = name;
         }
 
-        @Override
-        public String toString() {
+        // TODO remove once CXF migration is complete
+        public String toSpringURL() {
             return name;
         }
 
         public static SchemaType fromString(String value) {
-            return valueOf(value.toUpperCase());
+            return SchemaType.valueOf(value.toUpperCase());
         }
     }
 
     @POST
     <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type,
-            T schemaTO);
+            @PathParam("type") SchemaType type, T schemaTO);
 
     @DELETE
     @Path("{name}")
-    void delete(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type,
+    void delete(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
     @GET
-    List<? extends AbstractSchemaTO> list(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type);
+    List<? extends AbstractSchemaTO> list(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type);
 
     @GET
     @Path("{name}")
-    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type,
+    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
     @PUT
     @Path("{name}")
     <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type,
-            @PathParam("name") String schemaName,
-            T schemaTO);
+            @PathParam("type") SchemaType type, @PathParam("name") String schemaName, T schemaTO);
 }

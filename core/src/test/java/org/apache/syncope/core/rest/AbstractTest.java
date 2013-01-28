@@ -80,7 +80,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
+@ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
 public abstract class AbstractTest {
 
     /**
@@ -93,8 +93,11 @@ public abstract class AbstractTest {
     protected static final String ADMIN_UID = "admin";
 
     protected static final String ADMIN_PWD = "password";
-    
-    private static final String DEFAULT_CONTENT_TYPE = "application/json";
+
+    public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_XML = "text/xml";
+    public static final String DEFAULT_CONTENT_TYPE = CONTENT_TYPE_JSON;
+
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     @Autowired
@@ -115,7 +118,7 @@ public abstract class AbstractTest {
     private boolean enabledCXF;
 
     private String contentType;
-    
+
     protected UserService userService;
 
     protected RoleService roleService;
@@ -143,7 +146,7 @@ public abstract class AbstractTest {
     protected UserRequestService userRequestService;
 
     protected PolicyService policyService;
- 
+
     @Before
     public void setup() throws Exception {
         if (!enabledCXF) {
@@ -188,6 +191,7 @@ public abstract class AbstractTest {
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
         userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
+
     // END Spring MVC Initialization
 
     // BEGIN CXF Initialization
@@ -208,15 +212,15 @@ public abstract class AbstractTest {
         userRequestService = createServiceInstance(UserRequestService.class);
     }
 
-    protected <T> T createServiceInstance(Class<T> serviceClass) {
+    protected <T> T createServiceInstance(final Class<T> serviceClass) {
         return createServiceInstance(serviceClass, ADMIN_UID);
     }
 
-    protected <T> T createServiceInstance(Class<T> serviceClass, String username) {
+    protected <T> T createServiceInstance(final Class<T> serviceClass, final String username) {
         return createServiceInstance(serviceClass, username, ADMIN_PWD);
     }
 
-    protected <T> T createServiceInstance(Class<T> serviceClass, String username, String password) {
+    protected <T> T createServiceInstance(final Class<T> serviceClass, final String username, final String password) {
         restClientFactory.setUsername(username);
         restClientFactory.setPassword(password);
         restClientFactory.setServiceClass(serviceClass);
@@ -225,14 +229,14 @@ public abstract class AbstractTest {
         return serviceProxy;
     }
 
-    public WebClient createWebClient(String path) {
+    public WebClient createWebClient(final String path) {
         WebClient wc = restClientFactory.createWebClient().to(BASE_URL, false);
         wc.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
         wc.path(path);
         return wc;
     }
 
-    public void setupContentType(Client restClient) {
+    public void setupContentType(final Client restClient) {
         if (contentType == null) {
             String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
             if ((envContentType != null) && (!envContentType.isEmpty())) {
@@ -243,6 +247,7 @@ public abstract class AbstractTest {
         }
         restClient.type(contentType).accept(contentType);
     }
+
     // END CXF Initialization
 
     public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
@@ -259,11 +264,11 @@ public abstract class AbstractTest {
         return restTemplate.getForEntity(response.getLocation(), type).getBody();
     }
 
-    public void setEnabledCXF(boolean enabledCXF) {
+    public void setEnabledCXF(final boolean enabledCXF) {
         this.enabledCXF = enabledCXF;
     }
 
-    public void setContentType(String contentType) {
+    public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
 
@@ -274,7 +279,7 @@ public abstract class AbstractTest {
 
         return webClient.get(type);
     }
-    
+
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
@@ -295,7 +300,7 @@ public abstract class AbstractTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][]{{"application/json"}};
+        Object[][] data = new Object[][] { { "application/json" } };
         return Arrays.asList(data);
     }
 }
