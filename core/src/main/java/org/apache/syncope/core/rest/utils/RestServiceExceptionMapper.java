@@ -56,159 +56,103 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     @Override
     public Response toResponse(final Exception ex) {
+        LOG.error("Exception thrown by REST method: " + ex.getMessage(), ex);
 
-        LOG.error("Exception thrown by REST methods: " + ex.getMessage(), ex);
+        if (ex instanceof SyncopeClientCompositeErrorException) {
+            return getCompositeExceptionResponse(ex);
+        }
 
-        // 1. Process SyncopeClientCompositeErrorException
-        Response response = processCompositeExceptions(ex);
+        if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED).build();
+        }
+
+        if (ex instanceof UnauthorizedRoleException) {
+            return buildResponse(Response.status(Response.Status.FORBIDDEN), SyncopeClientExceptionType.UnauthorizedRole,
+                    getExMessage(ex));
+        }
+
+        if (ex instanceof DataIntegrityViolationException) {
+            return buildResponse(Response.status(Response.Status.CONFLICT), 
+                    SyncopeClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+        }
+
+        Response response = processBadRequestExceptions(ex);
         if (response != null) {
             return response;
         }
 
-        // 2. Process Bad Requests
-        response = processBadRequestExceptions(ex);
-        if (response != null) {
-            return response;
-        }
-
-        // 3. Process Unauthorized
-        response = processUnauthorizedExceptions(ex);
-        if (response != null) {
-            return response;
-        }
-
-        // 4. Process Forbidden
-        response = processForbiddenExceptions(ex);
-        if (response != null) {
-            return response;
-        }
-
-        // 4. Process NotFound
         response = processNotFoundExceptions(ex);
         if (response != null) {
             return response;
         }
 
-        // 5. Process Conflict
-        response = processConflictExceptions(ex);
-        if (response != null) {
-            return response;
-        }
-
-        // 5. Process InternalServerError
         response = processServerErrorExceptions(ex);
         if (response != null) {
             return response;
         }
 
-        // 6. Rest is interpreted as InternalServerError
-        ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        responseBuilder.header(SyncopeClientExceptionType.Unknown.getElementHeaderName(), ex.getCause() == null
-                ? ex.getMessage()
-                : ex.getCause().getMessage());
-
-        return responseBuilder.build();
+        // Rest is interpreted as InternalServerError
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .header(SyncopeClientExceptionType.Unknown.getElementHeaderName(), getExMessage(ex))
+                .build();
     }
-
+    
     @Override
     public Exception fromResponse(final Response r) {
         throw new UnsupportedOperationException(
                 "Call of fromResponse() method is not expected in RestServiceExceptionMapper");
     }
 
-    private Response processCompositeExceptions(Exception ex) {
-        Response response = null;
+    public Response getCompositeExceptionResponse(Exception ex) {
+        ResponseBuilder responseBuilder = Response.status(((SyncopeClientCompositeErrorException) ex)
+                .getStatusCode().value());
+        for (SyncopeClientException sce : ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
+            responseBuilder.header(EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
-        if (ex instanceof SyncopeClientCompositeErrorException) {
-            ResponseBuilder responseBuilder = Response.status(((SyncopeClientCompositeErrorException) ex)
-                    .getStatusCode().value());
-            for (SyncopeClientException sce : ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
-                responseBuilder.header(EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
-
-                for (String attributeName : sce.getElements()) {
-                    responseBuilder.header(sce.getType().getElementHeaderName(), attributeName);
-                }
+            for (String attributeName : sce.getElements()) {
+                responseBuilder.header(sce.getType().getElementHeaderName(), attributeName);
             }
-            response = responseBuilder.build();
         }
-        return response;
-    }
-
-    private Response processForbiddenExceptions(Exception ex) {
-        Response response = null;
-        ResponseBuilder responseBuilder = Response.status(Response.Status.FORBIDDEN);
-
-        if (ex instanceof UnauthorizedRoleException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.UnauthorizedRole, ex, null);
-        }
-        return response;
-    }
-
-    private Response processUnauthorizedExceptions(Exception ex) {
-        Response response = null;
-        ResponseBuilder responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
-
-        if (ex instanceof org.springframework.security.access.AccessDeniedException) {
-            response = responseBuilder.header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED).build();
-        }
-        return response;
-    }
-
-    private Response processConflictExceptions(Exception ex) {
-        Response response = null;
-        ResponseBuilder responseBuilder = Response.status(Response.Status.CONFLICT);
-
-        if (ex instanceof DataIntegrityViolationException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, ex, null);
-        }
-        return response;
+        return responseBuilder.build();
     }
 
     private Response processServerErrorExceptions(Exception ex) {
-        Response response = null;
         ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-
         if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, ex,
-                    "Currently unavailable. Please try later.");
-
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getMessage(ex,
+                    "Currently unavailable. Please try later."));
         } else if (ex instanceof JpaSystemException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, getExMessage(ex));
 
         } else if (ex instanceof ConfigurationException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidExternalResource, ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidExternalResource, getExMessage(ex));
         }
 
-        return response;
+        return null;
     }
 
     private Response processNotFoundExceptions(Exception ex) {
-        Response response = null;
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
         if (ex instanceof javax.ws.rs.NotFoundException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, (ex.getCause() != null)
-                    ? ex.getCause()
-                    : ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getExMessage(ex));
 
         } else if (ex instanceof NotFoundException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getExMessage(ex));
 
         } else if (ex instanceof MissingConfKeyException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, ex,
-                    ((MissingConfKeyException) ex).getConfKey());
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getMessage(ex,
+                    ((MissingConfKeyException) ex).getConfKey()));
         }
-
-        return response;
+        return null;
     }
 
     private Response processBadRequestExceptions(Exception ex) {
-        Response response = null;
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 
         if (ex instanceof javax.ws.rs.BadRequestException) {
             throw (javax.ws.rs.BadRequestException) ex;
-            
         } else if (ex instanceof InvalidEntityException) {
             SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
                     + ((InvalidEntityException) ex).getEntityClassSimpleName());
@@ -223,35 +167,34 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                             + violationType);
                 }
             }
-            response = responseBuilder.build();
-
+            return responseBuilder.build();
         } else if (ex instanceof WorkflowException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, ex, ex.getCause()
-                    .getMessage());
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getExMessage(ex));
 
         } else if (ex instanceof PropagationException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.Propagation, ex,
-                    ((PropagationException) ex).getResourceName());
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.Propagation, getMessage(ex, ((PropagationException) ex).getResourceName()));
 
         } else if (ex instanceof InvalidSearchConditionException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, getExMessage(ex));
 
         } else if (ex instanceof PersistenceException) {
-            response = buildResponse(responseBuilder, SyncopeClientExceptionType.GenericPersistence, ex, null);
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.GenericPersistence, getExMessage(ex));
         }
 
-        return response;
+        return null;
     }
 
-    private Response buildResponse(ResponseBuilder responseBuilder, SyncopeClientExceptionType hType, Throwable ex,
-            String msg) {
-        responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, hType.getHeaderValue());
-        String exMsg = ex.getCause() == null
-                ? ex.getMessage()
-                : ex.getCause().getMessage();
-        responseBuilder.header(hType.getElementHeaderName(), (msg != null)
-                ? msg
-                : exMsg);
-        return responseBuilder.build();
+    private Response buildResponse(ResponseBuilder responseBuilder, SyncopeClientExceptionType hType, String msg) {
+        return responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, hType.getHeaderValue())
+               .header(hType.getElementHeaderName(), msg)
+               .build();
+    }
+
+    public String getMessage(Throwable ex, String msg) {
+        return (msg != null) ? msg : getExMessage(ex);
+    }
+
+    public String getExMessage(Throwable ex) {
+        return (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage();
     }
 }
