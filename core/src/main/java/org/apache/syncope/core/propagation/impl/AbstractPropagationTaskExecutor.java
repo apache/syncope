@@ -331,7 +331,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } finally {
             // Try to read remote object (user / group) AFTER any actual operation
             if (connector != null) {
-                afterObj = getRemoteObject(task, connector, true);
+                try {
+                    afterObj = getRemoteObject(task, connector, true);
+                } catch (Exception ignore) {
+                    // ignore exception
+                    LOG.error("Error retrieving after object", ignore);
+                }
             }
 
             LOG.debug("Update execution for {}", task);
@@ -374,7 +379,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public void execute(final Collection<PropagationTask> tasks) throws PropagationException {
+    public void execute(final Collection<PropagationTask> tasks)
+            throws PropagationException {
         execute(tasks, null);
     }
 
