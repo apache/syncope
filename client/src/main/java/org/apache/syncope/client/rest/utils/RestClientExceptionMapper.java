@@ -28,6 +28,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.http.HttpStatus;
@@ -44,7 +45,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     private static final Logger LOG = LoggerFactory.getLogger(RestClientExceptionMapper.class);
 
     @Override
-    public Response toResponse(final Exception e) {
+    public Response toResponse(final Exception exception) {
         throw new UnsupportedOperationException(
                 "Call of toResponse() method is not expected in RestClientExceptionnMapper");
     }
@@ -52,7 +53,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     @Override
     public Exception fromResponse(final Response response) {
         Exception ex = null;
-        int statusCode = response.getStatus();
+        final int statusCode = response.getStatus();
 
         // 1. Check for composite exception in HTTP header
         SyncopeClientCompositeErrorException scce = checkCompositeException(response);
@@ -73,7 +74,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
 
         } else {
             // 4. All other codes are mapped to runtime exception with HTTP code information
-            ex = new RuntimeException(String.format("Remote exception with status code: %s", Response.Status
+            ex = new WebServiceException(String.format("Remote exception with status code: %s", Response.Status
                     .fromStatusCode(statusCode).name()));
         }
         LOG.error("Exception thrown by REST methods: " + ex.getMessage(), ex);
@@ -81,55 +82,55 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     }
 
     private SyncopeClientCompositeErrorException checkCompositeException(final Response response) {
-        int statusCode = response.getStatus();
-        List<Object> exceptionTypesInHeaders = response.getHeaders().get(
+        final int statusCode = response.getStatus();
+        List<Object> exTypesInHeaders = response.getHeaders().get(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
-        if (exceptionTypesInHeaders == null) {
+        if (exTypesInHeaders == null) {
             LOG.debug("No " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + " provided");
             return null;
         }
 
-        SyncopeClientCompositeErrorException compositeException = new SyncopeClientCompositeErrorException(
+        final SyncopeClientCompositeErrorException compException = new SyncopeClientCompositeErrorException(
                 org.springframework.http.HttpStatus.valueOf(statusCode));
 
-        Set<String> handledExceptions = new HashSet<String>();
-        for (Object exceptionTypeValue : exceptionTypesInHeaders) {
-            String exceptionTypeAsString = (String) exceptionTypeValue;
+        final Set<String> handledExceptions = new HashSet<String>();
+        for (Object exceptionTypeValue : exTypesInHeaders) {
+            final String exTypeAsString = (String) exceptionTypeValue;
             SyncopeClientExceptionType exceptionType = null;
             try {
-                exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exceptionTypeAsString);
+                exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exTypeAsString);
             } catch (IllegalArgumentException e) {
                 LOG.error("Unexpected value of " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + ": "
-                        + exceptionTypeAsString, e);
+                        + exTypeAsString, e);
             }
             if (exceptionType != null) {
-                handledExceptions.add(exceptionTypeAsString);
+                handledExceptions.add(exTypeAsString);
 
-                SyncopeClientException clientException = new SyncopeClientException();
+                final SyncopeClientException clientException = new SyncopeClientException();
                 clientException.setType(exceptionType);
                 if (response.getHeaders().get(exceptionType.getElementHeaderName()) != null
                         && !response.getHeaders().get(exceptionType.getElementHeaderName()).isEmpty()) {
                     // TODO update clientException to support list of objects
-                    List<Object> elementsObjectList = response.getHeaders().get(exceptionType.getElementHeaderName());
-                    List<String> elementsStringList = new ArrayList<String>();
-                    for (Object elementObject : elementsObjectList) {
+                    final List<Object> elObjectList = response.getHeaders().get(exceptionType.getElementHeaderName());
+                    final List<String> elStringList = new ArrayList<String>();
+                    for (Object elementObject : elObjectList) {
                         if (elementObject instanceof String) {
-                            elementsStringList.add((String) elementObject);
+                            elStringList.add((String) elementObject);
                         }
                     }
-                    clientException.setElements(elementsStringList);
+                    clientException.setElements(elStringList);
                 }
-                compositeException.addException(clientException);
+                compException.addException(clientException);
             }
         }
 
-        exceptionTypesInHeaders.removeAll(handledExceptions);
-        if (!exceptionTypesInHeaders.isEmpty()) {
-            LOG.error("Unmanaged exceptions: " + exceptionTypesInHeaders);
+        exTypesInHeaders.removeAll(handledExceptions);
+        if (!exTypesInHeaders.isEmpty()) {
+            LOG.error("Unmanaged exceptions: " + exTypesInHeaders);
         }
 
-        if (compositeException.hasExceptions()) {
-            return compositeException;
+        if (compException.hasExceptions()) {
+            return compException;
         }
 
         return null;
