@@ -90,12 +90,14 @@ public class LoggerServiceImpl implements LoggerService {
             case NORMAL:
                 loggerController.deleteLog(name);
                 break;
+
             case AUDIT:
                 try {
                     loggerController.disableAudit(AuditLoggerName.fromLoggerName(name));
                 } catch (Exception e) {
                     throw new BadRequestException(e);
                 }
+                break;
 
             default:
                 throw new BadRequestException();

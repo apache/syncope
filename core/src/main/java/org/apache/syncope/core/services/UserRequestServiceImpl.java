@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 public class UserRequestServiceImpl implements UserRequestService, ContextAware {
 
     @Autowired
-    UserRequestController userRequestController;
+    private UserRequestController userRequestController;
 
     private UriInfo uriInfo;
 
