@@ -26,14 +26,17 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.HttpStatus;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
+import org.apache.syncope.client.rest.utils.RestClientExceptionMapper;
 import org.apache.syncope.client.services.proxy.ConfigurationServiceProxy;
 import org.apache.syncope.client.services.proxy.ConnectorServiceProxy;
 import org.apache.syncope.client.services.proxy.EntitlementServiceProxy;
@@ -144,6 +147,9 @@ public abstract class AbstractTest {
     protected UserRequestService userRequestService;
 
     protected PolicyService policyService;
+    
+    @Autowired
+    protected RestClientExceptionMapper clientExceptionMapper;
 
     @Before
     public void setup() throws Exception {
@@ -299,5 +305,18 @@ public abstract class AbstractTest {
     protected UserTO createUser(UserTO userTO) {
         Response response = userService.create(userTO);
         return response.readEntity(UserTO.class);
+    }
+
+    protected void assertCreated(Response response) {
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            StringBuilder builder = new StringBuilder();
+            MultivaluedMap<String, Object> headers = response.getHeaders();
+            builder.append("Headers (");
+            for (String key : headers.keySet()) {
+                builder.append(key + ":" + headers.getFirst(key) + ",");
+            }
+            builder.append(")");
+            throw new RuntimeException("Error on create. Status is : " + response.getStatus() + " with headers " + builder.toString());
+        }
     }
 }

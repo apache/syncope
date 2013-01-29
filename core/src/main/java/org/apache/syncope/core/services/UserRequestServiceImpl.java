@@ -61,7 +61,7 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
             userRequestController.delete(userRequestTO.getUserId());
         }
         URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
-        return Response.created(location).entity(outUserRequestTO).build();
+        return Response.created(location).entity(outUserRequestTO.getId()).build();
     }
 
     @Override
