@@ -152,7 +152,12 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 
         if (ex instanceof javax.ws.rs.BadRequestException) {
-            throw (javax.ws.rs.BadRequestException) ex;
+            if (((javax.ws.rs.BadRequestException) ex).getResponse() != null) {
+                return ((javax.ws.rs.BadRequestException) ex).getResponse();
+            } else {
+                return responseBuilder.build();
+            }
+            
         } else if (ex instanceof InvalidEntityException) {
             SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
                     + ((InvalidEntityException) ex).getEntityClassSimpleName());
