@@ -50,7 +50,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         //Edit user3
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[4]/div/span[8]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[4]/div/span[9]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='testUsername']\");", "30000");
 
@@ -89,7 +89,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[4]/div/span[10]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[4]/div/span[11]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 

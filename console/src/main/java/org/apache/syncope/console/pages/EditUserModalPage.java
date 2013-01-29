@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
@@ -31,7 +30,9 @@ import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -46,6 +47,8 @@ public class EditUserModalPage extends UserModalPage {
 
     private UserTO initialUserTO = null;
 
+    private StatusPanel statusPanel;
+
     public EditUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
         super(callerPageRef, window, userTO, Mode.ADMIN, true);
 
@@ -57,7 +60,10 @@ public class EditUserModalPage extends UserModalPage {
         if (userTO.getId() != 0) {
             final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
-            form.addOrReplace(new StatusPanel("statuspanel", userTO, statuses, false));
+            form.addOrReplace(new Label("pwdChangeInfo", new ResourceModel("pwdChangeInfo")));
+
+            statusPanel = new StatusPanel("statuspanel", userTO, statuses);
+            form.addOrReplace(statusPanel);
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));
         }
@@ -71,6 +77,10 @@ public class EditUserModalPage extends UserModalPage {
             userTO = userRestClient.create(updatedUserTO);
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
+
+            if (statusPanel != null) {
+                userMod.setPwdPropRequest(statusPanel.getPropagationRequestTO());
+            }
 
             // update user just if it is changed
             if (!userMod.isEmpty()) {

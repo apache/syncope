@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
@@ -134,7 +133,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.SEARCH, "Users", "read");
+                }, ActionLink.ActionType.ENABLE, "Users", "update");
 
                 panel.add(new ActionLink() {
 

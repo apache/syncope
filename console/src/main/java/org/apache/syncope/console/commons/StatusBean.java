@@ -19,6 +19,8 @@
 package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public class StatusBean implements Serializable {
 
@@ -29,9 +31,6 @@ public class StatusBean implements Serializable {
     private String accountLink = null;
 
     private StatusUtils.Status status = StatusUtils.Status.OBJECT_NOT_FOUND;
-
-    public StatusBean() {
-    }
 
     public String getAccountLink() {
         return accountLink;
@@ -55,5 +54,10 @@ public class StatusBean implements Serializable {
 
     public void setStatus(final StatusUtils.Status status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

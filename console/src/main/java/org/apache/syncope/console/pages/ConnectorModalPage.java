@@ -278,15 +278,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 properties.clear();
                 version.setEnabled(connectorTO.getBundleName() != null);
                 version.getField().setModelValue(null);
-                List<String> choices = new ArrayList<String>(mapConnBundleTO.get(connectorTO.getBundleName()).keySet());
-                version.setChoices(choices);
-                if (choices.size() == 1) {
-                    connectorTO.setVersion(choices.get(0));
-                    version.getField().setModelObject(choices.get(0));
-                    connectorTO.setDisplayName(displayName.getModelObject());
-                    bundleTO = getSelectedBundleTO(mapConnBundleTO, connectorTO);
-                    properties = fillProperties(bundleTO, connectorTO);
-                }
+                version.setChoices(new ArrayList<String>(mapConnBundleTO.get(connectorTO.getBundleName()).keySet()));
                 target.add(bundleName);
                 target.add(version);
                 target.add(propertiesContainer);

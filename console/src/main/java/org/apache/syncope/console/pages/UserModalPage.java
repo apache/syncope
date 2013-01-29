@@ -107,6 +107,8 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(new UserDetailsPanel("details", userTO, form, resetPassword, mode == Mode.TEMPLATE));
 
         form.add(new Label("statuspanel", ""));
+        
+        form.add(new Label("pwdChangeInfo", ""));
 
         form.add(new Label("accountinformation", ""));
         //--------------------------------

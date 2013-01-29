@@ -19,10 +19,11 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
@@ -41,7 +42,6 @@ import org.apache.wicket.markup.html.form.CheckGroupSelector;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -59,14 +59,10 @@ public class StatusPanel extends Panel {
 
     private final StatusUtils statusUtils;
 
+    private final CheckGroup<StatusBean> checkGroup;
+
     public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
             final List<StatusBean> selectedResources) {
-
-        this(id, attributable, selectedResources, true);
-    }
-
-    public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
-            final List<StatusBean> selectedResources, final boolean enabled) {
 
         super(id);
         statusUtils = new StatusUtils(resourceRestClient,
@@ -92,19 +88,10 @@ public class StatusPanel extends Panel {
 
         statuses.addAll(statusUtils.getRemoteStatuses(attributable));
 
-        final CheckGroup group = new CheckGroup("group", selectedResources);
-        add(group);
+        checkGroup = new CheckGroup<StatusBean>("group", selectedResources);
+        add(checkGroup);
 
-        final Fragment headerCheckFrag;
-
-        if (enabled) {
-            headerCheckFrag = new Fragment("headerCheck", "headerCheckFrag", this);
-            headerCheckFrag.add(new CheckGroupSelector("groupselector", group));
-        } else {
-            headerCheckFrag = new Fragment("headerCheck", "emptyCheckFrag", this);
-        }
-
-        add(headerCheckFrag);
+        add(new CheckGroupSelector("groupselector", checkGroup));
 
         final ListView<StatusBean> resources = new ListView<StatusBean>("resources", statuses) {
 
@@ -155,19 +142,10 @@ public class StatusPanel extends Panel {
                     }
                 });
 
-                final Fragment checkFrag;
-                if (enabled) {
-                    final Check check = new Check("check", item.getModel(), group);
-
-                    check.setEnabled(checkVisibility);
-                    check.setVisible(checkVisibility);
-
-                    checkFrag = new Fragment("rowCheck", "rowCheckFrag", getParent());
-                    checkFrag.add(check);
-                } else {
-                    checkFrag = new Fragment("rowCheck", "emptyCheckFrag", group.getParent());
-                }
-                item.add(checkFrag);
+                final Check check = new Check("check", item.getModel(), checkGroup);
+                check.setEnabled(checkVisibility);
+                check.setVisible(checkVisibility);
+                item.add(check);
 
                 item.add(new Label("resource", new ResourceModel(item.getModelObject().getResourceName(), item
                         .getModelObject().getResourceName())));
@@ -185,6 +163,18 @@ public class StatusPanel extends Panel {
 
         resources.setReuseItems(true);
 
-        group.add(resources);
+        checkGroup.add(resources);
+    }
+
+    public PropagationRequestTO getPropagationRequestTO() {
+        PropagationRequestTO result = null;
+
+        Collection<StatusBean> statusBeans = checkGroup.getModel().getObject();
+        if (statusBeans != null && !statusBeans.isEmpty()) {
+            result = StatusUtils.buildPropagationRequestTO(statusBeans);
+
+        }
+
+        return result;
     }
 }

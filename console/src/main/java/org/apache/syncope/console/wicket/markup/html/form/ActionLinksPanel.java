@@ -49,6 +49,7 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
         super.add(new Fragment("panelRoleTemplate", "emptyFragment", this));
+        super.add(new Fragment("panelEnable", "emptyFragment", this));
         super.add(new Fragment("panelSearch", "emptyFragment", this));
         super.add(new Fragment("panelDelete", "emptyFragment", this));
         super.add(new Fragment("panelExecute", "emptyFragment", this));
@@ -140,6 +141,20 @@ public class ActionLinksPanel extends Panel {
                 fragment = new Fragment("panelRoleTemplate", "fragmentRoleTemplate", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink("roleTemplateLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case ENABLE:
+                fragment = new Fragment("panelEnable", "fragmentEnable", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink("enableLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

@@ -19,19 +19,17 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.StatusUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -112,28 +110,11 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(ResourceService.class).getConnector(resourceName, AttributableType.USER, objectId);
     }
 
-    private PropagationRequestTO getPropagationRequestTO(final List<StatusBean> statuses, final boolean enable) {
-        PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
-
-        for (StatusBean status : statuses) {
-            if ((enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
-
-                if ("Syncope".equals(status.getResourceName())) {
-                    propagationRequestTO.setOnSyncope(true);
-                } else {
-                    propagationRequestTO.addResource(status.getResourceName());
-                }
-            }
-        }
-
-        return propagationRequestTO;
-    }
-
     public UserTO suspend(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).suspend(userId, getPropagationRequestTO(statuses, false));
+        return getService(UserService.class).suspend(userId, StatusUtils.buildPropagationRequestTO(statuses));
     }
 
     public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).reactivate(userId, getPropagationRequestTO(statuses, true));
+        return getService(UserService.class).reactivate(userId, StatusUtils.buildPropagationRequestTO(statuses));
     }
 }

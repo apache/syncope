@@ -21,15 +21,16 @@ package org.apache.syncope.console.commons;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -213,5 +214,19 @@ public class StatusUtils implements Serializable {
         }
 
         return accountId;
+    }
+
+    public static PropagationRequestTO buildPropagationRequestTO(final Collection<StatusBean> statuses) {
+        PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
+
+        for (StatusBean status : statuses) {
+            if ("Syncope".equals(status.getResourceName())) {
+                propagationRequestTO.setOnSyncope(true);
+            } else {
+                propagationRequestTO.addResource(status.getResourceName());
+            }
+        }
+
+        return propagationRequestTO;
     }
 }
