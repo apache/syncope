@@ -22,22 +22,17 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.rest.UserRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -110,43 +105,37 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         editProfileModalWin.setCookieName("edit-profile-modal");
         add(editProfileModalWin);
 
-        add(new Label("username", SyncopeSession.get().getUserId()));
+        final AjaxLink editProfileLink = new AjaxLink("editProfileLink") {
 
-        Fragment editProfileFrag;
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                final UserTO userTO = SyncopeSession.get().isAuthenticated()
+                        ? userRestClient.readProfile()
+                        : new UserTO();
+
+                editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new UserRequestModalPage(BasePage.this.getPageReference(), editProfileModalWin,
+                                userTO, UserModalPage.Mode.SELF);
+                    }
+                });
+
+                editProfileModalWin.show(target);
+            }
+        };
+
+        editProfileLink.add(new Label("username", SyncopeSession.get().getUserId()));
+
         if ("admin".equals(SyncopeSession.get().getUserId())) {
-            editProfileFrag = new Fragment("editProfile", "adminEmptyFrag", this);
-        } else {
-            final UserTO userTO = SyncopeSession.get().isAuthenticated()
-                    ? userRestClient.readProfile()
-                    : new UserTO();
-
-            editProfileFrag = new Fragment("editProfile", "editProfileFrag", this);
-
-            final AjaxLink editProfileLink = new IndicatingAjaxLink("link") {
-
-                private static final long serialVersionUID = -7978723352517770644L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                        @Override
-                        public Page createPage() {
-                            return new UserRequestModalPage(BasePage.this.getPageReference(), editProfileModalWin,
-                                    userTO, UserModalPage.Mode.SELF);
-                        }
-                    });
-
-                    editProfileModalWin.show(target);
-                }
-            };
-            editProfileLink.add(new Label("linkTitle", getString("editProfile")));
-
-            Panel panel = new LinkPanel("editProfile", new ResourceModel("editProfile"));
-            panel.add(editProfileLink);
-            editProfileFrag.add(panel);
+            editProfileLink.setEnabled(false);
         }
-        add(editProfileFrag);
+
+        add(editProfileLink);
     }
 
     @Override
