@@ -121,8 +121,8 @@ under the License.
         </li>
         <li style="float:right;width:auto;text-align:right;">
           <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /></a>
-          <div>
-            <span id="username" wicket:id="username" style="padding-right: 18px;cursor: pointer;"/>
+          <div style="display: table-row;">
+            <div id="username" wicket:id="username" style="padding-right: 5px;width: 100px;cursor: pointer;display: table-cell;"/>
             <span wicket:id="editProfile"/>
 
             <wicket:fragment wicket:id="adminEmptyFrag"/>
@@ -131,15 +131,12 @@ under the License.
               <span id="editProfile" wicket:id="editProfile" 
                     style="cursor: pointer;background-color: #446633;padding-left: 9px;padding-right: 9px;"/>
             </wicket:fragment>
-            <div style="margin-top: -13px;">
-              <div wicket:id="modal"/>
-              <a wicket:id="versionLink"><img src="img/info.png" alt="info" width="4%"/></a>
+            <div>
+              <div wicket:id="infoModal"/>
+              <a wicket:id="infoLink" style="vertical-align: middle;"><img src="img/info.png" alt="info" style="padding-right: 10px;"/></a>
             </div>
           </div>
         </li>
-        <!--        <li style="position: absolute; left: -33px; top: 84px;">
-                  
-                </li>-->
       </ul>
       <div wicket:id="editProfileModal" ></div>
     </div>

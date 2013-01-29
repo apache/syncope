@@ -60,7 +60,7 @@ under the License.
   </bean>
   
   <bean id="site" class="java.lang.String">
-    <constructor-arg value="${syncopeUrl}"/>
+    <constructor-arg value="${project.parent.url}"/>
   </bean>
   
   <bean id="license" class="java.lang.String">

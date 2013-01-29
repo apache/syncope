@@ -88,11 +88,11 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
     public void setupNavigationPanel(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel,
             final String version) {
 
-        final ModalWindow modal;
-        page.add(modal = new ModalWindow("modal"));
-        modal.setInitialWidth(580);
-        modal.setInitialHeight(285);
-        modal.setPageCreator(new ModalWindow.PageCreator() {
+        final ModalWindow infoModal = new ModalWindow("infoModal");
+        page.add(infoModal);
+        infoModal.setInitialWidth(580);
+        infoModal.setInitialHeight(285);
+        infoModal.setPageCreator(new ModalWindow.PageCreator() {
 
             private static final long serialVersionUID = -7834632442532690940L;
 
@@ -102,20 +102,16 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
             }
         });
 
-        final AjaxLink versionLink = new IndicatingAjaxLink("versionLink") {
+        final AjaxLink infoLink = new AjaxLink("infoLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-
-                modal.show(target);
+                infoModal.show(target);
             }
         };
-
-        MetaDataRoleAuthorizationStrategy.authorize(versionLink, Component.ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "read"));
-        page.add(versionLink);
+        page.add(infoLink);
 
         BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorizeAll(schemaLink, WebPage.ENABLE);
