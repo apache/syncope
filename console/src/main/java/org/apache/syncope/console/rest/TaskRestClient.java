@@ -22,14 +22,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
+import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.types.TaskType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
@@ -47,25 +53,25 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @return list of classes.
      */
     public List<String> getJobClasses() {
-        List<String> jobClasses = null;
+        List<JobClassTO> jobClasses = null;
 
         try {
-            jobClasses = new ArrayList<String>(getService(TaskService.class).getJobClasses());
+            jobClasses = new ArrayList<JobClassTO>(getService(TaskService.class).getJobClasses());
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job classes", e);
         }
-        return jobClasses;
+        return CollectionWrapper.unwrapJobClasses(jobClasses);
     }
 
     public List<String> getSyncActionsClasses() {
-        List<String> actions = null;
+        List<SyncActionClassTO> actions = null;
 
         try {
-            actions = new ArrayList<String>(getService(TaskService.class).getSyncActionsClasses());
+            actions = new ArrayList<SyncActionClassTO>(getService(TaskService.class).getSyncActionsClasses());
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all sync actions classes", e);
         }
-        return actions;
+        return CollectionWrapper.unwrapSyncActionClasses(actions);
     }
 
     /**
@@ -85,9 +91,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param size per page.
      * @return paginated list.
      */
+    @SuppressWarnings("unchecked")
     public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
         List<T> result = Collections.emptyList();
-        result = getService(TaskService.class).list(getTaskType(reference), page, size);
+        result = (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size);
         return result;
     }
 
@@ -135,8 +142,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      *
      * @param taskId task to delete
      */
-    public TaskTO delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
-        return getService(TaskService.class).delete(getTaskType(taskToClass), taskId);
+    public void delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
+        getService(TaskService.class).delete(taskId);
     }
 
     @Override
@@ -164,18 +171,24 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
-        return getService(TaskService.class).create(taskTO);
+        Response response = getService(TaskService.class).create(taskTO);
+        Long id = Long.valueOf(response.getHeaderString(SyncopeConstants.REST_HEADER_ID));
+        return getService(TaskService.class).read(TaskType.SYNCHRONIZATION, id);
     }
 
     public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
-        return getService(TaskService.class).create(taskTO);
+        Response response = getService(TaskService.class).create(taskTO);
+        Long id = Long.valueOf(response.getHeaderString(SyncopeConstants.REST_HEADER_ID));
+        return getService(TaskService.class).read(TaskType.SCHEDULED, id);
     }
 
     public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
-        return getService(TaskService.class).update(taskTO.getId(), taskTO);
+        getService(TaskService.class).update(taskTO.getId(), taskTO);
+        return getService(TaskService.class).read(TaskType.SCHEDULED, taskTO.getId());
     }
 
     public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
-        return getService(TaskService.class).update(taskTO.getId(), taskTO);
+        getService(TaskService.class).update(taskTO.getId(), taskTO);
+        return getService(TaskService.class).read(TaskType.SYNCHRONIZATION, taskTO.getId());
     }
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.common.services;
 
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -29,7 +30,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 
+import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -43,15 +47,15 @@ public interface TaskService {
     int count(@PathParam("type") TaskType taskType);
 
     @POST
-    <T extends TaskTO> T create(T taskTO);
+    Response create(TaskTO taskTO);
 
     @DELETE
-    @Path("{type}/{taskId}")
-    <T extends TaskTO> T delete(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
+    @Path("{taskId}")
+    void delete(@PathParam("taskId") Long taskId);
 
     @DELETE
     @Path("executions/{executionId}")
-    TaskExecTO deleteExecution(@PathParam("executionId") Long executionId);
+    void deleteExecution(@PathParam("executionId") Long executionId);
 
     @POST
     @Path("{taskId}/execute")
@@ -60,19 +64,19 @@ public interface TaskService {
 
     @GET
     @Path("jobClasses")
-    Set<String> getJobClasses();
+    Set<JobClassTO> getJobClasses();
 
     @GET
     @Path("syncActionsClasses")
-    Set<String> getSyncActionsClasses();
+    Set<SyncActionClassTO> getSyncActionsClasses();
+
+    @GET
+    @Path("{type}/list") //TODO '/list' path will be removed once CXF/JAX-B bug is solved
+    List<? extends TaskTO> list(@PathParam("type") TaskType taskType);
 
     @GET
     @Path("{type}")
-    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType);
-
-    @GET
-    @Path("{type}")
-    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
+    List<? extends TaskTO> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
             @QueryParam("size") @DefaultValue("25") int size);
 
     @GET
@@ -81,6 +85,7 @@ public interface TaskService {
 
     @GET
     @Path("{type}/{taskId}")
+    //TODO TaskType will be removed once CXF migration is done
     <T extends TaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
 
     @GET
@@ -95,5 +100,5 @@ public interface TaskService {
 
     @PUT
     @Path("{taskId}")
-    <T extends TaskTO> T update(@PathParam("taskId") Long taskId, T taskTO);
+    void update(@PathParam("taskId") Long taskId, TaskTO taskTO);
 }
