@@ -33,8 +33,8 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>12</version>
-    <relativePath />
+    <version>13</version>
+    <relativePath/>
   </parent>
 
   <url>http://syncope.apache.org/</url>
