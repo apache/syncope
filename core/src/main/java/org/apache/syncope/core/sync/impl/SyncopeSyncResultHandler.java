@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
@@ -351,7 +352,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             AttributeCond.Type type;
             String expression = null;
 
-            if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
+            if (value == null || value.getValue() == null || value.getValue().isEmpty()
+                    || (value.getValue().size() == 1 && value.getValue().get(0) == null)) {
                 type = AttributeCond.Type.ISNULL;
             } else {
                 type = AttributeCond.Type.EQ;
@@ -505,7 +507,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 }
                 if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
-                    AttributeTO roleOwner = subjectTO.getAttributeMap().get("");
+                    AttributeTO roleOwner = subjectTO.getAttributeMap().get(StringUtils.EMPTY);
                     if (roleOwner != null) {
                         roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
                     }
@@ -597,7 +599,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                             WorkflowResult<Long> updated = rwfAdapter.update((RoleMod) mod);
                             String roleOwner = null;
                             for (AttributeMod attrMod : mod.getAttributesToBeUpdated()) {
-                                if ("".equals(attrMod.getSchema())) {
+                                if (attrMod.getSchema().isEmpty()) {
                                     roleOwner = attrMod.getValuesToBeAdded().iterator().next();
                                 }
                             }

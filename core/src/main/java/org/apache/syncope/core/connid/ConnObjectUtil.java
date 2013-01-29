@@ -248,6 +248,7 @@ public class ConnObjectUtil {
                 case Username:
                     if (attributableTO instanceof UserTO) {
                         ((UserTO) attributableTO).setUsername(attribute == null || attribute.getValue().isEmpty()
+                                || attribute.getValue().get(0) == null
                                 ? null
                                 : attribute.getValue().get(0).toString());
                     }
@@ -256,18 +257,23 @@ public class ConnObjectUtil {
                 case RoleName:
                     if (attributableTO instanceof RoleTO) {
                         ((RoleTO) attributableTO).setName(attribute == null || attribute.getValue().isEmpty()
+                                || attribute.getValue().get(0) == null
                                 ? null
                                 : attribute.getValue().get(0).toString());
                     }
                     break;
 
                 case RoleOwnerSchema:
-                    if (attributableTO instanceof RoleTO && attribute != null && !attribute.getValue().isEmpty()) {
+                    if (attributableTO instanceof RoleTO && attribute != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
                         // RoleOwnerSchema value
                         attributeTO = new AttributeTO();
-                        attributeTO.setSchema("");
-                        attributeTO.addValue(attribute.getValue().get(0).toString());
+                        attributeTO.setSchema(StringUtils.EMPTY);
+                        if (attribute.getValue().isEmpty() || attribute.getValue().get(0) == null) {
+                            attributeTO.addValue(StringUtils.EMPTY);
+                        } else {
+                            attributeTO.addValue(attribute.getValue().get(0).toString());
+                        }
 
                         ((RoleTO) attributableTO).addAttribute(attributeTO);
                     }
@@ -282,7 +288,9 @@ public class ConnObjectUtil {
                             ? Collections.emptyList()
                             : attribute.getValue()) {
 
-                        attributeTO.addValue(value.toString());
+                        if (value != null) {
+                            attributeTO.addValue(value.toString());
+                        }
                     }
 
                     attributableTO.addAttribute(attributeTO);
@@ -304,7 +312,9 @@ public class ConnObjectUtil {
                             ? Collections.emptyList()
                             : attribute.getValue()) {
 
-                        attributeTO.addValue(value.toString());
+                        if (value != null) {
+                            attributeTO.addValue(value.toString());
+                        }
                     }
 
                     attributableTO.addVirtualAttribute(attributeTO);
