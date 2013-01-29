@@ -217,13 +217,24 @@ public class StatusUtils implements Serializable {
     }
 
     public static PropagationRequestTO buildPropagationRequestTO(final Collection<StatusBean> statuses) {
+        return buildPropagationRequestTO(statuses, null);
+    }
+
+    public static PropagationRequestTO buildPropagationRequestTO(final Collection<StatusBean> statuses,
+            final Boolean enable) {
+
         PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
 
         for (StatusBean status : statuses) {
-            if ("Syncope".equals(status.getResourceName())) {
-                propagationRequestTO.setOnSyncope(true);
-            } else {
-                propagationRequestTO.addResource(status.getResourceName());
+            if (enable == null
+                    || (enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
+
+                if ("Syncope".equals(status.getResourceName())) {
+                    propagationRequestTO.setOnSyncope(true);
+                } else {
+                    propagationRequestTO.addResource(status.getResourceName());
+                }
+
             }
         }
 

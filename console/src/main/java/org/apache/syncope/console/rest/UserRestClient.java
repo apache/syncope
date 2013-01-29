@@ -111,10 +111,10 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public UserTO suspend(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).suspend(userId, StatusUtils.buildPropagationRequestTO(statuses));
+        return getService(UserService.class).suspend(userId, StatusUtils.buildPropagationRequestTO(statuses, false));
     }
 
     public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).reactivate(userId, StatusUtils.buildPropagationRequestTO(statuses));
+        return getService(UserService.class).reactivate(userId, StatusUtils.buildPropagationRequestTO(statuses, true));
     }
 }
