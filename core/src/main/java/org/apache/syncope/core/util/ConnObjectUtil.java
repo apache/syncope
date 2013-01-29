@@ -152,7 +152,8 @@ public class ConnObjectUtil {
                     break;
 
                 case Username:
-                    userTO.setUsername(attribute == null || attribute.getValue().isEmpty()
+                    userTO.setUsername(
+                            attribute == null || attribute.getValue().isEmpty() || attribute.getValue().get(0) == null
                             ? null
                             : attribute.getValue().get(0).toString());
                     break;
@@ -164,7 +165,9 @@ public class ConnObjectUtil {
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
-                        attributeTO.addValue(value.toString());
+                        if (value != null) {
+                            attributeTO.addValue(value.toString());
+                        }
                     }
 
                     userTO.addAttribute(attributeTO);
@@ -183,7 +186,9 @@ public class ConnObjectUtil {
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
-                        attributeTO.addValue(value.toString());
+                        if (value != null) {
+                            attributeTO.addValue(value.toString());
+                        }
                     }
 
                     userTO.addVirtualAttribute(attributeTO);
@@ -244,6 +249,7 @@ public class ConnObjectUtil {
 
         if (pwd instanceof GuardedString) {
             ((GuardedString) pwd).access(new GuardedString.Accessor() {
+
                 @Override
                 public void access(final char[] clearChars) {
                     result.append(clearChars);
@@ -251,6 +257,7 @@ public class ConnObjectUtil {
             });
         } else if (pwd instanceof GuardedByteArray) {
             ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
+
                 @Override
                 public void access(final byte[] clearBytes) {
                     result.append(new String(clearBytes));
@@ -407,7 +414,7 @@ public class ConnObjectUtil {
             if (StringUtils.isNotBlank(evaluated)) {
                 result.addValue(evaluated);
             }
-        }   
+        }
 
         return result;
     }

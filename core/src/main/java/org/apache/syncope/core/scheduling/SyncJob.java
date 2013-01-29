@@ -207,7 +207,8 @@ public class SyncJob extends AbstractTaskJob {
                 AttributeCond.Type type;
                 String expression = null;
 
-                if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
+                if (value == null || value.getValue() == null || value.getValue().isEmpty()
+                        || (value.getValue().size() == 1 && value.getValue().get(0) == null)) {
                     type = AttributeCond.Type.ISNULL;
                 } else {
                     type = AttributeCond.Type.EQ;
