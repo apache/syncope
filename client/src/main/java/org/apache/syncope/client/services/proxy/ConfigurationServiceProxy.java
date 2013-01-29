@@ -19,14 +19,18 @@
 package org.apache.syncope.client.services.proxy;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
@@ -42,10 +46,19 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public Response create(final ConfigurationTO configurationTO) {
-        ConfigurationTO created = getRestTemplate().postForObject(baseUrl + "configuration/create",
-                configurationTO, ConfigurationTO.class);
-        URI location = URI.create(baseUrl + "configuration/read/" + created.getKey() + ".json");
-        return Response.created(location).build();
+        ConfigurationTO created = getRestTemplate().postForObject(baseUrl + "configuration/create", configurationTO,
+                ConfigurationTO.class);
+        try {
+            URI location = URI.create(baseUrl
+                    + "configuration/read/"
+                    + URLEncoder.encode(created.getKey(), SyncopeConstants.DEFAULT_ENCODING)
+                    + ".json");
+            return Response.created(location)
+                    .header(SyncopeConstants.REST_HEADER_ID, created.getKey())
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            throw new InternalServerErrorException(e);
+        }
     }
 
     @Override
@@ -66,8 +79,7 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public void update(final String key, final ConfigurationTO configurationTO) {
-        getRestTemplate().postForObject(baseUrl + "configuration/update", configurationTO,
-                ConfigurationTO.class);
+        getRestTemplate().postForObject(baseUrl + "configuration/update", configurationTO, ConfigurationTO.class);
     }
 
     @Override

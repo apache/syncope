@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerivedSchemaTO;
@@ -44,8 +48,18 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
             final T schemaTO) {
         AbstractSchemaTO schema = getRestTemplate().postForObject(baseUrl + type.toSpringURL() + "/{kind}/create",
                 schemaTO, getTOClass(type), kind);
-        return Response.created(
-                URI.create(baseUrl + type.toSpringURL() + "/" + kind + "/read/" + schema.getName() + ".json")).build();
+
+        try {
+            URI location = URI.create(baseUrl
+                    + type.toSpringURL() + "/" + kind + "/read/"
+                    + URLEncoder.encode(schema.getName(), SyncopeConstants.DEFAULT_ENCODING)
+                    + ".json");
+            return Response.created(location)
+                    .header(SyncopeConstants.REST_HEADER_ID, schema.getName())
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            throw new InternalServerErrorException(e);
+        }
     }
 
     @Override
@@ -87,7 +101,8 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
     public <T extends AbstractSchemaTO> void update(final AttributableType kind, final SchemaType type,
             final String schemaName, final T schemaTO) {
 
-        getRestTemplate().postForObject(baseUrl + type.toSpringURL() + "/{kind}/update", schemaTO, getTOClass(type), kind);
+        getRestTemplate().postForObject(baseUrl + type.toSpringURL() + "/{kind}/update", schemaTO, getTOClass(type),
+                kind);
     }
 
     private Class<? extends AbstractSchemaTO> getTOClass(final SchemaType type) {

@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.client.services.proxy;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
@@ -45,7 +49,17 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
         ResourceTO resource = getRestTemplate().postForObject(baseUrl + "resource/create.json", resourceTO,
                 ResourceTO.class);
 
-        return Response.created(URI.create(baseUrl + "resource/read/" + resource.getName() + ".json")).build();
+        try {
+            URI location = URI.create(baseUrl
+                    + "resource/read/"
+                    + URLEncoder.encode(resource.getName(), SyncopeConstants.DEFAULT_ENCODING)
+                    + ".json");
+            return Response.created(location)
+                    .header(SyncopeConstants.REST_HEADER_ID, resource.getName())
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            throw new InternalServerErrorException(e);
+        }
     }
 
     @Override

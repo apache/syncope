@@ -36,34 +36,34 @@ public class NotificationServiceProxy extends SpringServiceProxy implements Noti
     }
 
     @Override
-    public NotificationTO read(final Long notificationId) {
-        return getRestTemplate().getForObject(baseUrl + "notification/read/{notificationId}.json",
-                NotificationTO.class, notificationId);
-    }
-
-    @Override
-    public List<NotificationTO> list() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "notification/list.json",
-                NotificationTO[].class));
-    }
-
-    @Override
     public Response create(final NotificationTO notificationTO) {
-        NotificationTO notification = getRestTemplate().postForObject(baseUrl + "notification/create.json", notificationTO,
-                NotificationTO.class);
+        NotificationTO notification = getRestTemplate().postForObject(baseUrl + "notification/create.json",
+                notificationTO, NotificationTO.class);
         URI location = URI.create(baseUrl + "notification/read/" + notification.getId() + ".json");
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, notification.getId()).build();
-    }
-
-    @Override
-    public NotificationTO update(final Long notificationId, final NotificationTO notificationTO) {
-        return getRestTemplate().postForObject(baseUrl + "notification/update.json", notificationTO,
-                NotificationTO.class);
     }
 
     @Override
     public NotificationTO delete(final Long notificationId) {
         return getRestTemplate().getForObject(baseUrl + "notification/delete/{notificationId}.json",
                 NotificationTO.class, notificationId);
+    }
+
+    @Override
+    public List<NotificationTO> list() {
+        return Arrays
+                .asList(getRestTemplate().getForObject(baseUrl + "notification/list.json", NotificationTO[].class));
+    }
+
+    @Override
+    public NotificationTO read(final Long notificationId) {
+        return getRestTemplate().getForObject(baseUrl + "notification/read/{notificationId}.json",
+                NotificationTO.class, notificationId);
+    }
+
+    @Override
+    public NotificationTO update(final Long notificationId, final NotificationTO notificationTO) {
+        return getRestTemplate().postForObject(baseUrl + "notification/update.json", notificationTO,
+                NotificationTO.class);
     }
 }

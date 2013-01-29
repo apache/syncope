@@ -38,4 +38,6 @@ public class SyncopeConstants {
      */
     public static final String REST_HEADER_ID = "org.apache.syncope.id";
 
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
 }
