@@ -17,20 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 <wicket:extend>
-  <div style="text-align: center;">
-    <form wicket:id="searchForm">
-      <span wicket:id="searchPanel">searchPanel</span>
+  <div style="padding: 5px;">
+    <div>
+      <form wicket:id="searchForm">
+        <span wicket:id="searchPanel">searchPanel</span>
 
-      <br/>
-      <a wicket:id="search"
-         class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-button-search">
-        <img src="img/search.png" alt="search"/>
-        <wicket:message key="search"/>
-      </a>
-    </form>
-  </div>
+        <br/>
+        <a wicket:id="search"
+           class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+          <img src="img/search.png" alt="search"/>
+          <wicket:message key="search"/>
+        </a>
+      </form>
+    </div>
 
-  <div id="users-contain" class="ui-widget" style="width:auto">
-    <span wicket:id="searchResult"> [search result] </span>
+    <div id="users-contain" class="ui-widget" style="width:auto">
+      <span wicket:id="searchResult"> [search result] </span>
+    </div>
   </div>
 </wicket:extend>
