@@ -47,7 +47,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
-    ReportTO createReport(final ReportTO report) {
+    public ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
         return getObject(response, ReportTO.class, reportService);
     }

@@ -22,8 +22,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Response;
 

@@ -77,7 +77,9 @@ public interface RoleService {
     @Path("search/count")
     int searchCount(NodeCond searchCondition);
 
-    RoleTO selfRead(Long roleId);
+    @GET
+    @Path("{roleId}/own")
+    RoleTO selfRead(@PathParam("roleId") Long roleId);
 
     @POST
     @Path("{roleId}")
