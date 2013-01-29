@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
+import java.text.ParseException;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
@@ -74,7 +75,9 @@ public class LoggerServiceImpl implements LoggerService {
             case AUDIT:
                 try {
                     loggerController.enableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (Exception e) {
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException(e);
+                } catch (ParseException e) {
                     throw new BadRequestException(e);
                 }
                 break;
@@ -94,7 +97,9 @@ public class LoggerServiceImpl implements LoggerService {
             case AUDIT:
                 try {
                     loggerController.disableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (Exception e) {
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException(e);
+                } catch (ParseException e) {
                     throw new BadRequestException(e);
                 }
                 break;

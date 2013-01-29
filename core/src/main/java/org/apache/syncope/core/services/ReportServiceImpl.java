@@ -40,12 +40,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl implements ReportService, ContextAware {
+
     @Autowired
-    ReportController reportController;
-    
+    private ReportController reportController;
+
     @Autowired
     private ReportDAO reportDAO;
-    
+
     private UriInfo uriInfo;
 
     @Override
@@ -100,6 +101,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
         return Response.ok(new StreamingOutput() {
+            @Override
             public void write(final OutputStream os) throws IOException {
                 reportController.exportExecutionResultInternal(os, reportExec, format);
             }

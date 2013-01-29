@@ -21,10 +21,7 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -41,24 +38,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService, ContextAware {
+
     @Autowired
-    UserController userController;
-    
+    private UserController userController;
+
     private UriInfo uriInfo;
 
     @Override
-    public UserTO activate(final @PathParam("userId") long userId, final String token) {
+    public UserTO activate(final long userId, final String token) {
         return userController.activate(userId, token);
     }
 
     @Override
-    public UserTO activate(final long userId, final String token,
-            final PropagationRequestTO propagationRequestTO) {
+    public UserTO activate(final long userId, final String token, final PropagationRequestTO propagationRequestTO) {
         return userController.activate(userId, token, propagationRequestTO);
     }
 
     @Override
-    public UserTO activateByUsername(final String username, final @MatrixParam("token") String token) {
+    public UserTO activateByUsername(final String username, final String token) {
         return userController.activate(username, token);
     }
 
@@ -133,8 +130,7 @@ public class UserServiceImpl implements UserService, ContextAware {
     }
 
     @Override
-    public UserTO reactivateByUsername(final String username,
-            PropagationRequestTO propagationRequestTO) {
+    public UserTO reactivateByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
         return userController.reactivate(username, propagationRequestTO);
     }
 
@@ -204,9 +200,7 @@ public class UserServiceImpl implements UserService, ContextAware {
     }
 
     @Override
-    @Context
     public void setUriInfo(final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
-
 }
