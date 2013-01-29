@@ -129,8 +129,7 @@ public class ResourceModalPage extends BaseModalPage {
                         ((Resources) pageref.getPage()).setModalResult(true);
                         window.close(target);
                     } catch (Exception e) {
-                        LOG.error("Failure managing resource {}", resourceTO);
-                        LOG.error("Resource Management Exception:", e);
+                        LOG.error("Failure managing resource {}", resourceTO, e);
                         error(new ResourceModel("error", "error").getObject() + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
