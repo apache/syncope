@@ -139,7 +139,7 @@ public class UserController {
     public ModelAndView count() {
         return new ModelAndView().addObject(countInternal());
     }
-    
+
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int countInternal() {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -285,7 +285,7 @@ public class UserController {
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
-    
+
     public UserTO createInternal(final UserTO userTO) {
         LOG.debug("User create called with {}", userTO);
 
@@ -337,35 +337,39 @@ public class UserController {
         WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
         // 2. propagate password update only to requested resources
-        List<PropagationTask> tasks;
+        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
         if (userMod.getPwdPropRequest() == null) {
             // 2a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
                     userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
         } else {
-            // 2b. generate the propagation task list in two phases: first the ones containing password, 
+            // 2b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
             final PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(updated.getPropByRes());
-            SyncopeUser user = dataBinder.getUserFromId(updated.getResult().getKey());
-            origPropByRes.addAll(ResourceOperation.UPDATE, user.getResourceNames());
-            origPropByRes.purge();
 
+            Set<String> pwdResourceNames = userMod.getPwdPropRequest().getResources();
+            SyncopeUser user = dataBinder.getUserFromId(updated.getResult().getKey());
+            pwdResourceNames.retainAll(user.getResourceNames());
             final PropagationByResource pwdPropByRes = new PropagationByResource();
-            pwdPropByRes.merge(origPropByRes);
-            pwdPropByRes.retainAll(userMod.getPwdPropRequest().getResources());
+            pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
             updated.setPropByRes(pwdPropByRes);
 
-            tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
-                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
+            if (!pwdPropByRes.isEmpty()) {
+                tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, changedPwd,
+                        userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+            }
 
             final PropagationByResource nonPwdPropByRes = new PropagationByResource();
             nonPwdPropByRes.merge(origPropByRes);
-            nonPwdPropByRes.removeAll(userMod.getPwdPropRequest().getResources());
+            nonPwdPropByRes.removeAll(pwdResourceNames);
+            nonPwdPropByRes.purge();
             updated.setPropByRes(nonPwdPropByRes);
 
-            tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, null,
-                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+            if (!nonPwdPropByRes.isEmpty()) {
+                tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, null,
+                        userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+            }
 
             updated.setPropByRes(origPropByRes);
         }

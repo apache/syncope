@@ -1916,10 +1916,15 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.update(userMod.getId(), userMod);
 
-        // 3a. verify that password hasn't changed on Syncope
+        // 3a. Chech that only a single propagation took place
+        assertNotNull(userTO.getPropagationStatusTOs());
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertEquals("resource-testdb", userTO.getPropagationStatusTOs().iterator().next().getResource());
+        
+        // 3b. verify that password hasn't changed on Syncope
         assertEquals(pwdOnSyncope, userTO.getPassword());
 
-        // 3b. verify that password *has* changed on testdb
+        // 3c. verify that password *has* changed on testdb
         userOnDb = resourceService.getConnector("resource-testdb", AttributableType.USER, userTO.getUsername());
         final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
@@ -1927,7 +1932,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
         assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().iterator().next());
 
-        // 3c. verify that password hasn't changed on testdb2
+        // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = resourceService.getConnector("resource-testdb2", AttributableType.USER, userTO.getUsername());
         final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
