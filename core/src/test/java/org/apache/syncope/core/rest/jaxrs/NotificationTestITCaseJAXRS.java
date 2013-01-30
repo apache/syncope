@@ -24,8 +24,9 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class NotificationTestITCaseJAXRS extends NotificationTestITCase {
-    
+
     public NotificationTestITCaseJAXRS() {
-       setEnabledCXF(true);
+        super();
+        setEnabledCXF(true);
     }
 }

@@ -24,8 +24,9 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserRequestTestITCaseJAXRS extends UserRequestTestITCase {
-    
+
     public UserRequestTestITCaseJAXRS() {
-       setEnabledCXF(true);
+        super();
+        setEnabledCXF(true);
     }
 }

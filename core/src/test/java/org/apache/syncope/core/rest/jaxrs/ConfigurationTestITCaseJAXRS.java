@@ -24,8 +24,9 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCaseJAXRS extends ConfigurationTestITCase {
-    
+
     public ConfigurationTestITCaseJAXRS() {
-       setEnabledCXF(true);
+        super();
+        setEnabledCXF(true);
     }
 }
