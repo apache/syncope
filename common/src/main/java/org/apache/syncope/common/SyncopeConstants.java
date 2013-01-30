@@ -36,7 +36,7 @@ public class SyncopeConstants {
      * to an object after its creation. HTTP Response after PUT operation should contain this
      * key with resource id as its value.
      */
-    public static final String REST_HEADER_ID = "org.apache.syncope.id";
+    public static final String REST_HEADER_ID = "org.apache.syncope.resource.id";
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 

@@ -36,33 +36,63 @@ import org.apache.syncope.common.to.ValidatorTO;
 @Path("configurations")
 public interface ConfigurationService {
 
+    /**
+     * Creates a new configuration element.
+     *
+     * @param configurationTO Configuration to be stored.
+     * @return Response containing URI location for created resource.
+     */
     @POST
     Response create(ConfigurationTO configurationTO);
 
+    /**
+     * @return Returns configuration as an downloadable content.xml database export file.
+     */
     @GET
     @Path("dbDump")
     Response dbExport();
 
+    /**
+     * @param key Deletes configuration with matching key.
+     */
     @DELETE
     @Path("{key}")
     void delete(@PathParam("key") String key);
 
+    /**
+     * @return Returns a list of known mail-template names.
+     */
     @GET
     @Path("mailTemplates")
     Set<MailTemplateTO> getMailTemplates();
 
+    /**
+     * @return Returns a list of known validator names.
+     */
     @GET
     @Path("validators")
     Set<ValidatorTO> getValidators();
 
+    /**
+     * @return Returns a list of all configuration elements.
+     */
     @GET
     List<ConfigurationTO> list();
 
+    /**
+     * @param key Identifier of configuration to be read.
+     * @return Returns configuration element with matching key.
+     */
     @GET
     @Path("{key}")
     ConfigurationTO read(@PathParam("key") String key);
 
+    /**
+     * @param key Overwrites configuration element with matching key.
+     * @param configurationTO New configuration
+     */
     @PUT
     @Path("{key}")
     void update(@PathParam("key") String key, ConfigurationTO configurationTO);
+
 }

@@ -100,7 +100,7 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
     }
 
     @Override
-    public boolean validate(final ConnInstanceTO connectorTO) {
+    public boolean check(final ConnInstanceTO connectorTO) {
         return (Boolean) connectorController.check(new DummyHTTPServletResponse(), connectorTO).getModel().values()
                 .iterator().next();
     }

@@ -159,7 +159,7 @@ public class ConnectorRestClient extends BaseRestClient {
         connector.setConfiguration(filterProperties(connector.getConfiguration()));
 
         try {
-            return getService(ConnectorService.class).validate(connectorTO);
+            return getService(ConnectorService.class).check(connectorTO);
         } catch (Exception e) {
             LOG.error("Connector not found {}", connector, e);
             return false;

@@ -506,7 +506,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
-        Boolean verify = connectorService.validate(connectorTO);
+        Boolean verify = connectorService.check(connectorTO);
 
         assertTrue(verify);
 
@@ -514,7 +514,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         password.setValues(Collections.singletonList("password"));
         conf.add(password);
 
-        verify = connectorService.validate(connectorTO);
+        verify = connectorService.check(connectorTO);
 
         assertFalse(verify);
     }
@@ -594,7 +594,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         try {
 
-            assertFalse(connectorService.validate(connectorTO));
+            assertFalse(connectorService.check(connectorTO));
 
             Response response = connectorService.create(connectorTO);
             if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {

@@ -106,7 +106,7 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public boolean validate(final ConnInstanceTO connectorTO) {
+    public boolean check(final ConnInstanceTO connectorTO) {
         return getRestTemplate().postForObject(baseUrl + "connector/check.json", connectorTO, Boolean.class);
     }
 
