@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
@@ -40,6 +41,8 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
@@ -70,12 +73,17 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public void delete(final Long taskId) {
+        ClientHttpResponse response = null;
         try {
-            getRestTemplate().getRequestFactory()
-                    .createRequest(URI.create(baseUrl + "task/delete/" + taskId), HttpMethod.GET).execute();
+            ClientHttpRequest request = getRestTemplate().getRequestFactory().createRequest(
+                    URI.create(baseUrl + "task/delete/" + taskId), HttpMethod.GET);
+            response = request.execute();
         } catch (IOException e) {
-            // TODO log event
-            e.printStackTrace();
+            throw new WebServiceException("Cannot send request to delete task " + taskId, e);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
@@ -170,7 +178,7 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public TaskExecTO readExecution(final Long executionId) {
-        return getRestTemplate().getForObject(baseUrl + "task/execution/read/{taskId}.json", TaskExecTO.class,
+        return getRestTemplate().getForObject(baseUrl + "task/execution/read/{executionId}.json", TaskExecTO.class,
                 executionId);
     }
 

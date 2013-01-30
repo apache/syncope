@@ -202,7 +202,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    @Ignore
     public void deal() {
         try {
             taskService.delete(0L);
