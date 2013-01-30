@@ -236,9 +236,6 @@ public class Resources extends BasePage {
 
         final Form paginatorForm = new Form("resourcePaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
-                "Resources", "list"));
-
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "resourcePaginatorRows"), prefMan.getPaginatorChoices());
 

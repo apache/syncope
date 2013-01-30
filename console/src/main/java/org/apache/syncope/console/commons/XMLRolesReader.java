@@ -60,7 +60,7 @@ public class XMLRolesReader {
     }
 
     /**
-     * Get all roles allowed for specific page and actio requested.
+     * Get all roles allowed for specific page and action requested.
      *
      * @param pageId
      * @param actionId
