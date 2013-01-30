@@ -59,7 +59,7 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
         } else if (userRequestTO.getType() == UserRequestType.UPDATE) {
             outUserRequestTO = userRequestController.update(userRequestTO.getUserMod());
         } else if (userRequestTO.getType() == UserRequestType.DELETE) {
-            userRequestController.delete(userRequestTO.getUserId());
+            outUserRequestTO = userRequestController.delete(userRequestTO.getUserId());
         }
         URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
         return Response.created(location)
