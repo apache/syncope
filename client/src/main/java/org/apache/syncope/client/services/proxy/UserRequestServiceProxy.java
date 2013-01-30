@@ -22,6 +22,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.core.Response;
+
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.springframework.web.client.RestTemplate;
@@ -39,7 +41,7 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public boolean isCreateAllowed() {
-        return getRestTemplate().getForObject(baseUrl + "user/request/create/allowed", Boolean.class);
+        return getRestTemplate().getForObject(baseUrl + "user/request/create/allowed.json", Boolean.class);
     }
 
     @Override
@@ -62,24 +64,24 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
                         UserRequestTO.class);
         }
 
-        URI location = URI.create(baseUrl + "user/request/read/" + created.getId());
-        return Response.created(location).entity(created.getId()).build();
+        URI location = URI.create(baseUrl + "user/request/read/" + created.getId() + ".json");
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).build();
     }
 
     @Override
     public List<UserRequestTO> list() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "user/request/list", UserRequestTO[].class));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "user/request/list.json", UserRequestTO[].class));
     }
 
     @Override
     public UserRequestTO read(final Long requestId) {
         return getRestTemplate().getForObject(
-                baseUrl + "user/request/read/{requestId}", UserRequestTO.class, requestId);
+                baseUrl + "user/request/read/{requestId}.json", UserRequestTO.class, requestId);
     }
 
     @Override
     public void delete(final Long requestId) {
         getRestTemplate().getForObject(
-                baseUrl + "user/request/deleteRequest/{requestId}", UserRequestTO.class, requestId);
+                baseUrl + "user/request/deleteRequest/{requestId}.json", UserRequestTO.class, requestId);
     }
 }

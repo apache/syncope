@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -53,7 +54,9 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = reportController.createInternal(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdReportTO.getId()).build();
-        return Response.created(location).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId())
+                .build();
     }
 
     @Override

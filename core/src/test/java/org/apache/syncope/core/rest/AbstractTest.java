@@ -47,6 +47,7 @@ import org.apache.syncope.client.services.proxy.ReportServiceProxy;
 import org.apache.syncope.client.services.proxy.ResourceServiceProxy;
 import org.apache.syncope.client.services.proxy.RoleServiceProxy;
 import org.apache.syncope.client.services.proxy.SchemaServiceProxy;
+import org.apache.syncope.client.services.proxy.SpringServiceProxy;
 import org.apache.syncope.client.services.proxy.TaskServiceProxy;
 import org.apache.syncope.client.services.proxy.UserRequestServiceProxy;
 import org.apache.syncope.client.services.proxy.UserServiceProxy;
@@ -147,21 +148,21 @@ public abstract class AbstractTest {
     protected UserRequestService userRequestService;
 
     protected PolicyService policyService;
-    
+
     @Autowired
     protected RestClientExceptionMapper clientExceptionMapper;
 
     @Before
     public void setup() throws Exception {
-        if (!enabledCXF) {
-            resetRestTemplate();
-        } else {
+        if (enabledCXF) {
             setupCXFServices();
+        } else {
+            resetRestTemplate();
         }
     }
 
     // BEGIN Spring MVC Initialization
-    protected void setupRestTemplate(final String uid, final String pwd) {
+    private void setupRestTemplate(final String uid, final String pwd) {
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate
                 .getRequestFactory());
 
@@ -169,7 +170,7 @@ public abstract class AbstractTest {
                 requestFactory.getAuthScope(), new UsernamePasswordCredentials(uid, pwd));
     }
 
-    protected RestTemplate anonymousRestTemplate() {
+    private RestTemplate getAnonymousRestTemplate() {
         RestTemplate template = new RestTemplate(httpClientFactory);
         List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
         converters.add(mappingJacksonHttpMessageConverter);
@@ -254,6 +255,26 @@ public abstract class AbstractTest {
 
     // END CXF Initialization
 
+    @SuppressWarnings("unchecked")
+    public <T> T setupCredentials(final T proxy, final String username, final String password) {
+        if (proxy instanceof SpringServiceProxy) {
+            SpringServiceProxy service = (SpringServiceProxy) proxy;
+            if (username == null && password == null) {
+                service.setRestTemplate(getAnonymousRestTemplate());
+            } else {
+                setupRestTemplate(username, password);
+            }
+            return proxy;
+        } else {
+            restClientFactory.setUsername(username);
+            restClientFactory.setPassword(password);
+            restClientFactory.setServiceClass(proxy.getClass());
+            T serviceProxy = (T) restClientFactory.create(proxy.getClass());
+            setupContentType(WebClient.client(serviceProxy));
+            return serviceProxy;
+        }
+    }
+
     public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
         assertNotNull(response);
         assertNotNull(response.getLocation());
@@ -301,13 +322,13 @@ public abstract class AbstractTest {
         attr.addValueToBeAdded(valueToBeAdded);
         return attr;
     }
-    
-    protected UserTO createUser(UserTO userTO) {
+
+    protected UserTO createUser(final UserTO userTO) {
         Response response = userService.create(userTO);
         return response.readEntity(UserTO.class);
     }
 
-    protected void assertCreated(Response response) {
+    protected void assertCreated(final Response response) {
         if (response.getStatus() != HttpStatus.SC_CREATED) {
             StringBuilder builder = new StringBuilder();
             MultivaluedMap<String, Object> headers = response.getHeaders();
@@ -316,7 +337,8 @@ public abstract class AbstractTest {
                 builder.append(key + ":" + headers.getFirst(key) + ",");
             }
             builder.append(")");
-            throw new RuntimeException("Error on create. Status is : " + response.getStatus() + " with headers " + builder.toString());
+            throw new RuntimeException("Error on create. Status is : " + response.getStatus() + " with headers "
+                    + builder.toString());
         }
     }
 }

@@ -31,12 +31,12 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -62,14 +62,12 @@ public class UserRequestTestITCase extends AbstractTest {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfcreate@syncope.apache.org");
 
         // 2. get unauthorized when trying to request user create
-        SyncopeClientException exception = null;
         try {
             createUserRequest(new UserRequestTO(userTO));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
         }
-        assertNotNull(exception);
 
         // 3. set create request allowed
         configurationTO.setValue("true");
@@ -81,12 +79,12 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works
-        UserRequestTO request = anonymousRestTemplate().postForObject(BASE_URL + "user/request/create",
-                userTO, UserRequestTO.class);
-        assertNotNull(request);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, null, null);
+        response = userRequestService2.create(new UserRequestTO(userTO));
+        UserRequestTO request = getObject(response, UserRequestTO.class, userRequestService2);
 
         // 5. switch back to admin
-        super.resetRestTemplate();
+        super.resetRestTemplate(); // TODO remove after CXF migration is complete
 
         // 6. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
@@ -115,26 +113,27 @@ public class UserRequestTestITCase extends AbstractTest {
         userMod.setPassword(initialPassword);
 
         // 2. try to request user update as admin: failure
-        SyncopeClientException exception = null;
         try {
             createUserRequest(new UserRequestTO(userMod));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
         }
-        assertNotNull(exception);
 
         // 3. auth as user just created
-        super.setupRestTemplate(userTO.getUsername(), initialPassword);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, userTO.getUsername(),
+                initialPassword);
 
         // 4. update with same password: not matching password policy
-        exception = null;
         try {
-            createUserRequest(new UserRequestTO(userMod));
+            Response response = userRequestService2.create(new UserRequestTO(userMod));
+            if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+                throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+            }
+            fail();
         } catch (SyncopeClientCompositeErrorException scce) {
-            exception = scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser);
+            assertNotNull(scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser));
         }
-        assertNotNull(exception);
 
         // 5. now request user update works
         userMod.setPassword("new" + initialPassword);
@@ -167,20 +166,21 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 2. try to request user delete as admin: failure
-        SyncopeClientException exception = null;
         try {
             createUserRequest(new UserRequestTO(userTO.getId()));
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
         }
-        assertNotNull(exception);
 
         // 3. auth as user just created
-        super.setupRestTemplate(userTO.getUsername(), initialPassword);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, userTO.getUsername(),
+                initialPassword);
 
         // 4. now request user delete works
-        createUserRequest(new UserRequestTO(userTO.getId()));
+        Response response = userRequestService2.create(new UserRequestTO(userTO.getId()));
+        assertNotNull(response);
+        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
 
         // 5. switch back to admin
         super.resetRestTemplate();
@@ -201,11 +201,11 @@ public class UserRequestTestITCase extends AbstractTest {
         }
     }
 
-    private Long createUserRequest(UserRequestTO userRequestTO) throws RuntimeException {
+    private UserRequestTO createUserRequest(final UserRequestTO userRequestTO) {
         Response response = userRequestService.create(userRequestTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            throw (RuntimeException)clientExceptionMapper.fromResponse(response);
+            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
         }
-        return (Long) response.readEntity(Long.class);
+        return getObject(response, UserRequestTO.class, userRequestService);
     }
 }

@@ -79,7 +79,9 @@ public class UserServiceImpl implements UserService, ContextAware {
     public Response create(final UserTO userTO) {
         UserTO created = userController.createInternal(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, created.getId())
+                .entity(created)
                 .build();
     }
 

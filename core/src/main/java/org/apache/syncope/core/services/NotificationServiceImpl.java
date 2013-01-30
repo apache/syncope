@@ -24,6 +24,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.core.rest.controller.NotificationController;
@@ -42,7 +43,9 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     public Response create(final NotificationTO notificationTO) {
         NotificationTO createdNotificationTO = notificationController.createInternal(notificationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
-        return Response.created(location).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, createdNotificationTO.getId())
+                .build();
     }
 
     @Override

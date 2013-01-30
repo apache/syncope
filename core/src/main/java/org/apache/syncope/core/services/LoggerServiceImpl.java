@@ -40,6 +40,29 @@ public class LoggerServiceImpl implements LoggerService {
     private LoggerController loggerController;
 
     @Override
+    public void delete(final LoggerType type, final String name) {
+        switch (type) {
+            case NORMAL:
+                loggerController.deleteLog(name);
+                break;
+
+            case AUDIT:
+                try {
+                    loggerController.disableAudit(AuditLoggerName.fromLoggerName(name));
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException(e);
+                } catch (ParseException e) {
+                    throw new BadRequestException(e);
+                }
+                break;
+
+            default:
+                throw new BadRequestException();
+        }
+
+    }
+
+    @Override
     public List<LoggerTO> list(final LoggerType type) {
         switch (type) {
             case NORMAL:
@@ -85,29 +108,6 @@ public class LoggerServiceImpl implements LoggerService {
             default:
                 throw new BadRequestException();
         }
-    }
-
-    @Override
-    public void delete(final LoggerType type, final String name) {
-        switch (type) {
-            case NORMAL:
-                loggerController.deleteLog(name);
-                break;
-
-            case AUDIT:
-                try {
-                    loggerController.disableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (IllegalArgumentException e) {
-                    throw new BadRequestException(e);
-                } catch (ParseException e) {
-                    throw new BadRequestException(e);
-                }
-                break;
-
-            default:
-                throw new BadRequestException();
-        }
-
     }
 
 }

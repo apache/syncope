@@ -31,6 +31,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -196,24 +197,21 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(userTO.getMembershipMap().containsKey(1L));
         assertFalse(userTO.getMembershipMap().containsKey(3L));
 
-        super.setupRestTemplate("user1", "password");
+        RoleService roleService2 = setupCredentials(roleService, "user1", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
-            roleService.selfRead(3L);
+            roleService2.selfRead(3L);
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
         }
         assertNotNull(exception);
 
-        RoleTO roleTO = roleService.selfRead(1L);
+        RoleTO roleTO = roleService2.selfRead(1L);
         assertNotNull(roleTO);
         assertNotNull(roleTO.getAttributes());
         assertFalse(roleTO.getAttributes().isEmpty());
-
-        // restore admin authentication
-        super.resetRestTemplate();
     }
 
     @Test
@@ -305,10 +303,10 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setName("Managing Director");
 
         // 3. try to update as user3, not owner of role 7 - fail
-        setupRestTemplate("user2", "password");
+        RoleService roleService2 = setupCredentials(roleService, "user2", ADMIN_PWD);
 
         try {
-            roleService.update(roleMod.getId(), roleMod);
+            roleService2.update(roleMod.getId(), roleMod);
             fail();
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
@@ -316,13 +314,10 @@ public class RoleTestITCase extends AbstractTest {
 
         // 4. update as user5, owner of role 7 because owner of role 6 with
         // inheritance - success
-        super.setupRestTemplate("user5", ADMIN_PWD);
+        RoleService roleService3 = setupCredentials(roleService, "user5", ADMIN_PWD);
 
-        roleTO = roleService.update(roleMod.getId(), roleMod);
+        roleTO = roleService3.update(roleMod.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());
-
-        // restore admin authentication
-        super.resetRestTemplate();
     }
 
     /**

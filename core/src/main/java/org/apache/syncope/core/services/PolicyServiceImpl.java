@@ -64,7 +64,9 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
                 throw new BadRequestException();
         }
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, policy.getId())
+                .build();
     }
 
     @Override

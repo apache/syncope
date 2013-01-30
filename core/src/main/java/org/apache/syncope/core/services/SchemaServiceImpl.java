@@ -76,7 +76,9 @@ public class SchemaServiceImpl implements SchemaService, ContextAware {
                 throw new BadRequestException();
         }
         URI location = uriInfo.getAbsolutePathBuilder().path(response.getName()).build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, response.getName()).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, response.getName())
+                .build();
     }
 
     @Override

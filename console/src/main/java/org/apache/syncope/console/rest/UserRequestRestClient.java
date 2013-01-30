@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
@@ -42,27 +43,24 @@ public class UserRequestRestClient extends BaseRestClient {
         getService(UserRequestService.class).delete(requestId);
     }
 
-    public UserRequestTO requestCreate(final UserTO userTO) {
+    public void requestCreate(final UserTO userTO) {
         UserRequestTO userRequestTO = new UserRequestTO();
         userRequestTO.setType(UserRequestType.CREATE);
         userRequestTO.setUserTO(userTO);
-        Response response = getService(UserRequestService.class).create(userRequestTO);
-        return getService(UserRequestService.class).read((Long) response.getEntity());
+        getService(UserRequestService.class).create(userRequestTO);
     }
 
-    public UserRequestTO requestUpdate(final UserMod userMod) {
+    public void requestUpdate(final UserMod userMod) {
         UserRequestTO userRequestTO = new UserRequestTO();
         userRequestTO.setType(UserRequestType.UPDATE);
         userRequestTO.setUserMod(userMod);
-        Response response = getService(UserRequestService.class).create(userRequestTO);
-        return getService(UserRequestService.class).read((Long) response.getEntity());
+        getService(UserRequestService.class).create(userRequestTO);
     }
 
-    public UserRequestTO requestDelete(final Long userId) {
+    public void requestDelete(final Long userId) {
         UserRequestTO userRequestTO = new UserRequestTO();
         userRequestTO.setType(UserRequestType.DELETE);
         userRequestTO.setUserId(userId);
-        Response response = getService(UserRequestService.class).create(userRequestTO);
-        return getService(UserRequestService.class).read((Long) response.getEntity());
+        getService(UserRequestService.class).create(userRequestTO);
     }
 }

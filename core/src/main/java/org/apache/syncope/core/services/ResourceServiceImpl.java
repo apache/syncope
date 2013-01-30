@@ -48,7 +48,9 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
     public Response create(final ResourceTO resourceTO) {
         ResourceTO resource = resourceController.create(new DummyHTTPServletResponse(), resourceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, resource.getName()).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, resource.getName())
+                .build();
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.types.UserRequestType;
@@ -61,7 +62,9 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
             userRequestController.delete(userRequestTO.getUserId());
         }
         URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
-        return Response.created(location).entity(outUserRequestTO.getId()).build();
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, outUserRequestTO.getId())
+                .build();
     }
 
     @Override

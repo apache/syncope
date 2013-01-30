@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.MembershipTO;
@@ -52,7 +53,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
-    
+
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
@@ -109,15 +110,15 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        SchemaService schemaService2 = setupCredentials(schemaService, userTO.getUsername(), "password123");
 
-        schemaTO = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "authTestSchema");
+        schemaTO = schemaService2.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "authTestSchema");
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         HttpClientErrorException exception = null;
         try {
-            schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
+            schemaService2.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
         } catch (HttpClientErrorException e) {
             exception = e;
         }
@@ -149,20 +150,19 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        UserTO readUserTO = userService.read(1L);
+        UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        super.setupRestTemplate("user2", "password");
+        UserService userService3 = setupCredentials(userService, "user2", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
-            userService.read(1L);
+            userService3.read(1L);
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e
-                    .getException(SyncopeClientExceptionType.UnauthorizedRole);
+            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
         }
         assertNotNull(exception);
 
@@ -185,14 +185,13 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        AttributeCond isNullCond = new AttributeCond(
-                AttributeCond.Type.ISNOTNULL);
+        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
         NodeCond searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        List<UserTO> matchedUsers = userService.search(searchCondition);
+        List<UserTO> matchedUsers = userService2.search(searchCondition);
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
         Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
@@ -201,9 +200,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        super.setupRestTemplate("user2", "password");
+        UserService userService3 = setupCredentials(userService, "user2", "password");
 
-        matchedUsers = userService.search(searchCondition);
+        matchedUsers = userService3.search(searchCondition);
 
         assertNotNull(matchedUsers);
 
@@ -233,9 +232,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        UserTO readUserTO = userService.read(userTO.getId());
+        UserTO readUserTO = userService2.read(userTO.getId());
 
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
@@ -243,12 +242,12 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
             assertNotNull(readUserTO);
         } catch (Exception e) {
             t = e;
@@ -258,7 +257,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
             assertNotNull(readUserTO);
         } catch (Exception e) {
             t = e;
@@ -272,9 +271,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService userService4 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        readUserTO = userService.read(userTO.getId());
+        readUserTO = userService4.read(userTO.getId());
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
@@ -295,9 +294,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        userTO = userService.read(userTO.getId());
+        userTO = userService2.read(userTO.getId());
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
@@ -305,12 +304,12 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
             fail();
         } catch (Exception e) {
             t = e;
@@ -320,7 +319,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -329,7 +328,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         t = null;
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -347,10 +346,11 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
 
         // last authentication before suspension
-        super.setupRestTemplate(userTO.getUsername(), "wrongpwd1");
+        // TODO remove after CXF migration is complete
+        userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
 
         try {
-            userService.read(userTO.getId());
+            userService3.read(userTO.getId());
         } catch (Exception e) {
             t = e;
         }
@@ -369,11 +369,11 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         // check for authentication
-
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        // TODO remove after CXF migration is complete
+        userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
         try {
-            userService.read(userTO.getId());
+            userService2.read(userTO.getId());
             assertNotNull(userTO);
         } catch (Exception e) {
             t = e;
@@ -390,9 +390,10 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        super.setupRestTemplate(userTO.getUsername(), "password123");
+        // TODO remove after CXF migration is complete
+        userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
 
-        userTO = userService.read(userTO.getId());
+        userTO = userService2.read(userTO.getId());
 
         assertNotNull(userTO);
         assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
@@ -430,7 +431,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
-        super.setupRestTemplate(role1Admin.getUsername(), "password");
+        UserService userService2 = setupCredentials(userService, role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");
@@ -438,10 +439,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(1L);
         role1User.addMembership(membershipTO);
 
-        role1User = createUser(role1User);
+        response = userService2.create(role1User);
+        assertNotNull(response);
+        role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);
-
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
     }
 }

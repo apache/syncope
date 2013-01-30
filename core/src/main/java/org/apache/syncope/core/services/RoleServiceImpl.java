@@ -56,7 +56,9 @@ public class RoleServiceImpl implements RoleService, ContextAware {
     public Response create(final RoleTO roleTO) {
         RoleTO created = roleController.create(new DummyHTTPServletResponse(), roleTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
+        return Response.created(location)
+                .header(SyncopeConstants.REST_HEADER_ID, created.getId())
+                .entity(created)
                 .build();
     }
 

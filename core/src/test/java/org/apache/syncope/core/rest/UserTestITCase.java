@@ -38,6 +38,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -106,16 +107,16 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        super.setupRestTemplate("user1", ADMIN_PWD);
+        UserService userService2 = setupCredentials(userService, "user1", ADMIN_PWD);
 
         try {
-            userService.read(1L);
+            userService2.read(1L);
             fail();
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
         }
 
-        UserTO userTO = userService.readSelf();
+        UserTO userTO = userService2.readSelf();
         assertEquals("user1", userTO.getUsername());
     }
 
@@ -585,20 +586,19 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
-        super.setupRestTemplate("user1", ADMIN_PWD);
+        UserService userService2 = setupCredentials(userService, "user1", ADMIN_PWD);
 
-        SyncopeClientException sce = null;
         try {
-            userService.claimForm(form.getTaskId());
+            userService2.claimForm(form.getTaskId());
+            fail();
         } catch (SyncopeClientCompositeErrorException scce) {
-            sce = scce.getException(SyncopeClientExceptionType.Workflow);
+            assertNotNull(scce.getException(SyncopeClientExceptionType.Workflow));
         }
-        assertNotNull(sce);
 
         // 4. claim task from user4, in role 7
-        super.setupRestTemplate("user4", ADMIN_PWD);
+        UserService userService3 = setupCredentials(userService, "user4", ADMIN_PWD);
 
-        form = userService.claimForm(form.getTaskId());
+        form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNotNull(form.getOwner());
@@ -608,7 +608,7 @@ public class UserTestITCase extends AbstractTest {
         props.get("approve").setValue(Boolean.FALSE.toString());
         props.get("rejectReason").setValue("I don't like him.");
         form.setProperties(props.values());
-        userTO = userService.submitForm(form);
+        userTO = userService3.submitForm(form);
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
 
@@ -1931,7 +1931,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO.getPropagationStatusTOs());
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertEquals("resource-testdb", userTO.getPropagationStatusTOs().iterator().next().getResource());
-        
+
         // 3b. verify that password hasn't changed on Syncope
         assertEquals(pwdOnSyncope, userTO.getPassword());
 
