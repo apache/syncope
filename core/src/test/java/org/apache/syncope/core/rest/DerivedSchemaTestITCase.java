@@ -63,7 +63,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.DERIVED, schema);
+        Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.DERIVED, schema);
         DerivedSchemaTO actual = getObject(response, DerivedSchemaTO.class, schemaService);
         assertNotNull(actual);
 
@@ -89,7 +89,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         } finally {
             // Recreate schema to make test re-runnable
-            Response response = schemaService.create(AttributableType.ROLE, SchemaService.SchemaType.DERIVED, schema);
+            Response response = createSchema(AttributableType.ROLE, SchemaService.SchemaType.DERIVED, schema);
             assertNotNull(response);
             assertEquals(HttpStatus.SC_CREATED, response.getStatus());
         }

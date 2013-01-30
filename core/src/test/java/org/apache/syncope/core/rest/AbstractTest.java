@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -67,8 +68,11 @@ import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.services.SchemaService.SchemaType;
+import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -340,5 +344,17 @@ public abstract class AbstractTest {
             throw new RuntimeException("Error on create. Status is : " + response.getStatus() + " with headers "
                     + builder.toString());
         }
+    }
+    
+    <T extends AbstractSchemaTO> Response createSchema(@PathParam("kind") AttributableType kind,
+            @PathParam("type") SchemaType type, T schemaTO) {
+        Response response = schemaService.create(kind, type, schemaTO);
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            Exception ex = clientExceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return response;
     }
 }

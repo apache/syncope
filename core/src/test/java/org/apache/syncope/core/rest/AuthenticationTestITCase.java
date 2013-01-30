@@ -88,7 +88,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
-        response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);
         assertEquals(schemaTO, newSchemaTO);
 

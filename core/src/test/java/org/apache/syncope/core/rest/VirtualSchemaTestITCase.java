@@ -59,7 +59,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        Response response = schemaService.create(AttributableType.USER, SchemaService.SchemaType.VIRTUAL, schema);
+        Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.VIRTUAL, schema);
         VirtualSchemaTO actual = getObject(response, VirtualSchemaTO.class, schemaService);
         assertNotNull(actual);
 
