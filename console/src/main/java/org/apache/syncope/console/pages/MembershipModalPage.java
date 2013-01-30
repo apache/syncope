@@ -53,7 +53,6 @@ public class MembershipModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-
                 userTO.removeMembership(membershipTO);
                 userTO.addMembership(membershipTO);
 

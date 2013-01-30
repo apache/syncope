@@ -18,23 +18,19 @@
  */
 package org.apache.syncope.console.commons;
 
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.syncope.common.to.RoleTO;
 
-public class SelectChoiceRenderer<T> implements IChoiceRenderer<T> {
+public class RoleUtils {
 
-    private static final long serialVersionUID = -3242441544405909243L;
-
-    @Override
-    public Object getDisplayValue(T obj) {
-        if (obj instanceof SelectOption) {
-            return ((SelectOption) obj).getDisplayValue();
-        } else {
-            return obj.toString();
+    public static RoleTO findRole(final RoleTreeBuilder roleTreeBuilder, final long roleId) {
+        RoleTO found = null;
+        if (roleTreeBuilder.getAllRoles() != null) {
+            for (RoleTO roleTO : roleTreeBuilder.getAllRoles()) {
+                if (roleTO.getId() == roleId) {
+                    found = roleTO;
+                }
+            }
         }
-    }
-
-    @Override
-    public String getIdValue(T obj, int i) {
-        return obj.toString();
+        return found;
     }
 }

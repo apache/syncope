@@ -20,7 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -34,14 +33,13 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
     final Palette<T> palette;
 
     public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices) {
-
         this(id, model, choices, false);
     }
 
     public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
             final boolean allowOrder) {
 
-        this(id, model, choices, new SelectChoiceRenderer(), allowOrder);
+        this(id, model, choices, new SelectChoiceRenderer<T>(), allowOrder);
     }
 
     public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
@@ -54,14 +52,14 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
         setOutputMarkupId(true);
     }
 
-    private Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
+    protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
             final IChoiceRenderer<T> renderer, final boolean allowOrder) {
 
         return new Palette("paletteField", model, choices, renderer, 8, allowOrder);
     }
 
     @Override
-    public AbstractFieldPanel setModelObject(Serializable object) {
+    public AbstractFieldPanel setModelObject(final Serializable object) {
         palette.setDefaultModelObject(object);
         return this;
     }

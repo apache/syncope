@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,8 @@ public class RoleTreeBuilder {
     private RoleRestClient restClient;
 
     private final RoleTOComparator comparator = new RoleTOComparator();
+
+    private List<RoleTO> allRoles;
 
     private List<RoleTO> getChildRoles(final long parentRoleId, final List<RoleTO> roles) {
         List<RoleTO> result = new ArrayList<RoleTO>();
@@ -62,8 +62,13 @@ public class RoleTreeBuilder {
         }
     }
 
+    public List<RoleTO> getAllRoles() {
+        return this.allRoles;
+    }
+
     public TreeModel build() {
-        return build(restClient.list());
+        this.allRoles = this.restClient.list();
+        return build(this.allRoles);
     }
 
     public TreeModel build(final List<RoleTO> roles) {

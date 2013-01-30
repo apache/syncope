@@ -20,7 +20,9 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
@@ -59,7 +61,11 @@ public class StatusPanel extends Panel {
 
     private final StatusUtils statusUtils;
 
+    private final Map<String, StatusBean> initialStatusBeanMap;
+
     private final CheckGroup<StatusBean> checkGroup;
+
+    private final ListView<StatusBean> statusBeansListView;
 
     public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
             final List<StatusBean> selectedResources) {
@@ -68,7 +74,7 @@ public class StatusPanel extends Panel {
         statusUtils = new StatusUtils(resourceRestClient,
                 (attributable instanceof UserTO ? userRestClient : roleRestClient));
 
-        final List<StatusBean> statuses = new ArrayList<StatusBean>();
+        final List<StatusBean> statusBeans = new ArrayList<StatusBean>();
 
         final StatusBean syncope = new StatusBean();
         syncope.setResourceName("Syncope");
@@ -84,16 +90,30 @@ public class StatusPanel extends Panel {
             syncope.setAccountLink(roleTO.getDisplayName());
             syncope.setStatus(Status.ACTIVE);
         }
-        statuses.add(syncope);
 
-        statuses.addAll(statusUtils.getRemoteStatuses(attributable));
+        statusBeans.add(syncope);
+        statusBeans.addAll(statusUtils.getRemoteStatuses(attributable));
 
-        checkGroup = new CheckGroup<StatusBean>("group", selectedResources);
+        initialStatusBeanMap = new HashMap<String, StatusBean>(statusBeans.size());
+        for (StatusBean statusBean : statusBeans) {
+            initialStatusBeanMap.put(statusBean.getResourceName(), statusBean);
+        }
+
+        checkGroup = new CheckGroup<StatusBean>("group", selectedResources) {
+
+            private static final long serialVersionUID = 4085912362037539780L;
+
+            @Override
+            protected boolean wantOnSelectionChangedNotifications() {
+                return true;
+            }
+        };
+        checkGroup.setOutputMarkupId(true);
         add(checkGroup);
 
         add(new CheckGroupSelector("groupselector", checkGroup));
 
-        final ListView<StatusBean> resources = new ListView<StatusBean>("resources", statuses) {
+        statusBeansListView = new ListView<StatusBean>("resources", statusBeans) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -104,6 +124,12 @@ public class StatusPanel extends Panel {
                 boolean checkVisibility = true;
 
                 switch (item.getModelObject().getStatus()) {
+
+                    case NOT_YET_SUBMITTED:
+                        image = new Image("icon", "../statuses/undefined.png");
+                        alt = "undefined icon";
+                        title = "Not yet submitted";
+                        break;
 
                     case ACTIVE:
                         image = new Image("icon", "../statuses/active.png");
@@ -142,7 +168,7 @@ public class StatusPanel extends Panel {
                     }
                 });
 
-                final Check check = new Check("check", item.getModel(), checkGroup);
+                final Check<StatusBean> check = new Check<StatusBean>("check", item.getModel(), checkGroup);
                 check.setEnabled(checkVisibility);
                 check.setVisible(checkVisibility);
                 item.add(check);
@@ -160,10 +186,8 @@ public class StatusPanel extends Panel {
                 item.add(image);
             }
         };
-
-        resources.setReuseItems(true);
-
-        checkGroup.add(resources);
+        statusBeansListView.setReuseItems(true);
+        checkGroup.add(statusBeansListView);
     }
 
     public PropagationRequestTO getPropagationRequestTO() {
@@ -176,5 +200,27 @@ public class StatusPanel extends Panel {
         }
 
         return result;
+    }
+
+    public List<StatusBean> getStatusBeans() {
+        return statusBeansListView.getModelObject();
+    }
+
+    public Map<String, StatusBean> getInitialStatusBeanMap() {
+        return initialStatusBeanMap;
+    }
+
+    public void updateStatusBeans(final List<StatusBean> statusBeans) {
+        statusBeansListView.removeAll();
+        statusBeansListView.getModelObject().clear();
+        statusBeansListView.getModelObject().addAll(statusBeans);
+
+        for (StatusBean statusBean : statusBeans) {
+            if (!checkGroup.getModelObject().contains(statusBean)
+                    && statusBean.getStatus() == StatusUtils.Status.NOT_YET_SUBMITTED) {
+
+                checkGroup.getModelObject().add(statusBean);
+            }
+        }
     }
 }

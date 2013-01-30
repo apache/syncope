@@ -23,6 +23,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -35,8 +36,10 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,7 @@ public class StatusUtils implements Serializable {
 
     public enum Status {
 
+        NOT_YET_SUBMITTED,
         CREATED,
         ACTIVE,
         SUSPENDED,
@@ -182,14 +186,14 @@ public class StatusUtils implements Serializable {
     private String getAccountLink(final ConnObjectTO objectTO) {
         final String NAME = "__NAME__";
 
-        final Map<String, AttributeTO> attributeTOs = objectTO != null
-                ? objectTO.getAttributeMap()
-                : Collections.EMPTY_MAP;
+        final Map<String, AttributeTO> attributeTOs = objectTO == null
+                ? Collections.<String, AttributeTO>emptyMap()
+                : objectTO.getAttributeMap();
 
         final AttributeTO name = attributeTOs.get(NAME);
 
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
-                ? (String) name.getValues().get(0)
+                ? name.getValues().get(0)
                 : null;
     }
 
@@ -239,5 +243,38 @@ public class StatusUtils implements Serializable {
         }
 
         return propagationRequestTO;
+    }
+
+    public static void update(final StatusPanel statusPanel, final AjaxRequestTarget target,
+            final Collection<String> resourcesToAdd, final Collection<String> resourcesToRemove) {
+
+        if (statusPanel != null) {
+            Map<String, StatusBean> statusMap = new LinkedHashMap<String, StatusBean>();
+            for (StatusBean statusBean : statusPanel.getStatusBeans()) {
+                statusMap.put(statusBean.getResourceName(), statusBean);
+            }
+
+            for (String resource : resourcesToAdd) {
+                if (!statusMap.keySet().contains(resource)) {
+                    StatusBean statusBean;
+                    if (statusPanel.getInitialStatusBeanMap().containsKey(resource)) {
+                        statusBean = statusPanel.getInitialStatusBeanMap().get(resource);
+                    } else {
+                        statusBean = new StatusBean();
+                        statusBean.setResourceName(resource);
+                        statusBean.setStatus(StatusUtils.Status.NOT_YET_SUBMITTED);
+                    }
+
+                    statusMap.put(statusBean.getResourceName(), statusBean);
+                }
+            }
+
+            for (String resource : resourcesToRemove) {
+                statusMap.remove(resource);
+            }
+
+            statusPanel.updateStatusBeans(new ArrayList<StatusBean>(statusMap.values()));
+            target.add(statusPanel);
+        }
     }
 }

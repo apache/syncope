@@ -19,12 +19,13 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
+import org.apache.syncope.console.pages.panels.MembershipsPanel;
+import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
@@ -58,14 +59,17 @@ public class EditUserModalPage extends UserModalPage {
 
         // add resource assignment details in case of update
         if (userTO.getId() != 0) {
-            final List<StatusBean> statuses = new ArrayList<StatusBean>();
-
             form.addOrReplace(new Label("pwdChangeInfo", new ResourceModel("pwdChangeInfo")));
 
-            statusPanel = new StatusPanel("statuspanel", userTO, statuses);
+            statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>());
+            statusPanel.setOutputMarkupId(true);
             form.addOrReplace(statusPanel);
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));
+
+            form.addOrReplace(new ResourcesPanel("resources", userTO, statusPanel));
+
+            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel));
         }
     }
 

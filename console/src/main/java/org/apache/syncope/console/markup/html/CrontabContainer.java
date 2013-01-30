@@ -19,7 +19,6 @@
 package org.apache.syncope.console.markup.html;
 
 import java.util.Arrays;
-
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.commons.SelectOption;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,12 +40,13 @@ public class CrontabContainer extends WebMarkupContainer {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(CrontabContainer.class);
 
-    private static final SelectOption[] CRON_TEMPLATES = new SelectOption[] {
-            new SelectOption("Unschedule", "UNSCHEDULE"), new SelectOption("Every 5 minutes", "0 0/5 * * * ?"),
-            new SelectOption("Fire at 12pm (noon) every day", "0 0 12 * * ?"),
-            new SelectOption("Fire at 12am (midnight) every first day of the month", "0 0 0 1 * ?"),
-            new SelectOption("Fire at 12am (midnight) every last day of the month", "0 0 0 L * ?"),
-            new SelectOption("Fire at 12am (midnight) every Monday", "0 0 0 ? * 2") };
+    private static final SelectOption[] CRON_TEMPLATES = {
+        new SelectOption("Unschedule", "UNSCHEDULE"), new SelectOption("Every 5 minutes", "0 0/5 * * * ?"),
+        new SelectOption("Fire at 12pm (noon) every day", "0 0 12 * * ?"),
+        new SelectOption("Fire at 12am (midnight) every first day of the month", "0 0 0 1 * ?"),
+        new SelectOption("Fire at 12am (midnight) every last day of the month", "0 0 0 L * ?"),
+        new SelectOption("Fire at 12am (midnight) every Monday", "0 0 0 ? * 2")
+    };
 
     private static final long serialVersionUID = 7879593326085337650L;
 
@@ -68,16 +68,16 @@ public class CrontabContainer extends WebMarkupContainer {
         super(id);
         setOutputMarkupId(true);
 
-        final DropDownChoice<SelectOption> cronTemplateChooser = new DropDownChoice<SelectOption>("cronTemplateChooser") {
+        final DropDownChoice<SelectOption> cronTemplateChooser =
+                new DropDownChoice<SelectOption>("cronTemplateChooser") {
 
-            private static final long serialVersionUID = -5843424545478691442L;
+                    private static final long serialVersionUID = -5843424545478691442L;
 
-            @Override
-            protected CharSequence getDefaultChoice(final String selected) {
-
-                return "<option value=\"\">" + getString("chooseForTemplate") + "</option>";
-            }
-        };
+                    @Override
+                    protected CharSequence getDefaultChoice(final String selected) {
+                        return "<option value=\"\">" + getString("chooseForTemplate") + "</option>";
+                    }
+                };
         cronTemplateChooser.setModel(new IModel<SelectOption>() {
 
             private static final long serialVersionUID = 6762568283146531315L;
@@ -146,7 +146,6 @@ public class CrontabContainer extends WebMarkupContainer {
     }
 
     private String getCronField(final FormComponent formComponent, final int field) {
-
         String cronField = null;
 
         if (formComponent != null) {
@@ -173,10 +172,13 @@ public class CrontabContainer extends WebMarkupContainer {
                 && hours != null && hours.getInput() != null && daysOfMonth != null && daysOfMonth.getInput() != null
                 && months != null && months.getInput() != null && daysOfWeek != null && daysOfWeek.getInput() != null) {
 
-            cronExpression = new StringBuilder().append(seconds.getInput().trim()).append(" ").append(
-                    minutes.getInput().trim()).append(" ").append(hours.getInput().trim()).append(" ").append(
-                    daysOfMonth.getInput().trim()).append(" ").append(months.getInput().trim()).append(" ").append(
-                    daysOfWeek.getInput().trim()).toString();
+            cronExpression = new StringBuilder().
+                    append(seconds.getInput().trim()).append(" ").
+                    append(minutes.getInput().trim()).append(" ").
+                    append(hours.getInput().trim()).append(" ").
+                    append(daysOfMonth.getInput().trim()).append(" ").
+                    append(months.getInput().trim()).append(" ").
+                    append(daysOfWeek.getInput().trim()).toString();
         }
 
         return cronExpression;

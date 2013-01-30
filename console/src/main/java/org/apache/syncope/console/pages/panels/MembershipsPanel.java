@@ -18,14 +18,17 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
+import org.apache.syncope.console.commons.RoleUtils;
+import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
 import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
@@ -34,6 +37,7 @@ import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNode
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRoleProvider;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -60,24 +64,29 @@ public class MembershipsPanel extends Panel {
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
 
-    private ListView<MembershipTO> membershipsView;
+    private final ListView<MembershipTO> membView;
 
     private final UserTO userTO;
 
+    private final StatusPanel statusPanel;
+
     private final NestedTree<DefaultMutableTreeNode> tree;
 
-    public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode) {
+    public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode,
+            final StatusPanel statusPanel) {
+
         super(id);
         this.userTO = userTO;
+        this.statusPanel = statusPanel;
 
         final WebMarkupContainer membershipsContainer = new WebMarkupContainer("membershipsContainer");
         membershipsContainer.setOutputMarkupId(true);
         add(membershipsContainer);
 
-        final ModalWindow membershipWin = new ModalWindow("membershipWin");
-        membershipWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        membershipWin.setCookieName("create-membership-modal");
-        add(membershipWin);
+        final ModalWindow membWin = new ModalWindow("membershipWin");
+        membWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        membWin.setCookieName("create-membership-modal");
+        add(membWin);
 
         final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
         final DefaultMutableTreeNodeExpansionModel treeModel = new DefaultMutableTreeNodeExpansionModel();
@@ -107,32 +116,27 @@ public class MembershipsPanel extends Panel {
 
                     @Override
                     protected void onClick(final AjaxRequestTarget target) {
-                        super.onClick(target);
-
-                        membershipWin.setPageCreator(new ModalWindow.PageCreator() {
+                        membWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = 7661763358801821185L;
 
-                            private MembershipTO membershipTO;
-
                             @Override
                             public Page createPage() {
+                                PageReference pageRef = getPage().getPageReference();
 
-                                for (MembershipTO memberTO : membershipsView.getList()) {
-                                    if (memberTO.getRoleId() == roleTO.getId()) {
-                                        return new MembershipModalPage(getPage().getPageReference(),
-                                                membershipWin, memberTO, templateMode);
+                                for (MembershipTO membTO : membView.getList()) {
+                                    if (membTO.getRoleId() == roleTO.getId()) {
+                                        return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
                                     }
                                 }
-                                membershipTO = new MembershipTO();
-                                membershipTO.setRoleId(roleTO.getId());
-                                membershipTO.setRoleName(roleTO.getName());
+                                MembershipTO membTO = new MembershipTO();
+                                membTO.setRoleId(roleTO.getId());
+                                membTO.setRoleName(roleTO.getName());
 
-                                return new MembershipModalPage(getPage().getPageReference(), membershipWin,
-                                        membershipTO, templateMode);
+                                return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
                             }
                         });
-                        membershipWin.show(target);
+                        membWin.show(target);
                     }
                 };
             }
@@ -144,7 +148,7 @@ public class MembershipsPanel extends Panel {
 
         this.add(tree);
 
-        membershipsView = new ListView<MembershipTO>("memberships",
+        membView = new ListView<MembershipTO>("memberships",
                 new PropertyModel<List<? extends MembershipTO>>(userTO, "memberships")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
@@ -153,8 +157,8 @@ public class MembershipsPanel extends Panel {
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
-                item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model(membershipTO.getRoleName())));
+                item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
+                item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
@@ -162,18 +166,18 @@ public class MembershipsPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        membershipWin.setPageCreator(new ModalWindow.PageCreator() {
+                        membWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new MembershipModalPage(getPage().getPageReference(), membershipWin,
+                                return new MembershipModalPage(getPage().getPageReference(), membWin,
                                         membershipTO, templateMode);
 
                             }
                         });
-                        membershipWin.show(target);
+                        membWin.show(target);
                     }
                 };
                 item.add(editLink);
@@ -186,19 +190,35 @@ public class MembershipsPanel extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         userTO.removeMembership(membershipTO);
                         target.add(membershipsContainer);
+
+                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
+                        Set<String> resourcesToRemove = roleTO == null
+                                ? Collections.<String>emptySet() : roleTO.getResources();
+                        if (!resourcesToRemove.isEmpty()) {
+                            Set<String> resourcesAssignedViaMembership = new HashSet<String>();
+                            for (MembershipTO membTO : userTO.getMemberships()) {
+                                roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
+                                if (roleTO != null) {
+                                    resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                }
+                            }
+                            resourcesToRemove.removeAll(resourcesAssignedViaMembership);
+                            resourcesToRemove.removeAll(userTO.getResources());
+                        }
+
+                        StatusUtils.update(statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
                     }
                 };
                 item.add(deleteLink);
             }
         };
 
-        membershipsContainer.add(membershipsView);
+        membershipsContainer.add(membView);
 
-        setWindowClosedCallback(membershipWin, membershipsContainer);
+        setWindowClosedCallback(membWin, membershipsContainer);
     }
 
     private void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
-
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -206,6 +226,19 @@ public class MembershipsPanel extends Panel {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 final UserTO updatedUserTO = ((UserModalPage) getPage()).getUserTO();
+
+                if (updatedUserTO.getMemberships().size() > userTO.getMemberships().size()) {
+                    Set<Long> diff = new HashSet<Long>(updatedUserTO.getMembershipMap().keySet());
+                    diff.removeAll(userTO.getMembershipMap().keySet());
+
+                    Set<String> resourcesToAdd = new HashSet<String>();
+                    for (Long diffMembId : diff) {
+                        long roleId = updatedUserTO.getMembershipMap().get(diffMembId).getRoleId();
+                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, roleId);
+                        resourcesToAdd.addAll(roleTO.getResources());
+                        StatusUtils.update(statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
+                    }
+                }
 
                 MembershipsPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
                 target.add(container);

@@ -26,14 +26,11 @@ public class EditProfileTestITCase extends AbstractTest {
     @Override
     @Before
     public void setUp() throws Exception {
-
         super.setUp(BASE_URL, "*firefox");
     }
 
     @Test
     public void selfRegistration() {
-        selenium.setSpeed("1000");
-
         selenium.open("/syncope-console/");
 
         selenium.click("//div/span/span/a");
@@ -52,8 +49,6 @@ public class EditProfileTestITCase extends AbstractTest {
 
     @Test
     public void editUserProfile() {
-        selenium.setSpeed("1000");
-
         selenium.open("/syncope-console/");
         selenium.type("name=userId", "user1");
         selenium.type("name=password", "password");
@@ -63,12 +58,10 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Schema\"]");
         selenium.waitForPageToLoad("30000");
 
-        selenium.click("id=username");
-        selenium.click("//span[@id='editProfile']/a");
+        selenium.click("//div/ul/li[10]/div/div/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
-
-        assertTrue(selenium.isElementPresent("//input[@value='user1']"));
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@value='user1']\");", "30000");
 
         selenium.click("css=a.w_close");
     }

@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
