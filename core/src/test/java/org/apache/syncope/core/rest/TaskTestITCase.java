@@ -51,6 +51,7 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.workflow.ActivitiDetector;
@@ -362,7 +363,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void reconcileFromLDAP() {
+    public void reconcileFromLDAP() throws InvalidSearchConditionException {
         // Update sync task
         SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 11L);
         assertNotNull(task);

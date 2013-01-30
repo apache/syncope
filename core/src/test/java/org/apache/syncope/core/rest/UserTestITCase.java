@@ -107,7 +107,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        UserService userService2 = setupCredentials(userService, "user1", ADMIN_PWD);
+        UserService userService2 = setupCredentials(userService, UserService.class, "user1", ADMIN_PWD);
 
         try {
             userService2.read(1L);
@@ -586,7 +586,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
-        UserService userService2 = setupCredentials(userService, "user1", ADMIN_PWD);
+        UserService userService2 = setupCredentials(userService, UserService.class, "user1", ADMIN_PWD);
 
         try {
             userService2.claimForm(form.getTaskId());
@@ -596,7 +596,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // 4. claim task from user4, in role 7
-        UserService userService3 = setupCredentials(userService, "user4", ADMIN_PWD);
+        UserService userService3 = setupCredentials(userService, UserService.class, "user4", ADMIN_PWD);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);

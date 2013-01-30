@@ -45,6 +45,7 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -110,7 +111,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = setupCredentials(schemaService, userTO.getUsername(), "password123");
+        SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class, userTO.getUsername(), "password123");
 
         schemaTO = schemaService2.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "authTestSchema");
         assertNotNull(schemaTO);
@@ -150,12 +151,12 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 = setupCredentials(userService, "user2", ADMIN_PWD);
+        UserService userService3 = setupCredentials(userService, UserService.class, "user2", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
@@ -171,7 +172,7 @@ public class AuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testUserSearch() {
+    public void testUserSearch() throws InvalidSearchConditionException {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("testusersearch@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -185,7 +186,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
@@ -200,7 +201,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        UserService userService3 = setupCredentials(userService, "user2", "password");
+        UserService userService3 = setupCredentials(userService, UserService.class, "user2", "password");
 
         matchedUsers = userService3.search(searchCondition);
 
@@ -232,7 +233,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         UserTO readUserTO = userService2.read(userTO.getId());
 
@@ -242,7 +243,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        UserService userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
@@ -271,7 +272,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
 
-        UserService userService4 = setupCredentials(userService, userTO.getUsername(), "password123");
+        UserService userService4 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         readUserTO = userService4.read(userTO.getId());
         assertNotNull(readUserTO);
@@ -294,7 +295,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         userTO = userService2.read(userTO.getId());
 
@@ -304,7 +305,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // authentications failed ...
 
-        UserService userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
 
         Throwable t = null;
 
@@ -347,7 +348,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // last authentication before suspension
         // TODO remove after CXF migration is complete
-        userService3 = setupCredentials(userService, userTO.getUsername(), "wrongpwd1");
+        userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
 
         try {
             userService3.read(userTO.getId());
@@ -370,7 +371,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // check for authentication
         // TODO remove after CXF migration is complete
-        userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         try {
             userService2.read(userTO.getId());
@@ -391,7 +392,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
 
         // TODO remove after CXF migration is complete
-        userService2 = setupCredentials(userService, userTO.getUsername(), "password123");
+        userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
 
         userTO = userService2.read(userTO.getId());
 
@@ -431,7 +432,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
-        UserService userService2 = setupCredentials(userService, role1Admin.getUsername(), "password");
+        UserService userService2 = setupCredentials(userService, UserService.class, role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");

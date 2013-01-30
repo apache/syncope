@@ -34,6 +34,7 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.search.ResourceCond;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -42,7 +43,7 @@ import org.junit.runners.MethodSorters;
 public class SearchTestITCase extends AbstractTest {
 
     @Test
-    public void searchUser() {
+    public void searchUser() throws InvalidSearchConditionException {
         // LIKE
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
@@ -83,7 +84,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByUsernameAndId() {
+    public void searchByUsernameAndId() throws InvalidSearchConditionException {
         final AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("user1");
@@ -106,7 +107,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByRolenameAndId() {
+    public void searchByRolenameAndId() throws InvalidSearchConditionException {
         final AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         rolenameLeafCond.setSchema("name");
         rolenameLeafCond.setExpression("root");
@@ -129,7 +130,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchUserByResourceName() {
+    public void searchUserByResourceName() throws InvalidSearchConditionException {
         ResourceCond ws2 = new ResourceCond();
         ws2.setResourceName("ws-target-resource2");
 
@@ -154,7 +155,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void paginatedSearch() {
+    public void paginatedSearch() throws InvalidSearchConditionException {
         // LIKE
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
@@ -194,7 +195,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchCount() {
+    public void searchCount() throws InvalidSearchConditionException {
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
         isNullCond.setSchema("loginDate");
         NodeCond searchCond = NodeCond.getLeafCond(isNullCond);
@@ -205,7 +206,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByBooleanAttributableCond() {
+    public void searchByBooleanAttributableCond() throws InvalidSearchConditionException {
         final AttributableCond cond = new AttributableCond(AttributableCond.Type.EQ);
         cond.setSchema("inheritAttributes");
         cond.setExpression("true");
@@ -218,7 +219,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByEntitlement() {
+    public void searchByEntitlement() throws InvalidSearchConditionException {
         final EntitlementCond userListCond = new EntitlementCond();
         userListCond.setExpression("USER_LIST");
 
@@ -235,7 +236,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByRelationshipAttributableCond() {
+    public void searchByRelationshipAttributableCond() throws InvalidSearchConditionException {
         final AttributableCond userOwnerCond = new AttributableCond(AttributableCond.Type.EQ);
         userOwnerCond.setSchema("userOwner");
         userOwnerCond.setExpression("5");

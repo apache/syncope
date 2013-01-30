@@ -37,6 +37,7 @@ import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -47,7 +48,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class UserRequestTestITCase extends AbstractTest {
 
     @Test
-    public void create() {
+    public void create() throws InvalidSearchConditionException {
         // 1. set create request not allowed
         ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey("createRequest.allowed");
@@ -79,7 +80,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, null, null);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, null, null);
         response = userRequestService2.create(new UserRequestTO(userTO));
         UserRequestTO request = getObject(response, UserRequestTO.class, userRequestService2);
 
@@ -121,7 +122,7 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, userTO.getUsername(),
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, userTO.getUsername(),
                 initialPassword);
 
         // 4. update with same password: not matching password policy
@@ -174,7 +175,7 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, userTO.getUsername(),
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, userTO.getUsername(),
                 initialPassword);
 
         // 4. now request user delete works

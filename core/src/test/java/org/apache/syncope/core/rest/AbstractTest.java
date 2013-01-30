@@ -256,7 +256,7 @@ public abstract class AbstractTest {
     // END CXF Initialization
 
     @SuppressWarnings("unchecked")
-    public <T> T setupCredentials(final T proxy, final String username, final String password) {
+    public <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username, final String password) {
         if (proxy instanceof SpringServiceProxy) {
             SpringServiceProxy service = (SpringServiceProxy) proxy;
             if (username == null && password == null) {
@@ -268,8 +268,8 @@ public abstract class AbstractTest {
         } else {
             restClientFactory.setUsername(username);
             restClientFactory.setPassword(password);
-            restClientFactory.setServiceClass(proxy.getClass());
-            T serviceProxy = (T) restClientFactory.create(proxy.getClass());
+            restClientFactory.setServiceClass(serviceInterface);
+            T serviceProxy = (T) restClientFactory.create(serviceInterface);
             setupContentType(WebClient.client(serviceProxy));
             return serviceProxy;
         }
