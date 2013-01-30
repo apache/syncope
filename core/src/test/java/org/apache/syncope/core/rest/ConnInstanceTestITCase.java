@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -83,7 +89,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void createWithException() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
-        connectorService.create(connectorTO);
+        Response response = connectorService.create(connectorTO);
+        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        }
     }
 
     @Test
@@ -134,6 +143,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
+        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        }
+
         ConnInstanceTO actual = getObject(response, ConnInstanceTO.class, connectorService);
 
         assertNotNull(actual);
@@ -269,6 +282,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Create a new connector instance.
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
+        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        }
+
         connInstanceTO = getObject(response, ConnInstanceTO.class, connectorService);
 
         assertNotNull(connInstanceTO);
@@ -565,7 +582,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename.setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename
+                .setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
         servicename.setOverridable(false);
 
         conf.add(endpoint);
@@ -579,6 +597,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertFalse(connectorService.validate(connectorTO));
 
             Response response = connectorService.create(connectorTO);
+            if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+                throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+            }
+
             connectorTO = getObject(response, ConnInstanceTO.class, configurationService);
             assertNotNull(connectorTO);
             // ----------------------------------------
