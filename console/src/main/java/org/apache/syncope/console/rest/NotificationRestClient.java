@@ -27,7 +27,6 @@ import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,32 +34,32 @@ public class NotificationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 6328933265096511690L;
 
-    public List<NotificationTO> getAllNotifications() throws SyncopeClientCompositeErrorException {
+    public List<NotificationTO> getAllNotifications() {
         return getService(NotificationService.class).list();
     }
 
-    public NotificationTO readNotification(final Long id) throws SyncopeClientCompositeErrorException {
+    public NotificationTO readNotification(final Long id) {
         return getService(NotificationService.class).read(id);
     }
 
-    public void createNotification(final NotificationTO notificationTO) throws SyncopeClientCompositeErrorException {
+    public void createNotification(final NotificationTO notificationTO) {
         getService(NotificationService.class).create(notificationTO);
     }
 
-    public void updateNotification(final NotificationTO notificationTO) throws SyncopeClientCompositeErrorException {
+    public void updateNotification(final NotificationTO notificationTO) {
         getService(NotificationService.class).update(notificationTO.getId(), notificationTO);
     }
 
-    public void deleteNotification(final Long id) throws SyncopeClientCompositeErrorException {
+    public void deleteNotification(final Long id) {
         getService(NotificationService.class).delete(id);
     }
 
-    public List<String> getMailTemplates() throws SyncopeClientCompositeErrorException {
+    public List<String> getMailTemplates() {
         return CollectionWrapper.unwrapMailTemplates(new ArrayList<MailTemplateTO>(getService(
                 ConfigurationService.class).getMailTemplates()));
     }
 
-    public List<String> getEvents() throws SyncopeClientCompositeErrorException {
+    public List<String> getEvents() {
         return getService(WorkflowService.class).getDefinedTasks("user");
     }
 }

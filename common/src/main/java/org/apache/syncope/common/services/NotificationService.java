@@ -33,21 +33,40 @@ import org.apache.syncope.common.to.NotificationTO;
 @Path("notifications")
 public interface NotificationService {
 
+    /**
+     * @param notificationTO Creates a new notification.
+     * @return Response containing URI location for created resource.
+     */
     @POST
     Response create(NotificationTO notificationTO);
 
-    @GET
+    /**
+     * @param notificationId ID for notification to be deleted.
+     */
+    @DELETE
     @Path("{notificationId}")
-    NotificationTO read(@PathParam("notificationId") Long notificationId) throws NotFoundException;
+    void delete(@PathParam("notificationId") Long notificationId);
 
+    /**
+     * @return Returns list of all notifications.
+     */
     @GET
     List<NotificationTO> list();
 
+    /**
+     * @param notificationId ID of notification to be read.
+     * @return Notification with matching id.
+     */
+    @GET
+    @Path("{notificationId}")
+    NotificationTO read(@PathParam("notificationId") Long notificationId);
+
+    /**
+     * @param notificationId ID of notification to be updated.
+     * @param notificationTO Notification to be stored.
+     */
     @PUT
     @Path("{notificationId}")
-    NotificationTO update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
+    void update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
 
-    @DELETE
-    @Path("{notificationId}")
-    NotificationTO delete(@PathParam("notificationId") Long notificationId);
 }

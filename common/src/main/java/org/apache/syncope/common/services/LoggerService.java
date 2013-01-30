@@ -32,19 +32,37 @@ import org.apache.syncope.common.types.LoggerType;
 @Path("logger/{type}")
 public interface LoggerService {
 
+    /**
+     * @param type LoggerType to be selected.
+     * @param name Logger name to be deleted.
+     */
+    @DELETE
+    @Path("{name}")
+    void delete(@PathParam("type") LoggerType type, @PathParam("name") String name);
+
+    /**
+     * @param type LoggerType to be selected.
+     * @return List of logger with matching type.
+     */
+    @GET
+    List<LoggerTO> list(@PathParam("type") LoggerType type);
+
+    /**
+     * @param type LoggerType to be selected.
+     * @param name Logger name to be read.
+     * @return Returns logger with matching type and name.
+     */
     @GET
     @Path("{name}")
     LoggerTO read(@PathParam("type") LoggerType type, @PathParam("name") final String name);
 
-    @GET
-    List<LoggerTO> list(@PathParam("type") LoggerType type);
-
+    /**
+     * @param type LoggerType to be selected.
+     * @param name Logger name to be updated.
+     * @param logger Logger to be created or updated.
+     */
     @PUT
     @Path("{name}/level")
     void update(@PathParam("type") LoggerType type, @PathParam("name") String name, LoggerTO logger);
-
-    @DELETE
-    @Path("{name}")
-    void delete(@PathParam("type") LoggerType type, @PathParam("name") String name);
 
 }

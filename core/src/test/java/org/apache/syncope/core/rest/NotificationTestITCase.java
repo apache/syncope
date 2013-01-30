@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -98,7 +99,8 @@ public class NotificationTestITCase extends AbstractTest {
 
         notificationTO.setRecipients(recipients);
 
-        NotificationTO actual = notificationService.update(notificationTO.getId(), notificationTO);
+        notificationService.update(notificationTO.getId(), notificationTO);
+        NotificationTO actual = notificationService.read(notificationTO.getId());
         assertNotNull(actual);
         assertEquals(actual, notificationTO);
     }
@@ -110,16 +112,14 @@ public class NotificationTestITCase extends AbstractTest {
         Response response = notificationService.create(notification);
         notification = getObject(response, NotificationTO.class, notificationService);
 
-        NotificationTO deletedNotification = notificationService.delete(notification.getId());
-        assertNotNull(deletedNotification);
+        notificationService.delete(notification.getId());
 
-        SyncopeClientException exception = null;
         try {
             notificationService.read(notification.getId());
+            fail();
         } catch (SyncopeClientCompositeErrorException e) {
-            exception = e.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         }
-        assertNotNull(exception);
     }
 
     @Test

@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.SyncopeConnector;
-import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.util.ConnBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;

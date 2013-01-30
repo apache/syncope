@@ -59,13 +59,13 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
     }
 
     @Override
-    public NotificationTO update(final Long notificationId, final NotificationTO notificationTO) {
-        return notificationController.update(notificationTO);
+    public void update(final Long notificationId, final NotificationTO notificationTO) {
+        notificationController.update(notificationTO);
     }
 
     @Override
-    public NotificationTO delete(final Long notificationId) {
-        return notificationController.delete(notificationId);
+    public void delete(final Long notificationId) {
+        notificationController.delete(notificationId);
     }
 
     @Override
