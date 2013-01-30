@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -109,11 +110,11 @@ public class ReportModalPage extends BaseModalPage {
 
     private long exportExecId;
 
-    private ReportletConf modalReportletConf;
+    private AbstractReportletConf modalReportletConf;
 
     private String modalReportletConfOldName;
 
-    private ListChoice<ReportletConf> reportlets;
+    private ListChoice<AbstractReportletConf> reportlets;
 
     public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
         this.reportTO = reportTO;
@@ -250,7 +251,7 @@ public class ReportModalPage extends BaseModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        reportlets = new ListChoice<ReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
+        reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
                 new IChoiceRenderer<ReportletConf>() {
                     private static final long serialVersionUID = 1048000918946220007L;
 
@@ -383,8 +384,8 @@ public class ReportModalPage extends BaseModalPage {
         });
     }
 
-    private void moveUp(final ReportletConf item) {
-        final List<ReportletConf> list = reportTO.getReportletConfs();
+    private void moveUp(final AbstractReportletConf item) {
+        final List<AbstractReportletConf> list = reportTO.getReportletConfs();
         int newPosition = list.indexOf(item) - 1;
         if (newPosition > -1) {
             list.remove(item);
@@ -392,8 +393,8 @@ public class ReportModalPage extends BaseModalPage {
         }
     }
 
-    private void moveDown(final ReportletConf item) {
-        final List<ReportletConf> list = reportTO.getReportletConfs();
+    private void moveDown(final AbstractReportletConf item) {
+        final List<AbstractReportletConf> list = reportTO.getReportletConfs();
         int newPosition = list.indexOf(item) + 1;
         if (newPosition < list.size()) {
             list.remove(item);
@@ -542,7 +543,7 @@ public class ReportModalPage extends BaseModalPage {
         this.exportFormat = exportFormat;
     }
 
-    public void setModalReportletConf(final ReportletConf modalReportletConf) {
+    public void setModalReportletConf(final AbstractReportletConf modalReportletConf) {
         this.modalReportletConf = modalReportletConf;
     }
 

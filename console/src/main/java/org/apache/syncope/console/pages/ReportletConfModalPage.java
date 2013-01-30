@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.annotation.FormAttributeField;
+import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
@@ -83,7 +84,7 @@ public class ReportletConfModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    private ReportletConf reportletConf;
+    private AbstractReportletConf reportletConf;
 
     final AjaxTextFieldPanel name;
 
@@ -91,7 +92,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private ListView<String> propView;
 
-    public ReportletConfModalPage(final ReportletConf reportletConf, final ModalWindow window,
+    public ReportletConfModalPage(final AbstractReportletConf reportletConf, final ModalWindow window,
             final PageReference callerPageRef) {
 
         this.reportletConf = reportletConf;
@@ -126,7 +127,7 @@ public class ReportletConfModalPage extends BaseModalPage {
             public void setObject(final String object) {
                 try {
                     Class<?> reportletClass = Class.forName(object);
-                    ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
+                    ReportletConfModalPage.this.reportletConf = (AbstractReportletConf) reportletClass.newInstance();
                     propertiesContainer.replace(buildPropView());
                 } catch (Exception e) {
                     LOG.error("Cannot find or initialize {}", object, e);

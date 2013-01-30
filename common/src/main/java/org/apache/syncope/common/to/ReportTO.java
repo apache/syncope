@@ -25,14 +25,17 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.report.AbstractReportletConf;
-import org.apache.syncope.common.report.ReportletConf;
+import org.apache.syncope.common.report.StaticReportletConf;
+import org.apache.syncope.common.report.UserReportletConf;
 
 @XmlRootElement(name = "report")
 @XmlType
+@XmlSeeAlso({UserReportletConf.class, StaticReportletConf.class})
 public class ReportTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5274568072084814410L;
@@ -41,7 +44,7 @@ public class ReportTO extends AbstractBaseBean {
 
     private String name;
 
-    private List<ReportletConf> reportletConfs;
+    private List<AbstractReportletConf> reportletConfs;
 
     private String cronExpression;
 
@@ -60,7 +63,7 @@ public class ReportTO extends AbstractBaseBean {
     public ReportTO() {
         super();
 
-        reportletConfs = new ArrayList<ReportletConf>();
+        reportletConfs = new ArrayList<AbstractReportletConf>();
         executions = new ArrayList<ReportExecTO>();
     }
 
@@ -80,21 +83,21 @@ public class ReportTO extends AbstractBaseBean {
         this.name = name;
     }
 
-    public boolean addReportletConf(ReportletConf reportlet) {
+    public boolean addReportletConf(AbstractReportletConf reportlet) {
         return this.reportletConfs.add(reportlet);
     }
 
-    public boolean removeReportletConf(ReportletConf reportlet) {
+    public boolean removeReportletConf(AbstractReportletConf reportlet) {
         return this.reportletConfs.remove(reportlet);
     }
 
     @XmlElementWrapper(name = "reportletConfigurations")
-    @XmlElement(name = "configuration", type=AbstractReportletConf.class)
-    public List<ReportletConf> getReportletConfs() {
+    @XmlElement(name="reportletconf")
+    public List<AbstractReportletConf> getReportletConfs() {
         return reportletConfs;
     }
 
-    public void setReportletConfs(List<ReportletConf> reportlets) {
+    public void setReportletConfs(List<AbstractReportletConf> reportlets) {
         this.reportletConfs = reportlets;
     }
 

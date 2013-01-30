@@ -19,7 +19,10 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -116,7 +119,7 @@ public class ReportDataBinder {
         reportTO.setId(report.getId());
         BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
 
-        reportTO.setReportletConfs(report.getReportletConfs());
+        copyReportletConfs(report, reportTO);
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         reportTO.setLatestExecStatus(latestExec == null
@@ -151,6 +154,13 @@ public class ReportDataBinder {
         }
 
         return reportTO;
+    }
+
+    private void copyReportletConfs(Report report, ReportTO reportTO) {
+        reportTO.getReportletConfs().clear();
+        for (ReportletConf reportletConf : report.getReportletConfs()) {
+            reportTO.getReportletConfs().add((AbstractReportletConf) reportletConf);
+        }
     }
 
     public ReportExecTO getReportExecTO(final ReportExec execution) {

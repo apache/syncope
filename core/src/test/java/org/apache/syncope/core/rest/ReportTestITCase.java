@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
@@ -49,6 +50,7 @@ public class ReportTestITCase extends AbstractTest {
 
     public ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
+        assertCreated(response);
         return getObject(response, ReportTO.class, reportService);
     }
 
@@ -139,7 +141,7 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void delete() {
         ReportTO report = new ReportTO();
-        report.setName("testReportForDelete");
+        report.setName("testReportForDelete" + getUUIDString());
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));
 
