@@ -232,52 +232,22 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
+        long userId = userTO.getId();
 
         UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
-
-        UserTO readUserTO = userService2.read(userTO.getId());
-
-        assertNotNull(readUserTO);
-        assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
+        assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-
         UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
-
-        Throwable t = null;
-
-        try {
-            userService3.read(userTO.getId());
-            assertNotNull(readUserTO);
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
-
-        try {
-            userService3.read(userTO.getId());
-            assertNotNull(readUserTO);
-        } catch (Exception e) {
-            t = e;
-        }
+        assertReadFails(userService3, userId);
+        assertReadFails(userService3, userId);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
-
-        readUserTO = userService.read(userTO.getId());
-        assertNotNull(readUserTO);
-        assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(Integer.valueOf(2), readUserTO.getFailedLogins());
+        assertEquals(2, getFailedLogins(userService, userId));
 
         UserService userService4 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
-
-        readUserTO = userService4.read(userTO.getId());
-        assertNotNull(readUserTO);
-        assertNotNull(readUserTO.getFailedLogins());
-        assertEquals(Integer.valueOf(0), readUserTO.getFailedLogins());
+        assertEquals(0, getFailedLogins(userService4, userId));
     }
 
     @Test
@@ -293,71 +263,26 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         userTO = createUser(userTO);
+        long userId = userTO.getId();
         assertNotNull(userTO);
 
         UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
-
-        userTO = userService2.read(userTO.getId());
-
-        assertNotNull(userTO);
-        assertNotNull(userTO.getFailedLogins());
-        assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
+        assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-
         UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
-
-        Throwable t = null;
-
-        try {
-            userService3.read(userTO.getId());
-            fail();
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
-
-        try {
-            userService3.read(userTO.getId());
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
-
-        try {
-            userService3.read(userTO.getId());
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
+        assertReadFails(userService3, userId);
+        assertReadFails(userService3, userId);
+        assertReadFails(userService3, userId);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
-
-        userTO = userService.read(userTO.getId());
-
-        assertNotNull(userTO);
-        assertNotNull(userTO.getFailedLogins());
-        assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
+        assertEquals(3, getFailedLogins(userService, userId));
 
         // last authentication before suspension
         // TODO remove after CXF migration is complete
         userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
-
-        try {
-            userService3.read(userTO.getId());
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
+        assertReadFails(userService3, userId);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
@@ -369,35 +294,20 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
         assertEquals("suspended", userTO.getStatus());
 
-        // check for authentication
+        // Access with correct credentials should fail as user is suspended
         // TODO remove after CXF migration is complete
         userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
-
-        try {
-            userService2.read(userTO.getId());
-            assertNotNull(userTO);
-        } catch (Exception e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-        t = null;
+        assertReadFails(userService2, userId);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
-
         userTO = userService.reactivate(userTO.getId());
-
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
         // TODO remove after CXF migration is complete
         userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
-
-        userTO = userService2.read(userTO.getId());
-
-        assertNotNull(userTO);
-        assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
+        assertEquals(0, getFailedLogins(userService2, userId));
     }
 
     @Test
@@ -444,5 +354,21 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(response);
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);
+    }
+    
+    private int getFailedLogins(UserService testUserService, long userId) {
+        UserTO readUserTO = testUserService.read(userId);
+        assertNotNull(readUserTO);
+        assertNotNull(readUserTO.getFailedLogins());
+        return readUserTO.getFailedLogins();
+    }
+
+    private void assertReadFails(UserService userService, long id) {
+        try {
+            userService.read(id);
+            fail("access should not work");
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
     }
 }
