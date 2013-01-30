@@ -435,7 +435,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    @Ignore
     public void issueSYNCOPE81() {
 
         String sender = createNotificationTask();
