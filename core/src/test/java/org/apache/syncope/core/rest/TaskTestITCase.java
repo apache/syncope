@@ -365,7 +365,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 7);
         assertNotNull(task);
 
-        //  add user template
+        // add user template
         UserTO template = new UserTO();
 
         AttributeTO attrTO = new AttributeTO();
@@ -429,11 +429,11 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
         assertEquals("suspended", userTO.getStatus());
 
-        //enable user on external resource
+        // enable user on external resource
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
 
-        // re-execute the same SyncTask: now user must me active
+        // re-execute the same SyncTask: now user must be active
         preSyncSize = actual.getExecutions().size();
 
         execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
