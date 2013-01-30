@@ -20,7 +20,6 @@ package org.apache.syncope.core.workflow;
 
 import java.util.Collections;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -36,14 +35,12 @@ public class WorkflowResult<T> {
     private Set<String> performedTasks;
 
     public WorkflowResult(final T result, final PropagationByResource propByRes, final String performedTask) {
-
         this.result = result;
         this.propByRes = propByRes;
         this.performedTasks = Collections.singleton(performedTask);
     }
 
     public WorkflowResult(final T result, final PropagationByResource propByRes, final Set<String> performedTasks) {
-
         this.result = result;
         this.propByRes = propByRes;
         this.performedTasks = performedTasks;

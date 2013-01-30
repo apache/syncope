@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.syncope.common.SyncopeConstants;
@@ -69,7 +68,7 @@ public abstract class AbstractBaseBean implements Serializable {
      * @param property the integer representing a boolean value
      * @return the boolean value corresponding to the property param
      */
-    public final Boolean isBooleanAsInteger(final Integer property) {
+    public final boolean isBooleanAsInteger(final Integer property) {
         return property != null && property == 1;
     }
 
@@ -99,7 +98,7 @@ public abstract class AbstractBaseBean implements Serializable {
             }
         }
 
-        return excludeFields.toArray(new String[] {});
+        return excludeFields.toArray(new String[]{});
     }
 
     @Override

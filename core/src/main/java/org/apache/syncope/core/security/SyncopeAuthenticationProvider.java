@@ -19,7 +19,6 @@
 package org.apache.syncope.core.security;
 
 import java.util.Date;
-
 import org.apache.syncope.common.types.AuditElements.AuthenticationSubCategory;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -123,7 +122,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         } else {
             user = userDAO.find(username);
 
-            if (user != null) {
+            if (user != null && user.isSuspended() != null) {
                 if (user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }

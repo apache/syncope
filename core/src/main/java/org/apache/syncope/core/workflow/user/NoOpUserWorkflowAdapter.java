@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.workflow.user;
 
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
@@ -51,6 +51,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck)
             throws WorkflowException {
+
         return create(userTO, disablePwdPolicyCheck, null);
     }
 
@@ -62,8 +63,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser user = new SyncopeUser();
         dataBinder.create(user, userTO);
 
-        // this will make SyncopeUserValidator not to consider
-        // password policies at all
+        // this will make SyncopeUserValidator not to consider password policies at all
         if (disablePwdPolicyCheck) {
             user.removeClearPassword();
         }

@@ -492,7 +492,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Boolean isSuspended() {
-        return isBooleanAsInteger(suspended);
+        return suspended == null ? null : isBooleanAsInteger(suspended);
     }
 
     private String encodePassword(final String password, final CipherAlgorithm cipherAlgoritm)

@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -58,6 +59,7 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
+import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.SyncopeConnector;
@@ -449,6 +451,18 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return result;
     }
 
+    protected Boolean readEnabled(final ConnectorObject connectorObject) {
+        Boolean enabled = null;
+        if (syncTask.isSyncStatus()) {
+            Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, connectorObject.getAttributes());
+            if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
+                enabled = (Boolean) status.getValue().get(0);
+            }
+        }
+
+        return enabled;
+    }
+
     protected List<SyncResult> create(SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
             throws JobExecutionException {
 
@@ -477,19 +491,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         } else {
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
-                    // --------------------------
-                    // Check for status synchronization ...
-                    // --------------------------
-                    Boolean enabled = null;
-                    if (syncTask.isSyncStatus()) {
-                        Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME,
-                                delta.getObject().getAttributes());
-                        if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
-                            enabled = (Boolean) status.getValue().get(0);
-                        }
-                    }
-                    // --------------------------
-
+                    Boolean enabled = readEnabled(delta.getObject());
                     WorkflowResult<Map.Entry<Long, Boolean>> created =
                             uwfAdapter.create((UserTO) subjectTO, true, enabled);
 
@@ -544,9 +546,106 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return Collections.singletonList(result);
     }
 
+    protected void updateUser(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+            throws Exception {
+
+        UserTO userTO = userDataBinder.getUserTO(id);
+        UserMod userMod = connObjectUtil.getAttributableMod(
+                id, delta.getObject(), userTO, syncTask, AttributableUtil.getInstance(AttributableType.USER));
+
+        delta = actions.beforeUpdate(this, delta, userTO, userMod);
+
+        if (dryRun) {
+            return;
+        }
+
+        WorkflowResult<Map.Entry<Long, Boolean>> updated;
+        try {
+            updated = uwfAdapter.update(userMod);
+        } catch (Exception e) {
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", id, e);
+
+            result.setStatus(SyncResult.Status.FAILURE);
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+
+            updated = new WorkflowResult<Map.Entry<Long, Boolean>>(
+                    new AbstractMap.SimpleEntry<Long, Boolean>(id, false), new PropagationByResource(),
+                    new HashSet<String>());
+        }
+
+        Boolean enabled = readEnabled(delta.getObject());
+        if (enabled != null) {
+            WorkflowResult<Long> enableUpdate = null;
+
+            SyncopeUser user = userDAO.find(id);
+            enableUpdate = user.isSuspended() == null
+                    ? uwfAdapter.activate(id, null)
+                    : enabled
+                    ? uwfAdapter.reactivate(id)
+                    : uwfAdapter.suspend(id);
+
+            if (enableUpdate != null) {
+                if (enableUpdate.getPropByRes() != null) {
+                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
+                    updated.getPropByRes().purge();
+                }
+                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+            }
+        }
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
+                userMod.getPassword(),
+                userMod.getVirtualAttributesToBeRemoved(),
+                userMod.getVirtualAttributesToBeUpdated(),
+                Collections.singleton(syncTask.getResource().getName()));
+
+        taskExecutor.execute(tasks);
+
+        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
+
+        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
+
+        actions.after(this, delta, userTO, result);
+    }
+
+    protected void updateRole(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+            throws Exception {
+
+        RoleTO roleTO = roleDataBinder.getRoleTO(id);
+        RoleMod roleMod = connObjectUtil.getAttributableMod(
+                id, delta.getObject(), roleTO, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
+
+        delta = actions.beforeUpdate(this, delta, roleTO, roleMod);
+
+        if (dryRun) {
+            return;
+        }
+
+        WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+        String roleOwner = null;
+        for (AttributeMod attrMod : roleMod.getAttributesToBeUpdated()) {
+            if (attrMod.getSchema().isEmpty()) {
+                roleOwner = attrMod.getValuesToBeAdded().iterator().next();
+            }
+        }
+        if (roleOwner != null) {
+            roleOwnerMap.put(updated.getResult(), roleOwner);
+        }
+
+        List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
+                roleMod.getVirtualAttributesToBeRemoved(),
+                roleMod.getVirtualAttributesToBeUpdated(),
+                Collections.singleton(syncTask.getResource().getName()));
+
+        taskExecutor.execute(tasks);
+
+        roleTO = roleDataBinder.getRoleTO(updated.getResult());
+
+        actions.after(this, delta, roleTO, result);
+    }
+
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun)
-            throws JobExecutionException {
+            final boolean dryRun) throws JobExecutionException {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
@@ -558,79 +657,36 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         List<SyncResult> updResults = new ArrayList<SyncResult>();
 
         for (Long id : subjects) {
+            LOG.debug("About to update {}", id);
+
             final SyncResult result = new SyncResult();
             result.setOperation(ResourceOperation.UPDATE);
             result.setSubjectType(attrUtil.getType());
+            result.setStatus(SyncResult.Status.SUCCESS);
+            result.setId(id);
 
             try {
-                AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
-                        ? userDataBinder.getUserTO(id)
-                        : roleDataBinder.getRoleTO(id);
-                try {
-                    final AbstractAttributableMod mod = connObjectUtil.getAttributableMod(
-                            id, delta.getObject(), subjectTO, syncTask, attrUtil);
-                    delta = actions.beforeUpdate(this, delta, subjectTO, mod);
-
-                    result.setStatus(SyncResult.Status.SUCCESS);
-                    result.setId(mod.getId());
-                    if (mod instanceof UserMod) {
-                        result.setName(((UserMod) mod).getUsername());
-                    }
-                    if (mod instanceof RoleMod) {
-                        result.setName(((RoleMod) mod).getName());
-                    }
-
-                    if (!dryRun) {
-                        if (AttributableType.USER == attrUtil.getType()) {
-                            WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update((UserMod) mod);
-
-                            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                                    ((UserMod) mod).getPassword(), mod.getVirtualAttributesToBeRemoved(),
-                                    mod.getVirtualAttributesToBeUpdated(),
-                                    Collections.singleton(syncTask.getResource().getName()));
-
-                            taskExecutor.execute(tasks);
-
-                            notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
-
-                            subjectTO = userDataBinder.getUserTO(updated.getResult().getKey());
-                        }
-                        if (AttributableType.ROLE == attrUtil.getType()) {
-                            WorkflowResult<Long> updated = rwfAdapter.update((RoleMod) mod);
-                            String roleOwner = null;
-                            for (AttributeMod attrMod : mod.getAttributesToBeUpdated()) {
-                                if (attrMod.getSchema().isEmpty()) {
-                                    roleOwner = attrMod.getValuesToBeAdded().iterator().next();
-                                }
-                            }
-                            if (roleOwner != null) {
-                                roleOwnerMap.put(updated.getResult(), roleOwner);
-                            }
-
-                            List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                                    mod.getVirtualAttributesToBeRemoved(), mod.getVirtualAttributesToBeUpdated(),
-                                    Collections.singleton(syncTask.getResource().getName()));
-
-                            taskExecutor.execute(tasks);
-
-                            subjectTO = roleDataBinder.getRoleTO(updated.getResult());
-                        }
-                    }
-                } catch (PropagationException e) {
-                    LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
-                } catch (Exception e) {
-                    result.setStatus(SyncResult.Status.SUCCESS);
-                    result.setMessage(e.getMessage());
-                    LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                if (AttributableType.USER == attrUtil.getType()) {
+                    updateUser(id, delta, dryRun, result);
                 }
 
-                actions.after(this, delta, subjectTO, result);
-                updResults.add(result);
-            } catch (NotFoundException e) {
-                LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
-            } catch (UnauthorizedRoleException e) {
-                LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
+                if (AttributableType.ROLE == attrUtil.getType()) {
+                    updateRole(id, delta, dryRun, result);
+                }
+            } catch (PropagationException e) {
+                result.setStatus(SyncResult.Status.FAILURE);
+                result.setMessage(delta.getUid().getUidValue() + "updated but not propagated\n" + e.getMessage());
+
+                LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+            } catch (Exception e) {
+                result.setStatus(SyncResult.Status.FAILURE);
+                result.setMessage(e.getMessage());
+
+                LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             }
+            results.add(result);
+
+            LOG.debug("{} {} successfully updated", attrUtil.getType(), id);
         }
 
         return updResults;

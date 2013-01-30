@@ -27,9 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
@@ -56,7 +54,6 @@ import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
@@ -330,11 +327,11 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void reconcileFromDB() {
-        // Update sync task
+        // update sync task
         SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 7L);
         assertNotNull(task);
 
-        //  add user template
+        // add user template
         UserTO template = new UserTO();
         template.addAttribute(attributeTO("type", "'type a'"));
         template.addAttribute(attributeTO("userId", "'reconciled@syncope.apache.org'"));
@@ -351,14 +348,26 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(new RoleTO(), actual.getRoleTemplate());
 
         TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
+        assertNotNull(execution.getStatus());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
-
-        final UserTO userTO = userService.read("testuser1");
+        UserTO userTO = userService.read("testuser1");
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
+        assertEquals("suspended", userTO.getStatus());
+
+        // enable user on external resource
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
+
+        // re-execute the same SyncTask: now user must be active
+        execution = execSyncTask(actual.getId(), 20, false);
+        assertNotNull(execution.getStatus());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+        
+        userTO = userService.read("testuser1");
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
     }
 
     @Test
@@ -716,19 +725,17 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE272() {
+        // create user with testdb resource
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
+        userTO.addResource("resource-testdb");
 
-            //Create user with testdb resource
-            UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
-            userTO.addResource("resource-testdb");
-
-            userTO = createUser(userTO);
-            try {
-
+        userTO = createUser(userTO);
+        try {
             assertNotNull(userTO);
             assertEquals(1, userTO.getPropagationStatusTOs().size());
             assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
-            // Update sync task
+            // update sync task
             SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
             assertNotNull(task);
 
