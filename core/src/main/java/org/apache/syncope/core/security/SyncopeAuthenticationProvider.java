@@ -99,9 +99,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             authenticated = adminMD5Password.equalsIgnoreCase(passwordUser.getPassword());
         } else {
             user = userDAO.find(username);
-
-            if (user != null) {
-                if (user.getSuspended()) {
+            if (user != null && user.isSuspended() != null) {
+                if (user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
 

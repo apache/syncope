@@ -48,6 +48,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck)
             throws WorkflowException {
+
         return create(userTO, disablePwdPolicyCheck, null);
     }
 
@@ -58,8 +59,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser user = new SyncopeUser();
         dataBinder.create(user, userTO);
 
-        // this will make SyncopeUserValidator not to consider
-        // password policies at all
+        // this will make SyncopeUserValidator not to consider password policies at all
         if (disablePwdPolicyCheck) {
             user.removeClearPassword();
         }

@@ -82,7 +82,6 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> suspend(final SyncopeUser user) throws UnauthorizedRoleException, WorkflowException {
-
         // set suspended flag
         user.setSuspended(Boolean.TRUE);
 
@@ -110,7 +109,6 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public void delete(final Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException {
-
         doDelete(dataBinder.getUserFromId(userId));
     }
 }

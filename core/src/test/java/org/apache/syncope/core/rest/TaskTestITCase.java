@@ -361,7 +361,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void reconcile() {
-        // Update sync task
+        // update sync task
         SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 7);
         assertNotNull(task);
 
@@ -397,14 +397,14 @@ public class TaskTestITCase extends AbstractTest {
         // read executions before sync (dryrun test could be executed before)
         int preSyncSize = actual.getExecutions().size();
 
+        // trigger SyncTask execution
         TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
                 actual.getId());
         assertEquals("JOB_FIRED", execution.getStatus());
 
-        int i = 0;
-        int maxit = 20;
-
         // wait for sync completion (executions incremented)
+        int i = 0;
+        final int maxit = 20;
         do {
             try {
                 Thread.sleep(1000);
@@ -412,30 +412,63 @@ public class TaskTestITCase extends AbstractTest {
             }
 
             actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
-
             assertNotNull(actual);
             assertNotNull(actual.getExecutions());
 
             i++;
-
         } while (preSyncSize == actual.getExecutions().size() && i < maxit);
+        assertEquals(preSyncSize + 1, actual.getExecutions().size());
 
-        assertEquals(1, actual.getExecutions().size());
-
-        final String status = actual.getExecutions().get(0).getStatus();
+        String status = actual.getExecutions().get(0).getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-        final UserTO userTO =
+        UserTO userTO =
                 restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
-
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
+        assertEquals("suspended", userTO.getStatus());
+
+        //enable user on external resource
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
+
+        // re-execute the same SyncTask: now user must me active
+        preSyncSize = actual.getExecutions().size();
+
+        execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class,
+                actual.getId());
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        // wait for sync completion (executions incremented)
+        i = 0;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            actual = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, actual.getId());
+            assertNotNull(actual);
+            assertNotNull(actual.getExecutions());
+
+            i++;
+        } while (preSyncSize == actual.getExecutions().size() && i < maxit);
+        assertEquals(preSyncSize + 1, actual.getExecutions().size());
+
+        status = actual.getExecutions().get(0).getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        userTO = restTemplate.getForObject(BASE_URL + "user/readByUsername/{username}.json", UserTO.class, "testuser1");
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
     }
 
     @Test
     public void issue196() {
-        TaskExecTO execution = restTemplate.postForObject(BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, 6);
         assertNotNull(execution);
         assertEquals(0, execution.getId());
         assertNotNull(execution.getTask());
@@ -766,9 +799,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE272() {
-
-        //Create user with testdb resource
-
+        // create user with testdb resource
         UserTO userTO = new UserTO();
         userTO.setUsername("syncope261@syncope.apache.org");
         userTO.setPassword("password");
@@ -842,10 +873,9 @@ public class TaskTestITCase extends AbstractTest {
                 actual.getId());
         assertEquals("JOB_FIRED", execution.getStatus());
 
-        int i = 0;
-        int maxit = 20;
-
         // wait for sync completion (executions incremented)
+        int i = 0;
+        final int maxit = 20;
         do {
             try {
                 Thread.sleep(1000);
@@ -858,13 +888,10 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(actual.getExecutions());
 
             i++;
-
         } while (preSyncSize == actual.getExecutions().size() && i < maxit);
-
-        assertEquals(2, actual.getExecutions().size());
+        assertEquals(preSyncSize + 1, actual.getExecutions().size());
 
         final String status = actual.getExecutions().get(1).getStatus();
-
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 

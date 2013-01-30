@@ -68,7 +68,7 @@ public abstract class AbstractBaseBean implements Serializable {
      * @param property the integer representing a boolean value
      * @return the boolean value corresponding to the property param
      */
-    public final Boolean isBooleanAsInteger(final Integer property) {
+    public final boolean isBooleanAsInteger(final Integer property) {
         return property != null && property == 1;
     }
 
@@ -98,7 +98,7 @@ public abstract class AbstractBaseBean implements Serializable {
             }
         }
 
-        return excludeFields.toArray(new String[] {});
+        return excludeFields.toArray(new String[]{});
     }
 
     @Override

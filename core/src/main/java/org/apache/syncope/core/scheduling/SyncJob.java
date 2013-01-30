@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.scheduling;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javassist.NotFoundException;
@@ -48,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.UserSearchDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
+import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationManager;
 import org.apache.syncope.core.rest.controller.InvalidSearchConditionException;
@@ -310,8 +313,20 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
+    private Boolean readEnabled(final ConnectorObject connectorObject) {
+        Boolean enabled = null;
+        if (((SyncTask) this.task).isSyncStatus()) {
+            Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, connectorObject.getAttributes());
+            if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
+                enabled = (Boolean) status.getValue().get(0);
+            }
+        }
+
+        return enabled;
+    }
+
     /**
-     * Creates user and stores the result in parameter delta (!)
+     * Creates user.
      *
      * @param delta
      * @param dryRun
@@ -319,7 +334,6 @@ public class SyncJob extends AbstractTaskJob {
      * @throws JobExecutionException
      */
     private SyncResult createUser(SyncDelta delta, final boolean dryRun) throws JobExecutionException {
-
         final SyncResult result = new SyncResult();
         result.setOperation(Operation.CREATE);
 
@@ -333,23 +347,7 @@ public class SyncJob extends AbstractTaskJob {
             result.setStatus(Status.SUCCESS);
         } else {
             try {
-                Boolean enabled = null;
-
-                // --------------------------
-                // Check for status synchronization ...
-                // --------------------------
-                if (((SyncTask) this.task).isSyncStatus()) {
-                    Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, delta.getObject()
-                            .getAttributes());
-
-                    if (status != null) {
-                        enabled = status.getValue() != null && !status.getValue().isEmpty()
-                                ? (Boolean) status.getValue().get(0)
-                                : null;
-                    }
-                }
-                // --------------------------
-
+                Boolean enabled = readEnabled(delta.getObject());
                 WorkflowResult<Map.Entry<Long, Boolean>> created = wfAdapter.create(userTO, true, enabled);
 
                 List<PropagationTask> tasks = propagationManager.getCreateTaskIds(created, userTO.getPassword(), userTO
@@ -379,7 +377,68 @@ public class SyncJob extends AbstractTaskJob {
         return result;
     }
 
-    private void updateUsers(SyncDelta delta, final List<Long> users, final boolean dryRun,
+    private void updateUser(final Long userId, SyncDelta delta, final boolean dryRun, final SyncResult result)
+            throws Exception {
+
+        UserTO userTO = userDataBinder.getUserTO(userId);
+        UserMod userMod = connObjectUtil.getUserMod(userId, delta.getObject(), (SyncTask) task);
+
+        delta = actions.beforeUpdate(delta, userTO, userMod);
+
+        if (dryRun) {
+            return;
+        }
+
+        WorkflowResult<Map.Entry<Long, Boolean>> updated;
+        try {
+            updated = wfAdapter.update(userMod);
+        } catch (Exception e) {
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", userId, e);
+
+            result.setStatus(Status.FAILURE);
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+
+            updated = new WorkflowResult<Map.Entry<Long, Boolean>>(
+                    new SimpleEntry<Long, Boolean>(userId, false), new PropagationByResource(), new HashSet<String>());
+        }
+
+        Boolean enabled = readEnabled(delta.getObject());
+        if (enabled != null) {
+            WorkflowResult<Long> enableUpdate = null;
+
+            SyncopeUser user = userDAO.find(userId);
+            enableUpdate = user.isSuspended() == null
+                    ? wfAdapter.activate(userId, null)
+                    : enabled
+                    ? wfAdapter.reactivate(userId)
+                    : wfAdapter.suspend(userId);
+
+            if (enableUpdate != null) {
+                if (enableUpdate.getPropByRes() != null) {
+                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
+                    updated.getPropByRes().purge();
+                }
+                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+            }
+        }
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated,
+                userMod.getPassword(),
+                userMod.getVirtualAttributesToBeRemoved(),
+                userMod.getVirtualAttributesToBeUpdated(),
+                Collections.singleton(((SyncTask) this.task).getResource().getName()));
+
+        propagationManager.execute(tasks);
+
+        notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(),
+                updated.getPropByRes(), updated.getPerformedTasks()));
+
+        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
+
+        actions.after(delta, userTO, result);
+    }
+
+    private void updateUsers(final SyncDelta delta, final List<Long> users, final boolean dryRun,
             final List<SyncResult> results) throws JobExecutionException {
 
         if (!((SyncTask) task).isPerformUpdate()) {
@@ -390,50 +449,30 @@ public class SyncJob extends AbstractTaskJob {
         LOG.debug("About to update {}", users);
 
         for (Long userId : users) {
+            LOG.debug("About to update user {}", userId);
+
             final SyncResult result = new SyncResult();
             result.setOperation(Operation.UPDATE);
+            result.setStatus(Status.SUCCESS);
+            result.setUserId(userId);
 
             try {
-                UserTO userTO = userDataBinder.getUserTO(userId);
-                try {
+                updateUser(userId, delta, dryRun, result);
+            } catch (PropagationException e) {
+                result.setStatus(Status.FAILURE);
+                result.setMessage("User " + delta.getUid().getUidValue() + "updated but not propagated\n"
+                        + e.getMessage());
 
-                    final UserMod userMod = connObjectUtil.getUserMod(userId, delta.getObject(), (SyncTask) task);
-                    delta = actions.beforeUpdate(delta, userTO, userMod);
+                LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
+            } catch (Exception e) {
+                result.setStatus(Status.FAILURE);
+                result.setMessage(e.getMessage());
 
-                    result.setStatus(Status.SUCCESS);
-                    result.setUserId(userMod.getId());
-                    result.setUsername(userMod.getUsername());
-
-                    if (!dryRun) {
-                        WorkflowResult<Map.Entry<Long, Boolean>> updated = wfAdapter.update(userMod);
-
-                        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(updated, userMod
-                                .getPassword(), userMod.getVirtualAttributesToBeRemoved(), userMod
-                                .getVirtualAttributesToBeUpdated(), Collections.singleton(((SyncTask) this.task)
-                                .getResource().getName()));
-
-                        propagationManager.execute(tasks);
-
-                        notificationManager.createTasks(new WorkflowResult<Long>(updated.getResult().getKey(),
-                                updated.getPropByRes(), updated.getPerformedTasks()));
-
-                        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
-                    }
-                } catch (PropagationException e) {
-                    LOG.error("Could not propagate user " + delta.getUid().getUidValue(), e);
-                } catch (Exception e) {
-                    result.setStatus(Status.FAILURE);
-                    result.setMessage(e.getMessage());
-                    LOG.error("Could not update user " + delta.getUid().getUidValue(), e);
-                }
-
-                actions.after(delta, userTO, result);
-                results.add(result);
-            } catch (NotFoundException e) {
-                LOG.error("Could not find user {}", userId, e);
-            } catch (UnauthorizedRoleException e) {
-                LOG.error("Not allowed to read user {}", userId, e);
+                LOG.error("Could not update user " + delta.getUid().getUidValue(), e);
             }
+            results.add(result);
+
+            LOG.debug("User {} successfully updated", userId);
         }
     }
 

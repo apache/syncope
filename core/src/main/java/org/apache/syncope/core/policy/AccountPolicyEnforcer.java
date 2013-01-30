@@ -104,7 +104,7 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
 
         // check for subsequent failed logins
         if (user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.getSuspended()) {
+                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.isSuspended()) {
             try {
                 LOG.debug("User {}:{} is over to max failed logins", user.getId(), user.getUsername());
 
