@@ -105,15 +105,16 @@ public class ConnectorModalPage extends BaseModalPage {
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connectorTO.getCapabilities());
 
-        final IModel<List<ConnectorCapability>> capabilities = new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities =
+                new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID = 5275935387613157437L;
 
-            @Override
-            protected List<ConnectorCapability> load() {
-                return Arrays.asList(ConnectorCapability.values());
-            }
-        };
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
 
         final Map<String, Map<String, ConnBundleTO>> mapConnBundleTO = new HashMap<String, Map<String, ConnBundleTO>>();
         for (ConnBundleTO connBundleTO : restClient.getAllBundles()) {
@@ -415,7 +416,8 @@ public class ConnectorModalPage extends BaseModalPage {
         add(connectorForm);
     }
 
-    private ConnBundleTO getSelectedBundleTO(final Map<String, Map<String, ConnBundleTO>> bundles, final ConnInstanceTO connTO) {
+    private ConnBundleTO getSelectedBundleTO(final Map<String, Map<String, ConnBundleTO>> bundles,
+            final ConnInstanceTO connTO) {
 
         if (connTO != null && StringUtils.isNotBlank(connTO.getBundleName())
                 && StringUtils.isNotBlank(connTO.getVersion())) {
