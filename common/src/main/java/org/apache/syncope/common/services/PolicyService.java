@@ -30,29 +30,57 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 
-@Path("policies/{kind}")
+@Path("policies/{type}")
 public interface PolicyService {
 
+    /**
+     * @param type Creates a new policy with given type
+     * @param policyTO Policy to be created (needs to match type)
+     * @return Response containing URI location for created resource
+     */
     @POST
-    <T extends PolicyTO> Response create(@PathParam("kind") PolicyType type, T policyTO);
+    <T extends PolicyTO> Response create(@PathParam("type") PolicyType type, T policyTO);
 
+    /**
+     * @param type Deletes policy with given type
+     * @param policyId Deletes policy with given id
+     */
     @DELETE
     @Path("{policyId}")
-    <T extends PolicyTO> void delete(@PathParam("kind") PolicyType type, @PathParam("policyId") Long policyId);
+    <T extends PolicyTO> void delete(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
 
+    /**
+     * @param type Type selector for requested policies
+     * @return List of policies with matching type.
+     */
     @GET
-    <T extends PolicyTO> List<T> list(@PathParam("kind") PolicyType type);
+    <T extends PolicyTO> List<T> list(@PathParam("type") PolicyType type);
 
+    /**
+     * @param type Request for policy with given type
+     * @param policyId ID of requested policy
+     * @return Returns policy with matching id and type
+     */
     @GET
     @Path("{policyId}")
-    <T extends PolicyTO> T read(@PathParam("kind") PolicyType type, @PathParam("policyId") Long policyId);
+    <T extends PolicyTO> T read(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
 
+    /**
+     * @param type PolicyType to read global policy from
+     * @return Global Policy for matching type
+     */
     @GET
     @Path("0")
-    <T extends PolicyTO> T readGlobal(@PathParam("kind") PolicyType type);
+    <T extends PolicyTO> T readGlobal(@PathParam("type") PolicyType type);
 
+    /**
+     * @param type PolicyType to be updated.
+     * @param policyId ID of policy to be updated
+     * @param policyTO Policy to replace existing policy
+     */
     @PUT
     @Path("{policyId}")
-    <T extends PolicyTO> void update(@PathParam("kind") PolicyType type,@PathParam("policyId") Long policyId,
+    <T extends PolicyTO> void update(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId,
             T policyTO);
+
 }

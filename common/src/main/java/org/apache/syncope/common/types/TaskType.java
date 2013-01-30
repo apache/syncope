@@ -47,6 +47,6 @@ public enum TaskType {
                 }
             }
         }
-        return null;
+        return TaskType.valueOf(name.toUpperCase());
     }
 }

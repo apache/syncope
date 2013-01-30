@@ -25,6 +25,10 @@ public enum UserRequestType {
 
     CREATE,
     UPDATE,
-    DELETE
+    DELETE;
+
+    public static UserRequestType fromString(String value) {
+        return UserRequestType.valueOf(value.toUpperCase());
+    }
 
 }

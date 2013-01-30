@@ -40,4 +40,8 @@ public enum CipherAlgorithm {
     public final String getAlgorithm() {
         return algorithm;
     }
+
+    public static CipherAlgorithm fromString(String value) {
+        return CipherAlgorithm.valueOf(value.toUpperCase());
+    }
 }

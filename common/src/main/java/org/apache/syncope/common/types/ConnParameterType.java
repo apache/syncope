@@ -28,6 +28,7 @@ public enum ConnParameterType {
      */
     OVERRIDABLE(true),
     NOT_OVERRIDABLE(false);
+
     private boolean overridable;
 
     ConnParameterType(final boolean overridable) {

@@ -30,5 +30,9 @@ public enum ConflictResolutionAction {
     // ignore sync
     IGNORE,
     // sync all
-    ALL
+    ALL;
+
+    public static ConflictResolutionAction fromString(String value) {
+        return ConflictResolutionAction.valueOf(value.toUpperCase());
+    }
 }
