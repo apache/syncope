@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -114,6 +115,9 @@ public class UserTestITCase extends AbstractTest {
             fail();
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        } catch (AccessControlException e) {
+            // Will be thrown by cxf service
+            assertNotNull(e);
         }
 
         UserTO userTO = userService2.readSelf();

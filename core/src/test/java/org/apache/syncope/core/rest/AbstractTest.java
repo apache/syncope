@@ -70,9 +70,11 @@ import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.services.SchemaService.SchemaType;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -375,4 +377,15 @@ public abstract class AbstractTest {
         return getObject(response, RoleTO.class, roleService);
     }
 
+
+    protected Response createPolicy(PolicyService policyService, PolicyType policyType, PolicyTO policy) {
+        Response response = policyService.create(policyType, policy);
+        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+            Exception ex = clientExceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return response;
+    }
 }

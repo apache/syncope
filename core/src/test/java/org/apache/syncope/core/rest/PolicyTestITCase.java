@@ -81,14 +81,12 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setDescription("global password policy");
         System.out.println(policy.getType());
 
-        Throwable t = null;
         try {
-            policyService.create(PolicyType.PASSWORD, policy);
+            createPolicy(policyService, PolicyType.PASSWORD, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy);
+            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy));
         }
-        assertNotNull(t);
     }
 
     @Test
@@ -96,21 +94,19 @@ public class PolicyTestITCase extends AbstractTest {
         SyncPolicyTO policy = new SyncPolicyTO();
         policy.setSpecification(new SyncPolicySpec());
 
-        Throwable t = null;
         try {
-            policyService.create(PolicyType.SYNC, policy);
+            createPolicy(policyService, PolicyType.SYNC, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy);
+            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy));
         }
-        assertNotNull(t);
     }
 
     @Test
     public void create() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        Response response = policyService.create(PolicyType.SYNC, policy);
+        Response response = createPolicy(policyService, PolicyType.SYNC, policy);
         SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
 
         assertNotNull(policyTO);
@@ -127,7 +123,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        Response response = policyService.create(PolicyType.PASSWORD, policy);
+        Response response = createPolicy(policyService, PolicyType.PASSWORD, policy);
         policy = getObject(response, PasswordPolicyTO.class, policyService);
 
         // read new password policy
@@ -152,7 +148,7 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
-        Response response = policyService.create(PolicyType.SYNC, policy);
+        Response response = createPolicy(policyService, PolicyType.SYNC, policy);
         SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
         assertNotNull(policyTO);
 
