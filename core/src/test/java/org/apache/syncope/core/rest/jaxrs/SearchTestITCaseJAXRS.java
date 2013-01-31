@@ -18,16 +18,14 @@
  */
 package org.apache.syncope.core.rest.jaxrs;
 
-import org.apache.syncope.core.rest.TaskTestITCase;
+import org.apache.syncope.core.rest.SearchTestITCase;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-@Ignore
-public class TaskTestITCaseJAXRS extends TaskTestITCase {
+public class SearchTestITCaseJAXRS extends SearchTestITCase {
 
-    public TaskTestITCaseJAXRS() {
+    public SearchTestITCaseJAXRS() {
         super();
         setEnabledCXF(true);
     }
