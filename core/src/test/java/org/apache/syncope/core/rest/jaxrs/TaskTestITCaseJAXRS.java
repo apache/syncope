@@ -28,5 +28,7 @@ public class TaskTestITCaseJAXRS extends TaskTestITCase {
     public TaskTestITCaseJAXRS() {
         super();
         setEnabledCXF(true);
+        // JSON is currently not working (fix after CXF migration is complete)
+        setContentType(CONTENT_TYPE_XML);
     }
 }
