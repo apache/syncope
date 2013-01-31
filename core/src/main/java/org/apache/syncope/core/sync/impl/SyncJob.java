@@ -426,7 +426,7 @@ public class SyncJob extends AbstractTaskJob {
                             connector.getOperationOptions(uMapping.getItems()));
                 }
                 if (rMapping != null) {
-                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getUsyncToken(), handler,
+                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getRsyncToken(), handler,
                             connector.getOperationOptions(rMapping.getItems()));
                 }
             }
