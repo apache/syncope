@@ -24,25 +24,22 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.Test;
 
 public class WorkflowTestITCase extends AbstractTest {
 
-    public static final String ROLE_TYPE = "role";
-
-    public static final String USER_TYPE = "user";
-
     @Test //TODO TestCase needs to be extended
     public void testGetUserDefinition() {
-        WorkflowDefinitionTO definition = workflowService.getDefinition(USER_TYPE);
+        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
         assertNotNull(definition);
     }
 
     @Test //TODO TestCase needs to be extended
     public void testGetRoleDefinition() {
-        WorkflowDefinitionTO definition = workflowService.getDefinition(ROLE_TYPE);
+        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
         assertNotNull(definition);
     }
 
@@ -50,11 +47,11 @@ public class WorkflowTestITCase extends AbstractTest {
     public void testUpdateUserDefinition() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        WorkflowDefinitionTO definition = workflowService.getDefinition(USER_TYPE);
+        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
         assertNotNull(definition);
 
-        workflowService.updateDefinition(USER_TYPE, definition);
-        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(USER_TYPE);
+        workflowService.updateDefinition(AttributableType.USER, definition);
+        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(AttributableType.USER);
         assertNotNull(newDefinition);
     }
 
@@ -62,24 +59,24 @@ public class WorkflowTestITCase extends AbstractTest {
     public void testUpdateRoleDefinition() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
-        WorkflowDefinitionTO definition = workflowService.getDefinition(ROLE_TYPE);
+        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
         assertNotNull(definition);
 
-        workflowService.updateDefinition(ROLE_TYPE, definition);
-        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(ROLE_TYPE);
+        workflowService.updateDefinition(AttributableType.ROLE, definition);
+        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(AttributableType.ROLE);
         assertNotNull(newDefinition);
     }
 
     @Test
     public void testGetUserTasks() {
-        List<String> tasks = workflowService.getDefinedTasks(USER_TYPE);
+        List<String> tasks = workflowService.getDefinedTasks(AttributableType.USER);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
     }
 
     @Test
     public void testGetRoleTasks() {
-        List<String> tasks = workflowService.getDefinedTasks(ROLE_TYPE);
+        List<String> tasks = workflowService.getDefinedTasks(AttributableType.ROLE);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
     }

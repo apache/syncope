@@ -185,4 +185,9 @@ public final class CollectionWrapper {
         }
         return respons;
     }
+
+    @SuppressWarnings("unchecked")
+    public static List<String> wrapStrings(final ModelAndView modelAndView) {
+        return (List<String>) modelAndView.getModel().values().iterator().next();
+    }
 }

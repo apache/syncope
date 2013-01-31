@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.springframework.web.client.RestTemplate;
 
 public class WorkflowServiceProxy extends SpringServiceProxy implements WorkflowService {
@@ -31,17 +32,19 @@ public class WorkflowServiceProxy extends SpringServiceProxy implements Workflow
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition(final String type) {
-        return getRestTemplate().getForObject(baseUrl + "workflow/definition/" + type, WorkflowDefinitionTO.class);
+    public WorkflowDefinitionTO getDefinition(final AttributableType type) {
+        return getRestTemplate().getForObject(baseUrl + "workflow/definition/" + type.name().toLowerCase(),
+                WorkflowDefinitionTO.class);
     }
 
     @Override
-    public void updateDefinition(final String type, final WorkflowDefinitionTO definition) {
-        getRestTemplate().put(baseUrl + "workflow/definition/" + type, definition);
+    public void updateDefinition(final AttributableType type, final WorkflowDefinitionTO definition) {
+        getRestTemplate().put(baseUrl + "workflow/definition/" + type.name().toLowerCase(), definition);
     }
 
     @Override
-    public List<String> getDefinedTasks(final String type) {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "workflow/tasks/{type}", String[].class, type));
+    public List<String> getDefinedTasks(final AttributableType type) {
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "workflow/tasks/{type}", String[].class,
+                type.name().toLowerCase()));
     }
 }

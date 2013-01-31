@@ -25,19 +25,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.types.AttributableType;
 
 @Path("workflows")
 public interface WorkflowService {
 
     @GET
     @Path("{kind}")
-    WorkflowDefinitionTO getDefinition(@PathParam("kind") String kind);
+    WorkflowDefinitionTO getDefinition(@PathParam("kind") AttributableType kind);
 
     @PUT
     @Path("{kind}")
-    void updateDefinition(@PathParam("kind") String kind, WorkflowDefinitionTO definition);
+    void updateDefinition(@PathParam("kind") AttributableType kind, WorkflowDefinitionTO definition);
 
     @GET
     @Path("{kind}/tasks")
-    List<String> getDefinedTasks(@PathParam("kind") String kind);
+    List<String> getDefinedTasks(@PathParam("kind") AttributableType kind);
 }
