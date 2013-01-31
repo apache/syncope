@@ -22,7 +22,7 @@ under the License.
       .divtableheaderlabel {
         font-weight: bold;
         float:left;
-        margin-left: 5px;
+        margin-left: 0px;
       }
 
       .divtableheadercell {
@@ -59,7 +59,7 @@ under the License.
           <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
         </div>
         <div class="divtableheadercell">
-          <div class="divtableheaderlabel">Failure</div>
+          <div class="divtableheaderlabel">&nbsp;&nbsp;Failure</div>
           <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
         </div>
       </div>
@@ -67,17 +67,9 @@ under the License.
 
     <div style="display:inline-table;">
       <div style="display:table-cell;vertical-align:top;">
-        <div id="divtablerow-label" wicket:id="categoryView">
-          <div class="tablecolumn_label medium_fixedsize" style="height:20px;">
-            <span wicket:id="subcategory">[subcategory]</span>
-          </div>
+        <div wicket:id="categoryView" class="tablecolumn_label medium_fixedsize" style="height:20px;float:none;">
+          <span wicket:id="subcategory">[subcategory]</span>
         </div>
-
-        <script type="text/javascript">
-          $(function() {
-            $('#divtablerow-label div:even').addClass("alt");
-          });
-        </script>
       </div>
 
       <div id="divtablerow-success" class="divtablecheckcolumn">
@@ -86,12 +78,6 @@ under the License.
             <input type="checkbox" wicket:id="successCheck"/>
           </div>
         </span>
-
-        <script type="text/javascript">
-          $(function() {
-            $('#divtablerow-success div:even').addClass("alt");
-          });
-        </script>
       </div>
 
       <div id="divtablerow-failure" class="divtablecheckcolumn">
@@ -100,12 +86,6 @@ under the License.
             <input type="checkbox" wicket:id="failureCheck"/>
           </div>
         </span>
-
-        <script type="text/javascript">
-          $(function() {
-            $('#divtablerow-failure div:even').addClass("alt");
-          });
-        </script>
       </div>
     </div>
   </wicket:panel>

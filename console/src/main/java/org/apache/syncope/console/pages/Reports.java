@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -33,6 +32,7 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.ReportRestClient;
@@ -138,7 +138,7 @@ public class Reports extends BasePage {
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
-        columns.add(new AbstractColumn<ReportTO,String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ReportTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -220,8 +220,9 @@ public class Reports extends BasePage {
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
-        
+
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -233,7 +234,7 @@ public class Reports extends BasePage {
         };
 
         reload.add(new Behavior() {
-            
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -347,7 +348,7 @@ public class Reports extends BasePage {
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
 
-            List<ReportTO> list = reportRestClient.list(((int)first / paginatorRows) + 1, paginatorRows);
+            List<ReportTO> list = reportRestClient.list(((int) first / paginatorRows) + 1, paginatorRows);
 
             Collections.sort(list, comparator);
 
@@ -478,7 +479,7 @@ public class Reports extends BasePage {
                     xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
 
             ListView<Enum<?>> categoryView =
-                    new ListView<Enum<?>>("categoryView", new ArrayList(category.getSubCategoryElements())) {
+                    new AltListView<Enum<?>>("categoryView", new ArrayList(category.getSubCategoryElements())) {
 
                         private static final long serialVersionUID = 4949588177564901031L;
 
@@ -492,7 +493,7 @@ public class Reports extends BasePage {
             add(categoryView);
 
             ListView<Enum<?>> successView =
-                    new ListView<Enum<?>>("successView", new ArrayList(category.getSubCategoryElements())) {
+                    new AltListView<Enum<?>>("successView", new ArrayList(category.getSubCategoryElements())) {
 
                         private static final long serialVersionUID = 4949588177564901031L;
 
@@ -509,7 +510,7 @@ public class Reports extends BasePage {
             successGroup.add(successView);
 
             ListView<Enum<?>> failureView =
-                    new ListView<Enum<?>>("failureView", new ArrayList(category.getSubCategoryElements())) {
+                    new AltListView<Enum<?>>("failureView", new ArrayList(category.getSubCategoryElements())) {
 
                         private static final long serialVersionUID = 4949588177564901031L;
 

@@ -49,20 +49,13 @@ under the License.
       });
                     
       /** Add rollover effect to tables supporting Ajax events (live)*/
-      $('table.ui-widget.ui-widget-content.table-hover tbody tr')
-      .live('mouseover mouseout', function(event) {
+      $('table.ui-widget.ui-widget-content.table-hover tbody tr').live('mouseover mouseout', 
+      function(event) {
         if (event.type == 'mouseover') {
           $(this).addClass('selectedRow');
         } else if (event.type == 'mouseout') {
           $(this).removeClass('selectedRow');
         }
-      });
-                
-      $(document).ready(function() {
-        $("#editProfile").hide();
-        $("#username").click(function() {
-          $("#editProfile").toggle();
-        });
       });
     </script>
   </head>
