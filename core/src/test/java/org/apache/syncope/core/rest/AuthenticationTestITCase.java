@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,9 +83,11 @@ public class AuthenticationTestITCase extends AbstractTest {
         authRoleTO = getObject(response, RoleTO.class, roleService);
         assertNotNull(authRoleTO);
 
+        String schemaName = "authTestSchema" + getUUIDString();
+
         // 1. create a schema (as admin)
         SchemaTO schemaTO = new SchemaTO();
-        schemaTO.setName("authTestSchema");
+        schemaTO.setName(schemaName);
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
@@ -107,33 +110,30 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "authTestSchema");
+        schemaTO = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
         SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class, userTO.getUsername(), "password123");
 
-        schemaTO = schemaService2.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, "authTestSchema");
+        schemaTO = schemaService2.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
-        HttpClientErrorException exception = null;
         try {
-            schemaService2.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
+            schemaService2.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaName, schemaTO);
+            fail("Schemaupdate as user schould not work");
         } catch (HttpClientErrorException e) {
-            exception = e;
+            assertNotNull(e);
+            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        } catch (AccessControlException e) {
+            // CXF Service will throw this exception
+            assertNotNull(e);
         }
-        assertNotNull(exception);
-        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
-
-        userTO = userService.read(userTO.getId());
-
-        assertNotNull(userTO);
-        assertNotNull(userTO.getLastLoginDate());
-        assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
+        assertEquals(0, getFailedLogins(userService, userTO.getId()));
     }
 
     @Test
