@@ -32,26 +32,53 @@ import org.apache.syncope.common.to.UserRequestTO;
 
 @Path("requests/user")
 public interface UserRequestService {
+
     public static final String SYNCOPE_CREATE_ALLOWED = "Syncope-Create-Allowed";
 
+    /**
+     * This method is similar to {@link #isCreateAllowed()}, but follows RESTful best practices.
+     *
+     * @return Response contains special syncope HTTP header (SYNCOPE_CREATE_ALLOWED), indicating if user is allowed to
+     * make a create UserRequest
+     */
     @OPTIONS
     Response getOptions();
 
+    /**
+     * This method is similar to {@link #getOptions()}, but without following RESTful best practices.
+     *
+     * @return Returns true, if user is allowed to make user create requests
+     */
     @GET
     @Path("create/allowed")
     boolean isCreateAllowed();
 
+    /**
+     * @param userRequestTO Request for user to be created
+     * @return Response containing URI location for created resource
+     */
     @POST
     Response create(UserRequestTO userRequestTO);
 
+    /**
+     * @return Returns list of all UserRequests.
+     */
     @GET
     List<UserRequestTO> list();
 
+    /**
+     * @param requestId ID of UserRequest to be read
+     * @return Returns UserRequest with matching requestId.
+     */
     @GET
     @Path("{requestId}")
     UserRequestTO read(@PathParam("requestId") Long requestId);
 
+    /**
+     * @param requestId ID of UserRequest to be deleted.
+     */
     @DELETE
     @Path("{requestId}")
     void delete(@PathParam("requestId") Long requestId);
+
 }

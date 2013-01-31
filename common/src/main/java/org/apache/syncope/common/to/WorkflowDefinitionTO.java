@@ -48,4 +48,5 @@ public class WorkflowDefinitionTO extends AbstractBaseBean {
     public void setXmlDefinition(String xmlDefinition) {
         this.xmlDefinition = xmlDefinition;
     }
+
 }

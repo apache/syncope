@@ -27,18 +27,29 @@ import javax.ws.rs.PathParam;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
 
-@Path("workflows")
+@Path("workflows/{kind}")
 public interface WorkflowService {
 
+    /**
+     * @param kind Kind can be USER or ROLE only!
+     * @return Returns workflow definition for matching kind.
+     */
     @GET
-    @Path("{kind}")
     WorkflowDefinitionTO getDefinition(@PathParam("kind") AttributableType kind);
 
+    /**
+     * @param kind Kind can be USER or ROLE only!
+     * @param definition New workflow definition to be stored for matching kind.
+     */
     @PUT
-    @Path("{kind}")
     void updateDefinition(@PathParam("kind") AttributableType kind, WorkflowDefinitionTO definition);
 
+    /**
+     * @param kind Kind can be USER or ROLE only!
+     * @return Returns existing tasks for matching kind.
+     */
     @GET
-    @Path("{kind}/tasks")
+    @Path("tasks")
     List<String> getDefinedTasks(@PathParam("kind") AttributableType kind);
+
 }

@@ -36,45 +36,85 @@ public interface SchemaService {
     @XmlEnum
     enum SchemaType {
 
-        NORMAL("schema"),
+        /**
+         * Derived schema calculated based on other attributes.
+         */
         DERIVED("derivedSchema"),
+
+        /**
+         * Standard schema for normal attributes to be stored within syncope.
+         */
+        NORMAL("schema"),
+
+        /**
+         * Virtual schema for attributes fetched from remote resources only.
+         */
         VIRTUAL("virtualSchema");
 
+        public static SchemaType fromString(String value) {
+            return SchemaType.valueOf(value.toUpperCase());
+        }
+
+        // TODO remove name once CXF migration is complete
         private final String name;
 
         private SchemaType(String name) {
             this.name = name;
         }
 
-        // TODO remove once CXF migration is complete
         public String toSpringURL() {
             return name;
         }
-
-        public static SchemaType fromString(String value) {
-            return SchemaType.valueOf(value.toUpperCase());
-        }
     }
 
+    /**
+     * @param kind Kind for schema to be created
+     * @param type Type for schema to be created
+     * @param schemaTO Schema to be created
+     * @return Response containing URI location for created resource.
+     */
     @POST
     <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type, T schemaTO);
 
+    /**
+     * @param kind Kind for schema to be deleted
+     * @param type Type for schema to be deleted
+     * @param schemaName Name of schema to be deleted
+     */
     @DELETE
     @Path("{name}")
     void delete(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
+    /**
+     * @param kind Kind for schemas to be listed
+     * @param type Type for schemas to be listed
+     * @return List of schemas with matching kind and type
+     */
     @GET
     List<? extends AbstractSchemaTO> list(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type);
 
+    /**
+     * @param kind Kind for schemas to be read
+     * @param type Type for schemas to be read
+     * @param schemaName Name of schema to be read
+     * @return Returns schema with matching name, kind and type
+     */
     @GET
     @Path("{name}")
     <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
             @PathParam("name") String schemaName);
 
+    /**
+     * @param kind Kind for schemas to be updated
+     * @param type Type for schemas to be updated
+     * @param schemaName Name of schema to be updated
+     * @param schemaTO New schema to be stored
+     */
     @PUT
     @Path("{name}")
     <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type, @PathParam("name") String schemaName, T schemaTO);
+
 }
