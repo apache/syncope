@@ -47,8 +47,15 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StatusPanel extends Panel {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     @SpringBean
     private ResourceRestClient resourceRestClient;
@@ -81,9 +88,16 @@ public class StatusPanel extends Panel {
         if (attributable instanceof UserTO) {
             UserTO userTO = (UserTO) attributable;
             syncope.setAccountLink(userTO.getUsername());
-            syncope.setStatus(userTO.getStatus() == null
-                    ? Status.UNDEFINED
-                    : Status.valueOf(userTO.getStatus().toUpperCase()));
+
+            Status syncopeStatus = Status.UNDEFINED;
+            if (userTO.getStatus() != null) {
+                try {
+                    syncopeStatus = Status.valueOf(userTO.getStatus().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Unexpected status found: {}", userTO.getStatus());
+                }
+            }
+            syncope.setStatus(syncopeStatus);
         }
         if (attributable instanceof RoleTO) {
             RoleTO roleTO = (RoleTO) attributable;
