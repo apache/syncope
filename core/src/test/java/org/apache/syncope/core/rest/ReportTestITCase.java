@@ -30,7 +30,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 

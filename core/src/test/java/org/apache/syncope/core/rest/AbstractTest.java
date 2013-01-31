@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -71,6 +70,7 @@ import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.services.SchemaService.SchemaType;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
@@ -329,6 +329,12 @@ public abstract class AbstractTest {
 
     protected UserTO createUser(final UserTO userTO) {
         Response response = userService.create(userTO);
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            Exception ex = clientExceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
         return response.readEntity(UserTO.class);
     }
 
@@ -357,4 +363,16 @@ public abstract class AbstractTest {
         }
         return response;
     }
+    
+    protected RoleTO createRole(RoleService roleService, RoleTO newRoleTO) {
+        Response response = roleService.create(newRoleTO);
+        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+            Exception ex = clientExceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response, RoleTO.class, roleService);
+    }
+
 }

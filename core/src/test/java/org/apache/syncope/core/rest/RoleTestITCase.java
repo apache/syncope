@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,14 +79,12 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO newRoleTO = new RoleTO();
         newRoleTO.addAttribute(attributeTO("attr1", "value1"));
 
-        Throwable t = null;
         try {
-            roleService.create(newRoleTO);
+            createRole(roleService, newRoleTO);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            t = sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole);
+            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole));
         }
-        assertNotNull(t);
     }
 
     @Test
@@ -94,8 +93,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
         roleTO.setRoleOwner(8L);
 
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
 
         assertNotNull(roleTO.getVirtualAttributeMap());
@@ -124,8 +122,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setParent(8L);
         roleTO.setPasswordPolicy(4L);
 
-        Response response = roleService.create(roleTO);
-        RoleTO actual = getObject(response, RoleTO.class, roleService);
+        RoleTO actual = createRole(roleService, roleTO);
         assertNotNull(actual);
 
         actual = roleService.read(actual.getId());
@@ -143,7 +140,7 @@ public class RoleTestITCase extends AbstractTest {
         }
 
         RoleTO roleTO = new RoleTO();
-        roleTO.setName("toBeDeleted");
+        roleTO.setName("toBeDeleted" + getUUIDString());
         roleTO.setParent(8L);
 
         roleTO.addResource("resource-ldap");
@@ -216,9 +213,8 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        RoleTO roleTO = buildRoleTO("latestRole");
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        RoleTO roleTO = buildRoleTO("latestRole" + getUUIDString());
+        roleTO = createRole(roleService, roleTO);
 
         assertEquals(1, roleTO.getAttributes().size());
 
@@ -252,11 +248,10 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingVirAttribute() {
-        RoleTO roleTO = buildBasicRoleTO("withvirtual");
+        RoleTO roleTO = buildBasicRoleTO("withvirtual" + getUUIDString());
         roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
 
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        roleTO = createRole(roleService, roleTO);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getVirtualAttributes().size());
@@ -273,11 +268,10 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void updateRemovingDerAttribute() {
-        RoleTO roleTO = buildBasicRoleTO("withderived");
+        RoleTO roleTO = buildBasicRoleTO("withderived" + getUUIDString());
         roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
 
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        roleTO = createRole(roleService, roleTO);
 
         assertNotNull(roleTO);
         assertEquals(1, roleTO.getDerivedAttributes().size());
@@ -310,6 +304,8 @@ public class RoleTestITCase extends AbstractTest {
             fail();
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        } catch (AccessControlException e) {
+            assertNotNull(e);
         }
 
         // 4. update as user5, owner of role 7 because owner of role 6 with
@@ -331,8 +327,7 @@ public class RoleTestITCase extends AbstractTest {
         String roleName = "torename" + getUUIDString();
         roleTO.setName(roleName);
 
-        Response response = roleService.create(roleTO);
-        RoleTO actual = getObject(response, RoleTO.class, roleService);
+        RoleTO actual = createRole(roleService, roleTO);
 
         assertNotNull(actual);
         assertEquals(roleName, actual.getName());
@@ -356,8 +351,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.addEntitlement("USER_READ");
         roleTO.addEntitlement("SCHEMA_READ");
 
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
         assertNotNull(roleTO.getEntitlements());
         assertFalse(roleTO.getEntitlements().isEmpty());
