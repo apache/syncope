@@ -20,7 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -74,7 +73,6 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                 Boolean value = null;
 
                 if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
-
                     value = "true".equalsIgnoreCase(list.get(0).toString());
                 }
 

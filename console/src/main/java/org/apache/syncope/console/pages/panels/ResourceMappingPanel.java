@@ -297,7 +297,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxDropDownChoicePanel entitiesPanel = new AjaxDropDownChoicePanel("entities",
                         new ResourceModel("entities", "entities").getObject(), new Model(entity));
                 entitiesPanel.setChoices(attrType == AttributableType.ROLE
-                        ? Collections.singletonList(AttributableType.ROLE)
+                        ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
                         : Arrays.asList(AttributableType.values()));
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
                 entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
@@ -324,12 +324,17 @@ public class ResourceMappingPanel extends Panel {
                             "extAttrNames").getObject(), new PropertyModel<String>(mapItem, "extAttrName"));
                 } else {
                     extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName", new ResourceModel("extAttrNames",
-                            "extAttrNames").getObject(), new PropertyModel(mapItem, "extAttrName"));
+                            "extAttrNames").getObject(), new PropertyModel(mapItem, "extAttrName"), false);
                     ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
                 }
                 boolean required = false;
-                if (mapItem != null && !mapItem.isAccountid() && !mapItem.isPassword()) {
-                    required = true;
+                if (mapItem != null) {
+                    boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
+                    if (!accountIdOrPassword) {
+                        required = true;
+                    } else if (accountIdOrPassword && !schemaNames.isEmpty()) {
+                        ((AjaxDropDownChoicePanel) extAttrName).setModelObject(null);
+                    }
                 }
                 extAttrName.setRequired(required);
                 extAttrName.setEnabled(required);

@@ -20,7 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -165,7 +164,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     public FieldPanel clone() {
         final FieldPanel panel;
         try {
-            panel = this.getClass().getConstructor(new Class[] { String.class, String.class, IModel.class })
+            panel = this.getClass().getConstructor(new Class[]{String.class, String.class, IModel.class})
                     .newInstance(id, name, new Model(null));
         } catch (Exception e) {
             LOG.error("Error cloning field panel", e);

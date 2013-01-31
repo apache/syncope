@@ -20,7 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -34,13 +33,17 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable 
     private static final long serialVersionUID = -4716376580659196095L;
 
     public AjaxDropDownChoicePanel(final String id, final String name, final IModel<T> model) {
+        this(id, name, model, true);
+    }
 
+    public AjaxDropDownChoicePanel(final String id, final String name, final IModel<T> model, boolean enableOnBlur) {
         super(id, name, model);
 
-        field = new DropDownChoice("dropDownChoiceField", model, Collections.emptyList(), new ChoiceRenderer());
+        field = new DropDownChoice<T>("dropDownChoiceField", model, Collections.<T>emptyList(),
+                new ChoiceRenderer<T>());
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
-        if (!isReadOnly()) {
+        if (enableOnBlur) {
             field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
                 private static final long serialVersionUID = -1107858522700306810L;
