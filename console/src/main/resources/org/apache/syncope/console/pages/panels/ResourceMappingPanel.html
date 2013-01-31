@@ -30,7 +30,18 @@ under the License.
       <th><wicket:message key="intMappingTypes"/></th>
       <th><wicket:message key="intAttrNames"/></th>
       <th><wicket:message key="extAttrNames"/></th>
-      <th><wicket:message key="mandatoryCondition"/></th>
+      <th><wicket:message key="mandatoryCondition"/>
+      <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">?</a>
+      <div wicket:id="jexlHelp" class="help tooltip"
+           style="position: fixed; left: 580px; top: 115px; text-align: center; opacity: 0.9;">
+        <wicket:message key="jexl_info"/>
+        <ul>
+          <li><wicket:message key="jexl_ex1"/></li>
+          <li><wicket:message key="jexl_ex2"/></li>
+        </ul>
+        <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+      </div>
+      </th>
       <th><wicket:message key="accountId"/></th>
       <th><label wicket:id="passwordLabel"/></th>
       </tr>

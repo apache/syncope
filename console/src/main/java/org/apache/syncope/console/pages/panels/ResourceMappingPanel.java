@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -32,6 +31,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -45,6 +45,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -164,6 +165,7 @@ public class ResourceMappingPanel extends Panel {
      * @param attrType USER / ROLE
      */
     public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final AttributableType attrType) {
+
         super(panelid);
         setOutputMarkupId(true);
 
@@ -218,6 +220,13 @@ public class ResourceMappingPanel extends Panel {
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
+
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+        mappingContainer.add(jexlHelp);
+
+        AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+        mappingContainer.add(questionMarkJexlHelp);
+
         add(mappingContainer);
 
         final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));

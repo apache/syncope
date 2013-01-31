@@ -22,12 +22,15 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
@@ -64,9 +67,18 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                 new PropertyModel<String>(schema, "expression"));
         expression.addRequiredLabel();
 
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+        schemaForm.add(jexlHelp);
+
+
+        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+        schemaForm.add(questionMarkJexlHelp);
+
+
         name.setEnabled(createFlag);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -99,6 +111,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -110,8 +123,9 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-        
-        cancel.setDefaultFormProcessing(false);
+
+        cancel.setDefaultFormProcessing(
+                false);
 
         String allowedRoles;
 
@@ -124,9 +138,11 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
+
         schemaForm.add(expression);
 
         schemaForm.add(submit);
+
         schemaForm.add(cancel);
 
         add(schemaForm);

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -33,6 +32,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -42,6 +42,8 @@ import org.apache.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -106,9 +108,17 @@ public class AttributesPanel extends Panel {
                 final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
                 final StringBuilder text = new StringBuilder(attributeTO.getSchema());
-                if (templateMode) {
-                    text.append(" (JEXL)");
+
+                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+                item.add(jexlHelp);
+
+                final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+                item.add(questionMarkJexlHelp);
+
+                if (!templateMode) {
+                    questionMarkJexlHelp.setVisible(false);
                 }
+
                 item.add(new Label("name", text.toString()));
 
                 final FieldPanel panel =

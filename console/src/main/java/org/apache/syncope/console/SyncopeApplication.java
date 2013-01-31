@@ -21,6 +21,7 @@ package org.apache.syncope.console;
 import java.io.Serializable;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Configuration;
+import org.apache.syncope.console.pages.InfoModalPage;
 import org.apache.syncope.console.pages.Login;
 import org.apache.syncope.console.pages.Logout;
 import org.apache.syncope.console.pages.Reports;
@@ -30,7 +31,6 @@ import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Todo;
 import org.apache.syncope.console.pages.Users;
-import org.apache.syncope.console.pages.InfoModalPage;
 import org.apache.syncope.console.pages.WelcomePage;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -43,10 +43,8 @@ import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -81,6 +79,7 @@ public class SyncopeApplication extends WebApplication implements IUnauthorizedC
         getSecuritySettings().setUnauthorizedComponentInstantiationListener(this);
 
         getMarkupSettings().setStripWicketTags(true);
+        getMarkupSettings().setCompressWhitespace(true);
 
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
     }

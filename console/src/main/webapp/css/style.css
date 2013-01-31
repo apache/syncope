@@ -416,3 +416,35 @@ td.action{
   color: #463;
   text-decoration: none;
 }
+
+.tooltip{
+  position: absolute;
+  left: -72px;
+  top: 23px;
+  z-index: 1000000;
+  line-height: normal;
+  _padding-top: 0em;
+  width: 19em;
+  border: 1px solid black;
+  background-color: whitesmoke;
+  opacity: 0.9;
+  color: black;
+  padding: 3px;
+}
+
+.help {
+  position: relative;
+  float: right;
+  top: 3px;
+  left: -15px;
+}
+
+.help a {
+  color: #463;
+  text-decoration: none;
+}
+
+.help a:hover {
+  color: blue;
+  text-decoration: none;
+}
