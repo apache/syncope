@@ -46,23 +46,7 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
 
     @Override
     public <T extends PolicyTO> Response create(final PolicyType type, final T policyTO) {
-        PolicyTO policy;
-        switch (type) {
-            case ACCOUNT:
-                policy = policyController.create(new DummyHTTPServletResponse(), (AccountPolicyTO) policyTO);
-                break;
-
-            case PASSWORD:
-                policy = policyController.create(new DummyHTTPServletResponse(), (PasswordPolicyTO) policyTO);
-                break;
-
-            case SYNC:
-                policy = policyController.create(new DummyHTTPServletResponse(), (SyncPolicyTO) policyTO);
-                break;
-
-            default:
-                throw new BadRequestException();
-        }
+        PolicyTO policy = policyController.createInternal(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, policy.getId())

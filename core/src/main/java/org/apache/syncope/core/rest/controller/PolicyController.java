@@ -66,43 +66,30 @@ public class PolicyController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/password/create")
     public PasswordPolicyTO create(final HttpServletResponse response, @RequestBody final PasswordPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
-
-        LOG.debug("Creating policy " + policyTO);
-
-        final PasswordPolicy policy = binder.getPolicy(null, policyTO);
-
-        auditManager.audit(Category.policy, PolicySubCategory.create, Result.success,
-                "Successfully created password policy: " + policy.getId());
-
-        return binder.getPolicyTO(policyDAO.save(policy));
+        return (PasswordPolicyTO) createInternal(policyTO);
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/account/create")
     public AccountPolicyTO create(final HttpServletResponse response, @RequestBody final AccountPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
-
-        LOG.debug("Creating policy " + policyTO);
-
-        final AccountPolicy policy = binder.getPolicy(null, policyTO);
-
-        auditManager.audit(Category.policy, PolicySubCategory.create, Result.success,
-                "Successfully created account policy: " + policy.getId());
-
-        return binder.getPolicyTO(policyDAO.save(policy));
+        return (AccountPolicyTO) createInternal(policyTO);
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/sync/create")
     public SyncPolicyTO create(final HttpServletResponse response, @RequestBody final SyncPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
+        return (SyncPolicyTO) createInternal(policyTO);
+    }
 
+    public PolicyTO createInternal(final PolicyTO policyTO) {
         LOG.debug("Creating policy " + policyTO);
 
-        final SyncPolicy policy = binder.getPolicy(null, policyTO);
+        final Policy policy = binder.getPolicy(null, policyTO);
 
         auditManager.audit(Category.policy, PolicySubCategory.create, Result.success,
-                "Successfully created sync policy: " + policy.getId());
+                "Successfully created " + policy.getType().toString() + " policy: " + policy.getId());
 
         return binder.getPolicyTO(policyDAO.save(policy));
     }

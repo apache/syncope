@@ -111,7 +111,12 @@ public class TaskController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/create/sched")
     public TaskTO createSchedTask(final HttpServletResponse response, @RequestBody final SchedTaskTO taskTO)
             throws NotFoundException {
+        TaskTO createdTaskTO = createSchedTaskInternal(taskTO);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return createdTaskTO;
+    }
 
+    public TaskTO createSchedTaskInternal(final SchedTaskTO taskTO) {
         LOG.debug("Creating task " + taskTO);
 
         TaskUtil taskUtil = getTaskUtil(taskTO);
@@ -135,7 +140,6 @@ public class TaskController extends AbstractController {
         auditManager.audit(Category.task, TaskSubCategory.create, Result.success,
                 "Successfully created task: " + task.getId() + "/" + taskUtil);
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getTaskTO(task, taskUtil);
     }
 
@@ -184,7 +188,11 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/count")
     public ModelAndView count(@PathVariable("kind") final String kind) {
-        return new ModelAndView().addObject(taskDAO.count(getTaskUtil(kind).taskClass()));
+        return new ModelAndView().addObject(countInternal(kind));
+    }
+
+    public int countInternal(final String kind) {
+        return taskDAO.count(getTaskUtil(kind).taskClass());
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
