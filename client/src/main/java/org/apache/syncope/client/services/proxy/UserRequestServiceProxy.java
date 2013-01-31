@@ -36,7 +36,10 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public Response getOptions() {
-        return Response.ok().allow("GET", "POST", "DELETE").header(SYNCOPE_CREATE_ALLOWED, isCreateAllowed()).build();
+        return Response.ok()
+                .header("Allow", "GET,POST,OPTIONS,HEAD")
+                .header(SYNCOPE_CREATE_ALLOWED, isCreateAllowed())
+                .build();
     }
 
     @Override
@@ -75,13 +78,13 @@ public class UserRequestServiceProxy extends SpringServiceProxy implements UserR
 
     @Override
     public UserRequestTO read(final Long requestId) {
-        return getRestTemplate().getForObject(
-                baseUrl + "user/request/read/{requestId}.json", UserRequestTO.class, requestId);
+        return getRestTemplate().getForObject(baseUrl + "user/request/read/{requestId}.json", UserRequestTO.class,
+                requestId);
     }
 
     @Override
     public void delete(final Long requestId) {
-        getRestTemplate().getForObject(
-                baseUrl + "user/request/deleteRequest/{requestId}.json", UserRequestTO.class, requestId);
+        getRestTemplate().getForObject(baseUrl + "user/request/deleteRequest/{requestId}.json", UserRequestTO.class,
+                requestId);
     }
 }

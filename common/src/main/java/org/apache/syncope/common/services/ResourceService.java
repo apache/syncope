@@ -37,37 +37,71 @@ import org.apache.syncope.common.types.AttributableType;
 @Path("resources")
 public interface ResourceService {
 
+    /**
+     * @param resourceTO Resource to be checked
+     * @return Returns true, if connection to resource could be established
+     */
     @POST
-    @Path("validate")
+    @Path("check")
     boolean check(ResourceTO resourceTO);
 
+    /**
+     * @param resourceTO Resource to be created
+     * @return Response containing URI location for created resource
+     */
     @POST
     Response create(ResourceTO resourceTO);
 
+    /**
+     * @param resourceName Name of resource to be deleted
+     */
     @DELETE
     @Path("{resourceName}")
     void delete(@PathParam("resourceName") String resourceName);
 
+    /**
+     * @param resourceName Name of resource to get connector from
+     * @param type
+     * @param objectId
+     * @return Returns connector for matching parameters
+     */
     @GET
     @Path("{resourceName}/{type}/{objectId}")
     ConnObjectTO getConnector(@PathParam("resourceName") String resourceName,
             @PathParam("type") AttributableType type, @PathParam("objectId") String objectId);
 
-    // TODO: is it a resource method?
+    /**
+     * @return Returns PropagationActionsClasses
+     */
     @GET
     @Path("propagationActionsClasses")
     Set<PropagationActionClassTO> getPropagationActionsClasses();
 
+    /**
+     * @return Returns list of all Resources
+     */
     @GET
     List<ResourceTO> list();
 
+    /**
+     * @param connInstanceId Connector id to filter for resources
+     * @return Returns all resources using matching connector
+     */
     @GET
-    List<ResourceTO> list(@MatrixParam("connInstanceId") Long connInstanceId);
+    List<ResourceTO> list(@MatrixParam("connectorId") Long connInstanceId);
 
+    /**
+     * @param resourceName Name of resource to be read
+     * @return Resource with matching name
+     */
     @GET
     @Path("{resourceName}")
     ResourceTO read(@PathParam("resourceName") String resourceName);
 
+    /**
+     * @param resourceName Name of resource to be updated
+     * @param resourceTO Resource to be stored
+     */
     @PUT
     @Path("{resourceName}")
     void update(@PathParam("resourceName") String resourceName, ResourceTO resourceTO);

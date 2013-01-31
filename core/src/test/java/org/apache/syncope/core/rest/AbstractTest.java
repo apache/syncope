@@ -345,9 +345,9 @@ public abstract class AbstractTest {
                     + builder.toString());
         }
     }
-    
-    <T extends AbstractSchemaTO> Response createSchema(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type, T schemaTO) {
+
+    <T extends AbstractSchemaTO> Response createSchema(final AttributableType kind,
+            final SchemaType type, final T schemaTO) {
         Response response = schemaService.create(kind, type, schemaTO);
         if (response.getStatus() != HttpStatus.SC_CREATED) {
             Exception ex = clientExceptionMapper.fromResponse(response);

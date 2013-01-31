@@ -121,8 +121,8 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, userTO.getUsername(),
-                initialPassword);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class,
+                userTO.getUsername(), initialPassword);
 
         // 4. update with same password: not matching password policy
         try {
@@ -170,8 +170,8 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, userTO.getUsername(),
-                initialPassword);
+        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class,
+                userTO.getUsername(), initialPassword);
 
         // 4. now request user delete works
         createUserRequest(userRequestService2, new UserRequestTO(userTO.getId()));

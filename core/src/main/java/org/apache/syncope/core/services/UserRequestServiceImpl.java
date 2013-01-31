@@ -42,7 +42,7 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
 
     @Override
     public Response getOptions() {
-        return Response.ok().allow("GET", "POST", "DELETE")
+        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD")
                 .header(SYNCOPE_CREATE_ALLOWED, userRequestController.isCreateAllowedByConf()).build();
     }
 
