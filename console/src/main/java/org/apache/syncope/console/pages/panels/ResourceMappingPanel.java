@@ -369,6 +369,15 @@ public class ResourceMappingPanel extends Panel {
                         extAttrName.setModelObject(null);
                         extAttrName.setRequired(!accountId.getModelObject());
                         target.add(extAttrName);
+                        
+                        if (accountId.getModelObject()) {
+                            mapItem.setMandatoryCondition("true");
+                            mandatory.setEnabled(false);
+                        } else {
+                            mapItem.setMandatoryCondition("false");
+                            mandatory.setEnabled(true);
+                        }
+                        target.add(mandatory);
                     }
                 });
                 item.add(accountId);
