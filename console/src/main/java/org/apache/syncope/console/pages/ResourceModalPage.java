@@ -116,7 +116,7 @@ public class ResourceModalPage extends BaseModalPage {
                 }
 
                 if (accountIdError) {
-                    error(new ResourceModel("accountIdValidation", "accountIdValidation").getObject());
+                    error(getString("accountIdValidation"));
                     target.add(feedbackPanel);
                 } else {
                     try {
@@ -130,7 +130,7 @@ public class ResourceModalPage extends BaseModalPage {
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Failure managing resource {}", resourceTO, e);
-                        error(new ResourceModel("error", "error").getObject() + ":" + e.getMessage());
+                        error(getString("error") + ": " + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }
