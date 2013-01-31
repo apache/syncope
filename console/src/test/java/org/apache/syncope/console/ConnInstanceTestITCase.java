@@ -57,9 +57,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
         selenium.select("//select[@name='connectorName:dropDownChoiceField']", "label=org.connid.bundles.soap");
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//form/div[2]/div/div/div[3]/div[2]/span/select/option[2]\");", "30000");
-        selenium.select("//select[@name='version:dropDownChoiceField']", "label=1.2.4");
 
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
         selenium.click("//div[2]/form/div[2]/ul/li[1]/a/span");
