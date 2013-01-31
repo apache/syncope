@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.ConnBundleTO;

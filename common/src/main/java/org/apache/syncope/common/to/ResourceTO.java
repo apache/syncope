@@ -20,10 +20,8 @@ package org.apache.syncope.common.to;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.PropagationMode;
@@ -44,6 +42,11 @@ public class ResourceTO extends AbstractBaseBean {
      * The resource type is identified by the associated connector.
      */
     private Long connectorId;
+
+    /**
+     * Convenience information: display name for the connector id.
+     */
+    private String connectorDisplayName;
 
     private MappingTO umapping;
 
@@ -114,6 +117,14 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setConnectorId(Long connectorId) {
         this.connectorId = connectorId;
+    }
+
+    public String getConnectorDisplayName() {
+        return connectorDisplayName;
+    }
+
+    public void setConnectorDisplayName(String connectorDisplayName) {
+        this.connectorDisplayName = connectorDisplayName;
     }
 
     public MappingTO getUmapping() {

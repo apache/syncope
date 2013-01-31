@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -126,8 +125,6 @@ public class Resources extends BasePage {
             public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
                     final IModel<ResourceTO> rowModel) {
 
-                final ConnInstanceTO connectorTO = connectorRestClient.read(rowModel.getObject().getConnectorId());
-
                 final IndicatingAjaxLink<String> editLink = new IndicatingAjaxLink<String>("link") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
@@ -142,14 +139,14 @@ public class Resources extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
-                                        connectorTO);
+                                        connectorRestClient.read(rowModel.getObject().getConnectorId()));
                             }
                         });
 
                         editConnectorWin.show(target);
                     }
                 };
-                editLink.add(new Label("linkTitle", connectorTO.getDisplayName()));
+                editLink.add(new Label("linkTitle", rowModel.getObject().getConnectorDisplayName()));
 
                 LinkPanel editConnPanel = new LinkPanel(componentId);
                 editConnPanel.add(editLink);
@@ -502,7 +499,7 @@ public class Resources extends BasePage {
         }
     }
 
-    class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO, String> {
+    private class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO, String> {
 
         private static final long serialVersionUID = 4445909568349448518L;
 

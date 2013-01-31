@@ -21,9 +21,9 @@ package org.apache.syncope.common.validation;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
 
 public class SyncopeClientCompositeErrorException extends HttpClientErrorException {
 

@@ -295,6 +295,7 @@ public class ResourceDataBinder {
         ConnInstance connector = resource.getConnector();
 
         resourceTO.setConnectorId(connector == null ? null : connector.getId());
+        resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
 
         // set the mappings
         if (resource.getUmapping() != null) {
