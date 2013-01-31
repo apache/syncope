@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
@@ -224,6 +226,8 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void sync() {
+        removeTestUsers();
+
         // -----------------------------
         // Create a new user ... it should be updated applying sync policy
         // -----------------------------
@@ -318,12 +322,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
         } finally {
-            // remove initial and synchronized users to make test re-runnable
-            for (int i = 0; i < 10; i++) {
-                String cUserName = "test" + i;
-                UserTO cUserTO = userService.read(cUserName);
-                userService.delete(cUserTO.getId());
-            }
+            removeTestUsers();
         }
     }
 
@@ -727,6 +726,8 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE272() {
+        removeTestUsers();
+
         // create user with testdb resource
         UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
         userTO.addResource("resource-testdb");
@@ -772,11 +773,21 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(userTO);
             assertNotNull(userTO.getAttributeMap().get("firstname").getValues().get(0));
         } finally {
-            // remove initial and synchronized users to make test re-runnable
-            for (int i = 0; i < 10; i++) {
-                String cUserName = "test" + i;
+            removeTestUsers();
+        }
+    }
+
+    /**
+     * remove initial and synchronized users to make test re-runnable
+     */
+    public void removeTestUsers() {
+        for (int i = 0; i < 10; i++) {
+            String cUserName = "test" + i;
+            try {
                 UserTO cUserTO = userService.read(cUserName);
                 userService.delete(cUserTO.getId());
+            } catch (Exception e) {
+                // Ignore
             }
         }
     }
