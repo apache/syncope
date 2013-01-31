@@ -199,6 +199,8 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
+    // Currently test is not re-runnable.
+    // To successfully run test second time it is necessary to restart cargo. 
     public void deal() {
         try {
             taskService.delete(0L);

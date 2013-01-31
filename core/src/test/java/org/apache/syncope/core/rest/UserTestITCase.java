@@ -1894,7 +1894,8 @@ public class UserTestITCase extends AbstractTest {
         try {
             userTO = createUser(userTO);
         } catch (SyncopeClientCompositeErrorException scce) {
-        	// TODO Dirty workaround for AUTO generation Id strategy problem in AbstractVirAttr. Must be fixed ASAP
+            // TODO Dirty workaround for AUTO generation Id strategy problem in AbstractVirAttr.
+            // Must be removed after fix of SYNCOPE-298
         	SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.DataIntegrityViolation);
         	assertNotNull(sce);
         	return;
