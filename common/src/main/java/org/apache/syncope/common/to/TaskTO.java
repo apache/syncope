@@ -34,6 +34,16 @@ import org.apache.syncope.common.AbstractBaseBean;
 @XmlType
 @XmlSeeAlso({ SyncTaskTO.class, NotificationTaskTO.class, SyncTaskTO.class,
     SchedTaskTO.class, PropagationTaskTO.class })
+
+/* This will help CXF marshalling but is incompatible with spring services 
+@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value=NotificationTaskTO.class, name="notificationTask"),
+    @JsonSubTypes.Type(value=PropagationTaskTO.class, name="propagationTask"),
+    @JsonSubTypes.Type(value=SchedTaskTO.class, name="schedTask"),
+    @JsonSubTypes.Type(value=SyncTaskTO.class, name="syncTask")
+})
+*/
 public abstract class TaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;

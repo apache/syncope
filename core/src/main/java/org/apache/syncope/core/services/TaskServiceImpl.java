@@ -29,6 +29,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.to.NotificationTaskTO;
+import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
@@ -63,8 +65,23 @@ public class TaskServiceImpl implements TaskService, ContextAware {
         } else {
             throw new BadRequestException();
         }
-        URI location = uriInfo.getAbsolutePathBuilder().path(createdTask.getId() + "").build();
+        TaskType taskType = getTaskType(taskTO.getClass());
+        URI location = uriInfo.getAbsolutePathBuilder().path(taskType.toString() + "/" + createdTask.getId()).build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdTask.getId()).build();
+    }
+
+    private TaskType getTaskType(Class<? extends TaskTO> taskClass) {
+        if (taskClass == PropagationTaskTO.class) {
+            return TaskType.PROPAGATION;
+        } else if (taskClass == NotificationTaskTO.class) {
+            return TaskType.NOTIFICATION;
+        } else if (taskClass == SchedTaskTO.class) {
+            return TaskType.SCHEDULED;
+        } else if (taskClass == SyncTaskTO.class) {
+            return TaskType.SYNCHRONIZATION;
+        } else {
+            throw new IllegalArgumentException("Invalid task class: " + taskClass.getName());
+        }
     }
 
     @Override
