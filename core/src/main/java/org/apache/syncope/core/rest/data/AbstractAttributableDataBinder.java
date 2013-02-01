@@ -273,7 +273,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
         for (AbstractVirSchema virSchema : virSchemaDAO.findAll(attrUtil.virSchemaClass())) {
-            if (attributable.getAttribute(virSchema.getName()) == null
+            if (attributable.getVirtualAttribute(virSchema.getName()) == null
                     && evaluateMandatoryCondition(attrUtil, attributable, virSchema.getName(),
                     attrUtil.virIntMappingType())) {
 
