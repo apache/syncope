@@ -26,6 +26,7 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 
 @XmlRootElement(name = "schema")
 @XmlType
+//@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="class")
 public class SchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;
