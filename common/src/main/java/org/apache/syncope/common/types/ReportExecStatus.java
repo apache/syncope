@@ -28,4 +28,7 @@ public enum ReportExecStatus {
     SUCCESS,
     FAILURE;
 
+    public static ReportExecStatus fromString(String value) {
+        return ReportExecStatus.valueOf(value.toUpperCase());
+    }
 }

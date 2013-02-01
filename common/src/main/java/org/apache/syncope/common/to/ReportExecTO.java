@@ -21,8 +21,6 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.types.ReportExecStatus;
-
 @XmlRootElement(name = "executionReport")
 @XmlType
 public class ReportExecTO extends AbstractExecTO {
@@ -39,7 +37,4 @@ public class ReportExecTO extends AbstractExecTO {
         this.report = report;
     }
 
-    public void setStatus(ReportExecStatus status) {
-        super.setStatus(status.name());
-    }
 }

@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
@@ -170,25 +167,19 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         getService(TaskService.class).deleteExecution(taskExecId);
     }
 
-    public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
-        Response response = getService(TaskService.class).create(taskTO);
-        Long id = Long.valueOf(response.getHeaderString(SyncopeConstants.REST_HEADER_ID));
-        return getService(TaskService.class).read(TaskType.SYNCHRONIZATION, id);
+    public void createSyncTask(final SyncTaskTO taskTO) {
+        getService(TaskService.class).create(taskTO);
     }
 
-    public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
-        Response response = getService(TaskService.class).create(taskTO);
-        Long id = Long.valueOf(response.getHeaderString(SyncopeConstants.REST_HEADER_ID));
-        return getService(TaskService.class).read(TaskType.SCHEDULED, id);
+    public void createSchedTask(final SchedTaskTO taskTO) {
+        getService(TaskService.class).create(taskTO);
     }
 
-    public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
+    public void updateSchedTask(final SchedTaskTO taskTO) {
         getService(TaskService.class).update(taskTO.getId(), taskTO);
-        return getService(TaskService.class).read(TaskType.SCHEDULED, taskTO.getId());
     }
 
-    public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
+    public void updateSyncTask(final SyncTaskTO taskTO) {
         getService(TaskService.class).update(taskTO.getId(), taskTO);
-        return getService(TaskService.class).read(TaskType.SYNCHRONIZATION, taskTO.getId());
     }
 }

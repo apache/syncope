@@ -28,10 +28,12 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
+import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
@@ -68,7 +70,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         TaskTO task = getRestTemplate().postForObject(baseUrl + "task/create/{type}", taskTO, taskTO.getClass(),
                 subTypeString);
 
-        return Response.created(URI.create(baseUrl + "task/read/" + task.getId() + ".json")).build();
+        return Response.created(URI.create(baseUrl + "task/read/" + task.getId() + ".json"))
+                .header(SyncopeConstants.REST_HEADER_ID, task.getId()).build();
     }
 
     @Override
@@ -89,7 +92,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public void deleteExecution(final Long executionId) {
-        getRestTemplate().getForObject(baseUrl + "task/execution/delete/{executionId}.json", TaskExecTO.class, executionId);
+        getRestTemplate().getForObject(baseUrl + "task/execution/delete/{executionId}.json", TaskExecTO.class,
+                executionId);
     }
 
     @Override
@@ -167,8 +171,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public List<TaskExecTO> listExecutions(final TaskType type) {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/execution/list.json", TaskExecTO[].class,
-                type));
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/execution/list.json",
+                TaskExecTO[].class, type));
     }
 
     @Override
@@ -183,10 +187,10 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
     }
 
     @Override
-    public TaskExecTO report(final Long executionId, final PropagationTaskExecStatus status, final String message) {
+    public TaskExecTO report(final Long executionId, final ReportExecTO report) {
         return getRestTemplate().getForObject(
                 baseUrl + "task/execution/report/{executionId}.json" + "?executionStatus={status}&message={message}",
-                TaskExecTO.class, executionId, status, message);
+                TaskExecTO.class, executionId, report.getStatus(), report.getMessage());
     }
 
     @Override

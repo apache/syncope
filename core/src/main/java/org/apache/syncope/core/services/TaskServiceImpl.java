@@ -29,6 +29,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
@@ -54,29 +55,26 @@ public class TaskServiceImpl implements TaskService, ContextAware {
         return taskController.countInternal(taskType.toString());
     }
 
-	@Override
-	public Response create(final TaskTO taskTO) {
-		TaskTO createdTask;
-		if (taskTO instanceof SyncTaskTO || taskTO instanceof SchedTaskTO) {
-			createdTask = taskController.createSchedTaskInternal((SchedTaskTO) taskTO);
-		} else {
-			throw new BadRequestException();
-		}
-		URI location = uriInfo.getAbsolutePathBuilder()
-				.path(createdTask.getId() + "").build();
-		return Response.created(location)
-				.header(SyncopeConstants.REST_HEADER_ID, createdTask.getId())
-				.build();
-	}
+    @Override
+    public Response create(final TaskTO taskTO) {
+        TaskTO createdTask;
+        if (taskTO instanceof SyncTaskTO || taskTO instanceof SchedTaskTO) {
+            createdTask = taskController.createSchedTaskInternal((SchedTaskTO) taskTO);
+        } else {
+            throw new BadRequestException();
+        }
+        URI location = uriInfo.getAbsolutePathBuilder().path(createdTask.getId() + "").build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdTask.getId()).build();
+    }
 
     @Override
     public void delete(final Long taskId) {
-		taskController.delete(taskId);
+        taskController.delete(taskId);
     }
 
     @Override
     public void deleteExecution(final Long executionId) {
-		taskController.deleteExecution(executionId);
+        taskController.deleteExecution(executionId);
     }
 
     @Override
@@ -126,19 +124,20 @@ public class TaskServiceImpl implements TaskService, ContextAware {
     }
 
     @Override
-    public TaskExecTO report(final Long executionId, final PropagationTaskExecStatus status, final String message) {
-        return taskController.report(executionId, status, message);
+    public TaskExecTO report(final Long executionId, final ReportExecTO report) {
+        return taskController.report(executionId, PropagationTaskExecStatus.fromString(report.getStatus()),
+                report.getMessage());
     }
 
     @Override
     public void update(final Long taskId, final TaskTO taskTO) {
-		if (taskTO instanceof SyncTaskTO) {
-			taskController.updateSync((SyncTaskTO) taskTO);
-		} else if (taskTO instanceof SchedTaskTO) {
-			taskController.updateSched((SchedTaskTO) taskTO);
-		} else {
-			throw new BadRequestException();
-		}
+        if (taskTO instanceof SyncTaskTO) {
+            taskController.updateSync((SyncTaskTO) taskTO);
+        } else if (taskTO instanceof SchedTaskTO) {
+            taskController.updateSched((SchedTaskTO) taskTO);
+        } else {
+            throw new BadRequestException();
+        }
     }
 
     @Override

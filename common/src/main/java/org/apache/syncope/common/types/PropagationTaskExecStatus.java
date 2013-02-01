@@ -42,4 +42,8 @@ public enum PropagationTaskExecStatus {
     public boolean isSuccessful() {
         return this == SUCCESS || this == SUBMITTED;
     }
+
+    public static PropagationTaskExecStatus fromString(String value) {
+        return PropagationTaskExecStatus.valueOf(value.toUpperCase());
+    }
 }

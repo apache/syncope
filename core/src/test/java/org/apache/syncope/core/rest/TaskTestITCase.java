@@ -39,6 +39,7 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
+import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
@@ -201,7 +202,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     // Currently test is not re-runnable.
-    // To successfully run test second time it is necessary to restart cargo. 
+    // To successfully run test second time it is necessary to restart cargo.
     public void deal() {
         try {
             taskService.delete(0L);
@@ -211,7 +212,10 @@ public class TaskTestITCase extends AbstractTest {
         TaskExecTO exec = taskService.execute(1L, false);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
 
-        exec = taskService.report(exec.getId(), PropagationTaskExecStatus.SUCCESS, "OK");
+        ReportExecTO report = new ReportExecTO();
+        report.setStatus(PropagationTaskExecStatus.SUCCESS.name());
+        report.setMessage("OK");
+        exec = taskService.report(exec.getId(), report);
         assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
         assertEquals("OK", exec.getMessage());
 
@@ -364,7 +368,7 @@ public class TaskTestITCase extends AbstractTest {
         execution = execSyncTask(actual.getId(), 20, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
-        
+
         userTO = userService.read("testuser1");
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

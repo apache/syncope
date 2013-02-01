@@ -106,7 +106,7 @@ public class ReportController extends AbstractController {
         response.setStatus(HttpServletResponse.SC_CREATED);
         return createdReportTO;
     }
-    
+
     public ReportTO createInternal(final ReportTO reportTO) {
         LOG.debug("Creating report " + reportTO);
 
@@ -415,7 +415,7 @@ public class ReportController extends AbstractController {
         result = new ReportExecTO();
         result.setReport(reportId);
         result.setStartDate(new Date());
-        result.setStatus(ReportExecStatus.STARTED);
+        result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
 
         return result;
