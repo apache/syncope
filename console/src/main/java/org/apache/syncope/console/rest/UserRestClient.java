@@ -22,6 +22,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -96,12 +97,12 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public Integer searchCount(final NodeCond searchCond) {
+    public Integer searchCount(final NodeCond searchCond) throws InvalidSearchConditionException {
         return getService(UserService.class).searchCount(searchCond);
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCond, final int page, final int size) {
+    public List<UserTO> search(final NodeCond searchCond, final int page, final int size) throws InvalidSearchConditionException {
         return getService(UserService.class).search(searchCond, page, size);
     }
 

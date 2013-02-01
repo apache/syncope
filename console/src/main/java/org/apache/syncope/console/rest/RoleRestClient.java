@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -54,12 +55,12 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public Integer searchCount(final NodeCond searchCond) {
+    public Integer searchCount(final NodeCond searchCond) throws InvalidSearchConditionException {
         return getService(RoleService.class).searchCount(searchCond);
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size) {
+    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size) throws InvalidSearchConditionException {
         return getService(RoleService.class).search(searchCond, page, size);
     }
 

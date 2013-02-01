@@ -24,7 +24,7 @@ under the License.
 <%@page import="org.apache.syncope.core.persistence.validation.entity.InvalidEntityException"%>
 <%@page import="javax.persistence.PersistenceException"%>
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
-<%@page import="org.apache.syncope.core.persistence.dao.InvalidSearchConditionException"%>
+<%@page import="org.apache.syncope.common.services.InvalidSearchConditionException"%>
 <%@page import="org.apache.syncope.core.rest.controller.UnauthorizedRoleException"%>
 <%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.apache.syncope.common.validation.SyncopeClientException"%>

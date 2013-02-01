@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;

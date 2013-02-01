@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;

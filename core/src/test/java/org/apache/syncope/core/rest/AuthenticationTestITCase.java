@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.AttributeTO;
@@ -46,7 +47,6 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

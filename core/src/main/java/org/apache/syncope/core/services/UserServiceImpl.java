@@ -28,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
@@ -152,17 +153,17 @@ public class UserServiceImpl implements UserService, ContextAware {
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCondition) {
+    public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return userController.search(searchCondition);
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size) {
+    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size) throws InvalidSearchConditionException {
         return userController.search(searchCondition, page, size);
     }
 
     @Override
-    public int searchCount(final NodeCond searchCondition) {
+    public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return userController.searchCountInternal(searchCondition);
     }
 

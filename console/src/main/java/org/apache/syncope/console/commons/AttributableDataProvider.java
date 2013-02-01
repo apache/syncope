@@ -23,14 +23,18 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AttributableDataProvider extends SortableDataProvider<AbstractAttributableTO, String> {
+    private static final Logger LOG = LoggerFactory.getLogger(AttributableDataProvider.class);
 
     private static final long serialVersionUID = 6267494272884913376L;
 
@@ -68,9 +72,14 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         final List<? extends AbstractAttributableTO> result;
 
         if (filtered) {
-            result = filter == null
-                    ? Collections.<AbstractAttributableTO>emptyList()
-                    : restClient.search(filter, ((int) first / paginatorRows) + 1, paginatorRows);
+            try {
+                result = filter == null
+                        ? Collections.<AbstractAttributableTO>emptyList()
+                        : restClient.search(filter, ((int) first / paginatorRows) + 1, paginatorRows);
+            } catch (InvalidSearchConditionException e) {
+                LOG.error(e.getMessage(), e);
+                return Collections.<AbstractAttributableTO>emptyList().iterator();
+            }
         } else {
             result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows);
         }
@@ -82,9 +91,14 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
     @Override
     public long size() {
         if (filtered) {
-            return filter == null
-                    ? 0
-                    : restClient.searchCount(filter);
+            try {
+                return filter == null
+                        ? 0
+                        : restClient.searchCount(filter);
+            } catch (InvalidSearchConditionException e) {
+                LOG.error(e.getMessage(), e);
+                return 0;
+            }
         } else {
             return restClient.count();
         }

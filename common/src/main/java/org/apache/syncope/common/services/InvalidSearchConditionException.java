@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.dao;
+package org.apache.syncope.common.services;
 
-public class InvalidSearchConditionException extends RuntimeException {
+public class InvalidSearchConditionException extends Exception {
 
     private static final long serialVersionUID = 1785286543933086849L;
 

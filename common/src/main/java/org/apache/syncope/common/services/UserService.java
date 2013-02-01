@@ -116,16 +116,16 @@ public interface UserService {
 
     @POST
     @Path("search")
-    List<UserTO> search(NodeCond searchCondition);
+    List<UserTO> search(NodeCond searchCondition) throws InvalidSearchConditionException;
 
     @POST
     @Path("search")
     List<UserTO> search(NodeCond searchCondition, @QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+            @QueryParam("size") @DefaultValue("25") int size) throws InvalidSearchConditionException;
 
     @POST
     @Path("search/count")
-    int searchCount(NodeCond searchCondition);
+    int searchCount(NodeCond searchCondition) throws InvalidSearchConditionException;
 
     @POST
     @Path("workflow/form")

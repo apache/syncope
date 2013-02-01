@@ -28,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.core.rest.controller.RoleController;
@@ -88,17 +89,17 @@ public class RoleServiceImpl implements RoleService, ContextAware {
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCondition) {
+    public List<RoleTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return roleController.search(searchCondition);
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size) {
+    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size) throws InvalidSearchConditionException {
         return roleController.search(searchCondition, page, size);
     }
 
     @Override
-    public int searchCount(final NodeCond searchCondition) {
+    public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return (Integer) roleController.searchCount(searchCondition).getModel().values().iterator().next();
     }
 

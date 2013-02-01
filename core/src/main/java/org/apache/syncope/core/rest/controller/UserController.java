@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
@@ -44,7 +45,6 @@ import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
-import org.apache.syncope.core.persistence.dao.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
@@ -154,7 +154,7 @@ public class UserController {
         return new ModelAndView().addObject(searchCountInternal(searchCondition));
     }
 
-    public int searchCountInternal(final NodeCond searchCondition) {
+    public int searchCountInternal(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();

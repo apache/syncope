@@ -99,29 +99,32 @@ public interface RoleService {
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns list of roles with matching filter conditions
+     * @throws InvalidSearchConditionException 
      */
     @POST
     @Path("search")
-    List<RoleTO> search(NodeCond searchCondition);
+    List<RoleTO> search(NodeCond searchCondition) throws InvalidSearchConditionException;
 
     /**
      * @param searchCondition Filter condition for role list
      * @param page Page of roles in relation to size parameter
      * @param size Number of roles to be displayed per page
      * @return Returns paginated list of roles with matching filter conditions
+     * @throws InvalidSearchConditionException 
      */
     @POST
     @Path("search")
     List<RoleTO> search(NodeCond searchCondition, @QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+            @QueryParam("size") @DefaultValue("25") int size) throws InvalidSearchConditionException;
 
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns number of roles matching provided filter conditions
+     * @throws InvalidSearchConditionException 
      */
     @POST
     @Path("search/count")
-    int searchCount(NodeCond searchCondition);
+    int searchCount(NodeCond searchCondition) throws InvalidSearchConditionException;
 
     /**
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user

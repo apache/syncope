@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 
+import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
