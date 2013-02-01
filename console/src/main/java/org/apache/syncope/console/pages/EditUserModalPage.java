@@ -23,15 +23,15 @@ import java.util.List;
 import org.apache.syncope.client.mod.UserMod;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.pages.panels.AccountInformationPanel;
+import org.apache.syncope.console.pages.panels.StatusPanel;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.pages.panels.AccountInformationPanel;
-import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.
@@ -44,7 +44,6 @@ public class EditUserModalPage extends UserModalPage {
     private UserTO initialUserTO = null;
 
     public EditUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
-
         super(callerPageRef, window, userTO, Mode.ADMIN, true);
 
         this.initialUserTO = AttributableOperations.clone(userTO);

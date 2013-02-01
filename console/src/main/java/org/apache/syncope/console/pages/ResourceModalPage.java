@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
@@ -35,6 +26,18 @@ import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Resource form.
@@ -50,6 +53,14 @@ public class ResourceModalPage extends BaseModalPage {
             final boolean createFlag) {
 
         super();
+
+        this.add(new Label("new", StringUtils.isBlank(resourceTO.getName())
+                ? new ResourceModel("new")
+                : new Model("")));
+
+        this.add(new Label("name", StringUtils.isBlank(resourceTO.getName())
+                ? ""
+                : resourceTO.getName()));
 
         final Form form = new Form("form");
         form.setModel(new CompoundPropertyModel(resourceTO));
@@ -130,8 +141,8 @@ public class ResourceModalPage extends BaseModalPage {
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
                 createFlag
-                        ? "create"
-                        : "update"));
+                ? "create"
+                : "update"));
     }
 
     /**

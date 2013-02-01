@@ -116,7 +116,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
      * User rest client.
      */
     @SpringBean
-    private UserRestClient userRestClient;
+    private UserRestClient restClient;
 
     /**
      * Application preferences.
@@ -322,7 +322,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new UserDataProvider(userRestClient, rows, filtered);
+        dataProvider = new UserDataProvider(restClient, rows, filtered);
         dataProvider.setSearchCond(filter);
 
         final int currentPage = resultTable != null
@@ -424,7 +424,9 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                             @Override
                             public Page createPage() {
-                                return new EditUserModalPage(page.getPageReference(), editmodal, model.getObject());
+                                // SYNCOPE-294: re-read userTO before edit
+                                UserTO userTO = restClient.read(model.getObject().getId());
+                                return new EditUserModalPage(page.getPageReference(), editmodal, userTO);
                             }
                         });
 
@@ -439,7 +441,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            final UserTO userTO = userRestClient.delete(model.getObject().getId());
+                            final UserTO userTO = restClient.delete(model.getObject().getId());
 
                             page.setModalResult(true);
 
