@@ -27,8 +27,8 @@ public class JexlHelpUtil {
 
     private static final String JEXL_SYNTAX_URL = "http://commons.apache.org/jexl/reference/syntax.html";
 
-    public static WebMarkupContainer getJexlHelpWebContainer() {
-        final WebMarkupContainer jexlHelp = new WebMarkupContainer("jexlHelp");
+    public static WebMarkupContainer getJexlHelpWebContainer(final String wicketId) {
+        final WebMarkupContainer jexlHelp = new WebMarkupContainer(wicketId);
         jexlHelp.setVisible(false);
         jexlHelp.setOutputMarkupPlaceholderTag(true);
         jexlHelp.setOutputMarkupId(true);
@@ -36,8 +36,8 @@ public class JexlHelpUtil {
         return jexlHelp;
     }
 
-    public static AjaxLink getAjaxLink(final WebMarkupContainer wmc) {
-        AjaxLink questionMarkJexlHelp = new AjaxLink("questionMarkJexlHelp") {
+    public static AjaxLink getAjaxLink(final WebMarkupContainer wmc, final String wicketId) {
+        AjaxLink questionMarkJexlHelp = new AjaxLink(wicketId) {
 
             boolean toogle = false;
 

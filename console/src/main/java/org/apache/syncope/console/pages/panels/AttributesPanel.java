@@ -109,10 +109,10 @@ public class AttributesPanel extends Panel {
 
                 final StringBuilder text = new StringBuilder(attributeTO.getSchema());
 
-                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
                 item.add(jexlHelp);
 
-                final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+                final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
                 item.add(questionMarkJexlHelp);
 
                 if (!templateMode) {

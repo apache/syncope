@@ -17,34 +17,56 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html>
-    <wicket:panel>
-        <div id="formtable">
-            <div class="tablerow">
-                <div class="tablecolumn_label short_dynamicsize">
-                    <wicket:message key="username"/>
-                </div>
-                <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="username" />
-                </div>
-            </div>
-
-            <div class="tablerow">
-                <div class="tablecolumn_label short_dynamicsize">
-                    <wicket:message key="password"/>
-                </div>
-                <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="password" />
-                    <span wicket:id="mandatory_pwd"></span>
-                </div>
-            </div>
-            <div class="tablerow">
-                <div class="tablecolumn_label short_dynamicsize">
-                    <span wicket:id="confirmPasswordLabel"/>
-                </div>
-                <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="confirmPassword" />
-                </div>
-            </div>
+  <wicket:panel>
+    <div id="formtable">
+      <div class="tablerow">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="username"/>
         </div>
-    </wicket:panel>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="username" />
+          <a wicket:id="usernameQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
+          <div class="help">
+            <div wicket:id="usernameJexlHelp" class="tooltip">
+              <wicket:message key="jexl_info"/>
+              <ul>
+                <li><wicket:message key="jexl_ex1"/></li>
+                <li><wicket:message key="jexl_ex2"/></li>
+              </ul>
+              <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tablerow">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="password"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="password" />
+          <span wicket:id="mandatory_pwd"></span>
+          <a wicket:id="pwdQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
+          <div class="help">
+            <div wicket:id="pwdJexlHelp" class="tooltip">
+              <wicket:message key="jexl_info"/>
+              <ul>
+                <li><wicket:message key="jexl_ex1"/></li>
+                <li><wicket:message key="jexl_ex2"/></li>
+              </ul>
+              <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tablerow">
+        <div class="tablecolumn_label short_dynamicsize">
+          <span wicket:id="confirmPasswordLabel"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="confirmPassword" />
+        </div>
+      </div>
+    </div>
+  </wicket:panel>
 </html>

@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.RoleSelectModalPage;
 import org.apache.syncope.console.pages.UserOwnerSelectModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -29,6 +30,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -127,8 +129,16 @@ public class RoleDetailsPanel extends Panel {
 
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(roleTO, "name"));
+
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        this.add(jexlHelp);
+
+        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        this.add(questionMarkJexlHelp);
+
         if (!templateMode) {
             name.addRequiredLabel();
+            questionMarkJexlHelp.setVisible(false);
         }
         this.add(name);
 

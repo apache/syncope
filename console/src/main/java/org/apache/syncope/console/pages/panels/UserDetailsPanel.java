@@ -19,10 +19,12 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -49,8 +51,16 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username",
                 new PropertyModel<String>(userTO, "username"));
+
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("usernameJexlHelp");
+        add(jexlHelp);
+
+        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
+        add(questionMarkJexlHelp);
+
         if (!templateMode) {
             username.addRequiredLabel();
+            questionMarkJexlHelp.setVisible(false);
         }
         add(username);
         // ------------------------
@@ -61,6 +71,13 @@ public class UserDetailsPanel extends Panel {
         FieldPanel<String> password;
         Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
         FieldPanel<String> confirmPassword;
+
+        final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("pwdJexlHelp");
+        add(pwdJexlHelp);
+
+        final AjaxLink pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
+        add(pwdQuestionMarkJexlHelp);
+
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
 
@@ -69,6 +86,8 @@ public class UserDetailsPanel extends Panel {
             confirmPassword.setEnabled(false);
             confirmPassword.setVisible(false);
         } else {
+            pwdQuestionMarkJexlHelp.setVisible(false);
+
             password = new AjaxPasswordFieldPanel("password", "password",
                     new PropertyModel<String>(userTO, "password"));
             password.setRequired(userTO.getId() == 0);

@@ -221,10 +221,10 @@ public class ResourceMappingPanel extends Panel {
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
         mappingContainer.add(jexlHelp);
 
-        AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+        AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         mappingContainer.add(questionMarkJexlHelp);
 
         add(mappingContainer);

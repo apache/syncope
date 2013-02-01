@@ -67,11 +67,11 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                 new PropertyModel<String>(schema, "expression"));
         expression.addRequiredLabel();
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer();
+        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
         schemaForm.add(jexlHelp);
 
 
-        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp);
+        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         schemaForm.add(questionMarkJexlHelp);
 
 
