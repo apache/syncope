@@ -29,13 +29,13 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.report.UserReportletConf;
+import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.junit.FixMethodOrder;
@@ -55,9 +55,9 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        Set<String> reportletClasses = reportService.getReportletConfClasses();
+        ReportletConfClasses reportletClasses = reportService.getReportletConfClasses();
         assertNotNull(reportletClasses);
-        assertFalse(reportletClasses.isEmpty());
+        assertFalse(reportletClasses.getConfClasses().isEmpty());
     }
 
     @Test

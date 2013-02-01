@@ -30,6 +30,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
+import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
@@ -85,8 +86,8 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public Set<String> getReportletConfClasses() {
-        return reportController.getReportletConfClassesInternal();
+    public ReportletConfClasses getReportletConfClasses() {
+        return new ReportletConfClasses(reportController.getReportletConfClassesInternal());
     }
 
     @Override

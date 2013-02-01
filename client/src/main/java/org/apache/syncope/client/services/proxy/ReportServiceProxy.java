@@ -21,14 +21,13 @@ package org.apache.syncope.client.services.proxy;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
+import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
@@ -74,10 +73,10 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public Set<String> getReportletConfClasses() {
+    public ReportletConfClasses getReportletConfClasses() {
         List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(
                 baseUrl + "report/reportletConfClasses.json", String[].class));
-        return new HashSet<String>(confClasses);
+        return new ReportletConfClasses(confClasses);
     }
 
     @Override

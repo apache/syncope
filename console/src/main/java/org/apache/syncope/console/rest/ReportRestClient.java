@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.services.ReportService;
+import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -36,15 +36,13 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     private static final long serialVersionUID = 1644689667998953604L;
 
     public List<String> getReportletConfClasses() {
-        List<String> reportletClasses = null;
-
         try {
-            Set<String> reportletClassesSet = getService(ReportService.class).getReportletConfClasses();
-            reportletClasses = new LinkedList<String>(reportletClassesSet);
+            ReportletConfClasses reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
+            return reportletConfClasses.getConfClasses();
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting available reportlet classes", e);
+            return new ArrayList<String>();
         }
-        return reportletClasses;
     }
 
     public ReportTO read(final Long reportId) {

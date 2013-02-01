@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -89,7 +88,7 @@ public interface ReportService {
      */
     @GET
     @Path("reportletConfClasses")
-    Set<String> getReportletConfClasses();
+    ReportletConfClasses getReportletConfClasses();
 
     /**
      * @return Returns a list of all reports
