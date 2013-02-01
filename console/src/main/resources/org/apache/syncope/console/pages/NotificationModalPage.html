@@ -30,7 +30,7 @@ under the License.
 
         <div id="notification">
           <div id="formtable">
-            <div class="tablerow">
+            <div class="tablerow alt">
               <div class="tablecolumn_label medium_fixedsize">
                 <label for="sender"><wicket:message key="sender"/></label>
               </div>
@@ -48,7 +48,7 @@ under the License.
               </div>
             </div>
 
-            <div class="tablerow">
+            <div class="tablerow alt">
               <div class="tablecolumn_label medium_fixedsize">
                 <label for="recipientAttrType"><wicket:message key="recipientAttrType"/></label>
               </div>
@@ -66,7 +66,7 @@ under the License.
               </div>
             </div>
 
-            <div class="tablerow">
+            <div class="tablerow alt">
               <div class="tablecolumn_label medium_fixedsize">
                 <label for="template"><wicket:message key="template"/></label>
               </div>
@@ -84,12 +84,6 @@ under the License.
               </div>
             </div>
           </div>
-
-          <script type="text/javascript">
-            $(function() {
-              $('div#notification div#formtable div.tablerow:even').addClass("alt");
-            });
-          </script>
         </div>
 
         <div id="about">

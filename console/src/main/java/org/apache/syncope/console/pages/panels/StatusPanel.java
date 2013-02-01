@@ -31,6 +31,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.commons.StatusUtils.Status;
+import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -129,7 +130,7 @@ public class StatusPanel extends Panel {
 
         add(new CheckGroupSelector("groupselector", checkGroup));
 
-        statusBeansListView = new ListView<StatusBean>("resources", statusBeans) {
+        statusBeansListView = new AltListView<StatusBean>("resources", statusBeans) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 

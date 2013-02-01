@@ -16,26 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style type="text/css">
-    #tabs-2 table{
-      font-size: 1.1em;
-    }
-    #tabs-3 table{
-      font-size: 1.1em;
-    }
-    #tabs-4 table{
-      font-size: 1.1em;
-    }
-    #tabs-5 table{
-      font-size: 1.1em;
-    }
-    #tabs-6 table{
-      font-size: 1.1em;
-    }
-  </style>
-</wicket:head>
-
 <wicket:extend>
   <div style="margin:10px">
     <p class="ui-widget ui-corner-all ui-widget-header">
@@ -53,11 +33,6 @@ under the License.
           <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
         </ul>
         <div wicket:id="rolePanel"/>
-        <script type="text/javascript">
-          $(function() {
-            $('div #formtable div.tablerow:even').addClass("alt");
-          });
-        </script>
       </div>
       <div style="bottom:0;margin:10px">
         <input type="submit"

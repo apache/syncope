@@ -49,7 +49,7 @@ under the License.
             <span wicket:id="profile">
               <div id="formtable">
 
-                <div class="tablerow">
+                <div class="tablerow alt">
                   <div class="tablecolumn_label short_dynamicsize">
                     <span wicket:id="idLabel">[Id]</span>
                   </div>
@@ -67,7 +67,7 @@ under the License.
                   </div>
                 </div>
 
-                <div class="tablerow">
+                <div class="tablerow alt">
                   <div class="tablecolumn_label short_dynamicsize">
                     <label for="recipients"><wicket:message key="recipients"/></label>
                   </div>
@@ -85,12 +85,12 @@ under the License.
                   </div>
                 </div>
 
-                <div class="tablerow">
+                <div class="tablerow alt">
                   <div class="tablecolumn_label short_dynamicsize">
                     <label for="textBody"><wicket:message key="textBody"/></label>
                   </div>
                   <div class="tablecolumn_field medium_dynamicsize">
-                    <textarea wicket:id="textBody" cols="50" rows="10">[textBody]</textarea>
+                    <textarea wicket:id="textBody" cols="40" rows="10">[textBody]</textarea>
                   </div>
                 </div>
 
@@ -99,11 +99,11 @@ under the License.
                     <label for="htmlBody"><wicket:message key="htmlBody"/></label>
                   </div>
                   <div class="tablecolumn_field medium_dynamicsize">
-                    <textarea wicket:id="htmlBody" cols="50" rows="10">[textBody]</textarea>
+                    <textarea wicket:id="htmlBody" cols="40" rows="10">[textBody]</textarea>
                   </div>
                 </div>
 
-                <div class="tablerow">
+                <div class="tablerow alt">
                   <div class="tablecolumn_label short_dynamicsize">
                     <label for="traceLevel"><wicket:message key="traceLevel"/></label>
                   </div>
@@ -112,11 +112,6 @@ under the License.
                   </div>
                 </div>
               </div>
-              <script type="text/javascript">
-                $(function() {
-                  $('#formtable div.tablerow:even').addClass("alt");
-                });
-              </script>
             </span>
           </div>
         </div>

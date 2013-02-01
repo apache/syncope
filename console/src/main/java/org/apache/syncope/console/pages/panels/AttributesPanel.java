@@ -33,6 +33,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.console.commons.JexlHelpUtil;
+import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -98,7 +99,7 @@ public class AttributesPanel extends Panel {
 
         initEntityData(entityTO, schemas.getObject().values());
 
-        final ListView<AttributeTO> attributeView = new ListView<AttributeTO>("schemas",
+        final ListView<AttributeTO> attributeView = new AltListView<AttributeTO>("schemas",
                 new PropertyModel<List<? extends AttributeTO>>(entityTO, "attributes")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
@@ -210,6 +211,7 @@ public class AttributesPanel extends Panel {
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+
                         private static final long serialVersionUID = -3724971416312135885L;
 
                         final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);

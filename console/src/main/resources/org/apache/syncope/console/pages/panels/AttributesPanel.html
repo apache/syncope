@@ -16,28 +16,27 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html>
-  <wicket:panel>
-    <div class="tablerow" wicket:id="schemas">
-      <div class="tablecolumn_label short_dynamicsize">
-        <span wicket:id="name"/>
-      </div>
-      <div class="tablecolumn_field medium_dynamicsize">
-        <span wicket:id="panel">
-          [panel for dynamic input type markup]
-        </span>
-        <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
-        <div class="help">
-          <div wicket:id="jexlHelp" class="tooltip">
-            <wicket:message key="jexl_info"/>
-            <ul>
-              <li><wicket:message key="jexl_ex1"/></li>
-              <li><wicket:message key="jexl_ex2"/></li>
-            </ul>
-            <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-          </div>
+<wicket:panel>
+  <div class="tablerow" wicket:id="schemas">
+    <div class="tablecolumn_label short_dynamicsize">
+      <span wicket:id="name"/>
+    </div>
+
+    <div class="tablecolumn_field medium_dynamicsize">
+      <span wicket:id="panel">
+        [panel for dynamic input type markup]
+      </span>
+      <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
+      <div class="help">
+        <div wicket:id="jexlHelp" class="tooltip">
+          <wicket:message key="jexl_info"/>
+          <ul>
+            <li><wicket:message key="jexl_ex1"/></li>
+            <li><wicket:message key="jexl_ex2"/></li>
+          </ul>
+          <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
         </div>
       </div>
     </div>
-  </wicket:panel>
-</html>
+  </div>
+</wicket:panel>

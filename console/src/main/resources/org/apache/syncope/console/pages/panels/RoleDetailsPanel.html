@@ -40,6 +40,15 @@ under the License.
       </div>
     </div>
 
+    <div class="tablerow alt">
+      <div class="tablecolumn_label short_dynamicsize">
+        <wicket:message key="inheritOwner"/>
+      </div>
+      <div class="tablecolumn_field medium_dynamicsize">
+        <span wicket:id="inheritOwner" />
+      </div>
+    </div>
+
     <div wicket:id="ownerContainer">
       <div class="tablerow">
         <div class="tablecolumn_label short_dynamicsize">
@@ -52,7 +61,7 @@ under the License.
         </div>
       </div>
 
-      <div class="tablerow">
+      <div class="tablerow alt">
         <div class="tablecolumn_label short_dynamicsize">
           <wicket:message key="roleOwner"/>
         </div>
@@ -63,15 +72,6 @@ under the License.
         </div>
       </div>
     </div>
-
-    <div class="tablerow alt">
-      <div class="tablecolumn_label short_dynamicsize">
-        <wicket:message key="inheritOwner"/>
-      </div>
-      <div class="tablecolumn_field medium_dynamicsize">
-        <span wicket:id="inheritOwner" />
-      </div>
-    </div>
   </div>
 
   <span wicket:id="parentSelectWin"/>
@@ -79,7 +79,7 @@ under the License.
   <span wicket:id="roleOwnerSelectWin"/>
 
   <wicket:fragment wicket:id="parentFragment">
-    <div class="tablerow">
+    <div class="tablerow alt">
       <div class="tablecolumn_label short_dynamicsize">
         <wicket:message key="parent"/>
       </div>

@@ -16,46 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style type="text/css">
-    table.palette td.header {
-      background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-        repeat-x scroll 50% 50% #E6E6E6 !important;
-    }
-
-    div.role-tree table.wicket-tree-content table.icon-panel a{
-      font-size: 10px;
-      color:black;
-    }
-    .membershipTable{
-      -moz-border-radius: 3px; /* Firefox */
-      -webkit-border-radius: 3px; /* Safari e Chrome*/
-      border: 1px solid gray;
-      border-radius: 3px; /* Standard CSS */
-    }
-
-    #tabs-2 table{
-      font-size: 1.1em;
-    }
-
-    #tabs-3 table{
-      font-size: 1.1em;
-    }
-
-    #tabs-4 table{
-      font-size: 1.1em;
-    }
-
-    #tabs-5 table{
-      font-size: 1.1em;
-    }
-
-    #tabs-6 table{
-      font-size: 1.1em;
-    }
-  </style>
-</wicket:head>
-
 <wicket:extend>
 
   <span wicket:id="userModalFrag"/>
@@ -105,12 +65,6 @@ under the License.
             <span wicket:id="memberships">[memberships]</span>
           </div>
         </div>
-
-        <script type="text/javascript">
-          $(function() {
-            $('div #formtable div.tablerow:even').addClass("alt");
-          });
-        </script>
 
         <div style="margin: 20px 10px 0">
           <input type="submit"

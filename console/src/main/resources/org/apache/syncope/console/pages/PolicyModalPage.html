@@ -18,7 +18,7 @@ under the License.
 -->
 <wicket:extend>
   <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="windowTitle"/></p>
 
     <form wicket:id="form">
       <div id="tabs">
@@ -29,7 +29,7 @@ under the License.
 
         <div id="description">
           <div id="formtable">
-            <div class="tablerow">
+            <div class="tablerow alt">
               <div class="tablecolumn_label short_fixedsize">
                 <label for="id"><wicket:message key="id"/></label>
               </div>
@@ -47,7 +47,7 @@ under the License.
               </div>
             </div>
 
-            <div class="tablerow">
+            <div class="tablerow alt">
               <div class="tablecolumn_label short_fixedsize">
                 <label for="description"><wicket:message key="description"/></label>
               </div>
@@ -56,12 +56,6 @@ under the License.
               </div>
             </div>
           </div>
-
-          <script type="text/javascript">
-            $(function() {
-              $('#formtable div.tablerow:even').addClass("alt");
-            });
-          </script>
         </div>
 
         <div id="specification">

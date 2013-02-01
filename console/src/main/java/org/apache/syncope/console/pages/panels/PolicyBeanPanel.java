@@ -29,6 +29,7 @@ import org.apache.syncope.common.annotation.SchemaList;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConflictResolutionAction;
+import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -66,13 +67,23 @@ public class PolicyBeanPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    final IModel<List<String>> schemas = new LoadableDetachableModel<List<String>>() {
+    final IModel<List<String>> userSchemas = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected List<String> load() {
             return schemaRestClient.getSchemaNames(AttributableType.USER);
+        }
+    };
+
+    final IModel<List<String>> roleSchemas = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return schemaRestClient.getSchemaNames(AttributableType.ROLE);
         }
     };
 
@@ -95,12 +106,12 @@ public class PolicyBeanPanel extends Panel {
             }
         }
 
-        final ListView<FieldWrapper> policies = new ListView<FieldWrapper>("policies", items) {
+        final ListView<FieldWrapper> policies = new AltListView<FieldWrapper>("policies", items) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            protected void populateItem(ListItem<FieldWrapper> item) {
+            protected void populateItem(final ListItem<FieldWrapper> item) {
 
                 final FieldWrapper field = item.getModelObject();
 
@@ -128,24 +139,37 @@ public class PolicyBeanPanel extends Panel {
                                 field.getName())));
 
                         item.add(new Label("field", new Model(null)));
-
                     } else if (Collection.class.isAssignableFrom(field.getType())) {
                         if (field.getSchemaList() != null) {
-                            final List<String> values = schemas.getObject();
+                            final List<String> values = new ArrayList<String>();
+                            if (field.getName().charAt(0) == 'r') {
+                                values.addAll(roleSchemas.getObject());
 
-                            if (field.getSchemaList().extended()) {
-                                values.add("id");
-                                values.add("username");
+                                if (field.getSchemaList().extended()) {
+                                    values.add("name");
+                                }
+                            } else {
+                                values.addAll(userSchemas.getObject());
+
+                                if (field.getSchemaList().extended()) {
+                                    values.add("id");
+                                    values.add("username");
+                                }
+                            }
+
+                            Collection collection =
+                                    (Collection) propDesc.getReadMethod().invoke(policy, new Object[]{});
+                            if (collection == null) {
+                                collection = new ArrayList();
+                                propDesc.getWriteMethod().invoke(policy, collection);
                             }
 
                             component = new AjaxPalettePanel("field", new PropertyModel(policy, field.getName()),
                                     new ListModel<String>(values));
-
                             item.add(component);
 
                             item.add(getActivationControl(component,
-                                    !((Collection) propDesc.getReadMethod().invoke(policy, new Object[]{})).isEmpty(),
-                                    new ArrayList<String>(), new ArrayList<String>()));
+                                    !collection.isEmpty(), new ArrayList<String>(), new ArrayList<String>()));
                         } else {
                             final FieldPanel panel = new AjaxTextFieldPanel("panel", field.getName(),
                                     new Model<String>(null));
