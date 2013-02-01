@@ -210,6 +210,7 @@ public class AttributesPanel extends Panel {
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+                        private static final long serialVersionUID = -3724971416312135885L;
 
                         final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);
 

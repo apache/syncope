@@ -19,9 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.lang.reflect.Constructor;
-
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;

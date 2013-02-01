@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -45,6 +44,8 @@ import org.apache.wicket.model.ResourceModel;
 
 public class RoleSearchResultPanel extends AbstractSearchResultPanel {
 
+    private static final long serialVersionUID = -1180593361914008764L;
+
     public <T extends AbstractAttributableTO> RoleSearchResultPanel(final String id, final boolean filtered,
             final NodeCond searchCond, final PageReference callerRef,
             final AbstractAttributableRestClient restClient) {
@@ -64,6 +65,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
         }
 
         columns.add(new AbstractColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {
+            private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public String getCssClass() {

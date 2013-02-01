@@ -21,7 +21,6 @@ package org.apache.syncope.common.validation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 
 public class SyncopeClientException extends Exception {

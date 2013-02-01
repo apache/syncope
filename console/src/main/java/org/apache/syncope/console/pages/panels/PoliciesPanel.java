@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;

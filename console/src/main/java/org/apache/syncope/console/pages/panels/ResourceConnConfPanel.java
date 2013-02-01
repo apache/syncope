@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.console.pages.BaseModalPage;

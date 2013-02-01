@@ -27,6 +27,8 @@ import org.apache.wicket.model.Model;
 
 public class AccountInformationPanel extends Panel {
 
+    private static final long serialVersionUID = 4228064224811390808L;
+
     public <T extends AbstractAttributableTO> AccountInformationPanel(final String id, final UserTO userTO) {
 
         super(id);

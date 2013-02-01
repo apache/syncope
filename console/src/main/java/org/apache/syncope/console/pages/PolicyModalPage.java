@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
-
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;

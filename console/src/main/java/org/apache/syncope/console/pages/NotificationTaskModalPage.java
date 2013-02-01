@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
-
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;

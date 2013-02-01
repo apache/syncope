@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
-
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;

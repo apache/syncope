@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PropagationMode;

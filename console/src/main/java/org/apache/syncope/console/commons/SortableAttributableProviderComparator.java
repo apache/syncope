@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;

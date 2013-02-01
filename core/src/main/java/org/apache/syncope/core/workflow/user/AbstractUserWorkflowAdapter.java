@@ -20,7 +20,6 @@ package org.apache.syncope.core.workflow.user;
 
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;

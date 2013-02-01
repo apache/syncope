@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;

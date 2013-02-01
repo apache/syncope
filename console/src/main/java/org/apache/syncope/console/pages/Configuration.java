@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.console.pages;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
@@ -77,9 +78,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 
 /**
  * Configurations WebPage.

@@ -57,6 +57,8 @@ public class StatusPanel extends Panel {
      */
     private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
+    private static final long serialVersionUID = -4064294905566247728L;
+
     @SpringBean
     private ResourceRestClient resourceRestClient;
 

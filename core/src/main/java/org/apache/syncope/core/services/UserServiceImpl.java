@@ -20,11 +20,9 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;

@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;

@@ -32,6 +32,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  */
 public class UserTemplateModalPage extends UserModalPage {
 
+    private static final long serialVersionUID = 511003221213581368L;
+
     @SpringBean
     private TaskRestClient taskRestClient;
 

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;

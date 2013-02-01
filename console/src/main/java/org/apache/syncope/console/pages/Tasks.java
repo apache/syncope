@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
@@ -87,7 +86,7 @@ public class Tasks extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -146,7 +145,7 @@ public class Tasks extends BasePage {
         public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : (List<T>) restClient.listTasks(reference, ((int)first / paginatorRows) + 1, paginatorRows)) {
+            for (T task : (List<T>) restClient.listTasks(reference, ((int) first / paginatorRows) + 1, paginatorRows)) {
 
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {

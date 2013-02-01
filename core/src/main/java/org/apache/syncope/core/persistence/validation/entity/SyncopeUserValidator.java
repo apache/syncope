@@ -20,10 +20,8 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.PasswordPolicySpec;

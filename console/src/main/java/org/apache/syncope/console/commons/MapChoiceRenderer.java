@@ -19,7 +19,6 @@
 package org.apache.syncope.console.commons;
 
 import java.util.Map;
-
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
 public class MapChoiceRenderer<T, K> implements IChoiceRenderer<T> {

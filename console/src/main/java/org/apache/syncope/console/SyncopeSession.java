@@ -20,7 +20,6 @@ package org.apache.syncope.console;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-
 import org.apache.syncope.client.services.proxy.ConfigurationServiceProxy;
 import org.apache.syncope.client.services.proxy.ConnectorServiceProxy;
 import org.apache.syncope.client.services.proxy.EntitlementServiceProxy;

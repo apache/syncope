@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.syncope.common.annotation.SchemaList;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AttributableType;

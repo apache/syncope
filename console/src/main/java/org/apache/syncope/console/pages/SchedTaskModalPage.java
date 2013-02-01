@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import java.util.List;
-
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;

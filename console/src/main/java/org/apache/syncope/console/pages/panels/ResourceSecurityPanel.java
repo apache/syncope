@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PolicyType;

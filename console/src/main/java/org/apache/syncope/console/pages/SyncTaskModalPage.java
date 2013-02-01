@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;

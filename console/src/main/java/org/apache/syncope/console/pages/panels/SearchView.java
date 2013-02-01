@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.wicket.ajax.AjaxRequestTarget;

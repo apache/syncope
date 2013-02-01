@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;

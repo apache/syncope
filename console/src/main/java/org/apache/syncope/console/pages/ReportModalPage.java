@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -131,6 +130,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(crontab);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -174,6 +174,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -201,6 +202,7 @@ public class ReportModalPage extends BaseModalPage {
         reportletConfWin.setInitialHeight(REPORTLET_CONF_WIN_HEIGHT);
         reportletConfWin.setInitialWidth(REPORTLET_CONF_WIN_WIDTH);
         reportletConfWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
@@ -253,6 +255,7 @@ public class ReportModalPage extends BaseModalPage {
 
         reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
                 new IChoiceRenderer<ReportletConf>() {
+
                     private static final long serialVersionUID = 1048000918946220007L;
 
                     @Override
@@ -265,6 +268,7 @@ public class ReportModalPage extends BaseModalPage {
                         return object.getName();
                     }
                 }) {
+
             private static final long serialVersionUID = 4022366881854379834L;
 
             @Override
@@ -276,6 +280,7 @@ public class ReportModalPage extends BaseModalPage {
         reportlets.setNullValid(true);
         profile.add(reportlets);
         reportlets.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -285,11 +290,13 @@ public class ReportModalPage extends BaseModalPage {
         });
 
         profile.add(new AjaxLink(ADD_BUTTON_ID) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
+
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
@@ -305,6 +312,7 @@ public class ReportModalPage extends BaseModalPage {
         });
 
         profile.add(new AjaxLink(EDIT_BUTTON_ID) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -312,6 +320,7 @@ public class ReportModalPage extends BaseModalPage {
 
                 if (reportlets.getModelObject() != null) {
                     reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
+
                         private static final long serialVersionUID = -7834632442532690940L;
 
                         @Override
@@ -330,6 +339,7 @@ public class ReportModalPage extends BaseModalPage {
         });
 
         profile.add(new AjaxLink(REMOVE_BUTTON_ID) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -347,6 +357,7 @@ public class ReportModalPage extends BaseModalPage {
                     super.updateAjaxAttributes(attributes);
 
                     final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+
                         private static final long serialVersionUID = 7160235486520935153L;
 
                         @Override
@@ -360,6 +371,7 @@ public class ReportModalPage extends BaseModalPage {
         });
 
         profile.add(new AjaxLink(UP_BUTTON_ID) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -372,6 +384,7 @@ public class ReportModalPage extends BaseModalPage {
         });
 
         profile.add(new AjaxLink(DOWN_BUTTON_ID) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -418,6 +431,7 @@ public class ReportModalPage extends BaseModalPage {
         reportExecExportWin.setInitialHeight(EXEC_EXPORT_WIN_HEIGHT);
         reportExecExportWin.setInitialWidth(EXEC_EXPORT_WIN_WIDTH);
         reportExecExportWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
@@ -436,6 +450,7 @@ public class ReportModalPage extends BaseModalPage {
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
         columns.add(new AbstractColumn<ReportExecTO, String>(new ResourceModel("actions", "")) {
+
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
@@ -452,11 +467,13 @@ public class ReportModalPage extends BaseModalPage {
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
 
                 panel.add(new ActionLink() {
+
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         reportExecMessageWin.setPageCreator(new ModalWindow.PageCreator() {
+
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
@@ -469,11 +486,13 @@ public class ReportModalPage extends BaseModalPage {
                 }, ActionLink.ActionType.EDIT, "Reports", "read", StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
+
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         reportExecExportWin.setPageCreator(new ModalWindow.PageCreator() {
+
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
@@ -489,6 +508,7 @@ public class ReportModalPage extends BaseModalPage {
                         model.getObject().getStatus()));
 
                 panel.add(new ActionLink() {
+
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
@@ -517,6 +537,7 @@ public class ReportModalPage extends BaseModalPage {
         executions.add(table);
 
         final AjaxLink reload = new IndicatingAjaxLink("reload") {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
@@ -580,6 +601,7 @@ public class ReportModalPage extends BaseModalPage {
         public IModel<ReportExecTO> model(final ReportExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<ReportExecTO>() {
+
                 private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override

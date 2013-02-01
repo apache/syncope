@@ -21,7 +21,6 @@ package org.apache.syncope.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AbstractAttributableTO;

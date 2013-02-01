@@ -258,6 +258,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                     displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
         } else {
             displayAttrsLink = new AjaxLink("displayAttrsLink") {
+                private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
