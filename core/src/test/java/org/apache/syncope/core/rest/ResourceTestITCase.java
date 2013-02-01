@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -182,12 +183,10 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        Throwable t = null;
         try {
-            resourceService.create(resourceTO);
+            createResource(resourceService,resourceTO);
+            fail("Create should not have worked");
         } catch (SyncopeClientCompositeErrorException e) {
-            t = e;
-
             SyncopeClientException requiredValueMissing = e
                     .getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(requiredValueMissing);
@@ -195,7 +194,6 @@ public class ResourceTestITCase extends AbstractTest {
             assertEquals(1, requiredValueMissing.getElements().size());
             assertEquals("intAttrName", requiredValueMissing.getElements().iterator().next());
         }
-        assertNotNull(t);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -220,7 +218,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        resourceService.create(resourceTO);
+        createResource(resourceService, resourceTO);
     }
 
     @Test
