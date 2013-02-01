@@ -63,7 +63,7 @@ public class VirAttrTest extends AbstractDAOTest {
 
     @Test
     public void findById() {
-        UVirAttr attribute = virAttrDAO.find(100L, UVirAttr.class);
+        UVirAttr attribute = virAttrDAO.find(1000L, UVirAttr.class);
         assertNotNull("did not find expected attribute schema", attribute);
     }
 
@@ -128,12 +128,12 @@ public class VirAttrTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        UVirAttr attribute = virAttrDAO.find(100L, UVirAttr.class);
+        UVirAttr attribute = virAttrDAO.find(1000L, UVirAttr.class);
         String attributeSchemaName = attribute.getVirtualSchema().getName();
 
         virAttrDAO.delete(attribute.getId(), UVirAttr.class);
 
-        UVirAttr actual = virAttrDAO.find(100L, UVirAttr.class);
+        UVirAttr actual = virAttrDAO.find(1000L, UVirAttr.class);
         assertNull("delete did not work", actual);
 
         UVirSchema attributeSchema = virSchemaDAO.find(attributeSchemaName, UVirSchema.class);

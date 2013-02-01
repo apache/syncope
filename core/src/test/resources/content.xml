@@ -232,7 +232,7 @@ under the License.
   <MDerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
 
   <UVirSchema name="virtualdata"/>
-  <UVirAttr id="100" virtualSchema_name="virtualdata" owner_id="3"/>
+  <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>
 
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
   <UDerAttr id="100" derivedSchema_name="cn" owner_id="3"/>
