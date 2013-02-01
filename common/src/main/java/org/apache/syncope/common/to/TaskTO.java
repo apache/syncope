@@ -25,12 +25,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "task")
 @XmlType
+@XmlSeeAlso({ SyncTaskTO.class, NotificationTaskTO.class, SyncTaskTO.class,
+    SchedTaskTO.class, PropagationTaskTO.class })
 public abstract class TaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
