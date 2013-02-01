@@ -331,7 +331,9 @@ public class RoleDetailsPanel extends Panel {
 
         @Override
         public void setObject(final Object object) {
-            roleTO.setParent((Long) object);
+            long parentId = (object instanceof Long)
+                    ? ((Long) object).longValue() : 0;
+            roleTO.setParent(parentId);
         }
 
         @Override
