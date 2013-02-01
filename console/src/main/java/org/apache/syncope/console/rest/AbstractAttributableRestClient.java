@@ -19,7 +19,6 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;

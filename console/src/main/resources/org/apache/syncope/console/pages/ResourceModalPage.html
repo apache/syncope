@@ -44,7 +44,10 @@ under the License.
 </wicket:head>
 <wicket:extend>
   <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <p class="ui-widget ui-corner-all ui-widget-header">
+      <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="name"/>
+    </p>
+
     <form wicket:id="form">
       <div id="tabs">
         <ul>

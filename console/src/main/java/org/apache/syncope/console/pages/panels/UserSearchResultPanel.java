@@ -33,6 +33,7 @@ import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
@@ -147,14 +148,15 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new EditUserModalPage(
-                                        page.getPageReference(), editmodal, (UserTO) model.getObject());
+                                // SYNCOPE-294: re-read userTO before edit
+                                UserTO userTO = ((UserRestClient) restClient).read(model.getObject().getId());
+                                return new EditUserModalPage(page.getPageReference(), editmodal, userTO);
                             }
                         });
 
                         editmodal.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Users", "update");
+                }, ActionLink.ActionType.EDIT, "Users", "read");
 
                 panel.add(new ActionLink() {
 

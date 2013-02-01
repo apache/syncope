@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -32,8 +33,10 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -51,6 +54,14 @@ public class ResourceModalPage extends BaseModalPage {
             final boolean createFlag) {
 
         super();
+
+        this.add(new Label("new", StringUtils.isBlank(resourceTO.getName())
+                ? new ResourceModel("new")
+                : new Model("")));
+
+        this.add(new Label("name", StringUtils.isBlank(resourceTO.getName())
+                ? ""
+                : resourceTO.getName()));
 
         final Form form = new Form("form");
         form.setModel(new CompoundPropertyModel(resourceTO));
