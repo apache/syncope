@@ -808,6 +808,13 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public void readWithMailAddressAsUserName() {
+        UserTO userTO = createUser(getSampleTO("mail@domain.org"));
+        userTO = userService.read(userTO.getUsername());
+        assertNotNull(userTO);
+    }
+
+    @Test
     public void updateWithouPassword() {
         UserTO userTO = getUniqueSampleTO("updatewithout@password.com");
 
