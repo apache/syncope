@@ -43,7 +43,7 @@ public final class EncodePasswordCLI {
         }
 
         System.out.println("Encoding password '" + args[0] + "' with " + args[1]);
-        System.out.println(PasswordEncoder.encodePassword(args[0], CipherAlgorithm.valueOf(args[1])));
+        System.out.println(PasswordEncoder.encode(args[0], CipherAlgorithm.valueOf(args[1])));
     }
 
     private static void usage() {

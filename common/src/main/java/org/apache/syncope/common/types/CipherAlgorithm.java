@@ -33,7 +33,7 @@ public enum CipherAlgorithm {
 
     final private String algorithm;
 
-    CipherAlgorithm(String algorithm) {
+    CipherAlgorithm(final String algorithm) {
         this.algorithm = algorithm;
     }
 
@@ -41,7 +41,7 @@ public enum CipherAlgorithm {
         return algorithm;
     }
 
-    public static CipherAlgorithm fromString(String value) {
+    public static CipherAlgorithm fromString(final String value) {
         return CipherAlgorithm.valueOf(value.toUpperCase());
     }
 }

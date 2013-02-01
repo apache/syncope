@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.data;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -114,7 +113,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public boolean verifyPassword(final SyncopeUser user, final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return PasswordEncoder.verifyPassword(password, user.getCipherAlgorithm(), user.getPassword());
+        return PasswordEncoder.verify(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
     @Transactional(readOnly = true)
@@ -142,12 +141,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     /**
-     * Get pre-configured password cipher algorithm.
+     * Get predefined password cipher algorithm from SyncopeConf.
      *
      * @return cipher algorithm.
      * @throws NotFoundException in case of algorithm not included into <code>CipherAlgorithm</code>.
      */
-    private CipherAlgorithm getCipherAlgoritm()
+    private CipherAlgorithm getPredefinedCipherAlgoritm()
             throws NotFoundException {
 
         final String algorithm = confDAO.find("password.cipher.algorithm", "AES").getValue();
@@ -210,7 +209,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             LOG.error("No password provided");
         } else {
             try {
-                user.setPassword(userTO.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+                user.setPassword(userTO.getPassword(), getPredefinedCipherAlgoritm(), passwordHistorySize);
             } catch (NotFoundException e) {
                 final SyncopeClientException invalidAlgorith =
                         new SyncopeClientException(SyncopeClientExceptionType.NotFound);
@@ -261,7 +260,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             }
 
             try {
-                user.setPassword(userMod.getPassword(), getCipherAlgoritm(), passwordHistorySize);
+                user.setPassword(userMod.getPassword(), getPredefinedCipherAlgoritm(), passwordHistorySize);
             } catch (NotFoundException e) {
                 final SyncopeClientException invalidAlgorith =
                         new SyncopeClientException(SyncopeClientExceptionType.NotFound);
@@ -388,15 +387,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             Set<String> updatedResources = user.getResourceNames();
             updatedResources.removeAll(currentResources);
 
-            for (String res : updatedResources) {
-                final ExternalResource extRes = resourceDAO.find(res);
+            for (String resourceName : updatedResources) {
+                final ExternalResource resource = resourceDAO.find(resourceName);
 
-                if (extRes != null && extRes.getUmapping() != null && !MappingUtil.getMatchingMappingItems(
-                        extRes.getUmapping().getItems(), "password", IntMappingType.Password).isEmpty()) {
+                if (!user.canDecodePassword() && resource != null && !resource.isRandomPwdIfNotProvided()
+                        && resource.getUmapping() != null && !MappingUtil.getMatchingMappingItems(
+                        resource.getUmapping().getItems(), "password", IntMappingType.Password).isEmpty()) {
 
                     SyncopeClientException sce =
                             new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-                    sce.addElement("password cannot be empty " + "when subscribing to new resources");
+                    sce.addElement("Password cannot be empty when subscribing to new resources");
                     scce.addException(sce);
 
                     throw scce;

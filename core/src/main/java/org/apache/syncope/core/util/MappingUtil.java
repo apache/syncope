@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -69,9 +71,6 @@ public final class MappingUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtil.class);
 
-    private MappingUtil() {
-    }
-
     public static <T extends AbstractMappingItem> List<T> getMatchingMappingItems(final Collection<T> items,
             final String intAttrName, final IntMappingType type) {
 
@@ -108,6 +107,7 @@ public final class MappingUtil {
      * @param mapItem mapping item for the given attribute
      * @param subject given user
      * @param password clear-text password
+     * @param passwordGenerator password generator
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @return account link + prepared attribute
@@ -116,7 +116,7 @@ public final class MappingUtil {
     @SuppressWarnings("unchecked")
     public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final ExternalResource resource, final AbstractMappingItem mapItem,
-            final T subject, final String password,
+            final T subject, final String password, final PasswordGenerator passwordGenerator,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated)
             throws ClassNotFoundException {
 
@@ -147,7 +147,7 @@ public final class MappingUtil {
             default:
         }
 
-        final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables, password,
+        final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
                 vAttrsToBeRemoved, vAttrsToBeUpdated);
 
         AbstractSchema schema = null;
@@ -193,9 +193,29 @@ public final class MappingUtil {
 
         if (mapItem.isAccountid()) {
             result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
-        } else if (mapItem.isPassword()) {
+        } else if (mapItem.isPassword() && subject instanceof SyncopeUser) {
+            String passwordAttrValue = password;
+            if (StringUtils.isBlank(passwordAttrValue)) {
+                SyncopeUser user = (SyncopeUser) subject;
+                if (user.canDecodePassword()) {
+                    try {
+                        passwordAttrValue = PasswordEncoder.decode(user.getPassword(), user.getCipherAlgorithm());
+                    } catch (Exception e) {
+                        LOG.error("Could not decode password for {}", user, e);
+                    }
+                } else if (resource.isRandomPwdIfNotProvided()) {
+                    try {
+                        passwordAttrValue = passwordGenerator.generateUserPassword(user);
+                    } catch (IncompatiblePolicyException e) {
+                        LOG.error("Could not generate policy-compliant random password for {}", user, e);
+
+                        passwordAttrValue = RandomStringUtils.randomAlphanumeric(16);
+                    }
+                }
+            }
+
             result = new AbstractMap.SimpleEntry<String, Attribute>(null,
-                    AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
+                    AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
         } else {
             if (schema != null && schema.isMultivalue()) {
                 result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
@@ -269,7 +289,7 @@ public final class MappingUtil {
         String accountId = null;
         try {
             Map.Entry<String, Attribute> preparedAttr = prepareAttribute(
-                    resource, attrUtil.getAccountIdItem(resource), subject, null,
+                    resource, attrUtil.getAccountIdItem(resource), subject, null, null,
                     Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap());
             accountId = preparedAttr.getKey();
         } catch (ClassNotFoundException e) {
@@ -286,19 +306,18 @@ public final class MappingUtil {
      * @param resource target resource
      * @param mappingItem mapping item
      * @param attributables list of attributables
-     * @param pwd password
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @return attribute values.
      */
     public static List<AbstractAttrValue> getIntValues(final ExternalResource resource,
-            final AbstractMappingItem mappingItem, final List<AbstractAttributable> attributables, final String pwd,
+            final AbstractMappingItem mappingItem, final List<AbstractAttributable> attributables,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mappingItem.getIntMappingType());
 
         List<AbstractAttrValue> values = new ArrayList<AbstractAttrValue>();
-
+        AbstractAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:
@@ -330,7 +349,7 @@ public final class MappingUtil {
                     if (virAttr != null) {
                         if (virAttr.getValues() != null) {
                             for (String value : virAttr.getValues()) {
-                                AbstractAttrValue attrValue = new UAttrValue();
+                                attrValue = new UAttrValue();
                                 attrValue.setStringValue(value);
                                 values.add(attrValue);
                             }
@@ -361,7 +380,7 @@ public final class MappingUtil {
                 for (AbstractAttributable attributable : attributables) {
                     AbstractDerAttr derAttr = attributable.getDerivedAttribute(mappingItem.getIntAttrName());
                     if (derAttr != null) {
-                        AbstractAttrValue attrValue = (attributable instanceof SyncopeRole)
+                        attrValue = (attributable instanceof SyncopeRole)
                                 ? new RAttrValue() : new UAttrValue();
                         attrValue.setStringValue(derAttr.getValue(attributable.getAttributes()));
                         values.add(attrValue);
@@ -379,7 +398,7 @@ public final class MappingUtil {
             case RoleId:
             case MembershipId:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractAttrValue attrValue = new UAttrValue();
+                    attrValue = new UAttrValue();
                     attrValue.setStringValue(attributable.getId().toString());
                     values.add(attrValue);
                 }
@@ -388,19 +407,11 @@ public final class MappingUtil {
             case Username:
                 for (AbstractAttributable attributable : attributables) {
                     if (attributable instanceof SyncopeUser) {
-                        AbstractAttrValue attrValue = new UAttrValue();
+                        attrValue = new UAttrValue();
                         attrValue.setStringValue(((SyncopeUser) attributable).getUsername());
                         values.add(attrValue);
                     }
                 }
-                break;
-
-            case Password:
-                AbstractAttrValue attrValue = new UAttrValue();
-                if (pwd != null) {
-                    attrValue.setStringValue(pwd);
-                }
-                values.add(attrValue);
                 break;
 
             case RoleName:
@@ -453,7 +464,7 @@ public final class MappingUtil {
             final AbstractMappingItem accountIdItem) {
 
         List<AbstractAttrValue> values = getIntValues(resource, accountIdItem,
-                Collections.<AbstractAttributable>singletonList(attributable), null, null, null);
+                Collections.<AbstractAttributable>singletonList(attributable), null, null);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();
@@ -510,5 +521,11 @@ public final class MappingUtil {
         }
 
         return result;
+    }
+
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private MappingUtil() {
     }
 }

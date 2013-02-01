@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -105,6 +104,8 @@ public class ResourceDataBinder {
         resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
 
         resource.setPropagationPriority(resourceTO.getPropagationPriority());
+
+        resource.setRandomPwdIfNotProvided(resourceTO.isRandomPwdIfNotProvided());
 
         resource.setPropagationMode(resourceTO.getPropagationMode());
 
@@ -314,6 +315,8 @@ public class ResourceDataBinder {
         resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
 
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
+
+        resourceTO.setRandomPwdIfNotProvided(resource.isRandomPwdIfNotProvided());
 
         resourceTO.setPropagationMode(resource.getPropagationMode());
 

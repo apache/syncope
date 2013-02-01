@@ -212,8 +212,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
-        // 2. update assigning a resource forcing mandatory constraints: must
-        // fail with RequiredValuesMissing
+        // 2. update assigning a resource forcing mandatory constraints: must fail with RequiredValuesMissing
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
@@ -1896,9 +1895,9 @@ public class UserTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             // TODO Dirty workaround for AUTO generation Id strategy problem in AbstractVirAttr.
             // Must be removed after fix of SYNCOPE-298
-        	SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.DataIntegrityViolation);
-        	assertNotNull(sce);
-        	return;
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.DataIntegrityViolation);
+            assertNotNull(sce);
+            return;
         }
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains("resource-testdb"));
@@ -1955,5 +1954,75 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
         assertEquals(pwdOnTestDb2, pwdOnTestDb2AttrAfter.getValues().iterator().next());
+    }
+
+    @Test
+    public void isseSYNCOPE136AES() {
+        // 1. read configured cipher algorithm in order to be able to restore it at the end of test
+        ConfigurationTO pwdCipherAlgo = configurationService.read("password.cipher.algorithm");
+        final String origpwdCipherAlgo = pwdCipherAlgo.getValue();
+
+        // 2. set AES password cipher algorithm
+        pwdCipherAlgo.setValue("AES");
+        configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
+
+        try {
+            // 3. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
+            userTO.getResources().clear();
+
+            userTO = userService.create(userTO).readEntity(UserTO.class);
+            assertNotNull(userTO);
+
+            // 4. update user, assign a propagation primary resource but don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setId(userTO.getId());
+            userMod.addResourceToBeAdded("ws-target-resource-2");
+
+            userTO = userService.update(userMod.getId(), userMod);
+            assertNotNull(userTO);
+
+            // 5. verify that propagation was successful
+            List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatusTO prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals("ws-target-resource-2", prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
+        } finally {
+            // 6. restore initial cipher algorithm
+            pwdCipherAlgo.setValue(origpwdCipherAlgo);
+            configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
+        }
+    }
+
+    @Test
+    public void isseSYNCOPE136Random() {
+        // 1. create user with no resources
+        UserTO userTO = getUniqueSampleTO("syncope136_Random@apache.org");
+        userTO.getResources().clear();
+
+        userTO = userService.create(userTO).readEntity(UserTO.class);
+        assertNotNull(userTO);
+
+        // 2. update user, assign a propagation primary resource but don't provide any password
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addResourceToBeAdded("resource-ldap");
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertNotNull(userTO);
+
+        // 3. verify that propagation was successful
+        List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
+        assertNotNull(props);
+        assertEquals(1, props.size());
+        PropagationStatusTO prop = props.iterator().next();
+        assertNotNull(prop);
+        assertEquals("resource-ldap", prop.getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
     }
 }

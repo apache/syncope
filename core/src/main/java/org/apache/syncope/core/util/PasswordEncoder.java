@@ -24,13 +24,11 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.jasypt.digest.StandardStringDigester;
@@ -86,7 +84,7 @@ public final class PasswordEncoder {
         }
     }
 
-    public static String encodePassword(final String password, final CipherAlgorithm cipherAlgorithm)
+    public static String encode(final String password, final CipherAlgorithm cipherAlgorithm)
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
@@ -98,10 +96,9 @@ public final class PasswordEncoder {
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-                byte[] encoded = cipher.doFinal(cleartext);
 
-                encodedPassword = new String(Base64.encode(encoded));
-            } else if (cipherAlgorithm.getAlgorithm().equals("BCRYPT")) {
+                encodedPassword = new String(Base64.encode(cipher.doFinal(cleartext)));
+            } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
                 encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             } else {
                 encodedPassword = getDigester(cipherAlgorithm).digest(password);
@@ -111,7 +108,7 @@ public final class PasswordEncoder {
         return encodedPassword;
     }
 
-    public static boolean verifyPassword(final String password, final CipherAlgorithm cipherAlgorithm,
+    public static boolean verify(final String password, final CipherAlgorithm cipherAlgorithm,
             final String digestedPassword) {
 
         boolean res = false;
@@ -119,15 +116,8 @@ public final class PasswordEncoder {
         try {
             if (password != null) {
                 if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-
-                    final byte[] cleartext = password.getBytes("UTF8");
-
-                    final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
-                    cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-                    byte[] encoded = cipher.doFinal(cleartext);
-
-                    res = new String(Base64.encode(encoded)).equals(digestedPassword);
-                } else if (cipherAlgorithm.getAlgorithm().equals("BCRYPT")) {
+                    res = encode(password, cipherAlgorithm).equals(digestedPassword);
+                } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
                     res = BCrypt.checkpw(password, digestedPassword);
                 } else {
                     res = getDigester(cipherAlgorithm).matches(password, digestedPassword);
@@ -138,6 +128,24 @@ public final class PasswordEncoder {
         }
 
         return res;
+    }
+
+    public static String decode(final String encodedPassword, final CipherAlgorithm cipherAlgorithm)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
+
+        String password = null;
+
+        if (encodedPassword != null && cipherAlgorithm == CipherAlgorithm.AES) {
+            final byte[] encoded = encodedPassword.getBytes("UTF8");
+
+            final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
+            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+
+            password = new String(cipher.doFinal(Base64.decode(encoded)));
+        }
+
+        return password;
     }
 
     private static StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {

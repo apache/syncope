@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.persistence.beans.user;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,9 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -273,12 +267,20 @@ public class SyncopeUser extends AbstractAttributable {
         this.clearPassword = password;
 
         try {
-            this.password = encodePassword(password, cipherAlgoritm);
+            this.password = PasswordEncoder.encode(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;
         }
+    }
+
+    public CipherAlgorithm getCipherAlgorithm() {
+        return cipherAlgorithm;
+    }
+
+    public boolean canDecodePassword() {
+        return CipherAlgorithm.AES == this.cipherAlgorithm;
     }
 
     @Override
@@ -423,10 +425,6 @@ public class SyncopeUser extends AbstractAttributable {
                 : tokenExpireTime.before(new Date());
     }
 
-    public CipherAlgorithm getCipherAlgorithm() {
-        return cipherAlgorithm;
-    }
-
     public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
         this.cipherAlgorithm = cipherAlgorithm;
     }
@@ -495,24 +493,16 @@ public class SyncopeUser extends AbstractAttributable {
         return suspended == null ? null : isBooleanAsInteger(suspended);
     }
 
-    private String encodePassword(final String password, final CipherAlgorithm cipherAlgoritm)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException {
-
-        return PasswordEncoder.encodePassword(password, cipherAlgoritm);
-    }
-
     public boolean verifyPasswordHistory(final String password, final int size) {
-
         boolean res = false;
 
         if (size > 0) {
             try {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
-                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm != null
-                        ? encodePassword(password, cipherAlgorithm)
-                        : password);
+                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
+                        ? password
+                        : PasswordEncoder.encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }

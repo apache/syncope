@@ -115,7 +115,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
         String username = authentication.getName();
         if (adminUser.equals(username)) {
-            authenticated = PasswordEncoder.verifyPassword(
+            authenticated = PasswordEncoder.verify(
                     authentication.getCredentials().toString(),
                     CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                     adminPassword);
@@ -126,7 +126,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 if (user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
-                authenticated = PasswordEncoder.verifyPassword(
+                authenticated = PasswordEncoder.verify(
                         authentication.getCredentials().toString(),
                         user.getCipherAlgorithm(),
                         user.getPassword());

@@ -41,18 +41,18 @@ public class PasswordEncoderTest {
             throws Exception {
 
         for (CipherAlgorithm cipherAlgorithm : CipherAlgorithm.values()) {
-            final String encPassword = PasswordEncoder.encodePassword(password, cipherAlgorithm);
+            final String encPassword = PasswordEncoder.encode(password, cipherAlgorithm);
 
             assertNotNull(encPassword);
-            assertTrue(PasswordEncoder.verifyPassword(password, cipherAlgorithm, encPassword));
-            assertFalse(PasswordEncoder.verifyPassword("pass", cipherAlgorithm, encPassword));
+            assertTrue(PasswordEncoder.verify(password, cipherAlgorithm, encPassword));
+            assertFalse(PasswordEncoder.verify("pass", cipherAlgorithm, encPassword));
 
             // check that same password encoded with BCRYPT or Salted versions results in different digest
             if (cipherAlgorithm.equals(CipherAlgorithm.BCRYPT) || cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-                final String encSamePassword = PasswordEncoder.encodePassword(password, cipherAlgorithm);
+                final String encSamePassword = PasswordEncoder.encode(password, cipherAlgorithm);
                 assertNotNull(encSamePassword);
                 assertFalse(encSamePassword.equals(encPassword));
-                assertTrue(PasswordEncoder.verifyPassword(password, cipherAlgorithm, encSamePassword));
+                assertTrue(PasswordEncoder.verify(password, cipherAlgorithm, encSamePassword));
             }
         }
 

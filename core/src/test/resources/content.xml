@@ -339,66 +339,66 @@ under the License.
   <ConnInstance_capabilities ConnInstance_id="107" capabilities="TWO_PHASES_UPDATE"/>
 
   <ExternalResource name="ws-target-resource-1" connector_id="100"
-                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-2" connector_id="100"
-                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-3" connector_id="102"
-                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.common.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A++++%3Cvalues%3E%0A++++++%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/syncope-build-tools/services/provisioning%3C/java.lang.String%3E%0A++++%3C/values%3E%0A++++%3Coverridable%3Etrue%3C/overridable%3E%0A++%3C/org.apache.syncope.common.types.ConnConfProperty%3E%0A%3C/set%3E"/>
   <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100"
-                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100"
-                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-delete" connector_id="102"
-                    enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
                     propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-update" connector_id="100"
-                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="resource-testdb" connector_id="101"
-                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="resource-testdb2" connector_id="106"
-                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="resource-csv" connector_id="104"
-                    enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     userializedSyncToken="%3Corg.identityconnectors.framework.common.objects.SyncToken%2F%3E"/>
   <ExternalResource name="resource-ldap" connector_id="105"
-                    enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="1"
                     propagationActionsClassName="org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
-                    enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" 
                     passwordPolicy_id="4"/>
   
   <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
   <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
   <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
   <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
                     
   <!-- External resource for issue SYNCOPE-230 -->
   <ExternalResource name="resource-db-sync" connector_id="107"
-                    createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
                     propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
                     
   <!-- External resource for issue SYNCOPE-267 -->
   <ExternalResource name="resource-db-virattr" connector_id="107"
-                    createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
                     propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
   
@@ -763,9 +763,9 @@ under the License.
                 xmlRecipients="%3Corg.apache.syncope.common.search.NodeCond%3E%0A++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++%3CmembershipCond%3E%0A++++%3CroleId%3E7%3C%2FroleId%3E%0A++%3C%2FmembershipCond%3E%0A%3C%2Forg.apache.syncope.common.search.NodeCond%3E"
                 recipientAttrType="UserSchema" recipientAttrName="email"/>
   <!--Notification id="101" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
-                xmlAbout="%3Corg.apache.syncope.common.search.NodeCond%3E%0A++%3Ctype%3EAND%3C%2Ftype%3E%0A++%3CleftNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25o%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FleftNodeCond%3E%0A++%3CrightNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25i%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FrightNodeCond%3E%0A%3C%2Forg.apache.syncope.common.search.NodeCond%3E"
-                xmlRecipients="%3Corg.apache.syncope.common.search.NodeCond%3E%0A++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++%3CmembershipCond%3E%0A++++%3CroleId%3E7%3C%2FroleId%3E%0A++%3C%2FmembershipCond%3E%0A%3C%2Forg.apache.syncope.common.search.NodeCond%3E"
-                recipientAttrType="UserSchema" recipientAttrName="email"/-->
+  xmlAbout="%3Corg.apache.syncope.common.search.NodeCond%3E%0A++%3Ctype%3EAND%3C%2Ftype%3E%0A++%3CleftNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25o%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FleftNodeCond%3E%0A++%3CrightNodeCond%3E%0A++++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++++%3CattributeCond%3E%0A++++++%3Ctype%3ELIKE%3C%2Ftype%3E%0A++++++%3Cschema%3Efullname%3C%2Fschema%3E%0A++++++%3Cexpression%3E%25i%25%3C%2Fexpression%3E%0A++++%3C%2FattributeCond%3E%0A++%3C%2FrightNodeCond%3E%0A%3C%2Forg.apache.syncope.common.search.NodeCond%3E"
+  xmlRecipients="%3Corg.apache.syncope.common.search.NodeCond%3E%0A++%3Ctype%3ELEAF%3C%2Ftype%3E%0A++%3CmembershipCond%3E%0A++++%3CroleId%3E7%3C%2FroleId%3E%0A++%3C%2FmembershipCond%3E%0A%3C%2Forg.apache.syncope.common.search.NodeCond%3E"
+  recipientAttrType="UserSchema" recipientAttrName="email"/-->
   <Notification_events Notification_id="100" events="unexisting1"/>
   <Notification_events Notification_id="100" events="unexisting2"/>
   <!--Notification_events Notification_id="101" events="unexisting1"/-->

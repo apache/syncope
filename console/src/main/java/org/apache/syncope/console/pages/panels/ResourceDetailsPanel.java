@@ -104,6 +104,11 @@ public class ResourceDetailsPanel extends Panel {
         propagationMode.setChoices(Arrays.asList(PropagationMode.values()));
         add(propagationMode);
 
+        final AjaxCheckBoxPanel randomPwdIfNotProvided = new AjaxCheckBoxPanel("randomPwdIfNotProvided",
+                new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
+                new PropertyModel<Boolean>(resourceTO, "randomPwdIfNotProvided"));
+        add(randomPwdIfNotProvided);
+
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
                 "propagationActionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
                 new PropertyModel<String>(resourceTO, "propagationActionsClassName"));

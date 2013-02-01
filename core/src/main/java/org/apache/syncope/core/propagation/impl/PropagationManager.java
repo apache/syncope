@@ -31,6 +31,7 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -89,6 +90,9 @@ public class PropagationManager {
      */
     @Autowired
     private ConnObjectUtil connObjectUtil;
+
+    @Autowired
+    private PasswordGenerator passwordGenerator;
 
     /**
      * Create the user on every associated resource.
@@ -442,7 +446,7 @@ public class PropagationManager {
 
             try {
                 Map.Entry<String, Attribute> preparedAttribute = MappingUtil.prepareAttribute(
-                        resource, mapping, subject, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                        resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();

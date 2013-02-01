@@ -56,6 +56,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private int propagationPriority;
 
+    private boolean randomPwdIfNotProvided;
+
     private PropagationMode propagationMode;
 
     private boolean enforceMandatoryCondition;
@@ -157,6 +159,14 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setPropagationPriority(int propagationPriority) {
         this.propagationPriority = propagationPriority;
+    }
+
+    public boolean isRandomPwdIfNotProvided() {
+        return randomPwdIfNotProvided;
+    }
+
+    public void setRandomPwdIfNotProvided(boolean randomPwdIfNotProvided) {
+        this.randomPwdIfNotProvided = randomPwdIfNotProvided;
     }
 
     public PropagationMode getPropagationMode() {
