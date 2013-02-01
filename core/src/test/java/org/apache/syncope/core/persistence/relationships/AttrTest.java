@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
@@ -100,7 +100,7 @@ public class AttrTest extends AbstractDAOTest {
     @Test
     public void checkForEnumType() {
         MSchema schema = new MSchema();
-        schema.setType(SchemaType.Enum);
+        schema.setType(AttributeSchemaType.Enum);
         schema.setName("color");
         schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
 

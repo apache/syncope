@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 
 @MappedSuperclass
 public abstract class AbstractVirSchema extends AbstractBaseBean {
@@ -36,8 +36,8 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
         this.name = name;
     }
 
-    public SchemaType getType() {
-        return SchemaType.String;
+    public AttributeSchemaType getType() {
+        return AttributeSchemaType.String;
     }
 
     public String getMandatoryCondition() {

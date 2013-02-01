@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 public class SchemaValidator extends AbstractValidator implements ConstraintValidator<SchemaCheck, AbstractSchema> {
@@ -41,7 +41,7 @@ public class SchemaValidator extends AbstractValidator implements ConstraintVali
             if (object == null) {
                 isValid = true;
             } else {
-                isValid = object.getType() == null || !object.getType().equals(SchemaType.Enum)
+                isValid = object.getType() == null || !object.getType().equals(AttributeSchemaType.Enum)
                         || object.getEnumerationValues() != null;
 
                 if (!isValid) {

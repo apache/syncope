@@ -21,7 +21,7 @@ package org.apache.syncope.common.types;
 import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
-public enum SchemaType {
+public enum AttributeSchemaType {
 
     String("java.lang.String"),
     Long("java.lang.Long"),
@@ -32,7 +32,7 @@ public enum SchemaType {
 
     final private String className;
 
-    SchemaType(String className) {
+    AttributeSchemaType(String className) {
         this.className = className;
     }
 
@@ -41,6 +41,6 @@ public enum SchemaType {
     }
 
     public boolean isConversionPatternNeeded() {
-        return this == SchemaType.Date || this == SchemaType.Double || this == SchemaType.Long;
+        return this == AttributeSchemaType.Date || this == AttributeSchemaType.Double || this == AttributeSchemaType.Long;
     }
 }

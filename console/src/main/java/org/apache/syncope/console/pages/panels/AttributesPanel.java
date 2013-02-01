@@ -31,7 +31,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -174,7 +174,7 @@ public class AttributesPanel extends Panel {
 
         final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
 
-        final SchemaType type = templateMode ? SchemaType.String : schemaTO.getType();
+        final AttributeSchemaType type = templateMode ? AttributeSchemaType.String : schemaTO.getType();
 
         switch (type) {
             case Boolean:

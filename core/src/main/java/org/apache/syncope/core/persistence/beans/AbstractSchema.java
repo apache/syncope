@@ -32,7 +32,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.validation.entity.SchemaCheck;
@@ -50,7 +50,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Column(nullable = false)
     @Enumerated(STRING)
-    private SchemaType type;
+    private AttributeSchemaType type;
 
     @Column(nullable = false)
     private String mandatoryCondition;
@@ -90,7 +90,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public AbstractSchema() {
         super();
 
-        type = SchemaType.String;
+        type = AttributeSchemaType.String;
         mandatoryCondition = Boolean.FALSE.toString();
         multivalue = getBooleanAsInteger(false);
         uniqueConstraint = getBooleanAsInteger(false);
@@ -105,11 +105,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.name = name;
     }
 
-    public SchemaType getType() {
+    public AttributeSchemaType getType() {
         return type;
     }
 
-    public void setType(final SchemaType type) {
+    public void setType(final AttributeSchemaType type) {
         this.type = type;
     }
 

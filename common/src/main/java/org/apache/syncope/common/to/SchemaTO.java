@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 
 @XmlRootElement(name = "schema")
 @XmlType
@@ -30,7 +30,7 @@ public class SchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;
 
-    private SchemaType type = SchemaType.String;
+    private AttributeSchemaType type = AttributeSchemaType.String;
 
     private String mandatoryCondition;
 
@@ -106,11 +106,11 @@ public class SchemaTO extends AbstractSchemaTO {
         this.readonly = readonly;
     }
 
-    public SchemaType getType() {
+    public AttributeSchemaType getType() {
         return type;
     }
 
-    public void setType(final SchemaType type) {
+    public void setType(final AttributeSchemaType type) {
         this.type = type;
     }
 

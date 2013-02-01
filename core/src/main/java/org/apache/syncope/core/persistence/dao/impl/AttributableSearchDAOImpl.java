@@ -39,7 +39,7 @@ import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.search.ResourceCond;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
@@ -402,7 +402,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 break;
 
             case LIKE:
-                if (schema.getType() == SchemaType.String || schema.getType() == SchemaType.Enum) {
+                if (schema.getType() == AttributeSchemaType.String || schema.getType() == AttributeSchemaType.Enum) {
                     query.append(column);
                     if (not) {
                         query.append(" NOT ");
@@ -471,7 +471,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         }
     }
 
-    private String getFieldName(final SchemaType type) {
+    private String getFieldName(final AttributeSchemaType type) {
         String result;
 
         switch (type) {
@@ -555,7 +555,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
 
         AbstractSchema schema = attrUtil.newSchema();
         schema.setName(attributableClassField.getName());
-        for (SchemaType type : SchemaType.values()) {
+        for (AttributeSchemaType type : AttributeSchemaType.values()) {
             if (attributableClassField.getType().getName().equals(type.getClassName())) {
                 schema.setType(type);
             }

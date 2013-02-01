@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 
 @MappedSuperclass
 public abstract class AbstractDerSchema extends AbstractBaseBean {
@@ -50,8 +50,8 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
         this.expression = expression;
     }
 
-    public SchemaType getType() {
-        return SchemaType.String;
+    public AttributeSchemaType getType() {
+        return AttributeSchemaType.String;
     }
 
     public String getMandatoryCondition() {

@@ -43,7 +43,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -89,7 +89,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName(schemaName);
         schemaTO.setMandatoryCondition("false");
-        schemaTO.setType(SchemaType.String);
+        schemaTO.setType(AttributeSchemaType.String);
 
         response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);

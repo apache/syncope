@@ -36,7 +36,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -52,7 +52,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        SchemaTO schemaTO = buildSchemaTO("testAttribute", SchemaType.String);
+        SchemaTO schemaTO = buildSchemaTO("testAttribute", AttributeSchemaType.String);
         schemaTO.setMandatoryCondition("false");
 
         Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -68,7 +68,7 @@ public class SchemaTestITCase extends AbstractTest {
     public void createWithNotPermittedName() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("failedLogins");
-        schemaTO.setType(SchemaType.String);
+        schemaTO.setType(AttributeSchemaType.String);
 
         try {
             createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -86,7 +86,7 @@ public class SchemaTestITCase extends AbstractTest {
     public void createREnumWithoutEnumeration() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("enumcheck");
-        schemaTO.setType(SchemaType.Enum);
+        schemaTO.setType(AttributeSchemaType.Enum);
 
         try {
             createSchema(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -105,7 +105,7 @@ public class SchemaTestITCase extends AbstractTest {
     public void createUEnumWithoutEnumeration() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("enumcheck");
-        schemaTO.setType(SchemaType.Enum);
+        schemaTO.setType(AttributeSchemaType.Enum);
 
         try {
             createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -122,7 +122,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        SchemaTO schemaTO = buildSchemaTO("todelete", SchemaType.String);
+        SchemaTO schemaTO = buildSchemaTO("todelete", AttributeSchemaType.String);
         schemaTO.setMandatoryCondition("false");
         createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
 
@@ -169,7 +169,7 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO updatedTO = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, "icon");
         assertEquals(schemaTO, updatedTO);
 
-        updatedTO.setType(SchemaType.Date);
+        updatedTO.setType(AttributeSchemaType.Date);
         try {
             schemaService.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaTO.getName(), updatedTO);
             fail("This should not be reacheable");
@@ -183,7 +183,7 @@ public class SchemaTestITCase extends AbstractTest {
     public void issue258() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("schema_issue258");
-        schemaTO.setType(SchemaType.Double);
+        schemaTO.setType(AttributeSchemaType.Double);
 
         Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
         schemaTO = getObject(response, SchemaTO.class, schemaService);
@@ -195,7 +195,7 @@ public class SchemaTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        schemaTO.setType(SchemaType.Long);
+        schemaTO.setType(AttributeSchemaType.Long);
         try {
             schemaService.update(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO.getName(), schemaTO);
             fail("This should not be reacheable");
@@ -207,7 +207,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void issue259() {
-        SchemaTO schemaTO = buildSchemaTO("schema_issue259", SchemaType.Double);
+        SchemaTO schemaTO = buildSchemaTO("schema_issue259", AttributeSchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
         Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -232,7 +232,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void issue260() {
-        SchemaTO schemaTO = buildSchemaTO("schema_issue260", SchemaType.Double);
+        SchemaTO schemaTO = buildSchemaTO("schema_issue260", AttributeSchemaType.Double);
         schemaTO.setUniqueConstraint(true);
 
         Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
@@ -254,7 +254,7 @@ public class SchemaTestITCase extends AbstractTest {
         }
     }
 
-    private SchemaTO buildSchemaTO(final String name, final SchemaType type) {
+    private SchemaTO buildSchemaTO(final String name, final AttributeSchemaType type) {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName(name + getUUIDString());
         schemaTO.setType(type);

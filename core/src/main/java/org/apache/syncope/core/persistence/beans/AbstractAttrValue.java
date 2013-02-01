@@ -31,7 +31,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
 
@@ -183,9 +183,9 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     public String getValueAsString() {
         String result = null;
 
-        final SchemaType type = getAttribute() == null || getAttribute().getSchema() == null
+        final AttributeSchemaType type = getAttribute() == null || getAttribute().getSchema() == null
                 || getAttribute().getSchema().getType() == null
-                ? SchemaType.String
+                ? AttributeSchemaType.String
                 : getAttribute().getSchema().getType();
 
         switch (type) {

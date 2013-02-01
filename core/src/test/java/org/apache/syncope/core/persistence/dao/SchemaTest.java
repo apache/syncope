@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
@@ -76,7 +76,7 @@ public class SchemaTest extends AbstractDAOTest {
     public void save() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(SchemaType.String);
+        attributeSchema.setType(AttributeSchemaType.String);
         attributeSchema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
         attributeSchema.setMultivalue(true);
@@ -92,7 +92,7 @@ public class SchemaTest extends AbstractDAOTest {
     public void saveNonValid() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(SchemaType.String);
+        attributeSchema.setType(AttributeSchemaType.String);
         attributeSchema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
         attributeSchema.setMultivalue(true);
@@ -104,7 +104,7 @@ public class SchemaTest extends AbstractDAOTest {
     @Test
     public void checkForEnumType() {
         RSchema schema = new RSchema();
-        schema.setType(SchemaType.Enum);
+        schema.setType(AttributeSchemaType.Enum);
         schema.setName("color");
 
         Exception ex = null;

@@ -31,7 +31,7 @@ import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -151,7 +151,7 @@ public final class MappingUtil {
                 vAttrsToBeRemoved, vAttrsToBeUpdated);
 
         AbstractSchema schema = null;
-        SchemaType schemaType;
+        AttributeSchemaType schemaType;
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:
@@ -160,11 +160,11 @@ public final class MappingUtil {
                 final SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
                 schema = schemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
-                schemaType = schema == null ? SchemaType.String : schema.getType();
+                schemaType = schema == null ? AttributeSchemaType.String : schema.getType();
                 break;
 
             default:
-                schemaType = SchemaType.String;
+                schemaType = AttributeSchemaType.String;
         }
 
         final String extAttrName = mapItem.getExtAttrName();

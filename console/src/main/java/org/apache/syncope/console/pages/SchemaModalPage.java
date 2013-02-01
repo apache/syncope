@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -103,9 +103,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
 
-        final AjaxDropDownChoicePanel<SchemaType> type = new AjaxDropDownChoicePanel<SchemaType>("type",
+        final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>("type",
                 getString("type"), new PropertyModel(schema, "type"));
-        type.setChoices(Arrays.asList(SchemaType.values()));
+        type.setChoices(Arrays.asList(AttributeSchemaType.values()));
         type.addRequiredLabel();
 
         final AjaxTextFieldPanel enumerationValuesPanel = 
@@ -126,7 +126,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
         enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
 
-        if (schema != null && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
+        if (schema != null && AttributeSchemaType.Enum.equals(((SchemaTO) schema).getType())) {
             enumerationValues.setEnabled(Boolean.TRUE);
             enumerationKeys.setEnabled(Boolean.TRUE);
             enumerationValuesPanel.addRequiredLabel();
@@ -140,7 +140,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (SchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
+                if (AttributeSchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
                     if (!enumerationValuesPanel.isRequired()) {
                         enumerationValuesPanel.addRequiredLabel();
                     }

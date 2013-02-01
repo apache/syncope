@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.util.Arrays;
 
-import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
@@ -35,7 +35,7 @@ public class BasicValidator extends AbstractValidator {
     @Override
     protected void doValidate(AbstractAttrValue attributeValue) throws InvalidAttrValueException {
 
-        if (SchemaType.Enum.equals(schema.getType())) {
+        if (AttributeSchemaType.Enum.equals(schema.getType())) {
             final String[] enumeration = schema.getEnumerationValues().split(AbstractSchema.enumValuesSeparator);
 
             final String value = attributeValue.getStringValue();
