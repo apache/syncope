@@ -108,7 +108,7 @@ public interface UserService {
 
     @GET
     @Path("readByUsername/{username}")
-    UserTO read(@MatrixParam("uname") String username);
+    UserTO read(@PathParam("username") String username);
 
     @GET
     @Path("read/self")
