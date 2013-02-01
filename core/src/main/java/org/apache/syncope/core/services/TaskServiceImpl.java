@@ -37,10 +37,7 @@ import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.controller.TaskController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
