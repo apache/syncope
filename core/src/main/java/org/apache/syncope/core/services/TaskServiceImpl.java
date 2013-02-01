@@ -124,8 +124,8 @@ public class TaskServiceImpl implements TaskService, ContextAware {
     }
 
     @Override
-    public TaskExecTO report(final Long executionId, final ReportExecTO report) {
-        return taskController.report(executionId, PropagationTaskExecStatus.fromString(report.getStatus()),
+    public void report(final Long executionId, final ReportExecTO report) {
+        taskController.report(executionId, PropagationTaskExecStatus.fromString(report.getStatus()),
                 report.getMessage());
     }
 

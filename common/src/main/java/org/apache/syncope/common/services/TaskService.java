@@ -42,60 +42,60 @@ import org.apache.syncope.common.types.TaskType;
 public interface TaskService {
 
     /**
-     * @param taskType
-     * @return
+     * @param taskType filter for task count
+     * @return Returns number of tasks with matching type
      */
     @GET
     @Path("{type}/count")
     int count(@PathParam("type") TaskType taskType);
 
     /**
-     * @param taskTO
-     * @return
+     * @param taskTO Task to be created
+     * @return Response containing URI location for created resource
      */
     @POST
     Response create(TaskTO taskTO);
 
     /**
-     * @param taskId
+     * @param taskId Id of task to be deleted
      */
     @DELETE
     @Path("{taskId}")
     void delete(@PathParam("taskId") Long taskId);
 
     /**
-     * @param executionId
+     * @param executionId ID of task execution to be deleted
      */
     @DELETE
     @Path("executions/{executionId}")
     void deleteExecution(@PathParam("executionId") Long executionId);
 
     /**
-     * @param taskId
-     * @param dryRun
-     * @return
+     * @param taskId Id of task to be executed
+     * @param dryRun if true, task will only be simulated
+     * @return Returns TaskExcecution
      */
     @POST
     @Path("{taskId}/execute")
     TaskExecTO execute(@PathParam("taskId") Long taskId, @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
 
     /**
-     * @return
+     * @return Returns list of JobClasses
      */
     @GET
     @Path("jobClasses")
     Set<JobClassTO> getJobClasses();
 
     /**
-     * @return
+     * @return Returns list of SyncActionClasses
      */
     @GET
     @Path("syncActionsClasses")
     Set<SyncActionClassTO> getSyncActionsClasses();
 
     /**
-     * @param taskType
-     * @return
+     * @param taskType Type of tasks to be listed
+     * @return Returns list of tasks with matching type
      */
     @GET
     @Path("{type}/list")
@@ -103,10 +103,10 @@ public interface TaskService {
     List<? extends TaskTO> list(@PathParam("type") TaskType taskType);
 
     /**
-     * @param taskType
-     * @param page
-     * @param size
-     * @return
+     * @param taskType Type of tasks to be listed
+     * @param page Page number of tasks in relation to page size
+     * @param size Number of tasks listed per page
+     * @return Returns paginated list of task with matching type
      */
     @GET
     @Path("{type}")
@@ -114,44 +114,42 @@ public interface TaskService {
             @QueryParam("size") @DefaultValue("25") int size);
 
     /**
-     * @param taskType
-     * @return
+     * @param taskType Type of task executions to be listed
+     * @return Returns list of task executions where executed task matches type
      */
     @GET
     @Path("{type}/executions")
     List<TaskExecTO> listExecutions(@PathParam("type") TaskType taskType);
 
     /**
-     * @param taskType
-     * @param taskId
-     * @return
+     * @param taskType Type of task to be read
+     * @param taskId Id of task to be read
+     * @return Returns task with matching id
      */
     @GET
     @Path("{type}/{taskId}")
-    // TODO TaskType will be removed once CXF migration is done
+    // TODO TaskType can be removed once CXF migration is done
     <T extends TaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
 
     /**
-     * @param executionId
-     * @return
+     * @param executionId Id if task execution to be read
+     * @return Returns task execution with matching Id
      */
     @GET
     @Path("executions/{executionId}")
     TaskExecTO readExecution(@PathParam("executionId") Long executionId);
 
     /**
-     * @param executionId
-     * @param status
-     * @param message
-     * @return
+     * @param executionId Task execution ID related to report
+     * @param report Report for task execution
      */
     @POST
     @Path("executions/{executionId}/report")
-    TaskExecTO report(@PathParam("executionId") Long executionId, ReportExecTO report);
+    void report(@PathParam("executionId") Long executionId, ReportExecTO report);
 
     /**
-     * @param taskId
-     * @param taskTO
+     * @param taskId Id if task to be updated
+     * @param taskTO New task to be stored
      */
     @PUT
     @Path("{taskId}")

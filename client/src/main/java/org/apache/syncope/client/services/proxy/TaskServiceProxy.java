@@ -187,8 +187,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
     }
 
     @Override
-    public TaskExecTO report(final Long executionId, final ReportExecTO report) {
-        return getRestTemplate().getForObject(
+    public void report(final Long executionId, final ReportExecTO report) {
+        getRestTemplate().getForObject(
                 baseUrl + "task/execution/report/{executionId}.json" + "?executionStatus={status}&message={message}",
                 TaskExecTO.class, executionId, report.getStatus(), report.getMessage());
     }

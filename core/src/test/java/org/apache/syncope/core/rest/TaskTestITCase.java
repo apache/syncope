@@ -215,7 +215,8 @@ public class TaskTestITCase extends AbstractTest {
         ReportExecTO report = new ReportExecTO();
         report.setStatus(PropagationTaskExecStatus.SUCCESS.name());
         report.setMessage("OK");
-        exec = taskService.report(exec.getId(), report);
+        taskService.report(exec.getId(), report);
+        exec = taskService.readExecution(exec.getId());
         assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
         assertEquals("OK", exec.getMessage());
 
