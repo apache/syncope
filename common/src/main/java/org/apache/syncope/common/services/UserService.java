@@ -19,10 +19,10 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -39,23 +39,25 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 public interface UserService {
 
     @POST
-    @Path("activate/{userId}")
-    UserTO activate(@PathParam("userId") long userId, String token);
+    @Path("{userId}/status/activate")
+    UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token);
 
     @POST
-    @Path("activate/{userId}")
-    UserTO activate(@PathParam("userId") long userId, String token, PropagationRequestTO propagationRequestTO);
-
-    @POST
-    @Path("activateByUsername/{username}")
-    UserTO activateByUsername(@PathParam("username") String username, @MatrixParam("token") String token);
+    @Path("{userId}/status/activate")
+    UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token,
+            PropagationRequestTO propagationRequestTO);
 
     @POST
     @Path("activateByUsername/{username}")
-    UserTO activateByUsername(@PathParam("username") String username, @MatrixParam("token") String token, PropagationRequestTO propagationRequestTO);
+    UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token);
 
     @POST
-    @Path("workflow/task/{taskId}/claim")
+    @Path("activateByUsername/{username}")
+    UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token,
+            PropagationRequestTO propagationRequestTO);
+
+    @POST
+    @Path("workflow/tasks/{taskId}/claim")
     WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
 
     @GET
@@ -70,6 +72,7 @@ public interface UserService {
     UserTO delete(@PathParam("userId") Long userId);
 
     @POST
+    @Path("workflow/tasks/{taskId}/execute")
     UserTO executeWorkflow(@PathParam("taskId") String taskId, UserTO userTO);
 
     @GET
@@ -87,11 +90,11 @@ public interface UserService {
     List<UserTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     @POST
-    @Path("reactivate/{userId}")
+    @Path("{userId}/status/reactivate")
     UserTO reactivate(@PathParam("userId") long userId);
 
     @POST
-    @Path("reactivate/{userId}")
+    @Path("{userId}/status/reactivate")
     UserTO reactivate(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
     @POST
@@ -107,11 +110,10 @@ public interface UserService {
     UserTO read(@PathParam("userId") Long userId);
 
     @GET
-    @Path("readByUsername/{username}")
-    UserTO read(@PathParam("username") String username);
+    UserTO read(@QueryParam("username") String username);
 
     @GET
-    @Path("read/self")
+    @Path("self")
     UserTO readSelf();
 
     @POST
@@ -132,11 +134,11 @@ public interface UserService {
     UserTO submitForm(WorkflowFormTO form);
 
     @POST
-    @Path("suspend/{userId}")
+    @Path("{userId}/status/suspend")
     UserTO suspend(@PathParam("userId") long userId);
 
     @POST
-    @Path("suspend/{userId}")
+    @Path("{userId}/status/suspend")
     UserTO suspend(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
     @POST
@@ -152,6 +154,6 @@ public interface UserService {
     UserTO update(@PathParam("userId") Long userId, UserMod userMod);
 
     @GET
-    @Path("verifyPassword")
-    Boolean verifyPassword(@MatrixParam("uname") String username, @MatrixParam("pwd") String password);
+    Boolean verifyPassword(@QueryParam("username") String username, @QueryParam("pwd") String password);
+
 }
