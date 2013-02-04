@@ -63,6 +63,7 @@ import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
@@ -133,13 +134,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long maxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > maxId) {
-                maxId = task.getId();
-            }
-        }
+        long maxId = getMaxTaskId(tasks);
 
         // create a new user
         UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
@@ -154,13 +149,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
+        long newMaxId = getMaxTaskId(tasks);
 
         assertTrue(newMaxId > maxId);
 
@@ -417,13 +406,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long maxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > maxId) {
-                maxId = task.getId();
-            }
-        }
+        long maxId = getMaxTaskId(tasks);
         PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, maxId);
 
         assertNotNull(taskTO);
@@ -470,13 +453,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
+        long newMaxId = getMaxTaskId(tasks);
 
         // default configuration for ws-target-resource2:
         // only failed executions have to be registered
@@ -498,12 +475,9 @@ public class UserTestITCase extends AbstractTest {
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
-        for (AttributeTO attr : userTO.getAttributes()) {
-            if ("userId".equals(attr.getSchema())) {
-                attr.getValues().clear();
-                attr.addValue("a.b@c.com");
-            }
-        }
+        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttributes(), "userId");
+        userIdAttr.getValues().clear();
+        userIdAttr.addValue("a.b@c.com");
 
         SyncopeClientException sce = null;
         try {
@@ -514,18 +488,20 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(sce);
     }
 
+    private AttributeTO getManadatoryAttrByName(List<AttributeTO> attributes, String attrName) {
+        for (AttributeTO attr : attributes) {
+            if (attrName.equals(attr.getSchema())) {
+                return attr;
+            }
+        }
+        throw new NotFoundException("Mandatory attribute " + attrName + " not found");
+    }
+
     @Test
     public void createWithRequiredValueMissing() {
         UserTO userTO = getSampleTO("a.b@c.it");
 
-        AttributeTO type = null;
-        for (AttributeTO attr : userTO.getAttributes()) {
-            if ("type".equals(attr.getSchema())) {
-                type = attr;
-            }
-        }
-        assertNotNull(type);
-
+        AttributeTO type = getManadatoryAttrByName(userTO.getAttributes(), "type");
         userTO.removeAttribute(type);
 
         MembershipTO membershipTO = new MembershipTO();
@@ -544,12 +520,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addAttribute(attributeTO("type", "F"));
 
-        AttributeTO surname = null;
-        for (AttributeTO attributeTO : userTO.getAttributes()) {
-            if ("surname".equals(attributeTO.getSchema())) {
-                surname = attributeTO;
-            }
-        }
+        AttributeTO surname = getManadatoryAttrByName(userTO.getAttributes(), "surname");
         userTO.removeAttribute(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -906,21 +877,11 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().iterator().next().getAttributes().size());
         assertFalse(userTO.getDerivedAttributes().isEmpty());
 
-        boolean userIdFound = false;
-        boolean fullnameFound = false;
+        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttributes(), "userId");
+        assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        for (AttributeTO attributeTO : userTO.getAttributes()) {
-            if ("userId".equals(attributeTO.getSchema())) {
-                userIdFound = true;
-                assertEquals(Collections.singletonList(newUserId), attributeTO.getValues());
-            }
-            if ("fullname".equals(attributeTO.getSchema())) {
-                fullnameFound = true;
-                assertEquals(Collections.singletonList(newFullName), attributeTO.getValues());
-            }
-        }
-        assertTrue(userIdFound);
-        assertTrue(fullnameFound);
+        AttributeTO fullNameAttr = getManadatoryAttrByName(userTO.getAttributes(), "fullname");
+        assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
     }
 
     @Test
@@ -967,13 +928,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long maxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > maxId) {
-                maxId = task.getId();
-            }
-        }
+        long maxId = getMaxTaskId(tasks);
 
         // --------------------------------------
         // Create operation
@@ -996,13 +951,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        // get max task id
-        long newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
+        long newMaxId = getMaxTaskId(tasks);
 
         // default configuration for ws-target-resource2:
         // only failed executions have to be registered
@@ -1024,14 +973,8 @@ public class UserTestITCase extends AbstractTest {
         // get the new task list
         tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
 
-        // get max task id
         maxId = newMaxId;
-        newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
+        newMaxId = getMaxTaskId(tasks);
 
         // default configuration for ws-target-resource2:
         // all update executions have to be registered
@@ -1050,14 +993,8 @@ public class UserTestITCase extends AbstractTest {
         // get the new task list
         tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
 
-        // get max task id
         maxId = newMaxId;
-        newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
+        newMaxId = getMaxTaskId(tasks);
 
         // default configuration for ws-target-resource2: no delete executions have to be registered
         // --> no more tasks/executions should be added
@@ -1207,8 +1144,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(dbTableUID);
 
         ConnObjectTO connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
-                .getValues().get(0)));
+        assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         String ldapUID = userTO.getUsername();
         assertNotNull(ldapUID);
@@ -1226,8 +1162,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertFalse(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
-                .getValues().get(0)));
+        assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
@@ -1238,8 +1173,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
-        assertTrue(Boolean.parseBoolean(connObjectTO.getAttributeMap().get(OperationalAttributes.ENABLE_NAME)
-                .getValues().get(0)));
+        assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
     public void updateMultivalueAttribute() {
@@ -1586,17 +1520,12 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getMemberships().isEmpty());
         assertTrue(actual.getResources().isEmpty());
 
-        Throwable t = null;
-
         try {
             readUserConnObj("resource-csv", userId);
+            fail("Read should not succeeed");
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
-            t = e;
         }
-
-        assertNotNull(t);
-        // -----------------------------------
     }
 
     @Test
@@ -1683,14 +1612,13 @@ public class UserTestITCase extends AbstractTest {
         userService.delete(userTO.getId());
 
         // 3. try (and fail) to find this user on the external LDAP resource
-        SyncopeClientException sce = null;
         try {
             readUserConnObj("resource-ldap", userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
-            sce = sccee.getException(SyncopeClientExceptionType.NotFound);
+            SyncopeClientException sce = sccee.getException(SyncopeClientExceptionType.NotFound);
+            assertNotNull(sce);
         }
-        assertNotNull(sce);
     }
 
     @Test()
@@ -1711,7 +1639,7 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             createUser(userTO);
-            fail();
+            fail("Create user should not succeed");
         } catch (SyncopeClientCompositeErrorException e) {
             assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next()
                     .contains("MD5"));
@@ -2032,4 +1960,23 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("resource-ldap", prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
     }
+
+    private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
+        return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
+    }
+
+    private String getStringAttribute(ConnObjectTO connObjectTO, String attrName) {
+        return connObjectTO.getAttributeMap().get(attrName).getValues().get(0);
+    }
+
+    private long getMaxTaskId(List<PropagationTaskTO> tasks) {
+        long newMaxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
+        }
+        return newMaxId;
+    }
+
 }
