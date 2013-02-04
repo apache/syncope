@@ -151,6 +151,7 @@ under the License.
             <configuration>
               <source>
                 project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
+                project.properties['licenseUrl'] = project.parent.licenses[0].url
               </source>
             </configuration>
           </execution>

@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -42,16 +41,6 @@ under the License.
     </site>
   </distributionManagement>
   
-  <properties>
-    <SVNRepoURL>http://svn.apache.org/repos/asf/syncope/trunk</SVNRepoURL>
-  </properties>
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/trunk/archetype</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/trunk/archetype</developerConnection>
-    <url>http://svn.apache.org/repos/asf/syncope/trunk/archetype</url>
-  </scm>
-
   <build>
     <extensions>
       <extension>
@@ -64,6 +53,7 @@ under the License.
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-archetype-plugin</artifactId>
           <version>2.2</version>
           <extensions>true</extensions>
@@ -119,79 +109,6 @@ under the License.
       
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>setupResources</id>
-            <phase>validate</phase>
-            <configuration>
-              <target>
-                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-                <if>
-                  <available file="${basedir}/../core/pom.xml" />
-                  <then>
-                    <copy file="${basedir}/../core/src/test/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
-
-                    <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/security.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/activiticontent.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/resources/META-INF/spring-persistence.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF" overwrite="true" />
-                    <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
-
-                    <copy file="${basedir}/../console/src/test/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/test/resources" overwrite="true" />
-
-                    <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
-                    <copy file="${basedir}/../console/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/webapp/WEB-INF" overwrite="true" />
-                  </then>
-                  <else>
-                    <get src="${SVNRepoURL}/core/src/test/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/persistence.properties" />
-                    <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
-                    <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
-                    <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
-                    <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
-
-                    <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
-                    <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
-                    <get src="${SVNRepoURL}/core/src/main/resources/security.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/security.properties" />
-                    <get src="${SVNRepoURL}/core/src/main/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/content.xml" />
-                    <get src="${SVNRepoURL}/core/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/logback.xml" />
-                    <get src="${SVNRepoURL}/core/src/main/resources/META-INF/spring-persistence.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/META-INF/spring-persistence.xml" />
-                    <get src="${SVNRepoURL}/core/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF/web.xml" />
-
-                    <get src="${SVNRepoURL}/console/src/test/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/test/resources/configuration.properties" />
-
-                    <get src="${SVNRepoURL}/console/src/main/resources/configuration.properties" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/configuration.properties" />
-                    <get src="${SVNRepoURL}/console/src/main/resources/logback.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/resources/logback.xml" />
-                    <get src="${SVNRepoURL}/console/src/main/webapp/WEB-INF/web.xml" dest="${basedir}/src/main/resources/archetype-resources/console/src/main/webapp/WEB-INF/web.xml" />
-                  </else>
-                </if>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>ant-contrib</groupId>
-            <artifactId>ant-contrib</artifactId>
-            <version>20020829</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
       <plugin>
@@ -210,6 +127,55 @@ under the License.
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
+        </includes>
+      </resource>
+      
+      <resource>
+        <directory>../core/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <includes>
+          <include>*.properties</include>
+          <include>*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../core/src/main/resources/META-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/META-INF</targetPath>
+        <includes>
+          <include>spring-persistence.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../core/src/main/webapp</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp</targetPath>
+      </resource>
+      <resource>
+        <directory>../core/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>*.properties</include>
+          <include>content.xml</include>
+          <include>*.csv</include>
+          <include>*.jsp</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>../console/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <includes>
+          <include>*.*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../console/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      <resource>
+        <directory>../console/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
+        <includes>
+          <include>configuration.properties</include>
         </includes>
       </resource>
     </resources>

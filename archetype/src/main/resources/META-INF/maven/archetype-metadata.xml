@@ -27,26 +27,26 @@ under the License.
   <modules>
     <module id="core" dir="core" name="core">
       <fileSets>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>
         </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/webapp</directory>
         </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/test/resources</directory>
         </fileSet>
       </fileSets>
     </module>
     <module id="console" dir="console" name="console">
       <fileSets>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>
         </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/webapp</directory>
         </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="false" encoding="UTF-8">
           <directory>src/test/resources</directory>
         </fileSet>
       </fileSets>
