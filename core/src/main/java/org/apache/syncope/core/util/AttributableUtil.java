@@ -20,6 +20,7 @@ package org.apache.syncope.core.util;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -66,10 +67,17 @@ import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
+import org.apache.syncope.core.sync.SyncRule;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class AttributableUtil {
+
+    /**
+     * Logger.
+     */
+    protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
 
     private final AttributableType type;
 
@@ -579,20 +587,47 @@ public class AttributableUtil {
     public List<String> getAltSearchSchemas(final SyncPolicySpec policySpec) {
         List<String> result = Collections.EMPTY_LIST;
 
-        if (policySpec != null) {
-            switch (type) {
-                case USER:
-                    result = policySpec.getuAltSearchSchemas();
-                    break;
-                case ROLE:
-                    result = policySpec.getrAltSearchSchemas();
-                    break;
-                case MEMBERSHIP:
-                default:
-            }
+        switch (type) {
+            case USER:
+                result = policySpec.getuAltSearchSchemas();
+                break;
+            case ROLE:
+                result = policySpec.getrAltSearchSchemas();
+                break;
+            case MEMBERSHIP:
+            default:
         }
 
         return result;
+    }
+
+    public SyncRule getCorrelationRule(final SyncPolicySpec policySpec) {
+
+        String clazz;
+
+        switch (type) {
+            case USER:
+                clazz = policySpec.getUserJavaRule();
+                break;
+            case ROLE:
+                clazz = policySpec.getRoleJavaRule();
+                break;
+            case MEMBERSHIP:
+            default:
+                clazz = null;
+        }
+
+        SyncRule res = null;
+
+        if (StringUtils.isNotBlank(clazz)) {
+            try {
+                res = (SyncRule) Class.forName(clazz).newInstance();
+            } catch (Exception e) {
+                LOG.error("Failure instantiating correlation rule class '{}'", clazz, e);
+            }
+        }
+
+        return res;
     }
 
     public String searchView() {

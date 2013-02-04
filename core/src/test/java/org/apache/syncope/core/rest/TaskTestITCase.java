@@ -47,6 +47,7 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
@@ -372,7 +373,8 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void reconcileFromLDAP() throws InvalidSearchConditionException {
+    public void reconcileFromLDAP()
+            throws InvalidSearchConditionException {
         // Update sync task
         SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 11L);
         assertNotNull(task);
@@ -775,6 +777,50 @@ public class TaskTestITCase extends AbstractTest {
         } finally {
             removeTestUsers();
         }
+    }
+
+    @Test
+    public void issueSYNCOPE258() {
+        SyncTaskTO task = new SyncTaskTO();
+        task.setName("Test Sync Rule");
+        task.setResource("ws-target-resource-2");
+        task.setFullReconciliation(true);
+        task.setPerformCreate(true);
+        task.setPerformDelete(true);
+        task.setPerformUpdate(true);
+
+        Response response = taskService.create(task);
+        SyncTaskTO actual = getObject(response, SyncTaskTO.class, taskService);
+        assertNotNull(actual);
+
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("s258_1@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-2");
+
+        userTO = createUser(userTO);
+
+        userTO = UserTestITCase.getUniqueSampleTO("s258_2@apache.org");
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-2");
+
+        userTO = createUser(userTO);
+
+        // change email in order to unmatch the second user
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addAttributeToBeRemoved("email");
+        userMod.addAttributeToBeUpdated(attributeMod("email", "s258@apache.org"));
+
+        userTO = userService.update(userMod.getId(), userMod);
+        
+        execSyncTask(actual.getId(), 50, false);
+
+        SyncTaskTO executed = taskService.read(TaskType.SYNCHRONIZATION, actual.getId());
+        assertEquals(1, executed.getExecutions().size());
+
+        // asser for just one match
+        assertTrue(executed.getExecutions().get(0).getMessage().substring(0, 55) + "...",
+                executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"));
     }
 
     /**

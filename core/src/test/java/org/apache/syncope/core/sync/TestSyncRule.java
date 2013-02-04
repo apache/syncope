@@ -16,25 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.beans;
+package org.apache.syncope.core.sync;
 
-import javax.persistence.Entity;
-import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.common.search.NodeCond;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-@Entity
-public class SyncPolicy extends Policy {
+public class TestSyncRule implements SyncRule {
 
-    private static final long serialVersionUID = -6090413855809521279L;
+    @Override
+    public NodeCond getSearchCond(ConnectorObject connObj) {
+        AttributeCond cond = new AttributeCond();
+        cond.setSchema("email");
+        cond.setType(AttributeCond.Type.EQ);
+        cond.setExpression(connObj.getName().getNameValue());
 
-    public SyncPolicy() {
-        this(false);
-    }
-
-    public SyncPolicy(boolean global) {
-        super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
+        return NodeCond.getLeafCond(cond);
     }
 }

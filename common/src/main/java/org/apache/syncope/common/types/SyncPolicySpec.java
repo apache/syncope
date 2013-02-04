@@ -20,11 +20,10 @@ package org.apache.syncope.common.types;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-
+import org.apache.syncope.common.annotation.ClassList;
 import org.apache.syncope.common.annotation.SchemaList;
 
 @XmlType
@@ -38,11 +37,17 @@ public class SyncPolicySpec extends AbstractPolicySpec {
     @SchemaList(extended = true)
     private List<String> uAltSearchSchemas;
 
+    @ClassList
+    private String userJavaRule;
+
     /**
      * SyncopeRole attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
     private List<String> rAltSearchSchemas;
+
+    @ClassList
+    private String roleJavaRule;
 
     /**
      * Conflict resolution action.
@@ -84,5 +89,25 @@ public class SyncPolicySpec extends AbstractPolicySpec {
 
     public void setrAltSearchSchemas(List<String> rAltSearchSchemas) {
         this.rAltSearchSchemas = rAltSearchSchemas;
+    }
+
+    @XmlElementWrapper(name = "roleJavaRule")
+    @XmlElement(name = "roleJavaRule")
+    public String getRoleJavaRule() {
+        return roleJavaRule;
+    }
+
+    public void setRoleJavaRule(String roleJavaRule) {
+        this.roleJavaRule = roleJavaRule;
+    }
+
+    @XmlElementWrapper(name = "userJavaRule")
+    @XmlElement(name = "userJavaRule")
+    public String getUserJavaRule() {
+        return userJavaRule;
+    }
+
+    public void setUserJavaRule(String userJavaRule) {
+        this.userJavaRule = userJavaRule;
     }
 }

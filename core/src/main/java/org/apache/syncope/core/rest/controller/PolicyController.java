@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,12 +29,14 @@ import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.PolicySubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
@@ -48,10 +51,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/policy")
 public class PolicyController extends AbstractController {
+
+    @Autowired
+    private ImplementationClassNamesLoader classNamesLoader;
 
     @Autowired
     private AuditManager auditManager;
@@ -166,7 +173,8 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/password/global/read")
-    public PasswordPolicyTO getGlobalPasswordPolicy() throws NotFoundException {
+    public PasswordPolicyTO getGlobalPasswordPolicy()
+            throws NotFoundException {
 
         LOG.debug("Reading global password policy");
 
@@ -183,7 +191,8 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/account/global/read")
-    public AccountPolicyTO getGlobalAccountPolicy() throws NotFoundException {
+    public AccountPolicyTO getGlobalAccountPolicy()
+            throws NotFoundException {
 
         LOG.debug("Reading global account policy");
 
@@ -200,7 +209,8 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/sync/global/read")
-    public SyncPolicyTO getGlobalSyncPolicy() throws NotFoundException {
+    public SyncPolicyTO getGlobalSyncPolicy()
+            throws NotFoundException {
 
         LOG.debug("Reading global sync policy");
 
@@ -235,7 +245,8 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{id}")
-    public PolicyTO delete(@PathVariable("id") final Long id) throws NotFoundException {
+    public PolicyTO delete(@PathVariable("id") final Long id)
+            throws NotFoundException {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
@@ -248,5 +259,17 @@ public class PolicyController extends AbstractController {
                 "Successfully deleted policy: " + id);
 
         return policyToDelete;
+    }
+
+    @PreAuthorize("hasRole('POLICY_LIST')")
+    @RequestMapping(method = RequestMethod.GET, value = "/correlationRuleClasses")
+    public ModelAndView getCorrelationRuleClasses() {
+        final Set<String> actionsClasses =
+                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
+
+        auditManager.audit(Category.policy, AuditElements.PolicySubCategory.getCorrelationRuleClasses,
+                Result.success, "Successfully listed all correlation rule classes: " + actionsClasses.size());
+
+        return new ModelAndView().addObject(actionsClasses);
     }
 }

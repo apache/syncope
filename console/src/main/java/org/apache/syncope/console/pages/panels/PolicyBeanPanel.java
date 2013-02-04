@@ -99,7 +99,6 @@ public class PolicyBeanPanel extends Panel {
                 fieldWrapper.setType(field.getType());
 
                 final SchemaList schemaList = field.getAnnotation(SchemaList.class);
-
                 fieldWrapper.setSchemaList(schemaList);
 
                 items.add(fieldWrapper);

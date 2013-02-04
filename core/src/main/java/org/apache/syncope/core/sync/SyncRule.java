@@ -16,25 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.beans;
+package org.apache.syncope.core.sync;
 
-import javax.persistence.Entity;
-import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.search.NodeCond;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-@Entity
-public class SyncPolicy extends Policy {
+/**
+ * Interface for correlation rule to be evaluated during SyncJob execution.
+ */
+public interface SyncRule {
 
-    private static final long serialVersionUID = -6090413855809521279L;
-
-    public SyncPolicy() {
-        this(false);
-    }
-
-    public SyncPolicy(boolean global) {
-        super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
-    }
+    /**
+     * Return a search condition.
+     *
+     * @param connObj connector object.
+     * @return search condition.
+     */
+    NodeCond getSearchCond(final ConnectorObject connObj);
 }

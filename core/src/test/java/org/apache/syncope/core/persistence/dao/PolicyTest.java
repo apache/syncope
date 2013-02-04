@@ -101,13 +101,23 @@ public class PolicyTest extends AbstractDAOTest {
     @Test
     public void create() {
         SyncPolicy policy = new SyncPolicy();
-        policy.setSpecification(new SyncPolicySpec());
+
+        final String syncURuleName = "net.tirasa.sync.correlation.TirasaURule";
+        final String syncRRuleName = "net.tirasa.sync.correlation.TirasaRRule";
+
+        SyncPolicySpec syncPolicySpec = new SyncPolicySpec();
+        syncPolicySpec.setUserJavaRule(syncURuleName);
+        syncPolicySpec.setRoleJavaRule(syncRRuleName);
+
+        policy.setSpecification(syncPolicySpec);
         policy.setDescription("Sync policy");
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
+        assertEquals(syncURuleName, ((SyncPolicySpec) policy.getSpecification()).getUserJavaRule());
+        assertEquals(syncRRuleName, ((SyncPolicySpec) policy.getSpecification()).getRoleJavaRule());
     }
 
     @Test

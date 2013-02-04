@@ -19,7 +19,6 @@
 package org.apache.syncope.common.types;
 
 import java.util.EnumSet;
-
 import javax.xml.bind.annotation.XmlEnum;
 
 public final class AuditElements {
@@ -135,7 +134,8 @@ public final class AuditElements {
         create,
         read,
         update,
-        delete
+        delete,
+        getCorrelationRuleClasses
 
     }
 

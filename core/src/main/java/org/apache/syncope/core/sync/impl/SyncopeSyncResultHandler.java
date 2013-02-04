@@ -69,6 +69,7 @@ import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
+import org.apache.syncope.core.sync.SyncRule;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -332,10 +333,13 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return result;
     }
 
-    private List<Long> findByAttributableSearch(final ConnectorObject connObj, final SyncPolicySpec policySpec,
-            final AttributableUtil attrUtil) {
+    private List<Long> findByCorrelationRule(
+            final ConnectorObject connObj, final SyncRule rule, final AttributableUtil attrUtil) {
+        return search(rule.getSearchCond(connObj), attrUtil);
+    }
 
-        final List<Long> result = new ArrayList<Long>();
+    private List<Long> findByAttributableSearch(
+            final ConnectorObject connObj, final List<String> altSearchSchemas, final AttributableUtil attrUtil) {
 
         // search for external attribute's name/value of each specified name
 
@@ -348,7 +352,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         // search for user/role by attribute(s) specified in the policy
         NodeCond searchCond = null;
 
-        for (String schema : attrUtil.getAltSearchSchemas(policySpec)) {
+        for (String schema : altSearchSchemas) {
             Attribute value = extValues.get(schema);
 
             AttributeCond.Type type;
@@ -390,6 +394,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     : NodeCond.getAndCond(searchCond, nodeCond);
         }
 
+        return search(searchCond, attrUtil);
+    }
+
+    private List<Long> search(final NodeCond searchCond, final AttributableUtil attrUtil) {
+        final List<Long> result = new ArrayList<Long>();
+
         final List<AbstractAttributable> subjects = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond, attrUtil);
         for (AbstractAttributable subject : subjects) {
@@ -413,9 +423,18 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
         }
 
-        return policySpec == null || attrUtil.getAltSearchSchemas(policySpec).isEmpty()
+        SyncRule syncRule = null;
+        List<String> altSearchSchemas = null;
+
+        if (policySpec != null) {
+            syncRule = attrUtil.getCorrelationRule(policySpec);
+            altSearchSchemas = attrUtil.getAltSearchSchemas(policySpec);
+        }
+        
+        return syncRule == null ? altSearchSchemas == null
                 ? findByAccountIdItem(uid, attrUtil)
-                : findByAttributableSearch(connObj, policySpec, attrUtil);
+                : findByAttributableSearch(connObj, altSearchSchemas, attrUtil)
+                : findByCorrelationRule(connObj, syncRule, attrUtil);
     }
 
     public Long findMatchingAttributableId(final ObjectClass objectClass, final String name) {
@@ -645,7 +664,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     }
 
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun) throws JobExecutionException {
+            final boolean dryRun)
+            throws JobExecutionException {
 
         if (!syncTask.isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");

@@ -35,6 +35,7 @@ import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.core.sync.TestSyncRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -111,6 +112,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
+        assertEquals(TestSyncRule.class.getName(), ((SyncPolicySpec) policyTO.getSpecification()).getUserJavaRule());
     }
 
     @Test
@@ -166,8 +168,13 @@ public class PolicyTestITCase extends AbstractTest {
 
     private SyncPolicyTO buildSyncPolicyTO() {
         SyncPolicyTO policy = new SyncPolicyTO();
-        policy.setSpecification(new SyncPolicySpec());
+
+        SyncPolicySpec spec = new SyncPolicySpec();
+        spec.setUserJavaRule(TestSyncRule.class.getName());
+
+        policy.setSpecification(spec);
         policy.setDescription("Sync policy");
+
         return policy;
     }
 }
