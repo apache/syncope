@@ -21,4 +21,8 @@ package org.apache.syncope.core.workflow;
 public interface WorkflowInstanceLoader {
 
     void load();
+
+    String getTablePrefix();
+
+    String[] getInitSQLStatements();
 }

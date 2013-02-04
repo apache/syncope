@@ -438,7 +438,6 @@ under the License.
                   <patternset>
                     <exclude name="**/content.xml"/>
                     <exclude name="**/persistence.properties"/>
-                    <exclude name="**/workflow.properties"/>
                   </patternset>
                 </unzip>
                 <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncActions.class" 
@@ -793,7 +792,6 @@ under the License.
                     <excludes>
                       <exclude>content.xml</exclude>
                       <exclude>persistence.properties</exclude>
-                      <exclude>workflow.properties</exclude>
                     </excludes>
                   </resource>
                 </resources>
@@ -887,37 +885,13 @@ under the License.
       </properties>
       <build>
         <defaultGoal>clean verify</defaultGoal>
-
-        <plugins>
-          
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>remove-activiti</id>
-                <phase>process-test-resources</phase>
-                <configuration>
-                  <target>
-                    <copy tofile="${project.build.directory}/classes/workflowContext.xml" 
-                          file="${basedir}/src/test/resources/noopworkflow/workflowContext.xml" 
-                          overwrite="true"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
         
         <testResources>
           <testResource>
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <excludes>
+              <exclude>workflowContext.xml</exclude>
               <exclude>workflow.properties</exclude>
             </excludes>
           </testResource>

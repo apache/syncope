@@ -89,7 +89,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:restClientContext.xml", "classpath:testJDBCContext.xml" })
+@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
 
     /**
@@ -104,7 +104,9 @@ public abstract class AbstractTest {
     protected static final String ADMIN_PWD = "password";
 
     public static final String CONTENT_TYPE_JSON = "application/json";
+
     public static final String CONTENT_TYPE_XML = "application/xml";
+
     public static final String DEFAULT_CONTENT_TYPE = CONTENT_TYPE_JSON;
 
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
@@ -205,7 +207,6 @@ public abstract class AbstractTest {
     }
 
     // END Spring MVC Initialization
-
     // BEGIN CXF Initialization
     public void setupCXFServices() throws Exception {
         userService = createServiceInstance(UserService.class);
@@ -261,9 +262,9 @@ public abstract class AbstractTest {
     }
 
     // END CXF Initialization
-
     @SuppressWarnings("unchecked")
-    public <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username, final String password) {
+    public <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username,
+            final String password) {
         if (proxy instanceof SpringServiceProxy) {
             SpringServiceProxy service = (SpringServiceProxy) proxy;
             if (username == null && password == null) {
@@ -285,10 +286,10 @@ public abstract class AbstractTest {
     public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
         assertNotNull(response);
         assertNotNull(response.getLocation());
-        if (!enabledCXF) {
-            return getObjectSpring(response, type);
-        } else {
+        if (enabledCXF) {
             return getObjectCXF(response, type, serviceProxy);
+        } else {
+            return getObjectSpring(response, type);
         }
     }
 
@@ -366,7 +367,7 @@ public abstract class AbstractTest {
         }
         return response;
     }
-    
+
     protected RoleTO createRole(RoleService roleService, RoleTO newRoleTO) {
         Response response = roleService.create(newRoleTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
@@ -377,7 +378,6 @@ public abstract class AbstractTest {
         }
         return getObject(response, RoleTO.class, roleService);
     }
-
 
     protected Response createPolicy(PolicyService policyService, PolicyType policyType, PolicyTO policy) {
         Response response = policyService.create(policyType, policy);

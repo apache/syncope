@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.workflow.user.activiti;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,26 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Override
+    public String getTablePrefix() {
+        return "ACT_";
+    }
+
+    @Override
+    public String[] getInitSQLStatements() {
+        final List<String> initSQLStatements = new ArrayList<String>();
+
+        initSQLStatements.add("DELETE FROM ACT_GE_PROPERTY");
+        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) "
+                + "VALUES('schema.version', '" + ActivitiDetector.getActivitiVersion() + "', 1)");
+        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) "
+                + "VALUES('schema.history', 'create(" + ActivitiDetector.getActivitiVersion() + ")', 1)");
+        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) VALUES('next.dbid', '1', 1)");
+        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) VALUES('historyLevel', '1', 1)");
+
+        return initSQLStatements.toArray(new String[initSQLStatements.size()]);
+    }
 
     @Override
     public void load() {
@@ -52,14 +73,7 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
                 repositoryService.createDeployment().addInputStream(
                         ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, wfDefinitionStream).deploy();
             } finally {
-                if (wfDefinitionStream != null) {
-                    try {
-                        wfDefinitionStream.close();
-                    } catch (IOException e) {
-                        LOG.error("While closing input stream for {}",
-                                ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
-                    }
-                }
+                IOUtils.closeQuietly(wfDefinitionStream);;
             }
         }
     }

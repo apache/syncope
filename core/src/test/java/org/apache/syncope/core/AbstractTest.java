@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,7 @@ public abstract class AbstractTest {
         } catch (Exception e) {
             LOG.error("Could not load bundles.properties", e);
         } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
+            IOUtils.closeQuietly(propStream);
         }
         assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);

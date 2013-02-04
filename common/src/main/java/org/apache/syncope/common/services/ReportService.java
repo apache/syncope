@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -29,7 +28,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
@@ -135,5 +133,4 @@ public interface ReportService {
     @PUT
     @Path("{reportId}")
     void update(@PathParam("reportId") Long reportId, ReportTO reportTO);
-
 }

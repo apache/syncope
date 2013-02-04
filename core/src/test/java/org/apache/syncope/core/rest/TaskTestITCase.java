@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
@@ -54,7 +53,6 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.impl.SyncJob;
-import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -283,14 +281,12 @@ public class TaskTestITCase extends AbstractTest {
 
             execSyncTask(SYNC_TASK_ID, 50, false);
 
-            // after execution of the sync task the user data should be synced
-            // from
+            // after execution of the sync task the user data should be synced from
             // csv datasource and processed by user template
             UserTO userTO = userService.read(inUserTO.getId());
             assertNotNull(userTO);
             assertEquals("test9", userTO.getUsername());
-            assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active"
-                    : "created", userTO.getStatus());
+            assertEquals("active", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
             assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);

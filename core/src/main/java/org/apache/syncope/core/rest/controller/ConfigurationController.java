@@ -24,16 +24,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ConfigurationSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
+import org.apache.syncope.core.init.WorkflowAdapterLoader;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
@@ -74,6 +73,9 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private ResourcePatternResolver resResolver;
+
+    @Autowired
+    private WorkflowAdapterLoader wfAdapterLoader;
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
@@ -209,7 +211,7 @@ public class ConfigurationController extends AbstractController {
     @Transactional(readOnly = true)
     public void dbExport(final HttpServletResponse response) {
         response.setContentType(MediaType.TEXT_XML_VALUE);
-        response.setHeader("Content-Disposition", "attachment; filename=content.xml");
+        response.setHeader("Content-Disposition", "attachment; filename=" + ImportExport.CONTENT_FILE);
         try {
             dbExportInternal(response.getOutputStream());
         } catch (IOException e) {
@@ -218,9 +220,9 @@ public class ConfigurationController extends AbstractController {
     }
 
     @Transactional(readOnly = true)
-    public void dbExportInternal(OutputStream os) {
+    public void dbExportInternal(final OutputStream os) {
         try {
-            importExport.export(os);
+            importExport.export(os, wfAdapterLoader.getTablePrefix());
 
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
                     "Successfully exported database content");

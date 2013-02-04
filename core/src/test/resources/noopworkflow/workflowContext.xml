@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -28,6 +27,7 @@ under the License.
   </bean>
     
   <bean id="uwfAdapter" class="${uwfAdapter}"/>
+  <bean id="rwfAdapter" class="${rwfAdapter}"/>
 
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="velocityProperties">

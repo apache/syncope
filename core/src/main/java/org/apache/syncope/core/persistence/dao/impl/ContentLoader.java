@@ -47,10 +47,6 @@ public class ContentLoader {
 
     private static final String INDEXES_FILE = "/indexes.xml";
 
-    private static final String CONTENT_FILE = "/content.xml";
-
-    private static final String ACTIVITY_CONTENT_FILE = "/activiticontent.xml";
-
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
     @Autowired
@@ -60,7 +56,7 @@ public class ContentLoader {
     private ImportExport importExport;
 
     @Transactional
-    public void load(final boolean activitiEnabledForUsers) {
+    public void load(final String[] wfInitSQLStatements) {
         Connection conn = null;
         try {
             conn = DataSourceUtils.getConnection(dataSource);
@@ -73,13 +69,7 @@ public class ContentLoader {
 
                 createViews(conn);
                 createIndexes(conn);
-                if (activitiEnabledForUsers) {
-                    deleteActivitiProperties(conn);
-                }
-                loadDefaultContent(CONTENT_FILE);
-                if (activitiEnabledForUsers) {
-                    loadDefaultContent(ACTIVITY_CONTENT_FILE);
-                }
+                loadDefaultContent(wfInitSQLStatements);
             }
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
@@ -149,9 +139,7 @@ public class ContentLoader {
         } catch (Exception e) {
             LOG.error("While creating views", e);
         } finally {
-            if (viewsStream != null) {
-                IOUtils.closeQuietly(viewsStream);
-            }
+            IOUtils.closeQuietly(viewsStream);
         }
     }
 
@@ -184,23 +172,13 @@ public class ContentLoader {
         }
     }
 
-    private void deleteActivitiProperties(final Connection conn) {
-        PreparedStatement statement = null;
-        try {
-            statement = conn.prepareStatement("DELETE FROM ACT_GE_PROPERTY");
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("Error during ACT_GE_PROPERTY delete rows", e);
-        } finally {
-            closeStatement(statement);
-        }
-    }
-
-    private void loadDefaultContent(final String contentPath) {
+    private void loadDefaultContent(final String[] wfInitSQLStatements) {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
         try {
-            in = getClass().getResourceAsStream(contentPath);
+            in = getClass().getResourceAsStream("/" + ImportExport.CONTENT_FILE);
+
+            importExport.setWfInitSQLStatements(wfInitSQLStatements);
 
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, importExport);
@@ -208,9 +186,7 @@ public class ContentLoader {
         } catch (Exception e) {
             LOG.error("While loading default content", e);
         } finally {
-            if (in != null) {
-                IOUtils.closeQuietly(in);
-            }
+            IOUtils.closeQuietly(in);
         }
     }
 

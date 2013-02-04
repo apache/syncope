@@ -29,9 +29,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.report.UserReportletConf;
@@ -159,6 +157,7 @@ public class ReportTestITCase extends AbstractTest {
 
     private void checkExport(final long execId, final String fmt, final String encodedAuth)
             throws IOException {
+
         URL url = new URL(BASE_URL + "report/execution/export/" + execId + "?fmt=" + fmt);
         int responseCode = 0;
         String export = null;
@@ -186,7 +185,6 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void executeAndExport() throws IOException {
-
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("executeAndExport" + getUUIDString());

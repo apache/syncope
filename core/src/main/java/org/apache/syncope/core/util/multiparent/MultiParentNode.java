@@ -20,7 +20,6 @@ package org.apache.syncope.core.util.multiparent;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 

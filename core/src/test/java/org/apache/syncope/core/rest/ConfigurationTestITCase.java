@@ -19,18 +19,22 @@
 package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -103,5 +107,18 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         newConfigurationTO = configurationService.read("token.expireTime");
         assertEquals(configurationTO, newConfigurationTO);
+    }
+
+    @Test
+    public void dbExport() throws IOException {
+        Response response = configurationService.dbExport();
+        assertNotNull(response);
+        assertNotNull(response.getLocation());
+        assertTrue(response.getHeaderString("Content-Type").startsWith(MediaType.TEXT_XML_VALUE));
+        assertNotNull(response.getHeaderString("Content-Disposition"));
+
+        Object entity = response.getEntity();
+        assertTrue(entity instanceof InputStream);
+        assertFalse(IOUtils.toString((InputStream) entity, "UTF-8").isEmpty());
     }
 }

@@ -39,11 +39,10 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
      */
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeClientErrorHandler.class);
 
-    public static final HttpStatus[] MANAGED_STATUSES = new HttpStatus[] { HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND };
+    private static final HttpStatus[] MANAGED_STATUSES = {HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND};
 
     @Override
     public void handleError(final ClientHttpResponse response) throws IOException {
-
         if (!ArrayUtils.contains(MANAGED_STATUSES, response.getStatusCode())) {
             super.handleError(response);
         }
@@ -55,8 +54,8 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
             return;
         }
 
-        SyncopeClientCompositeErrorException compositeException = new SyncopeClientCompositeErrorException(response
-                .getStatusCode());
+        SyncopeClientCompositeErrorException compositeException =
+                new SyncopeClientCompositeErrorException(response.getStatusCode());
 
         Set<String> handledExceptions = new HashSet<String>();
         for (String exceptionTypeAsString : exceptionTypesInHeaders) {

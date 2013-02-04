@@ -19,10 +19,8 @@
 package org.apache.syncope.core.init;
 
 import javax.servlet.ServletContext;
-
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,9 +46,9 @@ public class SpringContextInitializer implements ServletContextAware, Initializi
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
-    
+
     @Autowired
-    private WorkflowAdapterLoader workflowSetup;
+    private WorkflowAdapterLoader workflowAdapterLoader;
 
     @Override
     public void setServletContext(final ServletContext servletContext) {
@@ -58,11 +56,11 @@ public class SpringContextInitializer implements ServletContextAware, Initializi
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        contentLoader.load(ActivitiDetector.isActivitiEnabledForUsers());
+        contentLoader.load(workflowAdapterLoader.getInitSQLStatements());
         connInstanceLoader.load();
         jobInstanceLoader.load();
         loggerLoader.load();
         classNamesLoader.load();
-        workflowSetup.load();
+        workflowAdapterLoader.load();
     }
 }

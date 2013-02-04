@@ -21,6 +21,8 @@ package org.apache.syncope.core.init;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -31,6 +33,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WorkflowAdapterLoader implements BeanFactoryAware {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowAdapterLoader.class);
+
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
 
@@ -39,20 +44,42 @@ public class WorkflowAdapterLoader implements BeanFactoryAware {
 
     private DefaultListableBeanFactory beanFactory;
 
+    private WorkflowInstanceLoader wfLoader;
+
     @Override
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
         this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
-    
-    public void load() {
-        if (uwfAdapter.getLoaderClass() != null) {
-            final WorkflowInstanceLoader wfLoader = (WorkflowInstanceLoader) beanFactory.createBean(
-                    uwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-            wfLoader.load();
+
+    private void lazyInit() {
+        if (wfLoader == null) {
+            if (uwfAdapter.getLoaderClass() != null) {
+                wfLoader = (WorkflowInstanceLoader) beanFactory.createBean(
+                        uwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+            }
+            if (rwfAdapter.getLoaderClass() != null) {
+                wfLoader = (WorkflowInstanceLoader) beanFactory.createBean(
+                        rwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+            }
         }
-        if (rwfAdapter.getLoaderClass() != null) {
-            final WorkflowInstanceLoader wfLoader = (WorkflowInstanceLoader) beanFactory.createBean(
-                    rwfAdapter.getLoaderClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+    }
+
+    public String getTablePrefix() {
+        lazyInit();
+        return wfLoader == null ? null : wfLoader.getTablePrefix();
+    }
+
+    public String[] getInitSQLStatements() {
+        lazyInit();
+        return wfLoader == null ? null : wfLoader.getInitSQLStatements();
+    }
+
+    public void load() {
+        lazyInit();
+        if (wfLoader == null) {
+            LOG.debug("Configured workflow adapter does not need loading");
+        } else {
+            LOG.debug("Loading workflow adapter by {}", wfLoader.getClass().getName());
             wfLoader.load();
         }
     }

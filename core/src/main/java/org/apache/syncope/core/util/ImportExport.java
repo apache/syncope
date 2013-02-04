@@ -33,6 +33,7 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,6 +54,8 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.util.multiparent.MultiParentNode;
@@ -71,14 +74,13 @@ import org.xml.sax.helpers.DefaultHandler;
 @Component
 public class ImportExport extends DefaultHandler {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ImportExport.class);
 
-    private final static String ROOT_ELEMENT = "dataset";
+    public static final String CONTENT_FILE = "content.xml";
 
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+    private static final String ROOT_ELEMENT = "dataset";
+
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -91,6 +93,27 @@ public class ImportExport extends DefaultHandler {
 
     @Autowired
     private DataSource dataSource;
+
+    private final Set<String> tablePrefixesToBeExcluded = new HashSet<String>(
+            Arrays.asList(new String[]{"QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
+                "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
+                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR"}));
+
+    private final Map<String, String> tablesTobeFiltered =
+            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
+
+    private final Map<String, Set<String>> columnsToBeNullified =
+            Collections.singletonMap("SYNCOPEROLE", Collections.singleton("USEROWNER_ID"));
+
+    private String[] wfInitSQLStatements;
+
+    public void setWfInitSQLStatements(final String[] wfInitSQLStatements) {
+        if (wfInitSQLStatements == null) {
+            this.wfInitSQLStatements = new String[0];
+        } else {
+            this.wfInitSQLStatements = (String[]) SerializationUtils.clone(wfInitSQLStatements);
+        }
+    }
 
     private String readSchema() {
         String schema = null;
@@ -108,13 +131,7 @@ public class ImportExport extends DefaultHandler {
                 LOG.error("Could not find persistence.properties");
             }
         } finally {
-            if (dbPropsStream != null) {
-                try {
-                    dbPropsStream.close();
-                } catch (IOException e) {
-                    LOG.error("While trying to read persistence.properties", e);
-                }
-            }
+            IOUtils.closeQuietly(dbPropsStream);
         }
 
         return schema;
@@ -263,8 +280,14 @@ public class ImportExport extends DefaultHandler {
     public void startElement(final String uri, final String localName, final String qName, final Attributes atts)
             throws SAXException {
 
-        // skip root element
+        // skip root element and perform workflow init statements
         if (ROOT_ELEMENT.equals(qName)) {
+            if (wfInitSQLStatements != null) {
+                for (String wfInitSQLStmt : wfInitSQLStatements) {
+                    Query query = entityManager.createNativeQuery(wfInitSQLStmt);
+                    query.executeUpdate();
+                }
+            }
             return;
         }
 
@@ -288,15 +311,14 @@ public class ImportExport extends DefaultHandler {
         query.executeUpdate();
     }
 
-    private void doExportTable(final TransformerHandler handler, final Connection conn, final String tableName)
-            throws SQLException, SAXException {
+    private void doExportTable(final TransformerHandler handler, final Connection conn, final String tableName,
+            final String whereClause) throws SQLException, SAXException {
 
         AttributesImpl attrs = new AttributesImpl();
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
         ResultSet pkeyRS = null;
-
         try {
             // ------------------------------------
             // retrieve primary keys to perform an ordered select
@@ -308,7 +330,6 @@ public class ImportExport extends DefaultHandler {
 
             while (pkeyRS.next()) {
                 final String columnName = pkeyRS.getString("COLUMN_NAME");
-
                 if (columnName != null) {
                     if (orderBy.length() > 0) {
                         orderBy.append(",");
@@ -319,23 +340,30 @@ public class ImportExport extends DefaultHandler {
             }
 
             // ------------------------------------
-            stmt = conn.prepareStatement(
-                    "SELECT * FROM " + tableName + " a" + (orderBy.length() > 0 ? " ORDER BY " + orderBy : ""));
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT * FROM ").append(tableName).append(" a");
+            if (StringUtils.isNotBlank(whereClause)) {
+                query.append(" WHERE ").append(whereClause);
+            }
+            if (orderBy.length() > 0) {
+                query.append(" ORDER BY ").append(orderBy);
+            }
+            stmt = conn.prepareStatement(query.toString());
 
             rs = stmt.executeQuery();
-            for (int rowNo = 0; rs.next(); rowNo++) {
+            while (rs.next()) {
                 attrs.clear();
 
                 final ResultSetMetaData rsMeta = rs.getMetaData();
-
                 for (int i = 0; i < rsMeta.getColumnCount(); i++) {
                     final String columnName = rsMeta.getColumnName(i + 1);
                     final Integer columnType = rsMeta.getColumnType(i + 1);
 
                     // Retrieve value taking care of binary values.
                     String value = getValues(rs, columnName, columnType);
+                    if (value != null && (!columnsToBeNullified.containsKey(tableName)
+                            || !columnsToBeNullified.get(tableName).contains(columnName))) {
 
-                    if (value != null) {
                         attrs.addAttribute("", "", columnName, "CDATA", value);
                     }
                 }
@@ -381,19 +409,16 @@ public class ImportExport extends DefaultHandler {
         final Set<String> pkTableNames = new HashSet<String>();
 
         for (String tableName : tableNames) {
-
             MultiParentNode<String> node = exploited.get(tableName);
-
             if (node == null) {
                 node = new MultiParentNode<String>(tableName);
                 roots.add(node);
                 exploited.put(tableName, node);
             }
 
-            ResultSet rs = null;
-
             pkTableNames.clear();
 
+            ResultSet rs = null;
             try {
                 rs = meta.getImportedKeys(conn.getCatalog(), readSchema(), tableName);
 
@@ -413,9 +438,7 @@ public class ImportExport extends DefaultHandler {
 
             for (String pkTableName : pkTableNames) {
                 if (!tableName.equalsIgnoreCase(pkTableName)) {
-
                     MultiParentNode<String> pkNode = exploited.get(pkTableName);
-
                     if (pkNode == null) {
                         pkNode = new MultiParentNode<String>(pkTableName);
                         roots.add(pkNode);
@@ -435,11 +458,28 @@ public class ImportExport extends DefaultHandler {
         MultiParentNodeOp.traverseTree(roots, sortedTableNames);
 
         Collections.reverse(sortedTableNames);
+        // remove from sortedTableNames any table possibly added during lookup 
+        // but matching some item in this.tablePrefixesToBeExcluded
+        sortedTableNames.retainAll(tableNames);
         return sortedTableNames;
     }
 
-    public void export(final OutputStream os)
+    private boolean isTableAllowed(final String tableName) {
+        boolean allowed = true;
+        for (String prefix : tablePrefixesToBeExcluded) {
+            if (tableName.toUpperCase().startsWith(prefix)) {
+                allowed = false;
+            }
+        }
+        return allowed;
+    }
+
+    public void export(final OutputStream os, final String wfTablePrefix)
             throws SAXException, TransformerConfigurationException {
+
+        if (StringUtils.isNotBlank(wfTablePrefix)) {
+            tablePrefixesToBeExcluded.add(wfTablePrefix);
+        }
 
         StreamResult streamResult = new StreamResult(os);
         final SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
@@ -466,16 +506,14 @@ public class ImportExport extends DefaultHandler {
 
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
-
-                // these tables must be ignored
-                if (!tableName.toUpperCase().startsWith("QRTZ_") && !tableName.toUpperCase().startsWith("LOGGING_")) {
+                if (isTableAllowed(tableName)) {
                     tableNames.add(tableName);
                 }
             }
 
             // then sort tables based on foreign keys and dump
             for (String tableName : sortByForeignKeys(conn, tableNames, schema)) {
-                doExportTable(handler, conn, tableName);
+                doExportTable(handler, conn, tableName, tablesTobeFiltered.get(tableName.toUpperCase()));
             }
         } catch (SQLException e) {
             LOG.error("While exporting database content", e);

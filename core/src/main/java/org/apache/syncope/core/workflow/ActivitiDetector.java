@@ -21,22 +21,29 @@ package org.apache.syncope.core.workflow;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActivitiDetector {
+
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiDetector.class);
+
+    private static final String XX = "/workflow.properties";
+
     private static String uwfAdapterClassName;
+
     private static String rwfAdapterClassName;
+
+    private static String activitiVersion;
 
     static {
         try {
-            initWFAdapterClassNames();
+            init();
         } catch (IOException e) {
-            LOG.error("Could not init uwfAdapterClassName", e);
+            LOG.error("Could not read from {}", XX, e);
         }
     }
 
@@ -45,20 +52,19 @@ public class ActivitiDetector {
      *
      * @throws IOException if anything goes wrong
      */
-    private static void initWFAdapterClassNames() throws IOException {
+    private static void init() throws IOException {
         Properties props = new java.util.Properties();
         InputStream propStream = null;
         try {
-            propStream = ContentLoader.class.getResourceAsStream("/workflow.properties");
+            propStream = ContentLoader.class.getResourceAsStream(XX);
             props.load(propStream);
             uwfAdapterClassName = props.getProperty("uwfAdapter");
             rwfAdapterClassName = props.getProperty("rwfAdapter");
+            activitiVersion = props.getProperty("activitiVersion");
         } catch (Exception e) {
             LOG.error("Could not load workflow.properties", e);
         } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
+            IOUtils.closeQuietly(propStream);
         }
     }
 
@@ -70,7 +76,7 @@ public class ActivitiDetector {
     public static boolean isActivitiEnabledForUsers() {
         return uwfAdapterClassName != null && uwfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
     }
-    
+
     /**
      * Check if the configured role workflow adapter is Activiti's.
      *
@@ -80,5 +86,12 @@ public class ActivitiDetector {
         // ActivitiRoleWorkflowAdapter hasn't been developed (yet) as part of SYNCOPE-173 
         //return rwfAdapterClassName != null && rwfAdapterClassName.equals(ActivitiRoleWorkflowAdapter.class.getName());
         return false;
+    }
+
+    /**
+     * @return the version of Activiti packages, as configured in Maven
+     */
+    public static String getActivitiVersion() {
+        return activitiVersion;
     }
 }
