@@ -26,46 +26,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlEnum;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 
 @Path("schemas/{kind}/{type}")
 public interface SchemaService {
-
-    @XmlEnum
-    enum SchemaType {
-
-        /**
-         * Derived schema calculated based on other attributes.
-         */
-        DERIVED("derivedSchema"),
-
-        /**
-         * Standard schema for normal attributes to be stored within syncope.
-         */
-        NORMAL("schema"),
-
-        /**
-         * Virtual schema for attributes fetched from remote resources only.
-         */
-        VIRTUAL("virtualSchema");
-
-        public static SchemaType fromString(String value) {
-            return SchemaType.valueOf(value.toUpperCase());
-        }
-
-        // TODO remove name once CXF migration is complete
-        private final String name;
-
-        private SchemaType(String name) {
-            this.name = name;
-        }
-
-        public String toSpringURL() {
-            return name;
-        }
-    }
 
     /**
      * @param kind Kind for schema to be created

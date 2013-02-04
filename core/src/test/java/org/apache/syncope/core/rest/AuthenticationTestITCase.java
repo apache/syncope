@@ -44,6 +44,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -91,7 +92,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(AttributeSchemaType.String);
 
-        response = createSchema(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaTO);
+        response = createSchema(AttributableType.USER, SchemaType.NORMAL, schemaTO);
         SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);
         assertEquals(schemaTO, newSchemaTO);
 
@@ -110,18 +111,18 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = schemaService.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaName);
+        schemaTO = schemaService.read(AttributableType.USER, SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
         SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class, userTO.getUsername(), "password123");
 
-        schemaTO = schemaService2.read(AttributableType.USER, SchemaService.SchemaType.NORMAL, schemaName);
+        schemaTO = schemaService2.read(AttributableType.USER, SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         try {
-            schemaService2.update(AttributableType.ROLE, SchemaService.SchemaType.NORMAL, schemaName, schemaTO);
+            schemaService2.update(AttributableType.ROLE, SchemaType.NORMAL, schemaName, schemaTO);
             fail("Schemaupdate as user schould not work");
         } catch (HttpClientErrorException e) {
             assertNotNull(e);

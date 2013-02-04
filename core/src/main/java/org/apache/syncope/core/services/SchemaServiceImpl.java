@@ -32,6 +32,7 @@ import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.rest.controller.DerivedSchemaController;
 import org.apache.syncope.core.rest.controller.SchemaController;
 import org.apache.syncope.core.rest.controller.VirtualSchemaController;

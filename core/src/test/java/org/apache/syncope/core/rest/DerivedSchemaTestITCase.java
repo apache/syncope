@@ -27,9 +27,9 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpStatus;
-import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.junit.FixMethodOrder;
@@ -43,7 +43,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
     public void list() {
         @SuppressWarnings("unchecked")
         List<DerivedSchemaTO> derivedSchemas = (List<DerivedSchemaTO>) schemaService.list(AttributableType.USER,
-                SchemaService.SchemaType.DERIVED);
+                SchemaType.DERIVED);
         assertFalse(derivedSchemas.isEmpty());
         for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);
@@ -52,7 +52,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        DerivedSchemaTO derivedSchemaTO = schemaService.read(AttributableType.USER, SchemaService.SchemaType.DERIVED,
+        DerivedSchemaTO derivedSchemaTO = schemaService.read(AttributableType.USER, SchemaType.DERIVED,
                 "cn");
         assertNotNull(derivedSchemaTO);
     }
@@ -63,33 +63,33 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        Response response = createSchema(AttributableType.USER, SchemaService.SchemaType.DERIVED, schema);
+        Response response = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
         DerivedSchemaTO actual = getObject(response, DerivedSchemaTO.class, schemaService);
         assertNotNull(actual);
 
-        actual = schemaService.read(AttributableType.USER, SchemaService.SchemaType.DERIVED, actual.getName());
+        actual = schemaService.read(AttributableType.USER, SchemaType.DERIVED, actual.getName());
         assertNotNull(actual);
         assertEquals(actual.getExpression(), "derived_sx + '_' + derived_dx");
     }
 
     @Test
     public void delete() {
-        DerivedSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.DERIVED,
+        DerivedSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED,
                 "rderiveddata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.ROLE, SchemaService.SchemaType.DERIVED,
+        schemaService.delete(AttributableType.ROLE, SchemaType.DERIVED,
                 schema.getName());
 
         Throwable t = null;
         try {
-            schemaService.read(AttributableType.ROLE, SchemaService.SchemaType.DERIVED, "rderiveddata");
+            schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         } finally {
             // Recreate schema to make test re-runnable
-            Response response = createSchema(AttributableType.ROLE, SchemaService.SchemaType.DERIVED, schema);
+            Response response = createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
             assertNotNull(response);
             assertEquals(HttpStatus.SC_CREATED, response.getStatus());
         }
@@ -98,23 +98,23 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        DerivedSchemaTO schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaService.SchemaType.DERIVED,
+        DerivedSchemaTO schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
                 "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
         try {
             schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-            schemaService.update(AttributableType.MEMBERSHIP, SchemaService.SchemaType.DERIVED,
+            schemaService.update(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
                     schema.getName(), schema);
 
-            schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaService.SchemaType.DERIVED, "mderiveddata");
+            schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED, "mderiveddata");
             assertNotNull(schema);
             assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
         } finally {
             // Set updated back to make test re-runnable
             schema.setExpression("mderived_sx + '-' + mderived_dx");
-            schemaService.update(AttributableType.MEMBERSHIP, SchemaService.SchemaType.DERIVED,
+            schemaService.update(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
                     schema.getName(), schema);
         }
     }

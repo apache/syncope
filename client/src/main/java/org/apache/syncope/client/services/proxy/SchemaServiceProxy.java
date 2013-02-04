@@ -34,6 +34,7 @@ import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
