@@ -208,7 +208,15 @@ under the License.
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz-oracle</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz-jboss</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz-weblogic</artifactId>
+    </dependency>
+      
     <dependency>
       <groupId>org.apache.cocoon.sax</groupId>
       <artifactId>cocoon-sax</artifactId>
