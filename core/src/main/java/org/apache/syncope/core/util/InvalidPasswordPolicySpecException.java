@@ -18,15 +18,20 @@
  */
 package org.apache.syncope.core.util;
 
-public class IncompatiblePolicyException extends RuntimeException {
+/**
+ * Raise when the merge of two or more PasswordPolicySpec leds to incompatible condition.
+ *
+ * @see org.apache.syncope.common.types.PasswordPolicySpec
+ */
+public class InvalidPasswordPolicySpecException extends Exception {
 
     private static final long serialVersionUID = 4810651743226663580L;
 
-    public IncompatiblePolicyException(String msg) {
+    public InvalidPasswordPolicySpecException(final String msg) {
         super(msg);
     }
 
-    public IncompatiblePolicyException(String msg, Exception e) {
+    public InvalidPasswordPolicySpecException(final String msg, final Exception e) {
         super(msg, e);
     }
 }

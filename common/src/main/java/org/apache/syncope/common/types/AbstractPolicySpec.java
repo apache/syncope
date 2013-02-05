@@ -20,7 +20,7 @@ package org.apache.syncope.common.types;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
-public class AbstractPolicySpec extends AbstractBaseBean {
+public abstract class AbstractPolicySpec extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2740439904103716653L;
 

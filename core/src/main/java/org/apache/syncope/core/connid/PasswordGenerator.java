@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
-import org.apache.syncope.core.util.IncompatiblePolicyException;
+import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ public class PasswordGenerator {
     private PolicyDAO policyDAO;
 
     public String generatePasswordFromPwdSpec(final List<PasswordPolicySpec> passwordPolicySpecs)
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         PasswordPolicySpec policySpec = mergePolicySpecs(passwordPolicySpecs);
 
@@ -56,7 +56,7 @@ public class PasswordGenerator {
     }
 
     public String generateUserPassword(final SyncopeUser user)
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         List<PasswordPolicySpec> userPasswordPolicies = new ArrayList<PasswordPolicySpec>();
         PasswordPolicySpec passwordPolicySpec = policyDAO.getGlobalPasswordPolicy().getSpecification();
@@ -165,70 +165,50 @@ public class PasswordGenerator {
     }
 
     private void evaluateFinalPolicySpec(final PasswordPolicySpec policySpec)
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         if (policySpec.getMinLength() == 0) {
-            LOG.error("Minimum length given is zero");
-            throw new IncompatiblePolicyException("Minimum length given is zero");
+            throw new InvalidPasswordPolicySpecException("Minimum length is zero");
         }
         if (policySpec.isMustEndWithAlpha() && policySpec.isMustntEndWithAlpha()) {
-            LOG.error("Incompatible password policy specification: mustEndWithAlpha and"
-                    + "mustntEndWithAlpha are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustEndWithAlpha and"
-                    + "mustntEndWithAlpha are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustEndWithAlpha and mustntEndWithAlpha are both true");
         }
         if (policySpec.isMustEndWithAlpha() && policySpec.isMustEndWithDigit()) {
-            LOG.error("Incompatible password policy specification: mustEndWithAlpha and"
-                    + "mustEndWithDigit are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustEndWithAlpha and"
-                    + "mustEndWithDigit are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustEndWithAlpha and mustEndWithDigit are both true");
         }
         if (policySpec.isMustEndWithDigit() && policySpec.isMustntEndWithDigit()) {
-            LOG.error("Incompatible password policy specification: mustEndWithDigit and"
-                    + "mustntEndWithDigit are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustEndWithDigit and"
-                    + "mustntEndWithDigit are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustEndWithDigit and mustntEndWithDigit are both true");
         }
         if (policySpec.isMustEndWithNonAlpha() && policySpec.isMustntEndWithNonAlpha()) {
-            LOG.error("Incompatible password policy specification: mustEndWithNonAlpha and"
-                    + "mustntEndWithNonAlpha are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustEndWithNonAlpha and"
-                    + "mustntEndWithNonAlpha are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustEndWithNonAlpha and mustntEndWithNonAlpha are both true");
         }
         if (policySpec.isMustStartWithAlpha() && policySpec.isMustntStartWithAlpha()) {
-            LOG.error("Incompatible password policy specification: mustStartWithAlpha and"
-                    + "mustntStartWithAlpha are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustStartWithAlpha and"
-                    + "mustntStartWithAlpha are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustStartWithAlpha and mustntStartWithAlpha are both true");
         }
         if (policySpec.isMustStartWithAlpha() && policySpec.isMustStartWithDigit()) {
-            LOG.error("Incompatible password policy specification: mustStartWithAlpha and"
-                    + "mustStartWithDigit are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustStartWithAlpha and"
-                    + "mustStartWithDigit are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustStartWithAlpha and mustStartWithDigit are both true");
         }
         if (policySpec.isMustStartWithDigit() && policySpec.isMustntStartWithDigit()) {
-            LOG.error("Incompatible password policy specification: mustStartWithDigit and"
-                    + "mustntStartWithDigit are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustStartWithDigit and"
-                    + " mustntStartWithDigit are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustStartWithDigit and mustntStartWithDigit are both true");
         }
         if (policySpec.isMustStartWithNonAlpha() && policySpec.isMustntStartWithNonAlpha()) {
-            LOG.error("Incompatible password policy specification: mustStartWithNonAlpha"
-                    + "and mustntStartWithNonAlpha are true");
-            throw new IncompatiblePolicyException("Incompatible password policy specification: mustStartWithNonAlpha"
-                    + "and mustntStartWithNonAlpha are true");
+            throw new InvalidPasswordPolicySpecException(
+                    "mustStartWithNonAlpha and mustntStartWithNonAlpha are both true");
         }
         if (policySpec.getMinLength() > policySpec.getMaxLength()) {
-            LOG.error("Minimun length given (" + policySpec.getMinLength() + ") is higher than"
-                    + "maximum allowed (" + policySpec.getMaxLength() + ")");
-            throw new IncompatiblePolicyException("Minimun length given (" + policySpec.getMinLength() + ")"
-                    + "is higher than maximum allowed (" + policySpec.getMaxLength() + ")");
+            throw new InvalidPasswordPolicySpecException("Minimun length (" + policySpec.getMinLength() + ")"
+                    + "is greater than maximum length (" + policySpec.getMaxLength() + ")");
         }
     }
 
     private String generatePassword(final PasswordPolicySpec policySpec) {
-
         String[] generatedPassword = new String[policySpec.getMinLength()];
 
         for (int i = 0; i < generatedPassword.length; i++) {
@@ -298,7 +278,7 @@ public class PasswordGenerator {
         }
     }
 
-    private int firstEmptyChar(String[] generatedPStrings) {
+    private int firstEmptyChar(final String[] generatedPStrings) {
         int index = 0;
         while (!generatedPStrings[index].isEmpty()) {
             index++;
@@ -306,7 +286,7 @@ public class PasswordGenerator {
         return index;
     }
 
-    private void checkRequired(String[] generatedPassword, final PasswordPolicySpec policySpec) {
+    private void checkRequired(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isDigitRequired()
                 && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
             generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomNumeric(1);
@@ -328,7 +308,7 @@ public class PasswordGenerator {
         }
     }
 
-    private void checkPrefixAndSuffix(String[] generatedPassword, final PasswordPolicySpec policySpec) {
+    private void checkPrefixAndSuffix(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         for (Iterator<String> it = policySpec.getPrefixesNotPermitted().iterator(); it.hasNext();) {
             String prefix = it.next();
             if (StringUtils.join(generatedPassword).startsWith(prefix)) {

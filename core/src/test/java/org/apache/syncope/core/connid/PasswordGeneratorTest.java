@@ -30,7 +30,7 @@ import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
-import org.apache.syncope.core.util.IncompatiblePolicyException;
+import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         String password = "";
         try {
             password = passwordGenerator.generateUserPassword(user);
-        } catch (IncompatiblePolicyException ex) {
+        } catch (InvalidPasswordPolicySpecException ex) {
             fail(ex.getMessage());
         }
         assertNotNull(password);
@@ -69,7 +69,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         try {
             password = passwordGenerator.generateUserPassword(user);
 
-        } catch (IncompatiblePolicyException ex) {
+        } catch (InvalidPasswordPolicySpecException ex) {
             fail(ex.getMessage());
         }
         assertNotNull(password);
@@ -79,7 +79,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
 
     @Test
     public void startEndWithDigit()
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMustStartWithDigit(true);
@@ -96,7 +96,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
 
     @Test
     public void startWithDigitAndWithAlpha()
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMustStartWithDigit(true);
@@ -113,7 +113,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
 
     @Test
     public void passwordWithNonAlpha()
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setNonAlphanumericRequired(true);
@@ -128,9 +128,9 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
 
-    @Test(expected = IncompatiblePolicyException.class)
+    @Test(expected = InvalidPasswordPolicySpecException.class)
     public void incopatiblePolicies()
-            throws IncompatiblePolicyException {
+            throws InvalidPasswordPolicySpecException {
 
         PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
         passwordPolicySpec.setMinLength(12);

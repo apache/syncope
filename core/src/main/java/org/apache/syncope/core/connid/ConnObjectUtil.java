@@ -57,7 +57,7 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.IncompatiblePolicyException;
+import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -164,7 +164,7 @@ public class ConnObjectUtil {
             String password;
             try {
                 password = pwdGen.generatePasswordFromPwdSpec(ppSpecs);
-            } catch (IncompatiblePolicyException e) {
+            } catch (InvalidPasswordPolicySpecException e) {
                 LOG.error("Could not generate policy-compliant random password for {}", subjectTO, e);
 
                 password = RandomStringUtils.randomAlphanumeric(16);

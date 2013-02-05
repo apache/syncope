@@ -206,7 +206,7 @@ public final class MappingUtil {
                 } else if (resource.isRandomPwdIfNotProvided()) {
                     try {
                         passwordAttrValue = passwordGenerator.generateUserPassword(user);
-                    } catch (IncompatiblePolicyException e) {
+                    } catch (InvalidPasswordPolicySpecException e) {
                         LOG.error("Could not generate policy-compliant random password for {}", user, e);
 
                         passwordAttrValue = RandomStringUtils.randomAlphanumeric(16);
