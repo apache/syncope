@@ -23,11 +23,9 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
@@ -56,6 +54,8 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     @Override
     public Response dbExport() {
         return Response.ok(new StreamingOutput() {
+
+            @Override
             public void write(final OutputStream os) throws IOException {
                 configurationController.dbExportInternal(os);
             }
