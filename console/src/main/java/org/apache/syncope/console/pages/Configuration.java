@@ -337,7 +337,7 @@ public class Configuration extends BasePage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(baseURL + "configuration/dbexport");
+                    HttpResourceStream stream = new HttpResourceStream(confRestClient.dbExport());
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null ? "content.xml" : stream.getFilename());
@@ -540,7 +540,7 @@ public class Configuration extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -563,7 +563,7 @@ public class Configuration extends BasePage {
         }
     }
 
-    private class NotificationProvider extends SortableDataProvider<NotificationTO,String> {
+    private class NotificationProvider extends SortableDataProvider<NotificationTO, String> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -581,7 +581,7 @@ public class Configuration extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

@@ -20,13 +20,12 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
@@ -108,5 +107,9 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     @Override
     public List<ReportExecTO> listExecutions() {
         return getService(ReportService.class).listExecutions();
+    }
+
+    public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
+        return getService(ReportService.class).exportExecutionResult(executionId, fmt);
     }
 }

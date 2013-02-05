@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
@@ -171,9 +171,9 @@ public class NotificationManager {
         String textBody;
         try {
             htmlBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
-                    + notification.getTemplate() + ".html.vm", "UTF-8", model);
+                    + notification.getTemplate() + ".html.vm", SyncopeConstants.DEFAULT_ENCODING, model);
             textBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "mailTemplates/"
-                    + notification.getTemplate() + ".txt.vm", "UTF-8", model);
+                    + notification.getTemplate() + ".txt.vm", SyncopeConstants.DEFAULT_ENCODING, model);
         } catch (VelocityException e) {
             LOG.error("Could not get mail body", e);
 

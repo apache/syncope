@@ -26,10 +26,6 @@ public enum ReportExecExportFormat {
     XML,
     HTML,
     PDF,
-    RTF;
-
-    public static ReportExecExportFormat fromString(String value) {
-        return ReportExecExportFormat.valueOf(value.toUpperCase());
-    }
+    RTF
 
 }

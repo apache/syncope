@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.util;
 
+import com.thoughtworks.xstream.XStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
+import org.apache.syncope.common.SyncopeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
 
 /**
  * Helper class for serialization and deserialization of configuration objects, empowering XStream.
@@ -42,7 +41,7 @@ public final class XMLSerializer {
         XStream xstream = new XStream();
         xstream.registerConverter(new GuardedStringConverter());
         try {
-            result = URLEncoder.encode(xstream.toXML(object), "UTF-8");
+            result = URLEncoder.encode(xstream.toXML(object), SyncopeConstants.DEFAULT_ENCODING);
         } catch (UnsupportedEncodingException e) {
             LOG.error("During serialization", e);
         }
@@ -57,7 +56,7 @@ public final class XMLSerializer {
         XStream xstream = new XStream();
         xstream.registerConverter(new GuardedStringConverter());
         try {
-            result = (T) xstream.fromXML(URLDecoder.decode(serialized, "UTF-8"));
+            result = (T) xstream.fromXML(URLDecoder.decode(serialized, SyncopeConstants.DEFAULT_ENCODING));
         } catch (UnsupportedEncodingException e) {
             LOG.error("During deserialization", e);
         }

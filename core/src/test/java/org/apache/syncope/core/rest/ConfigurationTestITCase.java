@@ -27,14 +27,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -55,7 +57,6 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void delete() throws UnsupportedEncodingException {
-
         try {
             configurationService.delete("nonExistent");
         } catch (HttpStatusCodeException e) {
@@ -113,9 +114,10 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void dbExport() throws IOException {
         Response response = configurationService.dbExport();
         assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getLocation());
-        assertTrue(response.getHeaderString("Content-Type").startsWith(MediaType.TEXT_XML_VALUE));
-        assertNotNull(response.getHeaderString("Content-Disposition"));
+        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.TEXT_XML));
+        assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);

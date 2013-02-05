@@ -35,6 +35,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.beans.Report;
@@ -125,7 +126,7 @@ public class ReportJob implements Job {
             SAXTransformerFactory tFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
             handler = tFactory.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
-            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 
             // a single ZipEntry in the ZipOutputStream

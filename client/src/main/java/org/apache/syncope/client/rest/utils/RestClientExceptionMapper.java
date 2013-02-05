@@ -23,13 +23,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
-
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -83,8 +81,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
 
     private SyncopeClientCompositeErrorException checkCompositeException(final Response response) {
         final int statusCode = response.getStatus();
-        List<Object> exTypesInHeaders = response.getHeaders().get(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
+        List<Object> exTypesInHeaders = response.getHeaders().get(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
         if (exTypesInHeaders == null) {
             LOG.debug("No " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + " provided");
             return null;

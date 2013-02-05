@@ -486,7 +486,7 @@ public class ImportExport extends DefaultHandler {
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();
-        serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
         serializer.setOutputProperty(OutputKeys.INDENT, "yes");
         handler.setResult(streamResult);
         handler.startDocument();

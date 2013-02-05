@@ -21,10 +21,9 @@ package org.apache.syncope.core.notification;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
-
 import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.NotificationSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -147,7 +146,7 @@ public class NotificationJob implements Job {
                     JavaMailSenderImpl sender = new JavaMailSenderImpl();
                     sender.setHost(smtpHost);
                     sender.setPort(smtpPort);
-                    sender.setDefaultEncoding("UTF-8");
+                    sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
                     if (StringUtils.isNotBlank(smtpUsername)) {
                         sender.setUsername(smtpUsername);
                     }

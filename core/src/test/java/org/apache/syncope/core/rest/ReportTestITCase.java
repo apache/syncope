@@ -25,17 +25,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -155,32 +154,18 @@ public class ReportTestITCase extends AbstractTest {
         }
     }
 
-    private void checkExport(final long execId, final String fmt, final String encodedAuth)
-            throws IOException {
+    private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
+        final Response response = reportService.exportExecutionResult(execId, fmt);
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getLocation());
+        assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
+        assertTrue(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER).
+                endsWith("." + fmt.name().toLowerCase()));
 
-        URL url = new URL(BASE_URL + "report/execution/export/" + execId + "?fmt=" + fmt);
-        int responseCode = 0;
-        String export = null;
-        HttpURLConnection connection = null;
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(connection.getInputStream(), writer);
-            export = writer.toString();
-            responseCode = connection.getResponseCode();
-        } catch (IOException e) {
-            LOG.error("This should be a temporary exception: ignore", e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-        assertEquals(200, responseCode);
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
+        Object entity = response.getEntity();
+        assertTrue(entity instanceof InputStream);
+        assertFalse(IOUtils.toString((InputStream) entity, "UTF-8").isEmpty());
     }
 
     @Test
@@ -205,55 +190,14 @@ public class ReportTestITCase extends AbstractTest {
 
             maxit--;
         } while (reportTO.getExecutions().isEmpty() && maxit > 0);
+        assertEquals(1, reportTO.getExecutions().size());
 
         long execId = reportTO.getExecutions().iterator().next().getId();
 
-        // Export
-        String encodedAuth = Base64.encodeBase64String((ADMIN_UID + ":" + ADMIN_PWD).getBytes());
-        URL url = new URL(BASE_URL + "report/execution/export/" + execId);
-
-        // 1. XML
-        maxit = 30;
-        int responseCode = 0;
-        String export = null;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            maxit--;
-
-            HttpURLConnection connection = null;
-            try {
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(connection.getInputStream(), writer);
-                export = writer.toString();
-                responseCode = connection.getResponseCode();
-            } catch (IOException e) {
-                LOG.error("This should be a temporary exception: ignore", e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-        } while (responseCode != 200 && maxit > 0);
-        assertEquals(200, responseCode);
-        assertNotNull(export);
-        assertFalse(export.isEmpty());
-
-        // 2. HTML
-        checkExport(execId, "HTML", encodedAuth);
-
-        // 3. PDF
-        checkExport(execId, "PDF", encodedAuth);
-
-        // 4. RTF
-        checkExport(execId, "RTF", encodedAuth);
+        checkExport(execId, ReportExecExportFormat.XML);
+        checkExport(execId, ReportExecExportFormat.HTML);
+        checkExport(execId, ReportExecExportFormat.PDF);
+        checkExport(execId, ReportExecExportFormat.RTF);
     }
 
     @Test

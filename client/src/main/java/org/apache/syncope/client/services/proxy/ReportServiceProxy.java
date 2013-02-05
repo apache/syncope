@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.services.proxy;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
@@ -92,12 +89,10 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
-        String format = (fmt != null)
-                ? "?fmt=" + fmt.toString()
-                : "";
-        InputStream stream = getRestTemplate().getForObject(baseUrl + "report/execution/export/{executionId}" + format,
-                InputStream.class, executionId);
-        return Response.ok(stream).build();
+        final String format = fmt == null
+                ? ""
+                : "?fmt=" + fmt.toString();
+        return handleStream(baseUrl + "report/execution/export/" + executionId + format);
     }
 
     @Override

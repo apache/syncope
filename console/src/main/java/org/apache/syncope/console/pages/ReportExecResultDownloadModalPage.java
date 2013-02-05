@@ -34,7 +34,8 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
 
     public ReportExecResultDownloadModalPage(final ModalWindow window, final PageReference callerPageRef) {
 
-        final AjaxDropDownChoicePanel<ReportExecExportFormat> format = new AjaxDropDownChoicePanel<ReportExecExportFormat>(
+        final AjaxDropDownChoicePanel<ReportExecExportFormat> format =
+                new AjaxDropDownChoicePanel<ReportExecExportFormat>(
                 "format", "format", new Model<ReportExecExportFormat>());
 
         format.setChoices(Arrays.asList(ReportExecExportFormat.values()));
@@ -61,7 +62,9 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                ((ReportModalPage) callerPageRef.getPage()).setExportFormat(format.getField().getInput());
+                format.getField();
+
+                ((ReportModalPage) callerPageRef.getPage()).setExportFormat(format.getField().getModelObject());
                 window.close(target);
             }
         });

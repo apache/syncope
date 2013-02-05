@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -28,7 +29,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable {
+public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<T> implements Cloneable {
 
     private static final long serialVersionUID = -4716376580659196095L;
 

@@ -32,7 +32,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     private static final long serialVersionUID = -198988924922541273L;
 
-    protected FormComponent field = null;
+    protected FormComponent<T> field = null;
 
     final protected String id;
 
@@ -54,11 +54,11 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         setOutputMarkupId(true);
     }
 
-    public FormComponent getField() {
+    public FormComponent<T> getField() {
         return field;
     }
 
-    public FieldPanel setTitle(String title) {
+    public FieldPanel setTitle(final String title) {
         field.add(AttributeModifier.replace("title", title != null
                 ? title
                 : ""));

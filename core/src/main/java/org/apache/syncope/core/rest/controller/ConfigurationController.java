@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ConfigurationSubCategory;
@@ -42,7 +44,6 @@ import org.apache.syncope.core.util.ImportExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -210,8 +211,9 @@ public class ConfigurationController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/dbexport")
     @Transactional(readOnly = true)
     public void dbExport(final HttpServletResponse response) {
-        response.setContentType(MediaType.TEXT_XML_VALUE);
-        response.setHeader("Content-Disposition", "attachment; filename=" + ImportExport.CONTENT_FILE);
+        response.setContentType(MediaType.TEXT_XML);
+        response.setHeader(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
+                "attachment; filename=" + ImportExport.CONTENT_FILE);
         try {
             dbExportInternal(response.getOutputStream());
         } catch (IOException e) {

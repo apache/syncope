@@ -21,145 +21,81 @@ package org.apache.syncope.console.commons;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.console.SyncopeSession;
-import org.apache.wicket.util.lang.Args;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.syncope.common.SyncopeConstants;
+import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 
 public class HttpResourceStream extends AbstractResourceStream implements IFixedLocationResourceStream {
 
     private static final long serialVersionUID = 5811207817876330189L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpResourceStream.class);
+    private transient InputStream inputStream;
 
-    private final URI uri;
+    private String location;
 
-    private transient HttpEntity responseEntity;
+    private String contentType;
 
-    private transient String contentType;
+    private String filename;
 
-    private transient String filename;
-
-    public HttpResourceStream(final String uri)
-            throws URISyntaxException {
-        this.uri = new URI(Args.notNull(uri, "uri"));
-    }
-
-    private HttpResponse buildFakeResponse(final String errorMessage) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setContent(bais);
-        entity.setContentLength(0);
-        entity.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-
-        BasicHttpResponse response = new BasicHttpResponse(new ProtocolVersion("HTTP", 1, 1), 400, "Exception: "
-                + errorMessage);
-        response.setEntity(entity);
-
-        response.addHeader("Content-Disposition", "attachment; filename=error");
-
-        return response;
-    }
-
-    private void execute() {
-        if (responseEntity != null) {
-            return;
-        }
-
-        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().
-                getRequestFactory()).getAuthScope();
-        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
-        BasicHttpContext localcontext = new BasicHttpContext();
-        // Generate BASIC scheme object and add it to the local auth cache
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-
-        HttpGet getMethod = new HttpGet(this.uri);
-        HttpResponse response;
-        try {
-            response = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().getRequestFactory()).
-                    getHttpClient().execute(targetHost, getMethod, localcontext);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception while executing HTTP method to {}", this.uri, e);
-            response = buildFakeResponse(e.getMessage());
-        }
-        if (response.getStatusLine().getStatusCode() != 200) {
-            LOG.error("Unsuccessful HTTP method to {} {}", this.uri, response);
-            response = buildFakeResponse("HTTP status " + response.getStatusLine().getStatusCode());
-        }
-
-        responseEntity = response.getEntity();
-
-        Header[] headers = response.getHeaders("Content-Disposition");
-        if (headers != null && headers.length > 0) {
-            String value = headers[0].getValue();
-            String[] splitted = value.split("=");
-            if (splitted != null && splitted.length > 1) {
-                filename = splitted[1].trim();
+    public HttpResourceStream(final Response response) {
+        Object entity = response.getEntity();
+        if (response.getStatus() == HttpStatus.SC_OK && (entity instanceof InputStream)) {
+            this.inputStream = (InputStream) entity;
+            this.location = response.getLocation().toString();
+            this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+            String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);
+            if (StringUtils.isNotBlank(contentDisposition)) {
+                String[] splitted = contentDisposition.split("=");
+                if (splitted != null && splitted.length > 1) {
+                    this.filename = splitted[1].trim();
+                }
             }
-        } else {
-            LOG.warn("Could not find Content-Disposition HTTP header");
         }
-
-        contentType = responseEntity.getContentType().getValue();
     }
 
     @Override
     public InputStream getInputStream()
             throws ResourceStreamNotFoundException {
 
-        try {
-            execute();
-            return responseEntity.getContent();
-        } catch (Exception e) {
-            throw new ResourceStreamNotFoundException(e);
-        }
+        return inputStream == null
+                ? new ByteArrayInputStream(new byte[0])
+                : inputStream;
     }
 
     @Override
-    public void close()
-            throws IOException {
-        // Nothing needed here, because we are using HttpComponents HttpClient
+    public Bytes length() {
+        return inputStream == null
+                ? Bytes.bytes(0)
+                : null;
+    }
+
+    @Override
+    public void close() throws IOException {
+        // No need for explict closing
     }
 
     @Override
     public String locationAsString() {
-        return uri.toString();
+        return location;
     }
 
     @Override
     public String getContentType() {
-        execute();
-
         return contentType == null
-                ? MediaType.APPLICATION_OCTET_STREAM_VALUE
+                ? MediaType.APPLICATION_OCTET_STREAM
                 : contentType;
     }
 
     public String getFilename() {
-        execute();
-        return filename;
+        return filename == null
+                ? "error"
+                : filename;
     }
 }

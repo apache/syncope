@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.services.proxy;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -28,18 +27,6 @@ import java.util.List;
 import java.util.Set;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
@@ -108,36 +95,6 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public Response dbExport() {
-        final AuthScope scope = ((PreemptiveAuthHttpRequestFactory) getRestTemplate().getRequestFactory()).
-                getAuthScope();
-        final HttpHost targetHost = new HttpHost(scope.getHost(), scope.getPort(), scope.getScheme());
-        final BasicHttpContext localcontext = new BasicHttpContext();
-        final AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-        localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache);
-
-        final HttpGet getMethod = new HttpGet(baseUrl + "configuration/dbexport");
-        try {
-            final HttpResponse httpResponse =
-                    ((PreemptiveAuthHttpRequestFactory) getRestTemplate().getRequestFactory()).
-                    getHttpClient().execute(targetHost, getMethod, localcontext);
-
-            Response response;
-            if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                HttpEntity entity = httpResponse.getEntity();
-                response = Response.ok(entity.getContent(), entity.getContentType().getValue()).
-                        location(getMethod.getURI()).
-                        header("Content-Disposition", httpResponse.getLastHeader("Content-Disposition").getValue()).
-                        build();
-            } else {
-                response = Response.noContent().status(httpResponse.getStatusLine().getStatusCode()).
-                        location(getMethod.getURI()).
-                        build();
-            }
-
-            return response;
-        } catch (IOException e) {
-            throw new InternalServerErrorException(e);
-        }
+        return handleStream(baseUrl + "configuration/dbexport");
     }
 }

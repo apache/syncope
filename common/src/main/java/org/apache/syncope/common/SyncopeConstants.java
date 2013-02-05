@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common;
 
-
 public class SyncopeConstants {
 
     public static final String[] DATE_PATTERNS = {
@@ -32,11 +31,17 @@ public class SyncopeConstants {
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     /**
-     * This constant will be used to identify HTTP header key to look for object ID assigned
-     * to an object after its creation. HTTP Response after PUT operation should contain this
-     * key with resource id as its value.
+     * This constant will be used to identify HTTP header key to look for object ID assigned to an object after its
+     * creation. HTTP Response after PUT operation should contain this key with resource id as its value.
      */
     public static final String REST_HEADER_ID = "org.apache.syncope.resource.id";
+
+    /**
+     * This constant is not defined in javax.ws.rs.core.HttpHeaders.
+     *
+     * @see javax.ws.rs.core.HttpHeaders
+     */
+    public static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 

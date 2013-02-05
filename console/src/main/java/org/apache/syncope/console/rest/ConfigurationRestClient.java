@@ -19,7 +19,7 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.springframework.stereotype.Component;
@@ -67,5 +67,9 @@ public class ConfigurationRestClient extends BaseRestClient {
         ConfigurationTO response = getService(ConfigurationService.class).read(key);
         getService(ConfigurationService.class).delete(key);
         return response;
+    }
+
+    public Response dbExport() {
+        return getService(ConfigurationService.class).dbExport();
     }
 }

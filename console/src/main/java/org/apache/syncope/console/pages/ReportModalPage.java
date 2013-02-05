@@ -26,6 +26,7 @@ import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.DateFormatROModel;
@@ -105,7 +106,7 @@ public class ReportModalPage extends BaseModalPage {
 
     private Form<ReportTO> form;
 
-    private String exportFormat;
+    private ReportExecExportFormat exportFormat;
 
     private long exportExecId;
 
@@ -560,7 +561,7 @@ public class ReportModalPage extends BaseModalPage {
         executions.add(reload);
     }
 
-    public void setExportFormat(final String exportFormat) {
+    public void setExportFormat(final ReportExecExportFormat exportFormat) {
         this.exportFormat = exportFormat;
     }
 
@@ -616,35 +617,20 @@ public class ReportModalPage extends BaseModalPage {
 
         private static final long serialVersionUID = 3109256773218160485L;
 
-        private final String exportFormat;
+        private final ReportExecExportFormat exportFormat;
 
         private final long exportExecId;
 
-        private String url;
-
         private HttpResourceStream stream;
 
-        public AjaxExportDownloadBehavior(final String exportFormat, final long exportExecId) {
+        public AjaxExportDownloadBehavior(final ReportExecExportFormat exportFormat, final long exportExecId) {
             this.exportFormat = exportFormat;
             this.exportExecId = exportExecId;
         }
 
         private void createResourceStream() {
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append(baseURL).append("report/execution/export/").append(exportExecId);
-            if (exportFormat != null) {
-                urlBuilder.append("?fmt=").append(exportFormat);
-            }
-
-            if (this.url != null && this.url.equals(urlBuilder.toString())) {
-                return;
-            }
-            this.url = urlBuilder.toString();
-
-            try {
-                stream = new HttpResourceStream(this.url);
-            } catch (Exception e) {
-                LOG.error("While contacting target URL", e);
+            if (stream == null) {
+                stream = new HttpResourceStream(restClient.exportExecutionResult(exportExecId, exportFormat));
             }
         }
 
