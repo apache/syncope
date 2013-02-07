@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <configuration scan="true">
   <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -24,18 +23,6 @@ under the License.
     <append>true</append>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${log.directory}/console.log.%d{yyyy-MM-dd}</fileNamePattern>
-      <maxHistory>30</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-    </encoder>
-  </appender>
-
-  <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${log.directory}/console-test.log</file>
-    <append>true</append>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${log.directory}/console-test.log.%d{yyyy-MM-dd}</fileNamePattern>
       <maxHistory>30</maxHistory>
     </rollingPolicy>
     <encoder>
@@ -53,11 +40,6 @@ under the License.
     <appender-ref ref="main"/>
   </logger>
 
-  <logger name="org.apache.syncope.console.test" additivity="false">
-    <level value="DEBUG"/>
-    <appender-ref ref="test"/>
-  </logger>
-
   <logger name="org.apache.wicket" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="main"/>
@@ -70,7 +52,7 @@ under the License.
 
   <logger name="org.apache.http" additivity="false">
     <level value="INFO"/>
-    <appender-ref ref="test"/>
+    <appender-ref ref="main"/>
   </logger>
     
   <root>
@@ -78,4 +60,3 @@ under the License.
     <appender-ref ref="main"/>
   </root>
 </configuration>
-
