@@ -91,8 +91,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         this.rAltSearchSchemas = rAltSearchSchemas;
     }
 
-    @XmlElementWrapper(name = "roleJavaRule")
-    @XmlElement(name = "roleJavaRule")
+
     public String getRoleJavaRule() {
         return roleJavaRule;
     }
@@ -101,8 +100,6 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         this.roleJavaRule = roleJavaRule;
     }
 
-    @XmlElementWrapper(name = "userJavaRule")
-    @XmlElement(name = "userJavaRule")
     public String getUserJavaRule() {
         return userJavaRule;
     }
