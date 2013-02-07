@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
@@ -45,7 +46,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -114,7 +114,7 @@ public class ResourceConnConfPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                if (connRestClient.check(resourceTO).booleanValue()) {
+                if (connRestClient.check(resourceTO)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
@@ -130,8 +130,8 @@ public class ResourceConnConfPanel extends Panel {
         /*
          * the list of overridable connector properties
          */
-        connConfPropContainer.add(new ListView<ConnConfProperty>("connectorProperties", new PropertyModel(this,
-                "connConfProperties")) {
+        connConfPropContainer.add(new AltListView<ConnConfProperty>("connectorProperties",
+                new PropertyModel(this, "connConfProperties")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 

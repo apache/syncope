@@ -114,7 +114,6 @@ public class ConnectorRestClient extends BaseRestClient {
 
         try {
             properties = getService(ConnectorService.class).getConfigurationProperties(connectorId);
-
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector configuration properties", e);
         }
@@ -147,38 +146,39 @@ public class ConnectorRestClient extends BaseRestClient {
     /**
      * Test connector connection.
      *
-     * @param connectorTO connector.
-     * @return Connection status.
+     * @param connectorTO connector
+     * @return Connection status
      */
-    public Boolean check(final ConnInstanceTO connectorTO) {
-
-        ConnInstanceTO connector = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, connector);
-
-        connector.setConfiguration(filterProperties(connector.getConfiguration()));
-
+    public boolean check(final ConnInstanceTO connectorTO) {
+        ConnInstanceTO toBeChecked = new ConnInstanceTO();
+        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[]{"configuration"});
+        toBeChecked.setConfiguration(filterProperties(connectorTO.getConfiguration()));
+        
+        boolean check = false;
         try {
-            return getService(ConnectorService.class).check(connectorTO);
+            check = getService(ConnectorService.class).check(toBeChecked);
         } catch (Exception e) {
-            LOG.error("Connector not found {}", connector, e);
-            return false;
+            LOG.error("While checking {}", toBeChecked, e);
         }
+
+        return check;
     }
 
     /**
      * Test resource connection.
      *
-     * @param resourceTO
-     * @return Connection status.
+     * @param resourceTO resource
+     * @return Connection status
      */
-    public Boolean check(final ResourceTO resourceTO) {
-
+    public boolean check(final ResourceTO resourceTO) {
+        boolean check = false;
         try {
-            return getService(ResourceService.class).check(resourceTO);
+            check = getService(ResourceService.class).check(resourceTO);
         } catch (Exception e) {
             LOG.error("Connector not found {}", resourceTO.getConnectorId(), e);
-            return false;
         }
+
+        return check;
     }
 
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {

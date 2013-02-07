@@ -321,7 +321,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 connectorTO.setBundleName(bundleTO.getBundleName());
                 connectorTO.setVersion(bundleTO.getVersion());
 
-                if (restClient.check(connectorTO).booleanValue()) {
+                if (restClient.check(connectorTO)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
