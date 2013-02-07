@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.to.CorrelationRuleClassTO;
 
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.JobClassTO;
@@ -181,6 +182,22 @@ public final class CollectionWrapper {
     public static List<String> unwrapPropagationActionClasses(Set<PropagationActionClassTO> actions) {
         List<String> respons = new ArrayList<String>();
         for (PropagationActionClassTO e : actions) {
+            respons.add(e.getName());
+        }
+        return respons;
+    }
+
+    public static Set<CorrelationRuleClassTO> wrapCorrelationRuleClasses(Set<String> classes) {
+        Set<CorrelationRuleClassTO> respons = new HashSet<CorrelationRuleClassTO>();
+        for (String cl : classes) {
+            respons.add(CorrelationRuleClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapCorrelationRuleClasses(Set<CorrelationRuleClassTO> actions) {
+        List<String> respons = new ArrayList<String>();
+        for (CorrelationRuleClassTO e : actions) {
             respons.add(e.getName());
         }
         return respons;

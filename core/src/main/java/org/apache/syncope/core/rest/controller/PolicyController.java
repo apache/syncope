@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -264,12 +262,12 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/correlationRuleClasses")
     public ModelAndView getCorrelationRuleClasses() {
-        final Set<String> actionsClasses =
+        final Set<String> correlationRules =
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
 
         auditManager.audit(Category.policy, AuditElements.PolicySubCategory.getCorrelationRuleClasses,
-                Result.success, "Successfully listed all correlation rule classes: " + actionsClasses.size());
+                Result.success, "Successfully listed all correlation rule classes: " + correlationRules.size());
 
-        return new ModelAndView().addObject(actionsClasses);
+        return new ModelAndView().addObject(correlationRules);
     }
 }

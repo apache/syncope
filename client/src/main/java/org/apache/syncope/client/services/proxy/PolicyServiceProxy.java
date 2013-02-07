@@ -20,16 +20,18 @@ package org.apache.syncope.client.services.proxy;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
@@ -118,6 +120,20 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
             return url.substring(index + 1);
         } else {
             return url;
+        }
+    }
+
+    @Override
+    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(final PolicyType type) {
+        switch (type) {
+            case SYNC:
+            case GLOBAL_SYNC:
+                final Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
+                        baseUrl + "policy/correlationRuleClasses.json", String[].class)));
+
+                return CollectionWrapper.wrapCorrelationRuleClasses(classes);
+            default:
+                throw new IllegalArgumentException("Cannot retrieve correlation rule classes for type " + type);
         }
     }
 }

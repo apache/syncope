@@ -25,11 +25,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.common.annotation.ClassList;
 import org.apache.syncope.common.annotation.SchemaList;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.console.markup.html.list.AltListView;
+import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -67,6 +68,9 @@ public class PolicyBeanPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    @SpringBean
+    private PolicyRestClient policyRestClient;
+
     final IModel<List<String>> userSchemas = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
@@ -87,6 +91,14 @@ public class PolicyBeanPanel extends Panel {
         }
     };
 
+    final IModel<List<String>> correlationRules = new LoadableDetachableModel<List<String>>() {
+
+        @Override
+        protected List<String> load() {
+            return policyRestClient.getCorrelationRuleClasses();
+        }
+    };
+
     public PolicyBeanPanel(final String id, final AbstractPolicySpec policy) {
         super(id);
 
@@ -100,6 +112,9 @@ public class PolicyBeanPanel extends Panel {
 
                 final SchemaList schemaList = field.getAnnotation(SchemaList.class);
                 fieldWrapper.setSchemaList(schemaList);
+
+                final ClassList classList = field.getAnnotation(ClassList.class);
+                fieldWrapper.setClassList(classList);
 
                 items.add(fieldWrapper);
             }
@@ -120,18 +135,41 @@ public class PolicyBeanPanel extends Panel {
 
                 final AbstractFieldPanel component;
                 try {
-                    if (field.getType().equals(ConflictResolutionAction.class)) {
+                    if (field.getClassList() != null) {
                         component = new AjaxDropDownChoicePanel("field", field.getName(), new PropertyModel(policy,
                                 field.getName()));
 
-                        ((AjaxDropDownChoicePanel) component).setChoices(
-                                Arrays.asList(ConflictResolutionAction.values()));
+                        final List<String> rules = correlationRules.getObject();
+
+                        if (rules != null && !rules.isEmpty()) {
+                            ((AjaxDropDownChoicePanel) component).setChoices(correlationRules.getObject());
+                        }
 
                         item.add(component);
 
-                        item.add(getActivationControl(component,
+                        item.add(getActivationControl(
+                                component,
+                                propDesc.getReadMethod().invoke(policy, new Object[]{}) != null,
+                                null,
+                                null));
+
+                    } else if (field.getType().isEnum()) {
+                        component = new AjaxDropDownChoicePanel("field", field.getName(), new PropertyModel(policy,
+                                field.getName()));
+
+                        final Serializable[] values = (Serializable[]) field.getType().getEnumConstants();
+
+                        if (values != null && values.length > 0) {
+                            ((AjaxDropDownChoicePanel) component).setChoices(Arrays.asList(values));
+                        }
+
+                        item.add(component);
+
+                        item.add(getActivationControl(
+                                component,
                                 (Enum<?>) propDesc.getReadMethod().invoke(policy, new Object[]{}) != null,
-                                ConflictResolutionAction.IGNORE, ConflictResolutionAction.IGNORE));
+                                values[0],
+                                values[0]));
 
                     } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
                         item.add(new AjaxCheckBoxPanel("check", field.getName(), new PropertyModel(policy,
@@ -158,6 +196,7 @@ public class PolicyBeanPanel extends Panel {
 
                             Collection collection =
                                     (Collection) propDesc.getReadMethod().invoke(policy, new Object[]{});
+
                             if (collection == null) {
                                 collection = new ArrayList();
                                 propDesc.getWriteMethod().invoke(policy, collection);
@@ -246,6 +285,8 @@ public class PolicyBeanPanel extends Panel {
 
         private transient SchemaList schemaList;
 
+        private transient ClassList classList;
+
         public String getName() {
             return name;
         }
@@ -268,6 +309,14 @@ public class PolicyBeanPanel extends Panel {
 
         public void setSchemaList(final SchemaList schemaList) {
             this.schemaList = schemaList;
+        }
+
+        public ClassList getClassList() {
+            return classList;
+        }
+
+        public void setClassList(ClassList classList) {
+            this.classList = classList;
         }
     }
 }

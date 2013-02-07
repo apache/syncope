@@ -20,13 +20,14 @@ package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -83,6 +84,19 @@ public class PolicyRestClient extends BaseRestClient {
 
     public void delete(final Long id, final Class<? extends PolicyTO> policyClass) {
         getService(PolicyService.class).delete(getPolicyType(policyClass), id);
+    }
+
+    public List<String> getCorrelationRuleClasses() {
+        List<String> rules = null;
+
+        try {
+            rules = CollectionWrapper.unwrapCorrelationRuleClasses(
+                    getService(PolicyService.class).getCorrelationRuleClasses(PolicyType.SYNC));
+        } catch (Exception e) {
+            LOG.error("While getting all correlation rule classes", e);
+        }
+
+        return rules;
     }
 
     private PolicyType getPolicyType(final Class<? extends PolicyTO> clazz) {

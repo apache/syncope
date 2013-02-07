@@ -48,11 +48,15 @@ import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.sync.TestSyncActions;
+import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -781,6 +785,15 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE258() {
+        // -----------------------------
+        // Add a custom correlation rule
+        // -----------------------------
+        SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 9L);
+        ((SyncPolicySpec)policyTO.getSpecification()).setUserJavaRule(TestSyncRule.class.getName());
+        
+        policyService.update(PolicyType.SYNC, policyTO.getId(), policyTO);
+        // -----------------------------
+        
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test Sync Rule");
         task.setResource("ws-target-resource-2");

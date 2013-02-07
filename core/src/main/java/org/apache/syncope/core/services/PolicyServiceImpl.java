@@ -20,6 +20,7 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -31,7 +32,9 @@ import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.PolicyController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,9 +51,7 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     public <T extends PolicyTO> Response create(final PolicyType type, final T policyTO) {
         PolicyTO policy = policyController.createInternal(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, policy.getId())
-                .build();
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
     }
 
     @Override
@@ -119,4 +120,19 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
         this.uriInfo = ui;
     }
 
+    @Override
+    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(PolicyType type) {
+        switch (type) {
+            case SYNC:
+            case GLOBAL_SYNC:
+                
+                @SuppressWarnings("unchecked")
+                final Set<String> classes =
+                        (Set<String>) policyController.getCorrelationRuleClasses().getModel().values().iterator().next();
+                return CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                
+            default:
+                throw new IllegalArgumentException("Cannot retrieve correlation rule classes for type " + type);
+        }
+    }
 }

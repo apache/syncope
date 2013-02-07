@@ -23,12 +23,12 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum ConflictResolutionAction {
 
+    // ignore sync
+    IGNORE,
     // sync first matcgh
     FIRSTMATCH,
     // sync last match
     LASTMATCH,
-    // ignore sync
-    IGNORE,
     // sync all
     ALL;
 

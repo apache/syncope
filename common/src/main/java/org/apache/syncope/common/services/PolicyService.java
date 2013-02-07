@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,7 +27,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-
+import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 
@@ -83,4 +84,11 @@ public interface PolicyService {
     <T extends PolicyTO> void update(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId,
             T policyTO);
 
+    /**
+     * @param type PolicyType (just SYNC is supported).
+     * @return Returns correlation rules java classes.
+     */
+    @GET
+    @Path("correlationRuleClasses")
+    Set<CorrelationRuleClassTO> getCorrelationRuleClasses(@PathParam("type") PolicyType type);
 }
