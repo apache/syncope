@@ -346,7 +346,7 @@ under the License.
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     syncPolicy_id="9"/>
-  <ExternalResource name="ws-target-resource-3" connector_id="102"
+  <ExternalResource name="ws-target-resource-timeout" connector_id="102"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     xmlConfiguration="%3Cset%3E%0A++%3Corg.apache.syncope.common.types.ConnConfProperty%3E%0A++++%3Cschema%3E%0A++++++%3Cname%3Eendpoint%3C/name%3E%0A++++++%3Ctype%3Ejava.lang.String%3C/type%3E%0A++++++%3Crequired%3Etrue%3C/required%3E%0A++++%3C/schema%3E%0A++++%3Cvalues%3E%0A++++++%3Cjava.lang.String%3Ehttp%3A//localhost%3A9080/syncope-build-tools/services/provisioning%3C/java.lang.String%3E%0A++++%3C/values%3E%0A++++%3Coverridable%3Etrue%3C/overridable%3E%0A++%3C/org.apache.syncope.common.types.ConnConfProperty%3E%0A%3C/set%3E"/>
@@ -618,7 +618,7 @@ under the License.
                 extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
                 mandatoryCondition="false" />
                 
-  <UMapping id="18" resource_name="ws-target-resource-3"/>
+  <UMapping id="18" resource_name="ws-target-resource-timeout"/>
   <UMappingItem id="333" mapping_id="18" accountid="1" password="0"
                 extAttrName="__NAME__" intAttrName="fullname" intMappingType="UserSchema"
                 mandatoryCondition="true"/>

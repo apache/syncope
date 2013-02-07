@@ -1814,7 +1814,7 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE279() {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("ws-target-resource-3");
+        userTO.addResource("ws-target-resource-timeout");
         createUser(userTO);
     }
 
