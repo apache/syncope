@@ -27,9 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
@@ -115,12 +116,15 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.dbExport();
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getLocation());
-        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.TEXT_XML));
-        assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
+        String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+        assertTrue(contentType.contains("xml"));
+        String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);
+        assertNotNull(contentDisposition);
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
-        assertFalse(IOUtils.toString((InputStream) entity, "UTF-8").isEmpty());
+        String configExport = IOUtils.toString((InputStream) entity, "UTF-8");
+        assertFalse(configExport.isEmpty());
+        assertTrue(configExport.length() > 1000);
     }
 }

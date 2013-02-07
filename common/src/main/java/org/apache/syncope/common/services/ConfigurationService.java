@@ -47,7 +47,7 @@ public interface ConfigurationService {
      * @return Returns configuration as an downloadable content.xml database export file.
      */
     @GET
-    @Path("dbDump")
+    @Path("all/export")
     Response dbExport();
 
     /**

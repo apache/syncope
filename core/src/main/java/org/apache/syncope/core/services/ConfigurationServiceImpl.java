@@ -20,12 +20,16 @@ package org.apache.syncope.core.services;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
@@ -33,6 +37,7 @@ import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
+import org.apache.syncope.core.util.ImportExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,13 +58,21 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public Response dbExport() {
-        return Response.ok(new StreamingOutput() {
+    	StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
+            	PrintStream ps = new PrintStream(os);
+            	ps.println("Test");
                 configurationController.dbExportInternal(os);
             }
-        }).build();
+        };
+        return Response.ok(sout)
+        		.type(MediaType.TEXT_XML)
+        		.header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, 
+        				"attachment; filename=" + ImportExport.CONTENT_FILE)
+
+        		.build();
     }
 
     @Override

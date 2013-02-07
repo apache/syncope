@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -104,12 +103,16 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
-        return Response.ok(new StreamingOutput() {
+        StreamingOutput sout = new StreamingOutput() {
             @Override
             public void write(final OutputStream os) throws IOException {
                 reportController.exportExecutionResultInternal(os, reportExec, format);
             }
-        }).build();
+        };
+        String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase();
+		return Response.ok(sout)
+				.header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, disposition)
+				.build();
     }
 
     @Override

@@ -158,7 +158,6 @@ public class ReportTestITCase extends AbstractTest {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getLocation());
         assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
         assertTrue(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER).
                 endsWith("." + fmt.name().toLowerCase()));

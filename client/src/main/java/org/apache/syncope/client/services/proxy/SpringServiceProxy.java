@@ -74,13 +74,11 @@ public abstract class SpringServiceProxy {
             if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 HttpEntity entity = httpResponse.getEntity();
                 response = Response.ok(entity.getContent(), entity.getContentType().getValue()).
-                        location(getMethod.getURI()).
                         header(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
                         httpResponse.getLastHeader(SyncopeConstants.CONTENT_DISPOSITION_HEADER).getValue()).
                         build();
             } else {
                 response = Response.noContent().status(httpResponse.getStatusLine().getStatusCode()).
-                        location(getMethod.getURI()).
                         build();
             }
 
