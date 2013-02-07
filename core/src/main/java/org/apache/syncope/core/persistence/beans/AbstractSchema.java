@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import static javax.persistence.EnumType.STRING;
+
 import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import javax.persistence.Basic;
 import javax.persistence.Column;
-import static javax.persistence.EnumType.STRING;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -157,7 +158,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                 validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type " + getValidatorClass()
-                        + ", reverting to AttributeBasicValidator", e);
+                        + ", reverting to " + BasicValidator.class.getSimpleName(), e);
             }
         }
 

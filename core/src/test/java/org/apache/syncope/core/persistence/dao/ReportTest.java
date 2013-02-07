@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
-
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.junit.Test;

@@ -20,14 +20,12 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.core.persistence.validation.entity.ReportCheck;
 

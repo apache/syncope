@@ -24,9 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Date;
-
 import javax.persistence.EntityExistsException;
-
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
