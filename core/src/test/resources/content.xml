@@ -344,7 +344,7 @@ under the License.
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-2" connector_id="100"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     syncPolicy_id="9"/>
   <ExternalResource name="ws-target-resource-timeout" connector_id="102"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
@@ -386,11 +386,11 @@ under the License.
   
   <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
   <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
   <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
-                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" />
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
                     
   <!-- External resource for issue SYNCOPE-230 -->
   <ExternalResource name="resource-db-sync" connector_id="107"
@@ -404,16 +404,16 @@ under the License.
                     enforceMandatoryCondition="0" 
                     propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"/>
   
-  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete" />
-  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1" />
-  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-2" />
-  <SyncopeRole_ExternalResource role_id="8" resource_name="ws-target-resource-2" />
-  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-2" />
-  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1" />
-  <SyncopeRole_ExternalResource role_id="7" resource_name="ws-target-resource-nopropagation" />
-  <SyncopeRole_ExternalResource role_id="10" resource_name="ws-target-resource-nopropagation3" />
-  <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv" />
-  <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv" />
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete"/>
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-2"/>
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1"/>
+  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1"/>
+  <SyncopeRole_ExternalResource role_id="8" resource_name="ws-target-resource-2"/>
+  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-2"/>
+  <SyncopeRole_ExternalResource role_id="7" resource_name="ws-target-resource-nopropagation"/>
+  <SyncopeRole_ExternalResource role_id="10" resource_name="ws-target-resource-nopropagation3"/>
+  <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv"/>
+  <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv"/>
 
   <UMapping id="15" resource_name="ws-target-resource-1"/>
   <UMappingItem id="99" mapping_id="15" extAttrName="__NAME__"
@@ -616,7 +616,7 @@ under the License.
                 mandatoryCondition="true"/>
   <UMappingItem id="332" mapping_id="17" accountid="0" password="0" 
                 extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
-                mandatoryCondition="false" />
+                mandatoryCondition="false"/>
                 
   <UMapping id="18" resource_name="ws-target-resource-timeout"/>
   <UMappingItem id="333" mapping_id="18" accountid="1" password="0"

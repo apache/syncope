@@ -33,9 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -1912,7 +1910,7 @@ public class UserTestITCase extends AbstractTest {
             // 4. update user, assign a propagation primary resource but don't provide any password
             UserMod userMod = new UserMod();
             userMod.setId(userTO.getId());
-            userMod.addResourceToBeAdded("ws-target-resource-2");
+            userMod.addResourceToBeAdded("ws-target-resource-1");
 
             userTO = userService.update(userMod.getId(), userMod);
             assertNotNull(userTO);
@@ -1923,7 +1921,7 @@ public class UserTestITCase extends AbstractTest {
             assertEquals(1, props.size());
             PropagationStatusTO prop = props.iterator().next();
             assertNotNull(prop);
-            assertEquals("ws-target-resource-2", prop.getResource());
+            assertEquals("ws-target-resource-1", prop.getResource());
             assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
@@ -1978,5 +1976,4 @@ public class UserTestITCase extends AbstractTest {
         }
         return newMaxId;
     }
-
 }

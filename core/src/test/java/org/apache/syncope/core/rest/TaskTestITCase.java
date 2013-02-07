@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
@@ -47,7 +48,6 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PolicyType;
@@ -825,7 +825,7 @@ public class TaskTestITCase extends AbstractTest {
         userMod.addAttributeToBeUpdated(attributeMod("email", "s258@apache.org"));
 
         userTO = userService.update(userMod.getId(), userMod);
-        
+
         execSyncTask(actual.getId(), 50, false);
 
         SyncTaskTO executed = taskService.read(TaskType.SYNCHRONIZATION, actual.getId());
