@@ -24,14 +24,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.to.ResourceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.types.ConnConfProperty;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Connectors services.
@@ -150,20 +150,20 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param connectorTO connector.
      * @return Connection status.
      */
-    public Boolean check(final ConnInstanceTO connectorTO) {
+    public boolean check(final ConnInstanceTO connectorTO) {
+        ConnInstanceTO toBeChecked = new ConnInstanceTO();
+        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[]{"configuration"});
+        toBeChecked.setConfiguration(filterProperties(connectorTO.getConfiguration()));
 
-        ConnInstanceTO connector = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, connector);
-
-        connector.setConfiguration(filterProperties(connector.getConfiguration()));
-
+        boolean check = false;
         try {
-            return SyncopeSession.get().getRestTemplate().postForObject(
-                    baseURL + "connector/check.json", connector, Boolean.class);
+            check = SyncopeSession.get().getRestTemplate().postForObject(
+                    baseURL + "connector/check.json", toBeChecked, Boolean.class);
         } catch (Exception e) {
-            LOG.error("Connector not found {}", connector, e);
-            return false;
+            LOG.error("While checking {}", toBeChecked, e);
         }
+
+        return check;
     }
 
     /**
@@ -172,15 +172,16 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param connectorTO connector.
      * @return Connection status.
      */
-    public Boolean check(final ResourceTO resourceTO) {
-
+    public boolean check(final ResourceTO resourceTO) {
+        boolean check = false;
         try {
-            return SyncopeSession.get().getRestTemplate().postForObject(
+            check = SyncopeSession.get().getRestTemplate().postForObject(
                     baseURL + "resource/check.json", resourceTO, Boolean.class);
         } catch (Exception e) {
             LOG.error("Connector not found {}", resourceTO.getConnectorId(), e);
-            return false;
         }
+
+        return check;
     }
 
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {

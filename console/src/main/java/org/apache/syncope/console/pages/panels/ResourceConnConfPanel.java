@@ -22,6 +22,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.console.pages.BaseModalPage;
+import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
+import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
+import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel.MultiValueSelectorEvent;
+import org.apache.syncope.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -41,19 +54,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.console.pages.BaseModalPage;
-import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
-import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
-import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel.MultiValueSelectorEvent;
-import org.apache.syncope.types.ConnConfProperty;
 
 public class ResourceConnConfPanel extends Panel {
 
@@ -114,7 +114,7 @@ public class ResourceConnConfPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                if (connRestClient.check(resourceTO).booleanValue()) {
+                if (connRestClient.check(resourceTO)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));

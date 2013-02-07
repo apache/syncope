@@ -68,9 +68,15 @@ public class StatusPanel extends Panel {
         final StatusBean syncope = new StatusBean();
         syncope.setAccountLink(userTO.getUsername());
         syncope.setResourceName("Syncope");
-        syncope.setStatus(userTO.getStatus() != null
-                ? Status.valueOf(userTO.getStatus().toUpperCase())
-                : Status.UNDEFINED);
+        Status syncopeStatus = Status.UNDEFINED;
+        if (userTO.getStatus() != null) {
+            try {
+                syncopeStatus = Status.valueOf(userTO.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                LOG.warn("Unexpected status found: {}", userTO.getStatus());
+            }
+        }
+        syncope.setStatus(syncopeStatus);
 
         statuses.add(syncope);
         statuses.addAll(statusUtils.getRemoteStatuses(userTO));
