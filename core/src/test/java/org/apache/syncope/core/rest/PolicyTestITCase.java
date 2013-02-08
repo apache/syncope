@@ -24,9 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
@@ -80,7 +78,6 @@ public class PolicyTestITCase extends AbstractTest {
         PasswordPolicyTO policy = new PasswordPolicyTO(true);
         policy.setSpecification(new PasswordPolicySpec());
         policy.setDescription("global password policy");
-        System.out.println(policy.getType());
 
         try {
             createPolicy(policyService, PolicyType.PASSWORD, policy);

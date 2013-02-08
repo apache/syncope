@@ -35,6 +35,7 @@ import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
+import org.apache.syncope.common.types.ReportExecStatus;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -164,7 +165,7 @@ public class ReportTestITCase extends AbstractTest {
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
-        assertFalse(IOUtils.toString((InputStream) entity, "UTF-8").isEmpty());
+        assertFalse(IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING).isEmpty());
     }
 
     @Test
@@ -172,10 +173,9 @@ public class ReportTestITCase extends AbstractTest {
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
         reportTO.setName("executeAndExport" + getUUIDString());
+        reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
-
-        int preExecs = reportTO.getExecutions().size();
 
         ReportExecTO execution = reportService.execute(reportTO.getId());
         assertNotNull(execution);
@@ -196,14 +196,10 @@ public class ReportTestITCase extends AbstractTest {
             assertNotNull(reportTO.getExecutions());
 
             i++;
-        } while (preExecs == reportTO.getExecutions().size() && i < maxit);
-        if (i == maxit) {
-            throw new RuntimeException("Timeout when executing report " + reportTO.getId());
-        }
+        } while (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit);
+        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
 
-        assertEquals(preExecs + 1, reportTO.getExecutions().size());
-
-        long execId = reportTO.getExecutions().get(preExecs).getId();
+        long execId = reportTO.getExecutions().get(0).getId();
 
         checkExport(execId, ReportExecExportFormat.XML);
         checkExport(execId, ReportExecExportFormat.HTML);

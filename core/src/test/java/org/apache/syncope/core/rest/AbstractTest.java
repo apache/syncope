@@ -294,7 +294,7 @@ public abstract class AbstractTest {
     }
 
     private <T> T getObjectSpring(final Response response, final Class<T> type) {
-        return restTemplate.getForEntity(response.getLocation(), type).getBody();
+        return restTemplate.getForObject(response.getLocation(), type);
     }
 
     public void setEnabledCXF(final boolean enabledCXF) {
