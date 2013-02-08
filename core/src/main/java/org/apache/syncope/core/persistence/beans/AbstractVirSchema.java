@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import javax.persistence.Basic;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import org.apache.syncope.common.types.AttributeSchemaType;
 
 @MappedSuperclass
@@ -27,6 +31,17 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
 
     @Id
     private String name;
+    
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer readonly;
+
+    public AbstractVirSchema() {
+        super();
+
+        readonly = getBooleanAsInteger(false);
+    }
 
     public String getName() {
         return name;
@@ -53,6 +68,11 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
     }
 
     public boolean isReadonly() {
-        return Boolean.FALSE;
+        return isBooleanAsInteger(readonly);
     }
+
+    public void setReadonly(final boolean readonly) {
+        this.readonly = getBooleanAsInteger(readonly);
+    }
+
 }

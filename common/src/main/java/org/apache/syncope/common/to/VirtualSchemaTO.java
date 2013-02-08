@@ -24,5 +24,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class VirtualSchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8198557479659701343L;
+    
+    private boolean readonly;
+    
+    public boolean isReadonly() {
+        return readonly;
+    }
+
+    public void setReadonly(final boolean readonly) {
+        this.readonly = readonly;
+    }
 
 }
