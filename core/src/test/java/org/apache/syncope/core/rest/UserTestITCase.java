@@ -78,7 +78,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
 
-    private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
+    private static final String RESOURCE_NAME_LDAP = "resource-ldap";
+	private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
+
+	private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
@@ -334,7 +337,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void createUserWithDbPropagation() {
         UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
@@ -595,7 +598,7 @@ public class UserTestITCase extends AbstractTest {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         UserTO userTO = getUniqueSampleTO("createWithApproval@syncope.apache.org");
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -608,7 +611,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRoleId());
         assertEquals("createApproval", userTO.getStatus());
-        assertEquals(Collections.singleton("resource-testdb"), userTO.getResources());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
         assertTrue(userTO.getPropagationStatusTOs().isEmpty());
 
@@ -643,7 +646,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
-        assertEquals(Collections.singleton("resource-testdb"), userTO.getResources());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
         exception = null;
         try {
@@ -675,7 +678,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
 
         // specify a propagation
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
 
@@ -703,7 +706,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("delete.by.username@apache.org");
 
         // specify a propagation
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
 
@@ -1107,70 +1110,63 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void suspendReactivateOnResource() {
-        UserTO userTO = getUniqueSampleTO("suspreactonresource@syncope.apache.org");
+    	// Assert resources are present
+        ResourceTO dbTable = resourceService.read(RESOURCE_NAME_TESTDB);
+        assertNotNull(dbTable);
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotNull(ldap);
 
+        // Create user with reference to resources
+        UserTO userTO = getUniqueSampleTO("suspreactonresource@syncope.apache.org");
         userTO.getMemberships().clear();
         userTO.getResources().clear();
-
-        ResourceTO dbTable = resourceService.read("resource-testdb");
-
-        assertNotNull(dbTable);
-        userTO.addResource(dbTable.getName());
-
-        ResourceTO ldap = resourceService.read("resource-ldap");
-
-        assertNotNull(ldap);
-        userTO.addResource(ldap.getName());
-
+        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.addResource(RESOURCE_NAME_LDAP);
         userTO = createUser(userTO);
-
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
                 ? "active"
                 : "created", userTO.getStatus());
+        String userName = userTO.getUsername();
+        long userId = userTO.getId();
 
+        // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources 
         PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
-        propagationRequestTO.addResource(dbTable.getName());
-        propagationRequestTO.addResource(ldap.getName());
-        userTO = userService.suspend(userTO.getId(), propagationRequestTO);
-
+        propagationRequestTO.addResource(RESOURCE_NAME_TESTDB);
+        propagationRequestTO.addResource(RESOURCE_NAME_LDAP);
+        userTO = userService.suspend(userId, propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        String dbTableUID = userTO.getUsername();
-        assertNotNull(dbTableUID);
-
-        ConnObjectTO connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
+        ConnObjectTO connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        String ldapUID = userTO.getUsername();
-        assertNotNull(ldapUID);
-
-        connObjectTO = readUserConnObj(ldap.getName(), ldapUID);
+        connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userName);
         assertNotNull(connObjectTO);
 
+        // Suspend and reactivate only on ldap => db and syncope should still show suspended
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(false);
-        propagationRequestTO.addResource(ldap.getName());
-        userTO = userService.suspend(userTO.getId(), propagationRequestTO);
-
-        userTO = userService.reactivate(userTO.getId(), propagationRequestTO);
+        propagationRequestTO.addResource(RESOURCE_NAME_LDAP);
+        userTO = userService.suspend(userId, propagationRequestTO);
+        userTO = userService.reactivate(userId, propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
+        connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
+        // Reactivate on syncope and db => syncope and db should show the user as active
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
-        propagationRequestTO.addResource(dbTable.getName());
+        propagationRequestTO.addResource(RESOURCE_NAME_TESTDB);
 
-        userTO = userService.reactivate(userTO.getId(), propagationRequestTO);
+        userTO = userService.reactivate(userId, propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readUserConnObj(dbTable.getName(), dbTableUID);
+        connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1206,7 +1202,7 @@ public class UserTestITCase extends AbstractTest {
     @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
         UserTO userTO = getUniqueSampleTO("issue213@syncope.apache.org");
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1222,7 +1218,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
 
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeRemoved("resource-testdb");
+        userMod.addResourceToBeRemoved(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -1234,7 +1230,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue234() {
         UserTO inUserTO = getUniqueSampleTO("issue234@syncope.apache.org");
-        inUserTO.addResource("resource-ldap");
+        inUserTO.addResource(RESOURCE_NAME_LDAP);
 
         UserTO userTO = createUser(inUserTO);
         assertNotNull(userTO);
@@ -1297,7 +1293,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("123password");
-        userMod.addResourceToBeAdded("resource-testdb");
+        userMod.addResourceToBeAdded(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1311,7 +1307,7 @@ public class UserTestITCase extends AbstractTest {
         final String resource = propagations.get(0).getResource();
 
         assertNotNull(status);
-        assertEquals("resource-testdb", resource);
+        assertEquals(RESOURCE_NAME_TESTDB, resource);
         assertTrue(status.isSuccessful());
     }
 
@@ -1544,13 +1540,13 @@ public class UserTestITCase extends AbstractTest {
         memb13.setRoleId(13L);
         userTO.addMembership(memb13);
 
-        userTO.addResource("resource-ldap");
+        userTO.addResource(RESOURCE_NAME_LDAP);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
-        ConnObjectTO connObjectTO = readUserConnObj("resource-ldap", userTO.getUsername());
+        ConnObjectTO connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1579,7 +1575,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readUserConnObj("resource-ldap", userTO.getUsername());
+        connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1598,12 +1594,12 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user with LDAP resource, succesfully propagated
         UserTO userTO = getSampleTO("syncope185@syncope.apache.org");
         userTO.getVirtualAttributes().clear();
-        userTO.addResource("resource-ldap");
+        userTO.addResource(RESOURCE_NAME_LDAP);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("resource-ldap", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(RESOURCE_NAME_LDAP, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         // 2. delete this user
@@ -1611,7 +1607,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            readUserConnObj("resource-ldap", userTO.getUsername());
+            readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
             SyncopeClientException sce = sccee.getException(SyncopeClientExceptionType.NotFound);
@@ -1821,7 +1817,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user on testdb and testdb2
         UserTO userTO = getUniqueSampleTO("syncope123@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
         userTO.addResource("resource-testdb2");
         try {
             userTO = createUser(userTO);
@@ -1833,13 +1829,13 @@ public class UserTestITCase extends AbstractTest {
             return;
         }
         assertNotNull(userTO);
-        assertTrue(userTO.getResources().contains("resource-testdb"));
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
         assertTrue(userTO.getResources().contains("resource-testdb2"));
 
         final String pwdOnSyncope = userTO.getPassword();
 
         ConnObjectTO userOnDb =
-                resourceService.getConnector("resource-testdb", AttributableType.USER, userTO.getUsername());
+                resourceService.getConnector(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getUsername());
         final AttributeTO pwdOnTestDbAttr = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
@@ -1859,7 +1855,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.setPassword(getUUIDString());
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
-        pwdPropRequest.addResource("resource-testdb");
+        pwdPropRequest.addResource(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = userService.update(userMod.getId(), userMod);
@@ -1867,13 +1863,13 @@ public class UserTestITCase extends AbstractTest {
         // 3a. Chech that only a single propagation took place
         assertNotNull(userTO.getPropagationStatusTOs());
         assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals("resource-testdb", userTO.getPropagationStatusTOs().iterator().next().getResource());
+        assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().iterator().next().getResource());
 
         // 3b. verify that password hasn't changed on Syncope
         assertEquals(pwdOnSyncope, userTO.getPassword());
 
         // 3c. verify that password *has* changed on testdb
-        userOnDb = resourceService.getConnector("resource-testdb", AttributableType.USER, userTO.getUsername());
+        userOnDb = resourceService.getConnector(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getUsername());
         final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
@@ -1944,7 +1940,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded("resource-ldap");
+        userMod.addResourceToBeAdded(RESOURCE_NAME_LDAP);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1955,7 +1951,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, props.size());
         PropagationStatusTO prop = props.iterator().next();
         assertNotNull(prop);
-        assertEquals("resource-ldap", prop.getResource());
+        assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
     }
 
