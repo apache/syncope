@@ -696,18 +696,17 @@ public class UserController {
         return savedTO;
     }
 
-	private WorkflowResult<Long> setStatusOnWfAdapter(
-			final SyncopeUser user, final String token, final String task) {
-		WorkflowResult<Long> updated;
-		if ("suspend".equals(task)) {
-		    updated = uwfAdapter.suspend(user.getId());
-		} else if ("reactivate".equals(task)) {
-		    updated = uwfAdapter.reactivate(user.getId());
-		} else {
-		    updated = uwfAdapter.activate(user.getId(), token);
-		}
-		return updated;
-	}
+    protected WorkflowResult<Long> setStatusOnWfAdapter(final SyncopeUser user, final String token, final String task) {
+        WorkflowResult<Long> updated;
+        if ("suspend".equals(task)) {
+            updated = uwfAdapter.suspend(user.getId());
+        } else if ("reactivate".equals(task)) {
+            updated = uwfAdapter.reactivate(user.getId());
+        } else {
+            updated = uwfAdapter.activate(user.getId(), token);
+        }
+        return updated;
+    }
 
     protected UserTO doDelete(final Long userId)
             throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
