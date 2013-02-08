@@ -52,7 +52,6 @@ public class ConfigurationTestITCase extends AbstractTest {
         assertEquals("connid.bundles.directory", selenium.getAttribute("//input[@name='key:textField']@value"));
 
         selenium.click("css=a.w_close");
-
     }
 
     @Test
@@ -156,16 +155,15 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.select("//td[3]/select", "label=MEMBERSHIP");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//td[4]/select[option='8 otherchild']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//td[4]/select[option='8 otherchild']\");", "30000");
 
         selenium.select("//td[4]/select", "label=8 otherchild");
 
         selenium.click("//div[2]/form/div[2]/ul/li[3]/a/span");
 
-        selenium.click("//tr[2]/td/select/option");
+        selenium.click("//div[2]/form/div[2]/div[3]/span/span/div/div[2]/div/select/option");
 
-        selenium.click("//div[2]/form/div[2]/div[3]/span/span/table/tbody/tr[2]/td[2]/button");
+        selenium.click("//div[2]/form/div[2]/div[3]/span/span/div/div[2]/div[2]/div/a");
 
         selenium.click("//div[2]/form/div[2]/ul/li[4]/a/span");
 

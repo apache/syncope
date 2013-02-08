@@ -33,6 +33,7 @@ import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.console.wicket.markup.html.form.NonI18nPalette;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -105,7 +106,7 @@ public class ResourcesPanel extends Panel {
         protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
                 final IChoiceRenderer<T> renderer, final boolean allowOrder) {
 
-            return new Palette("paletteField", model, choices, renderer, 8, allowOrder) {
+            return new NonI18nPalette<T>("paletteField", model, choices, renderer, 8, allowOrder) {
 
                 private static final long serialVersionUID = -3415146226879212841L;
 

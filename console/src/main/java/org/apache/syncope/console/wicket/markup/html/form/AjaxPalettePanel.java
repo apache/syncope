@@ -55,7 +55,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
     protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
             final IChoiceRenderer<T> renderer, final boolean allowOrder) {
 
-        return new Palette("paletteField", model, choices, renderer, 8, allowOrder);
+        return new NonI18nPalette<T>("paletteField", model, choices, renderer, 8, allowOrder);
     }
 
     @Override
