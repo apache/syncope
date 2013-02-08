@@ -79,9 +79,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class UserTestITCase extends AbstractTest {
 
     private static final String RESOURCE_NAME_LDAP = "resource-ldap";
-	private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
 
-	private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
+    private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
+
+    private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
         return resourceService.getConnector(resourceName, AttributableType.USER, userId);
     }
 
@@ -781,7 +782,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void readWithMailAddressAsUserName() {
-        UserTO userTO = createUser(getSampleTO("mail@domain.org"));
+        UserTO userTO = createUser(getUniqueSampleTO("mail@domain.org"));
         userTO = userService.read(userTO.getUsername());
         assertNotNull(userTO);
     }
@@ -1110,7 +1111,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void suspendReactivateOnResource() {
-    	// Assert resources are present
+        // Assert resources are present
         ResourceTO dbTable = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(dbTable);
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
