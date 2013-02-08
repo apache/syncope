@@ -43,7 +43,7 @@ public interface UserService {
     UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token);
 
     @POST
-    @Path("{userId}/status/activate")
+    @Path("{userId}/status/activate/propagation")
     UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token,
             PropagationRequestTO propagationRequestTO);
 
@@ -52,7 +52,7 @@ public interface UserService {
     UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token);
 
     @POST
-    @Path("activateByUsername/{username}")
+    @Path("activateByUsername/{username}/propagation")
     UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token,
             PropagationRequestTO propagationRequestTO);
 
@@ -94,7 +94,7 @@ public interface UserService {
     UserTO reactivate(@PathParam("userId") long userId);
 
     @POST
-    @Path("{userId}/status/reactivate")
+    @Path("{userId}/status/reactivate/propagation")
     UserTO reactivate(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
     @POST
@@ -102,7 +102,7 @@ public interface UserService {
     UserTO reactivateByUsername(@PathParam("username") String username);
 
     @POST
-    @Path("reactivateByUsername/{username}")
+    @Path("reactivateByUsername/{username}/propagation")
     UserTO reactivateByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
     @GET
@@ -138,7 +138,7 @@ public interface UserService {
     UserTO suspend(@PathParam("userId") long userId);
 
     @POST
-    @Path("{userId}/status/suspend")
+    @Path("{userId}/status/suspend/propagation")
     UserTO suspend(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
     @POST
@@ -146,7 +146,7 @@ public interface UserService {
     UserTO suspendByUsername(@PathParam("username") String username);
 
     @POST
-    @Path("suspendByUsername/{username}")
+    @Path("suspendByUsername/{username}/propagation")
     UserTO suspendByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
     @POST
