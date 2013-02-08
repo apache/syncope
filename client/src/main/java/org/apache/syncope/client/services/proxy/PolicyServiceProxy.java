@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
@@ -133,7 +134,7 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
 
                 return CollectionWrapper.wrapCorrelationRuleClasses(classes);
             default:
-                throw new IllegalArgumentException("Cannot retrieve correlation rule classes for type " + type);
+                throw new NotFoundException();
         }
     }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -125,14 +126,14 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
         switch (type) {
             case SYNC:
             case GLOBAL_SYNC:
-                
+
                 @SuppressWarnings("unchecked")
                 final Set<String> classes =
                         (Set<String>) policyController.getCorrelationRuleClasses().getModel().values().iterator().next();
                 return CollectionWrapper.wrapCorrelationRuleClasses(classes);
-                
+
             default:
-                throw new IllegalArgumentException("Cannot retrieve correlation rule classes for type " + type);
+                throw new NotFoundException();
         }
     }
 }
