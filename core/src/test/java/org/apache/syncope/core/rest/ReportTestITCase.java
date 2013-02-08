@@ -175,10 +175,15 @@ public class ReportTestITCase extends AbstractTest {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
+        int preExecs = reportTO.getExecutions().size();
+
         ReportExecTO execution = reportService.execute(reportTO.getId());
         assertNotNull(execution);
 
+        int i = 0;
         int maxit = 50;
+
+        // wait for report execution completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
@@ -187,11 +192,18 @@ public class ReportTestITCase extends AbstractTest {
 
             reportTO = reportService.read(reportTO.getId());
 
-            maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-        assertEquals(1, reportTO.getExecutions().size());
+            assertNotNull(reportTO);
+            assertNotNull(reportTO.getExecutions());
 
-        long execId = reportTO.getExecutions().iterator().next().getId();
+            i++;
+        } while (preExecs == reportTO.getExecutions().size() && i < maxit);
+        if (i == maxit) {
+            throw new RuntimeException("Timeout when executing report " + reportTO.getId());
+        }
+
+        assertEquals(preExecs + 1, reportTO.getExecutions().size());
+
+        long execId = reportTO.getExecutions().get(preExecs).getId();
 
         checkExport(execId, ReportExecExportFormat.XML);
         checkExport(execId, ReportExecExportFormat.HTML);

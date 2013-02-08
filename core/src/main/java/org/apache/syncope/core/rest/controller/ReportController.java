@@ -39,6 +39,7 @@ import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -348,12 +349,8 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While exporting content", e);
         } finally {
-            try {
-                zis.close();
-                bais.close();
-            } catch (IOException e) {
-                LOG.error("While closing stream for execution result", e);
-            }
+            IOUtils.closeQuietly(zis);
+            IOUtils.closeQuietly(bais);
         }
 
         auditManager.audit(Category.report, ReportSubCategory.exportExecutionResult, Result.success,

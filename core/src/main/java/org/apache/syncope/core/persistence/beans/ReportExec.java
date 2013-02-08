@@ -24,7 +24,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.types.ReportExecStatus;
 
