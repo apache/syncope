@@ -104,7 +104,13 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
                 + " e " + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
         query.setParameter("workflowId", workflowId);
 
-        return query.getSingleResult();
+        SyncopeUser result = null;
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+        }
+
+        return result;
     }
 
     /**

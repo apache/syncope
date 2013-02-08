@@ -83,7 +83,6 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     public UserModalPage(final ModalWindow window, final UserTO userTO, final Mode mode) {
-
         super();
 
         this.callerPageRef = null;
@@ -112,7 +111,6 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     protected Form setupEditPanel() {
-
         fragment.add(new Label("id", userTO.getId() == 0
                 ? ""
                 : userTO.getUsername()));

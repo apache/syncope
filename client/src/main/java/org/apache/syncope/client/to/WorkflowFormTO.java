@@ -25,12 +25,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.client.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class WorkflowFormTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
+
+    private long userId;
 
     private String taskId;
 
@@ -48,6 +50,14 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public WorkflowFormTO() {
         properties = new ArrayList<WorkflowFormPropertyTO>();
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public String getTaskId() {

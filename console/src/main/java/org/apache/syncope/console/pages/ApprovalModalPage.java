@@ -27,6 +27,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.to.WorkflowFormPropertyTO;
+import org.apache.syncope.client.to.WorkflowFormTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.MapChoiceRenderer;
+import org.apache.syncope.console.rest.ApprovalRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -41,23 +53,22 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.WorkflowFormPropertyTO;
-import org.apache.syncope.client.to.WorkflowFormTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.MapChoiceRenderer;
-import org.apache.syncope.console.rest.ApprovalRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 
 public class ApprovalModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
+    private final static int USER_WIN_HEIGHT = 550;
+
+    private final static int USER_WIN_WIDTH = 800;
+
     @SpringBean
     private ApprovalRestClient restClient;
+
+    @SpringBean
+    private UserRestClient userRestClient;
+
+    private final ModalWindow editUserWin;
 
     public ApprovalModalPage(final PageReference callerPageRef, final ModalWindow window, final WorkflowFormTO formTO) {
         super();
@@ -146,6 +157,35 @@ public class ApprovalModalPage extends BaseModalPage {
             }
         };
 
+        final AjaxButton userDetails = new IndicatingAjaxButton("userDetails", new Model(getString("userDetails"))) {
+
+            private static final long serialVersionUID = -4804368561204623354L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                editUserWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new ViewUserModalPage(ApprovalModalPage.this.getPageReference(), editUserWin,
+                                userRestClient.read(formTO.getUserId())) {
+
+                            @Override
+                            protected void closeAction(final AjaxRequestTarget target, final Form form) {
+                                setResponsePage(ApprovalModalPage.this);
+                            }
+                        };
+                    }
+                });
+
+                editUserWin.show(target);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Users", "read"));
+
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
 
             private static final long serialVersionUID = -958724007591692537L;
@@ -201,10 +241,18 @@ public class ApprovalModalPage extends BaseModalPage {
 
         Form form = new Form("form");
         form.add(propView);
+        form.add(userDetails);
         form.add(submit);
 
         MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getAllAllowedRoles("Approval",
                 "submit"));
+
+        editUserWin = new ModalWindow("editUserWin");
+        editUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editUserWin.setInitialHeight(USER_WIN_HEIGHT);
+        editUserWin.setInitialWidth(USER_WIN_WIDTH);
+        editUserWin.setCookieName("edit-user-modal");
+        add(editUserWin);
 
         add(form);
     }

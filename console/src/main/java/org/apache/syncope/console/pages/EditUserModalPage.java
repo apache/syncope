@@ -38,8 +38,12 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  */
 public class EditUserModalPage extends UserModalPage {
 
+    private static final long serialVersionUID = -6479209496805705739L;
+
     @SpringBean
     private UserRestClient userRestClient;
+
+    protected Form form;
 
     private UserTO initialUserTO = null;
 
@@ -48,7 +52,7 @@ public class EditUserModalPage extends UserModalPage {
 
         this.initialUserTO = AttributableOperations.clone(userTO);
 
-        Form form = setupEditPanel();
+        form = setupEditPanel();
 
         // add resource assignment details in case of update
         if (userTO.getId() != 0) {
@@ -66,7 +70,6 @@ public class EditUserModalPage extends UserModalPage {
 
     @Override
     protected void submitAction(final AjaxRequestTarget target, final Form form) {
-
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {

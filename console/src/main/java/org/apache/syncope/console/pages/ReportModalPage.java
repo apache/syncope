@@ -26,6 +26,17 @@ import org.apache.syncope.client.report.ReportletConf;
 import org.apache.syncope.client.to.ReportExecTO;
 import org.apache.syncope.client.to.ReportTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.DateFormatROModel;
+import org.apache.syncope.console.commons.HttpResourceStream;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
 import org.apache.syncope.types.ReportExecStatus;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -57,18 +68,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.console.commons.DateFormatROModel;
-import org.apache.syncope.console.commons.HttpResourceStream;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.SingleColumnPalette;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 
 public class ReportModalPage extends BaseModalPage {
 

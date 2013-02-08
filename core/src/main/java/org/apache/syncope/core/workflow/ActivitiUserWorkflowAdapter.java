@@ -26,9 +26,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -232,8 +232,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             propagateEnable = enabled;
         }
 
-        // save resources to be propagated and password for later -
-        // after form submission - propagation
+        // save resources to be propagated and password for later - after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getResourceNames());
 
@@ -502,16 +501,23 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) {
+    @SuppressWarnings("unchecked")
+    private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) throws NotFoundException {
         WorkflowFormTO formTO = new WorkflowFormTO();
+
+        SyncopeUser user = userDAO.findByWorkflowId(task.getProcessInstanceId());
+        if (user == null) {
+            throw new NotFoundException("User with workflow id " + task.getProcessInstanceId());
+        }
+        formTO.setUserId(user.getId());
+
         formTO.setTaskId(task.getId());
         formTO.setKey(formData.getFormKey());
 
         BeanUtils.copyProperties(task, formTO);
 
-        WorkflowFormPropertyTO propertyTO;
         for (FormProperty fProp : formData.getFormProperties()) {
-            propertyTO = new WorkflowFormPropertyTO();
+            WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
             BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
 
@@ -532,17 +538,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
-        TaskFormData formData;
         for (Task task : taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).list()) {
             try {
-                formData = formService.getTaskFormData(task.getId());
+                TaskFormData formData = formService.getTaskFormData(task.getId());
+                if (formData != null && !formData.getFormProperties().isEmpty()) {
+                    forms.add(getFormTO(task, formData));
+                }
             } catch (ActivitiException e) {
                 LOG.debug("No form found for task {}", task.getId(), e);
-                formData = null;
-            }
-
-            if (formData != null && !formData.getFormProperties().isEmpty()) {
-                forms.add(getFormTO(task, formData));
+            } catch (NotFoundException e) {
+                LOG.error("While fetching forms", e);
             }
         }
 
@@ -560,12 +565,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new WorkflowException(e);
         }
 
-        TaskFormData formData;
+        TaskFormData formData = null;
         try {
             formData = formService.getTaskFormData(task.getId());
         } catch (ActivitiException e) {
             LOG.debug("No form found for task {}", task.getId(), e);
-            formData = null;
         }
 
         WorkflowFormTO result = null;
