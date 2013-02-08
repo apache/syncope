@@ -14,43 +14,39 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<html xmlns:wicket="http://wicket.apache.org">
-    <body>
-    <wicket:panel>
+<wicket:panel>
 
-        <div style="display: inline-table;">
-            <input type="hidden" wicket:id="recorder"/>
-            <span wicket:id="availableHeader"/>
-            <span wicket:id="availableHeader"/>
+  <div style="display: inline-table;">
+    <input type="hidden" wicket:id="recorder"/>
+    <span wicket:id="availableHeader"/>
+    <span wicket:id="availableHeader"/>
 
-            <div id="choices">
-                <select wicket:id="choices" class="choicesSelect" style="visibility: hidden;width: 0px;">[choices]</select>
-            </div>
-            <div id="selections" style="display: table-cell;">
-                <select class="selectionSelect" wicket:id="selection">[selection]</select>	
-            </div>
+    <div id="choices">
+      <select wicket:id="choices" class="choicesSelect" style="visibility: hidden;width: 0px;">[choices]</select>
+    </div>
+    <div id="selections" style="display: table-cell;">
+      <select class="selectionSelect" wicket:id="selection">[selection]</select>	
+    </div>
 
-            <div id="orderingButtons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
-                <div style="padding-bottom: 5px;">
-                    <a wicket:id="moveUpButton"><img src="img/up-icon.png" alt="move up icon"/></a>
-                </div>
-                <div style="padding-top: 5px;">
-                    <a wicket:id="moveDownButton"><img src="img/down-icon.png" alt="move down icon"/></a>
-                </div>
-            </div>
-        </div>
+    <div id="buttons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
+      <div style="padding-bottom: 5px;">
+        <a wicket:id="moveUpButton"><img src="img/up-icon.png" alt="move up icon"/></a>
+      </div>
+      <div style="padding-top: 5px;">
+        <a wicket:id="moveDownButton"><img src="img/down-icon.png" alt="move down icon"/></a>
+      </div>
+    </div>
+  </div>
 
-        <div id="actionButtons" style="padding-top: 5px;">
-            <div style="padding-left: 35px;float: left;">
-                <a wicket:id="addButton"><img src="img/plus-icon.png" alt="plus icon"/></a>
-            </div>
-            <div style="padding-left: 15px;float: left;">
-                <a wicket:id="editButton"><img src="img/actions/edit.png" alt="edit icon"/></a>
-            </div>
-            <div style="padding-left: 15px;float: left;">
-                <a wicket:id="removeButton"><img src="img/minus-icon.png" alt="minus icon"/></a>
-            </div>
-        </div>
-    </wicket:panel>
-</body>
-</html>
+  <div id="actionButtons" style="padding-top: 5px;">
+    <div style="padding-left: 35px;float: left;">
+      <a wicket:id="addButton"><img src="img/plus-icon.png" alt="plus icon"/></a>
+    </div>
+    <div style="padding-left: 15px;float: left;">
+      <a wicket:id="editButton"><img src="img/actions/edit.png" alt="edit icon"/></a>
+    </div>
+    <div style="padding-left: 15px;float: left;">
+      <a wicket:id="removeButton"><img src="img/minus-icon.png" alt="minus icon"/></a>
+    </div>
+  </div>
+</wicket:panel>

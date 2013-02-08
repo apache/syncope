@@ -24,10 +24,10 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.extensions.markup.html.form.palette.component.Recorder;
 import org.apache.wicket.extensions.markup.html.form.palette.component.Selection;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
@@ -39,7 +39,7 @@ import org.apache.wicket.util.value.IValueMap;
  *
  * @see org.apache.wicket.extensions.markup.html.form.palette.Palette
  */
-public class SingleColumnPalette<T> extends Palette<T> {
+public class SingleColumnPalette<T> extends NonI18nPalette<T> {
 
     private static final long serialVersionUID = -1126599052871074501L;
 
@@ -176,6 +176,11 @@ public class SingleColumnPalette<T> extends Palette<T> {
 
                 attrs.put("ondblclick", "");
                 attrs.remove("multiple");
+            }
+
+            @Override
+            public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
+                SingleColumnPalette.this.nonI18nOnComponentTagBody(markupStream, openTag, getOptionsIterator());
             }
         };
     }
