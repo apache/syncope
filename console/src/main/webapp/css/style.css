@@ -449,3 +449,7 @@ td.action{
   color: blue;
   text-decoration: none;
 }
+
+.tree-junction-expanded {
+  display: none;
+}

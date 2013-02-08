@@ -25,20 +25,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @XmlRootElement(name = "workflowForm")
 @XmlType
 public class WorkflowFormTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
+
+    private long userId;
 
     private String taskId;
 
@@ -56,6 +56,14 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public WorkflowFormTO() {
         properties = new ArrayList<WorkflowFormPropertyTO>();
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public String getTaskId() {

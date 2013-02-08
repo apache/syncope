@@ -558,6 +558,8 @@ public class UserTestITCase extends AbstractTest {
         WorkflowFormTO form = userService.getFormForUser(userTO.getId());
 
         assertNotNull(form);
+        assertNotNull(form.getUserId());
+        assertEquals(userTO.getId(), form.getUserId());
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 

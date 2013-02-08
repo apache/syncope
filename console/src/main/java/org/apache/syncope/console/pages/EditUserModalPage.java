@@ -46,6 +46,8 @@ public class EditUserModalPage extends UserModalPage {
     @SpringBean
     private UserRestClient userRestClient;
 
+    protected Form form;
+
     private UserTO initialUserTO = null;
 
     private StatusPanel statusPanel;
@@ -55,7 +57,7 @@ public class EditUserModalPage extends UserModalPage {
 
         this.initialUserTO = AttributableOperations.clone(userTO);
 
-        Form form = setupEditPanel();
+        form = setupEditPanel();
 
         // add resource assignment details in case of update
         if (userTO.getId() != 0) {
@@ -91,7 +93,6 @@ public class EditUserModalPage extends UserModalPage {
                 userTO = userRestClient.update(userMod);
             }
         }
-
     }
 
     @Override

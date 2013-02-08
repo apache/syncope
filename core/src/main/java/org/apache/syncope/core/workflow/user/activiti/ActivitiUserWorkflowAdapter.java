@@ -234,8 +234,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             propagateEnable = enabled;
         }
 
-        // save resources to be propagated and password for later -
-        // after form submission - propagation
+        // save resources to be propagated and password for later - after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
@@ -505,14 +504,20 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @SuppressWarnings("unchecked")
     private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) {
         WorkflowFormTO formTO = new WorkflowFormTO();
+
+        SyncopeUser user = userDAO.findByWorkflowId(task.getProcessInstanceId());
+        if (user == null) {
+            throw new NotFoundException("User with workflow id " + task.getProcessInstanceId());
+        }
+        formTO.setUserId(user.getId());
+
         formTO.setTaskId(task.getId());
         formTO.setKey(formData.getFormKey());
 
         BeanUtils.copyProperties(task, formTO);
 
-        WorkflowFormPropertyTO propertyTO;
         for (FormProperty fProp : formData.getFormProperties()) {
-            propertyTO = new WorkflowFormPropertyTO();
+            WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
             BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
 
@@ -533,17 +538,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
-        TaskFormData formData;
         for (Task task : taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).list()) {
             try {
-                formData = formService.getTaskFormData(task.getId());
+                TaskFormData formData = formService.getTaskFormData(task.getId());
+                if (formData != null && !formData.getFormProperties().isEmpty()) {
+                    forms.add(getFormTO(task, formData));
+                }
             } catch (ActivitiException e) {
                 LOG.debug("No form found for task {}", task.getId(), e);
-                formData = null;
-            }
-
-            if (formData != null && !formData.getFormProperties().isEmpty()) {
-                forms.add(getFormTO(task, formData));
             }
         }
 

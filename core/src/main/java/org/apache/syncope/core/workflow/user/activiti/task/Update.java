@@ -28,7 +28,6 @@ public class Update extends AbstractActivitiDelegate {
 
     @Override
     protected void doExecute(final DelegateExecution execution) throws Exception {
-
         SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
         UserMod userMod = (UserMod) execution.getVariable(ActivitiUserWorkflowAdapter.USER_MOD);
 
