@@ -413,7 +413,7 @@ public class Schema extends BasePage {
         editUserVirtualSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editUserVirtualSchemaWin.setInitialWidth(WIN_WIDTH);
         editUserVirtualSchemaWin.setInitialHeight(WIN_HEIGHT);
-        editUserVirtualSchemaWin.setCookieName("modal-7");
+        editUserVirtualSchemaWin.setCookieName("modal-6");
 
         createRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleSchemaWin.setInitialWidth(WIN_WIDTH);
