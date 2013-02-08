@@ -77,7 +77,7 @@ public interface ReportService {
      * @return Returns a stream for content download
      */
     @GET
-    @Path("executions/{executionId}/dbDump")
+    @Path("executions/{executionId}/stream")
     Response exportExecutionResult(@PathParam("executionId") Long executionId,
             @QueryParam("format") ReportExecExportFormat fmt);
 
