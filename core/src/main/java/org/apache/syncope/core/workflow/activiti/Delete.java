@@ -34,7 +34,6 @@ public class Delete extends AbstractActivitiDelegate {
             user.checkToken("");
         }
 
-
         // remove SyncopeUser variable
         execution.removeVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
     }

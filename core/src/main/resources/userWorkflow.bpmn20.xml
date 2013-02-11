@@ -164,8 +164,13 @@ under the License.
 
     <userTask id="rejected" name="Rejected"/>
         
-    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="delete"/>
-
+    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="rejectedGw"/>
+    
+    <exclusiveGateway id="rejectedGw"/>
+    <sequenceFlow id="rejected2Delete" sourceRef="rejectedGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
+    
     <!-- Delete an user (created, active or suspended) -->
     <serviceTask id="delete" name="Delete" activiti:class="org.apache.syncope.core.workflow.activiti.Delete"/>
 
