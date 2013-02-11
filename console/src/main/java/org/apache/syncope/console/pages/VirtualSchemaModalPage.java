@@ -22,6 +22,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -61,6 +62,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         name.addRequiredLabel();
 
         name.setEnabled(createFlag);
+        
+        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
+                                                                 new PropertyModel<Boolean>(schema, "readonly"));
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
@@ -121,6 +125,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
+        schemaForm.add(readonly);
 
         schemaForm.add(submit);
         schemaForm.add(cancel);

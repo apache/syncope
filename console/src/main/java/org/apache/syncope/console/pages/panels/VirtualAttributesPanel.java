@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
@@ -64,21 +68,32 @@ public class VirtualAttributesPanel extends Panel {
 
         setOutputMarkupId(true);
 
-        final IModel<List<String>> virtualSchemaNames = new LoadableDetachableModel<List<String>>() {
+        final IModel<Map<String, VirtualSchemaTO>> schemas = new LoadableDetachableModel<Map<String, VirtualSchemaTO>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = -5489981430516587774L;
 
             @Override
-            protected List<String> load() {
+            protected Map<String, VirtualSchemaTO> load() {
+                final List<VirtualSchemaTO> schemaTOs;
                 if (entityTO instanceof RoleTO) {
-                    return schemaRestClient.getVirtualSchemaNames(AttributableType.ROLE);
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.ROLE);
                 } else if (entityTO instanceof UserTO) {
-                    return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.USER);
                 } else {
-                    return schemaRestClient.getVirtualSchemaNames(AttributableType.MEMBERSHIP);
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
                 }
+
+                final Map<String, VirtualSchemaTO> schemas = new HashMap<String, VirtualSchemaTO>();
+
+                for (VirtualSchemaTO schemaTO : schemaTOs) {
+                    schemas.put(schemaTO.getName(), schemaTO);
+                }
+
+                return schemas;
             }
         };
+
+        final List<String> virtualSchemaNames = new ArrayList<String>(schemas.getObject().keySet());
 
         final WebMarkupContainer attributesContainer = new WebMarkupContainer("virAttrContainer");
 
@@ -141,6 +156,30 @@ public class VirtualAttributesPanel extends Panel {
                     }
                 });
 
+                if (attributeTO.getValues().isEmpty()) {
+                    attributeTO.addValue("");
+                }
+
+                if (attributeTO.getSchema() != null) {
+                    VirtualSchemaTO attributeSchema = schemas.getObject().get(attributeTO.getSchema());
+                    if (attributeSchema != null) {
+                        attributeTO.setReadonly(attributeSchema.isReadonly());
+                    }
+                }
+
+                final AjaxTextFieldPanel panel;
+                final MultiValueSelectorPanel multiPanel;
+                if (templateMode) {
+                    panel = new AjaxTextFieldPanel("values", "values", new Model<String>());
+                    panel.setReadOnly(attributeTO.isReadonly());
+                    multiPanel = null;
+                } else {
+                    panel = new AjaxTextFieldPanel("panel", "values", new Model<String>(null));
+                    panel.setReadOnly(attributeTO.isReadonly());
+                    multiPanel = new MultiValueSelectorPanel("values", new PropertyModel<List<String>>(attributeTO,
+                            "values"), panel);
+                }
+
                 final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
                         new PropertyModel<String>(attributeTO, "schema"), virtualSchemaNames,
                         new ChoiceRenderer<String>() {
@@ -162,9 +201,30 @@ public class VirtualAttributesPanel extends Panel {
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
-                    protected void onUpdate(final AjaxRequestTarget art) {
+                    protected void onUpdate(final AjaxRequestTarget target) {
 
                         attributeTO.setSchema(schemaChoice.getModelObject());
+
+                        VirtualSchemaTO attributeSchema =
+                                schemas.getObject().get(attributeTO.getSchema());
+                        if (attributeSchema != null) {
+                            attributeTO.setReadonly(attributeSchema.isReadonly());
+                            panel.setReadOnly(attributeTO.isReadonly());
+                        }
+
+                        if (multiPanel != null) {
+                            multiPanel.getView().setEnabled(false);
+                        }
+                    }
+                });
+
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        target.add(attributesContainer);
                     }
                 });
 
@@ -172,15 +232,10 @@ public class VirtualAttributesPanel extends Panel {
                 schemaChoice.setRequired(true);
                 item.add(schemaChoice);
 
-                if (attributeTO.getValues().isEmpty()) {
-                    attributeTO.addValue("");
-                }
-
                 if (templateMode) {
-                    item.add(new AjaxTextFieldPanel("values", "values", new Model<String>()));
+                    item.add(panel);
                 } else {
-                    item.add(new MultiValueSelectorPanel("values", new PropertyModel<List<String>>(attributeTO,
-                            "values"), new AjaxTextFieldPanel("panel", "values", new Model<String>(null))));
+                    item.add(multiPanel);
                 }
             }
         };
