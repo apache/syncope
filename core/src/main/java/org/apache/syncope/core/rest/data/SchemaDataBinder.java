@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
-
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -45,7 +44,7 @@ public class SchemaDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    private static final String[] IGNORE_SCHEMA_PROPERTIES = { "derivedSchemas", "attributes" };
+    private static final String[] IGNORE_SCHEMA_PROPERTIES = {"derivedSchemas", "attributes"};
 
     @Autowired
     private SchemaDAO schemaDAO;

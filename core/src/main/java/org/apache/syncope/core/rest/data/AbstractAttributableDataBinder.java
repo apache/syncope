@@ -131,7 +131,7 @@ public abstract class AbstractAttributableDataBinder {
             } else if (schema.isReadonly()) {
                 schema = null;
 
-                LOG.debug("Ignoring virtual or readonly schema {}", schemaName);
+                LOG.debug("Ignoring readonly schema {}", schemaName);
             }
         }
 
@@ -157,6 +157,10 @@ public abstract class AbstractAttributableDataBinder {
 
             if (virtualSchema == null) {
                 LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
+            } else if (virtualSchema.isReadonly()) {
+                virtualSchema = null;
+
+                LOG.debug("Ignoring readonly virtual schema {}", virtualSchema);
             }
         }
 
@@ -274,6 +278,7 @@ public abstract class AbstractAttributableDataBinder {
         }
         for (AbstractVirSchema virSchema : virSchemaDAO.findAll(attrUtil.virSchemaClass())) {
             if (attributable.getVirtualAttribute(virSchema.getName()) == null
+                    && !virSchema.isReadonly()
                     && evaluateMandatoryCondition(attrUtil, attributable, virSchema.getName(),
                     attrUtil.virIntMappingType())) {
 
@@ -294,11 +299,11 @@ public abstract class AbstractAttributableDataBinder {
 
         // 1. virtual attributes to be removed
         for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
-            AbstractVirSchema virtualSchema = getVirtualSchema(vAttrToBeRemoved, attrUtil.virSchemaClass());
-            if (virtualSchema != null) {
-                AbstractVirAttr virAttr = attributable.getVirtualAttribute(virtualSchema.getName());
+            AbstractVirSchema virSchema = getVirtualSchema(vAttrToBeRemoved, attrUtil.virSchemaClass());
+            if (virSchema != null) {
+                AbstractVirAttr virAttr = attributable.getVirtualAttribute(virSchema.getName());
                 if (virAttr == null) {
-                    LOG.debug("No virtual attribute found for schema {}", virtualSchema.getName());
+                    LOG.debug("No virtual attribute found for schema {}", virSchema.getName());
                 } else {
                     attributable.removeVirtualAttribute(virAttr);
                     virAttrDAO.delete(virAttr);
@@ -306,7 +311,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 for (ExternalResource resource : resourceDAO.findAll()) {
                     for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
-                        if (virtualSchema.getName().equals(mapItem.getIntAttrName())
+                        if (virSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
                                 && attributable.getResources().contains(resource)) {
 
@@ -731,7 +736,7 @@ public abstract class AbstractAttributableDataBinder {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(virtualAttribute.getVirtualSchema().getName());
             attributeTO.setValues(virtualAttribute.getValues());
-            attributeTO.setReadonly(false);
+            attributeTO.setReadonly(virtualAttribute.getVirtualSchema().isReadonly());
 
             abstractAttributableTO.addVirtualAttribute(attributeTO);
         }

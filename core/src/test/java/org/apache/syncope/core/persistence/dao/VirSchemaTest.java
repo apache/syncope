@@ -21,9 +21,9 @@ package org.apache.syncope.core.persistence.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -53,12 +53,13 @@ public class VirSchemaTest extends AbstractDAOTest {
     public void save() {
         UVirSchema virtualAttributeSchema = new UVirSchema();
         virtualAttributeSchema.setName("virtual");
+        virtualAttributeSchema.setReadonly(true);
 
         virSchemaDAO.save(virtualAttributeSchema);
 
         UVirSchema actual = virSchemaDAO.find("virtual", UVirSchema.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(virtualAttributeSchema, actual);
+        assertTrue(actual.isReadonly());
     }
 
     @Test
