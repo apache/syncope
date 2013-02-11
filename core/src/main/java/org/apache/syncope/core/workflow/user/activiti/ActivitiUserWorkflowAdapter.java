@@ -269,7 +269,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         if (StringUtils.isBlank(user.getWorkflowId())) {
-            throw new WorkflowException(new NotFoundException("Empty workflow id"));
+            throw new WorkflowException(new NotFoundException("Empty workflow id for " + user));
         }
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
