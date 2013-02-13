@@ -48,7 +48,7 @@ public class RoleSelectModalPage extends BaseModalPage {
 
     private final NestedTree<DefaultMutableTreeNode> tree;
 
-    public RoleSelectModalPage(final PageReference pageRef, final ModalWindow window, final Class payloadClass) {
+    public RoleSelectModalPage(final PageReference pageRef, final ModalWindow window, final Class<?> payloadClass) {
         super();
 
         final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
@@ -101,6 +101,5 @@ public class RoleSelectModalPage extends BaseModalPage {
         DefaultMutableTreeNodeExpansion.get().expandAll();
 
         this.add(tree);
-
     }
 }

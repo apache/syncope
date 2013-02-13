@@ -38,8 +38,6 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     private transient InputStream inputStream;
 
-    private String location;
-
     private String contentType;
 
     private String filename;
@@ -48,7 +46,6 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
         Object entity = response.getEntity();
         if (response.getStatus() == HttpStatus.SC_OK && (entity instanceof InputStream)) {
             this.inputStream = (InputStream) entity;
-            this.location = response.getLocation().toString();
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);
             if (StringUtils.isNotBlank(contentDisposition)) {
@@ -83,7 +80,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     @Override
     public String locationAsString() {
-        return location;
+        return null;
     }
 
     @Override
