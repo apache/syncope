@@ -71,6 +71,20 @@ public final class MappingUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtil.class);
 
+    public static <T extends AbstractMappingItem> List<T> getMatchingMappingItems(
+            final Collection<T> items, final IntMappingType type) {
+
+        final List<T> result = new ArrayList<T>();
+
+        for (T mapItem : items) {
+            if (mapItem.getIntMappingType() == type) {
+                result.add(mapItem);
+            }
+        }
+
+        return result;
+    }
+
     public static <T extends AbstractMappingItem> List<T> getMatchingMappingItems(final Collection<T> items,
             final String intAttrName, final IntMappingType type) {
 

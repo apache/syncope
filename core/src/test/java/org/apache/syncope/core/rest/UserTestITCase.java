@@ -1958,6 +1958,71 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
     }
 
+    @Test
+    public void virAttrCache() {
+        UserTO userTO = getUniqueSampleTO("virattrcache@apache.org");
+        userTO.getVirtualAttributes().clear();
+
+        AttributeTO virAttrTO = new AttributeTO();
+        virAttrTO.setSchema("virtualdata");
+        virAttrTO.addValue("virattrcache");
+        userTO.addVirtualAttribute(virAttrTO);
+
+        userTO.getMemberships().clear();
+        userTO.getResources().clear();
+        userTO.addResource("resource-db-virattr");
+
+        // 1. create user
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+
+        // 2. check for virtual attribute value
+        actual = userService.read(actual.getId());
+        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        Exception exception = null;
+        try {
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+            String value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getId());
+            assertEquals("virattrcache", value);
+
+            jdbcTemplate.update("UPDATE testsync set USERNAME='virattrcache2' WHERE ID=?", userTO.getId());
+
+            value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+            assertEquals("virattrcache2", value);
+
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        // 2. check for cached attribute value
+        actual = userService.read(actual.getId());
+        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        AttributeMod virtualdata = new AttributeMod();
+        virtualdata.setSchema("virtualdata");
+        virtualdata.addValueToBeAdded("virtualupdated");
+
+        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+        userMod.addVirtualAttributeToBeUpdated(virtualdata);
+
+        // 3. update virtual attribute
+        actual = userService.update(actual.getId(), userMod);
+        assertNotNull(actual);
+
+        // 4. check for virtual attribute value
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+    }
+
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
         return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
     }

@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
@@ -47,6 +48,7 @@ import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.MappingUtil;
+import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -93,6 +95,12 @@ public class PropagationManager {
 
     @Autowired
     private PasswordGenerator passwordGenerator;
+
+    /**
+     * Virtual attribute cache.
+     */
+    @Autowired
+    private VirAttrCache virAttrCache;
 
     /**
      * Create the user on every associated resource.
@@ -445,6 +453,14 @@ public class PropagationManager {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
+                if ((attrUtil.getType() == AttributableType.USER
+                        && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
+                        || (attrUtil.getType() == AttributableType.ROLE
+                        && mapping.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+                    LOG.debug("Expire entry cache {}-{}", subject.getId(), mapping.getIntAttrName());
+                    virAttrCache.expire(attrUtil.getType(), subject.getId(), mapping.getIntAttrName());
+                }
+
                 Map.Entry<String, Attribute> preparedAttribute = MappingUtil.prepareAttribute(
                         resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
 

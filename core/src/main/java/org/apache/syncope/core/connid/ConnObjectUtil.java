@@ -60,6 +60,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
+import org.apache.syncope.core.util.VirAttrCache;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -105,6 +106,12 @@ public class ConnObjectUtil {
 
     @Autowired
     private PasswordGenerator pwdGen;
+
+    /**
+     * Virtual attribute cache.
+     */
+    @Autowired
+    private VirAttrCache virAttrCache;
 
     public ObjectClass fromAttributable(final AbstractAttributable attributable) {
         if (attributable == null
@@ -467,70 +474,106 @@ public class ConnObjectUtil {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnectorFactory connInstanceLoader = context.getBean(ConnectorFactory.class);
 
-        final Map<ConnectorObject, Set<AbstractMappingItem>> connObj2MapItems =
-                new HashMap<ConnectorObject, Set<AbstractMappingItem>>();
+        final IntMappingType type = owner instanceof SyncopeUser
+                ? IntMappingType.UserVirtualSchema : IntMappingType.RoleVirtualSchema;
 
-        for (ExternalResource resource : owner.getResources()) {
-            LOG.debug("Retrieve remote object from '{}'", resource.getName());
-            try {
-                final String accountId = attrUtil.getAccountIdItem(resource) == null
-                        ? null : MappingUtil.getAccountIdValue(owner, resource, attrUtil.getAccountIdItem(resource));
+        final Map<String, ConnectorObject> externalResources = new HashMap<String, ConnectorObject>();
 
-                LOG.debug("Search for object with accountId '{}'", accountId);
-
-                if (StringUtils.isNotBlank(accountId)) {
-                    // Retrieve attributes to get
-                    final Set<AbstractMappingItem> virMapItems = new HashSet<AbstractMappingItem>();
-                    final Set<String> extAttrNames = new HashSet<String>();
-
-                    for (AbstractMappingItem item : attrUtil.getMappingItems(resource)) {
-                        if ((AttributableType.USER == attrUtil.getType()
-                                && item.getIntMappingType() == IntMappingType.UserVirtualSchema)
-                                || (AttributableType.ROLE == attrUtil.getType()
-                                && item.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
-
-                            virMapItems.add(item);
-                            extAttrNames.add(item.getExtAttrName());
-                        }
-                    }
-
-                    // Search for remote object
-                    final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-                    oob.setAttributesToGet(extAttrNames);
-
-                    final SyncopeConnector connector = connInstanceLoader.getConnector(resource);
-                    final ConnectorObject connObj =
-                            connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
-                    if (connObj != null) {
-                        connObj2MapItems.put(connObj, virMapItems);
-                    }
-
-                    LOG.debug("Retrieved remote object {}", connObj);
-                }
-            } catch (Exception e) {
-                LOG.error("Unable to retrieve virtual attribute values on '{}'", resource.getName(), e);
-            }
-        }
-
+        // -----------------------
+        // Retrieve virtual attribute values
+        // -----------------------
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
-            LOG.debug("Provide value for virtual attribute '{}'", virAttr.getVirtualSchema().getName());
+            final String schemaName = virAttr.getVirtualSchema().getName();
+            final List<String> values = virAttrCache.get(attrUtil.getType(), owner.getId(), schemaName);
 
-            for (Map.Entry<ConnectorObject, Set<AbstractMappingItem>> entry : connObj2MapItems.entrySet()) {
-                for (AbstractMappingItem vAttrMapItem : entry.getValue()) {
-                    final String extAttrName = vAttrMapItem.getExtAttrName();
-                    final Attribute extAttr = entry.getKey().getAttributeByName(extAttrName);
-                    if (extAttr != null && extAttr.getValue() != null && !extAttr.getValue().isEmpty()) {
-                        for (Object obj : extAttr.getValue()) {
-                            if (obj != null) {
-                                virAttr.addValue(obj.toString());
+            LOG.debug("Retrieve values for virtual attribute {}", schemaName);
+
+            if (values == null) {
+                // non cached ...
+                LOG.debug("Need one or more remote connections");
+                for (ExternalResource resource : getTargetResource(virAttr, type, attrUtil)) {
+                    LOG.debug("Seach values into {}", resource.getName());
+                    try {
+                        final ConnectorObject connectorObject;
+
+                        if (externalResources.containsKey(resource.getName())) {
+                            connectorObject = externalResources.get(resource.getName());
+                        } else {
+                            LOG.debug("Perform connection to {}", resource.getName());
+                            final String accountId = attrUtil.getAccountIdItem(resource) == null
+                                    ? null
+                                    : MappingUtil.getAccountIdValue(
+                                    owner, resource, attrUtil.getAccountIdItem(resource));
+
+                            if (StringUtils.isBlank(accountId)) {
+                                throw new IllegalArgumentException("No AccountId found for " + resource.getName());
+                            }
+
+                            final Set<String> extAttrNames = new HashSet<String>();
+
+                            // retrieve all mapped virtual attribute values
+                            for (AbstractMappingItem item :
+                                    MappingUtil.getMatchingMappingItems(attrUtil.getMappingItems(resource), type)) {
+                                extAttrNames.add(item.getExtAttrName());
+                            }
+
+                            LOG.debug("External attribute ({}) names to get '{}'", type, extAttrNames);
+
+                            final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+                            oob.setAttributesToGet(extAttrNames);
+
+                            final SyncopeConnector connector = connInstanceLoader.getConnector(resource);
+                            connectorObject = connector.getObject(ObjectClass.ACCOUNT, new Uid(accountId), oob.build());
+                            externalResources.put(resource.getName(), connectorObject);
+                        }
+
+                        // ask for searched virtual attribute value
+                        final List<AbstractMappingItem> mappings = MappingUtil.getMatchingMappingItems(
+                                attrUtil.getMappingItems(resource), schemaName, type);
+
+                        // the same virtual attribute could be mapped with one or more external attribute 
+                        for (AbstractMappingItem mapping : mappings) {
+                            final Attribute attribute = connectorObject.getAttributeByName(mapping.getExtAttrName());
+
+                            if (attribute != null && attribute.getValue() != null) {
+                                for (Object obj : attribute.getValue()) {
+                                    if (obj != null) {
+                                        virAttr.addValue(obj.toString());
+                                    }
+                                }
                             }
                         }
+
+                        LOG.debug("Retrieved values {}", virAttr.getValues());
+                    } catch (Exception e) {
+                        LOG.error("Error reading connector object from {}", resource.getName(), e);
                     }
                 }
+
+                virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, virAttr.getValues());
+            } else {
+                // cached ...
+                LOG.debug("Values found in cache {}", values);
+                virAttr.setValues(values);
+            }
+        }
+        // -----------------------
+    }
+
+    private Set<ExternalResource> getTargetResource(
+            final AbstractVirAttr attr, final IntMappingType type, final AttributableUtil attrUtil) {
+
+        final Set<ExternalResource> resources = new HashSet<ExternalResource>();
+
+        for (ExternalResource res : attr.getOwner().getResources()) {
+            if (!MappingUtil.getMatchingMappingItems(
+                    attrUtil.getMappingItems(res), attr.getVirtualSchema().getName(), type).isEmpty()) {
+
+                resources.add(res);
             }
         }
 
-        LOG.debug("Virtual attribute evaluation ended");
+        return resources;
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
