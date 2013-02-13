@@ -61,6 +61,7 @@ import org.apache.syncope.core.sync.impl.SyncJob;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -789,11 +790,11 @@ public class TaskTestITCase extends AbstractTest {
         // Add a custom correlation rule
         // -----------------------------
         SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 9L);
-        ((SyncPolicySpec)policyTO.getSpecification()).setUserJavaRule(TestSyncRule.class.getName());
-        
+        ((SyncPolicySpec) policyTO.getSpecification()).setUserJavaRule(TestSyncRule.class.getName());
+
         policyService.update(PolicyType.SYNC, policyTO.getId(), policyTO);
         // -----------------------------
-        
+
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test Sync Rule");
         task.setResource("ws-target-resource-2");
@@ -834,6 +835,52 @@ public class TaskTestITCase extends AbstractTest {
         // asser for just one match
         assertTrue(executed.getExecutions().get(0).getMessage().substring(0, 55) + "...",
                 executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"));
+    }
+
+    @Test
+    public void issueSYNCOPE307() {
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("s307@apache.org");
+
+        AttributeTO csvuserid = new AttributeTO();
+        csvuserid.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuserid);
+
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-2");
+        userTO.addResource("resource-csv");
+
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        userTO = userService.read(userTO.getId());
+        assertEquals("virtualvalue", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        // Update sync task
+        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 12L);
+        assertNotNull(task);
+
+        //  add user template
+        UserTO template = new UserTO();
+        template.addResource("resource-db-virattr");
+
+        task.setUserTemplate(template);
+
+        taskService.update(task.getId(), task);
+        execSyncTask(task.getId(), 50, false);
+
+        // check for sync policy
+        userTO = userService.read(userTO.getId());
+        assertEquals("virtualvalue", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        try {
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+            String value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+            assertEquals("virtualvalue", value);
+        } catch (EmptyResultDataAccessException e) {
+            assertTrue(false);
+        }
     }
 
     /**

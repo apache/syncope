@@ -35,6 +35,7 @@ import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -523,22 +524,43 @@ public class PropagationManager {
 
         final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
+        boolean virAttrRerieved = false;
+
         for (ResourceOperation operation : ResourceOperation.values()) {
             for (String resourceName : propByRes.get(operation)) {
                 final ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {
                     LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
                 } else {
+                    AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
+
                     PropagationTask task = new PropagationTask();
                     task.setResource(resource);
                     task.setObjectClassName(connObjectUtil.fromAttributable(subject).getObjectClassValue());
-                    task.setSubjectType(AttributableUtil.getInstance(subject).getType());
+                    task.setSubjectType(attrUtil.getType());
                     if (!deleteOnResource) {
                         task.setSubjectId(subject.getId());
                     }
                     task.setPropagationOperation(operation);
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
+
+                    if (operation == ResourceOperation.CREATE && !virAttrRerieved
+                            && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+                        connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
+                        virAttrRerieved = true;
+
+                        // update vAttrsToBeUpdated as well
+                        for (AbstractVirAttr virAttr : subject.getVirtualAttributes()) {
+                            final String schema = virAttr.getVirtualSchema().getName();
+
+                            final AttributeMod attributeMod = new AttributeMod();
+                            attributeMod.setSchema(schema);
+                            attributeMod.setValuesToBeAdded(virAttr.getValues());
+
+                            vAttrsToBeUpdated.put(schema, attributeMod);
+                        }
+                    }
 
                     Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(subject, password,
                             vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
