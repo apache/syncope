@@ -118,7 +118,7 @@ public abstract class AbstractBaseBean implements Serializable {
             method = BeanUtils.findMethod(getClass(), "getName");
         }
 
-        StringBuffer result = new StringBuffer().append(getClass().getSimpleName()).append('[');
+        StringBuilder result = new StringBuilder().append(getClass().getSimpleName()).append('[');
         if (method != null) {
             try {
                 result.append(method.invoke(this));
