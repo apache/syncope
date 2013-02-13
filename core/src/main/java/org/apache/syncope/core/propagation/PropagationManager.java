@@ -36,6 +36,7 @@ import org.apache.syncope.core.init.ConnInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchemaMapping;
@@ -48,6 +49,7 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.ConnObjectUtil;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.SchemaMappingUtil;
 import org.apache.syncope.core.util.VirAttrCache;
@@ -133,6 +135,12 @@ public class PropagationManager {
      */
     @Autowired
     private JexlUtil jexlUtil;
+
+    /**
+     * Connector object util.
+     */
+    @Autowired
+    private ConnObjectUtil connObjectUtil;
 
     private SyncopeUser getSyncopeUser(final Long userId)
             throws NotFoundException {
@@ -467,12 +475,12 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
 
-        Map.Entry<String, Attribute> preparedAttribute;
         for (SchemaMapping mapping : resource.getMappings()) {
             LOG.debug("Processing schema {}", SchemaMappingUtil.getIntAttrName(mapping));
 
             try {
-                preparedAttribute = prepareAttribute(mapping, user, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                Map.Entry<String, Attribute> preparedAttribute =
+                        prepareAttribute(mapping, user, password, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
@@ -554,6 +562,8 @@ public class PropagationManager {
 
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
+        boolean virAttrRerieved = false;
+
         for (PropagationOperation operation : PropagationOperation.values()) {
             List<ExternalResource> resourcesByPriority = new ArrayList<ExternalResource>();
             for (ExternalResource resource : resourceDAO.findAllByPriority()) {
@@ -572,8 +582,25 @@ public class PropagationManager {
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(user, password,
-                        vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
+                if (operation == PropagationOperation.CREATE && !virAttrRerieved
+                        && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+                    connObjectUtil.retrieveVirAttrValues(user);
+                    virAttrRerieved = true;
+
+                    // update vAttrsToBeUpdated as well
+                    for (AbstractVirAttr virAttr : user.getVirtualAttributes()) {
+                        final String schema = virAttr.getVirtualSchema().getName();
+
+                        final AttributeMod attributeMod = new AttributeMod();
+                        attributeMod.setSchema(schema);
+                        attributeMod.setValuesToBeAdded(virAttr.getValues());
+
+                        vAttrsToBeUpdated.put(schema, attributeMod);
+                    }
+                }
+
+                final Map.Entry<String, Set<Attribute>> preparedAttrs =
+                        prepareAttributes(user, password, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                 task.setAccountId(preparedAttrs.getKey());
                 task.setAttributes(preparedAttrs.getValue());
 

@@ -46,6 +46,7 @@ import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.TraceLevel;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @FixMethodOrder(MethodSorters.JVM)
@@ -901,5 +902,76 @@ public class TaskTestITCase extends AbstractTest {
 
         assertNotNull(updateTO);
         assertNotNull(updateTO.getAttributeMap().get("firstname").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE307() {
+        UserTO userTO = UserTestITCase.getSampleTO("syncope307@apache.org");
+
+        AttributeTO csvuserid = new AttributeTO();
+        csvuserid.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuserid);
+
+        userTO.getResources().clear();
+        userTO.addResource("ws-target-resource-2");
+        userTO.addResource("resource-csv");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        assertEquals("virtualvalue", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        // Update sync task
+        SyncTaskTO task = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 11);
+        assertNotNull(task);
+
+        //  add user template
+        UserTO template = new UserTO();
+        template.addResource("resource-db-virattr");
+
+        task.setUserTemplate(template);
+
+        SyncTaskTO taskTO = restTemplate.postForObject(BASE_URL + "task/update/sync", task, SyncTaskTO.class);
+        assertEquals(task.getId(), taskTO.getId());
+
+        int preSyncSize = taskTO.getExecutions().size();
+
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null, TaskExecTO.class, taskTO.getId());
+
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        int i = 0;
+        int maxit = 50;
+
+        // wait for sync completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            taskTO = restTemplate.getForObject(BASE_URL + "task/read/{taskId}", SyncTaskTO.class, taskTO.getId());
+
+            assertNotNull(taskTO);
+            assertNotNull(taskTO.getExecutions());
+
+            i++;
+        } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
+
+        // check for sync policy
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, userTO.getId());
+        assertEquals("virtualvalue", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        try {
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+            String value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+            assertEquals("virtualvalue", value);
+        } catch (EmptyResultDataAccessException e) {
+            fail();
+        }
     }
 }
