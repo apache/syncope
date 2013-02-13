@@ -375,22 +375,24 @@ public class ConnObjectUtil {
                     }
 
 
-                    final Set<SchemaMapping> mappings = resource.getMappings(schemaName, type);
+                    if (connectorObject != null) {
+                        final Set<SchemaMapping> mappings = resource.getMappings(schemaName, type);
 
-                    // the same virtual attribute could be mapped with one or more external attribute 
-                    for (SchemaMapping mapping : mappings) {
-                        final Attribute attribute =
-                                connectorObject.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
+                        // the same virtual attribute could be mapped with one or more external attribute 
+                        for (SchemaMapping mapping : mappings) {
+                            final Attribute attribute =
+                                    connectorObject.getAttributeByName(SchemaMappingUtil.getExtAttrName(mapping));
 
-                        if (attribute != null && attribute.getValue() != null) {
-                            for (Object obj : attribute.getValue()) {
-                                if (obj != null) {
-                                    virAttr.addValue(obj.toString());
+                            if (attribute != null && attribute.getValue() != null) {
+                                for (Object obj : attribute.getValue()) {
+                                    if (obj != null) {
+                                        virAttr.addValue(obj.toString());
+                                    }
                                 }
                             }
                         }
                     }
-
+                    
                     LOG.debug("Retrieved values {}", virAttr.getValues());
                 } catch (Exception e) {
                     LOG.error("Error reading connector object from {}", resource.getName(), e);
