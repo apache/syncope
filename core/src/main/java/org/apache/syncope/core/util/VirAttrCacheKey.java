@@ -18,28 +18,36 @@
  */
 package org.apache.syncope.core.util;
 
+import org.apache.syncope.types.AttributableType;
+
 /**
  * Ccahe entry key.
  */
 public class VirAttrCacheKey {
 
     /**
-     * User ID.
+     * Subject type.
      */
-    private final transient Long userId;
+    private final AttributableType type;
+
+    /**
+     * Subject ID.
+     */
+    private final transient Long id;
 
     /**
      * Virtual attribute schema name.
      */
     private final transient String virAttrSchema;
 
-    public VirAttrCacheKey(final Long userId, final String virAttrSchema) {
-        this.userId = userId;
+    public VirAttrCacheKey(final AttributableType type, final Long id, final String virAttrSchema) {
+        this.type = type;
+        this.id = id;
         this.virAttrSchema = virAttrSchema;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
     public String getVirAttrSchema() {
@@ -48,16 +56,17 @@ public class VirAttrCacheKey {
 
     @Override
     public int hashCode() {
-        return 31 * (31
-                + (userId == null ? 0 : userId.hashCode()))
-                + virAttrSchema == null ? 0 : virAttrSchema.hashCode();
+        return 31 * (31 * (31
+                + (id == null ? 0 : id.hashCode()))
+                + (virAttrSchema == null ? 0 : virAttrSchema.hashCode()))
+                + (type == null ? 0 : type.hashCode());
     }
 
     @Override
     public boolean equals(Object o) {
         return o != null && o instanceof VirAttrCacheKey
-                && ((userId == null && ((VirAttrCacheKey) o).getUserId() == null)
-                || userId.equals(((VirAttrCacheKey) o).getUserId()))
+                && ((id == null && ((VirAttrCacheKey) o).getId() == null)
+                || id.equals(((VirAttrCacheKey) o).getId()))
                 && ((virAttrSchema == null && ((VirAttrCacheKey) o).getVirAttrSchema() == null)
                 || virAttrSchema.equals(((VirAttrCacheKey) o).getVirAttrSchema()));
     }

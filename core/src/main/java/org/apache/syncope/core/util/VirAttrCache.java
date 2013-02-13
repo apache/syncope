@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.syncope.types.AttributableType;
 
 /**
  * Virtual Attribute Value cache.
@@ -76,7 +77,7 @@ public final class VirAttrCache {
      * @param schemaName virtual attribute name.
      * @param values virtual attribute values.
      */
-    public void put(final Long userId, final String schemaName, final List<String> values) {
+    public void put(final AttributableType type, final Long userId, final String schemaName, final List<String> values) {
         synchronized (cache) {
             // this operations (retrieve cache space and put entry on) have to be thread safe.
 
@@ -84,7 +85,7 @@ public final class VirAttrCache {
                 freeCacheSpace(true);
             }
 
-            cache.put(new VirAttrCacheKey(userId, schemaName), new VirAttrCacheValue(values));
+            cache.put(new VirAttrCacheKey(type, userId, schemaName), new VirAttrCacheValue(values));
         }
     }
 
@@ -95,8 +96,8 @@ public final class VirAttrCache {
      * @param schemaName virtual attribute schema name.
      * @return cached values or null in case of virtual attribute not found.
      */
-    public List<String> get(final Long userId, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(userId, schemaName));
+    public List<String> get(final AttributableType type, final Long userId, final String schemaName) {
+        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, userId, schemaName));
         return isValidEntry(value) ? value.getValues() : null;
     }
 
@@ -106,8 +107,8 @@ public final class VirAttrCache {
      * @param userId user id.
      * @param schemaName virtual attribute schema name.
      */
-    public void expire(final Long userId, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(userId, schemaName));
+    public void expire(final AttributableType type, final Long userId, final String schemaName) {
+        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, userId, schemaName));
         if (isValidEntry(value)) {
             synchronized (cache) {
                 value.forceExpiring();

@@ -396,8 +396,8 @@ public class PropagationManager {
                 break;
 
             case UserVirtualSchema:
-                LOG.error("AAAAAAAAAAAAAAAAAAA Expire entry cache {}-{}", user.getId(), mapping.getIntAttrName());
-                virAttrCache.expire(user.getId(), mapping.getIntAttrName());
+                LOG.debug("Expire entry cache {}-{}", user.getId(), mapping.getIntAttrName());
+                virAttrCache.expire(AttributableType.USER, user.getId(), mapping.getIntAttrName());
             // no break ....
             default:
                 schemaType = SchemaType.String;

@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -313,6 +314,8 @@ public class ConnObjectUtil {
         final IntMappingType type = owner instanceof SyncopeUser
                 ? IntMappingType.UserVirtualSchema : IntMappingType.RoleVirtualSchema;
 
+        final AttributableType ownerType = owner instanceof SyncopeUser ? AttributableType.USER : AttributableType.ROLE;
+
         final Map<String, ConnectorObject> externalResources = new HashMap<String, ConnectorObject>();
 
         // -----------------------
@@ -320,7 +323,7 @@ public class ConnObjectUtil {
         // -----------------------
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
             final String schemaName = virAttr.getVirtualSchema().getName();
-            final List<String> values = virAttrCache.get(owner.getId(), schemaName);
+            final List<String> values = virAttrCache.get(ownerType, owner.getId(), schemaName);
 
             LOG.debug("Retrieve values for virtual attribute {}", schemaName);
 
@@ -379,7 +382,7 @@ public class ConnObjectUtil {
                     }
                 }
 
-                virAttrCache.put(owner.getId(), schemaName, virAttr.getValues());
+                virAttrCache.put(ownerType, owner.getId(), schemaName, virAttr.getValues());
             } else {
                 // cached ...
                 LOG.debug("Values found in cache {}", values);
