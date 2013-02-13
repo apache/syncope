@@ -50,6 +50,7 @@ import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.SchemaMappingUtil;
+import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.IntMappingType;
@@ -120,6 +121,12 @@ public class PropagationManager {
      */
     @Autowired
     private TaskDAO taskDAO;
+
+    /**
+     * Virtual attribute cache.
+     */
+    @Autowired
+    private VirAttrCache virAttrCache;
 
     /**
      * JEXL engine for evaluating connector's account link.
@@ -388,6 +395,10 @@ public class PropagationManager {
                 schemaType = schema == null ? SchemaType.String : schema.getType();
                 break;
 
+            case UserVirtualSchema:
+                LOG.error("AAAAAAAAAAAAAAAAAAA Expire entry cache {}-{}", user.getId(), mapping.getIntAttrName());
+                virAttrCache.expire(user.getId(), mapping.getIntAttrName());
+            // no break ....
             default:
                 schemaType = SchemaType.String;
         }

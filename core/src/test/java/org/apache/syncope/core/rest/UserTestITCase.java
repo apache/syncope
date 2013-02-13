@@ -2216,4 +2216,69 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("ws-target-resource-3");
         restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
     }
+
+    @Test
+    public void virAttrCache() {
+        UserTO userTO = getSampleTO("virattrcache@apache.org");
+        userTO.getVirtualAttributes().clear();
+
+        AttributeTO virAttrTO = new AttributeTO();
+        virAttrTO.setSchema("virtualdata");
+        virAttrTO.addValue("virattrcache");
+        userTO.addVirtualAttribute(virAttrTO);
+
+        userTO.getMemberships().clear();
+        userTO.getResources().clear();
+        userTO.addResource("resource-db-virattr");
+
+        // 1. create user
+        UserTO actual = restTemplate.postForObject(BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(actual);
+
+        // 2. check for virtual attribute value
+        actual = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, actual.getId());
+        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        Exception exception = null;
+        try {
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+            String value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getId());
+            assertEquals("virattrcache", value);
+
+            jdbcTemplate.update("UPDATE testsync set USERNAME='virattrcache2' WHERE ID=?", userTO.getId());
+
+            value = jdbcTemplate.queryForObject(
+                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+            assertEquals("virattrcache2", value);
+
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        // 2. check for cached attribute value
+        actual = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, actual.getId());
+        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(actual.getId());
+
+        AttributeMod virtualdata = new AttributeMod();
+        virtualdata.setSchema("virtualdata");
+        virtualdata.addValueToBeAdded("virtualupdated");
+
+        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+        userMod.addVirtualAttributeToBeUpdated(virtualdata);
+
+        // 3. update virtual attribute
+        actual = restTemplate.postForObject(BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(actual);
+
+        // 4. check for virtual attribute value
+        actual = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, actual.getId());
+        assertNotNull(actual);
+        assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+    }
 }

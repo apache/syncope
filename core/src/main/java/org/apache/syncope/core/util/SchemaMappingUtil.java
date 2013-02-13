@@ -57,6 +57,18 @@ public class SchemaMappingUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(SchemaMappingUtil.class);
 
+    public static Set<String> getExtAttrNames(final Collection<SchemaMapping> mappings, final IntMappingType type) {
+        final Set<String> res = new HashSet<String>();
+
+        for (SchemaMapping mapping : mappings) {
+            if (mapping.getIntMappingType() == type) {
+                res.add(getExtAttrName(mapping));
+            }
+        }
+        
+        return res;
+    }
+
     public static String getExtAttrName(final SchemaMapping mapping) {
         final String name;
 
