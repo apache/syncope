@@ -556,13 +556,27 @@ public class PropagationManager {
 
         LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
 
+        if (!propByRes.get(PropagationOperation.CREATE).isEmpty()
+                && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+            connObjectUtil.retrieveVirAttrValues(user);
+
+            // update vAttrsToBeUpdated as well
+            for (AbstractVirAttr virAttr : user.getVirtualAttributes()) {
+                final String schema = virAttr.getVirtualSchema().getName();
+
+                final AttributeMod attributeMod = new AttributeMod();
+                attributeMod.setSchema(schema);
+                attributeMod.setValuesToBeAdded(virAttr.getValues());
+
+                vAttrsToBeUpdated.put(schema, attributeMod);
+            }
+        }
+
         // Avoid duplicates - see javadoc
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-
-        boolean virAttrRerieved = false;
 
         for (PropagationOperation operation : PropagationOperation.values()) {
             List<ExternalResource> resourcesByPriority = new ArrayList<ExternalResource>();
@@ -581,23 +595,6 @@ public class PropagationManager {
                 task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
-
-                if (operation == PropagationOperation.CREATE && !virAttrRerieved
-                        && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
-                    connObjectUtil.retrieveVirAttrValues(user);
-                    virAttrRerieved = true;
-
-                    // update vAttrsToBeUpdated as well
-                    for (AbstractVirAttr virAttr : user.getVirtualAttributes()) {
-                        final String schema = virAttr.getVirtualSchema().getName();
-
-                        final AttributeMod attributeMod = new AttributeMod();
-                        attributeMod.setSchema(schema);
-                        attributeMod.setValuesToBeAdded(virAttr.getValues());
-
-                        vAttrsToBeUpdated.put(schema, attributeMod);
-                    }
-                }
 
                 final Map.Entry<String, Set<Attribute>> preparedAttrs =
                         prepareAttributes(user, password, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
