@@ -518,13 +518,29 @@ public class PropagationManager {
 
         LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
 
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
+
+        if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
+                && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+            connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
+
+            // update vAttrsToBeUpdated as well
+            for (AbstractVirAttr virAttr : subject.getVirtualAttributes()) {
+                final String schema = virAttr.getVirtualSchema().getName();
+
+                final AttributeMod attributeMod = new AttributeMod();
+                attributeMod.setSchema(schema);
+                attributeMod.setValuesToBeAdded(virAttr.getValues());
+
+                vAttrsToBeUpdated.put(schema, attributeMod);
+            }
+        }
+
         // Avoid duplicates - see javadoc
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
         final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-
-        boolean virAttrRerieved = false;
 
         for (ResourceOperation operation : ResourceOperation.values()) {
             for (String resourceName : propByRes.get(operation)) {
@@ -532,8 +548,6 @@ public class PropagationManager {
                 if (resource == null) {
                     LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
                 } else {
-                    AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
-
                     PropagationTask task = new PropagationTask();
                     task.setResource(resource);
                     task.setObjectClassName(connObjectUtil.fromAttributable(subject).getObjectClassValue());
@@ -544,23 +558,6 @@ public class PropagationManager {
                     task.setPropagationOperation(operation);
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
-
-                    if (operation == ResourceOperation.CREATE && !virAttrRerieved
-                            && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
-                        connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
-                        virAttrRerieved = true;
-
-                        // update vAttrsToBeUpdated as well
-                        for (AbstractVirAttr virAttr : subject.getVirtualAttributes()) {
-                            final String schema = virAttr.getVirtualSchema().getName();
-
-                            final AttributeMod attributeMod = new AttributeMod();
-                            attributeMod.setSchema(schema);
-                            attributeMod.setValuesToBeAdded(virAttr.getValues());
-
-                            vAttrsToBeUpdated.put(schema, attributeMod);
-                        }
-                    }
 
                     Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(subject, password,
                             vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
