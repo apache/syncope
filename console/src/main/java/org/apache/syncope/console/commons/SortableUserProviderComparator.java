@@ -36,6 +36,7 @@ public class SortableUserProviderComparator extends SortableDataProviderComparat
         inlineProps.add("id");
         inlineProps.add("status");
         inlineProps.add("token");
+        inlineProps.add("username");
     }
 
     public SortableUserProviderComparator(final SortableDataProvider<UserTO> provider) {
