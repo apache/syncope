@@ -38,6 +38,7 @@ public class SortableAttributableProviderComparator extends SortableDataProvider
         inlineProps.add("id");
         inlineProps.add("status");
         inlineProps.add("token");
+        inlineProps.add("username");
     }
 
     public SortableAttributableProviderComparator(final SortableDataProvider<AbstractAttributableTO, String> provider) {
