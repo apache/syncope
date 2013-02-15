@@ -33,7 +33,6 @@ import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowFormTO;
 
 @Path("users")
 public interface UserService {
@@ -56,10 +55,6 @@ public interface UserService {
     UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token,
             PropagationRequestTO propagationRequestTO);
 
-    @POST
-    @Path("workflow/tasks/{taskId}/claim")
-    WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
-
     @GET
     @Path("count")
     int count();
@@ -71,19 +66,7 @@ public interface UserService {
     @Path("{userId}")
     UserTO delete(@PathParam("userId") Long userId);
 
-    @POST
-    @Path("workflow/tasks/{taskId}/execute")
-    UserTO executeWorkflow(@PathParam("taskId") String taskId, UserTO userTO);
-
-    @GET
-    @Path("{userId}/workflow/form")
-    WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
-
-    @GET
-    @Path("workflow/form")
-    List<WorkflowFormTO> getForms();
-
-    @GET
+   @GET
     List<UserTO> list();
 
     @GET
@@ -130,10 +113,6 @@ public interface UserService {
     int searchCount(NodeCond searchCondition) throws InvalidSearchConditionException;
 
     @POST
-    @Path("workflow/form")
-    UserTO submitForm(WorkflowFormTO form);
-
-    @POST
     @Path("{userId}/status/suspend")
     UserTO suspend(@PathParam("userId") long userId);
 
@@ -156,4 +135,4 @@ public interface UserService {
     @GET
     Boolean verifyPassword(@QueryParam("username") String username, @QueryParam("pwd") String password);
 
-}
+ }

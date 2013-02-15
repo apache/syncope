@@ -20,7 +20,6 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-import javax.ws.rs.POST;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
@@ -30,7 +29,6 @@ import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,11 +63,6 @@ public class UserServiceImpl implements UserService, ContextAware {
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId) {
-        return userController.claimForm(taskId);
-    }
-
-    @Override
     public int count() {
         return userController.countInternal();
     }
@@ -87,22 +80,6 @@ public class UserServiceImpl implements UserService, ContextAware {
     @Override
     public UserTO delete(final Long userId) {
         return userController.delete(userId);
-    }
-
-    @Override
-    @POST
-    public UserTO executeWorkflow(final String taskId, final UserTO userTO) {
-        return userController.executeWorkflow(userTO, taskId);
-    }
-
-    @Override
-    public WorkflowFormTO getFormForUser(final Long userId) {
-        return userController.getFormForUser(userId);
-    }
-
-    @Override
-    public List<WorkflowFormTO> getForms() {
-        return userController.getForms();
     }
 
     @Override
@@ -163,11 +140,6 @@ public class UserServiceImpl implements UserService, ContextAware {
     @Override
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return userController.searchCountInternal(searchCondition);
-    }
-
-    @Override
-    public UserTO submitForm(final WorkflowFormTO form) {
-        return userController.submitForm(form);
     }
 
     @Override

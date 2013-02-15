@@ -80,6 +80,7 @@ under the License.
       <ref bean="userRequestServiceImpl"/>
       <ref bean="userServiceImpl"/>
       <ref bean="workflowServiceImpl"/>
+      <ref bean="userWorkflowServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
       <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>

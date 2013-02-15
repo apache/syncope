@@ -30,7 +30,6 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowFormTO;
 import org.springframework.web.client.RestTemplate;
 
 public class UserServiceProxy extends SpringServiceProxy implements UserService {
@@ -91,34 +90,6 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     @Override
     public UserTO delete(final Long userId) {
         return getRestTemplate().getForObject(baseUrl + "user/delete/{userId}", UserTO.class, userId);
-    }
-
-    @Override
-    public UserTO executeWorkflow(final String taskId, final UserTO userTO) {
-        return null;
-    }
-
-    @Override
-    public List<WorkflowFormTO> getForms() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "user/workflow/form/list",
-                WorkflowFormTO[].class));
-    }
-
-    @Override
-    public WorkflowFormTO getFormForUser(final Long userId) {
-        return getRestTemplate().getForObject(baseUrl + "user/workflow/form/{userId}", WorkflowFormTO.class,
-                userId);
-    }
-
-    @Override
-    public WorkflowFormTO claimForm(final String taskId) {
-        return getRestTemplate().getForObject(baseUrl + "user/workflow/form/claim/{taskId}",
-                WorkflowFormTO.class, taskId);
-    }
-
-    @Override
-    public UserTO submitForm(final WorkflowFormTO form) {
-        return getRestTemplate().postForObject(baseUrl + "user/workflow/form/submit", form, UserTO.class);
     }
 
     @Override

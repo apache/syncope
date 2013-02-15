@@ -38,6 +38,7 @@ import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -555,7 +556,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
-        WorkflowFormTO form = userService.getFormForUser(userTO.getId());
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
 
         assertNotNull(form);
         assertNotNull(form.getUserId());
@@ -564,7 +565,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
-        UserService userService2 = setupCredentials(userService, UserService.class, "user1", ADMIN_PWD);
+        UserWorkflowService userService2 = setupCredentials(userWorkflowService, UserWorkflowService.class, "user1", ADMIN_PWD);
 
         try {
             userService2.claimForm(form.getTaskId());
@@ -574,7 +575,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // 4. claim task from user4, in role 7
-        UserService userService3 = setupCredentials(userService, UserService.class, "user4", ADMIN_PWD);
+        UserWorkflowService userService3 = setupCredentials(userWorkflowService, UserWorkflowService.class, "user4", ADMIN_PWD);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -627,17 +628,17 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(exception);
 
         // 2. request if there is any pending form for user just created
-        List<WorkflowFormTO> forms = userService.getForms();
+        List<WorkflowFormTO> forms = userWorkflowService.getForms();
         assertNotNull(forms);
         assertEquals(1, forms.size());
 
-        WorkflowFormTO form = userService.getFormForUser(userTO.getId());
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
         // 4. claim task (from admin)
-        form = userService.claimForm(form.getTaskId());
+        form = userWorkflowService.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNotNull(form.getOwner());
@@ -646,7 +647,7 @@ public class UserTestITCase extends AbstractTest {
         Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
         props.get("approve").setValue(Boolean.TRUE.toString());
         form.setProperties(props.values());
-        userTO = userService.submitForm(form);
+        userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());

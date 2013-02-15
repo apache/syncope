@@ -51,6 +51,7 @@ import org.apache.syncope.client.services.proxy.SpringServiceProxy;
 import org.apache.syncope.client.services.proxy.TaskServiceProxy;
 import org.apache.syncope.client.services.proxy.UserRequestServiceProxy;
 import org.apache.syncope.client.services.proxy.UserServiceProxy;
+import org.apache.syncope.client.services.proxy.UserWorkflowServiceProxy;
 import org.apache.syncope.client.services.proxy.WorkflowServiceProxy;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.services.ConfigurationService;
@@ -66,6 +67,7 @@ import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
@@ -131,6 +133,8 @@ public abstract class AbstractTest {
     private String contentType;
 
     protected UserService userService;
+    
+    protected UserWorkflowService userWorkflowService;
 
     protected RoleService roleService;
 
@@ -191,6 +195,7 @@ public abstract class AbstractTest {
     protected void resetRestTemplate() {
         setupRestTemplate(ADMIN_UID, ADMIN_PWD);
         userService = new UserServiceProxy(BASE_URL, restTemplate);
+        userWorkflowService = new UserWorkflowServiceProxy(BASE_URL, restTemplate);
         roleService = new RoleServiceProxy(BASE_URL, restTemplate);
         resourceService = new ResourceServiceProxy(BASE_URL, restTemplate);
         entitlementService = new EntitlementServiceProxy(BASE_URL, restTemplate);
@@ -210,6 +215,7 @@ public abstract class AbstractTest {
     // BEGIN CXF Initialization
     public void setupCXFServices() throws Exception {
         userService = createServiceInstance(UserService.class);
+        userWorkflowService = createServiceInstance(UserWorkflowService.class);
         roleService = createServiceInstance(RoleService.class);
         resourceService = createServiceInstance(ResourceService.class);
         entitlementService = createServiceInstance(EntitlementService.class);

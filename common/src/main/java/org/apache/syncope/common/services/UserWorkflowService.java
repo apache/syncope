@@ -16,31 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.rest;
+package org.apache.syncope.common.services;
 
 import java.util.List;
 
-import org.apache.syncope.common.services.UserWorkflowService;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.springframework.stereotype.Component;
 
-/**
- * Console client for invoking Rest Todo services.
- */
-@Component
-public class ApprovalRestClient extends BaseRestClient {
+@Path("userworkflow")
+public interface UserWorkflowService {
+	@POST
+	@Path("forms")
+	UserTO submitForm(WorkflowFormTO form);
 
-    private static final long serialVersionUID = -4785231164900813921L;
+	@GET
+	@Path("forms")
+	List<WorkflowFormTO> getForms();
 
-    public List<WorkflowFormTO> getForms() {
-        return getService(UserWorkflowService.class).getForms();
-    }
+	@GET
+	@Path("forms/{userId}")
+	WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
+	
+	@POST
+	@Path("tasks/{taskId}/claim")
+	WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
 
-    public WorkflowFormTO claimForm(final String taskId) {
-        return getService(UserWorkflowService.class).claimForm(taskId);
-    }
-
-    public void submitForm(final WorkflowFormTO form) {
-        getService(UserWorkflowService.class).submitForm(form);
-    }
+	@POST
+	@Path("tasks/{taskId}/execute")
+	UserTO executeWorkflow(@PathParam("taskId") String taskId, UserTO userTO);
 }
