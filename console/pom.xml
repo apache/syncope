@@ -365,7 +365,7 @@ under the License.
                   org.apache.http*;version="[4,5)",
                   org.apache.syncope.client*;version=${project.version},
                   org.apache.syncope.common*;version=${project.version},
-                  org.apache.wicket*;version="[1.5,2)",
+                  org.apache.wicket*;version="[6,7)",
                   org.codehaus.jackson*;version="[1.9,2)",
                   org.springframework*;version="[3,4)",
                   ch.qos.logback.classic;resolution:=optional,
