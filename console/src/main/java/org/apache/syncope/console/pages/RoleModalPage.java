@@ -23,19 +23,19 @@ import java.util.List;
 import org.apache.syncope.client.mod.RoleMod;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.util.AttributableOperations;
+import org.apache.syncope.console.pages.panels.RoleAttributesPanel;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.console.pages.panels.RoleAttributesPanel;
-import org.apache.syncope.console.rest.RoleRestClient;
 
 /**
  * Modal window with Role form.
@@ -49,7 +49,7 @@ public class RoleModalPage extends BaseModalPage {
 
     private RoleTO originalRoleTO;
 
-    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
+    public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO) {
 
         super();
 
@@ -66,21 +66,20 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
+        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO, pageRef);
 
         form.add(attributesPanel);
 
-        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
                 try {
-                    final List<String> entitlementList = new ArrayList<String>(attributesPanel.getEntitlementsPalette()
-                            .getModelCollection());
+                    final List<String> entitlementList =
+                            new ArrayList<String>(attributesPanel.getEntitlementsPalette().getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
                     if (createFlag) {
@@ -93,7 +92,7 @@ public class RoleModalPage extends BaseModalPage {
                             roleRestClient.updateRole(roleMod);
                         }
                     }
-                    ((Roles) callerPageRef.getPage()).setModalResult(true);
+                    ((Roles) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (Exception e) {
@@ -104,15 +103,14 @@ public class RoleModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
                 createFlag
-                        ? "create"
-                        : "update"));
+                ? "create"
+                : "update"));
 
         form.add(submit);
 

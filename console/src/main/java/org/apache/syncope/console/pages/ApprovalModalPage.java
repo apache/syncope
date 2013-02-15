@@ -70,7 +70,7 @@ public class ApprovalModalPage extends BaseModalPage {
 
     private final ModalWindow editUserWin;
 
-    public ApprovalModalPage(final PageReference callerPageRef, final ModalWindow window, final WorkflowFormTO formTO) {
+    public ApprovalModalPage(final PageReference pageRef, final ModalWindow window, final WorkflowFormTO formTO) {
         super();
 
         IModel<List<WorkflowFormPropertyTO>> formProps = new LoadableDetachableModel<List<WorkflowFormPropertyTO>>() {
@@ -224,7 +224,7 @@ public class ApprovalModalPage extends BaseModalPage {
                 try {
                     restClient.submitForm(formTO);
 
-                    ((Todo) callerPageRef.getPage()).setModalResult(true);
+                    ((Todo) pageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());

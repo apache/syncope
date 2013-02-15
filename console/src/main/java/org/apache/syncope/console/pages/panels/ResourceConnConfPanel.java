@@ -27,6 +27,7 @@ import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel.DetailsModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
@@ -35,12 +36,12 @@ import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel.MultiValueSelectorEvent;
 import org.apache.syncope.types.ConnConfProperty;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -93,7 +94,8 @@ public class ResourceConnConfPanel extends Panel {
 
     private ResourceTO resourceTO;
 
-    public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
+    public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag,
+            final PageReference pageRef) {
 
         super(id);
         setOutputMarkupId(true);
@@ -107,13 +109,12 @@ public class ResourceConnConfPanel extends Panel {
         connConfPropContainer.setOutputMarkupId(true);
         add(connConfPropContainer);
 
-        check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
+        check = new ClearIndicatingAjaxLink("check", new ResourceModel("check"), pageRef) {
 
             private static final long serialVersionUID = -4199438518229098169L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 if (connRestClient.check(resourceTO)) {
                     info(getString("success_connection"));
                 } else {

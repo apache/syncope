@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.rest.EntitlementRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.rest.EntitlementRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 public class RoleAttributesPanel extends Panel {
 
@@ -39,8 +40,7 @@ public class RoleAttributesPanel extends Panel {
 
     final Palette<String> entitlementsPalette;
 
-    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
-
+    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO, final PageReference pageRef) {
         super(id);
 
         //--------------------------------
@@ -61,7 +61,7 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
+        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO, pageRef));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
                 "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
@@ -72,7 +72,7 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false, pageRef));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));

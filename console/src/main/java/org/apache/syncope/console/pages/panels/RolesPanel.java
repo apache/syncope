@@ -20,10 +20,17 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.syncope.client.to.MembershipTO;
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.RoleTreeBuilder;
+import org.apache.syncope.console.pages.MembershipModalPage;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -36,13 +43,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.MembershipTO;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.RoleTreeBuilder;
-import org.apache.syncope.console.pages.MembershipModalPage;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
 public class RolesPanel extends Panel {
 
@@ -56,7 +56,6 @@ public class RolesPanel extends Panel {
     private UserTO userTO = null;
 
     public RolesPanel(final String id, final UserTO userTO, final boolean templateMode) {
-
         super(id);
         this.userTO = userTO;
 
@@ -128,12 +127,12 @@ public class RolesPanel extends Panel {
                 item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
                 item.add(new Label("roleName", new Model(membershipTO.getRoleName())));
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", getPage().getPageReference()) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    protected void onClickInternal(final AjaxRequestTarget target) {
                         membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -150,17 +149,17 @@ public class RolesPanel extends Panel {
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
+                AjaxLink delete = new IndicatingDeleteOnConfirmAjaxLink("deleteLink", getPage().getPageReference()) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    protected void onClickInternal(final AjaxRequestTarget target) {
                         userTO.removeMembership(membershipTO);
                         target.add(membershipsContainer);
                     }
                 };
-                item.add(deleteLink);
+                item.add(delete);
             }
         };
 

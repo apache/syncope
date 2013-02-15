@@ -18,12 +18,19 @@
  */
 package org.apache.syncope.console.wicket.markup.html.tree;
 
+import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.RoleModalPage;
+import org.apache.syncope.console.pages.Roles;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -31,13 +38,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.RoleModalPage;
-import org.apache.syncope.console.pages.Roles;
-import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
 /**
  * Panel for a node element form.
@@ -60,7 +60,7 @@ public class TreeActionLinkPanel extends Panel {
     private Fragment fragment;
 
     public TreeActionLinkPanel(final String id, final long idRole, final IModel inputModel, final ModalWindow window,
-            final PageReference callerPageRef) {
+            final PageReference pageRef) {
 
         super(id);
 
@@ -68,12 +68,12 @@ public class TreeActionLinkPanel extends Panel {
                 ? "fakerootFrag"
                 : "roleFrag", this);
 
-        AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
+        AjaxLink createRoleLink = new ClearIndicatingAjaxLink("createRoleLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
@@ -82,7 +82,7 @@ public class TreeActionLinkPanel extends Panel {
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
-                        RoleModalPage form = new RoleModalPage(callerPageRef, window, roleTO);
+                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
                         return form;
                     }
                 });
@@ -97,10 +97,10 @@ public class TreeActionLinkPanel extends Panel {
         fragment.add(createRoleLink);
 
         if (idRole != 0) {
-            AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
+            AjaxLink updateRoleLink = new ClearIndicatingAjaxLink("updateRoleLink", pageRef) {
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                protected void onClickInternal(final AjaxRequestTarget target) {
                     window.setPageCreator(new ModalWindow.PageCreator() {
 
                         private static final long serialVersionUID = -7834632442532690940L;
@@ -108,7 +108,7 @@ public class TreeActionLinkPanel extends Panel {
                         @Override
                         public Page createPage() {
                             RoleTO roleTO = restClient.readRole(idRole);
-                            RoleModalPage form = new RoleModalPage(callerPageRef, window, roleTO);
+                            RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
                             return form;
                         }
                     });
@@ -122,10 +122,10 @@ public class TreeActionLinkPanel extends Panel {
 
             fragment.add(updateRoleLink);
 
-            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink") {
+            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink", pageRef) {
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                protected void onClickInternal(final AjaxRequestTarget target) {
                     try {
                         restClient.deleteRole(idRole);
                         getSession().info(getString("operation_succeded"));

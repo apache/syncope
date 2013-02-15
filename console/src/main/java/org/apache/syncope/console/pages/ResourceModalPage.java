@@ -26,11 +26,11 @@ import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -74,13 +74,13 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource mapping panle
         //--------------------------------
-        form.add(new ResourceMappingPanel("mapping", resourceTO));
+        form.add(new ResourceMappingPanel("mapping", resourceTO, pageref));
         //--------------------------------
 
         //--------------------------------
         // Resource mapping panle
         //--------------------------------
-        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag));
+        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag, pageref));
         //--------------------------------
 
         //--------------------------------
@@ -89,13 +89,13 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(new ResourceSecurityPanel("security", resourceTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit", "submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit", "submit"),
+                pageref) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
 
                 int accountIdCount = 0;
@@ -131,7 +131,6 @@ public class ResourceModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };

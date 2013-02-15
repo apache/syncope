@@ -24,13 +24,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.client.to.ReportTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
+import org.apache.syncope.console.rest.LoggerRestClient;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.types.AuditElements.Category;
+import org.apache.syncope.types.AuditElements.Result;
+import org.apache.syncope.types.AuditLoggerName;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -60,20 +74,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.StringUtils;
-import org.apache.syncope.client.to.ReportTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
-import org.apache.syncope.console.rest.LoggerRestClient;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.types.AuditElements.Category;
-import org.apache.syncope.types.AuditElements.Result;
-import org.apache.syncope.types.AuditLoggerName;
 
 /**
  * Auditing and Reporting.
@@ -149,7 +149,7 @@ public class Reports extends BasePage {
 
                 final ReportTO reportTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -185,7 +185,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get("feedback"));
+                        target.add(feedbackPanel);
                         target.add(reportContainer);
                     }
                 }, ActionLink.ActionType.EXECUTE, "Reports", "execute");
@@ -203,7 +203,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
                         target.add(reportContainer);
-                        target.add(getPage().get("feedback"));
+                        target.add(feedbackPanel);
                     }
                 }, ActionLink.ActionType.DELETE, "Reports", "delete");
 
@@ -244,12 +244,12 @@ public class Reports extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;

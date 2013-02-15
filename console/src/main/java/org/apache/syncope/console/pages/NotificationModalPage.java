@@ -29,6 +29,7 @@ import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -41,7 +42,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -68,7 +68,7 @@ class NotificationModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    public NotificationModalPage(final PageReference callPageRef, final ModalWindow window,
+    public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
 
         Form form = new Form("form", new CompoundPropertyModel(notificationTO));
@@ -97,7 +97,7 @@ class NotificationModalPage extends BaseModalPage {
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
 
-        final UserSearchPanel about = new UserSearchPanel("about", notificationTO.getAbout());
+        final UserSearchPanel about = new UserSearchPanel("about", notificationTO.getAbout(), pageRef);
         form.add(about);
 
         final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType = new AjaxDropDownChoicePanel<IntMappingType>(
@@ -159,7 +159,8 @@ class NotificationModalPage extends BaseModalPage {
 
         final UserSearchPanel recipients =
                 new UserSearchPanel("recipients",
-                notificationTO.getRecipients() == null ? null : notificationTO.getRecipients());
+                notificationTO.getRecipients() == null ? null : notificationTO.getRecipients(),
+                pageRef);
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
@@ -195,12 +196,12 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        AjaxButton submit = new ClearIndicatingAjaxButton("apply", new Model<String>(getString("submit")), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 notificationTO.setAbout(about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
 
@@ -212,7 +213,7 @@ class NotificationModalPage extends BaseModalPage {
                     }
                     info(getString("operation_succeded"));
 
-                    Configuration callerPage = (Configuration) callPageRef.getPage();
+                    Configuration callerPage = (Configuration) pageRef.getPage();
                     callerPage.setModalResult(true);
 
                     window.close(target);

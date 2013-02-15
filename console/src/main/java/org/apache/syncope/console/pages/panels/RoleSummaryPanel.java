@@ -45,15 +45,14 @@ public class RoleSummaryPanel extends Panel {
 
     private TreeActionLinkPanel actionLink;
 
-    private PageReference callerPageRef;
+    private PageReference pageRef;
 
     private ModalWindow window;
 
-    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef) {
-
+    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference pageRef) {
         super(id);
 
-        this.callerPageRef = callerPageRef;
+        this.pageRef = pageRef;
         this.window = window;
 
         fragment = new Fragment("rolePanel",
@@ -65,10 +64,10 @@ public class RoleSummaryPanel extends Panel {
         if (this.selectedNode != null) {
             if (this.selectedNode.getId() == 0) {
                 actionLink = new TreeActionLinkPanel("actionLink", this.selectedNode.getId(),
-                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
+                        new CompoundPropertyModel(this.selectedNode), window, pageRef);
                 fragment.add(actionLink);
             } else {
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, pageRef);
                 roleTabPanel.setOutputMarkupId(true);
                 fragment.add(roleTabPanel);
             }
@@ -93,12 +92,12 @@ public class RoleSummaryPanel extends Panel {
 
             if (update.getSelectedNodeId() == 0) {
                 actionLink = new TreeActionLinkPanel("actionLink", update.getSelectedNodeId(),
-                        new CompoundPropertyModel(this.selectedNode), window, callerPageRef);
+                        new CompoundPropertyModel(this.selectedNode), window, pageRef);
                 actionLink.setOutputMarkupId(true);
                 fragment.addOrReplace(actionLink);
             } else {
                 this.selectedNode = restClient.readRole(update.getSelectedNodeId());
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, callerPageRef);
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", this.selectedNode, window, pageRef);
                 roleTabPanel.setOutputMarkupId(true);
                 fragment.addOrReplace(roleTabPanel);
             }
@@ -115,7 +114,6 @@ public class RoleSummaryPanel extends Panel {
         private Long selectedNodeId;
 
         public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
-
             this.target = target;
             this.selectedNodeId = selectedNodeId;
         }

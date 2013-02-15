@@ -29,6 +29,8 @@ import org.apache.syncope.client.to.ConnBundleTO;
 import org.apache.syncope.client.to.ConnInstanceTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
@@ -45,8 +47,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -95,7 +95,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private List<ConnConfProperty> properties;
 
-    public ConnectorModalPage(final PageReference callerPageRef, final ModalWindow window,
+    public ConnectorModalPage(final PageReference pageRef, final ModalWindow window,
             final ConnInstanceTO connectorTO) {
 
         super();
@@ -314,12 +314,12 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(propertiesContainer);
         connectorPropForm.add(view);
 
-        final AjaxLink check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
+        final AjaxLink check = new ClearIndicatingAjaxLink("check", new ResourceModel("check"), pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 connectorTO.setBundleName(bundleTO.getBundleName());
                 connectorTO.setVersion(bundleTO.getVersion());
 
@@ -335,12 +335,12 @@ public class ConnectorModalPage extends BaseModalPage {
 
         connectorPropForm.add(check);
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new Model(getString("submit")), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
                 final ConnInstanceTO conn = (ConnInstanceTO) form.getDefaultModelObject();
 
                 conn.setBundleName(bundleTO.getBundleName());
@@ -357,12 +357,12 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(conn);
                     }
 
-                    ((Resources) callerPageRef.getPage()).setModalResult(true);
+                    ((Resources) pageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
-                    ((Resources) callerPageRef.getPage()).setModalResult(false);
+                    ((Resources) pageRef.getPage()).setModalResult(false);
                     LOG.error("While creating or updating connector {}", conn, e);
                 }
             }

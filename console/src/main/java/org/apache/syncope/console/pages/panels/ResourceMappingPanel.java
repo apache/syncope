@@ -24,13 +24,28 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.to.ConnInstanceTO;
+import org.apache.syncope.client.to.ResourceTO;
+import org.apache.syncope.client.to.SchemaMappingTO;
+import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
+import org.apache.syncope.console.rest.ConnectorRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.ConnConfProperty;
+import org.apache.syncope.types.IntMappingType;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -42,20 +57,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.ConnInstanceTO;
-import org.apache.syncope.client.to.ResourceTO;
-import org.apache.syncope.client.to.SchemaMappingTO;
-import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
-import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.ConnConfProperty;
-import org.apache.syncope.types.IntMappingType;
 
 /**
  * Resource mapping panel.
@@ -140,7 +141,7 @@ public class ResourceMappingPanel extends Panel {
      * @param panelid panel id.
      * @param resourceTO external resource.
      */
-    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO) {
+    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final PageReference pageRef) {
 
         super(panelid);
         setOutputMarkupId(true);
@@ -353,19 +354,14 @@ public class ResourceMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addMappingBtn = new IndicatingAjaxButton("addUserSchemaMappingBtn", new ResourceModel("add")) {
+        addMappingBtn = new ClearIndicatingAjaxButton("addUserSchemaMappingBtn", new ResourceModel("add"), pageRef) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 resourceTO.getMappings().add(new SchemaMappingTO());
                 target.add(mappingContainer);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                // ignore errors
             }
         };
 

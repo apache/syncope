@@ -72,8 +72,8 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 3910027601200382958L;
 
-    private static final String[] EXCLUDE_PROPERTIES = new String[] { "serialVersionUID", "class", "name",
-            "reportletClassName" };
+    private static final String[] EXCLUDE_PROPERTIES = new String[]{"serialVersionUID", "class", "name",
+        "reportletClassName"};
 
     @SpringBean
     private ReportRestClient restClient;
@@ -83,16 +83,19 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private ReportletConf reportletConf;
 
-    final AjaxTextFieldPanel name;
+    private final PageReference pageRef;
+
+    private final AjaxTextFieldPanel name;
 
     private WebMarkupContainer propertiesContainer;
 
     private ListView<String> propView;
 
     public ReportletConfModalPage(final ReportletConf reportletConf, final ModalWindow window,
-            final PageReference callerPageRef) {
+            final PageReference pageRef) {
 
         this.reportletConf = reportletConf;
+        this.pageRef = pageRef;
 
         Form form = new Form("form");
         add(form);
@@ -111,30 +114,30 @@ public class ReportletConfModalPage extends BaseModalPage {
         final AjaxDropDownChoicePanel<String> reportletClass = new AjaxDropDownChoicePanel<String>("reportletClass",
                 "reportletClass", new IModel<String>() {
 
-                    private static final long serialVersionUID = -2316468110411802130L;
+            private static final long serialVersionUID = -2316468110411802130L;
 
-                    @Override
-                    public String getObject() {
-                        return ReportletConfModalPage.this.reportletConf == null
-                                ? null
-                                : ReportletConfModalPage.this.reportletConf.getClass().getName();
-                    }
+            @Override
+            public String getObject() {
+                return ReportletConfModalPage.this.reportletConf == null
+                        ? null
+                        : ReportletConfModalPage.this.reportletConf.getClass().getName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        try {
-                            Class reportletClass = Class.forName(object);
-                            ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
-                            propertiesContainer.replace(buildPropView());
-                        } catch (Exception e) {
-                            LOG.error("Cannot find or initialize {}", object, e);
-                        }
-                    }
+            @Override
+            public void setObject(final String object) {
+                try {
+                    Class reportletClass = Class.forName(object);
+                    ReportletConfModalPage.this.reportletConf = (ReportletConf) reportletClass.newInstance();
+                    propertiesContainer.replace(buildPropView());
+                } catch (Exception e) {
+                    LOG.error("Cannot find or initialize {}", object, e);
+                }
+            }
 
-                    @Override
-                    public void detach() {
-                    }
-                });
+            @Override
+            public void detach() {
+            }
+        });
         reportletClass.setStyleShet("long_dynamicsize");
         reportletClass.setChoices(restClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
@@ -176,7 +179,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     }
                 }
 
-                ((ReportModalPage) callerPageRef.getPage())
+                ((ReportModalPage) pageRef.getPage())
                         .setModalReportletConf(ReportletConfModalPage.this.reportletConf);
                 window.close(target);
             }
@@ -248,8 +251,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 try {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
-                    LOG.error("Could not find field {} in class {}", new Object[] { fieldName,
-                            ReportletConfModalPage.this.reportletConf.getClass(), e });
+                    LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
+                                ReportletConfModalPage.this.reportletConf.getClass(), e});
                 }
                 if (field == null) {
                     return;
@@ -261,7 +264,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 Panel panel;
 
                 if (NodeCond.class.equals(field.getType())) {
-                    panel = new UserSearchPanel("value", (NodeCond) wrapper.getPropertyValue(fieldName), false);
+                    panel = new UserSearchPanel("value", (NodeCond) wrapper.getPropertyValue(fieldName),
+                            false, pageRef);
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model(fieldName));
                 } else if (List.class.equals(field.getType())) {
@@ -271,7 +275,8 @@ public class ReportletConfModalPage extends BaseModalPage {
 
                     Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        listItemType =
+                                (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     }
 
                     FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);

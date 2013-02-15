@@ -22,12 +22,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
+import org.apache.syncope.client.to.AccountPolicyTO;
+import org.apache.syncope.client.to.PasswordPolicyTO;
+import org.apache.syncope.client.to.PolicyTO;
+import org.apache.syncope.client.to.SyncPolicyTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.BasePage;
+import org.apache.syncope.console.pages.PolicyModalPage;
+import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.types.PolicyType;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -50,20 +66,6 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AccountPolicyTO;
-import org.apache.syncope.client.to.PasswordPolicyTO;
-import org.apache.syncope.client.to.PolicyTO;
-import org.apache.syncope.client.to.SyncPolicyTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.PolicyModalPage;
-import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.types.PolicyType;
 
 public class PoliciesPanel extends Panel {
 
@@ -93,7 +95,7 @@ public class PoliciesPanel extends Panel {
 
     private PolicyType policyType;
 
-    public PoliciesPanel(final String id, final PolicyType policyType) {
+    public PoliciesPanel(final String id, final PageReference pageRef, final PolicyType policyType) {
         super(id);
 
         this.policyType = policyType;
@@ -146,7 +148,7 @@ public class PoliciesPanel extends Panel {
 
                 final PolicyTO accountPolicyTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -161,8 +163,7 @@ public class PoliciesPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                final PolicyModalPage page = new PolicyModalPage(mwindow, accountPolicyTO);
-                                return page;
+                                return new PolicyModalPage(mwindow, accountPolicyTO, pageRef);
                             }
                         });
 
@@ -184,8 +185,8 @@ public class PoliciesPanel extends Panel {
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
-                            LOG.error("While deleting resource {}({})", new Object[] { accountPolicyTO.getId(),
-                                    accountPolicyTO.getDescription() }, e);
+                            LOG.error("While deleting resource {}({})", new Object[]{accountPolicyTO.getId(),
+                                        accountPolicyTO.getDescription()}, e);
                         }
 
                         target.add(container);
@@ -202,21 +203,19 @@ public class PoliciesPanel extends Panel {
 
         container.add(table);
 
-        final IndicatingAjaxLink createButton = new IndicatingAjaxLink("createLink") {
+        final AjaxLink createButton = new ClearIndicatingAjaxLink("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 mwindow.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        final PolicyModalPage page = new PolicyModalPage(mwindow, getPolicyTOInstance(policyType));
-                        return page;
+                        return new PolicyModalPage(mwindow, getPolicyTOInstance(policyType), pageRef);
                     }
                 });
 

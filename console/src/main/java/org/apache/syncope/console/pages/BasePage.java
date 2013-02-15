@@ -23,6 +23,7 @@ import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -30,7 +31,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -151,13 +151,15 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
             editProfileFrag = new Fragment("editProfile", "editProfileFrag", this);
 
-            final AjaxLink editProfileLink = new IndicatingAjaxLink("link") {
+            final AjaxLink editProfileLink = new ClearIndicatingAjaxLink("link", getPageReference()) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                protected void onClickInternal(final AjaxRequestTarget target) {
                     editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
 
                         @Override
                         public Page createPage() {

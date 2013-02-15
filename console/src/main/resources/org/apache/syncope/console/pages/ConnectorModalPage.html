@@ -1,131 +1,135 @@
 <!--
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- under the License.
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
 -->
 <wicket:head>
-    <style type="text/css">
-        table.palette td.header {
-            background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-                repeat-x scroll 50% 50% #E6E6E6 !important;
-        }
+  <style type="text/css">
+    table.palette td.header {
+      background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+        repeat-x scroll 50% 50% #E6E6E6 !important;
+    }
 
-        table.palette td.header {
-            background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-                repeat-x scroll 50% 50% #E6E6E6 !important;
-        }
-    </style>
+    table.palette td.header {
+      background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+        repeat-x scroll 50% 50% #E6E6E6 !important;
+    }
+  </style>
 </wicket:head>
 <wicket:extend>
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+  <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
 <div style="margin:10px">
-    <form wicket:id="form">
-        <div id="tabs">
-            <ul>
-                <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-                <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-                <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-            </ul>
-            <div id="tabs-1">
-                <div id="formtable">
-                    <div class="tablerow">
-                        <div class="tablecolumn_label short_dynamicsize">
-                            <label for="displayName"><wicket:message key="displayName"/></label>
-                        </div>
-                        <div class="tablecolumn_field short_dynamicsize">
-                            <span wicket:id="displayName">[displayName]</span>
-                        </div>
-                    </div>
-
-                    <div class="tablerow">
-                        <div class="tablecolumn_label short_dynamicsize">
-                            <label for="bundleName"><wicket:message key="bundleName"/></label>
-                        </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
-                            <span wicket:id="bundle">[bundle]</span>
-                        </div>
-                    </div>
-
-                    <div class="tablerow">
-                        <div class="tablecolumn_label short_dynamicsize">
-                            <label for="name"><wicket:message key="name"/></label>
-                        </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
-                            <span wicket:id="connectorName">[name]</span>
-                        </div>
-                    </div>
-
-                    <div class="tablerow">
-                        <div class="tablecolumn_label short_dynamicsize">
-                            <label for="version"><wicket:message key="version"/></label>
-                        </div>
-                        <div class="tablecolumn_field short_dynamicsize">
-                            <span wicket:id="version">[version]</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- inside the container in order to re-process javascript -->
-                <script type="text/javascript">
-                    $(function() {
-                        $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
-                    });
-                </script>
+  <form wicket:id="form">
+    <div id="tabs">
+      <ul>
+        <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+        <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+        <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+      </ul>
+      <div id="tabs-1">
+        <div id="formtable">
+          <div class="tablerow">
+            <div class="tablecolumn_label short_dynamicsize">
+              <label for="displayName"><wicket:message key="displayName"/></label>
             </div>
-            <div id="tabs-2">
-                <div id="formtable">
-                    <span wicket:id="container">
-                        <div style="border-bottom: 10px">
-                            <div style="width: 40px; text-align: center; font-size: 7px">
-                                <label for="version"><wicket:message key="overridable"/></label>
-                            </div>
-                        </div>
-                        <form wicket:id="connectorPropForm">
-                            <div class="tablerow" wicket:id="connectorProperties">
+            <div class="tablecolumn_field short_dynamicsize">
+              <span wicket:id="displayName">[displayName]</span>
+            </div>
+          </div>
 
-                                <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
-                                    <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
-                                </div>
-                                <div class="tablecolumn_label short_dynamicsize">
-                                    <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
-                                </div>
-                                <div class="tablecolumn_field short_dynamicsize">
-                                    <span wicket:id="panel">[panel]</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="position: absolute; top: 10px; right:55px;"><wicket:message key="check"/></label>
-                                <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
-                                    <img src="img/ping.png" width="30" height="30" /></a>
-                            </div>
-                        </form>
-                        <!-- inside the container in order to re-process javascript -->
-                        <script type="text/javascript">
-                            $(function() {
-                                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
-                            });
-                        </script>
-                    </span>
-                </div>
+          <div class="tablerow">
+            <div class="tablecolumn_label short_dynamicsize">
+              <label for="bundleName"><wicket:message key="bundleName"/></label>
             </div>
-            <div id="tabs-3">
-                <span wicket:id="capabilitiesPalette"/>
+            <div class="tablecolumn_field medium_dynamicsize">
+              <span wicket:id="bundle">[bundle]</span>
             </div>
+          </div>
+
+          <div class="tablerow">
+            <div class="tablecolumn_label short_dynamicsize">
+              <label for="name"><wicket:message key="name"/></label>
+            </div>
+            <div class="tablecolumn_field medium_dynamicsize">
+              <span wicket:id="connectorName">[name]</span>
+            </div>
+          </div>
+
+          <div class="tablerow">
+            <div class="tablecolumn_label short_dynamicsize">
+              <label for="version"><wicket:message key="version"/></label>
+            </div>
+            <div class="tablecolumn_field short_dynamicsize">
+              <span wicket:id="version">[version]</span>
+            </div>
+          </div>
         </div>
+        <!-- inside the container in order to re-process javascript -->
+        <script type="text/javascript">
+          $(function() {
+            $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
+          });
+        </script>
+      </div>
+      <div id="tabs-2">
+        <div id="formtable">
+          <span wicket:id="container">
+            <div style="border-bottom: 10px">
+              <div style="width: 40px; text-align: center; font-size: 7px">
+                <label for="version"><wicket:message key="overridable"/></label>
+              </div>
+            </div>
+            <form wicket:id="connectorPropForm">
+              <div class="tablerow" wicket:id="connectorProperties">
 
-        <div style="margin: 20px 10px 0">
-            <input type="submit"
-                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="apply"/>
+                <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
+                  <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                </div>
+                <div class="tablecolumn_label short_dynamicsize">
+                  <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                </div>
+                <div class="tablecolumn_field short_dynamicsize">
+                  <span wicket:id="panel">[panel]</span>
+                </div>
+              </div>
+              <div>
+                <label style="position: absolute; top: 10px; right:55px;"><wicket:message key="check"/></label>
+                <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
+                  <img src="img/ping.png" width="30" height="30" /></a>
+              </div>
+            </form>
+            <!-- inside the container in order to re-process javascript -->
+            <script type="text/javascript">
+              $(function() {
+                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
+              });
+            </script>
+          </span>
         </div>
-    </form>
+      </div>
+      <div id="tabs-3">
+        <span wicket:id="capabilitiesPalette"/>
+      </div>
+    </div>
+
+    <div style="margin: 20px 10px 0">
+      <input type="submit"
+             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+             wicket:id="apply"/>
+    </div>
+  </form>
 </div>
 </wicket:extend>

@@ -20,18 +20,18 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class StatusModalPage extends BaseModalPage {
 
@@ -40,7 +40,7 @@ public class StatusModalPage extends BaseModalPage {
     @SpringBean
     private UserRestClient userRestClient;
 
-    public StatusModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
+    public StatusModalPage(final PageReference pageRef, final ModalWindow window, final UserTO userTO) {
 
         super();
 
@@ -52,18 +52,18 @@ public class StatusModalPage extends BaseModalPage {
         final StatusPanel statusPanel = new StatusPanel("statuspanel", userTO, statuses);
         form.add(statusPanel);
 
-        final AjaxButton disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
+        final AjaxButton disable = new ClearIndicatingAjaxButton("disable",
+                new ResourceModel("disable", "Disable"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
                 try {
                     userRestClient.suspend(userTO.getId(), statuses);
 
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -76,22 +76,21 @@ public class StatusModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
 
-        final AjaxButton enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
+        final AjaxButton enable = new ClearIndicatingAjaxButton("enable",
+                new ResourceModel("enable", "Enable"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     userRestClient.reactivate(userTO.getId(), statuses);
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (Exception e) {
@@ -103,7 +102,6 @@ public class StatusModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };

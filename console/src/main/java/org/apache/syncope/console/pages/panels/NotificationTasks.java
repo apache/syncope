@@ -20,7 +20,20 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.to.NotificationTaskTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.NotificationTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -39,19 +52,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.NotificationTaskTO;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.NotificationTaskModalPage;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 public class NotificationTasks extends Panel {
 
@@ -82,7 +82,7 @@ public class NotificationTasks extends Panel {
 
     private AjaxFallbackDefaultDataTable<TaskTO> table;
 
-    public NotificationTasks(String id) {
+    public NotificationTasks(final String id, final PageReference pageRef) {
         super(id);
 
         container = new WebMarkupContainer("container");
@@ -117,7 +117,7 @@ public class NotificationTasks extends Panel {
 
                 final TaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -223,7 +223,8 @@ public class NotificationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
+                        NotificationTaskTO.class),
                         container,
                         table == null ? 0 : table.getCurrentPage());
 

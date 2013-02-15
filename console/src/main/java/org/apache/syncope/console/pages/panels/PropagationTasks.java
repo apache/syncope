@@ -20,8 +20,22 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.syncope.client.to.PropagationTaskTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.BasePage;
+import org.apache.syncope.console.pages.PropagationTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -40,19 +54,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.PropagationTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.PropagationTaskModalPage;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 /**
  * Tasks page.
@@ -86,7 +87,7 @@ public class PropagationTasks extends Panel {
 
     private AjaxFallbackDefaultDataTable<TaskTO> table;
 
-    public PropagationTasks(final String id) {
+    public PropagationTasks(final String id, final PageReference pageRef) {
         super(id);
 
         container = new WebMarkupContainer("container");
@@ -109,9 +110,9 @@ public class PropagationTasks extends Panel {
 
         columns.add(new PropertyColumn(new ResourceModel("propagationOperation"), "propagationOperation",
                 "propagationOperation"));
-        
+
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
-        
+
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
 
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
@@ -131,7 +132,7 @@ public class PropagationTasks extends Panel {
 
                 final TaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 

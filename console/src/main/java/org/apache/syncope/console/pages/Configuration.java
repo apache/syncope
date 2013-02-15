@@ -40,6 +40,7 @@ import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.types.PolicyType;
@@ -48,8 +49,8 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -135,9 +136,9 @@ public class Configuration extends BasePage {
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
         setupSyncopeConf();
 
-        add(new PoliciesPanel("passwordPoliciesPanel", PolicyType.PASSWORD));
-        add(new PoliciesPanel("accountPoliciesPanel", PolicyType.ACCOUNT));
-        add(new PoliciesPanel("syncPoliciesPanel", PolicyType.SYNC));
+        add(new PoliciesPanel("passwordPoliciesPanel", getPageReference(), PolicyType.PASSWORD));
+        add(new PoliciesPanel("accountPoliciesPanel", getPageReference(), PolicyType.ACCOUNT));
+        add(new PoliciesPanel("syncPoliciesPanel", getPageReference(), PolicyType.SYNC));
 
         add(createNotificationWin = new ModalWindow("createNotificationWin"));
         add(editNotificationWin = new ModalWindow("editNotificationWin"));
@@ -154,28 +155,27 @@ public class Configuration extends BasePage {
                 new PropertyModel<WorkflowDefinitionTO>(workflowDef, "xmlDefinition"));
         wfForm.add(workflowDefArea);
 
-        IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        AjaxButton submit =
+                new ClearIndicatingAjaxButton("apply", new Model<String>(getString("submit")), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            wfRestClient.updateDefinition(workflowDef);
+                            info(getString("operation_succeded"));
+                        } catch (SyncopeClientCompositeErrorException scee) {
+                            error(getString("error") + ":" + scee.getMessage());
+                        }
+                        target.add(feedbackPanel);
+                    }
 
-                try {
-                    wfRestClient.updateDefinition(workflowDef);
-                    info(getString("operation_succeded"));
-                } catch (SyncopeClientCompositeErrorException scee) {
-                    error(getString("error") + ":" + scee.getMessage());
-                }
-                target.add(feedbackPanel);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
-                target.add(feedbackPanel);
-            }
-        };
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        target.add(feedbackPanel);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
                 "workflowDefUpdate"));
@@ -233,7 +233,7 @@ public class Configuration extends BasePage {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -402,7 +402,7 @@ public class Configuration extends BasePage {
 
                 final NotificationTO notificationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 

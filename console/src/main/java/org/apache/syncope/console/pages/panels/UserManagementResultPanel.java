@@ -25,6 +25,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.client.to.AttributeTO;
+import org.apache.syncope.client.to.ConnObjectTO;
+import org.apache.syncope.client.to.PropagationTO;
+import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -43,13 +50,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.to.AttributeTO;
-import org.apache.syncope.client.to.ConnObjectTO;
-import org.apache.syncope.client.to.PropagationTO;
-import org.apache.syncope.client.to.UserTO;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.types.PropagationTaskExecStatus;
 
 /**
  * User management result panel.
@@ -198,7 +198,7 @@ public class UserManagementResultPanel extends Panel {
         final ConnObjectTO after = propTO.getAfter();
 
         // sorted in reversed presentation order
-        final List<String> head = Arrays.asList(new String[] { "__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__" });
+        final List<String> head = Arrays.asList(new String[]{"__PASSWORD__", "__ENABLE__", "__UID__", "__NAME__"});
 
         final Map<String, AttributeTO> beforeAttrMap;
 

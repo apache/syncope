@@ -1,157 +1,161 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- under the License.
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta http-equiv="Content-Style-Type" content="text/css"/>
-        <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
 
-        <title>Apache Syncope</title>
+    <title>Apache Syncope</title>
 
-        <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="shortcut icon" href="img/favicon.ico" />
 
-        <style type="text/css">
-            div.wicket-modal div.w_caption {
-                height: 16px !important;
-            }
-        </style>
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.button.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.core.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.dialog.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.resizable.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
+    <style type="text/css">
+      div.wicket-modal div.w_caption {
+        height: 16px !important;
+      }
+    </style>
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.button.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.core.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.dialog.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.resizable.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
 
-        <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
-        <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" />
 
-        <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
-        <script type="text/javascript" src="scripts/jquery-ui-1.8.5.custom.min.js"></script>
-        
-        <script type="text/javascript" src="scripts/singlecolumnpalette.js"></script>
+    <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-ui-1.8.5.custom.min.js"></script>
 
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $("#tabs").tabs();
-                $("#user").tabs();
-                $("#role").tabs();
-                $("#membership").tabs();
-            });
+    <script type="text/javascript" src="scripts/singlecolumnpalette.js"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#tabs").tabs();
+        $("#user").tabs();
+        $("#role").tabs();
+        $("#membership").tabs();
+      });
                 
-            /** Add rollover effect to tables supporting Ajax events (live)*/
-            $('table.ui-widget.ui-widget-content.table-hover tbody tr')
-            .live('mouseover mouseout', function(event) {
-                if (event.type == 'mouseover') {
-                    $(this).addClass('selectedRow');
-                } else if (event.type == 'mouseout') {
-                    $(this).removeClass('selectedRow');
-                }
-            });
+      /** Add rollover effect to tables supporting Ajax events (live)*/
+      $('table.ui-widget.ui-widget-content.table-hover tbody tr')
+      .live('mouseover mouseout', function(event) {
+        if (event.type == 'mouseover') {
+          $(this).addClass('selectedRow');
+        } else if (event.type == 'mouseout') {
+          $(this).removeClass('selectedRow');
+        }
+      });
             
-            $(document).ready(function() {
-                $("#editProfile").hide();
-                $("#username").click(function() {
-                    $("#editProfile").toggle();
-                });
-            });
-        </script>
-    </head>
-    <body>
-        <div id="navigationPane">
-            <ul>
-                <li style="position: absolute; left: 0px; top: 0px;width:240px;">
-                    <img src="img/logo.png" alt="logo"/><br />
-                    <span style="position: absolute; left: 20px;color:#aaaaaa;">
-                        <span style="font-size:8px;" wicket:id="consoleVersion"/>
-                        <br/>
-                        <span style="font-size:8px;" wicket:id="coreVersion"/>
-                        &nbsp;
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="todo"><img wicket:id="todoIcon" alt="TODO" width="80" height="80" /><br />
-                            <wicket:message key="todo"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="schema"><img wicket:id="schemaIcon" alt="Schema" width="80" height="80" /><br />
-                            <wicket:message key="schema"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="users"><img wicket:id="usersIcon" alt="Users" width="80" height="80" /><br />
-                            <wicket:message key="users"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="roles"><img wicket:id="rolesIcon" alt="Roles" width="80" height="80" /><br />
-                            <wicket:message key="roles"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="resources"><img wicket:id="resourcesIcon" alt="Resources" width="80" height="80" /><br />
-                            <wicket:message key="resources"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="tasks"><img wicket:id="tasksIcon" alt="Tasks" width="80" height="80" /><br />
-                            <wicket:message key="tasks"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="reports"><img wicket:id="reportsIcon" alt="Reports" width="80" height="80" /><br />
-                            <wicket:message key="reports"/>
-                        </a>
-                    </span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="configuration"><img wicket:id="configurationIcon" alt="Configuration" width="80" height="80" /><br />
-                            <wicket:message key="configuration"/>
-                        </a></span>
-                </li>
-                <li style="float:right;width:auto;text-align:right;">
-                    <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /></a>
-                    <div>
-                        <span id="username" wicket:id="username" style="padding-right: 9px;cursor: pointer;"/>
-                        <span wicket:id="editProfile"/>
+      $(document).ready(function() {
+        $("#editProfile").hide();
+        $("#username").click(function() {
+          $("#editProfile").toggle();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="navigationPane">
+      <ul>
+        <li style="position: absolute; left: 0px; top: 0px;width:240px;">
+          <img src="img/logo.png" alt="logo"/><br />
+          <span style="position: absolute; left: 20px;color:#aaaaaa;">
+            <span style="font-size:8px;" wicket:id="consoleVersion"/>
+            <br/>
+            <span style="font-size:8px;" wicket:id="coreVersion"/>
+            &nbsp;
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="todo"><img wicket:id="todoIcon" alt="TODO" width="80" height="80" /><br />
+              <wicket:message key="todo"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="schema"><img wicket:id="schemaIcon" alt="Schema" width="80" height="80" /><br />
+              <wicket:message key="schema"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="users"><img wicket:id="usersIcon" alt="Users" width="80" height="80" /><br />
+              <wicket:message key="users"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="roles"><img wicket:id="rolesIcon" alt="Roles" width="80" height="80" /><br />
+              <wicket:message key="roles"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="resources"><img wicket:id="resourcesIcon" alt="Resources" width="80" height="80" /><br />
+              <wicket:message key="resources"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="tasks"><img wicket:id="tasksIcon" alt="Tasks" width="80" height="80" /><br />
+              <wicket:message key="tasks"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="reports"><img wicket:id="reportsIcon" alt="Reports" width="80" height="80" /><br />
+              <wicket:message key="reports"/>
+            </a>
+          </span>
+        </li>
+        <li><span>
+            <a href="#" wicket:id="configuration"><img wicket:id="configurationIcon" alt="Configuration" width="80" height="80" /><br />
+              <wicket:message key="configuration"/>
+            </a></span>
+        </li>
+        <li style="float:right;width:auto;text-align:right;">
+          <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /></a>
+          <div>
+            <span id="username" wicket:id="username" style="padding-right: 9px;cursor: pointer;"/>
+            <span wicket:id="editProfile"/>
 
-                        <wicket:fragment wicket:id="adminEmptyFrag"/>
-                        <wicket:fragment wicket:id="editProfileFrag">
-                            <br/>
-                            <span id="editProfile" wicket:id="editProfile" 
-                                  style="cursor: pointer;background-color: #446633;padding-left: 9px;padding-right: 9px;"/>
-                        </wicket:fragment>
-                    </div>
-                </li>
-            </ul>
-            <div wicket:id="editProfileModal" ></div>
-        </div>
+            <wicket:fragment wicket:id="adminEmptyFrag"/>
+            <wicket:fragment wicket:id="editProfileFrag">
+              <br/>
+              <span id="editProfile" wicket:id="editProfile" 
+                    style="cursor: pointer;background-color: #446633;padding-left: 9px;padding-right: 9px;"/>
+            </wicket:fragment>
+          </div>
+        </li>
+      </ul>
+      <div wicket:id="editProfileModal" ></div>
+    </div>
 
-        <div wicket:id="feedback"/>
+    <div wicket:id="feedback"/>
 
-        <wicket:child />
+    <wicket:child />
 
-        <div id="veil" style="display:none;position:absolute;top:0;left:0;z-index:99999;background-color:black;width:100%;height:20000px;color:white;opacity:0.3;filter:alpha(opacity=30);">
-            <img src="img/busy.gif" style="position:absolute;top:300px;left:50%;margin-left:-75px;width:150px;"/>
-        </div>
-    </body>
+    <div id="veil" style="display:none;position:absolute;top:0;left:0;z-index:99999;background-color:black;width:100%;height:20000px;color:white;opacity:0.3;filter:alpha(opacity=30);">
+      <img src="img/busy.gif" style="position:absolute;top:300px;left:50%;margin-left:-75px;width:150px;"/>
+    </div>
+  </body>
 </html>

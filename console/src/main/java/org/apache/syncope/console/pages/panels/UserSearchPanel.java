@@ -37,11 +37,12 @@ import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.types.AttributableType;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -72,9 +73,9 @@ public class UserSearchPanel extends Panel {
      */
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchPanel.class);
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.
-            asList(new String[]{"attributes", "derivedAttributes",
-                "virtualAttributes", "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
+                "attributes", "derivedAttributes", "virtualAttributes",
+                "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -182,17 +183,22 @@ public class UserSearchPanel extends Panel {
 
     final List<SearchCondWrapper> searchConditionList;
 
-    public UserSearchPanel(final String id) {
-        this(id, null, true);
+    final PageReference pageRef;
+
+    public UserSearchPanel(final String id, final PageReference pageRef) {
+        this(id, null, true, pageRef);
     }
 
-    public UserSearchPanel(final String id, final NodeCond initCond) {
-        this(id, initCond, true);
+    public UserSearchPanel(final String id, final NodeCond initCond, final PageReference pageRef) {
+        this(id, initCond, true, pageRef);
     }
 
-    public UserSearchPanel(final String id, final NodeCond initNodeCond, final boolean required) {
+    public UserSearchPanel(final String id, final NodeCond initNodeCond, final boolean required,
+            final PageReference pageRef) {
+
         super(id);
         this.required = required;
+        this.pageRef = pageRef;
 
         setOutputMarkupId(true);
 
@@ -230,13 +236,13 @@ public class UserSearchPanel extends Panel {
         }
         searchFormContainer.add(new SearchView("searchView", searchConditionList, searchFormContainer));
 
-        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton", new ResourceModel("addAndButton")) {
+        AjaxButton addAndButton = new ClearIndicatingAjaxButton("addAndButton", new ResourceModel("addAndButton"),
+                pageRef) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 SearchCondWrapper conditionWrapper = new SearchCondWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
                 searchConditionList.add(conditionWrapper);
@@ -251,12 +257,13 @@ public class UserSearchPanel extends Panel {
         addAndButton.setDefaultFormProcessing(false);
         searchFormContainer.add(addAndButton);
 
-        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton", new ResourceModel("addOrButton")) {
+        AjaxButton addOrButton = new ClearIndicatingAjaxButton("addOrButton", new ResourceModel("addOrButton"),
+                pageRef) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 SearchCondWrapper conditionWrapper = new SearchCondWrapper();
                 conditionWrapper.setOperationType(OperationType.OR);
                 searchConditionList.add(conditionWrapper);
@@ -522,12 +529,13 @@ public class UserSearchPanel extends Panel {
             filterTypeChooser.setRequired(required);
             item.add(filterTypeChooser);
 
-            AjaxButton dropButton = new IndicatingAjaxButton("dropButton", new ResourceModel("dropButton")) {
+            AjaxButton dropButton = new ClearIndicatingAjaxButton("dropButton", new ResourceModel("dropButton"),
+                    pageRef) {
 
                 private static final long serialVersionUID = -4804368561204623354L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                     getList().remove(Integer.valueOf(getParent().getId()).intValue());
                     target.add(searchFormContainer);
                 }

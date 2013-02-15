@@ -25,12 +25,21 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.client.AbstractBaseBean;
+import org.apache.syncope.client.to.SchemaTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.types.AttributableType;
+import org.apache.syncope.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -42,15 +51,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
-import org.apache.syncope.client.AbstractBaseBean;
-import org.apache.syncope.client.to.SchemaTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.types.AttributableType;
-import org.apache.syncope.types.SchemaType;
 
 /**
  * Modal window with Schema form.
@@ -64,7 +64,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
     }
 
     @Override
-    public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+    public void setSchemaModalPage(final PageReference pageRef, final ModalWindow window,
             AbstractBaseBean schemaTO, final boolean createFlag) {
         final SchemaTO schema;
         if (schemaTO != null && schemaTO instanceof SchemaTO) {
@@ -203,13 +203,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
                 schemaTO.setEnumerationValues(getEnumValuesAsString(enumerationValues.getView().getModelObject()));
@@ -227,8 +226,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     } else {
                         restClient.updateSchema(kind, schemaTO);
                     }
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -240,7 +239,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };

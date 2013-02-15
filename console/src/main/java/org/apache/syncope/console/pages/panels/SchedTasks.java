@@ -20,14 +20,26 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.syncope.client.to.SchedTaskTO;
+import org.apache.syncope.client.to.TaskTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.SchedTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -44,19 +56,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.SchedTaskTO;
-import org.apache.syncope.client.to.TaskTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.SchedTaskModalPage;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 
 public class SchedTasks extends Panel {
 
@@ -85,7 +84,7 @@ public class SchedTasks extends Panel {
 
     private AjaxFallbackDefaultDataTable<TaskTO> table;
 
-    public SchedTasks(final String id, final PageReference callerPageRef) {
+    public SchedTasks(final String id, final PageReference pageRef) {
 
         super(id);
 
@@ -100,7 +99,7 @@ public class SchedTasks extends Panel {
         window.setCookieName("view-task-win");
         add(window);
 
-        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(window, container);
+        ((Tasks) pageRef.getPage()).setWindowClosedCallback(window, container);
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
@@ -131,7 +130,7 @@ public class SchedTasks extends Panel {
 
                 final SchedTaskTO taskTO = (SchedTaskTO) model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -139,14 +138,13 @@ public class SchedTasks extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new SchedTaskModalPage(window, taskTO, callerPageRef);
+                                return new SchedTaskModalPage(window, taskTO, pageRef);
                             }
                         });
 
@@ -246,19 +244,19 @@ public class SchedTasks extends Panel {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new SchedTaskModalPage(window, new SchedTaskTO(), callerPageRef);
+                        return new SchedTaskModalPage(window, new SchedTaskTO(), pageRef);
                     }
                 });
 

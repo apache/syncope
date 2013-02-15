@@ -32,6 +32,7 @@ import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.CrontabContainer;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -45,8 +46,8 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -105,7 +106,7 @@ public class ReportModalPage extends BaseModalPage {
 
     private String modalReportletConfOldName;
 
-    public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
+    public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference pageRef) {
         this.reportTO = reportTO;
 
         form = new Form<ReportTO>("form");
@@ -119,12 +120,12 @@ public class ReportModalPage extends BaseModalPage {
                 "cronExpression"), reportTO.getCronExpression());
         form.add(crontab);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 ReportTO reportTO = (ReportTO) form.getModelObject();
                 reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
                         ? crontab.getCronExpression()
@@ -137,7 +138,7 @@ public class ReportModalPage extends BaseModalPage {
                         restClient.create(reportTO);
                     }
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
@@ -281,7 +282,7 @@ public class ReportModalPage extends BaseModalPage {
         reportlets.setAddLink(new AjaxLink(ADD_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
-            
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
@@ -395,7 +396,8 @@ public class ReportModalPage extends BaseModalPage {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel =
+                        new ActionLinksPanel(componentId, model, ReportModalPage.this.getPageReference());
 
                 panel.add(new ActionLink() {
 

@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.client.to.ConfigurationTO;
+import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.rest.ConfigurationRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.syncope.client.to.ConfigurationTO;
-import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.rest.ConfigurationRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Connector form.
@@ -49,12 +49,12 @@ public class ConfigurationModalPage extends BaseModalPage {
     /**
      * ConfigurationModalPage constructor.
      *
-     * @param callPageRef base
+     * @param pageRef base
      * @param window
      * @param configurationTO
      * @param createFlag true for CREATE and false for UPDATE operation
      */
-    public ConfigurationModalPage(final PageReference callPageRef, final ModalWindow window,
+    public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
         Form form = new Form("form", new CompoundPropertyModel(configurationTO));
@@ -69,12 +69,12 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(value);
         value.addRequiredLabel();
 
-        submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        submit = new ClearIndicatingAjaxButton("apply", new Model<String>(getString("submit")), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     if (createFlag) {
                         configurationsRestClient.createConfiguration(configurationTO);
@@ -82,7 +82,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                         configurationsRestClient.updateConfiguration(configurationTO);
                     }
 
-                    Configuration callerPage = (Configuration) callPageRef.getPage();
+                    Configuration callerPage = (Configuration) pageRef.getPage();
                     callerPage.setModalResult(true);
 
                     window.close(target);

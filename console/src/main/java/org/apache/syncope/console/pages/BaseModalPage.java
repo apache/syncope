@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.console.commons.XMLRolesReader;
 
 /**
  * Syncope Modal Window.

@@ -35,6 +35,7 @@ import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.UserAttrColumn;
@@ -51,7 +52,6 @@ import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -187,12 +187,12 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private final BasePage page;
 
     public <T extends AbstractAttributableTO> ResultSetPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef) {
+            final NodeCond searchCond, final PageReference pageRef) {
         super(id);
 
         setOutputMarkupId(true);
 
-        page = (BasePage) callerRef.getPage();
+        page = (BasePage) pageRef.getPage();
 
         this.filtered = filtered;
         this.filter = searchCond;
@@ -232,13 +232,12 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // ---------------------------
         // Link to select schemas/columns to be shown
         // ---------------------------
-        final AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+        final AjaxLink displayAttrs = new ClearIndicatingAjaxLink("displayAttrsLink", page.getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
@@ -255,7 +254,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         // Add class to specify relative position of the link.
         // Position depends on result pages number.
-        displayAttrsLink.add(new Behavior() {
+        displayAttrs.add(new Behavior() {
 
             private static final long serialVersionUID = 1469628524240283489L;
 
@@ -273,9 +272,9 @@ public class ResultSetPanel extends Panel implements IEventSource {
         });
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+                displayAttrs, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
 
-        container.add(displayAttrsLink);
+        container.add(displayAttrs);
         // ---------------------------
 
         // ---------------------------
@@ -390,7 +389,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
             public void populateItem(final Item<ICellPopulator<UserTO>> cellItem, final String componentId,
                     final IModel<UserTO> model) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
 
                 panel.add(new ActionLink() {
 

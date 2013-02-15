@@ -28,10 +28,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.client.to.UserTO;
+import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -53,8 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.apache.syncope.console.SyncopeSession;
-import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 
 /**
  * Syncope Login page.
@@ -117,7 +117,8 @@ public class Login extends WebPage {
                 } catch (HttpClientErrorException e) {
                     error(getString("login-error"));
 
-                    PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
+                    PreemptiveAuthHttpRequestFactory requestFactory =
+                            ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
                             get().getRestTemplate().getRequestFactory());
 
                     ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
@@ -143,12 +144,12 @@ public class Login extends WebPage {
         if (isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            final AjaxLink selfRegLink = new IndicatingAjaxLink("link") {
+            final AjaxLink selfRegLink = new ClearIndicatingAjaxLink("link", getPageReference()) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                protected void onClickInternal(final AjaxRequestTarget target) {
                     editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                         private static final long serialVersionUID = -7834632442532690940L;

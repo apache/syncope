@@ -19,20 +19,13 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.AccountPolicyTO;
 import org.apache.syncope.client.to.PasswordPolicyTO;
 import org.apache.syncope.client.to.PolicyTO;
 import org.apache.syncope.client.to.SyncPolicyTO;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.types.AbstractPolicySpec;
@@ -40,6 +33,15 @@ import org.apache.syncope.types.AccountPolicySpec;
 import org.apache.syncope.types.PasswordPolicySpec;
 import org.apache.syncope.types.PolicyType;
 import org.apache.syncope.types.SyncPolicySpec;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Resource form.
@@ -47,11 +49,11 @@ import org.apache.syncope.types.SyncPolicySpec;
 public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
     private static final long serialVersionUID = -7325772767481076679L;
+
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    public PolicyModalPage(final ModalWindow window, final T policyTO) {
-
+    public PolicyModalPage(final ModalWindow window, final T policyTO, final PageReference pageRef) {
         super();
 
         final Form form = new Form("form");
@@ -100,13 +102,12 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(new PolicyBeanPanel("panel", policy));
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 setPolicySpecification(policyTO, policy);
 
                 try {
@@ -127,7 +128,6 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(getPage().get("feedback"));
             }
         };
@@ -169,24 +169,27 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                if (!(specification instanceof AccountPolicySpec))  {
-                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().getName());
+                if (!(specification instanceof AccountPolicySpec)) {
+                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().
+                            getName());
                 }
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) specification);
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                if (!(specification instanceof PasswordPolicySpec))  {
-                    throw new ClassCastException("policy is type Password, but spec is not: " + specification.getClass().getName());
+                if (!(specification instanceof PasswordPolicySpec)) {
+                    throw new ClassCastException("policy is type Password, but spec is not: "
+                            + specification.getClass().getName());
                 }
                 ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) specification);
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                if (!(specification instanceof SyncPolicySpec))  {
-                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().getName());
+                if (!(specification instanceof SyncPolicySpec)) {
+                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().
+                            getName());
                 }
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) specification);
 

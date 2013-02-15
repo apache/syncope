@@ -21,17 +21,18 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.client.to.DerivedSchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Schema form.
@@ -45,7 +46,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
     }
 
     @Override
-    public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+    public void setSchemaModalPage(final PageReference pageRef, final ModalWindow window,
             AbstractBaseBean schema, final boolean createFlag) {
 
         if (schema == null) {
@@ -66,13 +67,12 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
         name.setEnabled(createFlag);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
                 DerivedSchemaTO schemaTO = (DerivedSchemaTO) form.getDefaultModelObject();
 
                 try {
@@ -81,8 +81,8 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                     } else {
                         restClient.updateDerivedSchema(kind, schemaTO);
                     }
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -94,7 +94,6 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
