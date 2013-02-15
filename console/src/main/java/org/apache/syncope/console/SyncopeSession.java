@@ -34,6 +34,7 @@ import org.apache.syncope.client.services.proxy.SpringServiceProxy;
 import org.apache.syncope.client.services.proxy.TaskServiceProxy;
 import org.apache.syncope.client.services.proxy.UserRequestServiceProxy;
 import org.apache.syncope.client.services.proxy.UserServiceProxy;
+import org.apache.syncope.client.services.proxy.UserWorkflowServiceProxy;
 import org.apache.syncope.client.services.proxy.WorkflowServiceProxy;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.ConnectorService;
@@ -48,6 +49,7 @@ import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.Session;
@@ -108,6 +110,7 @@ public class SyncopeSession extends WebSession {
         services.put(TaskService.class, new TaskServiceProxy(baseURL, restTemplate));
         services.put(UserRequestService.class, new UserRequestServiceProxy(baseURL, restTemplate));
         services.put(UserService.class, new UserServiceProxy(baseURL, restTemplate));
+        services.put(UserWorkflowService.class, new UserWorkflowServiceProxy(baseURL, restTemplate));
         services.put(WorkflowService.class, new WorkflowServiceProxy(baseURL, restTemplate));
     }
 
